@@ -74,7 +74,6 @@ void FormatConverter::dump8BitTrees(string path, string colourMapKey)
 
 void FormatConverter::dumpWorldNormal(string path)
 {
-
 	auto height = Data::getInstance().height;
 	auto width = Data::getInstance().width;
 	Bitmap normalMap(width, height, 24);
@@ -101,7 +100,7 @@ void FormatConverter::dumpDDSFiles(string path)
 		auto tempPath = path;
 		tempPath += to_string(counter);
 		tempPath += ".dds";
-		wstring destination = wstring(path.begin(), path.end());
+		wstring destination = wstring(tempPath.begin(), tempPath.end());
 		Image image;
 		image.width = Data::getInstance().width / factor;
 		image.height = Data::getInstance().height / factor;
