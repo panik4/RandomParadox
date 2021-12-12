@@ -1,13 +1,6 @@
 #include "ResourceLoader.h"
 
-
-
-
 ResourceLoader::ResourceLoader()
-{
-}
-
-ResourceLoader::ResourceLoader(bool genHoi4, std::string hoi4Path) : genHoi4{genHoi4}, hoi4Path{hoi4Path}
 {
 }
 
@@ -15,23 +8,22 @@ ResourceLoader::~ResourceLoader()
 {
 }
 
-Bitmap ResourceLoader::loadProvinceMap()
+Bitmap ResourceLoader::loadProvinceMap(std::string gamePath)
 {
-	return Bitmap::Load24bitBMP((hoi4Path + ("\\map\\provinces.bmp")).c_str(), "provinces");
+	return Bitmap::Load24bitBMP((gamePath + ("\\map\\provinces.bmp")).c_str(), "provinces");
 }
 
-Bitmap ResourceLoader::loadHeightMap()
+Bitmap ResourceLoader::loadHeightMap(std::string gamePath)
 {
-	return Bitmap::Load8bitBMP((hoi4Path + ("\\map\\heightmap.bmp")).c_str(), "heightmap");
+	return Bitmap::Load8bitBMP((gamePath + ("\\map\\heightmap.bmp")).c_str(), "heightmap");
 }
 
-vector<std::string> ResourceLoader::loadStates()
+vector<std::string> ResourceLoader::loadStates(std::string gamePath)
 {
-	return ParserUtils::readFilesInDirectory(hoi4Path + "\\history\\states\\");
+	return ParserUtils::readFilesInDirectory(gamePath + "\\history\\states\\");
 }
 
-
-vector<std::string> ResourceLoader::loadDefinition()
+vector<std::string> ResourceLoader::loadDefinition(std::string gamePath)
 {
-	return ParserUtils::getLines(hoi4Path + "\\map\\definition.csv");
+	return ParserUtils::getLines(gamePath + "\\map\\definition.csv");
 }
