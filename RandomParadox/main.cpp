@@ -9,11 +9,16 @@ int main() {
 	string modPath = "pdoxMod\\";
 	string hoiPath = "D:\\Steam\\steamapps\\common\\Hearts of Iron IV\\";
 	bool useDefaultMap = true;
-	bool useDefaultStates = true;
-	bool useDefaultProvinces = true;
+	bool useDefaultStates = false;
+	bool useDefaultProvinces = false;
 
 	bool genHoi4 = true;
 
+	if (!Data::getInstance().getConfig("C:\\Users\\Paul\\Documents\\Visual Studio 2017\\Projects\\RandomParadox\\RandomParadox\\FastWorldGen\\config.json"))
+	{
+		system("pause");
+		return -1;
+	}
 	FastWorldGenerator f;
 	Hoi4Module hoi4Mod;
 	if (!useDefaultMap)
@@ -25,6 +30,6 @@ int main() {
 	{
 		hoi4Mod.genHoi(modPath, hoiPath, f, useDefaultMap, useDefaultStates, useDefaultProvinces, sG);
 	}
-
+	return 0;
 	
 }
