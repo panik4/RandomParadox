@@ -1,18 +1,18 @@
 #pragma once
-#include "FastWorldGen/FastWorldGen/FastWorldGenerator.h"
+#include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
 #include <experimental/filesystem>
+#include "../generic/Country.h"
+#include "../generic/ParserUtils.h"
+
 class Hoi4Parser
 {
+	typedef ParserUtils pU;
 public:
 	Hoi4Parser();
 	~Hoi4Parser();
+	vector<std::string> defaultTags;
 
 
-	void writeFile(std::string path, std::string content);
-	std::string readFile(std::string path);
-	std::string csvFormat(vector<std::string> arguments, char delimiter, bool trailing);
-	void replaceOccurences(std::string& content, std::string key, std::string value);
-	void replaceLine(std::string& content, std::string key, std::string value);
 	//void insertAtKeyAndReplace(std::string& content, std::string key, std::string value);
 
 	void dumpAdj(std::string path);
@@ -27,7 +27,7 @@ public:
 	void dumpAdjacencyRules(std::string path);
 	void dumpStrategicRegions(std::string path, vector<Region> regions);
 	void dumpSupplyAreas(std::string path, vector<Region> regions);
-	void dumpStates(std::string path, vector<Region> regions);
+	void dumpStates(std::string path, std::map<std::string, Country> countries);
 
 
 	void copyDefaultOverwrites(std::string pathToHoi4);
@@ -37,6 +37,7 @@ public:
 	void dumpCommonBookmark();
 
 
+	void readDefaultCountries(std::string path, std::string hoiPath);
 	void writeCompatibilityHistory(std::string path, std::string hoiPath, vector<Region> regions);
 	void writeHistory();
 	void dumpCommonCountries();
