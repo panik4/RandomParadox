@@ -4,8 +4,7 @@
 
 ScenarioGenerator::ScenarioGenerator(FastWorldGenerator& f) : f(f)
 {
-	string hoiPath = "D:\\Steam\\steamapps\\common\\Hearts of Iron IV\\";
-	rLoader = { true, hoiPath };
+	gamePaths["hoi4"] = "D:\\Steam\\steamapps\\common\\Hearts of Iron IV\\";
 }
 
 
@@ -15,41 +14,32 @@ ScenarioGenerator::~ScenarioGenerator()
 
 
 
-void ScenarioGenerator::loadStuff()
+void ScenarioGenerator::loadRequiredResources(std::string gamePath)
 {
-	bool loadDefaultHeight = true;
-	bool loadDefaultProvinces = true;
-	bool loadDefaultStates = true;
-
-	if (loadDefaultProvinces)
-	{
-		// don't change provinces, states, strategic regions, etc....
-		bitmaps["provinces"] = rLoader.loadProvinceMap();
-		bitmaps["heightmap"] = rLoader.loadHeightMap();
-		Data::getInstance().width = bitmaps["provinces"].bInfoHeader.biWidth;
-		Data::getInstance().height = bitmaps["provinces"].bInfoHeader.biHeight;
-		Data::getInstance().bitmapSize = Data::getInstance().width*Data::getInstance().height;
-		Data::getInstance().seaLevel = 94; //hardcoded for hoi4
-		Data::getInstance().debugMapsPath = "debugMaps//";
-		Data::getInstance().bufferBitmap("provinces", bitmaps["provinces"]);
-		calcRegions();
-	}
-	else {
-		//bitmaps["provinces"] = Data::getInstance().findBitmapByKey("provinces");
-	}
-
+	bitmaps["provinces"] = rLoader.loadProvinceMap(gamePath);
+	bitmaps["heightmap"] = rLoader.loadHeightMap(gamePath);
+	Data::getInstance().bufferBitmap("provinces", bitmaps["provinces"]);
 }
 
-void ScenarioGenerator::calcRegions()
+void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultProvinces)
 {
 	bool loadDefaultRegions = false;
+	
+	loadRequiredResources(gamePaths["hoi4"]);
+	Data::getInstance().width = bitmaps["provinces"].bInfoHeader.biWidth;
+	Data::getInstance().height = bitmaps["provinces"].bInfoHeader.biHeight;
+	Data::getInstance().bitmapSize = Data::getInstance().width*Data::getInstance().height;
+	Data::getInstance().seaLevel = 94; //hardcoded for hoi4
+	Data::getInstance().debugMapsPath = "debugMaps//";
+
+
 	// get province map
 	auto provinceMap = bitmaps["provinces"];
 	auto heightMap = bitmaps["heightmap"].get24BitRepresentation();
 	// write info to Data that is needed by FastWorldGenerator
 
 	// now get info on provinces: who neighbours who, who is coastal...
-	auto provinceDefinition = rLoader.loadDefinition();
+	auto provinceDefinition = rLoader.loadDefinition(gamePaths["hoi4"]);
 	provinceDefinition.erase(provinceDefinition.begin());
 	set<int> tokensToConvert{ 0,1,2,3,7 };
 	std::map<int, Province*> provinces;
@@ -83,7 +73,7 @@ void ScenarioGenerator::calcRegions()
 
 	if (loadDefaultRegions)
 	{
-		auto textRegions = rLoader.loadStates();
+		auto textRegions = rLoader.loadStates(gamePaths["hoi"]);
 		for (auto textRegion : textRegions)
 		{
 			Region R;
@@ -112,18 +102,11 @@ void ScenarioGenerator::calcRegions()
 		//tG.createTerrain(terrainBMP, heightMap);
 		//Bitmap::SaveBMPToFile(terrainBMP, (Data::getInstance().debugMapsPath + ("terrain.bmp")).c_str());
 		//tG.detectContinents(terrainBMP);
-
-
-		f.provinceGenerator.evaluateRegions(10);
-	}		
-	std::sort(f.provinceGenerator.regions.begin(), f.provinceGenerator.regions.end());
-	for (int i = 0; i < f.provinceGenerator.regions.size(); i++)
-	{
-		f.provinceGenerator.regions[i].ID = i;
-		for (auto& prov : f.provinceGenerator.regions[i].provinces)
-			prov->regionID = i;
+		f.provinceGenerator.evaluateRegions(6);
 	}
+
 	Visualizer::prettyRegions(f.provinceGenerator);
+	f.provinceGenerator.sortRegions();
 	f.provinceGenerator.evaluateRegionNeighbours();
 	Visualizer::provinceInfoMap3(provinceMap, f.provinceGenerator);
 	Visualizer::provinceInfoMap4(provinceMap, f.provinceGenerator);
@@ -170,7 +153,7 @@ void ScenarioGenerator::generateCountries()
 		auto startRegion(findStartRegion());
 		if (startRegion.assigned || startRegion.sea)
 			continue;
-		C.assignRegions(10, gameRegions, startRegion);
+		C.assignRegions(6, gameRegions, startRegion);
 		countryMap.emplace(tag, C);
 	}
 	for (auto& gameRegion : gameRegions)
