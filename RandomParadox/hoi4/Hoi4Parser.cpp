@@ -10,79 +10,13 @@ Hoi4Parser::Hoi4Parser()
 Hoi4Parser::~Hoi4Parser()
 {
 }
-
-void Hoi4Parser::writeFile(std::string path, std::string content)
-{
-	ofstream myfile;
-	myfile.open(path);
-	myfile << content;
-	myfile.close();
-}
-
-std::string Hoi4Parser::readFile(std::string path)
-{
-	std::string content;
-	std::string line;
-	ifstream myfile;
-	myfile.open(path);
-	while (getline(myfile, line))
-	{
-		content.append(line + "\n");
-	}
-	myfile.close();
-	return content;
-}
-
-std::string Hoi4Parser::csvFormat(vector<std::string> arguments, char delimiter, bool trailing)
-{
-	vector<string>::iterator arg;
-	std::string retString("");
-	for (arg = arguments.begin(); arg != arguments.end(); arg++)
-	{
-		retString.append(*arg);
-		if (!trailing && arguments.end() - arg == 1)
-		{
-			continue;
-		}
-		retString.append(string{ delimiter });
-
-	}
-	retString.append("\n");
-	return retString;
-}
-
-void Hoi4Parser::replaceOccurences(std::string& content, std::string key, std::string value)
-{
-	auto pos = 0;
-	do
-	{
-		pos = content.find(key);
-		if (pos != string::npos)
-		{
-			content.replace(pos, key.length(), value);
-		}
-	} while (pos != string::npos);
-}
-
-
-void Hoi4Parser::replaceLine(std::string& content, std::string key, std::string value)
-{
-	auto pos = 0;
-	pos = content.find(key);
-	if (pos != string::npos)
-	{
-		auto lineEnd = content.find("\n", pos);
-		content.replace(pos, lineEnd - pos, value);
-	}
-}
-
 void Hoi4Parser::dumpAdj(std::string path)
 {
 	// From;To;Type;Through;start_x;start_y;stop_x;stop_y;adjacency_rule_name;Comment
 	// empty file for now
 	std::string content;
 	content.append("From;To;Type;Through;start_x;start_y;stop_x;stop_y;adjacency_rule_name;Comment");
-	writeFile(path, content);
+	pU::writeFile(path, content);
 }
 
 void Hoi4Parser::dumpAirports(std::string path, vector<Region> regions)
@@ -98,7 +32,7 @@ void Hoi4Parser::dumpAirports(std::string path, vector<Region> regions)
 		content.append(to_string(region.provinces[0]->provID + 1));
 		content.append(" }\n");
 	}
-	writeFile(path, content);
+	pU::writeFile(path, content);
 }
 
 std::string Hoi4Parser::getBuildingLine(std::string type, Region& region, bool coastal)
@@ -121,12 +55,11 @@ std::string Hoi4Parser::getBuildingLine(std::string type, Region& region, bool c
 		pix = *select_random(prov->pixels);
 	}
 
-	auto widthPos = pix % Data::getInstance().width;
-	auto heightPos = pix / Data::getInstance().width;
-	std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string(0.5), to_string(heightPos), to_string(0.5), "0" };
-	return csvFormat(arguments, ';', false);
+	auto widthPos = (pix % Data::getInstance().width);
+	auto heightPos = /*Data::getInstance().height -*/ (pix / Data::getInstance().width);
+	std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string(9.5), to_string(heightPos), to_string((float)-1.57), "0" };
+	return pU::csvFormat(arguments, ';', false);
 }
-
 
 // places building positions
 void Hoi4Parser::dumpBuildings(std::string path, vector<Region> regions)
@@ -166,10 +99,10 @@ void Hoi4Parser::dumpBuildings(std::string path, vector<Region> regions)
 					if (!prov->isLake && !prov->sea)
 					{
 						auto pix = *select_random(prov->pixels);
-						auto widthPos = pix % Data::getInstance().width;
-						auto heightPos = pix / Data::getInstance().width;
-						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string(0.5), to_string(heightPos), to_string(0.5), "0" };
-						content.append(csvFormat(arguments, ';', false));
+						auto widthPos = (pix % Data::getInstance().width);
+						auto heightPos = /*Data::getInstance().height - */(pix / Data::getInstance().width);
+						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string(9.5), to_string(heightPos), to_string(0.5), "0" };
+						content.append(pU::csvFormat(arguments, ';', false));
 					}
 				}
 			}
@@ -187,10 +120,10 @@ void Hoi4Parser::dumpBuildings(std::string path, vector<Region> regions)
 					if (prov->coastal)
 					{
 						auto pix = *select_random(prov->coastalPixels);
-						auto widthPos = pix % Data::getInstance().width;
-						auto heightPos = pix / Data::getInstance().width;
-						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string(0.5), to_string(heightPos), to_string(0.5), "0" };
-						content.append(csvFormat(arguments, ';', false));
+						auto widthPos = (pix % Data::getInstance().width);
+						auto heightPos = /*Data::getInstance().height -*/ (pix / Data::getInstance().width);
+						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string(9.5), to_string(heightPos), to_string(0.5), "0" };
+						content.append(pU::csvFormat(arguments, ';', false));
 					}
 				}
 			}
@@ -206,10 +139,9 @@ void Hoi4Parser::dumpBuildings(std::string path, vector<Region> regions)
 					content.append(getBuildingLine(type, region, false));
 				}
 			}
-
 		}
 	}
-	writeFile(path, content);
+	pU::writeFile(path, content);
 }
 
 void Hoi4Parser::dumpContinents(std::string path, vector<Continent> continents)
@@ -223,7 +155,7 @@ void Hoi4Parser::dumpContinents(std::string path, vector<Continent> continents)
 		content.append("\n");
 	}
 	content.append("}\n");
-	writeFile(path, content);
+	pU::writeFile(path, content);
 }
 
 void Hoi4Parser::dumpDefinition(std::string path, vector<Province*> provinces)
@@ -239,9 +171,17 @@ void Hoi4Parser::dumpDefinition(std::string path, vector<Province*> provinces)
 	{
 		auto seaType = prov->sea ? "sea" : "land";
 		auto coastal = prov->coastal ? "true" : "false";
+		if (prov->sea)
+		{
+			for (auto prov2 : prov->adjProv)
+			{
+				if (!prov2->sea)
+					coastal = "true";
+			}
+		}
 		std::string terraintype;
 		if (prov->sea)
-			terraintype = "sea";
+			terraintype = "ocean";
 		else
 			terraintype = "plains";
 		if (prov->isLake)
@@ -254,11 +194,11 @@ void Hoi4Parser::dumpDefinition(std::string path, vector<Province*> provinces)
 			to_string(prov->colour.getGreen()),
 			to_string(prov->colour.getBlue()),
 			seaType, coastal, terraintype,
-			to_string(prov->sea ? 0 : prov->continentID + 1) // 0 is for sea, no continent
+			to_string(prov->sea || prov->isLake ? 0 : prov->continentID + 1) // 0 is for sea, no continent
 		};
-		content.append(csvFormat(arguments, ';', false));
+		content.append(pU::csvFormat(arguments, ';', false));
 	}
-	writeFile(path, content);
+	pU::writeFile(path, content);
 }
 
 void Hoi4Parser::dumpRocketSites(std::string path, vector<Region> regions)
@@ -274,7 +214,7 @@ void Hoi4Parser::dumpRocketSites(std::string path, vector<Region> regions)
 		content.append(to_string(region.provinces[0]->provID + 1));
 		content.append(" }\n");
 	}
-	writeFile(path, content);
+	pU::writeFile(path, content);
 }
 
 void Hoi4Parser::dumpUnitStacks(std::string path, vector<Province*> provinces)
@@ -282,25 +222,6 @@ void Hoi4Parser::dumpUnitStacks(std::string path, vector<Province*> provinces)
 	// 1;0;3359.00;9.50;1166.00;0.00;0.08
 	// provID, neighbour?, xPos, zPos yPos, rotation(3=north, 0=south, 1.5=east,4,5=west), ??
 	// provID, xPos, ~10, yPos, ~0, 0,5
-	std::cout << atan2(-4, 0) << std::endl;;
-	std::cout << getAngleB(768, 256, 512) << std::endl;;
-	std::cout << atan2(2, 0) << std::endl;;
-	std::cout << getAngleB(256, 768, 512) << std::endl;;
-	std::cout << atan2(0, 2) << std::endl;;
-	std::cout << getAngleB(256, 511, 512) << std::endl;;
-	std::cout << atan2(0, -2) << std::endl;;
-	std::cout << getAngleB(256, 512, 512) << std::endl;;
-	std::cout << atan2(-2, -2) << std::endl;;
-	std::cout << getAngleB(768, 255, 512) << std::endl;;
-	//std::cout << atan2(2, 2) << std::endl;;
-	std::cout << atan2(-2, 2) << std::endl;;
-	std::cout << getAngleB(768, 257, 512) << std::endl;;
-	//std::cout << atan2(2, -2) << std::endl;;
-
-
-	//std::cout << getAngleB(256, 1024, 512) << std::endl;;
-	//std::cout << getAngleB(256, 0, 512) << std::endl;;
-	//std::cout << getAngleB(256, 511, 512) << std::endl;;
 	// for each neighbour add move state in the direction of the neighbour. 0 might be stand still
 	std::string content{ "" };
 	for (auto prov : provinces)
@@ -310,22 +231,20 @@ void Hoi4Parser::dumpUnitStacks(std::string path, vector<Province*> provinces)
 		auto widthPos = pix % Data::getInstance().width;
 		auto heightPos = pix / Data::getInstance().width;
 		std::vector<std::string> arguments{ to_string(prov->provID + 1), to_string(position), to_string(widthPos), to_string(1), to_string(heightPos), to_string(0.0), "0.0" };
-		content.append(csvFormat(arguments, ';', false));
+		content.append(pU::csvFormat(arguments, ';', false));
 		for (auto neighbour : prov->adjProv)
 		{
 			position++;
 			double angle;
 			auto nextPos = prov->getPositionBetweenProvinces(*neighbour, Data::getInstance().width, angle);
 			angle += 1.57;
-			//auto angle = 1.57 + getAngleB(pix, nextPos, Data::getInstance().width);
-			//std::cout << angle << std::endl;
 			auto widthPos = nextPos % Data::getInstance().width;
 			auto heightPos = nextPos / Data::getInstance().width;
 			std::vector<std::string> arguments{ to_string(prov->provID + 1), to_string(position), to_string(widthPos), to_string(15), to_string(heightPos), to_string(angle), "0.0" };
-			content.append(csvFormat(arguments, ';', false));
+			content.append(pU::csvFormat(arguments, ';', false));
 		}
 	}
-	writeFile(path, content);
+	pU::writeFile(path, content);
 }
 
 void Hoi4Parser::dumpWeatherPositions(std::string path, vector<Region> regions)
@@ -342,22 +261,22 @@ void Hoi4Parser::dumpWeatherPositions(std::string path, vector<Region> regions)
 		auto widthPos = pix % Data::getInstance().width;
 		auto heightPos = pix / Data::getInstance().width;
 		std::vector<std::string> arguments{ to_string(region.ID + 1), to_string(widthPos), to_string(9.90), to_string(heightPos), "small" };
-		content.append(csvFormat(arguments, ';', false));
+		content.append(pU::csvFormat(arguments, ';', false));
 	}
-	writeFile(path, content);
+	pU::writeFile(path, content);
 }
 
 void Hoi4Parser::dumpAdjacencyRules(std::string path)
 {
 	std::string content{ "" };
 	// empty for now
-	writeFile(path, content);
+	pU::writeFile(path, content);
 }
 
 // awful, just awful
 void Hoi4Parser::dumpStrategicRegions(std::string path, vector<Region> regions)
 {
-	auto templateContent = readFile("resources\\hoi4\\strategic_region.txt");
+	auto templateContent = pU::readFile("resources\\hoi4\\strategic_region.txt");
 
 	for (auto region : regions)
 	{
@@ -370,44 +289,68 @@ void Hoi4Parser::dumpStrategicRegions(std::string path, vector<Region> regions)
 			provString.append(" ");
 		}
 		auto content = templateContent;
-		replaceOccurences(content, "templateID", to_string(region.ID + 1));
-		replaceOccurences(content, "template_provinces", provString);
-		writeFile(path + "\\" + to_string(region.ID + 1) + ".txt", content);
+		pU::replaceOccurences(content, "templateID", to_string(region.ID + 1));
+		pU::replaceOccurences(content, "template_provinces", provString);
+		pU::writeFile(path + "\\" + to_string(region.ID + 1) + ".txt", content);
 	}
 }
 
 void Hoi4Parser::dumpSupplyAreas(std::string path, vector<Region> regions)
 {
-	auto templateContent = readFile("resources\\hoi4\\SupplyArea.txt");
-	for (auto region : regions)
-	{
-		auto content = templateContent;
-		replaceOccurences(content, "templateID", to_string(region.ID + 1));
-		replaceOccurences(content, "templateState", to_string(region.ID + 1));
-		writeFile(path + "\\" + to_string(region.ID + 1) + "-SupplyArea.txt", content);
-	}
-}
-
-void Hoi4Parser::dumpStates(std::string path, vector<Region> regions)
-{
-	auto templateContent = readFile("resources\\hoi4\\state.txt");
+	auto templateContent = pU::readFile("resources\\hoi4\\SupplyArea.txt");
 	for (auto region : regions)
 	{
 		if (region.sea)
 			continue;
-		sort(region.provinces.begin(), region.provinces.end());
-		region.provinces.erase(unique(region.provinces.begin(), region.provinces.end()), region.provinces.end());
-		std::string provString{ "" };
-		for (auto prov : region.provinces)
-		{
-			provString.append(to_string(prov->provID + 1));
-			provString.append(" ");
-		}
 		auto content = templateContent;
-		replaceOccurences(content, "templateID", to_string(region.ID + 1));
-		replaceOccurences(content, "template_provinces", provString);
-		writeFile(path + "\\" + to_string(region.ID + 1) + ".txt", content);
+		pU::replaceOccurences(content, "templateID", to_string(region.ID + 1));
+		pU::replaceOccurences(content, "templateState", to_string(region.ID + 1));
+		pU::writeFile(path + "\\" + to_string(region.ID + 1) + "-SupplyArea.txt", content);
 	}
+}
+
+void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country> countries)
+{
+	auto templateContent = pU::readFile("resources\\hoi4\\state.txt");
+	for (auto country : countries)
+	{
+		for (auto region : country.second.ownedRegions)
+		{
+			auto baseRegion = region.baseRegion;
+			if (baseRegion.sea)
+				continue;
+			sort(baseRegion.provinces.begin(), baseRegion.provinces.end());
+			baseRegion.provinces.erase(unique(baseRegion.provinces.begin(), baseRegion.provinces.end()), baseRegion.provinces.end());
+			std::string provString{ "" };
+			for (auto prov : baseRegion.provinces)
+			{
+				provString.append(to_string(prov->provID + 1));
+				provString.append(" ");
+			}
+			auto content = templateContent;
+			pU::replaceOccurences(content, "templateID", to_string(baseRegion.ID + 1));
+			pU::replaceOccurences(content, "template_provinces", provString);
+			pU::replaceOccurences(content, "templateOwner", "BRA"/*country.first*/);
+			pU::writeFile(path + "\\" + to_string(baseRegion.ID + 1) + ".txt", content);
+		}
+	}
+	//for (auto region : regions)
+	//{
+	//	if (region.sea)
+	//		continue;
+	//	sort(region.provinces.begin(), region.provinces.end());
+	//	region.provinces.erase(unique(region.provinces.begin(), region.provinces.end()), region.provinces.end());
+	//	std::string provString{ "" };
+	//	for (auto prov : region.provinces)
+	//	{
+	//		provString.append(to_string(prov->provID + 1));
+	//		provString.append(" ");
+	//	}
+	//	auto content = templateContent;
+	//	replaceOccurences(content, "templateID", to_string(region.ID + 1));
+	//	replaceOccurences(content, "template_provinces", provString);
+	//	writeFile(path + "\\" + to_string(region.ID + 1) + ".txt", content);
+	//}
 }
 // copy relevant default text files from Hoi4 sources
 void Hoi4Parser::copyDefaultOverwrites(std::string pathToHoi4)
@@ -423,6 +366,18 @@ void Hoi4Parser::copyDefaultOverwrites(std::string pathToHoi4)
 	// ....
 }
 
+void Hoi4Parser::readDefaultCountries(std::string path, std::string hoiPath)
+{
+	//const std::experimental::filesystem::path hoiDir{ hoiPath + "\\common\\country_tags\\00_countries.txt"};
+	auto lines  = pU::getLines(hoiPath + "\\common\\country_tags\\00_countries.txt");
+	for (auto line : lines)
+	{
+		auto tag = line.substr(0, 3);
+		std::cout << tag << std::endl;
+		defaultTags.push_back(tag);
+	}
+}
+
 void Hoi4Parser::writeCompatibilityHistory(std::string path, std::string hoiPath, vector<Region> regions)
 {
 	vector<int> ids;
@@ -436,7 +391,6 @@ void Hoi4Parser::writeCompatibilityHistory(std::string path, std::string hoiPath
 	auto random = Data::getInstance().random2;
 	for (auto const& dir_entry : std::experimental::filesystem::directory_iterator{ hoiDir })
 	{
-		//auto content = readFile(dir_entry.path.);
 		std::stringstream pathStream;
 		pathStream << dir_entry.path();
 		std::string pathString;
@@ -444,10 +398,8 @@ void Hoi4Parser::writeCompatibilityHistory(std::string path, std::string hoiPath
 		std::cout << pathString << '\n';
 		std::string filename = pathString.substr(pathString.find_last_of("\\") + 1, pathString.back() - pathString.find_last_of("\\"));
 		std::cout << filename << '\n';
-		auto content = readFile(pathString);
-		if (content.find("SOV") != -1)
-			cout << "SA";
-		replaceLine(content, "capital =", "capital = " + to_string(ids[random() % ids.size()]));
-		writeFile(path + filename, content);
+		auto content = pU::readFile(pathString);
+		pU::replaceLine(content, "capital =", "capital = " + to_string(1+ids[random() % ids.size()]));
+		pU::writeFile(path + filename, content);
 	}
 }

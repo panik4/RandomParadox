@@ -1,7 +1,7 @@
 #pragma once
-#include "Country.h"
-#include "FastWorldGen/FastWorldGen/FastWorldGenerator.h"
-#include "ScenarioGenerator.h"
+#include "../generic/Country.h"
+#include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
+#include "../generic/ScenarioGenerator.h"
 
 class Hoi4ScenarioGenerator
 {

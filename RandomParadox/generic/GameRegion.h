@@ -1,5 +1,5 @@
 #pragma once
-#include "FastWorldGen/FastWorldGen/FastWorldGenerator.h"
+#include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
 class GameRegion
 {
 	vector<std::string> cores;

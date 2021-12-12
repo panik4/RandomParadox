@@ -25,7 +25,7 @@ void Country::assignRegions(int maxRegions, vector<GameRegion>& gameRegions, Gam
 			if (ownedRegions.size() >= maxRegions)
 				break;
 			if (gameRegion.neighbours.size() == 0)
-				break;
+				continue;
 			auto nextRegion = *select_random(gameRegion.neighbours);
 			if (!gameRegions[nextRegion].assigned && !gameRegions[nextRegion].sea)
 			{
