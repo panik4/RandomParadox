@@ -76,14 +76,22 @@ void FormatConverter::dumpWorldNormal(string path)
 {
 	auto height = Data::getInstance().height;
 	auto width = Data::getInstance().width;
-	Bitmap normalMap(width, height, 24);
+	Bitmap normalMap(width/2, height/2, 24);
 	auto heightBMP = Data::getInstance().findBitmapByKey("heightmap");
 
 	//for (int i = 0; i < Data::getInstance().bitmapSize; i++)
 	//{
 	//	normalMap.setColourAtIndex(i, Colour(1,100,1));
 	//}
-	normalMap.setBuffer(heightBMP.sobelFilter());
+	auto sobelMap = heightBMP.sobelFilter();
+	for (auto i = 0; i < normalMap.bInfoHeader.biHeight;i++)
+	{
+		for (auto w = 0; w < normalMap.bInfoHeader.biWidth;w++)
+		{
+			normalMap.setColourAtIndex(i*normalMap.bInfoHeader.biWidth + w, sobelMap[i*width + w]);
+		}
+	}
+	//normalMap.setBuffer(h);
 	Bitmap::SaveBMPToFile(normalMap, (path).c_str());
 
 }
@@ -91,11 +99,20 @@ void FormatConverter::dumpWorldNormal(string path)
 void FormatConverter::dumpDDSFiles(string path)
 {
 	using namespace DirectX;
+	ScratchImage img;
+	wstring source = L"resources\\hoi4\\terrain\\colormap_water_0.dds";
+	LoadFromDDSFile(source.c_str(), DDS_FLAGS_NONE, NULL, img);
+	std::cout << img.GetPixelsSize()<<std::endl;
+	auto pixe = img.GetPixels();
+	for (int i = 0; i < img.GetPixelsSize(); i+=4)
+	{
+		//std::cout << (int)pixe[i] << ";" <<  (int)pixe[i + 1] << ";" << (int)pixe[i + 2] << ";" << (int)pixe[i + 3] << std::endl;;
 
+	}
 	auto riverBMP = Data::getInstance().findBitmapByKey("rivers");
 	auto heightBMP = Data::getInstance().findBitmapByKey("heightmap");
 
-	for (int factor = 1, counter = 0; factor <= 4; factor *= 2, counter++)
+	for (int factor = 2, counter = 0; factor <= 8; factor *= 2, counter++)
 	{
 		auto tempPath = path;
 		tempPath += to_string(counter);
@@ -104,34 +121,41 @@ void FormatConverter::dumpDDSFiles(string path)
 		Image image;
 		image.width = Data::getInstance().width / factor;
 		image.height = Data::getInstance().height / factor;
-		image.format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		image.format = DXGI_FORMAT_BC3_UNORM;
+		//	image.format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		std::cout << sizeof(uint8_t) * image.width * 4 << std::endl;;
 		image.rowPitch = sizeof(uint8_t) * image.width * 4;
-		image.slicePitch = sizeof(uint8_t) * image.width * image.height * 4;
-		vector<uint8_t> pixels(image.width*image.height * 4, 0);
-		auto vectorSize = image.width * image.height * 4;
+		std::cout << image.rowPitch << std::endl;;
+		image.slicePitch = sizeof(uint8_t) * image.width * image.height;
+		vector<uint8_t> pixels(image.width*image.height, 0);
+		auto vectorSize = image.width * image.height;
 		cout << vectorSize << endl;
-		for (int i = 0; i < image.width * image.height; i++)
+		for (int i = 0; i < image.width * image.height; i+=4)
 		{
-			uint32_t width = i % image.width;
-			uint32_t height = i / image.width;
-			auto refIndex = height*image.width*factor*factor + width*factor;
-			double depth = (double)heightBMP.getColourAtIndex(refIndex).getBlue() / (double)Data::getInstance().seaLevel;
-			auto index = ((image.height - 1 - height)*image.width + width) * 4;
+			//uint32_t width = i % image.width;
+			//uint32_t height = i / image.width;
+			//auto refIndex = height*image.width*factor*factor + width*factor;
+			//double depth = (double)heightBMP.getColourAtIndex(refIndex).getBlue() / (double)Data::getInstance().seaLevel;
+			//auto index = ((image.height - 1 - height)*image.width + width) * 4;
 
-			if (riverBMP.getColourAtIndex(refIndex) == Data::getInstance().namedColours["sea"])
-			{
-				pixels[index] = 49 * depth;
-				pixels[index + 1] = 24 * depth;
-				pixels[index + 2] = 16 * depth;
-				pixels[index + 3] = 255;
-			}
-			else
-			{
-				pixels[index] = 100;
-				pixels[index + 1] = 100;
-				pixels[index + 2] = 50;
-				pixels[index + 3] = 255;
-			}
+			//if (riverBMP.getColourAtIndex(refIndex) == Data::getInstance().namedColours["sea"])
+			//{
+			//	pixels[index] = 49 * depth;
+			//	pixels[index + 1] = 24 * depth;
+			//	pixels[index + 2] = 16 * depth;
+			//	pixels[index + 3] = 255;
+			//}
+			//else
+			//{
+			//	pixels[index] = 100;
+			//	pixels[index + 1] = 100;
+			//	pixels[index + 2] = 50;
+			//	pixels[index + 3] = 255;
+			//}
+				pixels[i] = 128;
+				pixels[i + 1] = 100;
+				pixels[i + 2] = 50;
+				pixels[i + 3] = 255;
 		}
 		image.pixels = pixels.data();
 		SaveToDDSFile(image, DDS_FLAGS_NONE, destination.c_str());
