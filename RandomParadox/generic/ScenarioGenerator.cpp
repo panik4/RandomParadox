@@ -23,57 +23,90 @@ void ScenarioGenerator::loadRequiredResources(std::string gamePath)
 
 void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultProvinces)
 {
-	bool loadDefaultRegions = false;
-	
+
 	loadRequiredResources(gamePaths["hoi4"]);
-	Data::getInstance().width = bitmaps["provinces"].bInfoHeader.biWidth;
-	Data::getInstance().height = bitmaps["provinces"].bInfoHeader.biHeight;
+	auto heightMap = bitmaps["heightmap"].get24BitRepresentation();
+	Data::getInstance().bufferBitmap("heightmap", heightMap);
+	Data::getInstance().width = bitmaps["heightmap"].bInfoHeader.biWidth;
+	Data::getInstance().height = bitmaps["heightmap"].bInfoHeader.biHeight;
 	Data::getInstance().bitmapSize = Data::getInstance().width*Data::getInstance().height;
 	Data::getInstance().seaLevel = 94; //hardcoded for hoi4
 	Data::getInstance().debugMapsPath = "debugMaps//";
 
+	Bitmap terrainBMP = Bitmap(Data::getInstance().width, Data::getInstance().height, 24);
+	TerrainGenerator tG;
 
-	// get province map
-	auto provinceMap = bitmaps["provinces"];
-	auto heightMap = bitmaps["heightmap"].get24BitRepresentation();
-	// write info to Data that is needed by FastWorldGenerator
-
-	// now get info on provinces: who neighbours who, who is coastal...
-	auto provinceDefinition = rLoader.loadDefinition(gamePaths["hoi4"]);
-	provinceDefinition.erase(provinceDefinition.begin());
-	set<int> tokensToConvert{ 0,1,2,3,7 };
 	std::map<int, Province*> provinces;
-	for (auto def : provinceDefinition)
+	if (useDefaultProvinces)
 	{
-		auto numbers = ParserUtils::getNumbers(def, ';', tokensToConvert);
-		if (!numbers.size() || numbers[0] == 0)
-			continue;
-		Colour colour{ (unsigned char)numbers[1],(unsigned char)numbers[2] ,(unsigned char)numbers[3] };
-		Province * province = new Province();
-		province->isLake = false;
-		if (def.find("sea") != std::string::npos)
-			province->sea = true;
-		else if (def.find("lake") != std::string::npos)
+		// get province map
+		auto provinceMap = bitmaps["provinces"];
+		// write info to Data that is needed by FastWorldGenerator
+
+		// now get info on provinces: who neighbours who, who is coastal...
+		auto provinceDefinition = rLoader.loadDefinition(gamePaths["hoi4"]);
+		provinceDefinition.erase(provinceDefinition.begin());
+		set<int> tokensToConvert{ 0,1,2,3,7 };
+		for (auto def : provinceDefinition)
 		{
-			province->isLake = true;
+			auto numbers = ParserUtils::getNumbers(def, ';', tokensToConvert);
+			if (!numbers.size() || numbers[0] == 0)
+				continue;
+			Colour colour{ (unsigned char)numbers[1],(unsigned char)numbers[2] ,(unsigned char)numbers[3] };
+			Province * province = new Province();
+			province->isLake = false;
+			if (def.find("sea") != std::string::npos)
+				province->sea = true;
+			else if (def.find("lake") != std::string::npos)
+			{
+				province->isLake = true;
+			}
+			else
+				province->sea = false;
+			f.provinceGenerator.provinceMap.setValue(colour, province);
+			f.provinceGenerator.provinceMap[colour]->provID = numbers[0] - 1;
+			province->colour = colour;
+			provinces[province->provID] = province;
+			f.provinceGenerator.provinces.push_back(province);
 		}
-		else
-			province->sea = false;
-		f.provinceGenerator.provinceMap.setValue(colour, province);
-		f.provinceGenerator.provinceMap[colour]->provID = numbers[0] - 1;
-		province->colour = colour;
-		provinces[province->provID] = province;
-		f.provinceGenerator.provinces.push_back(province);
-
+		f.provinceGenerator.provPixels(provinceMap);
+		f.provinceGenerator.evaluateNeighbours(provinceMap);
+		for (auto prov : f.provinceGenerator.provinces)
+			prov->position.calcWeightedCenter(prov->pixels);
 	}
-	f.provinceGenerator.provPixels(provinceMap);
-	f.provinceGenerator.evaluateNeighbours(provinceMap);
-	for (auto prov : f.provinceGenerator.provinces)
-		prov->position.calcWeightedCenter(prov->pixels);
+	else {
+		Data::getInstance().calcParameters();
+		Bitmap riverMap(Data::getInstance().width, Data::getInstance().height, 24);
+		Bitmap humidityBMP(Data::getInstance().width, Data::getInstance().height, 24);
+		Bitmap climateMap(Data::getInstance().width, Data::getInstance().height, 24);
+		tG.createTerrain(terrainBMP, heightMap);
+		ClimateGenerator climateGenerator;
+		climateGenerator.setProvinceGenerator(&f.provinceGenerator);
+		climateGenerator.humidityMap(heightMap, humidityBMP, riverMap, tG, Data::getInstance().seaLevel, Data::getInstance().updateThreshold);
+		Bitmap::SaveBMPToFile(humidityBMP, (Data::getInstance().debugMapsPath + ("humidity.bmp")).c_str());
+		climateGenerator.climateMap(climateMap, humidityBMP, heightMap, Data::getInstance().seaLevel, Data::getInstance().updateThreshold);
+		Bitmap::SaveBMPToFile(climateMap, (Data::getInstance().debugMapsPath + ("climate.bmp")).c_str());
 
-	if (loadDefaultRegions)
+		Bitmap::SaveBMPToFile(terrainBMP, (Data::getInstance().debugMapsPath + ("terrain.bmp")).c_str());
+		Bitmap provinceMap(Data::getInstance().width, Data::getInstance().height, 24);
+		f.provinceGenerator.generateProvinces(terrainBMP, provinceMap, riverMap, 100);
+		Bitmap::SaveBMPToFile(provinceMap, (Data::getInstance().debugMapsPath + ("provinces.bmp")).c_str());
+		bitmaps["provinces"] = provinceMap;
+		f.provinceGenerator.createProvinceMap();
+		f.provinceGenerator.beautifyProvinces(provinceMap, riverMap);
+		f.provinceGenerator.evaluateNeighbours(provinceMap);
+		tG.detectContinents(terrainBMP);
+		f.provinceGenerator.evaluateRegions(6);
+		f.provinceGenerator.evaluateContinents(10, Data::getInstance().width, Data::getInstance().height, tG);
+		//genericParser.writeAdjacency((Data::getInstance().debugMapsPath + ("adjacency.csv")).c_str(), provinceGenerator.provinces);		
+		//genericParser.writeDefinition((Data::getInstance().debugMapsPath + ("definition.csv")).c_str(), provinceGenerator.provinces);
+		Visualizer::provinceInfoMap(provinceMap, f.provinceGenerator);
+		Visualizer::provinceInfoMap2(provinceMap, f.provinceGenerator);
+		Visualizer::provinceInfoMap3(provinceMap, f.provinceGenerator);
+	}
+	if (useDefaultStates)
 	{
-		auto textRegions = rLoader.loadStates(gamePaths["hoi"]);
+		auto textRegions = rLoader.loadStates(gamePaths["hoi4"]);
 		for (auto textRegion : textRegions)
 		{
 			Region R;
@@ -93,18 +126,14 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 			f.provinceGenerator.regions.push_back(R);
 		}
 	}
-
 	else {
 		// evaluate landmasses
 
-		Bitmap terrainBMP = Bitmap(Data::getInstance().width, Data::getInstance().height, 24);
-		//TerrainGenerator tG;
-		//tG.createTerrain(terrainBMP, heightMap);
-		//Bitmap::SaveBMPToFile(terrainBMP, (Data::getInstance().debugMapsPath + ("terrain.bmp")).c_str());
 		//tG.detectContinents(terrainBMP);
 		f.provinceGenerator.evaluateRegions(6);
 	}
 
+	auto provinceMap = bitmaps["provinces"];
 	Visualizer::prettyRegions(f.provinceGenerator);
 	f.provinceGenerator.sortRegions();
 	f.provinceGenerator.evaluateRegionNeighbours();
