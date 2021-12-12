@@ -14,9 +14,11 @@ Hoi4Module::~Hoi4Module()
 void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorldGenerator f, bool useDefaultMap, bool useDefaultStates, bool useDefaultProvinces, ScenarioGenerator& scenGen)
 {
 	// validate options:
+	std::cout << useDefaultProvinces << std::endl;
 	if (!useDefaultProvinces)
 	{
 		useDefaultStates = false;
+		std::cout << useDefaultStates << std::endl;
 	}
 	if (!useDefaultMap)
 	{
@@ -39,26 +41,28 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 	//std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\countries\\");
 	if (useDefaultMap)
 	{
-		scenGen.hoi4Preparations(); // load files, read states/create states
+		scenGen.hoi4Preparations(useDefaultStates, useDefaultProvinces); // load files, read states/create states
 		scenGen.mapRegions(); // create gameRegions
 		scenGen.generateCountries();
 		scenGen.dumpDebugCountrymap(Data::getInstance().debugMapsPath + "countries.bmp");
 		Hoi4ScenarioGenerator hoi4Gen(f, scenGen);
 
 		hoiParse.dumpStates(hoi4ModPath + "\\history\\states", scenGen.countryMap);
-		if (useDefaultStates)
-		{
-			hoiParse.dumpUnitStacks(hoi4ModPath + "\\map\\unitstacks.txt", scenGen.f.provinceGenerator.provinces);
-			hoiParse.dumpRocketSites(hoi4ModPath + "\\map\\rocketsites.txt", scenGen.f.provinceGenerator.regions);
-			hoiParse.dumpStrategicRegions(hoi4ModPath + "\\map\\strategicregions", scenGen.f.provinceGenerator.regions);
-			hoiParse.dumpSupplyAreas(hoi4ModPath + "\\map\\supplyareas", scenGen.f.provinceGenerator.regions);
-			hoiParse.dumpWeatherPositions(hoi4ModPath + "\\map\\weatherpositions.txt", scenGen.f.provinceGenerator.regions);
-			hoiParse.dumpAdjacencyRules(hoi4ModPath + "\\map\\adjacency_rules.txt");
-		}
+		hoiParse.dumpUnitStacks(hoi4ModPath + "\\map\\unitstacks.txt", scenGen.f.provinceGenerator.provinces);
+		hoiParse.dumpRocketSites(hoi4ModPath + "\\map\\rocketsites.txt", scenGen.f.provinceGenerator.regions);
+		hoiParse.dumpStrategicRegions(hoi4ModPath + "\\map\\strategicregions", scenGen.f.provinceGenerator.regions);
+		hoiParse.dumpSupplyAreas(hoi4ModPath + "\\map\\supplyareas", scenGen.f.provinceGenerator.regions);
+		hoiParse.dumpWeatherPositions(hoi4ModPath + "\\map\\weatherpositions.txt", scenGen.f.provinceGenerator.regions);
+		hoiParse.dumpAdjacencyRules(hoi4ModPath + "\\map\\adjacency_rules.txt");
 		//hoiParse.dumpAdj(hoi4ModPath + "\\map\\adjacencies.csv");
 		hoiParse.dumpAirports(hoi4ModPath + "\\map\\airports.txt", scenGen.f.provinceGenerator.regions);
 		hoiParse.dumpBuildings(hoi4ModPath + "\\map\\buildings.txt", scenGen.f.provinceGenerator.regions);
 		hoiParse.writeCompatibilityHistory(hoi4ModPath + "\\history\\countries\\", hoi4Path + "\\history\\countries\\", scenGen.f.provinceGenerator.regions);
+		if (!useDefaultStates)
+		{
+			//hoiParse.dumpAdj(hoi4ModPath + "\\map\\adjacencies.csv");
+			hoiParse.dumpDefinition(hoi4ModPath + "\\map\\definition.csv", scenGen.f.provinceGenerator.provinces);
+		}
 		Bitmap::SaveBMPToFile(Data::getInstance().findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
 	}
 	else {
