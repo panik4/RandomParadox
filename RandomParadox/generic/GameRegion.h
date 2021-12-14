@@ -7,6 +7,7 @@ class GameRegion
 public:
 	std::string owner;
 	vector<uint32_t> neighbours;
+	std::string name;
 	int ID;
 	bool sea;
 	const Region baseRegion;

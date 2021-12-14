@@ -8,7 +8,7 @@ using namespace std;
 int main() {
 	string modPath = "pdoxMod\\";
 	string hoiPath = "D:\\Steam\\steamapps\\common\\Hearts of Iron IV\\";
-	bool useDefaultMap = true;
+	bool useDefaultMap = false;
 	bool useDefaultStates = false;
 	bool useDefaultProvinces = false;
 

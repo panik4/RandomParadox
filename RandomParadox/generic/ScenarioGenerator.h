@@ -1,8 +1,11 @@
 #pragma once
-#include "Country.h"
+#include "Countries/Country.h"
 #include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
 #include "GameRegion.h"
+#include "GameProvince.h"
 #include "ResourceLoader.h"
+#include "NameGenerator.h"
+#include "Flag.h"
 #include <map>
 class ScenarioGenerator
 {
@@ -11,11 +14,14 @@ class ScenarioGenerator
 	ResourceLoader rLoader;
 	std::map<std::string, Bitmap> bitmaps;
 	std::map<std::string, std::string> gamePaths;
+	NameGenerator nG;
 public:
 	// generic vairables/containers used for every game
 	FastWorldGenerator f;
 	vector<Province*> provinces;
 	vector<GameRegion> gameRegions;
+	vector<GameProvince> gameProvinces;
+	set<std::string> tags;
 	map<std::string, Country> countryMap;
 
 	ScenarioGenerator(FastWorldGenerator& f);
@@ -33,6 +39,8 @@ public:
 	void generateWorld();
 	// map base regions to generic paradox compatible game regions
 	void mapRegions();
+	// map base regions to generic paradox compatible game provinces
+	void mapProvinces();
 	//void generateReligions(); // not for hoi4
 
 	void generatePopulations();
