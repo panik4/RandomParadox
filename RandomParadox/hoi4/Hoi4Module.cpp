@@ -31,12 +31,19 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\map\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\");
+	std::experimental::filesystem::create_directory(hoi4ModPath + "\\gfx\\");
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\history\\states\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\states\\");
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\map\\strategicregions\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\map\\strategicregions\\");
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\map\\supplyareas\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\map\\supplyareas\\");
+	std::experimental::filesystem::remove_all(hoi4ModPath + "\\gfx\\flags\\medium\\");
+	std::experimental::filesystem::remove_all(hoi4ModPath + "\\gfx\\flags\\small\\");
+	std::experimental::filesystem::remove_all(hoi4ModPath + "\\gfx\\flags\\");
+	std::experimental::filesystem::create_directory(hoi4ModPath + "\\gfx\\flags\\");
+	std::experimental::filesystem::create_directory(hoi4ModPath + "\\gfx\\flags\\small\\");
+	std::experimental::filesystem::create_directory(hoi4ModPath + "\\gfx\\flags\\medium\\");
 	//std::experimental::filesystem::remove_all(hoi4ModPath + "\\history\\countries\\");
 	//std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\countries\\");
 	if (useDefaultMap)
@@ -82,6 +89,7 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 		hoiParse.dumpStrategicRegions(hoi4ModPath + "\\map\\strategicregions", f.provinceGenerator.regions);
 		hoiParse.dumpSupplyAreas(hoi4ModPath + "\\map\\supplyareas", f.provinceGenerator.regions);
 		hoiParse.dumpStates(hoi4ModPath + "\\history\\states", scenGen.countryMap);
+		hoiParse.dumpFlags(hoi4ModPath + "\\gfx\\flags\\", scenGen.countryMap);
 		hoiParse.dumpWeatherPositions(hoi4ModPath + "\\map\\weatherpositions.txt", f.provinceGenerator.regions);
 		hoiParse.dumpAdjacencyRules(hoi4ModPath + "\\map\\adjacency_rules.txt");
 
@@ -93,9 +101,10 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 		formatConverter.dump8BitRivers(hoi4ModPath + "\\map\\rivers.bmp", "riversHoi4");
 		formatConverter.dump8BitTrees(hoi4ModPath + "\\map\\trees.bmp", "treesHoi4");
 		formatConverter.dump8BitHeightmap(hoi4ModPath + "\\map\\heightmap.bmp", "heightmapHoi4");
-		//formatConverter.dumpDDSFiles(hoi4ModPath + "\\map\\terrain\\colormap_water_");
+		formatConverter.dumpTerrainColourmap(hoi4ModPath + "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds");
+		formatConverter.dumpDDSFiles(hoi4ModPath + "\\map\\terrain\\colormap_water_");
 		formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp");
-		hoiParse.writeCompatibilityHistory(hoi4ModPath + "\\history\\countries\\", hoi4Path + "\\history\\countries\\", f.provinceGenerator.regions);
+		//hoiParse.writeCompatibilityHistory(hoi4ModPath + "\\history\\countries\\", hoi4Path + "\\history\\countries\\", f.provinceGenerator.regions);
 	}
 	scenGen.dumpDebugCountrymap(Data::getInstance().debugMapsPath + "countries.bmp");
 }

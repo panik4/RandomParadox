@@ -18,7 +18,7 @@ void Country::assignRegions(int maxRegions, vector<GameRegion>& gameRegions, Gam
 {
 	addRegion(startRegion);
 	auto breakCounter = 0;
-	while (ownedRegions.size() < maxRegions && breakCounter++ < 10)
+	while (ownedRegions.size() < maxRegions && breakCounter++ < 100)
 	{
 		for (auto& gameRegion : ownedRegions)
 		{

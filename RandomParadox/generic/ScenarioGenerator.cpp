@@ -23,7 +23,6 @@ void ScenarioGenerator::loadRequiredResources(std::string gamePath)
 
 void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultProvinces)
 {
-
 	loadRequiredResources(gamePaths["hoi4"]);
 	auto heightMap = bitmaps["heightmap"].get24BitRepresentation();
 	Data::getInstance().bufferBitmap("heightmap", heightMap);
@@ -96,7 +95,7 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 		f.provinceGenerator.beautifyProvinces(provinceMap, riverMap);
 		f.provinceGenerator.evaluateNeighbours(provinceMap);
 		tG.detectContinents(terrainBMP);
-		f.provinceGenerator.evaluateRegions(6);
+		f.provinceGenerator.evaluateRegions(3);
 		f.provinceGenerator.evaluateContinents(10, Data::getInstance().width, Data::getInstance().height, tG);
 		//genericParser.writeAdjacency((Data::getInstance().debugMapsPath + ("adjacency.csv")).c_str(), provinceGenerator.provinces);		
 		//genericParser.writeDefinition((Data::getInstance().debugMapsPath + ("definition.csv")).c_str(), provinceGenerator.provinces);
@@ -130,11 +129,10 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 		// evaluate landmasses
 
 		//tG.detectContinents(terrainBMP);
-		f.provinceGenerator.evaluateRegions(6);
+		f.provinceGenerator.evaluateRegions(3);
 	}
 
 	auto provinceMap = bitmaps["provinces"];
-	Visualizer::prettyRegions(f.provinceGenerator);
 	f.provinceGenerator.sortRegions();
 	f.provinceGenerator.evaluateRegionNeighbours();
 	Visualizer::provinceInfoMap3(provinceMap, f.provinceGenerator);
@@ -142,8 +140,14 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 
 }
 
+void ScenarioGenerator::generateWorld()
+{
+	generatePopulations();
+}
+
 void ScenarioGenerator::mapRegions()
 {
+	Visualizer::prettyRegions(f.provinceGenerator);
 	for (auto& region : f.provinceGenerator.regions)
 	{
 		GameRegion gR(region);
@@ -151,8 +155,14 @@ void ScenarioGenerator::mapRegions()
 		{
 			gR.neighbours.push_back(baseRegion);
 		}
+		gR.name = nG.generateName();
 		gameRegions.push_back(gR);
 	}
+}
+
+void ScenarioGenerator::generatePopulations()
+{
+
 }
 
 GameRegion& ScenarioGenerator::findStartRegion()
@@ -175,15 +185,33 @@ GameRegion& ScenarioGenerator::findStartRegion()
 // TODO: rulesets, e.g. naming schemes? tags? country size?
 void ScenarioGenerator::generateCountries()
 {
-	vector<std::string> tags = { "BRA", "GER", "FRA", "SOV", "USA", "ITA", "ENG", "GRE", "TUR", "CAN", "BUL" };
-	for (auto tag : tags)
+	for (int i = 0; i < 100; i++)
 	{
+		// Get Name
+		auto name = nG.generateName();
+		// Tag from Name
+		auto tag = nG.generateTag(name, tags);
+		//Flag f();
+		// generate flag
 		Country C(tag);
+		Flag f(Data::getInstance().random2, 82, 52);
+		C.flag = f;
+		countryMap.emplace(tag, C);
+
+	}
+	//vector<std::string> tags = { "BRA", "GER", "FRA", "SOV", "USA", "ITA", "ENG", "GRE", "TUR", "CAN", "BUL" };
+	//for (auto tag : tags)
+	//{
+	//	Country C(tag);
+
+	//	countryMap.emplace(tag, C);
+	//}
+	for (auto& c : countryMap)
+	{
 		auto startRegion(findStartRegion());
 		if (startRegion.assigned || startRegion.sea)
 			continue;
-		C.assignRegions(6, gameRegions, startRegion);
-		countryMap.emplace(tag, C);
+		c.second.assignRegions(6, gameRegions, startRegion);
 	}
 	for (auto& gameRegion : gameRegions)
 	{

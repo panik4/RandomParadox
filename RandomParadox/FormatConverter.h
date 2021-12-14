@@ -2,6 +2,7 @@
 #include <map>
 #include "FastWorldGen/FastWorldGen/utils/Data.h"
 #include "FastWorldGen/FastWorldGen/entities/Colour.h"
+#include "generic/TextureWriter.h"
 #include "DirectXTex.h"
 
 class FormatConverter
@@ -13,7 +14,7 @@ class FormatConverter
 			{ Data::getInstance().namedColours["tundra"], 26 },
 			{ Data::getInstance().namedColours["forest"], 18 },
 			{ Data::getInstance().namedColours["jungle"], 38 },
-			{ Data::getInstance().namedColours["savannah"], 11 },
+			{ Data::getInstance().namedColours["savannah"], 17 },
 			{ Data::getInstance().namedColours["desert"], 24 },
 			{ Data::getInstance().namedColours["peaks"], 33 },
 			{ Data::getInstance().namedColours["mountains"], 28 },
@@ -62,6 +63,7 @@ public:
 	void dump8BitTrees(string path, string colourMapKey); // width/4, height/4
 	void dumpWorldNormal(string path); // width/2, height/2
 	void dumpMiniMap(string path);
+	void dumpTerrainColourmap(string path);
 	void dumpDDSFiles(string path);
 };
 

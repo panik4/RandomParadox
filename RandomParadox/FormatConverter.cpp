@@ -61,13 +61,24 @@ void FormatConverter::dump8BitRivers(string path, string colourMapKey)
 
 void FormatConverter::dump8BitTrees(string path, string colourMapKey)
 {
-	Bitmap trees(Data::getInstance().width, Data::getInstance().height, 8);
+	auto width = Data::getInstance().width;
+	auto factor = 3.4133333333333333333333333333333;
+	//auto factor = 2;
+	Bitmap trees((double)Data::getInstance().width / factor, (double)Data::getInstance().height / factor, 8);
 	trees.getColourtable() = colourTables[colourMapKey];
 
 	auto climate = Data::getInstance().findBitmapByKey("climate");
-	for (int i = 0; i < trees.bInfoHeader.biSizeImage; i++)
+	//for (int i = 0; i < trees.bInfoHeader.biSizeImage; i++)
+	//{
+	//	trees.bit8Buffer[i] = colourMaps[colourMapKey][climate.getColourAtIndex(i)];
+	//}
+	for (auto i = 0; i < trees.bInfoHeader.biHeight; i++)
 	{
-		trees.bit8Buffer[i] = colourMaps[colourMapKey][climate.getColourAtIndex(i)];
+		for (auto w = 0; w < trees.bInfoHeader.biWidth; w++)
+		{
+			trees.bit8Buffer[(double)i*(double)trees.bInfoHeader.biWidth + (double)w] = colourMaps[colourMapKey][climate.getColourAtIndex(factor * (double)i*(double)width + factor * (double)w)];
+			// (i*trees.bInfoHeader.biWidth + w, sobelMap[factor * i*width + factor * w]);
+		}
 	}
 	Bitmap::SaveBMPToFile(trees, (path).c_str());
 }
@@ -76,89 +87,90 @@ void FormatConverter::dumpWorldNormal(string path)
 {
 	auto height = Data::getInstance().height;
 	auto width = Data::getInstance().width;
-	Bitmap normalMap(width/2, height/2, 24);
 	auto heightBMP = Data::getInstance().findBitmapByKey("heightmap");
 
-	//for (int i = 0; i < Data::getInstance().bitmapSize; i++)
-	//{
-	//	normalMap.setColourAtIndex(i, Colour(1,100,1));
-	//}
+	int factor = 2; // image width and height are halved
+	Bitmap normalMap(width / factor, height / factor, 24);
 	auto sobelMap = heightBMP.sobelFilter();
-	for (auto i = 0; i < normalMap.bInfoHeader.biHeight;i++)
+	for (auto i = 0; i < normalMap.bInfoHeader.biHeight; i++)
 	{
-		for (auto w = 0; w < normalMap.bInfoHeader.biWidth;w++)
+		for (auto w = 0; w < normalMap.bInfoHeader.biWidth; w++)
 		{
-			normalMap.setColourAtIndex(i*normalMap.bInfoHeader.biWidth + w, sobelMap[i*width + w]);
+			normalMap.setColourAtIndex(i*normalMap.bInfoHeader.biWidth + w, sobelMap[factor * i*width + factor * w]);
 		}
 	}
-	//normalMap.setBuffer(h);
 	Bitmap::SaveBMPToFile(normalMap, (path).c_str());
+}
 
+void FormatConverter::dumpTerrainColourmap(string path)
+{
+	auto climateMap = Data::getInstance().findBitmapByKey("climate2");
+	auto width = Data::getInstance().width;
+	int factor = 2; // map dimensions are halved
+	auto imageWidth = width / factor;
+	auto imageHeight = Data::getInstance().height / factor;
+
+	vector<uint8_t> pixels(imageWidth*imageHeight * 4, 0);
+	for (auto h = 0; h < imageHeight; h++)
+	{
+		for (auto w = 0; w < imageWidth; w++)
+		{
+			auto colourmapIndex = factor * h*width + factor * w;
+			auto c = climateMap.getColourAtIndex(colourmapIndex);
+			auto imageIndex = imageHeight * imageWidth - (h *imageWidth + (imageWidth - w));
+			imageIndex *= 4;
+			pixels[imageIndex] = c.getBlue();
+			pixels[imageIndex + 1] = c.getGreen();
+			pixels[imageIndex + 2] = c.getRed();
+			pixels[imageIndex + 3] = 255; // alpha for city lights
+		}
+	}
+	TextureWriter::writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM, path);
 }
 
 void FormatConverter::dumpDDSFiles(string path)
 {
 	using namespace DirectX;
-	ScratchImage img;
-	wstring source = L"resources\\hoi4\\terrain\\colormap_water_0.dds";
-	LoadFromDDSFile(source.c_str(), DDS_FLAGS_NONE, NULL, img);
-	std::cout << img.GetPixelsSize()<<std::endl;
-	auto pixe = img.GetPixels();
-	for (int i = 0; i < img.GetPixelsSize(); i+=4)
-	{
-		//std::cout << (int)pixe[i] << ";" <<  (int)pixe[i + 1] << ";" << (int)pixe[i + 2] << ";" << (int)pixe[i + 3] << std::endl;;
-
-	}
 	auto riverBMP = Data::getInstance().findBitmapByKey("rivers");
 	auto heightBMP = Data::getInstance().findBitmapByKey("heightmap");
+	auto width = Data::getInstance().width;
 
 	for (int factor = 2, counter = 0; factor <= 8; factor *= 2, counter++)
 	{
 		auto tempPath = path;
 		tempPath += to_string(counter);
 		tempPath += ".dds";
-		wstring destination = wstring(tempPath.begin(), tempPath.end());
-		Image image;
-		image.width = Data::getInstance().width / factor;
-		image.height = Data::getInstance().height / factor;
-		image.format = DXGI_FORMAT_BC3_UNORM;
-		//	image.format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		std::cout << sizeof(uint8_t) * image.width * 4 << std::endl;;
-		image.rowPitch = sizeof(uint8_t) * image.width * 4;
-		std::cout << image.rowPitch << std::endl;;
-		image.slicePitch = sizeof(uint8_t) * image.width * image.height;
-		vector<uint8_t> pixels(image.width*image.height, 0);
-		auto vectorSize = image.width * image.height;
-		cout << vectorSize << endl;
-		for (int i = 0; i < image.width * image.height; i+=4)
-		{
-			//uint32_t width = i % image.width;
-			//uint32_t height = i / image.width;
-			//auto refIndex = height*image.width*factor*factor + width*factor;
-			//double depth = (double)heightBMP.getColourAtIndex(refIndex).getBlue() / (double)Data::getInstance().seaLevel;
-			//auto index = ((image.height - 1 - height)*image.width + width) * 4;
+		auto imageWidth = width / factor;
+		auto imageHeight = Data::getInstance().height / factor;
+		vector<uint8_t> pixels(imageWidth*imageHeight * 4, 0);
 
-			//if (riverBMP.getColourAtIndex(refIndex) == Data::getInstance().namedColours["sea"])
-			//{
-			//	pixels[index] = 49 * depth;
-			//	pixels[index + 1] = 24 * depth;
-			//	pixels[index + 2] = 16 * depth;
-			//	pixels[index + 3] = 255;
-			//}
-			//else
-			//{
-			//	pixels[index] = 100;
-			//	pixels[index + 1] = 100;
-			//	pixels[index + 2] = 50;
-			//	pixels[index + 3] = 255;
-			//}
-				pixels[i] = 128;
-				pixels[i + 1] = 100;
-				pixels[i + 2] = 50;
-				pixels[i + 3] = 255;
+		for (auto h = 0; h < imageHeight; h++)
+		{
+			for (auto w = 0; w < imageWidth; w++)
+			{
+				auto referenceIndex = factor * h*width + factor * w;
+				double depth = (double)heightBMP.getColourAtIndex(referenceIndex).getBlue() / (double)Data::getInstance().seaLevel;
+				auto c = riverBMP.getColourAtIndex(referenceIndex);
+				auto imageIndex = imageHeight* imageWidth - (h * imageWidth + (imageWidth - w));
+				imageIndex *= 4;
+				if (riverBMP.getColourAtIndex(referenceIndex) == Data::getInstance().namedColours["sea"])
+				{
+					pixels[imageIndex] = 49 * depth;
+					pixels[imageIndex + 1] = 24 * depth;
+					pixels[imageIndex + 2] = 16 * depth;
+					pixels[imageIndex + 3] = 255;
+				}
+				else
+				{
+					pixels[imageIndex] = 100;
+					pixels[imageIndex + 1] = 100;
+					pixels[imageIndex + 2] = 50;
+					pixels[imageIndex + 3] = 255;
+				}
+
+			}
+			TextureWriter::writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM, tempPath);
 		}
-		image.pixels = pixels.data();
-		SaveToDDSFile(image, DDS_FLAGS_NONE, destination.c_str());
 	}
 }
 

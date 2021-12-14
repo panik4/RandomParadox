@@ -120,9 +120,27 @@ void Hoi4Parser::dumpBuildings(std::string path, vector<Region> regions)
 					if (prov->coastal)
 					{
 						auto pix = *select_random(prov->coastalPixels);
+						uint32_t provID = 0;
+						if (type == "naval_base")
+						{
+							// find the ocean province this coastal building is next to
+							for (auto neighbour : prov->adjProv)
+							{
+								if (neighbour->sea)
+								{
+									for (auto provPix : neighbour->pixels)
+									{
+										if (getDistance(provPix, pix, Data::getInstance().width, 0) < 2.0)
+										{
+											provID = neighbour->provID;
+										}
+									}
+								}
+							}
+						}
 						auto widthPos = (pix % Data::getInstance().width);
 						auto heightPos = /*Data::getInstance().height -*/ (pix / Data::getInstance().width);
-						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string(9.5), to_string(heightPos), to_string(0.5), "0" };
+						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string(9.5), to_string(heightPos), to_string(0.5), to_string(provID) };
 						content.append(pU::csvFormat(arguments, ';', false));
 					}
 				}
@@ -352,6 +370,16 @@ void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country> cou
 	//	writeFile(path + "\\" + to_string(region.ID + 1) + ".txt", content);
 	//}
 }
+void Hoi4Parser::dumpFlags(std::string path, std::map<std::string, Country> countries)
+{
+	for (auto country : countries)
+	{
+		
+		TextureWriter::writeTGA(country.second.flag.width, country.second.flag.height, country.second.flag.getFlag(), path + country.first + ".tga");
+		TextureWriter::writeTGA(country.second.flag.width/2, country.second.flag.height / 2, country.second.flag.resize(country.second.flag.width / 2, country.second.flag.height / 2), path + "\\medium\\" + country.first + ".tga");
+		TextureWriter::writeTGA(country.second.flag.width / 8, country.second.flag.height / 8, country.second.flag.resize(country.second.flag.width / 8, country.second.flag.height / 8), path + "\\small\\" + country.first + ".tga");
+	}
+}
 // copy relevant default text files from Hoi4 sources
 void Hoi4Parser::copyDefaultOverwrites(std::string pathToHoi4)
 {
@@ -399,7 +427,7 @@ void Hoi4Parser::writeCompatibilityHistory(std::string path, std::string hoiPath
 		std::string filename = pathString.substr(pathString.find_last_of("\\") + 1, pathString.back() - pathString.find_last_of("\\"));
 		std::cout << filename << '\n';
 		auto content = pU::readFile(pathString);
-		pU::replaceLine(content, "capital =", "capital = " + to_string(1+ids[random() % ids.size()]));
+		pU::replaceLine(content, "capital =", "capital = " + to_string(1/*+ids[random() % ids.size()]*/));
 		pU::writeFile(path + filename, content);
 	}
 }

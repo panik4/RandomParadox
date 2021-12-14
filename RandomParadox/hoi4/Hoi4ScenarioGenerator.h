@@ -1,5 +1,5 @@
 #pragma once
-#include "../generic/Country.h"
+#include "../generic/countries/Country.h"
 #include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
 #include "../generic/ScenarioGenerator.h"
 
