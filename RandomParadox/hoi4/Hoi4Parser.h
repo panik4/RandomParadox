@@ -1,8 +1,9 @@
 #pragma once
 #include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
 #include <experimental/filesystem>
-#include "../generic/Country.h"
+#include "../generic/countries/Country.h"
 #include "../generic/ParserUtils.h"
+#include "../generic/TextureWriter.h"
 
 class Hoi4Parser
 {
@@ -28,7 +29,7 @@ public:
 	void dumpStrategicRegions(std::string path, vector<Region> regions);
 	void dumpSupplyAreas(std::string path, vector<Region> regions);
 	void dumpStates(std::string path, std::map<std::string, Country> countries);
-
+	void dumpFlags(std::string path, std::map<std::string, Country> countries);
 
 	void copyDefaultOverwrites(std::string pathToHoi4);
 
