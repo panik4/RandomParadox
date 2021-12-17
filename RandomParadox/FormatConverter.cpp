@@ -105,6 +105,7 @@ void FormatConverter::dumpWorldNormal(string path)
 void FormatConverter::dumpTerrainColourmap(string path)
 {
 	auto climateMap = Data::getInstance().findBitmapByKey("climate2");
+	auto cityMap = Data::getInstance().findBitmapByKey("cities");
 	auto width = Data::getInstance().width;
 	int factor = 2; // map dimensions are halved
 	auto imageWidth = width / factor;
@@ -122,7 +123,7 @@ void FormatConverter::dumpTerrainColourmap(string path)
 			pixels[imageIndex] = c.getBlue();
 			pixels[imageIndex + 1] = c.getGreen();
 			pixels[imageIndex + 2] = c.getRed();
-			pixels[imageIndex + 3] = 255; // alpha for city lights
+			pixels[imageIndex + 3] = 255.0 * (cityMap.getColourAtIndex(colourmapIndex) / Data::getInstance().namedColours["cities"]); // alpha for city lights
 		}
 	}
 	TextureWriter::writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM, path);

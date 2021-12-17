@@ -2,7 +2,7 @@
 
 
 
-GameProvince::GameProvince()
+GameProvince::GameProvince(Province* province) : baseProvince(province), ID(province->provID)
 {
 }
 

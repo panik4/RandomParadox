@@ -111,7 +111,6 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 			Region R;
 			auto ID = ParserUtils::getLineValue(textRegion, "id", "=");
 			R.ID = stoi(ID) - 1;
-			std::cout << R.ID << std::endl;
 			//R.provinces.push_back(f.provinceGenerator.provinceMap[colour]);
 			auto stateProvinces = ParserUtils::getNumberBlock(textRegion, "provinces");
 			for (auto stateProvince : stateProvinces)
@@ -143,6 +142,7 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 void ScenarioGenerator::generateWorld()
 {
 	generatePopulations();
+	generateDevelopment();
 }
 
 void ScenarioGenerator::mapRegions()
@@ -156,13 +156,67 @@ void ScenarioGenerator::mapRegions()
 			gR.neighbours.push_back(baseRegion);
 		}
 		gR.name = nG.generateName();
+		for (auto& province : gR.baseRegion.provinces)
+		{
+			GameProvince gP(province);
+			for (auto& baseProvinceNeighbour : gP.baseProvince->adjProv)
+			{
+				gP.neighbours.push_back(baseProvinceNeighbour);
+			}
+			gP.name = nG.generateName();
+			gR.gameProvinces.push_back(gP);
+			gameProvinces.push_back(gP);
+		}
 		gameRegions.push_back(gR);
 	}
 }
 
-void ScenarioGenerator::generatePopulations()
+void ScenarioGenerator::mapProvinces()
 {
 
+
+}
+
+void ScenarioGenerator::generatePopulations()
+{
+	auto popMap = Data::getInstance().findBitmapByKey("population");
+	auto cityMap = Data::getInstance().findBitmapByKey("cities");
+	for (auto& c : countryMap)
+		for (auto& gameProv : c.second.ownedRegions)
+			for (auto& gameProv : gameProv.gameProvinces)
+			{
+				gameProv.popFactor = 0.1 + popMap.getColourAtIndex(gameProv.baseProvince->position.weightedCenter) / Data::getInstance().namedColours["population"];
+
+				int cityPixels = 0;
+				for (auto pix : gameProv.baseProvince->pixels)
+				{
+					if (cityMap.getColourAtIndex(pix) == Data::getInstance().namedColours["cities"])
+					{
+						cityPixels++;
+					}
+				}
+				gameProv.cityShare = (double)cityPixels / gameProv.baseProvince->pixels.size();
+			}
+}
+
+void ScenarioGenerator::generateDevelopment()
+{
+	// high pop-> high development
+	// high city share->high dev
+	// terrain type?
+	// .....
+	auto cityBMP = Data::getInstance().findBitmapByKey("cities");
+	for (auto& c : countryMap)
+		for (auto& gameProv : c.second.ownedRegions)
+			for (auto& gameProv : gameProv.gameProvinces)
+			{
+				auto cityDensity = 0;
+				if (gameProv.baseProvince->cityPixels.size())
+				{
+					cityDensity = cityBMP.getColourAtIndex(gameProv.baseProvince->cityPixels[0]) / Data::getInstance().namedColours["cities"];
+				}
+				gameProv.devFactor = clamp(0.2 + 0.5 * gameProv.popFactor + 1.0 * gameProv.cityShare * cityDensity, 0.0, 1.0);
+			}
 }
 
 GameRegion& ScenarioGenerator::findStartRegion()
@@ -185,19 +239,25 @@ GameRegion& ScenarioGenerator::findStartRegion()
 // TODO: rulesets, e.g. naming schemes? tags? country size?
 void ScenarioGenerator::generateCountries()
 {
+	auto forbiddenTags = rLoader.loadForbiddenTags(gamePaths["hoi4"]);
+	for (auto tag : forbiddenTags)
+	{
+		tags.insert(tag);
+	}
 	for (int i = 0; i < 100; i++)
 	{
 		// Get Name
 		auto name = nG.generateName();
 		// Tag from Name
 		auto tag = nG.generateTag(name, tags);
-		//Flag f();
 		// generate flag
 		Country C(tag);
+		C.name = name;
+		C.adjective = nG.generateAdjective(name);
 		Flag f(Data::getInstance().random2, 82, 52);
 		C.flag = f;
+		C.developmentFactor = Data::getInstance().getRandomDouble(0.1, 1.0);
 		countryMap.emplace(tag, C);
-
 	}
 	//vector<std::string> tags = { "BRA", "GER", "FRA", "SOV", "USA", "ITA", "ENG", "GRE", "TUR", "CAN", "BUL" };
 	//for (auto tag : tags)
@@ -211,14 +271,17 @@ void ScenarioGenerator::generateCountries()
 		auto startRegion(findStartRegion());
 		if (startRegion.assigned || startRegion.sea)
 			continue;
+		//gameRegions[startRegion.ID].assigned = true;
 		c.second.assignRegions(6, gameRegions, startRegion);
+		//if (c.second.ownedRegions.size())
+		//	
 	}
 	for (auto& gameRegion : gameRegions)
 	{
 		if (!gameRegion.sea && !gameRegion.assigned)
 		{
 			auto x = getNearestAssignedLand(gameRegions, gameRegion, Data::getInstance().width, Data::getInstance().height);
-			countryMap.at(x.owner).addRegion(gameRegion);
+			countryMap.at(x.owner).addRegion(gameRegion, gameRegions);
 		}
 	}
 }

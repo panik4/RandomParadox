@@ -5,8 +5,6 @@
 
 class ParserUtils
 {
-	std::string hoi4Path;
-	bool genHoi4;
 public:
 	static void writeFile(std::string path, std::string content)
 	{
@@ -39,9 +37,6 @@ public:
 			pathStream << dir_entry.path();
 			std::string pathString;
 			pathString = pathStream.str();
-			//std::cout << pathString << '\n';
-			//std::string filename = pathString.substr(pathString.find_last_of("\\") + 1, pathString.back() - pathString.find_last_of("\\"));
-			//std::cout << filename << '\n';
 			fileContents.push_back(readFile(pathString));
 		}
 		return fileContents;
@@ -77,7 +72,7 @@ public:
 		retString.append("\n");
 		return retString;
 	};
-	static void replaceOccurences(std::string& content, std::string key, std::string value)
+	static std::string replaceOccurences(std::string& content, std::string key, std::string value)
 	{
 		auto pos = 0;
 		do
@@ -88,6 +83,7 @@ public:
 				content.replace(pos, key.length(), value);
 			}
 		} while (pos != string::npos);
+		return content;
 	};
 
 	static std::string getLineValue(std::string& content, std::string key, std::string value)
@@ -169,6 +165,13 @@ public:
 		removeCharacter(bracketBlock, '}');
 		replaceOccurences(bracketBlock, key, "");
 		return getNumbers(bracketBlock, ' ', set<int>{});
+	}
+	template <class T>
+	static std::string ostreamToString(T elem)
+	{
+		std::stringstream ss;
+		ss << elem;
+		return ss.str();
 	}
 };
 
