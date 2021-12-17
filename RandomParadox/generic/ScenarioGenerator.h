@@ -14,7 +14,6 @@ class ScenarioGenerator
 	ResourceLoader rLoader;
 	std::map<std::string, Bitmap> bitmaps;
 	std::map<std::string, std::string> gamePaths;
-	NameGenerator nG;
 public:
 	// generic vairables/containers used for every game
 	FastWorldGenerator f;
@@ -24,6 +23,7 @@ public:
 	set<std::string> tags;
 	map<std::string, Country> countryMap;
 
+	NameGenerator nG;
 	ScenarioGenerator(FastWorldGenerator& f);
 	~ScenarioGenerator();
 
@@ -39,11 +39,12 @@ public:
 	void generateWorld();
 	// map base regions to generic paradox compatible game regions
 	void mapRegions();
-	// map base regions to generic paradox compatible game provinces
+	// map base provinces to generic paradox compatible game provinces
 	void mapProvinces();
 	//void generateReligions(); // not for hoi4
 
 	void generatePopulations();
+	void generateDevelopment();
 
 	// GameRegions are used for every single game,
 	GameRegion& findStartRegion();

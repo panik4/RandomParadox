@@ -27,3 +27,21 @@ vector<std::string> ResourceLoader::loadDefinition(std::string gamePath)
 {
 	return ParserUtils::getLines(gamePath + "\\map\\definition.csv");
 }
+
+vector<std::string> ResourceLoader::loadForbiddenTags(std::string gamePath)
+{	
+	vector<std::string> tags;
+	auto lines = ParserUtils::getLines(gamePath + "\\common\\country_tags\\00_countries.txt");
+	for (auto line : lines)
+	{
+		auto tag = line.substr(0, 3);
+		tags.push_back(tag);
+	}
+	lines = ParserUtils::getLines(gamePath + "\\common\\country_tags\\01_countries.txt");
+	for (auto line : lines)
+	{
+		auto tag = line.substr(0, 3);
+		tags.push_back(tag);
+	}
+	return tags;
+}

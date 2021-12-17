@@ -17,6 +17,7 @@ public:
 	Bitmap loadHeightMap(std::string gamePath);
 	vector<std::string> loadStates(std::string gamePath);
 	vector<std::string> loadDefinition(std::string gamePath);
+	vector<std::string> loadForbiddenTags(std::string gamePath);
 	//vector<std::string> loadStrategicRegions();
 };
 
