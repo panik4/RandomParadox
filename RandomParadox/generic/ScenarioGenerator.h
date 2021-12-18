@@ -39,12 +39,11 @@ public:
 	void generateWorld();
 	// map base regions to generic paradox compatible game regions
 	void mapRegions();
-	// map base provinces to generic paradox compatible game provinces
-	void mapProvinces();
 	//void generateReligions(); // not for hoi4
 
 	void generatePopulations();
 	void generateDevelopment();
+	void mapTerrain();
 
 	// GameRegions are used for every single game,
 	GameRegion& findStartRegion();
