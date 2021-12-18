@@ -4,6 +4,7 @@
 #include "../generic/countries/Country.h"
 #include "../generic/ParserUtils.h"
 #include "../generic/TextureWriter.h"
+#include "../generic/NameGenerator.h"
 
 class Hoi4Parser
 {
@@ -21,7 +22,7 @@ public:
 	std::string getBuildingLine(std::string type, Region& region, bool coastal);
 	void dumpBuildings(std::string path, const vector<Region>& regions);
 	void dumpContinents(std::string path, const vector<Continent>& continents);
-	void dumpDefinition(std::string path, const vector<Province*>& provinces);
+	void dumpDefinition(std::string path, vector<GameProvince>& provinces);
 	void dumpRocketSites(std::string path, const vector<Region>& regions);
 	void dumpUnitStacks(std::string path, const vector<Province*> provinces);
 	void dumpWeatherPositions(std::string path, const vector<Region>& regions);
@@ -44,6 +45,11 @@ public:
 	void writeHistory();
 	void dumpCommonCountries(std::string path, std::string hoiPath, const std::map<std::string, Country>& countries);
 	void dumpCommonCountryTags(std::string path, const std::map<std::string, Country>& countries);
+
+
+	// localisation
+	void writeCountryNames(std::string path, const std::map<std::string, Country>& countries);
+	void writeStateNames(std::string path, const std::map<std::string, Country>& countries);
 
 };
 

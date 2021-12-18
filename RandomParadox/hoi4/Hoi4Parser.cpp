@@ -140,7 +140,7 @@ void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 						}
 						auto widthPos = (pix % Data::getInstance().width);
 						auto heightPos = /*Data::getInstance().height -*/ (pix / Data::getInstance().width);
-						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string(9.5), to_string(heightPos), to_string(0.5), to_string(provID) };
+						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string(9.5), to_string(heightPos), to_string(0.5), to_string(provID + 1) };
 						content.append(pU::csvFormat(arguments, ';', false));
 					}
 				}
@@ -176,46 +176,80 @@ void Hoi4Parser::dumpContinents(std::string path, const vector<Continent>& conti
 	pU::writeFile(path, content);
 }
 
-void Hoi4Parser::dumpDefinition(std::string path, const vector<Province*>& provinces)
+void Hoi4Parser::dumpDefinition(std::string path, vector<GameProvince>& provinces)
 {
 	// province id; r value; g value; b value; province type (land/sea/lake); coastal (true/false); terrain (plains/hills/urban/etc. Defined for land or sea provinces in common/terrain); continent (int)
 	// 0;0;0;0;land;false;unknown;0
 
 	// terraintypes: ocean, lakes, forest, hills, mountain, plains, urban, jungle, marsh, desert, water_fjords, water_shallow_sea, water_deep_ocean
 	// TO DO: properly map terrain types from climate
-
+	std::sort(provinces.begin(), provinces.end());
 	std::string content{ "0;0;0;0;land;false;unknown;0\n" };
 	for (auto prov : provinces)
 	{
-		auto seaType = prov->sea ? "sea" : "land";
-		auto coastal = prov->coastal ? "true" : "false";
-		if (prov->sea)
+		auto seaType = prov.baseProvince->sea ? "sea" : "land";
+		auto coastal = prov.baseProvince->coastal ? "true" : "false";
+		if (prov.baseProvince->sea)
 		{
-			for (auto prov2 : prov->adjProv)
+			for (auto prov2 : prov.baseProvince->adjProv)
 			{
 				if (!prov2->sea)
 					coastal = "true";
 			}
 		}
 		std::string terraintype;
-		if (prov->sea)
+		if (prov.baseProvince->sea)
 			terraintype = "ocean";
 		else
-			terraintype = "plains";
-		if (prov->isLake)
+			terraintype = prov.terrainType;
+		if (prov.baseProvince->isLake)
 		{
 			terraintype = "lakes";
 			seaType = "lake";
 		}
-		std::vector<std::string> arguments{ to_string(prov->provID + 1),
-			to_string(prov->colour.getRed()),
-			to_string(prov->colour.getGreen()),
-			to_string(prov->colour.getBlue()),
+		std::vector<std::string> arguments{ to_string(prov.baseProvince->provID + 1),
+			to_string(prov.baseProvince->colour.getRed()),
+			to_string(prov.baseProvince->colour.getGreen()),
+			to_string(prov.baseProvince->colour.getBlue()),
 			seaType, coastal, terraintype,
-			to_string(prov->sea || prov->isLake ? 0 : prov->continentID + 1) // 0 is for sea, no continent
+			to_string(prov.baseProvince->sea || prov.baseProvince->isLake ? 0 : prov.baseProvince->continentID + 1) // 0 is for sea, no continent
 		};
 		content.append(pU::csvFormat(arguments, ';', false));
 	}
+
+
+	//std::string content{ "0;0;0;0;land;false;unknown;0\n" };
+	//for (auto prov : provinces)
+	//{
+	//	auto seaType = prov->sea ? "sea" : "land";
+	//	auto coastal = prov->coastal ? "true" : "false";
+	//	if (prov->sea)
+	//	{
+	//		for (auto prov2 : prov->adjProv)
+	//		{
+	//			if (!prov2->sea)
+	//				coastal = "true";
+	//		}
+	//	}
+	//	std::string terraintype;
+	//	if (prov->sea)
+	//		terraintype = "ocean";
+	//	else
+	//		terraintype = "plains";
+	//	if (prov->isLake)
+	//	{
+	//		terraintype = "lakes";
+	//		seaType = "lake";
+	//	}
+	//	std::vector<std::string> arguments{ to_string(prov->provID + 1),
+	//		to_string(prov->colour.getRed()),
+	//		to_string(prov->colour.getGreen()),
+	//		to_string(prov->colour.getBlue()),
+	//		seaType, coastal, terraintype,
+	//		to_string(prov->sea || prov->isLake ? 0 : prov->continentID + 1) // 0 is for sea, no continent
+	//	};
+	//	content.append(pU::csvFormat(arguments, ';', false));
+	//}
 	pU::writeFile(path, content);
 }
 
@@ -356,26 +390,22 @@ void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country>& co
 			pU::replaceOccurences(content, "templateArmsFactory", to_string((int)region.attributeDoubles["armsFactories"]));
 			pU::replaceOccurences(content, "templatePopulation", to_string((int)region.attributeDoubles["population"]));
 			pU::replaceOccurences(content, "templateStateCategory", stateCategories[(int)region.attributeDoubles["stateCategory"]]);
+			std::string navalBaseContent = "";
+			for (auto& gameProv : region.gameProvinces)
+			{
+				if (gameProv.attributeDoubles["naval_bases"] > 0)
+				{
+					navalBaseContent += to_string(gameProv.ID + 1) + " = {\n\t\t\t\tnaval_base = " + to_string((int)gameProv.attributeDoubles["naval_bases"]) + "\n\t\t\t}\n\t\t\t";
+				}
+			}
+			pU::replaceOccurences(content, "templateNavalBases", navalBaseContent);
+			if (region.attributeDoubles["dockyards"] > 0)
+				pU::replaceOccurences(content, "templateDockyards", to_string((int)region.attributeDoubles["dockyards"]));
+			else
+				pU::replaceOccurences(content, "dockyard = templateDockyards", "");
 			pU::writeFile(path + "\\" + to_string(baseRegion.ID + 1) + ".txt", content);
 		}
 	}
-	//for (auto region : regions)
-	//{
-	//	if (region.sea)
-	//		continue;
-	//	sort(region.provinces.begin(), region.provinces.end());
-	//	region.provinces.erase(unique(region.provinces.begin(), region.provinces.end()), region.provinces.end());
-	//	std::string provString{ "" };
-	//	for (auto prov : region.provinces)
-	//	{
-	//		provString.append(to_string(prov->provID + 1));
-	//		provString.append(" ");
-	//	}
-	//	auto content = templateContent;
-	//	replaceOccurences(content, "templateID", to_string(region.ID + 1));
-	//	replaceOccurences(content, "template_provinces", provString);
-	//	writeFile(path + "\\" + to_string(region.ID + 1) + ".txt", content);
-	//}
 }
 void Hoi4Parser::dumpFlags(std::string path, const std::map<std::string, Country>& countries)
 {
@@ -435,7 +465,7 @@ void Hoi4Parser::writeHistoryCountries(std::string path, const std::map<std::str
 		auto countryText = content;
 		auto capitalID = 1;
 		if (country.second.ownedRegions.size())
-			capitalID = (*select_random(country.second.ownedRegions)).ID;
+			capitalID = (*select_random(country.second.ownedRegions)).ID + 1;
 		pU::replaceOccurences(countryText, "templateCapital", to_string(capitalID));
 		pU::replaceOccurences(countryText, "templateTag", country.first);
 		pU::replaceOccurences(countryText, "templateParty", country.second.attributeStrings["rulingParty"]);
@@ -492,4 +522,35 @@ void Hoi4Parser::dumpCommonCountryTags(std::string path, const std::map<std::str
 		content.append(country.first + " = countries/" + country.second.name + ".txt\n");
 	}
 	pU::writeFile(path, content);
+}
+
+void Hoi4Parser::writeCountryNames(std::string path, const std::map<std::string, Country>& countries)
+{
+	NameGenerator nG;
+	std::string content = "l_english:\n";
+	vector<std::string> ideologies{ "fascism", "communism", "neutrality", "democratic" };
+
+	for (auto c : countries)
+	{
+		for (auto& ideology : ideologies)
+		{
+			auto ideologyName = nG.modifyWithIdeology(ideology, c.second.name, c.second.adjective);
+			content += " " + c.first + "_" + ideology + ":0 \"" + ideologyName + "\"\n";
+			content += " " + c.first + "_" + ideology + "_DEF:0 \"" + ideologyName + "\"\n";;
+			content += " " + c.first + "_" + ideology + "_ADJ:0 \"" + c.second.adjective + "\"\n";;
+		}
+	}
+	pU::writeFile(path + "countries_l_english.yml", content, true);
+}
+
+void Hoi4Parser::writeStateNames(std::string path, const std::map<std::string, Country>& countries)
+{
+	std::string content = "l_english:\n";
+
+	for (auto c : countries)
+	{
+		for (auto& region : c.second.ownedRegions)
+			content += " STATE_" + to_string(region.ID + 1) + ":0 \"" + region.name + "\"\n";
+	}
+	pU::writeFile(path + "state_names_l_english.yml", content, true);
 }
