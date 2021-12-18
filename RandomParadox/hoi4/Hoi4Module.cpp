@@ -52,6 +52,7 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\countries\\");
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\history\\units\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\units\\");
+	std::experimental::filesystem::create_directory(hoi4ModPath + "\\localisation\\");
 	if (useDefaultMap)
 	{
 		scenGen.hoi4Preparations(useDefaultStates, useDefaultProvinces); // load files, read states/create states
@@ -74,13 +75,12 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 		if (!useDefaultStates)
 		{
 			//hoiParse.dumpAdj(hoi4ModPath + "\\map\\adjacencies.csv");
-			hoiParse.dumpDefinition(hoi4ModPath + "\\map\\definition.csv", scenGen.f.provinceGenerator.provinces);
+			hoiParse.dumpDefinition(hoi4ModPath + "\\map\\definition.csv", scenGen.gameProvinces);
 		}
 		Bitmap::SaveBMPToFile(Data::getInstance().findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
 	}
 	else {
 		scenGen.mapRegions();
-		scenGen.mapProvinces();
 		scenGen.generateCountries();
 		scenGen.generateWorld();
 		// countries
@@ -98,7 +98,7 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 		hoiParse.dumpAirports(hoi4ModPath + "\\map\\airports.txt", f.provinceGenerator.regions);
 		hoiParse.dumpBuildings(hoi4ModPath + "\\map\\buildings.txt", f.provinceGenerator.regions);
 		hoiParse.dumpContinents(hoi4ModPath + "\\map\\continents.txt", f.provinceGenerator.continents);
-		hoiParse.dumpDefinition(hoi4ModPath + "\\map\\definition.csv", f.provinceGenerator.provinces);
+		hoiParse.dumpDefinition(hoi4ModPath + "\\map\\definition.csv", scenGen.gameProvinces);
 		hoiParse.dumpUnitStacks(hoi4ModPath + "\\map\\unitstacks.txt", f.provinceGenerator.provinces);
 		hoiParse.dumpRocketSites(hoi4ModPath + "\\map\\rocketsites.txt", f.provinceGenerator.regions);
 		hoiParse.dumpStrategicRegions(hoi4ModPath + "\\map\\strategicregions", f.provinceGenerator.regions);
@@ -107,7 +107,8 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 		hoiParse.dumpFlags(hoi4ModPath + "\\gfx\\flags\\", scenGen.countryMap);
 		hoiParse.dumpWeatherPositions(hoi4ModPath + "\\map\\weatherpositions.txt", f.provinceGenerator.regions);
 		hoiParse.dumpAdjacencyRules(hoi4ModPath + "\\map\\adjacency_rules.txt");
-
+		hoiParse.writeStateNames(hoi4ModPath + "\\localisation\\", scenGen.countryMap);
+		hoiParse.writeCountryNames(hoi4ModPath + "\\localisation\\", scenGen.countryMap);
 
 		// history
 		// HOI 4:

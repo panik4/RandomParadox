@@ -38,9 +38,30 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator & scenGen)
 			}
 			gameRegion.attributeDoubles["development"] = totalDevFactor;
 			gameRegion.attributeDoubles["population"] = totalStateArea * 5000.0 * totalPopFactor;
+			auto totalCoastal = 0;
+			for (auto& gameProv : gameRegion.gameProvinces)
+			{
+				if (gameProv.baseProvince->coastal)
+				{
+					totalCoastal++;
+					gameProv.attributeDoubles["naval_bases"] = Data::getInstance().getRandomNumber(1, 5);
+				}
+				else {
+					gameProv.attributeDoubles["naval_bases"] = 0;
+				}
+			}
 			auto stateIndustry = (totalStateArea / worldArea) * totalPopFactor * worldIndustry;
-			gameRegion.attributeDoubles["civilianFactories"] = clamp((int)round(stateIndustry*(0.67)),0, 8);
-			gameRegion.attributeDoubles["armsFactories"] = clamp((int)round(stateIndustry*(0.33)), 0, 4);
+			if (totalCoastal > 0)
+			{
+				gameRegion.attributeDoubles["dockyards"] = clamp((int)round(stateIndustry*(0.33)), 0, 4);
+				gameRegion.attributeDoubles["civilianFactories"] = clamp((int)round(stateIndustry*(0.34)), 0, 8);
+				gameRegion.attributeDoubles["armsFactories"] = clamp((int)round(stateIndustry*(0.33)), 0, 4);
+			}
+			else {
+				gameRegion.attributeDoubles["civilianFactories"] = clamp((int)round(stateIndustry*(0.67)), 0, 8);
+				gameRegion.attributeDoubles["armsFactories"] = clamp((int)round(stateIndustry*(0.33)), 0, 4);
+				gameRegion.attributeDoubles["dockyards"] = 0;
+			}
 		}
 	}
 

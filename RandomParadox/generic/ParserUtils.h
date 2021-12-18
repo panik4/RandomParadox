@@ -6,10 +6,15 @@
 class ParserUtils
 {
 public:
-	static void writeFile(std::string path, std::string content)
+	static void writeFile(std::string path, std::string content, bool utf8=false)
 	{
-		ofstream myfile;
+		ofstream myfile; 
 		myfile.open(path);
+		if (utf8)
+		{
+			unsigned char bom[] = { 0xEF,0xBB,0xBF };
+			myfile.write((char*)bom, sizeof(bom));
+		}
 		myfile << content;
 		myfile.close();
 	};

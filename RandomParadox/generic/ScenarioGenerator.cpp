@@ -143,6 +143,7 @@ void ScenarioGenerator::generateWorld()
 {
 	generatePopulations();
 	generateDevelopment();
+	mapTerrain();
 }
 
 void ScenarioGenerator::mapRegions()
@@ -171,19 +172,13 @@ void ScenarioGenerator::mapRegions()
 	}
 }
 
-void ScenarioGenerator::mapProvinces()
-{
-
-
-}
-
 void ScenarioGenerator::generatePopulations()
 {
 	auto popMap = Data::getInstance().findBitmapByKey("population");
 	auto cityMap = Data::getInstance().findBitmapByKey("cities");
 	for (auto& c : countryMap)
-		for (auto& gameProv : c.second.ownedRegions)
-			for (auto& gameProv : gameProv.gameProvinces)
+		for (auto& gameRegion : c.second.ownedRegions)
+			for (auto& gameProv : gameRegion.gameProvinces)
 			{
 				gameProv.popFactor = 0.1 + popMap.getColourAtIndex(gameProv.baseProvince->position.weightedCenter) / Data::getInstance().namedColours["population"];
 
@@ -216,6 +211,47 @@ void ScenarioGenerator::generateDevelopment()
 					cityDensity = cityBMP.getColourAtIndex(gameProv.baseProvince->cityPixels[0]) / Data::getInstance().namedColours["cities"];
 				}
 				gameProv.devFactor = clamp(0.2 + 0.5 * gameProv.popFactor + 1.0 * gameProv.cityShare * cityDensity, 0.0, 1.0);
+			}
+}
+
+void ScenarioGenerator::mapTerrain()
+{
+	vector<std::string> targetTypes{ "plains", "forest", "marsh", "hills", "mountain", "desert", "urban", "jungle" };
+	std::map<Colour, int> colourPrevalence;
+	for (auto& c : countryMap)
+		for (auto& gameRegion : c.second.ownedRegions)
+			for (auto& gameProv : gameRegion.gameProvinces)
+			{
+				auto climateMap = Data::getInstance().findBitmapByKey("climate");
+				for (auto pix : gameProv.baseProvince->pixels)
+				{
+					if (colourPrevalence[climateMap.getColourAtIndex(pix)])
+						colourPrevalence[climateMap.getColourAtIndex(pix)]++;
+					else
+						colourPrevalence[climateMap.getColourAtIndex(pix)] = 1;
+				}
+
+				using pair_type = decltype(colourPrevalence)::value_type;
+				auto pr = std::max_element
+				(
+					std::begin(colourPrevalence), std::end(colourPrevalence),
+					[](const pair_type & p1, const pair_type & p2) {
+					return p1.second < p2.second;
+				}
+				);
+				if (pr->first == Data::getInstance().namedColours["jungle"])
+					gameProv.terrainType = "jungle";
+				else if (pr->first == Data::getInstance().namedColours["forest"])
+					gameProv.terrainType = "forest";
+				else if (pr->first == Data::getInstance().namedColours["lowMountains"])
+					gameProv.terrainType = "hills";
+				else if (pr->first == Data::getInstance().namedColours["mountains"] || pr->first == Data::getInstance().namedColours["peaks"])
+					gameProv.terrainType = "mountain";
+				else if (pr->first == Data::getInstance().namedColours["grassland"] || pr->first == Data::getInstance().namedColours["savannah"])
+					gameProv.terrainType = "plains";
+				else
+					gameProv.terrainType = "plains";
+				gameProvinces[gameProv.ID].terrainType = gameProv.terrainType;
 			}
 }
 
@@ -259,22 +295,12 @@ void ScenarioGenerator::generateCountries()
 		C.developmentFactor = Data::getInstance().getRandomDouble(0.1, 1.0);
 		countryMap.emplace(tag, C);
 	}
-	//vector<std::string> tags = { "BRA", "GER", "FRA", "SOV", "USA", "ITA", "ENG", "GRE", "TUR", "CAN", "BUL" };
-	//for (auto tag : tags)
-	//{
-	//	Country C(tag);
-
-	//	countryMap.emplace(tag, C);
-	//}
 	for (auto& c : countryMap)
 	{
 		auto startRegion(findStartRegion());
 		if (startRegion.assigned || startRegion.sea)
 			continue;
-		//gameRegions[startRegion.ID].assigned = true;
 		c.second.assignRegions(6, gameRegions, startRegion);
-		//if (c.second.ownedRegions.size())
-		//	
 	}
 	for (auto& gameRegion : gameRegions)
 	{
