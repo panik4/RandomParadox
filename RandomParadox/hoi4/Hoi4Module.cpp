@@ -11,20 +11,8 @@ Hoi4Module::~Hoi4Module()
 {
 }
 
-void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorldGenerator f, bool useDefaultMap, bool useDefaultStates, bool useDefaultProvinces, ScenarioGenerator& scenGen)
+void Hoi4Module::createPaths(std::string hoi4ModPath)
 {
-	// validate options:
-	if (!useDefaultProvinces)
-	{
-		useDefaultStates = false;
-	}
-	if (!useDefaultMap)
-	{
-		useDefaultProvinces = false;
-		useDefaultStates = false;
-	}
-
-	Hoi4Parser hoiParse;
 	// prepare folder structure
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\map\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\");
@@ -53,6 +41,22 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\localisation\\");
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\common\\national_focus\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\national_focus\\");
+}
+
+void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorldGenerator f, bool useDefaultMap, bool useDefaultStates, bool useDefaultProvinces, ScenarioGenerator& scenGen)
+{
+	// validate options:
+	if (!useDefaultProvinces)
+	{
+		useDefaultStates = false;
+	}
+	if (!useDefaultMap)
+	{
+		useDefaultProvinces = false;
+		useDefaultStates = false;
+	}
+
+	Hoi4Parser hoiParse;
 	if (useDefaultMap)
 	{
 		scenGen.hoi4Preparations(useDefaultStates, useDefaultProvinces); // load files, read states/create states
@@ -71,7 +75,6 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 		//hoiParse.dumpAdj(hoi4ModPath + "\\map\\adjacencies.csv");
 		hoiParse.dumpAirports(hoi4ModPath + "\\map\\airports.txt", scenGen.f.provinceGenerator.regions);
 		hoiParse.dumpBuildings(hoi4ModPath + "\\map\\buildings.txt", scenGen.f.provinceGenerator.regions);
-		hoiParse.writeCompatibilityHistory(hoi4ModPath + "\\history\\countries\\", hoi4Path + "\\history\\countries\\", scenGen.f.provinceGenerator.regions);
 		if (!useDefaultStates)
 		{
 			//hoiParse.dumpAdj(hoi4ModPath + "\\map\\adjacencies.csv");
@@ -98,7 +101,6 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 		hoiParse.dumpCommonCountries(hoi4ModPath + "\\common\\countries\\", hoi4Path + "\\common\\countries\\colors.txt", scenGen.countryMap);
 		Bitmap::SaveBMPToFile(Data::getInstance().findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
 
-		//hoiParse.readDefaultCountries();
 		hoiParse.dumpAdj(hoi4ModPath + "\\map\\adjacencies.csv");
 		hoiParse.dumpAirports(hoi4ModPath + "\\map\\airports.txt", f.provinceGenerator.regions);
 		hoiParse.dumpBuildings(hoi4ModPath + "\\map\\buildings.txt", f.provinceGenerator.regions);
@@ -118,7 +120,7 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 
 		// history
 		// HOI 4:
-		FormatConverter formatConverter;
+		FormatConverter formatConverter(hoi4Path);
 		formatConverter.dump8BitTerrain(hoi4ModPath + "\\map\\terrain.bmp", "terrainHoi4");
 		formatConverter.dump8BitCities(hoi4ModPath + "\\map\\cities.bmp", "citiesHoi4");
 		formatConverter.dump8BitRivers(hoi4ModPath + "\\map\\rivers.bmp", "riversHoi4");
@@ -127,7 +129,6 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 		formatConverter.dumpTerrainColourmap(hoi4ModPath + "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds");
 		formatConverter.dumpDDSFiles(hoi4ModPath + "\\map\\terrain\\colormap_water_");
 		formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp");
-		//hoiParse.writeCompatibilityHistory(hoi4ModPath + "\\history\\countries\\", hoi4Path + "\\history\\countries\\", f.provinceGenerator.regions);
 	}
 	scenGen.dumpDebugCountrymap(Data::getInstance().debugMapsPath + "countries.bmp");
 }

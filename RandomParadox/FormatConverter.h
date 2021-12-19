@@ -54,7 +54,7 @@ class FormatConverter
 	std::map<string, vector<unsigned char>> colourTables;
 
 public:
-	FormatConverter();
+	FormatConverter(std::string hoiPath);
 	~FormatConverter();
 	void dump8BitHeightmap(string path, string colourMapKey);
 	void dump8BitTerrain(string path, string colourMapKey);
