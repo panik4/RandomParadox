@@ -191,7 +191,6 @@ void ScenarioGenerator::generatePopulations()
 			for (auto& gameProv : gameRegion.gameProvinces)
 			{
 				gameProv.popFactor = 0.1 + popMap.getColourAtIndex(gameProv.baseProvince->position.weightedCenter) / Data::getInstance().namedColours["population"];
-
 				int cityPixels = 0;
 				for (auto pix : gameProv.baseProvince->pixels)
 				{
