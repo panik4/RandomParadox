@@ -146,6 +146,16 @@ void ScenarioGenerator::generateWorld()
 	mapTerrain();
 }
 
+void ScenarioGenerator::mapContinents()
+{
+	auto ID = 0;
+	for (auto& continent : f.provinceGenerator.continents)
+	{
+		GameContinent c;
+		c.ID = continent.ID;
+	}
+}
+
 void ScenarioGenerator::mapRegions()
 {
 	Visualizer::prettyRegions(f.provinceGenerator);
@@ -292,6 +302,7 @@ void ScenarioGenerator::generateCountries()
 		C.adjective = nG.generateAdjective(name);
 		Flag f(Data::getInstance().random2, 82, 52);
 		C.flag = f;
+		C.ID = i;
 		C.developmentFactor = Data::getInstance().getRandomDouble(0.1, 1.0);
 		countryMap.emplace(tag, C);
 	}
@@ -308,6 +319,21 @@ void ScenarioGenerator::generateCountries()
 		{
 			auto x = getNearestAssignedLand(gameRegions, gameRegion, Data::getInstance().width, Data::getInstance().height);
 			countryMap.at(x.owner).addRegion(gameRegion, gameRegions);
+		}
+	}
+}
+
+void ScenarioGenerator::evaluateNeighbours()
+{
+	for (auto& c : countryMap)
+	{
+		for (auto& gameRegion : c.second.ownedRegions)
+		{
+			for (auto& neighbourRegion : gameRegion.neighbours)
+			{
+				if (gameRegions[neighbourRegion].owner != c.first)
+					c.second.neighbours.insert(gameRegions[neighbourRegion].owner);
+			}
 		}
 	}
 }
