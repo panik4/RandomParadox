@@ -14,11 +14,9 @@ Hoi4Module::~Hoi4Module()
 void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorldGenerator f, bool useDefaultMap, bool useDefaultStates, bool useDefaultProvinces, ScenarioGenerator& scenGen)
 {
 	// validate options:
-	std::cout << useDefaultProvinces << std::endl;
 	if (!useDefaultProvinces)
 	{
 		useDefaultStates = false;
-		std::cout << useDefaultStates << std::endl;
 	}
 	if (!useDefaultMap)
 	{
@@ -53,6 +51,8 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\history\\units\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\units\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\localisation\\");
+	std::experimental::filesystem::remove_all(hoi4ModPath + "\\common\\national_focus\\");
+	std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\national_focus\\");
 	if (useDefaultMap)
 	{
 		scenGen.hoi4Preparations(useDefaultStates, useDefaultProvinces); // load files, read states/create states
@@ -81,12 +81,17 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 	}
 	else {
 		scenGen.mapRegions();
+		scenGen.mapContinents();
 		scenGen.generateCountries();
+		scenGen.evaluateNeighbours();
 		scenGen.generateWorld();
+		
 		// countries
 		Hoi4ScenarioGenerator hoi4Gen(f, scenGen);
 		hoi4Gen.generateCountrySpecifics(scenGen, scenGen.countryMap);
 		hoi4Gen.generateStateSpecifics(scenGen);
+		hoi4Gen.evaluateCountries(scenGen);
+		hoi4Gen.evaluateCountryGoals(scenGen);
 		hoiParse.writeHistoryCountries(hoi4ModPath + "\\history\\countries\\", scenGen.countryMap);
 		hoiParse.writeHistoryUnits(hoi4ModPath + "\\history\\units\\", scenGen.countryMap);
 		hoiParse.dumpCommonCountryTags(hoi4ModPath + "\\common\\country_tags\\02_countries.txt", scenGen.countryMap);
@@ -109,6 +114,7 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorld
 		hoiParse.dumpAdjacencyRules(hoi4ModPath + "\\map\\adjacency_rules.txt");
 		hoiParse.writeStateNames(hoi4ModPath + "\\localisation\\", scenGen.countryMap);
 		hoiParse.writeCountryNames(hoi4ModPath + "\\localisation\\", scenGen.countryMap);
+		hoiParse.writeFoci(hoi4ModPath + "\\common\\national_focus\\", hoi4Gen.foci, scenGen.countryMap);
 
 		// history
 		// HOI 4:
