@@ -203,30 +203,29 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator & scenGen)
 	std::vector<int> defDate{ 1,1,1936 };
 	for (auto& majorPower : majorPowers)
 	{
-		auto sourceAttributeStrings = scenGen.countryMap[majorPower].attributeStrings;
-		auto sourceAttributeDoubles = scenGen.countryMap[majorPower].attributeDoubles;
+		auto sourceS = scenGen.countryMap[majorPower].attributeStrings;
+		auto sourceD = scenGen.countryMap[majorPower].attributeDoubles;
 		for (auto& neighbour : scenGen.countryMap[majorPower].neighbours)
 		{
-			auto destAttributeStrings = scenGen.countryMap[neighbour].attributeStrings;
-			auto destAttributeDoubles = scenGen.countryMap[neighbour].attributeDoubles;
-			if (sourceAttributeDoubles["strengthScore"] < 0.66 * destAttributeDoubles["strengthScore"])
+			auto targetS = scenGen.countryMap[neighbour].attributeStrings;
+			auto targetD = scenGen.countryMap[neighbour].attributeDoubles;
+			if (sourceD["strengthScore"] < 0.66 * targetD["strengthScore"])
 			{
 				// source is significantly weaker
-				if (sourceAttributeStrings["rulingParty"] != destAttributeStrings["rulingParty"])
+				if (sourceS["rulingParty"] != targetS["rulingParty"])
 				{
 
 				}
 			}
-			else if (sourceAttributeDoubles["strengthScore"] < 1.33 * destAttributeDoubles["strengthScore"]) {
-
+			else if (sourceD["strengthScore"] < 1.33 * targetD["strengthScore"]) {
 				// source is about equal strength
-				if (sourceAttributeStrings["rulingParty"] != destAttributeStrings["rulingParty"])
+				if (sourceS["rulingParty"] != targetS["rulingParty"])
 				{
 
 				}
 			}
 			else {
-				if (sourceAttributeStrings["rulingParty"] != destAttributeStrings["rulingParty"])
+				if (sourceS["rulingParty"] != targetS["rulingParty"])
 				{
 					// bool default, std::string source, std::string dest, std::vector<int> date
 					std::cout << majorPower << " Attacks " << neighbour << std::endl;
@@ -235,6 +234,26 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator & scenGen)
 					NationalFocus f(focusID++, NationalFocus::FocusType::attack, false, majorPower, neighbour, defDate);
 					foci.push_back(f);
 					warFoci.push_back(f);
+				}
+			}
+		}
+		for (auto &otherMajor : majorPowers)
+		{
+			if (otherMajor == majorPower)
+				continue;
+			auto targetS = scenGen.countryMap[otherMajor].attributeStrings;
+			auto targetD = scenGen.countryMap[otherMajor].attributeDoubles;
+			if (sourceS["rulingParty"] == "fascism" || sourceS["rulingParty"] == "communism")
+			{
+				if (targetS["rulingParty"] == sourceS["rulingParty"])
+				{
+					// establish dominance or ally
+					NationalFocus f(focusID++, NationalFocus::FocusType::attack, false, majorPower, otherMajor, { 1,2,1936 });
+					NationalFocus f2(focusID++, NationalFocus::FocusType::ally, false, majorPower, otherMajor, { 1,2,1936 });
+					vector<NationalFocus> alt{ f,f2 };
+					NationalFocus::makeAlternative(alt);
+					foci.push_back(alt[0]);
+					foci.push_back(alt[1]);
 				}
 			}
 		}

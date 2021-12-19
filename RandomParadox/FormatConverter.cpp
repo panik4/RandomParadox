@@ -63,7 +63,6 @@ void FormatConverter::dump8BitTrees(string path, string colourMapKey)
 {
 	auto width = Data::getInstance().width;
 	auto factor = 3.4133333333333333333333333333333;
-	//auto factor = 2;
 	Bitmap trees((double)Data::getInstance().width / factor, (double)Data::getInstance().height / factor, 8);
 	trees.getColourtable() = colourTables[colourMapKey];
 
@@ -76,8 +75,9 @@ void FormatConverter::dump8BitTrees(string path, string colourMapKey)
 	{
 		for (auto w = 0; w < trees.bInfoHeader.biWidth; w++)
 		{
-			trees.bit8Buffer[(double)i*(double)trees.bInfoHeader.biWidth + (double)w] = colourMaps[colourMapKey][climate.getColourAtIndex(factor * (double)i*(double)width + factor * (double)w)];
-			// (i*trees.bInfoHeader.biWidth + w, sobelMap[factor * i*width + factor * w]);
+			int refHeight = ((double)i / (double)trees.bInfoHeader.biHeight) * Data::getInstance().height;
+			int refWidth = ((double)w / (double)trees.bInfoHeader.biWidth) * Data::getInstance().width;
+			trees.bit8Buffer[(double)i*(double)trees.bInfoHeader.biWidth + (double)w] = colourMaps[colourMapKey][climate.getColourAtIndex(refHeight*width + refWidth)];
 		}
 	}
 	Bitmap::SaveBMPToFile(trees, (path).c_str());
@@ -152,7 +152,7 @@ void FormatConverter::dumpDDSFiles(string path)
 				auto referenceIndex = factor * h*width + factor * w;
 				double depth = (double)heightBMP.getColourAtIndex(referenceIndex).getBlue() / (double)Data::getInstance().seaLevel;
 				auto c = riverBMP.getColourAtIndex(referenceIndex);
-				auto imageIndex = imageHeight* imageWidth - (h * imageWidth + (imageWidth - w));
+				auto imageIndex = imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
 				imageIndex *= 4;
 				if (riverBMP.getColourAtIndex(referenceIndex) == Data::getInstance().namedColours["sea"])
 				{
