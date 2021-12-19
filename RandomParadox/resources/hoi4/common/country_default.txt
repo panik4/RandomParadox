@@ -1,0 +1,6 @@
+
+
+graphical_culture = templateCulture_gfx
+graphical_culture_2d = templateCulture_2d  
+
+color = { templateColour }

@@ -1,0 +1,2 @@
+0;"Infantry with Line Artillery";
+1;"Cavalry";
