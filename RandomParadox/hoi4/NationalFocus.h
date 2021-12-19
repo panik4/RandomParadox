@@ -4,7 +4,7 @@
 class NationalFocus
 {
 public:
-	enum FocusType { attack, defense, military, politics, country };
+	enum FocusType { attack, defense, ally, military, politics, country };
 	//define FocusType;
 	FocusType fType;
 	NationalFocus();
@@ -20,6 +20,7 @@ public:
 	int validity;
 	double durationFactor = 1.0;
 	std::vector<int> precedingFoci;
+	std::vector<int> alternativeFoci;
 
 	bool atWar;
 	int maxWarCount = 1;
@@ -28,7 +29,13 @@ public:
 	std::vector<std::string> effects; // e.g. set_country_flag
 	std::string bypass;
 
+	bool operator==(const NationalFocus& right) const
+	{
+		return ID == right.ID;
+	}
+
 	// organise positions
 	static void organiseFoci(std::vector<NationalFocus>& foci);
+	static void makeAlternative(std::vector<NationalFocus>& foci);
 };
 
