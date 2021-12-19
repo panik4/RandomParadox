@@ -1,0 +1,10 @@
+	division= {
+		division_name = {
+				is_name_ordered = yes
+				name_order = 1
+		}
+		location = templateLocation
+		division_template = templateDivisionName
+		start_experience_factor = 0.5
+		start_equipment_factor = 0.8
+	}
