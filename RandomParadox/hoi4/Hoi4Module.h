@@ -11,7 +11,7 @@ class Hoi4Module
 public:
 	Hoi4Module();
 	~Hoi4Module();
-
+	void createPaths(std::string hoi4ModPath);
 	void genHoi(std::string hoi4ModPath, std::string hoi4Path, FastWorldGenerator f, bool useDefaultMap, bool useDefaultStates, bool useDefaultProvinces, ScenarioGenerator& scenGen);
 };
 

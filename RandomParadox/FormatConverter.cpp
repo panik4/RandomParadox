@@ -175,25 +175,25 @@ void FormatConverter::dumpDDSFiles(string path)
 	}
 }
 
-FormatConverter::FormatConverter()
+FormatConverter::FormatConverter(std::string hoiPath)
 {
-	string terrainsourceString = ("resources\\hoi4\\terrain.bmp");
+	string terrainsourceString = (hoiPath + "\\map\\terrain.bmp");
 	Bitmap terrain = Bitmap::Load8bitBMP(terrainsourceString.c_str(), "terrain");
 	colourTables["terrainHoi4"] = terrain.getColourtable();
 
-	string citySource = ("resources\\hoi4\\terrain.bmp");
+	string citySource = (hoiPath + "\\map\\terrain.bmp");
 	Bitmap cities = Bitmap::Load8bitBMP(citySource.c_str(), "cities");
 	colourTables["citiesHoi4"] = cities.getColourtable();
 
-	string riverSource = ("resources\\hoi4\\rivers.bmp");
+	string riverSource = (hoiPath + "\\map\\rivers.bmp");
 	Bitmap rivers = Bitmap::Load8bitBMP(riverSource.c_str(), "rivers");
 	colourTables["riversHoi4"] = rivers.getColourtable();
 
-	string treeSource = ("resources\\hoi4\\trees.bmp");
+	string treeSource = (hoiPath + "\\map\\trees.bmp");
 	Bitmap trees = Bitmap::Load8bitBMP(treeSource.c_str(), "trees");
 	colourTables["treesHoi4"] = trees.getColourtable();
 
-	string heightmapSource = ("resources\\hoi4\\heightmap.bmp");
+	string heightmapSource = (hoiPath + "\\map\\heightmap.bmp");
 	Bitmap heightmap = Bitmap::Load8bitBMP(heightmapSource.c_str(), "heightmap");
 	colourTables["heightmapHoi4"] = heightmap.getColourtable();
 }

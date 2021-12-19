@@ -1,6 +1,5 @@
 #pragma once
 #include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
-#include <experimental/filesystem>
 #include "../generic/countries/Country.h"
 #include "../generic/ParserUtils.h"
 #include "../generic/TextureWriter.h"
@@ -14,13 +13,10 @@ public:
 	Hoi4Parser();
 	~Hoi4Parser();
 	vector<std::string> defaultTags;
-
-
-	//void insertAtKeyAndReplace(std::string& content, std::string key, std::string value);
-
+	std::string getBuildingLine(std::string type, Region& region, bool coastal);
+	// map
 	void dumpAdj(std::string path);
 	void dumpAirports(std::string path, const vector<Region>& regions);
-	std::string getBuildingLine(std::string type, Region& region, bool coastal);
 	void dumpBuildings(std::string path, const vector<Region>& regions);
 	void dumpContinents(std::string path, const vector<Continent>& continents);
 	void dumpDefinition(std::string path, vector<GameProvince>& provinces);
@@ -30,20 +26,18 @@ public:
 	void dumpAdjacencyRules(std::string path);
 	void dumpStrategicRegions(std::string path, const vector<Region>& regions);
 	void dumpSupplyAreas(std::string path, const vector<Region>& regions);
-	void dumpStates(std::string path, std::map<std::string, Country>& countries);
+
+	//gfx
 	void dumpFlags(std::string path, const std::map<std::string, Country>& countries);
 
-	void copyDefaultOverwrites(std::string pathToHoi4);
-
-	void calcAIAreas();
-	void dumpCommonAIAreas();
-	void dumpCommonBookmark();
-
-
-	void writeCompatibilityHistory(std::string path, std::string hoiPath, const vector<Region>& regions);
+	// history
+	void dumpStates(std::string path, std::map<std::string, Country>& countries);
 	void writeHistoryCountries(std::string path, const std::map<std::string, Country>& countries);
 	void writeHistoryUnits(std::string path, const std::map<std::string, Country>& countries);
-	void writeHistory();
+	// history - National Focus
+	void writeFoci(std::string path, vector<NationalFocus> foci, const std::map<std::string, Country>& countries);
+
+	// common
 	void dumpCommonCountries(std::string path, std::string hoiPath, const std::map<std::string, Country>& countries);
 	void dumpCommonCountryTags(std::string path, const std::map<std::string, Country>& countries);
 
@@ -51,8 +45,6 @@ public:
 	// localisation
 	void writeCountryNames(std::string path, const std::map<std::string, Country>& countries);
 	void writeStateNames(std::string path, const std::map<std::string, Country>& countries);
-	// National Focus
-	void writeFoci(std::string path, vector<NationalFocus> foci, const std::map<std::string, Country>& countries);
 
 };
 
