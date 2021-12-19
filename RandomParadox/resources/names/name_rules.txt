@@ -1,0 +1,14 @@
+gs;v;gm;v;ge;
+gs;v;c;v;gg;
+gs;v;c;v;gg;v;ge;
+gg;v;v;c;
+c;v;v;c;
+c;v;v;c;v;rc;
+c;v;v;c;v;ge;
+c;v;v;gm;v;v;ge;
+c;v;v;gm;v;v;ge;
+c;v;gm;v;v;
+c;v;gg;v;c;v;v;
+v;gm;v;ge;
+v;gm;v;gm;v;
+v;c;v;gm;v;

@@ -328,7 +328,7 @@ void Hoi4Parser::dumpAdjacencyRules(std::string path)
 // awful, just awful
 void Hoi4Parser::dumpStrategicRegions(std::string path, const vector<Region>& regions)
 {
-	auto templateContent = pU::readFile("resources\\hoi4\\strategic_region.txt");
+	auto templateContent = pU::readFile("resources\\hoi4\\map\\strategic_region.txt");
 
 	for (auto region : regions)
 	{
@@ -349,7 +349,7 @@ void Hoi4Parser::dumpStrategicRegions(std::string path, const vector<Region>& re
 
 void Hoi4Parser::dumpSupplyAreas(std::string path, const  vector<Region>& regions)
 {
-	auto templateContent = pU::readFile("resources\\hoi4\\SupplyArea.txt");
+	auto templateContent = pU::readFile("resources\\hoi4\\map\\SupplyArea.txt");
 	for (auto region : regions)
 	{
 		if (region.sea)
@@ -363,7 +363,7 @@ void Hoi4Parser::dumpSupplyAreas(std::string path, const  vector<Region>& region
 
 void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country>& countries)
 {
-	auto templateContent = pU::readFile("resources\\hoi4\\state.txt");
+	auto templateContent = pU::readFile("resources\\hoi4\\history\\state.txt");
 	vector<std::string> stateCategories{ "wasteland", "small_island", "pastoral", "rural", "town", "large_town", "city", "large_city", "metropolis", "megalopolis" };
 	for (auto& country : countries)
 	{

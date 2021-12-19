@@ -15,10 +15,11 @@
 /debugMap/
 *x64
 *.tga
+*.bmp
 
 packages.config*
 *packages
-resources
+
 pdoxMod
 helpFiles
 # Visual Studio 2015 cache directory

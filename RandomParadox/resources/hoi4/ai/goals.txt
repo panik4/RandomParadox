@@ -1,0 +1,61 @@
+Military tree options:
+
+generic:
+	- prepare border for conflict, when targeted
+	
+generic major:
+	- protect ideology friend when targeted by ideology enemy
+		- when medium distance: guarantee
+		- when close: invite to faction
+		- 
+
+fascist/communist major:
+	- attack weak ideology enemy; early
+		- annex
+	- attack neutrality enemy on path to enemy; early
+		- annex	
+	- attack strong ideology enemy; midgame, after weak neighbours
+		- reclaim lost land
+			- annexed by enemy
+			- puppeted by enemy
+		- annex
+	- form alliance with strong ideology friend; early
+		- 
+	
+democracy major:
+	- attack weak ideology enemy; early
+		- puppet
+		- liberate
+	- prepare intervention in active war for ideology friend
+	
+	
+neutrality major:
+	- attack fascist/communist in region
+	- fortify
+	- join some faction (mid to late game)
+	
+
+	
+	
+shared focus trees:
+generic:
+	- develop regions
+		- the larger the country, the more focus options/the stronger the focus
+		- industry
+		- resource production
+	- recruitable pop factor
+	- manpower
+		- non core manpower
+		- absolute values
+	- production efficiency
+		
+	- land lease
+		- to ideology friend
+		- to ideology neutral
+		
+generic major:
+	- radar bonus
+	- tank bonus
+	- industry bonus
+	- variants?
+	
