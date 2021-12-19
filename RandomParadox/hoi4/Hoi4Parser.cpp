@@ -416,43 +416,6 @@ void Hoi4Parser::dumpFlags(std::string path, const std::map<std::string, Country
 		TextureWriter::writeTGA(10, 7, country.second.flag.resize(10, 7), path + "\\small\\" + country.first + ".tga");
 	}
 }
-// copy relevant default text files from Hoi4 sources
-void Hoi4Parser::copyDefaultOverwrites(std::string pathToHoi4)
-{
-	// common/abilities/generic_leader_abilities.txt
-	// common/ai_equipment/generic_naval.txt
-	// common/ai_focuses/generic.txt
-	// common/ai_strategy/generic_operation_strats.txt
-	// common/ai_templates/generic.txt
-	// common/national_focus/generic.txt
-	// common/on_actions/generic.txt
-	//common/operations/00_operations.txt
-	// ....
-}
-
-
-void Hoi4Parser::writeCompatibilityHistory(std::string path, std::string hoiPath, const vector<Region>& regions)
-{
-	vector<int> ids;
-	for (auto region : regions)
-		if (!region.sea)
-			ids.push_back(region.ID);
-
-	const std::experimental::filesystem::path hoiDir{ hoiPath };
-	const std::experimental::filesystem::path modDir{ path };
-	auto random = Data::getInstance().random2;
-	for (auto const& dir_entry : std::experimental::filesystem::directory_iterator{ hoiDir })
-	{
-		std::stringstream pathStream;
-		pathStream << dir_entry.path();
-		std::string pathString;
-		pathString = pathStream.str();
-		std::string filename = pathString.substr(pathString.find_last_of("\\") + 1, pathString.back() - pathString.find_last_of("\\"));
-		auto content = pU::readFile(pathString);
-		pU::replaceLine(content, "capital =", "capital = " + to_string(1/*+ids[random() % ids.size()]*/));
-		pU::writeFile(path + filename, content);
-	}
-}
 
 void Hoi4Parser::writeHistoryCountries(std::string path, const std::map<std::string, Country>& countries)
 {
