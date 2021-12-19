@@ -2,7 +2,7 @@
 
 
 
-Hoi4ScenarioGenerator::Hoi4ScenarioGenerator(FastWorldGenerator& f, ScenarioGenerator sG) : scenGen(sG)
+Hoi4ScenarioGenerator::Hoi4ScenarioGenerator(FastWorldGenerator& f, ScenarioGenerator sG)
 {
 	this->f = f;
 	this->random = Data::getInstance().random2;
@@ -114,12 +114,131 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator & scenGen
 		else
 			c.second.attributeDoubles["allowElections"] = 0;
 		c.second.attributeStrings["fullName"] = scenGen.nG.modifyWithIdeology(c.second.attributeStrings["rulingParty"], c.second.name, c.second.adjective);
-		std::cout << c.second.attributeStrings["fullName"] << std::endl;
 
 		//c.second.attributeStrings["factionMajor"] = Data::getInstance().getRandomNumber(0, 1) ? "yes" : "no";
 
 	}
 
+}
+
+void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator & scenGen)
+{
+	std::map<int, vector<std::string>> strengthScores;
+	for (auto& c : scenGen.countryMap)
+	{
+		auto totalIndustry = 0;
+		auto totalPop = 0;
+		for (auto& ownedRegion : c.second.ownedRegions)
+		{
+			totalIndustry += ownedRegion.attributeDoubles["civilianFactories"];
+			totalIndustry += ownedRegion.attributeDoubles["dockyards"];
+			totalIndustry += ownedRegion.attributeDoubles["armsFactories"];
+			totalPop += ownedRegion.attributeDoubles["population"];
+		}
+		strengthScores[totalIndustry + totalPop / 1000000].push_back(c.first);
+		c.second.attributeDoubles["strengthScore"] = totalIndustry + totalPop / 1000000;
+
+	}
+
+	int totalDeployedCountries = 100 - strengthScores[0].size();
+	int numMajorPowers = totalDeployedCountries / 10;
+	int numRegionalPowers = totalDeployedCountries / 5;
+	int numWeakStates = totalDeployedCountries - numMajorPowers - numRegionalPowers;
+	for (auto& scores : strengthScores)
+	{
+		for (auto& entry : scores.second)
+		{
+			if (scores.first > 0)
+			{
+				if (numWeakStates > weakPowers.size())
+				{
+					weakPowers.push_back(entry);
+					scenGen.countryMap[entry].attributeStrings["rank"] = "weak";
+				}
+				else if (numRegionalPowers > regionalPowers.size()) {
+					regionalPowers.push_back(entry);
+					scenGen.countryMap[entry].attributeStrings["rank"] = "regional";
+				}
+				else {
+					majorPowers.push_back(entry);
+					scenGen.countryMap[entry].attributeStrings["rank"] = "major";
+				}
+			}
+		}
+
+	}
+	generateCountryUnits(scenGen);
+}
+
+void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator & scenGen)
+{
+	// read in different compositions
+	auto compositionMajor = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionMajor.txt");
+	auto compositionRegional = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionRegional.txt");
+	auto compositionWeak = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionWeak.txt");
+
+	for (auto& c : scenGen.countryMap)
+	{
+		// determine the countries composition
+		auto activeComposition = compositionWeak;
+		if (c.second.attributeStrings["rank"] == "major")
+			activeComposition = compositionMajor;
+		else if (c.second.attributeStrings["rank"] == "regional")
+			activeComposition = compositionRegional;
+		// make room for unit values, as the index here is also the ID taken from the composition line
+		c.second.attributeVectors["units"].resize(100);
+		auto totalUnits = c.second.attributeDoubles["strengthScore"] / 5;
+		for (auto& unit : activeComposition)
+		{
+			// get the composition line as numbers
+			auto nums = ParserUtils::getNumbers(unit, ';', std::set<int>{});
+			// now add the unit type. Share of total units * totalUnits
+			c.second.attributeVectors["units"][nums[0]] = ((double)nums[1] / 100.0) * (double)totalUnits;
+		}
+	}
+}
+
+void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator & scenGen)
+{
+	std::vector<int> defDate{ 1,1,1936 };
+	for (auto& majorPower : majorPowers)
+	{
+		auto sourceAttributeStrings = scenGen.countryMap[majorPower].attributeStrings;
+		auto sourceAttributeDoubles = scenGen.countryMap[majorPower].attributeDoubles;
+		for (auto& neighbour : scenGen.countryMap[majorPower].neighbours)
+		{
+			auto destAttributeStrings = scenGen.countryMap[neighbour].attributeStrings;
+			auto destAttributeDoubles = scenGen.countryMap[neighbour].attributeDoubles;
+			if (sourceAttributeDoubles["strengthScore"] < 0.66 * destAttributeDoubles["strengthScore"])
+			{
+				// source is significantly weaker
+				if (sourceAttributeStrings["rulingParty"] != destAttributeStrings["rulingParty"])
+				{
+
+				}
+			}
+			else if (sourceAttributeDoubles["strengthScore"] < 1.33 * destAttributeDoubles["strengthScore"]) {
+
+				// source is about equal strength
+				if (sourceAttributeStrings["rulingParty"] != destAttributeStrings["rulingParty"])
+				{
+
+				}
+			}
+			else {
+				if (sourceAttributeStrings["rulingParty"] != destAttributeStrings["rulingParty"])
+				{
+					// bool default, std::string source, std::string dest, std::vector<int> date
+					std::cout << majorPower << " Attacks " << neighbour << std::endl;
+					//NationalFocus::FocusType ftype,
+
+					NationalFocus f(focusID++, NationalFocus::FocusType::attack, false, majorPower, neighbour, defDate);
+					foci.push_back(f);
+					warFoci.push_back(f);
+				}
+			}
+		}
+	}
 }
 
 

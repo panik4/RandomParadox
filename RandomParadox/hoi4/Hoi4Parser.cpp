@@ -447,9 +447,7 @@ void Hoi4Parser::writeCompatibilityHistory(std::string path, std::string hoiPath
 		pathStream << dir_entry.path();
 		std::string pathString;
 		pathString = pathStream.str();
-		std::cout << pathString << '\n';
 		std::string filename = pathString.substr(pathString.find_last_of("\\") + 1, pathString.back() - pathString.find_last_of("\\"));
-		std::cout << filename << '\n';
 		auto content = pU::readFile(pathString);
 		pU::replaceLine(content, "capital =", "capital = " + to_string(1/*+ids[random() % ids.size()]*/));
 		pU::writeFile(path + filename, content);
@@ -482,10 +480,56 @@ void Hoi4Parser::writeHistoryCountries(std::string path, const std::map<std::str
 void Hoi4Parser::writeHistoryUnits(std::string path, const std::map<std::string, Country>& countries)
 {
 	auto content = pU::readFile("resources\\hoi4\\history\\default_unit_template.txt");
+	auto unitBlock = pU::readFile("resources\\hoi4\\history\\unit_block.txt");
+	auto weakTemplates = pU::readFile("resources\\hoi4\\history\\divisionTemplateWeak.txt");
+	auto regionalTemplates = pU::readFile("resources\\hoi4\\history\\divisionTemplateRegional.txt");
+	auto majorTemplates = pU::readFile("resources\\hoi4\\history\\divisionTemplateMajor.txt");
+	auto IDMapFile = pU::getLines("resources\\hoi4\\history\\divisionIDMapper.txt");
+	std::map<int, std::string> IDMap;
+	for (auto& line : IDMapFile)
+	{
+		if (line.size())
+		{
+			auto lineTokens = pU::getTokens(line, ';');
+			IDMap[stoi(lineTokens[0])] = lineTokens[1];
+		}
+	}
 	for (auto country : countries)
 	{
+		std::string unitFile = content;
+		if (country.second.attributeStrings["rank"] == "major")
+		{
+			ParserUtils::replaceOccurences(unitFile, "templateTemplateBlock", majorTemplates);
+		}
+		else if (country.second.attributeStrings["rank"] == "regional") {
+			ParserUtils::replaceOccurences(unitFile, "templateTemplateBlock", regionalTemplates);
+		}
+		else
+		{
+			ParserUtils::replaceOccurences(unitFile, "templateTemplateBlock", weakTemplates);
+		}
+		std::string totalUnits = "";
+		for (int i = 0; i < country.second.attributeVectors["units"].size(); i++)
+		{
+			for (int x = 0; x < country.second.attributeVectors["units"][i]; x++)
+			{
+				auto tempUnit = unitBlock;
+				ParserUtils::replaceOccurences(tempUnit, "templateDivisionName", IDMap[i]);
+				ParserUtils::replaceOccurences(tempUnit, "templateLocation", to_string(country.second.ownedRegions[0].gameProvinces[0].ID));
+				totalUnits += tempUnit;
+			}
+		}
+
+
+		ParserUtils::replaceOccurences(unitFile, "templateUnitBlock", totalUnits);
+		// units
 		auto tempPath = path + country.first + "_1936.txt";
-		pU::writeFile(tempPath, content);
+		pU::writeFile(tempPath, unitFile);
+
+
+
+
+		// navies
 		tempPath = path + country.first + "_1936_naval_legacy.txt";
 		pU::writeFile(tempPath, "");
 		tempPath = path + country.first + "_1936_naval_mtg.txt";
@@ -553,4 +597,38 @@ void Hoi4Parser::writeStateNames(std::string path, const std::map<std::string, C
 			content += " STATE_" + to_string(region.ID + 1) + ":0 \"" + region.name + "\"\n";
 	}
 	pU::writeFile(path + "state_names_l_english.yml", content, true);
+}
+
+void Hoi4Parser::writeFoci(std::string path, vector<NationalFocus> foci, const std::map<std::string, Country>& countries)
+{
+	std::string baseTree = ParserUtils::readFile("resources\\hoi4\\ai\\focusBase.txt");
+	std::string attackFocus = ParserUtils::readFile("resources\\hoi4\\ai\\attackFocus.txt");
+
+
+	for (auto& c : countries)
+	{
+		std::string treeContent = baseTree;
+		std::string tempContent = "";
+		std::vector<NationalFocus> countryFoci;
+		for (auto& focus : foci)
+		{
+			if (focus.sourceTag == c.first)
+				countryFoci.push_back(focus);
+		}
+		for (auto& countryFocus : countryFoci)
+		{
+			if (countryFocus.fType == countryFocus.attack)
+			{
+				tempContent += attackFocus;
+				ParserUtils::replaceOccurences(tempContent, "templateID", to_string(countryFocus.ID));
+				ParserUtils::replaceOccurences(tempContent, "templateSourceTag", c.first);
+				ParserUtils::replaceOccurences(tempContent, "templateDestTag", countryFocus.destTag);
+				ParserUtils::replaceOccurences(tempContent, "templateXPosition", to_string(countryFocus.position[0]));
+				ParserUtils::replaceOccurences(tempContent, "templateYPosition", to_string(countryFocus.position[1]));
+			}
+		}
+		ParserUtils::replaceOccurences(treeContent, "templateFocusTree", tempContent);
+		ParserUtils::replaceOccurences(treeContent, "templateSourceTag", c.first);
+		ParserUtils::writeFile(path + c.second.name + ".txt", treeContent);
+	}
 }

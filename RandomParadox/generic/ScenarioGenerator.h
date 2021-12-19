@@ -3,6 +3,7 @@
 #include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
 #include "GameRegion.h"
 #include "GameProvince.h"
+#include "GameContinent.h"
 #include "ResourceLoader.h"
 #include "NameGenerator.h"
 #include "Flag.h"
@@ -18,6 +19,7 @@ public:
 	// generic vairables/containers used for every game
 	FastWorldGenerator f;
 	vector<Province*> provinces;
+	vector<GameContinent> gameContinents;
 	vector<GameRegion> gameRegions;
 	vector<GameProvince> gameProvinces;
 	set<std::string> tags;
@@ -37,6 +39,8 @@ public:
 	// generic preparations. However, if desired, there are necessary preparations for every game
 	// such as reading in the existing worldmap, states, regions, provinces etc
 	void generateWorld();
+	// map base continents to generic paradox compatible game continents
+	void mapContinents();
 	// map base regions to generic paradox compatible game regions
 	void mapRegions();
 	//void generateReligions(); // not for hoi4
@@ -49,5 +53,7 @@ public:
 	GameRegion& findStartRegion();
 	// and countries are always created the same way
 	void generateCountries();
+	// see which country neighbours which
+	void evaluateNeighbours();
 };
 

@@ -5,6 +5,7 @@
 #include "../generic/ParserUtils.h"
 #include "../generic/TextureWriter.h"
 #include "../generic/NameGenerator.h"
+#include "NationalFocus.h"
 
 class Hoi4Parser
 {
@@ -50,6 +51,8 @@ public:
 	// localisation
 	void writeCountryNames(std::string path, const std::map<std::string, Country>& countries);
 	void writeStateNames(std::string path, const std::map<std::string, Country>& countries);
+	// National Focus
+	void writeFoci(std::string path, vector<NationalFocus> foci, const std::map<std::string, Country>& countries);
 
 };
 

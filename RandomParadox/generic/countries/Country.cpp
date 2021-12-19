@@ -1,7 +1,8 @@
 #include "Country.h"
 
-int Country::ID = 0;
-
+Country::Country()
+{
+}
 
 Country::Country(std::string tag) : tag{ tag }
 {
