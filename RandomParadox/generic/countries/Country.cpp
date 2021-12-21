@@ -43,6 +43,5 @@ void Country::addRegion(GameRegion& region, vector<GameRegion>& gameRegions)
 	gameRegions[region.ID].owner = tag;
 	region.assigned = true;
 	region.owner = tag;
-	std::cout << region.ID << std::endl;
 	ownedRegions.push_back(region);
 }

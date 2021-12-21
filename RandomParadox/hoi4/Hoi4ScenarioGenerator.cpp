@@ -2,9 +2,8 @@
 
 
 
-Hoi4ScenarioGenerator::Hoi4ScenarioGenerator(FastWorldGenerator& f, ScenarioGenerator sG)
+Hoi4ScenarioGenerator::Hoi4ScenarioGenerator(ScenarioGenerator sG)
 {
-	this->f = f;
 	this->random = Data::getInstance().random2;
 }
 
@@ -69,6 +68,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator & scenGen)
 
 void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator & scenGen, std::map<std::string, Country>& countries)
 {
+	std::cout << "HOI4: Generating Country Specifics\n";
 	// graphical culture pairs:
 	// { graphical_culture = type }
 	// { graphical_culture_2d = type_2d }
@@ -123,6 +123,7 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator & scenGen
 
 void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator & scenGen)
 {
+	std::cout << "HOI4: Evaluating Country Strength\n";
 	std::map<int, vector<std::string>> strengthScores;
 	for (auto& c : scenGen.countryMap)
 	{
@@ -165,13 +166,13 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator & scenGen)
 				}
 			}
 		}
-
 	}
 	generateCountryUnits(scenGen);
 }
 
 void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator & scenGen)
 {
+	std::cout << "HOI4: Generating Country Unit Files\n";
 	// read in different compositions
 	auto compositionMajor = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionMajor.txt");
 	auto compositionRegional = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionRegional.txt");
@@ -200,6 +201,7 @@ void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator & scenGen)
 
 void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator & scenGen)
 {
+	std::cout << "HOI4: Generating Country Goals\n";
 	std::vector<int> defDate{ 1,1,1936 };
 	for (auto& majorPower : majorPowers)
 	{
