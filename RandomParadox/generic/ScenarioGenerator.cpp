@@ -148,6 +148,7 @@ void ScenarioGenerator::generateWorld()
 
 void ScenarioGenerator::mapContinents()
 {
+	std::cout << "Mapping Continents\n";
 	auto ID = 0;
 	for (auto& continent : f.provinceGenerator.continents)
 	{
@@ -158,6 +159,7 @@ void ScenarioGenerator::mapContinents()
 
 void ScenarioGenerator::mapRegions()
 {
+	std::cout << "Mapping Regions\n";
 	Visualizer::prettyRegions(f.provinceGenerator);
 	for (auto& region : f.provinceGenerator.regions)
 	{
@@ -184,6 +186,7 @@ void ScenarioGenerator::mapRegions()
 
 void ScenarioGenerator::generatePopulations()
 {
+	std::cout << "Generating Population\n";
 	auto popMap = Data::getInstance().findBitmapByKey("population");
 	auto cityMap = Data::getInstance().findBitmapByKey("cities");
 	for (auto& c : countryMap)
@@ -209,6 +212,7 @@ void ScenarioGenerator::generateDevelopment()
 	// high city share->high dev
 	// terrain type?
 	// .....
+	std::cout << "Generating State Development\n";
 	auto cityBMP = Data::getInstance().findBitmapByKey("cities");
 	for (auto& c : countryMap)
 		for (auto& gameProv : c.second.ownedRegions)
@@ -225,6 +229,7 @@ void ScenarioGenerator::generateDevelopment()
 
 void ScenarioGenerator::mapTerrain()
 {
+	std::cout << "Mapping Terrain\n";
 	vector<std::string> targetTypes{ "plains", "forest", "marsh", "hills", "mountain", "desert", "urban", "jungle" };
 	std::map<Colour, int> colourPrevalence;
 	for (auto& c : countryMap)
@@ -284,6 +289,7 @@ GameRegion& ScenarioGenerator::findStartRegion()
 // TODO: rulesets, e.g. naming schemes? tags? country size?
 void ScenarioGenerator::generateCountries()
 {
+	std::cout << "Generating Countries\n";
 	auto forbiddenTags = rLoader.loadForbiddenTags(gamePaths["hoi4"]);
 	for (auto tag : forbiddenTags)
 	{
@@ -324,6 +330,7 @@ void ScenarioGenerator::generateCountries()
 
 void ScenarioGenerator::evaluateNeighbours()
 {
+	std::cout << "Evaluating Country Neighbours\n";
 	for (auto& c : countryMap)
 	{
 		for (auto& gameRegion : c.second.ownedRegions)

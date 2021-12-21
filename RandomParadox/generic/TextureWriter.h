@@ -10,7 +10,7 @@ public:
 	TextureWriter();
 	~TextureWriter();
 
-	static void writeDDS(int width, int height, vector<uint8_t> pixelData, DXGI_FORMAT format, std::string destination);
-	static void writeTGA(int width, int height, vector<uint8_t> pixelData, std::string destination);
+	static void writeDDS(int width, int height, vector<uint8_t>& pixelData, DXGI_FORMAT format, std::string destination);
+	static void writeTGA(int width, int height, vector<uint8_t>& pixelData, std::string destination);
 };
 

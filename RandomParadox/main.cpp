@@ -28,7 +28,7 @@ int main() {
 	ScenarioGenerator sG(f);
 	if (genHoi4)
 	{
-		hoi4Mod.genHoi(modPath, hoiPath, f, useDefaultMap, useDefaultStates, useDefaultProvinces, sG);
+		hoi4Mod.genHoi(modPath, hoiPath, useDefaultMap, useDefaultStates, useDefaultProvinces, sG);
 	}
 	return 0;
 	
