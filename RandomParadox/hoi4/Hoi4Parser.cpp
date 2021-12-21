@@ -12,6 +12,7 @@ Hoi4Parser::~Hoi4Parser()
 }
 void Hoi4Parser::dumpAdj(std::string path)
 {
+	std::cout << "HOI4 Parser: Map: Writing Adjacencies\n";
 	// From;To;Type;Through;start_x;start_y;stop_x;stop_y;adjacency_rule_name;Comment
 	// empty file for now
 	std::string content;
@@ -21,8 +22,8 @@ void Hoi4Parser::dumpAdj(std::string path)
 
 void Hoi4Parser::dumpAirports(std::string path, const vector<Region>& regions)
 {
+	std::cout << "HOI4 Parser: Map: Building Airfields\n";
 	std::string content;
-	// regionId={provId }
 	for (auto region : regions)
 	{
 		if (region.sea)
@@ -64,6 +65,7 @@ std::string Hoi4Parser::getBuildingLine(std::string type, Region& region, bool c
 // places building positions
 void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 {
+	std::cout << "HOI4 Parser: Map: Constructing Factories\n";
 	vector<std::string> buildingTypes{ "arms_factory", "industrial_complex", "air_base",
 		"bunker", "coastal_bunker", "dockyard", "naval_base", "anti_air_building",
 		"synthetic_refinery", "nuclear_reactor", "rocket_site", "radar_station", "fuel_silo" };
@@ -164,6 +166,7 @@ void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 
 void Hoi4Parser::dumpContinents(std::string path, const vector<Continent>& continents)
 {
+	std::cout << "HOI4 Parser: Map: Writing Continents\n";
 	std::string content{ "continents = {\n" };
 
 	for (auto continent : continents)
@@ -178,6 +181,7 @@ void Hoi4Parser::dumpContinents(std::string path, const vector<Continent>& conti
 
 void Hoi4Parser::dumpDefinition(std::string path, vector<GameProvince>& provinces)
 {
+	std::cout << "HOI4 Parser: Map: Defining Provinces\n";
 	// province id; r value; g value; b value; province type (land/sea/lake); coastal (true/false); terrain (plains/hills/urban/etc. Defined for land or sea provinces in common/terrain); continent (int)
 	// 0;0;0;0;land;false;unknown;0
 
@@ -255,6 +259,7 @@ void Hoi4Parser::dumpDefinition(std::string path, vector<GameProvince>& province
 
 void Hoi4Parser::dumpRocketSites(std::string path, const vector<Region>& regions)
 {
+	std::cout << "HOI4 Parser: Map: Launching Rockets\n";
 	std::string content;
 	// regionId={provId }
 	for (auto region : regions)
@@ -271,6 +276,7 @@ void Hoi4Parser::dumpRocketSites(std::string path, const vector<Region>& regions
 
 void Hoi4Parser::dumpUnitStacks(std::string path, const vector<Province*> provinces)
 {
+	std::cout << "HOI4 Parser: Map: Remilitarizing the Rhineland\n";
 	// 1;0;3359.00;9.50;1166.00;0.00;0.08
 	// provID, neighbour?, xPos, zPos yPos, rotation(3=north, 0=south, 1.5=east,4,5=west), ??
 	// provID, xPos, ~10, yPos, ~0, 0,5
@@ -301,6 +307,7 @@ void Hoi4Parser::dumpUnitStacks(std::string path, const vector<Province*> provin
 
 void Hoi4Parser::dumpWeatherPositions(std::string path, const vector<Region>& regions)
 {
+	std::cout << "HOI4 Parser: Map: Creating Storms\n";
 	// 1; 2781.24; 9.90; 1571.49; small
 	std::string content{ "" };
 	auto random = Data::getInstance().random2;
@@ -320,6 +327,7 @@ void Hoi4Parser::dumpWeatherPositions(std::string path, const vector<Region>& re
 
 void Hoi4Parser::dumpAdjacencyRules(std::string path)
 {
+	std::cout << "HOI4 Parser: Map: Writing Adjacency Rules\n";
 	std::string content{ "" };
 	// empty for now
 	pU::writeFile(path, content);
@@ -328,6 +336,7 @@ void Hoi4Parser::dumpAdjacencyRules(std::string path)
 // awful, just awful
 void Hoi4Parser::dumpStrategicRegions(std::string path, const vector<Region>& regions)
 {
+	std::cout << "HOI4 Parser: Map: Drawing Strategic Regions\n";
 	auto templateContent = pU::readFile("resources\\hoi4\\map\\strategic_region.txt");
 
 	for (auto region : regions)
@@ -349,6 +358,7 @@ void Hoi4Parser::dumpStrategicRegions(std::string path, const vector<Region>& re
 
 void Hoi4Parser::dumpSupplyAreas(std::string path, const  vector<Region>& regions)
 {
+	std::cout << "HOI4 Parser: Map: Supplying the Troops\n";
 	auto templateContent = pU::readFile("resources\\hoi4\\map\\SupplyArea.txt");
 	for (auto region : regions)
 	{
@@ -363,6 +373,7 @@ void Hoi4Parser::dumpSupplyAreas(std::string path, const  vector<Region>& region
 
 void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country>& countries)
 {
+	std::cout << "HOI4 Parser: History: Drawing State Borders\n";
 	auto templateContent = pU::readFile("resources\\hoi4\\history\\state.txt");
 	vector<std::string> stateCategories{ "wasteland", "small_island", "pastoral", "rural", "town", "large_town", "city", "large_city", "metropolis", "megalopolis" };
 	for (auto& country : countries)
@@ -409,6 +420,7 @@ void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country>& co
 }
 void Hoi4Parser::dumpFlags(std::string path, const std::map<std::string, Country>& countries)
 {
+	std::cout << "HOI4 Parser: Gfx: Printing Flags\n";
 	for (auto country : countries)
 	{
 		TextureWriter::writeTGA(country.second.flag.width, country.second.flag.height, country.second.flag.getFlag(), path + country.first + ".tga");
@@ -419,6 +431,7 @@ void Hoi4Parser::dumpFlags(std::string path, const std::map<std::string, Country
 
 void Hoi4Parser::writeHistoryCountries(std::string path, const std::map<std::string, Country>& countries)
 {
+	std::cout << "HOI4 Parser: History: Writing Country History\n";
 	auto content = pU::readFile("resources\\hoi4\\history\\country_template.txt");
 	for (auto country : countries)
 	{
@@ -442,6 +455,7 @@ void Hoi4Parser::writeHistoryCountries(std::string path, const std::map<std::str
 
 void Hoi4Parser::writeHistoryUnits(std::string path, const std::map<std::string, Country>& countries)
 {
+	std::cout << "HOI4 Parser: History: Deploying the Troops\n";
 	auto content = pU::readFile("resources\\hoi4\\history\\default_unit_template.txt");
 	auto unitBlock = pU::readFile("resources\\hoi4\\history\\unit_block.txt");
 	auto weakTemplates = pU::readFile("resources\\hoi4\\history\\divisionTemplateWeak.txt");
@@ -502,6 +516,7 @@ void Hoi4Parser::writeHistoryUnits(std::string path, const std::map<std::string,
 
 void Hoi4Parser::dumpCommonCountries(std::string path, std::string hoiPath, const std::map<std::string, Country>& countries)
 {
+	std::cout << "HOI4 Parser: Common: Writing Countries\n";
 	auto content = pU::readFile("resources\\hoi4\\common\\country_default.txt");
 	auto colorsTxtTemplate = pU::readFile("resources\\hoi4\\common\\colors.txt");
 	std::string colorsTxt = pU::readFile(hoiPath);
@@ -523,6 +538,7 @@ void Hoi4Parser::dumpCommonCountries(std::string path, std::string hoiPath, cons
 
 void Hoi4Parser::dumpCommonCountryTags(std::string path, const std::map<std::string, Country>& countries)
 {
+	std::cout << "HOI4 Parser: Common: Writing Country Tags\n";
 	std::string content = "";
 	for (auto country : countries)
 	{
@@ -533,6 +549,7 @@ void Hoi4Parser::dumpCommonCountryTags(std::string path, const std::map<std::str
 
 void Hoi4Parser::writeCountryNames(std::string path, const std::map<std::string, Country>& countries)
 {
+	std::cout << "HOI4 Parser: Localisation: Writing Country Names\n";
 	NameGenerator nG;
 	std::string content = "l_english:\n";
 	vector<std::string> ideologies{ "fascism", "communism", "neutrality", "democratic" };
@@ -552,6 +569,7 @@ void Hoi4Parser::writeCountryNames(std::string path, const std::map<std::string,
 
 void Hoi4Parser::writeStateNames(std::string path, const std::map<std::string, Country>& countries)
 {
+	std::cout << "HOI4 Parser: Localisation: Writing State Names\n";
 	std::string content = "l_english:\n";
 
 	for (auto c : countries)
@@ -564,6 +582,7 @@ void Hoi4Parser::writeStateNames(std::string path, const std::map<std::string, C
 
 void Hoi4Parser::writeFoci(std::string path, vector<NationalFocus> foci, const std::map<std::string, Country>& countries)
 {
+	std::cout << "HOI4 Parser: History: Demanding Danzig\n";
 	std::string baseTree = ParserUtils::readFile("resources\\hoi4\\ai\\focusBase.txt");
 	std::string attackFocus = ParserUtils::readFile("resources\\hoi4\\ai\\attackFocus.txt");
 

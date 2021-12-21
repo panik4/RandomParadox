@@ -7,7 +7,6 @@
 
 class Hoi4ScenarioGenerator
 {
-	FastWorldGenerator f;
 	ranlux24 random;
 	NameGenerator nG;
 
@@ -21,7 +20,7 @@ class Hoi4ScenarioGenerator
 public:
 	vector<NationalFocus> foci;
 	vector<NationalFocus> warFoci;
-	Hoi4ScenarioGenerator(FastWorldGenerator& f, ScenarioGenerator sG);
+	Hoi4ScenarioGenerator(ScenarioGenerator sG);
 	~Hoi4ScenarioGenerator();
 
 	void generateStateSpecifics(ScenarioGenerator& scenGen);
