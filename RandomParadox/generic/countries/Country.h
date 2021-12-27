@@ -4,13 +4,14 @@
 #include "../../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
 #include "../GameRegion.h"
 #include "../Flag.h"
+#include "../../hoi4/NationalFocus.h"
 class Country
 {
-	std::string tag;
 	// Flag flag
 	int capitalRegionID;
 
 public:
+	std::string tag;
 	int ID;
 	Country();
 	Country(std::string tag);
@@ -32,5 +33,8 @@ public:
 	{
 		return ID < right.ID;
 	};
+
+
+	vector<vector<NationalFocus>> foci;
 };
 

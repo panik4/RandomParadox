@@ -1,0 +1,9 @@
+# name;list of colours;
+# primary colours
+p1;255,0,0;100,0,100;255,50,50;0,0,0;
+# separators for tricolores: gold, black, silver, white
+p2;211,211,211;255,255,255;0,0,0;255,205,0;
+# symbol colours
+s1;255,255,255;211,211,211;255,205,0;0,0,0;
+#primary, non seperator groups that need to be compatible
+pc1;218,41,28;0,175,102;0,32,91;

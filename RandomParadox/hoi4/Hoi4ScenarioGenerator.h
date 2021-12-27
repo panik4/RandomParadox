@@ -16,6 +16,11 @@ class Hoi4ScenarioGenerator
 	vector<std::string> wargoalsAttack;
 	vector<std::string> goalsDefence;
 	int focusID = 0;
+	std::map<std::string, NationalFocus::FocusType> typeMapping{
+		{"attack", NationalFocus::FocusType::attack},
+		{ "defense", NationalFocus::FocusType::defense },
+		{ "ally", NationalFocus::FocusType::ally }
+	};
 
 public:
 	vector<NationalFocus> foci;
@@ -29,7 +34,8 @@ public:
 	void evaluateCountries(ScenarioGenerator & scenGen);
 
 	void generateCountryUnits(ScenarioGenerator & scenGen);
-
+	NationalFocus buildFocus(vector<std::string> chainStep, Country& source, Country& target);
+	bool fulfillsrequirements(vector<std::string> requirements, Country& source, Country& target);
 	void evaluateCountryGoals(ScenarioGenerator & scenGen);
 	// see which countries are in need of unification
 	void evaluateBrotherlyWars();

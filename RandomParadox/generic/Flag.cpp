@@ -1,5 +1,7 @@
 #include "Flag.h"
-
+map<std::string, vector<Colour>> Flag::colourGroups;
+vector<vector<vector<int>>> Flag::flagTypes(5);
+vector<vector<vector<std::string>>> Flag::flagTypeColours(5);
 Flag::Flag()
 {
 }
@@ -11,11 +13,23 @@ Flag::Flag(ranlux24 random, int width, int height) : random(random), width(width
 	//BYTE* targaimage;
 	//targaimage = (BYTE*)tga_load("C:\\Users\\username\\Documents\\Visual Studio 2017\\Projects\\\RandomVic2\\RandomVic2\\resources\\gfx\\flags\\template.tga", &width, &height, TGA_TRUECOLOR_32);
 	//this->flag = targaimage;
-	flag = std::vector<uint8_t>(width*height * 4, 0);
-	int type = random() % 3;
-
-
-	colours = generateColours();
+	flag = std::vector<uint8_t>(width * height * 4, 0);
+	int type = random() % flagTypes.size();
+	int flagSubType = random() % flagTypes[type].size();
+	int symbolType = *select_random(flagTypes[type][flagSubType]);
+	//colours = generateColours();
+	auto randomIndex = random() % flagTypeColours[type].size();
+	for (auto& colGroup : flagTypeColours[type][flagSubType])
+	{
+		auto colour = *select_random(colourGroups[colGroup]);
+		if (colours.size())
+			while (colour == colours[colours.size() - 1])
+			{
+				colour = *select_random(colourGroups[colGroup]);
+				std::cout << colour << std::endl;
+			}
+		colours.push_back(colour);
+	}
 	for (int i = 0; i < height; i++)
 	{
 		for (int j = 0; j < width; j++)
@@ -41,12 +55,13 @@ Flag::Flag(ranlux24 random, int width, int height) : random(random), width(width
 				break;
 			}
 			default:
+				flagType = PLAIN;
+				plain(i, j);
 				break;
 			}
 		}
 	}
-	type = random() % 5;
-	colours = generateColours();
+	//colours = generateColours();
 	for (int i = 0; i < height; i++)
 	{
 		for (int j = 0; j < width; j++)
@@ -55,37 +70,37 @@ Flag::Flag(ranlux24 random, int width, int height) : random(random), width(width
 			{
 			case 0:
 			{
-				symbolType = MOON;
+				flagSubType = MOON;
 				halfMoon(i, j);
 				break;
 			}
 			case 1:
 			{
-				symbolType = STAR;
+				flagSubType = STAR;
 				star(i, j, 0.5, 0.5, 0.35);
 				break;
 			}
 			case 2:
 			{
-				symbolType = MOONSTAR;
+				flagSubType = MOONSTAR;
 				halfMoonStars(i, j);
 				break;
 			}
 			case 3:
 			{
-				symbolType = SQUARE;
+				flagSubType = SQUARE;
 				squareSquared(i, j);
 				break;
 			}
 			case 4:
 			{
-				symbolType = CIRCLE;
+				flagSubType = CIRCLE;
 				circle(i, j);
 				break;
 			}
 			case 5:
 			{
-				symbolType = MULTISTAR;
+				flagSubType = MULTISTAR;
 				circle(i, j);
 				break;
 			}
@@ -120,7 +135,7 @@ void Flag::plain(int i, int j)
 void Flag::squareSquared(int i, int j)
 {
 	if (abs((int)j - width / 2) < 16 && abs((int)i - height / 2) < 16)
-		setPixel(colours[1], i, j);
+		setPixel(colours.back(), i, j);
 }
 
 void Flag::circle(int i, int j)
@@ -130,7 +145,7 @@ void Flag::circle(int i, int j)
 	Point curPos{ j, i };
 	auto distance = abs(std::hypot(center.x - curPos.x, center.y - curPos.y));
 	if (distance < 15) {
-		setPixel(colours[1], i, j);
+		setPixel(colours.back(), i, j);
 	}
 }
 
@@ -145,8 +160,8 @@ void Flag::halfMoon(int i, int j)
 		double distanceFromLeftMost = fabs(curPos.x - (center.x - radius));
 		double factor = (distanceFromLeftMost / (radius));
 		auto distance = std::hypot(center.x - curPos.x, center.y - curPos.y);
-		if (distance < radius && distance > radius*0.5*(factor)) {
-			setPixel(colours[3], i, j);
+		if (distance < radius && distance > radius * 0.5 * (factor)) {
+			setPixel(colours.back(), i, j);
 		}
 	}
 }
@@ -169,7 +184,7 @@ void Flag::star(int i, int j, double xPos, double yPos, double size)
 	typedef boost::geometry::model::linestring<point_type> linestring_type;
 
 
-	bg::model::point<double, 2, bg::cs::cartesian> center(width*xPos, height*yPos);
+	bg::model::point<double, 2, bg::cs::cartesian> center(width * xPos, height * yPos);
 	bg::model::point<double, 2, bg::cs::cartesian> curPos(j, i);
 	vector<bg::model::point<double, 2, bg::cs::cartesian>> points;
 	bg::model::point<double, 2, bg::cs::cartesian> one(bg::get<0>(center), bg::get<1>(center) + size * width); // up
@@ -193,11 +208,11 @@ void Flag::star(int i, int j, double xPos, double yPos, double size)
 		double yDistance = bg::distance(curPos, points[index]);
 
 		double centerDistance = bg::distance(curPos, center);
-		if (yDistance < (size*width)) {
+		if (yDistance < (size * width)) {
 
-			double factor = yDistance / (size*(double)width);
-			if (lineDistance < (width / 4 * size)*factor)
-				setPixel(colours[3], i, j);
+			double factor = yDistance / (size * (double)width);
+			if (lineDistance < (width / 4 * size) * factor)
+				setPixel(colours.back(), i, j);
 
 		}
 	}
@@ -261,15 +276,15 @@ vector<Colour> Flag::generateColours()
 
 void Flag::setPixel(Colour colour, uint32_t x, uint32_t y)
 {
-	flag[(x*width + y) * 4] = colour.getRed();
-	flag[(x*width + y) * 4 + 1] = colour.getGreen();
-	flag[(x*width + y) * 4 + 2] = colour.getBlue();
-	flag[(x*width + y) * 4 + 3] = 255;
+	flag[(x * width + y) * 4] = colour.getRed();
+	flag[(x * width + y) * 4 + 1] = colour.getGreen();
+	flag[(x * width + y) * 4 + 2] = colour.getBlue();
+	flag[(x * width + y) * 4 + 3] = 255;
 }
 
 Colour Flag::getPixel(uint32_t x, uint32_t y)
 {
-	Colour colour{ flag[(x*width + y) * 4],flag[(x*width + y) * 4 + 1],flag[(x*width + y) * 4 + 2] };
+	Colour colour{ flag[(x * width + y) * 4],flag[(x * width + y) * 4 + 1],flag[(x * width + y) * 4 + 2] };
 	return colour;
 }
 
@@ -287,7 +302,7 @@ vector<uint8_t> Flag::getFlag()
 
 vector<uint8_t> Flag::resize(int width, int height)
 {
-	auto resized = std::vector<uint8_t>(width*height * 4, 0);
+	auto resized = std::vector<uint8_t>(width * height * 4, 0);
 	auto factor = this->width / width;
 	for (int h = 0; h < height; h++)
 	{
@@ -295,11 +310,60 @@ vector<uint8_t> Flag::resize(int width, int height)
 		{
 			auto colourmapIndex = factor * h * this->width + factor * w;
 			colourmapIndex *= 4;
-			resized[(h*width + w) * 4] = flag[colourmapIndex];
-			resized[(h*width + w) * 4 + 1] = flag[colourmapIndex + 1];
-			resized[(h*width + w) * 4 + 2] = flag[colourmapIndex + 2];
-			resized[(h*width + w) * 4 + 3] = flag[colourmapIndex + 3];
+			resized[(h * width + w) * 4] = flag[colourmapIndex];
+			resized[(h * width + w) * 4 + 1] = flag[colourmapIndex + 1];
+			resized[(h * width + w) * 4 + 2] = flag[colourmapIndex + 2];
+			resized[(h * width + w) * 4 + 3] = flag[colourmapIndex + 3];
 		}
 	}
 	return resized;
+}
+
+void Flag::readColourGroups()
+{
+	auto lines = ParserUtils::getLines("resources\\flags\\colour_groups.txt");
+	for (auto& line : lines)
+	{
+		if (!line.size())
+			continue;
+		auto tokens = ParserUtils::getTokens(line, ';');
+		for (int i = 1; i < tokens.size(); i++)
+		{
+			auto colour = ParserUtils::getNumbers(tokens[i], ',', std::set<int>{});
+			colourGroups[tokens[0]].push_back(Colour(colour));
+		}
+	}
+}
+
+void Flag::readFlagTypes()
+{
+	auto lines = ParserUtils::getLines("resources\\flags\\flag_types.txt");
+	for (auto& line : lines)
+	{
+		if (!line.size())
+			continue;
+		auto tokens = ParserUtils::getTokens(line, ';');
+		auto flagType = stoi(tokens[0]);
+		auto flagTypeID = flagTypes[flagType].size();
+		auto symbols = ParserUtils::getTokens(tokens[1], ',');
+		auto colourGroupStrings = ParserUtils::getTokens(tokens[2], ',');
+		flagTypes[flagType].push_back(std::vector<int>{});
+		flagTypeColours[flagType].push_back(std::vector<std::string>{});
+		for (auto symbolRange : symbols)
+		{
+			auto rangeTokens = ParserUtils::getNumbers(symbolRange, '-', std::set<int>{});
+			for (auto x = rangeTokens[0]; x <= rangeTokens[1]; x++)
+			{
+				flagTypes[flagType][flagTypeID].push_back(x);
+			}
+		}
+		for (auto& cGroup : colourGroupStrings)
+		{
+			flagTypeColours[flagType][flagTypeID].push_back(cGroup);
+		}
+		//auto colour = ParserUtils::getNumbers(tokens[i], ',', std::set<int>{});
+		//colourGroups[tokens[0]].push_back(Colour(colour));
+		//flagTypes[tokens[0]].push
+	}
+
 }

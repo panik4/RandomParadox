@@ -1,0 +1,8 @@
+#chain ID;step;rank;political;type;source;target;condition;
+0;0;major;fascism;attack;self;minor+!ideology+neighbour;
+0;1;major;fascism;attack;self;regional+!ideology+neighbour/after-conquest-neighbour;
+0;1;major;fascism;ally;self;regional+ideology+neighbour/after-conquest-neighbour;
+0;2;major;fascism;attack;self;major+!ideology+neighbour;
+
+1;0;regional;any;faction;self;!major+ideology+close;targeted;
+

@@ -11,9 +11,10 @@ Hoi4Module::~Hoi4Module()
 {
 }
 
-void Hoi4Module::createPaths(std::string hoi4ModPath)
+void Hoi4Module::createPaths()
 {
 	// prepare folder structure
+	std::experimental::filesystem::create_directory(hoi4ModPath);
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\map\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\");
@@ -43,9 +44,10 @@ void Hoi4Module::createPaths(std::string hoi4ModPath)
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\national_focus\\");
 }
 
-void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, bool useDefaultMap, bool useDefaultStates, bool useDefaultProvinces, ScenarioGenerator& scenGen)
+void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefaultProvinces, ScenarioGenerator& scenGen)
 {
-	createPaths(hoi4ModPath);
+	readConfig();
+	createPaths();
 	// validate options:
 	if (!useDefaultProvinces)
 	{
@@ -132,5 +134,26 @@ void Hoi4Module::genHoi(std::string hoi4ModPath, std::string hoi4Path, bool useD
 		formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp");
 	}
 	scenGen.dumpDebugCountrymap(Data::getInstance().debugMapsPath + "countries.bmp");
+}
+
+void Hoi4Module::readConfig()
+{
+	ifstream f("hoiconfig.json");
+	std::stringstream buffer;
+	if (!f.good())
+	{
+		std::cout << "Config could not be loaded" << std::endl;
+	}
+	buffer << f.rdbuf();
+
+	// Short alias for this namespace
+	namespace pt = boost::property_tree;
+
+	// Create a root
+	pt::ptree root;
+	pt::read_json(buffer, root);
+	//debugMapsPath = root.get<string>("debug.debugMapsPath");
+	hoi4Path = root.get<string>("module.hoi4Path");
+	hoi4ModPath = root.get<string>("module.hoi4ModPath");
 }
 

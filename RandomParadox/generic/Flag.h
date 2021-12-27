@@ -12,15 +12,20 @@
 #include <boost/geometry.hpp>
 
 #include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
+#include "ParserUtils.h"
 
 namespace bg = boost::geometry;
 using namespace std;
 class Flag
 {
+
+	static map<std::string, vector<Colour>> colourGroups;
+	static vector<vector<vector<int>>> flagTypes;
+	static vector<vector<vector<std::string>>> flagTypeColours;
 	ranlux24 random;
 	vector<Colour> colours;
 	vector<uint8_t> flag;
-	enum type { TRICOLORE, ROTATEDTRICOLORE, PLAIN, };
+	enum type { TRICOLORE, ROTATEDTRICOLORE, PLAIN, BICOLORE, ROTATEDBICOLORE };
 	enum symbolType { CIRCLE, SQUARE, MOON, STAR, MOONSTAR, MULTISTAR };
 	type flagType;
 	symbolType symbolType;
@@ -46,5 +51,8 @@ public:
 	Colour getPixel(uint32_t pos);
 	vector<uint8_t> getFlag();
 	vector<uint8_t> resize(int width, int hight);
+
+	static void readColourGroups();
+	static void readFlagTypes();
 };
 
