@@ -143,7 +143,7 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator & scenGen)
 
 	int totalDeployedCountries = 100 - strengthScores[0].size();
 	int numMajorPowers = totalDeployedCountries / 10;
-	int numRegionalPowers = totalDeployedCountries / 5;
+	int numRegionalPowers = totalDeployedCountries / 3;
 	int numWeakStates = totalDeployedCountries - numMajorPowers - numRegionalPowers;
 	for (auto& scores : strengthScores)
 	{
@@ -199,67 +199,176 @@ void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator & scenGen)
 	}
 }
 
+NationalFocus Hoi4ScenarioGenerator::buildFocus(vector<std::string> chainStep, Country & source, Country & target)
+{
+	auto x = chainStep[5];
+	auto a = typeMapping["attack"];
+	auto dateTokens = ParserUtils::getNumbers(chainStep[9], '-', std::set<int>{});
+	NationalFocus nF(a, false, source.tag, target.tag, dateTokens);
+	return nF;
+}
+
+bool Hoi4ScenarioGenerator::fulfillsrequirements(vector<std::string> requirements, Country& source, Country& target)
+{
+	for (auto& requirement : requirements)
+	{
+		// need to check rank
+		// first get the desired value
+		auto value = ParserUtils::getBracketBlockContent(requirement, "rank");
+		if (value != "")
+		{
+			if (target.attributeStrings["rank"] != value)
+				return false; // targets rank is not right
+		}
+		value = ParserUtils::getBracketBlockContent(requirement, "ideology");
+		if (value != "")
+		{
+			if (value == "any")
+				continue; // fine, may target any ideology
+			if (value == "same")
+				if (target.attributeStrings["rulingParty"] != source.attributeStrings["rulingParty"])
+					return false;
+			if (value == "not")
+				if (target.attributeStrings["rulingParty"] == source.attributeStrings["rulingParty"])
+					return false;
+		}
+		value = ParserUtils::getBracketBlockContent(requirement, "location");
+		if (value != "")
+		{
+			if (value == "any")
+				continue; // fine, may target any ideology
+			if (value == "neighbour")
+			{
+				if (source.neighbours.find(target.tag) == source.neighbours.end())
+					return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator & scenGen)
 {
 	std::cout << "HOI4: Generating Country Goals\n";
 	std::vector<int> defDate{ 1,1,1936 };
+	auto majorChains = ParserUtils::getLinesByID("resources\\hoi4\\history\\national_focus\\major_chains.txt");
+
+	auto typeCounter = 0;
 	for (auto& majorPower : majorPowers)
 	{
+		int chainID = 0;
 		auto sourceS = scenGen.countryMap[majorPower].attributeStrings;
 		auto sourceD = scenGen.countryMap[majorPower].attributeDoubles;
-		for (auto& neighbour : scenGen.countryMap[majorPower].neighbours)
+		for (auto chain : majorChains)
 		{
-			auto targetS = scenGen.countryMap[neighbour].attributeStrings;
-			auto targetD = scenGen.countryMap[neighbour].attributeDoubles;
-			if (sourceD["strengthScore"] < 0.66 * targetD["strengthScore"])
-			{
-				// source is significantly weaker
-				if (sourceS["rulingParty"] != targetS["rulingParty"])
-				{
-
-				}
-			}
-			else if (sourceD["strengthScore"] < 1.33 * targetD["strengthScore"]) {
-				// source is about equal strength
-				if (sourceS["rulingParty"] != targetS["rulingParty"])
-				{
-
-				}
-			}
-			else {
-				if (sourceS["rulingParty"] != targetS["rulingParty"])
-				{
-					// bool default, std::string source, std::string dest, std::vector<int> date
-					std::cout << majorPower << " Attacks " << neighbour << std::endl;
-					//NationalFocus::FocusType ftype,
-
-					NationalFocus f(focusID++, NationalFocus::FocusType::attack, false, majorPower, neighbour, defDate);
-					foci.push_back(f);
-					warFoci.push_back(f);
-				}
-			}
-		}
-		for (auto &otherMajor : majorPowers)
-		{
-			if (otherMajor == majorPower)
+			// evaluate whole chain (chain defined by ID)
+			if (!chain.size())
 				continue;
-			auto targetS = scenGen.countryMap[otherMajor].attributeStrings;
-			auto targetD = scenGen.countryMap[otherMajor].attributeDoubles;
-			if (sourceS["rulingParty"] == "fascism" || sourceS["rulingParty"] == "communism")
+			// we need to save options for every chain step
+			vector <vector<Country>> stepTargets;
+			//stepTargets.resize(100); // leave some space
+
+			for (auto chainFocus : chain)
 			{
-				if (targetS["rulingParty"] == sourceS["rulingParty"])
+				// evaluate every single focus of that chain
+				auto chainTokens = ParserUtils::getTokens(chainFocus, ';');
+				int chainStep = stoi(chainTokens[1]);
+				if (sourceS["rulingParty"] == chainTokens[4])
 				{
-					// establish dominance or ally
-					NationalFocus f(focusID++, NationalFocus::FocusType::attack, false, majorPower, otherMajor, { 1,2,1936 });
-					NationalFocus f2(focusID++, NationalFocus::FocusType::ally, false, majorPower, otherMajor, { 1,2,1936 });
-					vector<NationalFocus> alt{ f,f2 };
-					NationalFocus::makeAlternative(alt);
-					foci.push_back(alt[0]);
-					foci.push_back(alt[1]);
+					stepTargets.resize(stepTargets.size() + 1);
+					// source triggers this focus
+					// split requirements
+					auto targetRequirements = ParserUtils::getTokens(chainTokens[6], '+');
+					for (auto& country : scenGen.countryMap)
+					{
+						// now check every country if it fulfills the target requirements
+						if (fulfillsrequirements(targetRequirements, scenGen.countryMap[majorPower], country.second))
+						{
+							stepTargets[chainStep].push_back(country.second);
+						}
+					}
+				}
+			}
+			// now build the chain from the options
+			if (stepTargets.size())
+			{
+				cout << "Building focus" << std::endl;
+				std::map<int, NationalFocus> fulfilledSteps;
+				int stepIndex = -1;
+				for (auto& targets : stepTargets)
+				{
+					stepIndex++;
+					//std::cout << targets << std::endl;
+					if (!targets.size())
+						continue;
+					auto target = *select_random(targets);
+					auto focus = buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'), scenGen.countryMap[majorPower], target);
+
+					std::cout << focus << std::endl;
 				}
 			}
 		}
 	}
+
+
+	//for (auto& majorPower : majorPowers)
+	//{
+	//	auto sourceS = scenGen.countryMap[majorPower].attributeStrings;
+	//	auto sourceD = scenGen.countryMap[majorPower].attributeDoubles;
+	//	for (auto& neighbour : scenGen.countryMap[majorPower].neighbours)
+	//	{
+	//		auto targetS = scenGen.countryMap[neighbour].attributeStrings;
+	//		auto targetD = scenGen.countryMap[neighbour].attributeDoubles;
+	//		if (sourceD["strengthScore"] < 0.66 * targetD["strengthScore"])
+	//		{
+	//			// source is significantly weaker
+	//			if (sourceS["rulingParty"] != targetS["rulingParty"])
+	//			{
+
+	//			}
+	//		}
+	//		else if (sourceD["strengthScore"] < 1.33 * targetD["strengthScore"]) {
+	//			// source is about equal strength
+	//			if (sourceS["rulingParty"] != targetS["rulingParty"])
+	//			{
+
+	//			}
+	//		}
+	//		else {
+	//			if (sourceS["rulingParty"] != targetS["rulingParty"])
+	//			{
+	//				// bool default, std::string source, std::string dest, std::vector<int> date
+	//				std::cout << majorPower << " Attacks " << neighbour << std::endl;
+	//				//NationalFocus::FocusType ftype,
+
+	//				NationalFocus f(focusID++, NationalFocus::FocusType::attack, false, majorPower, neighbour, defDate);
+	//				foci.push_back(f);
+	//				warFoci.push_back(f);
+	//			}
+	//		}
+	//	}
+	//	for (auto &otherMajor : majorPowers)
+	//	{
+	//		if (otherMajor == majorPower)
+	//			continue;
+	//		auto targetS = scenGen.countryMap[otherMajor].attributeStrings;
+	//		auto targetD = scenGen.countryMap[otherMajor].attributeDoubles;
+	//		if (sourceS["rulingParty"] == "fascism" || sourceS["rulingParty"] == "communism")
+	//		{
+	//			if (targetS["rulingParty"] == sourceS["rulingParty"])
+	//			{
+	//				// establish dominance or ally
+	//				NationalFocus f(focusID++, NationalFocus::FocusType::attack, false, majorPower, otherMajor, { 1,2,1936 });
+	//				NationalFocus f2(focusID++, NationalFocus::FocusType::ally, false, majorPower, otherMajor, { 1,2,1936 });
+	//				vector<NationalFocus> alt{ f,f2 };
+	//				NationalFocus::makeAlternative(alt);
+	//				foci.push_back(alt[0]);
+	//				foci.push_back(alt[1]);
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 

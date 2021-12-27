@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 #include <experimental/filesystem>
 #include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
 
@@ -55,11 +56,34 @@ public:
 		myfile.open(path);
 		while (getline(myfile, line))
 		{
+			if (line.front() == '#')
+				continue;
 			content.push_back(line);
 		}
 		myfile.close();
 		return content;
 	};
+
+	static vector<vector<std::string>> getLinesByID(std::string path)
+	{
+		vector<vector<std::string>> sortedLines;
+		sortedLines.resize(1000);
+		int IDcounter = 0;
+		std::string line;
+		ifstream myfile;
+		myfile.open(path);
+		while (getline(myfile, line))
+		{
+			if (line.size() && line.front() != '#')
+			{
+				auto tokens = getTokens(line, ';');
+				sortedLines[stoi(tokens[0])].push_back(line);
+			}
+		}
+		myfile.close();
+		return sortedLines;
+	};
+
 	static std::string csvFormat(vector<std::string> arguments, char delimiter, bool trailing)
 	{
 		vector<string>::iterator arg;
@@ -116,8 +140,7 @@ public:
 
 	static std::string getBracketBlock(std::string& content, std::string key)
 	{
-		auto pos = 0;
-		pos = content.find(key);
+		auto pos = content.find(key);
 		if (pos != string::npos)
 		{
 			auto blockEnd = content.find("}", pos) + 1; // find closing bracket
@@ -125,7 +148,17 @@ public:
 		}
 		return "";
 	};
-
+	static std::string getBracketBlockContent(std::string& content, std::string key)
+	{
+		auto block = getBracketBlock(content, key);
+		auto pos = block.find("{") + 1;
+		if (pos != string::npos)
+		{
+			auto blockEnd = block.find("}", pos); // find closing bracket
+			return block.substr(pos, blockEnd - pos);
+		}
+		return "";
+	};
 	static void removeCharacter(std::string& content, char character)
 	{
 		content.erase(std::remove(content.begin(), content.end(), character), content.end());

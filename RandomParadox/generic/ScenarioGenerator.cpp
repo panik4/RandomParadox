@@ -5,6 +5,8 @@
 ScenarioGenerator::ScenarioGenerator(FastWorldGenerator& f) : f(f)
 {
 	gamePaths["hoi4"] = "D:\\Steam\\steamapps\\common\\Hearts of Iron IV\\";
+	Flag::readColourGroups();
+	Flag::readFlagTypes();
 }
 
 
@@ -229,6 +231,8 @@ void ScenarioGenerator::generateDevelopment()
 
 void ScenarioGenerator::mapTerrain()
 {
+	auto namedColours = Data::getInstance().namedColours;
+	auto climateMap = Data::getInstance().findBitmapByKey("climate");
 	std::cout << "Mapping Terrain\n";
 	vector<std::string> targetTypes{ "plains", "forest", "marsh", "hills", "mountain", "desert", "urban", "jungle" };
 	std::map<Colour, int> colourPrevalence;
@@ -236,8 +240,7 @@ void ScenarioGenerator::mapTerrain()
 		for (auto& gameRegion : c.second.ownedRegions)
 			for (auto& gameProv : gameRegion.gameProvinces)
 			{
-				auto climateMap = Data::getInstance().findBitmapByKey("climate");
-				for (auto pix : gameProv.baseProvince->pixels)
+				for (auto& pix : gameProv.baseProvince->pixels)
 				{
 					if (colourPrevalence[climateMap.getColourAtIndex(pix)])
 						colourPrevalence[climateMap.getColourAtIndex(pix)]++;
@@ -253,15 +256,15 @@ void ScenarioGenerator::mapTerrain()
 					return p1.second < p2.second;
 				}
 				);
-				if (pr->first == Data::getInstance().namedColours["jungle"])
+				if (pr->first == namedColours["jungle"])
 					gameProv.terrainType = "jungle";
-				else if (pr->first == Data::getInstance().namedColours["forest"])
+				else if (pr->first == namedColours["forest"])
 					gameProv.terrainType = "forest";
-				else if (pr->first == Data::getInstance().namedColours["lowMountains"])
+				else if (pr->first == namedColours["lowMountains"])
 					gameProv.terrainType = "hills";
-				else if (pr->first == Data::getInstance().namedColours["mountains"] || pr->first == Data::getInstance().namedColours["peaks"])
+				else if (pr->first == namedColours["mountains"] || pr->first == namedColours["peaks"])
 					gameProv.terrainType = "mountain";
-				else if (pr->first == Data::getInstance().namedColours["grassland"] || pr->first == Data::getInstance().namedColours["savannah"])
+				else if (pr->first == namedColours["grassland"] || pr->first == namedColours["savannah"])
 					gameProv.terrainType = "plains";
 				else
 					gameProv.terrainType = "plains";
