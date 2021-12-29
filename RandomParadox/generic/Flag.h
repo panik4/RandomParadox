@@ -25,8 +25,8 @@ class Flag
 	ranlux24 random;
 	vector<Colour> colours;
 	vector<uint8_t> flag;
-	enum type { TRICOLORE, ROTATEDTRICOLORE, PLAIN, BICOLORE, ROTATEDBICOLORE };
-	enum symbolType { CIRCLE, SQUARE, MOON, STAR, MOONSTAR, MULTISTAR };
+	enum type { TRICOLORE, ROTATEDTRICOLORE, PLAIN, PLAIN_TRIANGLE, BICOLORE, BICOLORE_TRIANGLE, ROTATEDBICOLORE };
+	enum symbolType { CIRCLE, SQUARE, MOON, STAR, MOONSTAR, MULTISTAR, LEFT_TRIANGLE };
 	type flagType;
 	symbolType symbolType;
 
@@ -38,12 +38,15 @@ public:
 	~Flag();
 	void tricolore(int i, int j);
 	void rotatedTricolore(int i, int j);
+	void bicolore(int i, int j);
+	void rotatedBicolore(int i, int j);
 	void plain(int i, int j);
 	void squareSquared(int i, int j);
 	void circle(int i, int j);
 	void halfMoon(int i, int j );
 	void star(int i, int j, double xPos, double yPos, double size);
 	void halfMoonStars(int i, int j);
+	void triangle(int i, int j, double xPos, double yPos, double size);
 	//void triangle(int i, int j, )
 	vector<Colour> generateColours();
 	void setPixel(Colour colour, uint32_t x, uint32_t y);
