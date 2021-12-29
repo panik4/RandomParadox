@@ -1,7 +1,7 @@
 #include "Flag.h"
 map<std::string, vector<Colour>> Flag::colourGroups;
-vector<vector<vector<int>>> Flag::flagTypes(5);
-vector<vector<vector<std::string>>> Flag::flagTypeColours(5);
+vector<vector<vector<int>>> Flag::flagTypes(7);
+vector<vector<vector<std::string>>> Flag::flagTypeColours(7);
 Flag::Flag()
 {
 }
@@ -16,18 +16,25 @@ Flag::Flag(ranlux24 random, int width, int height) : random(random), width(width
 	flag = std::vector<uint8_t>(width * height * 4, 0);
 	int type = random() % flagTypes.size();
 	int flagSubType = random() % flagTypes[type].size();
-	int symbolType = *select_random(flagTypes[type][flagSubType]);
+	int symbolType = flagTypes[type][flagSubType].size() ? *select_random(flagTypes[type][flagSubType]) : 0;
+	
 	//colours = generateColours();
 	auto randomIndex = random() % flagTypeColours[type].size();
 	for (auto& colGroup : flagTypeColours[type][flagSubType])
 	{
+			
 		auto colour = *select_random(colourGroups[colGroup]);
 		if (colours.size())
 			while (colour == colours[colours.size() - 1])
 			{
 				colour = *select_random(colourGroups[colGroup]);
-				std::cout << colour << std::endl;
 			}
+		// symbol must not have the same colour as any of the previous flag colours
+		if (colGroup == flagTypeColours[type][flagSubType].back())
+		{
+		
+		}
+
 		colours.push_back(colour);
 	}
 	for (int i = 0; i < height; i++)
@@ -54,6 +61,32 @@ Flag::Flag(ranlux24 random, int width, int height) : random(random), width(width
 				plain(i, j);
 				break;
 			}
+			case 3:
+			{
+				flagType = PLAIN_TRIANGLE;
+				plain(i, j);
+				triangle(i, j, -0.1, 0.5, 0.55);
+				break;
+			}
+			case 4:
+			{
+				flagType = BICOLORE;
+				bicolore(i, j);
+				break;
+			}
+			case 5:
+			{
+				flagType = ROTATEDBICOLORE;
+				rotatedBicolore(i, j);
+				break;
+			}
+			case 6:
+			{
+				flagType = BICOLORE_TRIANGLE;
+				rotatedBicolore(i, j);
+				triangle(i, j, -0.1, 0.5, 0.55);
+				break;
+			}
 			default:
 				flagType = PLAIN;
 				plain(i, j);
@@ -66,42 +99,52 @@ Flag::Flag(ranlux24 random, int width, int height) : random(random), width(width
 	{
 		for (int j = 0; j < width; j++)
 		{
-			switch (type)
+			switch (symbolType)
 			{
 			case 0:
 			{
-				flagSubType = MOON;
-				halfMoon(i, j);
 				break;
 			}
-			case 1:
+			case 20:
 			{
 				flagSubType = STAR;
 				star(i, j, 0.5, 0.5, 0.35);
 				break;
 			}
-			case 2:
+			case 21:
 			{
 				flagSubType = MOONSTAR;
 				halfMoonStars(i, j);
 				break;
 			}
-			case 3:
+			case 22:
 			{
 				flagSubType = SQUARE;
 				squareSquared(i, j);
 				break;
 			}
-			case 4:
+			case 23:
 			{
 				flagSubType = CIRCLE;
 				circle(i, j);
 				break;
 			}
-			case 5:
+			case 24:
 			{
 				flagSubType = MULTISTAR;
 				circle(i, j);
+				break;
+			}
+			case 25:
+			{
+				flagSubType = MOON;
+				halfMoon(i, j);
+				break;
+			}
+			case 26:
+			{
+				flagSubType = LEFT_TRIANGLE;
+				triangle(i, j, -0.1, 0.5, 0.45); 
 				break;
 			}
 			default:
@@ -124,6 +167,18 @@ void Flag::tricolore(int i, int j)
 void Flag::rotatedTricolore(int i, int j)
 {
 	unsigned short colourIndex = i / (height / 3);
+	setPixel(colours[colourIndex], i, j);
+}
+
+void Flag::bicolore(int i, int j)
+{
+	unsigned short colourIndex = j / (width / 2);
+	setPixel(colours[colourIndex], i, j);
+}
+
+void Flag::rotatedBicolore(int i, int j)
+{
+	unsigned short colourIndex = i / (height / 2);
 	setPixel(colours[colourIndex], i, j);
 }
 
@@ -224,6 +279,46 @@ void Flag::halfMoonStars(int i, int j)
 	star(i, j, 0.65, 0.7, 0.07);
 	star(i, j, 0.7, 0.5, 0.07);
 	star(i, j, 0.65, 0.3, 0.07);
+}
+
+void Flag::triangle(int i, int j, double xPos, double yPos, double size)
+{
+	double angle = 90 * 3.14 / 180.0;
+	typedef boost::geometry::model::d2::point_xy<double> point_type;
+	typedef boost::geometry::model::linestring<point_type> linestring_type;
+
+
+	bg::model::point<double, 2, bg::cs::cartesian> center(width * xPos, height * yPos);
+	bg::model::point<double, 2, bg::cs::cartesian> curPos(j, i);
+	vector<bg::model::point<double, 2, bg::cs::cartesian>> points;
+	bg::model::point<double, 2, bg::cs::cartesian> one(bg::get<0>(center), bg::get<1>(center) + size * width); // up
+	points.push_back(rotate(angle, one, center));
+	for (int i = 0; i < 0; i++)
+	{
+		points.push_back(rotate(angle, points[i], center));
+	}
+	vector<linestring_type> lines;
+	for (auto point : points)
+	{
+		linestring_type line;
+		line.push_back(point_type(bg::get<0>(center), bg::get<1>(center)));
+		line.push_back(point_type(bg::get<0>(point), bg::get<1>(point)));
+		lines.push_back(line);
+	}
+	for (int index = 0; index < points.size(); index++)
+	{
+		double lineDistance = fabs(bg::distance(curPos, lines[index]));
+		double yDistance = bg::distance(curPos, points[index]);
+
+		double centerDistance = bg::distance(curPos, center);
+		if (yDistance < (size * width)) {
+
+			double factor = yDistance / (size * (double)width);
+			if (lineDistance < (width / 2 * size) * factor)
+				setPixel(colours.back(), i, j);
+
+		}
+	}
 }
 
 //TODO: Return pretty colour combinations
@@ -343,8 +438,8 @@ void Flag::readFlagTypes()
 		if (!line.size())
 			continue;
 		auto tokens = ParserUtils::getTokens(line, ';');
-		auto flagType = stoi(tokens[0]);
-		auto flagTypeID = flagTypes[flagType].size();
+		const auto flagType = stoi(tokens[0]);
+		const auto flagTypeID = flagTypes[flagType].size();
 		auto symbols = ParserUtils::getTokens(tokens[1], ',');
 		auto colourGroupStrings = ParserUtils::getTokens(tokens[2], ',');
 		flagTypes[flagType].push_back(std::vector<int>{});
@@ -359,6 +454,8 @@ void Flag::readFlagTypes()
 		}
 		for (auto& cGroup : colourGroupStrings)
 		{
+			std::cout << flagType << std::endl;
+			std::cout << flagTypeID << std::endl;
 			flagTypeColours[flagType][flagTypeID].push_back(cGroup);
 		}
 		//auto colour = ParserUtils::getNumbers(tokens[i], ',', std::set<int>{});
