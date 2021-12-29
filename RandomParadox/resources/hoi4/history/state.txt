@@ -30,4 +30,5 @@ state={
 	provinces={
 		template_provinces
 	}
+	local_supplies=0.0 
 }

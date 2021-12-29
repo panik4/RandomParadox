@@ -36,12 +36,11 @@ std::ostream & operator<<(std::ostream & os, const NationalFocus & focus)
 	{
 		action = " attacks ";
 		break;
-
 	}
 	case NationalFocus::FocusType::ally:
 	{
 		action = " tries to ally ";
-
+		break;
 	}
 	case NationalFocus::FocusType::defense:
 	{

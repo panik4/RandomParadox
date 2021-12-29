@@ -1,7 +1,20 @@
 capital = templateCapital
 
 oob = "templateTag_1936"
-
+if = {
+	limit = {
+		NOT = {
+			has_dlc = "No Step Back"
+		}
+	}
+	set_oob = "templateTag_1936"
+}
+if = {
+	limit = {
+		has_dlc = "No Step Back"
+	}
+	set_oob = "templateTag_1936_nsb"
+}
 set_fuel_ratio = 0.8
 
 # Starting tech
