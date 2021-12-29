@@ -492,7 +492,7 @@ void Hoi4Parser::writeHistoryUnits(std::string path, const std::map<std::string,
 			{
 				auto tempUnit = unitBlock;
 				ParserUtils::replaceOccurences(tempUnit, "templateDivisionName", IDMap[i]);
-				ParserUtils::replaceOccurences(tempUnit, "templateLocation", to_string(country.second.ownedRegions[0].gameProvinces[0].ID));
+				ParserUtils::replaceOccurences(tempUnit, "templateLocation", to_string(country.second.ownedRegions[0].gameProvinces[0].ID+1));
 				totalUnits += tempUnit;
 			}
 		}
@@ -507,7 +507,7 @@ void Hoi4Parser::writeHistoryUnits(std::string path, const std::map<std::string,
 
 
 		// navies
-		tempPath = path + country.first + "_1936_naval_legacy.txt";
+		tempPath = path + country.first + "_1936_naval.txt";
 		pU::writeFile(tempPath, "");
 		tempPath = path + country.first + "_1936_naval_mtg.txt";
 		pU::writeFile(tempPath, "");

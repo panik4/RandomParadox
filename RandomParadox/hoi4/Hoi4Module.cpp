@@ -25,6 +25,8 @@ void Hoi4Module::createPaths()
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\map\\strategicregions\\");
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\map\\supplyareas\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\map\\supplyareas\\");
+	std::experimental::filesystem::remove_all(hoi4ModPath + "\\map\\terrain\\");
+	std::experimental::filesystem::create_directory(hoi4ModPath + "\\map\\terrain\\");
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\gfx\\flags\\medium\\");
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\gfx\\flags\\small\\");
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\gfx\\flags\\");
@@ -39,6 +41,7 @@ void Hoi4Module::createPaths()
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\countries\\");
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\history\\units\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\units\\");
+	std::experimental::filesystem::remove_all(hoi4ModPath + "\\localisation\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\localisation\\");
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\common\\national_focus\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\national_focus\\");
@@ -117,8 +120,8 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		hoiParse.dumpFlags(hoi4ModPath + "\\gfx\\flags\\", scenGen.countryMap);
 		hoiParse.dumpWeatherPositions(hoi4ModPath + "\\map\\weatherpositions.txt", scenGen.f.provinceGenerator.regions);
 		hoiParse.dumpAdjacencyRules(hoi4ModPath + "\\map\\adjacency_rules.txt");
-		hoiParse.writeStateNames(hoi4ModPath + "\\localisation\\", scenGen.countryMap);
-		hoiParse.writeCountryNames(hoi4ModPath + "\\localisation\\", scenGen.countryMap);
+		hoiParse.writeStateNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
+		hoiParse.writeCountryNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
 		hoiParse.writeFoci(hoi4ModPath + "\\common\\national_focus\\", hoi4Gen.foci, scenGen.countryMap);
 
 		// history

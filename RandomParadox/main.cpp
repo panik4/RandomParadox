@@ -10,7 +10,7 @@ int main() {
 	
 	bool genHoi4 = true;
 
-	if (!Data::getInstance().getConfig("C:\\Users\\Paul\\Documents\\Visual Studio 2017\\Projects\\RandomParadox\\RandomParadox\\FastWorldGen\\config.json"))
+	if (!Data::getInstance().getConfig("config.json"))
 	{
 		system("pause");
 		return -1;
