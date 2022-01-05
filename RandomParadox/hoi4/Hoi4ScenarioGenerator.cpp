@@ -37,6 +37,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator & scenGen)
 			}
 			gameRegion.attributeDoubles["development"] = totalDevFactor;
 			gameRegion.attributeDoubles["population"] = totalStateArea * 5000.0 * totalPopFactor;
+			// count the total coastal provinces of this region
 			auto totalCoastal = 0;
 			for (auto& gameProv : gameRegion.gameProvinces)
 			{

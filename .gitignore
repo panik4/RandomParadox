@@ -13,6 +13,7 @@
 *.vcxproj
 *libtga
 /debugMap/
+/inputs/
 *x64
 *.tga
 *.bmp
