@@ -1,0 +1,11 @@
+{
+	"randomScenario": 
+	{
+		"genhoi4": 1,
+		"geneu4": 1,
+		"inputheightmap": 1,
+		"heightmapPath": "inputs/europe.bmp",
+		"inputterrainmap": 0,
+		"heightmapPath": "inputs/heightmap.bmp"
+	}
+}

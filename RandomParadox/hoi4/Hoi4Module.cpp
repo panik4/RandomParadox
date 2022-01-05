@@ -123,9 +123,8 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		hoiParse.writeStateNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
 		hoiParse.writeCountryNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
 		hoiParse.writeFoci(hoi4ModPath + "\\common\\national_focus\\", hoi4Gen.foci, scenGen.countryMap);
-
-		// history
-		// HOI 4:
+		
+		// map files
 		FormatConverter formatConverter(hoi4Path);
 		formatConverter.dump8BitTerrain(hoi4ModPath + "\\map\\terrain.bmp", "terrainHoi4");
 		formatConverter.dump8BitCities(hoi4ModPath + "\\map\\cities.bmp", "citiesHoi4");
