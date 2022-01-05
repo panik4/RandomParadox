@@ -454,8 +454,6 @@ void Flag::readFlagTypes()
 		}
 		for (auto& cGroup : colourGroupStrings)
 		{
-			std::cout << flagType << std::endl;
-			std::cout << flagTypeID << std::endl;
 			flagTypeColours[flagType][flagTypeID].push_back(cGroup);
 		}
 		//auto colour = ParserUtils::getNumbers(tokens[i], ',', std::set<int>{});

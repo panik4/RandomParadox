@@ -19,8 +19,8 @@
 		
 		"rivers" : 
 		{
-			"elevationTolerance" : 5,
-			"numRivers" : 0
+			"elevationTolerance" : 1,
+			"numRivers" : 100
 		},
 		"heightmap" : {
 			"complexHeight" : 1,
