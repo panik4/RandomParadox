@@ -155,7 +155,6 @@ void Hoi4Module::readConfig()
 	// Create a root
 	pt::ptree root;
 	pt::read_json(buffer, root);
-	//debugMapsPath = root.get<string>("debug.debugMapsPath");
 	hoi4Path = root.get<string>("module.hoi4Path");
 	hoi4ModPath = root.get<string>("module.hoi4ModPath");
 }
