@@ -187,7 +187,7 @@ void Hoi4Parser::dumpDefinition(std::string path, vector<GameProvince>& province
 
 	// terraintypes: ocean, lakes, forest, hills, mountain, plains, urban, jungle, marsh, desert, water_fjords, water_shallow_sea, water_deep_ocean
 	// TO DO: properly map terrain types from climate
-	std::sort(provinces.begin(), provinces.end());
+	//Bitmap typeMap(512, 512, 24);
 	std::string content{ "0;0;0;0;land;false;unknown;0\n" };
 	for (auto prov : provinces)
 	{
@@ -220,40 +220,6 @@ void Hoi4Parser::dumpDefinition(std::string path, vector<GameProvince>& province
 		};
 		content.append(pU::csvFormat(arguments, ';', false));
 	}
-
-
-	//std::string content{ "0;0;0;0;land;false;unknown;0\n" };
-	//for (auto prov : provinces)
-	//{
-	//	auto seaType = prov->sea ? "sea" : "land";
-	//	auto coastal = prov->coastal ? "true" : "false";
-	//	if (prov->sea)
-	//	{
-	//		for (auto prov2 : prov->adjProv)
-	//		{
-	//			if (!prov2->sea)
-	//				coastal = "true";
-	//		}
-	//	}
-	//	std::string terraintype;
-	//	if (prov->sea)
-	//		terraintype = "ocean";
-	//	else
-	//		terraintype = "plains";
-	//	if (prov->isLake)
-	//	{
-	//		terraintype = "lakes";
-	//		seaType = "lake";
-	//	}
-	//	std::vector<std::string> arguments{ to_string(prov->provID + 1),
-	//		to_string(prov->colour.getRed()),
-	//		to_string(prov->colour.getGreen()),
-	//		to_string(prov->colour.getBlue()),
-	//		seaType, coastal, terraintype,
-	//		to_string(prov->sea || prov->isLake ? 0 : prov->continentID + 1) // 0 is for sea, no continent
-	//	};
-	//	content.append(pU::csvFormat(arguments, ';', false));
-	//}
 	pU::writeFile(path, content);
 }
 

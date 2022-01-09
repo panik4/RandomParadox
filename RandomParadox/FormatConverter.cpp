@@ -38,10 +38,10 @@ void FormatConverter::dump8BitCities(string path, string colourMapKey)
 	{
 		if (climate.getColourAtIndex(i) == Data::getInstance().namedColours["sea"])
 		{
-			cities.bit8Buffer[i] = 32;
+			cities.bit8Buffer[i] = 15;
 		}
 		else
-			cities.bit8Buffer[i] = 18;
+			cities.bit8Buffer[i] = 1;
 	}
 	Bitmap::SaveBMPToFile(cities, (path).c_str());
 }
@@ -61,9 +61,9 @@ void FormatConverter::dump8BitRivers(string path, string colourMapKey)
 
 void FormatConverter::dump8BitTrees(string path, string colourMapKey)
 {
-	auto width = Data::getInstance().width;
+	double width = Data::getInstance().width;
 	auto factor = 3.4133333333333333333333333333333;
-	Bitmap trees((double)Data::getInstance().width / factor, (double)Data::getInstance().height / factor, 8);
+	Bitmap trees(1.0+(double)Data::getInstance().width / factor, (double)Data::getInstance().height / factor, 8);
 	trees.getColourtable() = colourTables[colourMapKey];
 
 	auto climate = Data::getInstance().findBitmapByKey("climate");
@@ -75,8 +75,8 @@ void FormatConverter::dump8BitTrees(string path, string colourMapKey)
 	{
 		for (auto w = 0; w < trees.bInfoHeader.biWidth; w++)
 		{
-			int refHeight = ((double)i / (double)trees.bInfoHeader.biHeight) * Data::getInstance().height;
-			int refWidth = ((double)w / (double)trees.bInfoHeader.biWidth) * Data::getInstance().width;
+			double refHeight = ceil((double)i * factor);// ((double)i / (double)trees.bInfoHeader.biHeight) * Data::getInstance().height;
+			double refWidth = clamp((double)w * factor,0.0, (double)Data::getInstance().width);// ((double)w / (double)trees.bInfoHeader.biWidth) * Data::getInstance().width;
 			trees.bit8Buffer[(double)i*(double)trees.bInfoHeader.biWidth + (double)w] = colourMaps[colourMapKey][climate.getColourAtIndex(refHeight*width + refWidth)];
 		}
 	}
@@ -99,6 +99,7 @@ void FormatConverter::dumpWorldNormal(string path)
 			normalMap.setColourAtIndex(i*normalMap.bInfoHeader.biWidth + w, sobelMap[factor * i*width + factor * w]);
 		}
 	}
+	//normalMap.setBuffer(normalMap.filter());
 	Bitmap::SaveBMPToFile(normalMap, (path).c_str());
 }
 

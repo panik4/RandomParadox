@@ -43,6 +43,7 @@ void Hoi4Module::createPaths()
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\units\\");
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\localisation\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\localisation\\");
+	std::experimental::filesystem::create_directory(hoi4ModPath + "\\localisation\\english\\");
 	std::experimental::filesystem::remove_all(hoi4ModPath + "\\common\\national_focus\\");
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\national_focus\\");
 }
@@ -94,6 +95,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		scenGen.generateCountries();
 		scenGen.evaluateNeighbours();
 		scenGen.generateWorld();
+		hoiParse.dumpDefinition(hoi4ModPath + "\\map\\definition.csv", scenGen.gameProvinces);
 		
 		// countries
 		Hoi4ScenarioGenerator hoi4Gen(scenGen);
@@ -111,7 +113,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		hoiParse.dumpAirports(hoi4ModPath + "\\map\\airports.txt", scenGen.f.provinceGenerator.regions);
 		hoiParse.dumpBuildings(hoi4ModPath + "\\map\\buildings.txt", scenGen.f.provinceGenerator.regions);
 		hoiParse.dumpContinents(hoi4ModPath + "\\map\\continents.txt", scenGen.f.provinceGenerator.continents);
-		hoiParse.dumpDefinition(hoi4ModPath + "\\map\\definition.csv", scenGen.gameProvinces);
+		//hoiParse.dumpDefinition(hoi4ModPath + "\\map\\definition.csv", scenGen.gameProvinces);
 		hoiParse.dumpUnitStacks(hoi4ModPath + "\\map\\unitstacks.txt", scenGen.f.provinceGenerator.provinces);
 		hoiParse.dumpRocketSites(hoi4ModPath + "\\map\\rocketsites.txt", scenGen.f.provinceGenerator.regions);
 		hoiParse.dumpStrategicRegions(hoi4ModPath + "\\map\\strategicregions", scenGen.f.provinceGenerator.regions);
