@@ -184,6 +184,7 @@ void ScenarioGenerator::mapRegions()
 		}
 		gameRegions.push_back(gR);
 	}
+	std::sort(gameProvinces.begin(), gameProvinces.end());
 }
 
 void ScenarioGenerator::generatePopulations()
@@ -233,13 +234,15 @@ void ScenarioGenerator::mapTerrain()
 {
 	auto namedColours = Data::getInstance().namedColours;
 	auto climateMap = Data::getInstance().findBitmapByKey("climate");
+	Bitmap typeMap(climateMap.bInfoHeader.biWidth, climateMap.bInfoHeader.biHeight, 24);
 	std::cout << "Mapping Terrain\n";
 	vector<std::string> targetTypes{ "plains", "forest", "marsh", "hills", "mountain", "desert", "urban", "jungle" };
-	std::map<Colour, int> colourPrevalence;
+	
 	for (auto& c : countryMap)
 		for (auto& gameRegion : c.second.ownedRegions)
 			for (auto& gameProv : gameRegion.gameProvinces)
 			{
+				std::map<Colour, int> colourPrevalence;
 				for (auto& pix : gameProv.baseProvince->pixels)
 				{
 					if (colourPrevalence[climateMap.getColourAtIndex(pix)])
@@ -266,10 +269,30 @@ void ScenarioGenerator::mapTerrain()
 					gameProv.terrainType = "mountain";
 				else if (pr->first == namedColours["grassland"] || pr->first == namedColours["savannah"])
 					gameProv.terrainType = "plains";
+				else if (pr->first == namedColours["desert"])
+					gameProv.terrainType = "desert";
 				else
 					gameProv.terrainType = "plains";
 				gameProvinces[gameProv.ID].terrainType = gameProv.terrainType;
+				for (auto& pix : gameProv.baseProvince->pixels)
+				{
+					if (pr->first == namedColours["jungle"])
+						typeMap.setColourAtIndex(pix, Colour{ 255,255,0 });
+					else if (pr->first == namedColours["forest"])
+						typeMap.setColourAtIndex(pix, Colour{ 0,255,0 });
+					else if (pr->first == namedColours["lowMountains"])
+						typeMap.setColourAtIndex(pix, Colour{ 128,128,128 });
+					else if (pr->first == namedColours["mountains"] || pr->first == namedColours["peaks"])
+						typeMap.setColourAtIndex(pix, Colour{ 255,255,255 });
+					else if (pr->first == namedColours["grassland"] || pr->first == namedColours["savannah"])
+						typeMap.setColourAtIndex(pix, Colour{ 0,255,128 });
+					else if (pr->first == namedColours["desert"])
+						typeMap.setColourAtIndex(pix, Colour{ 0,255,255 });
+					else
+						typeMap.setColourAtIndex(pix, Colour{ 255,0,0 });
+				}
 			}
+	Bitmap::SaveBMPToFile(typeMap, "debugMaps/typeMap.bmp");
 }
 
 GameRegion& ScenarioGenerator::findStartRegion()

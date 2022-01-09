@@ -9,17 +9,17 @@ class FormatConverter
 {
 	std::map<string, std::map<Colour, int>> colourMaps{
 		{"terrainHoi4", {
-			{ Data::getInstance().namedColours["grassland"], 17 },
-			{ Data::getInstance().namedColours["ice"], 36 },
-			{ Data::getInstance().namedColours["tundra"], 26 },
-			{ Data::getInstance().namedColours["forest"], 18 },
-			{ Data::getInstance().namedColours["jungle"], 38 },
-			{ Data::getInstance().namedColours["savannah"], 17 },
-			{ Data::getInstance().namedColours["desert"], 24 },
-			{ Data::getInstance().namedColours["peaks"], 33 },
-			{ Data::getInstance().namedColours["mountains"], 28 },
-			{ Data::getInstance().namedColours["lowMountains"], 37 },
-			{ Data::getInstance().namedColours["sea"], 32 }
+			{ Data::getInstance().namedColours["grassland"], 0 },
+			{ Data::getInstance().namedColours["ice"], 19 },
+			{ Data::getInstance().namedColours["tundra"], 9 },
+			{ Data::getInstance().namedColours["forest"], 1 },
+			{ Data::getInstance().namedColours["jungle"], 21 },
+			{ Data::getInstance().namedColours["savannah"], 0 },
+			{ Data::getInstance().namedColours["desert"], 7 },
+			{ Data::getInstance().namedColours["peaks"], 16 },
+			{ Data::getInstance().namedColours["mountains"], 11 },
+			{ Data::getInstance().namedColours["lowMountains"], 20 },
+			{ Data::getInstance().namedColours["sea"], 15 }
 		}
 	},
 		{"riversHoi4",{
@@ -37,17 +37,17 @@ class FormatConverter
 		}
 	},
 	{ "treesHoi4",{
-			{ Data::getInstance().namedColours["grassland"], 1 },
-			{ Data::getInstance().namedColours["ice"], 1 },
-			{ Data::getInstance().namedColours["tundra"], 1 },
-			{ Data::getInstance().namedColours["forest"], 23 },
-			{ Data::getInstance().namedColours["jungle"], 45 },
-			{ Data::getInstance().namedColours["savannah"], 1 },
-			{ Data::getInstance().namedColours["desert"], 1 },
-			{ Data::getInstance().namedColours["peaks"], 1 },
-			{ Data::getInstance().namedColours["mountains"], 1 },
-			{ Data::getInstance().namedColours["lowMountains"], 1 },
-			{ Data::getInstance().namedColours["sea"], 1 }
+			{ Data::getInstance().namedColours["grassland"], 0 },
+			{ Data::getInstance().namedColours["ice"], 0 },
+			{ Data::getInstance().namedColours["tundra"], 0 },
+			{ Data::getInstance().namedColours["forest"], 6 },
+			{ Data::getInstance().namedColours["jungle"], 28 },
+			{ Data::getInstance().namedColours["savannah"], 0 },
+			{ Data::getInstance().namedColours["desert"], 0 },
+			{ Data::getInstance().namedColours["peaks"], 0 },
+			{ Data::getInstance().namedColours["mountains"], 0 },
+			{ Data::getInstance().namedColours["lowMountains"], 0 },
+			{ Data::getInstance().namedColours["sea"], 0 }
 	}
 	}
 	};

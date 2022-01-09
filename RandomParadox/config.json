@@ -12,8 +12,8 @@
 	{
 		"seed" : 5,
         "height" : 1024,
-		"width" : 1024,
-		"landMassPercentage" : -1,
+		"width" : 2816,
+		"landMassPercentage" : 35,
 		"seaLevel" : 94,
 		"accuracy": 100,
 		
@@ -30,11 +30,11 @@
 				"0" :
 				{
 					"type" : 2,
-					"fractalFrequency" : 1,
+					"fractalFrequency" : 2,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.5,
 					"seed" : 6,
-					"widthEdge" : 5,
+					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 1,
 					"maxHeight" : 200,
@@ -44,11 +44,11 @@
 				"1" :
 				{
 					"type" : 2,
-					"fractalFrequency" : 2,
+					"fractalFrequency" : 1,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.5,
 					"seed" : 7,
-					"widthEdge" : 5,
+					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 1,
 					"maxHeight" : 100,
@@ -58,11 +58,11 @@
 				"2" :
 				{
 					"type" : 8,
-					"fractalFrequency" : 2,
+					"fractalFrequency" : 1,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.5,
 					"seed" : 8,
-					"widthEdge" : 5,
+					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 1,
 					"maxHeight" : 100,
@@ -72,11 +72,11 @@
 				"3" :
 				{
 					"type" : 8,
-					"fractalFrequency" : 2,
+					"fractalFrequency" : 1,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.5,
-					"seed" : 9,
-					"widthEdge" : 5,
+					"seed" : 0,
+					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 1,
 					"maxHeight" : 100,
@@ -109,7 +109,9 @@
 		},
 		"humidity" : {
 			"coastalEffectRange" : -1,
-			"windEffectRange" : -1
+			"windEffectRange" : -1,
+			"latitudeLow" : 0.0,
+			"latitudeHigh" : 2.0
 		}
 		
     },	

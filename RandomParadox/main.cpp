@@ -25,17 +25,27 @@ int main() {
 	pt::ptree root;
 	pt::read_json(buffer, root);
 
+	// if debug is enabled in the config, a directory subtree containing visualisation of many maps will be created
+	bool debug = root.get<bool>("randomScenario.debug");
+	if (debug) {
+		std::experimental::filesystem::create_directory("debugMaps");
+		std::experimental::filesystem::create_directory("debugMaps\\world");
+		std::experimental::filesystem::create_directory("debugMaps\\resources");
+		std::experimental::filesystem::create_directory("debugMaps\\layers");
+	}
+	// generate hoi4 scenario or not
 	bool genHoi4Scenario = root.get<bool>("randomScenario.genhoi4");
 	// use the same input heightmap for every scenario/map generation
 	bool useGlobalExistingHeightmap = root.get<bool>("randomScenario.inputheightmap");
 	// get the path
 	std::string globalHeightMapPath = root.get<std::string>("randomScenario.heightmapPath");
+	// read the configured latitude range. 0.0 = 90 degrees south, 2.0 = 90 degrees north
+	auto latLow = root.get<double>("randomScenario.latitudeLow");
+	auto latHigh = root.get<double>("randomScenario.latitudeHigh");
 
 	bool useDefaultMap = false;
 	bool useDefaultStates = false;
 	bool useDefaultProvinces = false;
-
-	bool genHoi4 = true;
 
 	if (!Data::getInstance().getConfig("config.json"))
 	{
@@ -51,11 +61,14 @@ int main() {
 			// overwrite settings of fastworldgen
 			Data::getInstance().heightmapIn = globalHeightMapPath;
 			Data::getInstance().genHeight = false;
+			Data::getInstance().latLow = latLow;
+			Data::getInstance().latHigh = latHigh;
 		}
 		fastWorldGen.generateWorld();
 	}
+
 	ScenarioGenerator sG(fastWorldGen);
-	if (genHoi4)
+	if (genHoi4Scenario)
 	{
 		hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG);
 	}
