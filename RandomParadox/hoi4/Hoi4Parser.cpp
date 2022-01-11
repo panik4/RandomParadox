@@ -36,7 +36,7 @@ void Hoi4Parser::dumpAirports(std::string path, const vector<Region>& regions)
 	pU::writeFile(path, content);
 }
 
-std::string Hoi4Parser::getBuildingLine(std::string type, Region& region, bool coastal)
+std::string Hoi4Parser::getBuildingLine(std::string type, Region& region, bool coastal, Bitmap& heightmap)
 {
 	auto prov = *select_random(region.provinces);
 	auto pix = 0;
@@ -58,7 +58,7 @@ std::string Hoi4Parser::getBuildingLine(std::string type, Region& region, bool c
 
 	auto widthPos = (pix % Data::getInstance().width);
 	auto heightPos = /*Data::getInstance().height -*/ (pix / Data::getInstance().width);
-	std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string(9.5), to_string(heightPos), to_string((float)-1.57), "0" };
+	std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string((double)heightmap.getColourAtIndex(pix).getRed() / 10.0), to_string(heightPos), to_string((float)-1.57), "0" };
 	return pU::csvFormat(arguments, ';', false);
 }
 
@@ -66,6 +66,9 @@ std::string Hoi4Parser::getBuildingLine(std::string type, Region& region, bool c
 void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 {
 	std::cout << "HOI4 Parser: Map: Constructing Factories\n";
+	auto heightmap = Data::getInstance().findBitmapByKey("heightmap");
+
+
 	vector<std::string> buildingTypes{ "arms_factory", "industrial_complex", "air_base",
 		"bunker", "coastal_bunker", "dockyard", "naval_base", "anti_air_building",
 		"synthetic_refinery", "nuclear_reactor", "rocket_site", "radar_station", "fuel_silo" };
@@ -91,7 +94,7 @@ void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 			{
 				for (int i = 0; i < 6; i++)
 				{
-					content.append(getBuildingLine(type, region, false));
+					content.append(getBuildingLine(type, region, false, heightmap));
 				}
 			}
 			else if (type == "bunker")
@@ -103,7 +106,7 @@ void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 						auto pix = *select_random(prov->pixels);
 						auto widthPos = (pix % Data::getInstance().width);
 						auto heightPos = /*Data::getInstance().height - */(pix / Data::getInstance().width);
-						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string(9.5), to_string(heightPos), to_string(0.5), "0" };
+						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string((double)heightmap.getColourAtIndex(pix).getRed() / 10.0), to_string(heightPos), to_string(0.5), "0" };
 						content.append(pU::csvFormat(arguments, ';', false));
 					}
 				}
@@ -112,7 +115,7 @@ void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 			{
 				for (int i = 0; i < 3; i++)
 				{
-					content.append(getBuildingLine(type, region, false));
+					content.append(getBuildingLine(type, region, false, heightmap));
 				}
 			}
 			else if (type == "coastal_bunker" || type == "naval_base")
@@ -142,7 +145,7 @@ void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 						}
 						auto widthPos = (pix % Data::getInstance().width);
 						auto heightPos = /*Data::getInstance().height -*/ (pix / Data::getInstance().width);
-						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string(9.5), to_string(heightPos), to_string(0.5), to_string(provID + 1) };
+						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos),  to_string((double)heightmap.getColourAtIndex(pix).getRed() / 10.0), to_string(heightPos), to_string(0.5), to_string(provID + 1) };
 						content.append(pU::csvFormat(arguments, ';', false));
 					}
 				}
@@ -151,12 +154,12 @@ void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 			{
 				if (coastal)
 				{
-					content.append(getBuildingLine(type, region, coastal));
+					content.append(getBuildingLine(type, region, coastal, heightmap));
 				}
 			}
 			else {
 				{
-					content.append(getBuildingLine(type, region, false));
+					content.append(getBuildingLine(type, region, false, heightmap));
 				}
 			}
 		}
@@ -458,7 +461,7 @@ void Hoi4Parser::writeHistoryUnits(std::string path, const std::map<std::string,
 			{
 				auto tempUnit = unitBlock;
 				ParserUtils::replaceOccurences(tempUnit, "templateDivisionName", IDMap[i]);
-				ParserUtils::replaceOccurences(tempUnit, "templateLocation", to_string(country.second.ownedRegions[0].gameProvinces[0].ID+1));
+				ParserUtils::replaceOccurences(tempUnit, "templateLocation", to_string(country.second.ownedRegions[0].gameProvinces[0].ID + 1));
 				totalUnits += tempUnit;
 			}
 		}
