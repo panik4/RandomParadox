@@ -13,7 +13,7 @@ public:
 	Hoi4Parser();
 	~Hoi4Parser();
 	vector<std::string> defaultTags;
-	std::string getBuildingLine(std::string type, Region& region, bool coastal);
+	std::string getBuildingLine(std::string type, Region& region, bool coastal, Bitmap& heightmap);
 	// map
 	void dumpAdj(std::string path);
 	void dumpAirports(std::string path, const vector<Region>& regions);

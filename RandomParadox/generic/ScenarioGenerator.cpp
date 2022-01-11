@@ -90,7 +90,7 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 
 		Bitmap::SaveBMPToFile(terrainBMP, (Data::getInstance().debugMapsPath + ("terrain.bmp")).c_str());
 		Bitmap provinceMap(Data::getInstance().width, Data::getInstance().height, 24);
-		f.provinceGenerator.generateProvinces(terrainBMP, provinceMap, riverMap, 100);
+		f.provinceGenerator.generateProvinces(terrainBMP, provinceMap, riverMap, tG.landBodies);
 		Bitmap::SaveBMPToFile(provinceMap, (Data::getInstance().debugMapsPath + ("provinces.bmp")).c_str());
 		bitmaps["provinces"] = provinceMap;
 		f.provinceGenerator.createProvinceMap();
