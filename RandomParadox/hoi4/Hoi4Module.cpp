@@ -69,7 +69,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		scenGen.hoi4Preparations(useDefaultStates, useDefaultProvinces); // load files, read states/create states
 		scenGen.mapRegions(); // create gameRegions
 		scenGen.generateCountries();
-		scenGen.dumpDebugCountrymap(Data::getInstance().debugMapsPath + "countries.bmp");
+		scenGen.dumpDebugCountrymap(Data::getInstance().mapsPath + "countries.bmp");
 		Hoi4ScenarioGenerator hoi4Gen(scenGen);
 
 		hoiParse.dumpStates(hoi4ModPath + "\\history\\states", scenGen.countryMap);
@@ -137,7 +137,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		formatConverter.dumpDDSFiles(hoi4ModPath + "\\map\\terrain\\colormap_water_");
 		formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp");
 	}
-	scenGen.dumpDebugCountrymap(Data::getInstance().debugMapsPath + "countries.bmp");
+	scenGen.dumpDebugCountrymap(Data::getInstance().mapsPath + "countries.bmp");
 }
 
 void Hoi4Module::readConfig()

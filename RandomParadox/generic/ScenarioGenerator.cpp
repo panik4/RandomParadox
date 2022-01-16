@@ -32,7 +32,7 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 	Data::getInstance().height = bitmaps["heightmap"].bInfoHeader.biHeight;
 	Data::getInstance().bitmapSize = Data::getInstance().width*Data::getInstance().height;
 	Data::getInstance().seaLevel = 94; //hardcoded for hoi4
-	Data::getInstance().debugMapsPath = "debugMaps//";
+	Data::getInstance().mapsPath = "debugMaps//";
 
 	Bitmap terrainBMP = Bitmap(Data::getInstance().width, Data::getInstance().height, 24);
 	TerrainGenerator tG;
@@ -84,14 +84,14 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 		ClimateGenerator climateGenerator;
 		climateGenerator.setProvinceGenerator(&f.provinceGenerator);
 		climateGenerator.humidityMap(heightMap, humidityBMP, riverMap, tG, Data::getInstance().seaLevel, Data::getInstance().updateThreshold);
-		Bitmap::SaveBMPToFile(humidityBMP, (Data::getInstance().debugMapsPath + ("humidity.bmp")).c_str());
-		climateGenerator.climateMap(climateMap, humidityBMP, heightMap, Data::getInstance().seaLevel, Data::getInstance().updateThreshold);
-		Bitmap::SaveBMPToFile(climateMap, (Data::getInstance().debugMapsPath + ("climate.bmp")).c_str());
+		Bitmap::SaveBMPToFile(humidityBMP, (Data::getInstance().mapsPath + ("humidity.bmp")).c_str());
+		climateGenerator.climateMap(climateMap, humidityBMP, heightMap, Data::getInstance().seaLevel);
+		Bitmap::SaveBMPToFile(climateMap, (Data::getInstance().mapsPath + ("climate.bmp")).c_str());
 
-		Bitmap::SaveBMPToFile(terrainBMP, (Data::getInstance().debugMapsPath + ("terrain.bmp")).c_str());
+		Bitmap::SaveBMPToFile(terrainBMP, (Data::getInstance().mapsPath + ("terrain.bmp")).c_str());
 		Bitmap provinceMap(Data::getInstance().width, Data::getInstance().height, 24);
 		f.provinceGenerator.generateProvinces(terrainBMP, provinceMap, riverMap, tG.landBodies);
-		Bitmap::SaveBMPToFile(provinceMap, (Data::getInstance().debugMapsPath + ("provinces.bmp")).c_str());
+		Bitmap::SaveBMPToFile(provinceMap, (Data::getInstance().mapsPath + ("provinces.bmp")).c_str());
 		bitmaps["provinces"] = provinceMap;
 		f.provinceGenerator.createProvinceMap();
 		f.provinceGenerator.beautifyProvinces(provinceMap, riverMap);
