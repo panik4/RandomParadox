@@ -2,7 +2,6 @@
 	"module": 
 	{
 		"genHeight" : 1,
-		"genProvinces" : 1,
 		"genSimpleTerrain" : 1,
 		"genComplexTerrain" : 1,
 		"opencvVisualisation" : 0
@@ -10,16 +9,15 @@
 
 	"map": 
 	{
-		"seed" : 5,
-        "height" : 2048,
-		"width" : 5632,
+		"seed" : 0,
+        "height" : 1024,
+		"width" : 2816,
 		"landMassPercentage" : 35,
 		"seaLevel" : 94,
 		"accuracy": 100,
 		
 		"rivers" : 
 		{
-			"elevationTolerance" : 1,
 			"numRivers" : 100
 		},
 		"heightmap" : {
@@ -30,16 +28,16 @@
 				"0" :
 				{
 					"type" : 2,
-					"fractalFrequency" : 2,
+					"fractalFrequency" : 1,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.5,
-					"seed" : 6,
+					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 1,
+					"weight" : 0.5,
 					"maxHeight" : 200,
 					"minHeight" : 0,
-					"logistic": 0.0
+					"tanFactor": 0.0
 				},
 				"1" :
 				{
@@ -47,10 +45,10 @@
 					"fractalFrequency" : 1,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.5,
-					"seed" : 7,
+					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 1,
+					"weight" : 0.5,
 					"maxHeight" : 100,
 					"minHeight" : 0,
 					"logistic": 0.0
@@ -61,10 +59,10 @@
 					"fractalFrequency" : 2,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.5,
-					"seed" : 8,
+					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 2,
+					"weight" : 1,
 					"maxHeight" : 100,
 					"minHeight" : 0,
 					"logistic": 0.22
@@ -72,13 +70,13 @@
 				"3" :
 				{
 					"type" : 8,
-					"fractalFrequency" : 2,
+					"fractalFrequency" : 4,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.5,
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 2,
+					"weight" : 1,
 					"maxHeight" : 100,
 					"minHeight" : 0,
 					"logistic": 0.22
