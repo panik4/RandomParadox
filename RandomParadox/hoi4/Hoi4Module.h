@@ -12,13 +12,13 @@ class Hoi4Module
 {
 	std::string hoi4Path;
 	std::string hoi4ModPath;
+	Hoi4ScenarioGenerator hoi4Gen;
 public:
 	Hoi4Module();
 	~Hoi4Module();
 	void createPaths();
 	bool findHoi4();
 	void genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefaultProvinces, ScenarioGenerator& scenGen);
-
 	void readConfig();
 };
 

@@ -1,8 +1,7 @@
 #include "Hoi4ScenarioGenerator.h"
 
 
-
-Hoi4ScenarioGenerator::Hoi4ScenarioGenerator(ScenarioGenerator sG)
+Hoi4ScenarioGenerator::Hoi4ScenarioGenerator()
 {
 	this->random = Data::getInstance().random2;
 }
@@ -12,37 +11,56 @@ Hoi4ScenarioGenerator::~Hoi4ScenarioGenerator()
 {
 }
 
+void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator & scenGen)
+{
+	for (auto& c : scenGen.countryMap) {
+		for (auto& gameRegion : c.second.ownedRegions) {
+			for (auto resource : resources)
+			{
+				auto chance = resource.second[2];
+				if (random() % 100 < chance*100.0) {
+					// calc total of this resource
+					auto totalOfResource = resource.second[1] * resource.second[0];
+					// more per selected state if the chance is lower
+					double averagePerState = (totalOfResource / (double)landStates) * (1.0/chance);
+					// range 1 to (2 times average - 1)
+					double value = 1 + random() % (int)((2.0*averagePerState));
+					if (value > 100)
+						std::cout << totalOfResource << ";" << averagePerState << std::endl;
+					gameRegion.attributeDoubles[resource.first] = value;
+				}
+			}
+		}
+	}
+}
+
 void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator & scenGen)
 {
 	auto worldIndustry = 2000;
-	for (auto& c : scenGen.countryMap)
-	{
-		for (auto& gameRegion : c.second.ownedRegions)
-		{
+	for (auto& c : scenGen.countryMap) {
+		for (auto& gameRegion : c.second.ownedRegions) {
+			// count the number of land states for resource generation
+			landStates++;
 			int totalPop = 0;
 			double totalStateArea = 0;
 			double totalDevFactor = 0;
 			double totalPopFactor = 0;
 			double worldArea = Data::getInstance().bitmapSize / 3; // roughly 1 third is land
-			for (const auto& gameProv : gameRegion.gameProvinces)
-			{
+			for (const auto& gameProv : gameRegion.gameProvinces) {
 				totalDevFactor += gameProv.devFactor / (double)gameRegion.gameProvinces.size();
 				totalPopFactor += gameProv.popFactor / (double)gameRegion.gameProvinces.size();
 				totalStateArea += gameProv.baseProvince->pixels.size();
 			}
 			gameRegion.attributeDoubles["stateCategory"] = clamp((int)(totalPopFactor * 5.0 + totalDevFactor * 6.0), 0, 9);
-			if (gameRegion.gameProvinces.size() == 1)
-			{
+			if (gameRegion.gameProvinces.size() == 1) {
 				gameRegion.attributeDoubles["stateCategory"] = 1;
 			}
 			gameRegion.attributeDoubles["development"] = totalDevFactor;
 			gameRegion.attributeDoubles["population"] = totalStateArea * 5000.0 * totalPopFactor;
 			// count the total coastal provinces of this region
 			auto totalCoastal = 0;
-			for (auto& gameProv : gameRegion.gameProvinces)
-			{
-				if (gameProv.baseProvince->coastal)
-				{
+			for (auto& gameProv : gameRegion.gameProvinces) {
+				if (gameProv.baseProvince->coastal) {
 					totalCoastal++;
 					gameProv.attributeDoubles["naval_bases"] = Data::getInstance().getRandomNumber(1, 5);
 				}
@@ -51,8 +69,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator & scenGen)
 				}
 			}
 			auto stateIndustry = (totalStateArea / worldArea) * totalPopFactor * worldIndustry;
-			if (totalCoastal > 0)
-			{
+			if (totalCoastal > 0) {
 				gameRegion.attributeDoubles["dockyards"] = clamp((int)round(stateIndustry*(0.33)), 0, 4);
 				gameRegion.attributeDoubles["civilianFactories"] = clamp((int)round(stateIndustry*(0.34)), 0, 8);
 				gameRegion.attributeDoubles["armsFactories"] = clamp((int)round(stateIndustry*(0.33)), 0, 4);

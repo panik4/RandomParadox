@@ -9,7 +9,7 @@ class Hoi4ScenarioGenerator
 {
 	ranlux24 random;
 	NameGenerator nG;
-
+	int landStates = 0;
 	vector<std::string> majorPowers;
 	vector<std::string> regionalPowers;
 	vector<std::string> weakPowers;
@@ -25,9 +25,11 @@ class Hoi4ScenarioGenerator
 public:
 	vector<NationalFocus> foci;
 	vector<NationalFocus> warFoci;
-	Hoi4ScenarioGenerator(ScenarioGenerator sG);
+	std::map<std::string, std::vector<double>> resources;
+	Hoi4ScenarioGenerator();
 	~Hoi4ScenarioGenerator();
 
+	void generateStateResources(ScenarioGenerator& scenGen);
 	void generateStateSpecifics(ScenarioGenerator& scenGen);
 	void generateCountrySpecifics(ScenarioGenerator& scenGen, std::map<std::string, Country>& countries);
 	// calculate how strong each country is
