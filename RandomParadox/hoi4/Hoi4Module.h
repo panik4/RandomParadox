@@ -16,6 +16,7 @@ public:
 	Hoi4Module();
 	~Hoi4Module();
 	void createPaths();
+	bool findHoi4();
 	void genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefaultProvinces, ScenarioGenerator& scenGen);
 
 	void readConfig();

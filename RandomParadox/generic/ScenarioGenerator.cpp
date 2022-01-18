@@ -32,7 +32,7 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 	Data::getInstance().height = bitmaps["heightmap"].bInfoHeader.biHeight;
 	Data::getInstance().bitmapSize = Data::getInstance().width*Data::getInstance().height;
 	Data::getInstance().seaLevel = 94; //hardcoded for hoi4
-	Data::getInstance().mapsPath = "debugMaps//";
+	Data::getInstance().mapsPath = "Maps//";
 
 	Bitmap terrainBMP = Bitmap(Data::getInstance().width, Data::getInstance().height, 24);
 	TerrainGenerator tG;
