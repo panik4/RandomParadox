@@ -28,10 +28,10 @@ int main() {
 	// if debug is enabled in the config, a directory subtree containing visualisation of many maps will be created
 	bool debug = root.get<bool>("randomScenario.debug");
 	if (debug) {
-		std::experimental::filesystem::create_directory("debugMaps");
-		std::experimental::filesystem::create_directory("debugMaps\\world");
-		std::experimental::filesystem::create_directory("debugMaps\\resources");
-		std::experimental::filesystem::create_directory("debugMaps\\layers");
+		std::experimental::filesystem::create_directory("Maps");
+		std::experimental::filesystem::create_directory("Maps\\world");
+		std::experimental::filesystem::create_directory("Maps\\resources");
+		std::experimental::filesystem::create_directory("Maps\\layers");
 	}
 	// generate hoi4 scenario or not
 	bool genHoi4Scenario = root.get<bool>("randomScenario.genhoi4");
@@ -54,10 +54,10 @@ int main() {
 	}
 	FastWorldGenerator fastWorldGen;
 	Hoi4Module hoi4Mod;
-	if (!useDefaultMap)
-	{
-		if (useGlobalExistingHeightmap)
-		{
+	hoi4Mod.readConfig();
+	hoi4Mod.findHoi4();
+	if (!useDefaultMap) {
+		if (useGlobalExistingHeightmap) {
 			// overwrite settings of fastworldgen
 			Data::getInstance().heightmapIn = globalHeightMapPath;
 			Data::getInstance().genHeight = false;

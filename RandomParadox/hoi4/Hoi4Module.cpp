@@ -48,9 +48,33 @@ void Hoi4Module::createPaths()
 	std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\national_focus\\");
 }
 
+bool Hoi4Module::findHoi4()
+{
+	std::vector<std::string> drives{ "C:\\", "D:\\", "E:\\", "F:\\", "G:\\", "H:\\" };
+	// first try to find hoi4 at the configured location
+	if (std::experimental::filesystem::exists(hoi4Path)) {
+		hoi4Path = hoi4Path;
+		return true;
+	}
+	for (auto drive : drives) {
+		if (std::experimental::filesystem::exists(drive + "Program Files (x86)\\Steam\\steamapps\\common\\Hearts of Iron IV")) {
+			hoi4Path = drive + "Program Files (x86)\\Steam\\steamapps\\common\\Hearts of Iron IV";
+			return true;
+		}
+		else if (std::experimental::filesystem::exists(drive + "Program Files\\Steam\\steamapps\\common\\Hearts of Iron IV")) {
+			hoi4Path = drive + "Program Files\\Steam\\steamapps\\common\\Hearts of Iron IV";
+			return true;
+		}
+		else if (std::experimental::filesystem::exists(drive + "Steam\\steamapps\\common\\Hearts of Iron IV")) {
+			hoi4Path = drive + "Steam\\steamapps\\common\\Hearts of Iron IV";
+			return true;
+		}
+	}
+	return false;
+}
+
 void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefaultProvinces, ScenarioGenerator& scenGen)
 {
-	readConfig();
 	createPaths();
 	// validate options:
 	if (!useDefaultProvinces)
@@ -96,7 +120,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		scenGen.evaluateNeighbours();
 		scenGen.generateWorld();
 		hoiParse.dumpDefinition(hoi4ModPath + "\\map\\definition.csv", scenGen.gameProvinces);
-		
+
 		// countries
 		Hoi4ScenarioGenerator hoi4Gen(scenGen);
 		hoi4Gen.generateCountrySpecifics(scenGen, scenGen.countryMap);
@@ -125,7 +149,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		hoiParse.writeStateNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
 		hoiParse.writeCountryNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
 		hoiParse.writeFoci(hoi4ModPath + "\\common\\national_focus\\", hoi4Gen.foci, scenGen.countryMap);
-		
+
 		// map files
 		FormatConverter formatConverter(hoi4Path);
 		formatConverter.dump8BitTerrain(hoi4ModPath + "\\map\\terrain.bmp", "terrainHoi4");
