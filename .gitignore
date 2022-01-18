@@ -12,7 +12,7 @@
 *FastWorldGen
 *.vcxproj
 *libtga
-/debugMap/
+/Maps/
 /inputs/
 *x64
 *.tga
