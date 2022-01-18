@@ -1,0 +1,16 @@
+mild_climate = {
+	
+
+}
+temperate_climate = {
+	
+
+}
+harsh_climate = {
+	
+
+}
+inhospitable_climate = {
+	
+
+}
