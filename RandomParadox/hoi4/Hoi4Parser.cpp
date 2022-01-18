@@ -383,6 +383,11 @@ void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country>& co
 				pU::replaceOccurences(content, "templateDockyards", to_string((int)region.attributeDoubles["dockyards"]));
 			else
 				pU::replaceOccurences(content, "dockyard = templateDockyards", "");
+
+			// resources
+			for (auto resource : vector<std::string>{ "aluminium", "chromium", "oil", "rubber", "steel", "tungsten" }) {
+				pU::replaceOccurences(content, "template" + resource, to_string((int)region.attributeDoubles[resource]));
+			}
 			pU::writeFile(path + "\\" + to_string(baseRegion.ID + 1) + ".txt", content);
 		}
 	}

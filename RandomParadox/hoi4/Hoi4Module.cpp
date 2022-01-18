@@ -94,7 +94,6 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		scenGen.mapRegions(); // create gameRegions
 		scenGen.generateCountries();
 		scenGen.dumpDebugCountrymap(Data::getInstance().mapsPath + "countries.bmp");
-		Hoi4ScenarioGenerator hoi4Gen(scenGen);
 
 		hoiParse.dumpStates(hoi4ModPath + "\\history\\states", scenGen.countryMap);
 		hoiParse.dumpUnitStacks(hoi4ModPath + "\\map\\unitstacks.txt", scenGen.f.provinceGenerator.provinces);
@@ -119,12 +118,11 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		scenGen.generateCountries();
 		scenGen.evaluateNeighbours();
 		scenGen.generateWorld();
-		hoiParse.dumpDefinition(hoi4ModPath + "\\map\\definition.csv", scenGen.gameProvinces);
 
 		// countries
-		Hoi4ScenarioGenerator hoi4Gen(scenGen);
 		hoi4Gen.generateCountrySpecifics(scenGen, scenGen.countryMap);
 		hoi4Gen.generateStateSpecifics(scenGen);
+		hoi4Gen.generateStateResources(scenGen);
 		hoi4Gen.evaluateCountries(scenGen);
 		hoi4Gen.evaluateCountryGoals(scenGen);
 		hoiParse.writeHistoryCountries(hoi4ModPath + "\\history\\countries\\", scenGen.countryMap);
@@ -137,7 +135,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		hoiParse.dumpAirports(hoi4ModPath + "\\map\\airports.txt", scenGen.f.provinceGenerator.regions);
 		hoiParse.dumpBuildings(hoi4ModPath + "\\map\\buildings.txt", scenGen.f.provinceGenerator.regions);
 		hoiParse.dumpContinents(hoi4ModPath + "\\map\\continents.txt", scenGen.f.provinceGenerator.continents);
-		//hoiParse.dumpDefinition(hoi4ModPath + "\\map\\definition.csv", scenGen.gameProvinces);
+		hoiParse.dumpDefinition(hoi4ModPath + "\\map\\definition.csv", scenGen.gameProvinces);
 		hoiParse.dumpUnitStacks(hoi4ModPath + "\\map\\unitstacks.txt", scenGen.f.provinceGenerator.provinces);
 		hoiParse.dumpRocketSites(hoi4ModPath + "\\map\\rocketsites.txt", scenGen.f.provinceGenerator.regions);
 		hoiParse.dumpStrategicRegions(hoi4ModPath + "\\map\\strategicregions", scenGen.f.provinceGenerator.regions);
@@ -166,21 +164,28 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 
 void Hoi4Module::readConfig()
 {
+	// Short alias for this namespace
+	namespace pt = boost::property_tree;
+	// Create a root
+	pt::ptree root;
 	ifstream f("hoiconfig.json");
 	std::stringstream buffer;
-	if (!f.good())
-	{
+	if (!f.good()) {
 		std::cout << "Config could not be loaded" << std::endl;
 	}
 	buffer << f.rdbuf();
-
-	// Short alias for this namespace
-	namespace pt = boost::property_tree;
-
-	// Create a root
-	pt::ptree root;
 	pt::read_json(buffer, root);
 	hoi4Path = root.get<string>("module.hoi4Path");
 	hoi4ModPath = root.get<string>("module.hoi4ModPath");
+	findHoi4();
+	hoi4Gen.resources = {
+		{ "aluminium",{ root.get<double>("hoi4.aluminiumFactor"), 500.0, 0.3 }},
+		{ "chromium",{ root.get<double>("hoi4.chromiumFactor"), 1000.0, 0.2 } },
+		{ "oil",{ root.get<double>("hoi4.oilFactor"), 1000.0, 0.1 }},
+		{ "rubber",{ root.get<double>("hoi4.rubberFactor"), 500.0, 0.1 }},
+		{ "steel",{ root.get<double>("hoi4.steelFactor"), 2000.0, 0.5 }},
+		{ "tungsten",{ root.get<double>("hoi4.tungstenFactor"), 500.0, 0.2 }}
+
+	};
 }
 

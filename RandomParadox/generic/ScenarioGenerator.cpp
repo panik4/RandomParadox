@@ -14,8 +14,6 @@ ScenarioGenerator::~ScenarioGenerator()
 {
 }
 
-
-
 void ScenarioGenerator::loadRequiredResources(std::string gamePath)
 {
 	bitmaps["provinces"] = rLoader.loadProvinceMap(gamePath);

@@ -30,7 +30,7 @@ int main() {
 	if (debug) {
 		std::experimental::filesystem::create_directory("Maps");
 		std::experimental::filesystem::create_directory("Maps\\world");
-		std::experimental::filesystem::create_directory("Maps\\resources");
+		std::experimental::filesystem::create_directory("Maps\\resourcelayers");
 		std::experimental::filesystem::create_directory("Maps\\layers");
 	}
 	// generate hoi4 scenario or not
@@ -55,7 +55,6 @@ int main() {
 	FastWorldGenerator fastWorldGen;
 	Hoi4Module hoi4Mod;
 	hoi4Mod.readConfig();
-	hoi4Mod.findHoi4();
 	if (!useDefaultMap) {
 		if (useGlobalExistingHeightmap) {
 			// overwrite settings of fastworldgen
