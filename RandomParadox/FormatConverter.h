@@ -33,6 +33,7 @@ class FormatConverter
 			{ Data::getInstance().namedColours["river"] * 0.4, 11 },
 			{ Data::getInstance().namedColours["sea"], 254 },
 			{ Data::getInstance().namedColours["riverStart"], 0 },
+			{ Data::getInstance().namedColours["riverStartTributary"], 3 },
 			{ Data::getInstance().namedColours["riverEnd"], 1 }
 		}
 	},
@@ -62,7 +63,6 @@ public:
 	void dump8BitRivers(string path, string colourMapKey);
 	void dump8BitTrees(string path, string colourMapKey); // width/4, height/4
 	void dumpWorldNormal(string path); // width/2, height/2
-	void dumpMiniMap(string path);
 	void dumpTerrainColourmap(string path);
 	void dumpDDSFiles(string path);
 };

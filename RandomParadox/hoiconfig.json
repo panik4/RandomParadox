@@ -3,5 +3,17 @@
 	{
 		"hoi4Path" : "D://Steam//steamapps//common//Hearts of Iron IV",
 		"hoi4ModPath" : "pdoxMod"
+	},
+	"hoi4":
+	{
+		"strategicRegionSize": 2,
+		"supplyAreaSize": 2,
+		"resourceFactor": 1.0,
+		"aluminiumFactor": 1.0,
+		"chromiumFactor": 1.0,
+		"oilFactor": 1.0,
+		"rubberFactor": 1.0,
+		"steelFactor": 1.0,
+		"tungstenFactor": 1.0
 	}
 }
