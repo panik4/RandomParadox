@@ -15,6 +15,7 @@ public:
 	const Province * baseProvince;
 	std::vector<GameProvince> neighbours;
 	GameProvince(Province* province);
+	GameProvince() {};
 	~GameProvince();
 	bool operator==(const GameProvince& right) const {
 		return ID == right.ID;

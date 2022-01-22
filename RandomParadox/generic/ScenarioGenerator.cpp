@@ -272,7 +272,7 @@ void ScenarioGenerator::mapTerrain()
 				else
 					gameProv.terrainType = "plains";
 				gameProvinces[gameProv.ID].terrainType = gameProv.terrainType;
-				for (auto& pix : gameProv.baseProvince->pixels)
+				for (auto pix : gameProv.baseProvince->pixels)
 				{
 					if (pr->first == namedColours["jungle"])
 						typeMap.setColourAtIndex(pix, Colour{ 255,255,0 });
@@ -319,7 +319,7 @@ void ScenarioGenerator::generateCountries()
 	{
 		tags.insert(tag);
 	}
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 30; i++)
 	{
 		// Get Name
 		auto name = nG.generateName();
@@ -384,6 +384,7 @@ void ScenarioGenerator::dumpDebugCountrymap(std::string path)
 			}
 		}
 	}
+	Data::getInstance().bufferBitmap("countries", countryBMP);
 	Bitmap::SaveBMPToFile(countryBMP, (path).c_str());
 }
 

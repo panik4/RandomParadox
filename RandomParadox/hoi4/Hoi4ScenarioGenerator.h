@@ -25,16 +25,21 @@ class Hoi4ScenarioGenerator
 public:
 	vector<NationalFocus> foci;
 	vector<NationalFocus> warFoci;
+	// container holding the resource configurations
 	std::map<std::string, std::vector<double>> resources;
 	Hoi4ScenarioGenerator();
 	~Hoi4ScenarioGenerator();
-
+	// give resources to states
 	void generateStateResources(ScenarioGenerator& scenGen);
+	// industry, development, population, state category
 	void generateStateSpecifics(ScenarioGenerator& scenGen);
+	// politics: ideology, strength, major
 	void generateCountrySpecifics(ScenarioGenerator& scenGen, std::map<std::string, Country>& countries);
+	// supply hubs and railroads
+	void generateLogistics(ScenarioGenerator& scenGen);
 	// calculate how strong each country is
 	void evaluateCountries(ScenarioGenerator & scenGen);
-
+	// determine unit composition, templates
 	void generateCountryUnits(ScenarioGenerator & scenGen);
 	NationalFocus buildFocus(vector<std::string> chainStep, Country& source, Country& target);
 	bool fulfillsrequirements(vector<std::string> requirements, Country& source, Country& target);
@@ -45,6 +50,7 @@ public:
 	void evaluateCivilWars();
 	// create a strategy for this country
 	void evaluateCountryStrategy();
+	// make a tree out of all focus chains and single foci
 	void buildFocusTree();
 };
 
