@@ -124,6 +124,8 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		hoi4Gen.generateStateSpecifics(scenGen);
 		hoi4Gen.generateStateResources(scenGen);
 		hoi4Gen.evaluateCountries(scenGen);
+		scenGen.dumpDebugCountrymap(Data::getInstance().mapsPath + "countries.bmp");
+		hoi4Gen.generateLogistics(scenGen);
 		hoi4Gen.evaluateCountryGoals(scenGen);
 		hoiParse.writeHistoryCountries(hoi4ModPath + "\\history\\countries\\", scenGen.countryMap);
 		hoiParse.writeHistoryUnits(hoi4ModPath + "\\history\\units\\", scenGen.countryMap);
@@ -159,7 +161,6 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		formatConverter.dumpDDSFiles(hoi4ModPath + "\\map\\terrain\\colormap_water_");
 		formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp");
 	}
-	scenGen.dumpDebugCountrymap(Data::getInstance().mapsPath + "countries.bmp");
 }
 
 void Hoi4Module::readConfig()
@@ -179,12 +180,12 @@ void Hoi4Module::readConfig()
 	hoi4ModPath = root.get<string>("module.hoi4ModPath");
 	findHoi4();
 	hoi4Gen.resources = {
-		{ "aluminium",{ root.get<double>("hoi4.aluminiumFactor"), 500.0, 0.3 }},
-		{ "chromium",{ root.get<double>("hoi4.chromiumFactor"), 1000.0, 0.2 } },
-		{ "oil",{ root.get<double>("hoi4.oilFactor"), 1000.0, 0.1 }},
-		{ "rubber",{ root.get<double>("hoi4.rubberFactor"), 500.0, 0.1 }},
-		{ "steel",{ root.get<double>("hoi4.steelFactor"), 2000.0, 0.5 }},
-		{ "tungsten",{ root.get<double>("hoi4.tungstenFactor"), 500.0, 0.2 }}
+		{ "aluminium",{ root.get<double>("hoi4.aluminiumFactor"), 1169.0, 0.3 }},
+		{ "chromium",{ root.get<double>("hoi4.chromiumFactor"), 1250.0, 0.2 } },
+		{ "oil",{ root.get<double>("hoi4.oilFactor"), 1220.0, 0.1 }},
+		{ "rubber",{ root.get<double>("hoi4.rubberFactor"), 1029.0, 0.1 }},
+		{ "steel",{ root.get<double>("hoi4.steelFactor"), 2562.0, 0.5 }},
+		{ "tungsten",{ root.get<double>("hoi4.tungstenFactor"), 1188.0, 0.2 }}
 
 	};
 }

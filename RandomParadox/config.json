@@ -9,10 +9,10 @@
 
 	"map": 
 	{
-		"seed" : 0,
-        "height" : 1024,
-		"width" : 2816,
-		"landMassPercentage" : 35,
+		"seed" : 5,
+        "height" : 512,
+		"width" : 512,
+		"landMassPercentage" : 60,
 		"seaLevel" : 94,
 		"accuracy": 100,
 		
@@ -28,10 +28,10 @@
 				"0" :
 				{
 					"type" : 2,
-					"fractalFrequency" : 1,
+					"fractalFrequency" : 0.8,
 					"fractalOctaves" : 11,
-					"fractalGain" : 0.5,
-					"seed" : 0,
+					"fractalGain" : 0.4,
+					"seed" : 5,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 0.5,
@@ -42,10 +42,10 @@
 				"1" :
 				{
 					"type" : 2,
-					"fractalFrequency" : 1,
+					"fractalFrequency" : 0.5,
 					"fractalOctaves" : 11,
-					"fractalGain" : 0.5,
-					"seed" : 0,
+					"fractalGain" : 0.4,
+					"seed" : 6,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 0.5,
@@ -58,11 +58,11 @@
 					"type" : 8,
 					"fractalFrequency" : 2,
 					"fractalOctaves" : 11,
-					"fractalGain" : 0.5,
-					"seed" : 0,
+					"fractalGain" : 0.4,
+					"seed" : 7,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 1,
+					"weight" : 0.7,
 					"maxHeight" : 100,
 					"minHeight" : 0,
 					"tanFactor": 0.22
@@ -72,11 +72,11 @@
 					"type" : 8,
 					"fractalFrequency" : 4,
 					"fractalOctaves" : 11,
-					"fractalGain" : 0.5,
-					"seed" : 0,
+					"fractalGain" : 0.4,
+					"seed" : 8,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 1,
+					"weight" : 0.5,
 					"maxHeight" : 100,
 					"minHeight" : 0,
 					"tanFactor": 0.22
@@ -99,10 +99,10 @@
 		},
 		"provinces" : {
 			"auto" : 0,
-			"landProvinceFactor" : 2,
+			"landProvinceFactor" : 4,
 			"seaProvinceFactor" : 1,
 			"minProvPerContinent" : 100,
-			"minProvPerRegion" : 3,
+			"minProvPerRegion" : 2,
 			"minProvSize" : 10
 		},
 		"humidity" : {

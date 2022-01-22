@@ -7,12 +7,11 @@
 #include "../../hoi4/NationalFocus.h"
 class Country
 {
-	// Flag flag
-	int capitalRegionID;
-
+	
 public:
 	std::string tag;
 	int ID;
+	int capitalRegionID;
 	Country();
 	Country(std::string tag);
 	~Country();
