@@ -141,33 +141,37 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator & scenGen)
 {
 	std::cout << "Building rail networks\n";
 	auto width = Data::getInstance().width;
-	//auto t = Data::getInstance().findBitmapByKey(terr)
 	Bitmap logistics = Data::getInstance().findBitmapByKey("countries");//(width, Data::getInstance().height, 24);
-	// first create supply hubs
 	for (auto& c : scenGen.countryMap) {
-		// ID, distance
+		// GameProvince ID, distance
 		std::map<double, int> supplyHubs;
 		// add capital
-		//supplyHubs[0.0] = c.second.capitalRegionID;
 		auto capitalPosition = scenGen.gameRegions[c.second.capitalRegionID].position;
 		auto capitalProvince = select_random(scenGen.gameRegions[c.second.capitalRegionID].gameProvinces);
 		vector<double> distances;
 		// region ID, provinceID
 		std::map<int, GameProvince> supplyHubProvinces;
+		std::set<int> gProvIDs;
 		for (auto& region : c.second.ownedRegions) {
-			if (region.attributeDoubles["stateCategory"] > 7 && region.ID!=c.second.capitalRegionID) {
+
+			if (region.attributeDoubles["stateCategory"] > 8 && region.ID != c.second.capitalRegionID) {
+				auto x = scenGen.gameRegions[region.ID].gameProvinces;
+				auto y = *select_random(x);
+				supplyHubProvinces[region.ID] = y;
 				auto distance = getDistance(capitalPosition, region.position, width);
-				supplyHubs[distance] = region.ID;
+				supplyHubs[distance] = y.ID;
 				distances.push_back(distance); // save distances to ensure ordering
-				supplyHubProvinces[region.ID] = *select_random(scenGen.gameRegions[region.ID].gameProvinces);
+			}
+			for (auto gProv : region.gameProvinces) {
+				gProvIDs.insert(gProv.ID);
 			}
 		}
-		// a list of connections: {sourceHub, destHub, provinces the rails go through}
-		vector<vector<int>> connections;
+		std::sort(distances.begin(), distances.end());
 		for (auto distance : distances) {
-			vector<int> passthroughStateIDs;
+			vector<int> passthroughProvinceIDs;
 			int attempts = 0;
 			auto sourceNodeID = c.second.capitalRegionID;
+			supplyNodeConnections.push_back({ sourceNodeID });
 			do {
 				attempts++;
 				if (sourceNodeID == c.second.capitalRegionID) {
@@ -178,60 +182,58 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator & scenGen)
 						if (distance2 < distance) {
 							// distance is the distance between us and the capital
 							// now find distance2, the distance between us and the other álready assigned supply hubs
-							if (getDistance(scenGen.gameRegions[supplyHubs[distance2]].position, scenGen.gameRegions[supplyHubs[distance]].position, width))
-								sourceNodeID = scenGen.gameRegions[supplyHubs[distance2]].ID;
+							if (getDistance(scenGen.gameProvinces[supplyHubs[distance2]].baseProvince->position, scenGen.gameProvinces[supplyHubs[distance]].baseProvince->position, width))
+								sourceNodeID = scenGen.gameProvinces[supplyHubs[distance2]].ID;
 						}
+						supplyNodeConnections.back()[0] = sourceNodeID;
 					}
 				}
 				else {
 					// NOT at the start of the search, therefore sourceNodeID must be the last element of passThroughStates
-					sourceNodeID = passthroughStateIDs.back();
+					sourceNodeID = passthroughProvinceIDs.back();
 				}
 				// the origins position
-				auto sourceNodePosition = scenGen.gameRegions[sourceNodeID].position;
+				auto sourceNodePosition = scenGen.gameProvinces[sourceNodeID].baseProvince->position;
 				// the region we want to connect to the source
 				auto destNodeID = supplyHubs[distance];
 				// save the distance in a temp variable
-				double tempMinDistance = Data::getInstance().width;
-				auto closestID = 0;
+				double tempMinDistance = width;
+				auto closestID = INT_MAX;
 				// now check every sourceNode neighbour for distance to destinationNode
-				for (auto& neighbourID : scenGen.gameRegions[sourceNodeID].neighbours) {
+				for (auto& neighbourGProvince : scenGen.gameProvinces[sourceNodeID].neighbours) {
+					auto neighbourGProvince2 = scenGen.gameProvinces[neighbourGProvince.ID];
 					// check if this belongs to us
-					if (scenGen.gameRegions[neighbourID].owner != c.first)
+					if (gProvIDs.find(neighbourGProvince2.ID) == gProvIDs.end())
 						continue;
+					bool cont = false;
+					for (auto passThroughID : passthroughProvinceIDs) {
+						if (passThroughID == neighbourGProvince2.ID)
+							cont = true;
+					}
+					if (cont) continue;
 					// the distance to the sources neighbours
-					auto nodeDistance = getDistance(scenGen.gameRegions[destNodeID].position, scenGen.gameRegions[neighbourID].position, width);
+					auto nodeDistance = getDistance(scenGen.gameProvinces[destNodeID].baseProvince->position, neighbourGProvince2.baseProvince->position, width);
 					if (nodeDistance < tempMinDistance) {
 						tempMinDistance = nodeDistance;
-						closestID = neighbourID;
+						closestID = neighbourGProvince2.ID;
 					}
 				}
-				// we found the next best state to go through in this direction
-				passthroughStateIDs.push_back(closestID);
-				sourceNodeID = passthroughStateIDs.back();
+				if (closestID != INT_MAX) {
+					// we found the next best state to go through in this direction
+					passthroughProvinceIDs.push_back(closestID);
+					// now save source
+					sourceNodeID = passthroughProvinceIDs.back();
+				}
+				else break;
 			}
 			// are we done? If no, find the next state, but the source is now the currently chosen neighbour
-			while (passthroughStateIDs.back() != supplyHubs[distance] && attempts < 1000);
+			while (passthroughProvinceIDs.back() != supplyHubs[distance] && attempts < 200);
 			// we are done, as we have reached the destination node
-			connections.push_back({ c.second.capitalRegionID, supplyHubs[distance] });
-			for (auto& passState : passthroughStateIDs) {
-				connections[connections.size() - 1].push_back(passState);
+			for (auto& passState : passthroughProvinceIDs) {
+				supplyNodeConnections.back().push_back(passState);
 			}
 		}
 
-
-		// now debug draw the state paths on a map
-		for (auto& connection : connections) {
-			for (int i = 2; i < connection.size(); i++) {
-				for (auto& province : scenGen.gameRegions[connection[i]].gameProvinces) {
-					for (auto pix : province.baseProvince->pixels) {
-						if (province.ID != (*capitalProvince).ID) {
-							logistics.setColourAtIndex(pix, { 255,255,255 });
-						}
-					}
-				}
-			}
-		}
 		for (auto& pix : capitalProvince->baseProvince->pixels) {
 			logistics.setColourAtIndex(pix, { 255,255,0 });
 		}
@@ -239,9 +241,18 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator & scenGen)
 			for (auto& pix : supplyHubProvince.second.baseProvince->pixels) {
 				logistics.setColourAtIndex(pix, { 0,255,0 });
 			}
-
-		Bitmap::SaveBMPToFile(logistics, "Maps//logistics.bmp");
+	}		
+	for (auto& connection : supplyNodeConnections) {
+		for (int i = 0; i < connection.size(); i++) {
+			for (auto pix : scenGen.gameProvinces[connection[i]].baseProvince->pixels) {
+				// don't overwrite capitals and supply nodes
+				if (logistics.getColourAtIndex(pix) == Colour{ 255, 255, 0 } || logistics.getColourAtIndex(pix) == Colour{ 0, 255, 0 })
+					continue;
+				logistics.setColourAtIndex(pix, { 255,255,255 });
+			}
+		}
 	}
+	Bitmap::SaveBMPToFile(logistics, "Maps//logistics.bmp");
 }
 
 void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator & scenGen)
@@ -419,7 +430,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator & scenGen)
 			// now build the chain from the options
 			if (stepTargets.size())
 			{
-				cout << "Building focus" << std::endl;
+				std::cout << "Building focus" << std::endl;
 				std::map<int, NationalFocus> fulfilledSteps;
 				int stepIndex = -1;
 				for (auto& targets : stepTargets)
