@@ -7,12 +7,11 @@
 #include "../../hoi4/NationalFocus.h"
 class Country
 {
-	// Flag flag
-	int capitalRegionID;
-
+	
 public:
 	std::string tag;
 	int ID;
+	int capitalRegionID;
 	Country();
 	Country(std::string tag);
 	~Country();
@@ -27,8 +26,8 @@ public:
 	std::map<std::string, vector<int>> attributeVectors;
 	Flag flag;
 	Colour colour;
-	void addRegion(GameRegion& region, vector<GameRegion>& gameRegions);
-	void assignRegions(int maxRegions, vector<GameRegion>& gameRegions, GameRegion& startRegion);
+	void addRegion(GameRegion& region, vector<GameRegion>& gameRegions, vector<GameProvince>& gameProvinces);
+	void assignRegions(int maxRegions, vector<GameRegion>& gameRegions, GameRegion& startRegion, vector<GameProvince>& gameProvinces);
 	bool operator<(const Country& right) const
 	{
 		return ID < right.ID;

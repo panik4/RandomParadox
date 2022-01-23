@@ -9,7 +9,7 @@ class Hoi4ScenarioGenerator
 {
 	ranlux24 random;
 	NameGenerator nG;
-
+	int landStates = 0;
 	vector<std::string> majorPowers;
 	vector<std::string> regionalPowers;
 	vector<std::string> weakPowers;
@@ -25,14 +25,23 @@ class Hoi4ScenarioGenerator
 public:
 	vector<NationalFocus> foci;
 	vector<NationalFocus> warFoci;
-	Hoi4ScenarioGenerator(ScenarioGenerator sG);
+	// a list of connections: {sourceHub, destHub, provinces the rails go through}
+	vector<vector<int>> supplyNodeConnections;
+	// container holding the resource configurations
+	std::map<std::string, std::vector<double>> resources;
+	Hoi4ScenarioGenerator();
 	~Hoi4ScenarioGenerator();
-
+	// give resources to states
+	void generateStateResources(ScenarioGenerator& scenGen);
+	// industry, development, population, state category
 	void generateStateSpecifics(ScenarioGenerator& scenGen);
+	// politics: ideology, strength, major
 	void generateCountrySpecifics(ScenarioGenerator& scenGen, std::map<std::string, Country>& countries);
+	// supply hubs and railroads
+	void generateLogistics(ScenarioGenerator& scenGen);
 	// calculate how strong each country is
 	void evaluateCountries(ScenarioGenerator & scenGen);
-
+	// determine unit composition, templates
 	void generateCountryUnits(ScenarioGenerator & scenGen);
 	NationalFocus buildFocus(vector<std::string> chainStep, Country& source, Country& target);
 	bool fulfillsrequirements(vector<std::string> requirements, Country& source, Country& target);
@@ -43,6 +52,7 @@ public:
 	void evaluateCivilWars();
 	// create a strategy for this country
 	void evaluateCountryStrategy();
+	// make a tree out of all focus chains and single foci
 	void buildFocusTree();
 };
 

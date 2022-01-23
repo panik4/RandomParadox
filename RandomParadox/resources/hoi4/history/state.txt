@@ -6,12 +6,12 @@ state={
 	
 	state_category = templateStateCategory
 	resources={
-		steel=1
-		aluminium=1
-		oil=1
-		tungsten=1
-		rubber=1
-		chromium=1
+		aluminium=templatealuminium
+		chromium=templatechromium
+		oil=templateoil
+		rubber=templaterubber
+		steel=templatesteel
+		tungsten=templatetungsten
 	}
 
 	history={
