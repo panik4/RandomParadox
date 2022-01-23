@@ -182,6 +182,8 @@ void ScenarioGenerator::mapRegions()
 		}
 		gameRegions.push_back(gR);
 	}
+	if (gameProvinces.size() != f.provinceGenerator.provinces.size())
+		std::cout << "LOST provinces" << std::endl;
 	std::sort(gameProvinces.begin(), gameProvinces.end());
 }
 
@@ -271,7 +273,7 @@ void ScenarioGenerator::mapTerrain()
 					gameProv.terrainType = "desert";
 				else
 					gameProv.terrainType = "plains";
-				gameProvinces[gameProv.ID].terrainType = gameProv.terrainType;
+				//gameProvinces[gameProv.ID].terrainType = gameProv.terrainType;
 				for (auto pix : gameProv.baseProvince->pixels)
 				{
 					if (pr->first == namedColours["jungle"])
@@ -340,14 +342,14 @@ void ScenarioGenerator::generateCountries()
 		auto startRegion(findStartRegion());
 		if (startRegion.assigned || startRegion.sea)
 			continue;
-		c.second.assignRegions(6, gameRegions, startRegion);
+		c.second.assignRegions(6, gameRegions, startRegion, gameProvinces);
 	}
 	for (auto& gameRegion : gameRegions)
 	{
 		if (!gameRegion.sea && !gameRegion.assigned)
 		{
 			auto x = getNearestAssignedLand(gameRegions, gameRegion, Data::getInstance().width, Data::getInstance().height);
-			countryMap.at(x.owner).addRegion(gameRegion, gameRegions);
+			countryMap.at(x.owner).addRegion(gameRegion, gameRegions, gameProvinces);
 		}
 	}
 }
