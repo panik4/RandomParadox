@@ -1,8 +1,7 @@
 #include "Hoi4ScenarioGenerator.h"
 
 
-
-Hoi4ScenarioGenerator::Hoi4ScenarioGenerator(ScenarioGenerator sG)
+Hoi4ScenarioGenerator::Hoi4ScenarioGenerator()
 {
 	this->random = Data::getInstance().random2;
 }
@@ -12,37 +11,54 @@ Hoi4ScenarioGenerator::~Hoi4ScenarioGenerator()
 {
 }
 
+void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator & scenGen)
+{
+	for (auto& c : scenGen.countryMap) {
+		for (auto& gameRegion : c.second.ownedRegions) {
+			for (auto& resource : resources)
+			{
+				auto chance = resource.second[2];
+				if (random() % 100 < chance*100.0) {
+					// calc total of this resource
+					auto totalOfResource = resource.second[1] * resource.second[0];
+					// more per selected state if the chance is lower
+					double averagePerState = (totalOfResource / (double)landStates) * (1.0 / chance);
+					// range 1 to (2 times average - 1)
+					double value = 1 + random() % (int)((2.0*averagePerState));
+					gameRegion.attributeDoubles[resource.first] = value;
+				}
+			}
+		}
+	}
+}
+
 void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator & scenGen)
 {
-	auto worldIndustry = 2000;
-	for (auto& c : scenGen.countryMap)
-	{
-		for (auto& gameRegion : c.second.ownedRegions)
-		{
+	auto worldIndustry = 1216;
+	for (auto& c : scenGen.countryMap) {
+		for (auto& gameRegion : c.second.ownedRegions) {
+			// count the number of land states for resource generation
+			landStates++;
 			int totalPop = 0;
 			double totalStateArea = 0;
 			double totalDevFactor = 0;
 			double totalPopFactor = 0;
 			double worldArea = Data::getInstance().bitmapSize / 3; // roughly 1 third is land
-			for (const auto& gameProv : gameRegion.gameProvinces)
-			{
+			for (const auto& gameProv : gameRegion.gameProvinces) {
 				totalDevFactor += gameProv.devFactor / (double)gameRegion.gameProvinces.size();
 				totalPopFactor += gameProv.popFactor / (double)gameRegion.gameProvinces.size();
 				totalStateArea += gameProv.baseProvince->pixels.size();
 			}
 			gameRegion.attributeDoubles["stateCategory"] = clamp((int)(totalPopFactor * 5.0 + totalDevFactor * 6.0), 0, 9);
-			if (gameRegion.gameProvinces.size() == 1)
-			{
+			if (gameRegion.gameProvinces.size() == 1) {
 				gameRegion.attributeDoubles["stateCategory"] = 1;
 			}
 			gameRegion.attributeDoubles["development"] = totalDevFactor;
 			gameRegion.attributeDoubles["population"] = totalStateArea * 5000.0 * totalPopFactor;
 			// count the total coastal provinces of this region
 			auto totalCoastal = 0;
-			for (auto& gameProv : gameRegion.gameProvinces)
-			{
-				if (gameProv.baseProvince->coastal)
-				{
+			for (auto& gameProv : gameRegion.gameProvinces) {
+				if (gameProv.baseProvince->coastal) {
 					totalCoastal++;
 					gameProv.attributeDoubles["naval_bases"] = Data::getInstance().getRandomNumber(1, 5);
 				}
@@ -51,15 +67,14 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator & scenGen)
 				}
 			}
 			auto stateIndustry = (totalStateArea / worldArea) * totalPopFactor * worldIndustry;
-			if (totalCoastal > 0)
-			{
-				gameRegion.attributeDoubles["dockyards"] = clamp((int)round(stateIndustry*(0.33)), 0, 4);
-				gameRegion.attributeDoubles["civilianFactories"] = clamp((int)round(stateIndustry*(0.34)), 0, 8);
-				gameRegion.attributeDoubles["armsFactories"] = clamp((int)round(stateIndustry*(0.33)), 0, 4);
+			if (totalCoastal > 0) {
+				gameRegion.attributeDoubles["dockyards"] = clamp((int)round(stateIndustry*(0.17)), 0, 4);
+				gameRegion.attributeDoubles["civilianFactories"] = clamp((int)round(stateIndustry*(0.68)), 0, 8);
+				gameRegion.attributeDoubles["armsFactories"] = clamp((int)round(stateIndustry*(0.16)), 0, 4);
 			}
 			else {
-				gameRegion.attributeDoubles["civilianFactories"] = clamp((int)round(stateIndustry*(0.67)), 0, 8);
-				gameRegion.attributeDoubles["armsFactories"] = clamp((int)round(stateIndustry*(0.33)), 0, 4);
+				gameRegion.attributeDoubles["civilianFactories"] = clamp((int)round(stateIndustry*(0.75)), 0, 8);
+				gameRegion.attributeDoubles["armsFactories"] = clamp((int)round(stateIndustry*(0.25)), 0, 4);
 				gameRegion.attributeDoubles["dockyards"] = 0;
 			}
 		}
@@ -122,19 +137,140 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator & scenGen
 
 }
 
+void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator & scenGen)
+{
+	std::cout << "Building rail networks\n";
+	auto width = Data::getInstance().width;
+	Bitmap logistics = Data::getInstance().findBitmapByKey("countries");//(width, Data::getInstance().height, 24);
+	for (auto& c : scenGen.countryMap) {
+		// GameProvince ID, distance
+		std::map<double, int> supplyHubs;
+		// add capital
+		auto capitalPosition = scenGen.gameRegions[c.second.capitalRegionID].position;
+		auto capitalProvince = select_random(scenGen.gameRegions[c.second.capitalRegionID].gameProvinces);
+		vector<double> distances;
+		// region ID, provinceID
+		std::map<int, GameProvince> supplyHubProvinces;
+		std::set<int> gProvIDs;
+		for (auto& region : c.second.ownedRegions) {
+
+			if (region.attributeDoubles["stateCategory"] > 8 && region.ID != c.second.capitalRegionID) {
+				auto x = scenGen.gameRegions[region.ID].gameProvinces;
+				auto y = *select_random(x);
+				supplyHubProvinces[region.ID] = y;
+				auto distance = getDistance(capitalPosition, region.position, width);
+				supplyHubs[distance] = y.ID;
+				distances.push_back(distance); // save distances to ensure ordering
+			}
+			for (auto gProv : region.gameProvinces) {
+				gProvIDs.insert(gProv.ID);
+			}
+		}
+		std::sort(distances.begin(), distances.end());
+		for (auto distance : distances) {
+			vector<int> passthroughProvinceIDs;
+			int attempts = 0;
+			auto sourceNodeID = c.second.capitalRegionID;
+			supplyNodeConnections.push_back({ sourceNodeID });
+			do {
+				attempts++;
+				if (sourceNodeID == c.second.capitalRegionID) {
+					// we are at the start of the search
+					auto tempDist2 = width;
+					for (auto distance2 : distances) {
+						// only check hubs that were already assigned
+						if (distance2 < distance) {
+							// distance is the distance between us and the capital
+							// now find distance2, the distance between us and the other álready assigned supply hubs
+							if (getDistance(scenGen.gameProvinces[supplyHubs[distance2]].baseProvince->position, scenGen.gameProvinces[supplyHubs[distance]].baseProvince->position, width))
+								sourceNodeID = scenGen.gameProvinces[supplyHubs[distance2]].ID;
+						}
+						supplyNodeConnections.back()[0] = sourceNodeID;
+					}
+				}
+				else {
+					// NOT at the start of the search, therefore sourceNodeID must be the last element of passThroughStates
+					sourceNodeID = passthroughProvinceIDs.back();
+				}
+				// the origins position
+				auto sourceNodePosition = scenGen.gameProvinces[sourceNodeID].baseProvince->position;
+				// the region we want to connect to the source
+				auto destNodeID = supplyHubs[distance];
+				// save the distance in a temp variable
+				double tempMinDistance = width;
+				auto closestID = INT_MAX;
+				// now check every sourceNode neighbour for distance to destinationNode
+				for (auto& neighbourGProvince : scenGen.gameProvinces[sourceNodeID].neighbours) {
+					auto neighbourGProvince2 = scenGen.gameProvinces[neighbourGProvince.ID];
+					// check if this belongs to us
+					if (gProvIDs.find(neighbourGProvince2.ID) == gProvIDs.end())
+						continue;
+					bool cont = false;
+					for (auto passThroughID : passthroughProvinceIDs) {
+						if (passThroughID == neighbourGProvince2.ID)
+							cont = true;
+					}
+					if (cont) continue;
+					// the distance to the sources neighbours
+					auto nodeDistance = getDistance(scenGen.gameProvinces[destNodeID].baseProvince->position, neighbourGProvince2.baseProvince->position, width);
+					if (nodeDistance < tempMinDistance) {
+						tempMinDistance = nodeDistance;
+						closestID = neighbourGProvince2.ID;
+					}
+				}
+				if (closestID != INT_MAX) {
+					// we found the next best state to go through in this direction
+					passthroughProvinceIDs.push_back(closestID);
+					// now save source
+					sourceNodeID = passthroughProvinceIDs.back();
+				}
+				else break;
+			}
+			// are we done? If no, find the next state, but the source is now the currently chosen neighbour
+			while (passthroughProvinceIDs.back() != supplyHubs[distance] && attempts < 200);
+			// we are done, as we have reached the destination node
+			for (auto& passState : passthroughProvinceIDs) {
+				supplyNodeConnections.back().push_back(passState);
+			}
+		}
+
+		for (auto& pix : capitalProvince->baseProvince->pixels) {
+			logistics.setColourAtIndex(pix, { 255,255,0 });
+		}
+		for (auto& supplyHubProvince : supplyHubProvinces)
+			for (auto& pix : supplyHubProvince.second.baseProvince->pixels) {
+				logistics.setColourAtIndex(pix, { 0,255,0 });
+			}
+	}		
+	for (auto& connection : supplyNodeConnections) {
+		for (int i = 0; i < connection.size(); i++) {
+			for (auto pix : scenGen.gameProvinces[connection[i]].baseProvince->pixels) {
+				// don't overwrite capitals and supply nodes
+				if (logistics.getColourAtIndex(pix) == Colour{ 255, 255, 0 } || logistics.getColourAtIndex(pix) == Colour{ 0, 255, 0 })
+					continue;
+				logistics.setColourAtIndex(pix, { 255,255,255 });
+			}
+		}
+	}
+	Bitmap::SaveBMPToFile(logistics, "Maps//logistics.bmp");
+}
+
 void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator & scenGen)
 {
 	std::cout << "HOI4: Evaluating Country Strength\n";
 	std::map<int, vector<std::string>> strengthScores;
-	for (auto& c : scenGen.countryMap)
-	{
+	for (auto& c : scenGen.countryMap) {
 		auto totalIndustry = 0;
 		auto totalPop = 0;
-		for (auto& ownedRegion : c.second.ownedRegions)
-		{
-			totalIndustry += ownedRegion.attributeDoubles["civilianFactories"];
-			totalIndustry += ownedRegion.attributeDoubles["dockyards"];
-			totalIndustry += ownedRegion.attributeDoubles["armsFactories"];
+		auto maxIndustryID = 0;
+		auto maxIndustryLevel = 0;
+		for (auto& ownedRegion : c.second.ownedRegions) {
+			auto regionIndustry = ownedRegion.attributeDoubles["civilianFactories"]
+				+ ownedRegion.attributeDoubles["dockyards"]
+				+ ownedRegion.attributeDoubles["armsFactories"];
+			if (regionIndustry > maxIndustryLevel)
+				c.second.capitalRegionID = ownedRegion.ID;
+			totalIndustry += regionIndustry;
 			totalPop += ownedRegion.attributeDoubles["population"];
 		}
 		strengthScores[totalIndustry + totalPop / 1000000].push_back(c.first);
@@ -294,7 +430,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator & scenGen)
 			// now build the chain from the options
 			if (stepTargets.size())
 			{
-				cout << "Building focus" << std::endl;
+				std::cout << "Building focus" << std::endl;
 				std::map<int, NationalFocus> fulfilledSteps;
 				int stepIndex = -1;
 				for (auto& targets : stepTargets)

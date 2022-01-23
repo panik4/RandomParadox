@@ -26,7 +26,7 @@ public:
 	void dumpAdjacencyRules(std::string path);
 	void dumpStrategicRegions(std::string path, const vector<Region>& regions);
 	void dumpSupplyAreas(std::string path, const vector<Region>& regions);
-
+	void dumpSupply(std::string path, const vector<vector<int>> supplyNodeConnections);
 	//gfx
 	void dumpFlags(std::string path, const std::map<std::string, Country>& countries);
 

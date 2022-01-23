@@ -340,6 +340,32 @@ void Hoi4Parser::dumpSupplyAreas(std::string path, const  vector<Region>& region
 	}
 }
 
+void Hoi4Parser::dumpSupply(std::string path, const vector<vector<int>> supplyNodeConnections)
+{
+	std::string supplyNodes = "";
+	std::string railways = "";
+	std::set<int> nodes;
+	for (auto& connection : supplyNodeConnections) {
+		if (connection.size() == 1)
+			continue;
+		nodes.insert(connection[0]);
+		nodes.insert(connection.back());
+		railways += "1 ";
+		railways += to_string(connection.size());
+		railways += " ";
+		for (auto prov : connection) {
+			railways += to_string(prov+1);
+			railways += " ";
+		}
+		railways += "\n";
+	}
+	for (auto node : nodes) {
+		supplyNodes.append("1 " + to_string(node+1) + "\n");
+	}
+	ParserUtils::writeFile(path + "supply_nodes.txt", supplyNodes);
+	ParserUtils::writeFile(path + "railways.txt", railways);
+}
+
 void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country>& countries)
 {
 	std::cout << "HOI4 Parser: History: Drawing State Borders\n";
@@ -383,6 +409,11 @@ void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country>& co
 				pU::replaceOccurences(content, "templateDockyards", to_string((int)region.attributeDoubles["dockyards"]));
 			else
 				pU::replaceOccurences(content, "dockyard = templateDockyards", "");
+
+			// resources
+			for (auto resource : vector<std::string>{ "aluminium", "chromium", "oil", "rubber", "steel", "tungsten" }) {
+				pU::replaceOccurences(content, "template" + resource, to_string((int)region.attributeDoubles[resource]));
+			}
 			pU::writeFile(path + "\\" + to_string(baseRegion.ID + 1) + ".txt", content);
 		}
 	}
