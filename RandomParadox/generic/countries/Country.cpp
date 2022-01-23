@@ -15,9 +15,9 @@ Country::~Country()
 {
 }
 
-void Country::assignRegions(int maxRegions, vector<GameRegion>& gameRegions, GameRegion& startRegion)
+void Country::assignRegions(int maxRegions, vector<GameRegion>& gameRegions, GameRegion& startRegion, vector<GameProvince>& gameProvinces)
 {
-	addRegion(startRegion, gameRegions);
+	addRegion(startRegion, gameRegions, gameProvinces);
 	auto breakCounter = 0;
 	while (ownedRegions.size() < maxRegions && breakCounter++ < 100)
 	{
@@ -31,17 +31,23 @@ void Country::assignRegions(int maxRegions, vector<GameRegion>& gameRegions, Gam
 			if (!gameRegions[nextRegion].assigned && !gameRegions[nextRegion].sea)
 			{
 				gameRegions[nextRegion].assigned = true;
-				addRegion(gameRegions[nextRegion], gameRegions);
+				addRegion(gameRegions[nextRegion], gameRegions, gameProvinces);
 			}
 		}
 	}
 }
 
-void Country::addRegion(GameRegion& region, vector<GameRegion>& gameRegions)
+void Country::addRegion(GameRegion& region, vector<GameRegion>& gameRegions, vector<GameProvince>& gameProvinces)
 {
 	gameRegions[region.ID].assigned = true;
 	gameRegions[region.ID].owner = tag;
+	for (auto& gameProvince : gameRegions[region.ID].gameProvinces) {
+		gameProvince.owner = tag;
+	}
 	region.assigned = true;
 	region.owner = tag;
+	for (auto& gameProvince : region.gameProvinces) {
+		gameProvince.owner = tag;
+	}
 	ownedRegions.push_back(region);
 }
