@@ -146,6 +146,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		hoiParse.dumpFlags(hoi4ModPath + "\\gfx\\flags\\", scenGen.countryMap);
 		hoiParse.dumpWeatherPositions(hoi4ModPath + "\\map\\weatherpositions.txt", scenGen.f.provinceGenerator.regions);
 		hoiParse.dumpAdjacencyRules(hoi4ModPath + "\\map\\adjacency_rules.txt");
+		hoiParse.dumpSupply(hoi4ModPath + "\\map\\", hoi4Gen.supplyNodeConnections);
 		hoiParse.writeStateNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
 		hoiParse.writeCountryNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
 		hoiParse.writeFoci(hoi4ModPath + "\\common\\national_focus\\", hoi4Gen.foci, scenGen.countryMap);

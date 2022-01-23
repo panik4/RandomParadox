@@ -25,6 +25,8 @@ class Hoi4ScenarioGenerator
 public:
 	vector<NationalFocus> foci;
 	vector<NationalFocus> warFoci;
+	// a list of connections: {sourceHub, destHub, provinces the rails go through}
+	vector<vector<int>> supplyNodeConnections;
 	// container holding the resource configurations
 	std::map<std::string, std::vector<double>> resources;
 	Hoi4ScenarioGenerator();
