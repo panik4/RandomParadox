@@ -11,8 +11,8 @@
 	{
 		"seed" : 5,
         "height" : 1024,
-		"width" : 1024,
-		"landMassPercentage" : 60,
+		"width" : 2816,
+		"landMassPercentage" : 35,
 		"seaLevel" : 94,
 		"accuracy": 100,
 		
@@ -99,10 +99,10 @@
 		},
 		"provinces" : {
 			"auto" : 0,
-			"landProvinceFactor" : 4,
+			"landProvinceFactor" : 2,
 			"seaProvinceFactor" : 1,
 			"minProvPerContinent" : 100,
-			"minProvPerRegion" : 3,
+			"minProvPerRegion" : 6,
 			"minProvSize" : 10
 		},
 		"humidity" : {

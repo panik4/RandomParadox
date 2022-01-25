@@ -21,6 +21,20 @@ class Hoi4ScenarioGenerator
 		{ "defense", NationalFocus::FocusType::defense },
 		{ "ally", NationalFocus::FocusType::ally }
 	};
+	// track industry statistics
+	int totalIndustry = 0;
+	int militaryIndustry = 0;
+	int navalIndustry = 0;
+	int civilianIndustry = 0;
+	// track civil statistics
+	long long worldPop = 0;
+	// track resource statistics
+	int totalAluminium = 0;
+	int totalChromium = 0;
+	int totalRubber = 0;
+	int totalOil = 0;
+	int totalSteel = 0;
+	int totalTungsten = 0;
 
 public:
 	vector<NationalFocus> foci;
@@ -54,5 +68,7 @@ public:
 	void evaluateCountryStrategy();
 	// make a tree out of all focus chains and single foci
 	void buildFocusTree();
+
+	void printStatistics();
 };
 
