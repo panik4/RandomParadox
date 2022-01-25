@@ -13,6 +13,7 @@
 *.vcxproj
 *libtga
 */Maps/*
+*Maps/*
 */inputs/*
 *x64
 *.tga

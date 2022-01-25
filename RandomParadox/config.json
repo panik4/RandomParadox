@@ -11,7 +11,7 @@
 	{
 		"seed" : 5,
         "height" : 1024,
-		"width" : 2816,
+		"width" : 1024,
 		"landMassPercentage" : 60,
 		"seaLevel" : 94,
 		"accuracy": 100,
