@@ -346,7 +346,7 @@ void Hoi4Parser::dumpSupply(std::string path, const vector<vector<int>> supplyNo
 	std::string railways = "";
 	std::set<int> nodes;
 	for (auto& connection : supplyNodeConnections) {
-		if (connection.size() == 1)
+		if (connection.size() <= 1)
 			continue;
 		nodes.insert(connection[0]);
 		nodes.insert(connection.back());
@@ -397,10 +397,8 @@ void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country>& co
 			pU::replaceOccurences(content, "templatePopulation", to_string((int)region.attributeDoubles["population"]));
 			pU::replaceOccurences(content, "templateStateCategory", stateCategories[(int)region.attributeDoubles["stateCategory"]]);
 			std::string navalBaseContent = "";
-			for (auto& gameProv : region.gameProvinces)
-			{
-				if (gameProv.attributeDoubles["naval_bases"] > 0)
-				{
+			for (auto& gameProv : region.gameProvinces)			{
+				if (gameProv.attributeDoubles["naval_bases"] > 0)				{
 					navalBaseContent += to_string(gameProv.ID + 1) + " = {\n\t\t\t\tnaval_base = " + to_string((int)gameProv.attributeDoubles["naval_bases"]) + "\n\t\t\t}\n\t\t\t";
 				}
 			}
