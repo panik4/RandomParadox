@@ -15,5 +15,11 @@
 		"rubberFactor": 1.0,
 		"steelFactor": 1.0,
 		"tungstenFactor": 1.0
+	},
+	"scenario":
+	{
+		"numCountries" : 50,
+		"worldPopulationFactor" : 1.0,
+		"industryFactor" : 1.0
 	}
 }

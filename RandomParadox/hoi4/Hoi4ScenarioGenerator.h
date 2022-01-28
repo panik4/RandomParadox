@@ -22,7 +22,7 @@ class Hoi4ScenarioGenerator
 		{ "ally", NationalFocus::FocusType::ally }
 	};
 	// track industry statistics
-	int totalIndustry = 0;
+	int totalWorldIndustry = 0;
 	int militaryIndustry = 0;
 	int navalIndustry = 0;
 	int civilianIndustry = 0;
@@ -43,6 +43,12 @@ public:
 	vector<vector<int>> supplyNodeConnections;
 	// container holding the resource configurations
 	std::map<std::string, std::vector<double>> resources;
+	// config options
+	double worldPopulationFactor = 1.0;
+	double industryFactor = 1.0;
+	double resourceFactor = 1.0;
+
+
 	Hoi4ScenarioGenerator();
 	~Hoi4ScenarioGenerator();
 	// give resources to states

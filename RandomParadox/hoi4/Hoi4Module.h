@@ -12,6 +12,7 @@ class Hoi4Module
 {
 	std::string hoi4Path;
 	std::string hoi4ModPath;
+	int numCountries;
 	Hoi4ScenarioGenerator hoi4Gen;
 public:
 	Hoi4Module();

@@ -102,7 +102,7 @@
 			"landProvinceFactor" : 2,
 			"seaProvinceFactor" : 1,
 			"minProvPerContinent" : 100,
-			"minProvPerRegion" : 6,
+			"minProvPerRegion" : 3,
 			"minProvSize" : 10
 		},
 		"humidity" : {
