@@ -25,6 +25,8 @@ void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator& scenGen)
 					double averagePerState = (totalOfResource / (double)landStates) * (1.0 / chance);
 					// range 1 to (2 times average - 1)
 					double value = 1 + random() % (int)((2.0 * averagePerState));
+					// increase by industry factor
+					value *= industryFactor;
 					gameRegion.attributeDoubles[resource.first] = value;
 					// track amount of deployed resources
 					if (resource.first == "aluminium")
@@ -50,7 +52,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator& scenGen)
 	// calculate the world land area
 	double worldArea = (double)(Data::getInstance().bitmapSize / 3)* Data::getInstance().landMassPercentage;
 	// calculate the target industry amount
-	auto targetWorldIndustry = (double)Data::getInstance().landMassPercentage* 3648.0 * ((Data::getInstance().bitmapSize) / (double)(5632 * 2048));
+	auto targetWorldIndustry = (double)Data::getInstance().landMassPercentage* 3648.0 * (sqrt(Data::getInstance().bitmapSize) / sqrt((double)(5632 * 2048)));
 	for (auto& c : scenGen.countryMap) {
 		for (auto& gameRegion : c.second.ownedRegions) {
 			// count the number of land states for resource generation
@@ -69,7 +71,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator& scenGen)
 				gameRegion.attributeDoubles["stateCategory"] = 1;
 			}
 			gameRegion.attributeDoubles["development"] = totalDevFactor;
-			gameRegion.attributeDoubles["population"] = totalStateArea * 1250.0 * totalPopFactor;
+			gameRegion.attributeDoubles["population"] = totalStateArea * 1250.0 * totalPopFactor * worldPopulationFactor;
 			worldPop += gameRegion.attributeDoubles["population"];
 			// count the total coastal provinces of this region
 			auto totalCoastal = 0;
@@ -177,7 +179,10 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 		std::set<int> gProvIDs;
 		bool connectedNavalBase = false;
 		for (auto& region : c.second.ownedRegions) {
-			if (region.attributeDoubles["stateCategory"] > 6 && region.ID != c.second.capitalRegionID) {
+			if (region.attributeDoubles["stateCategory"] > 6 && region.ID != c.second.capitalRegionID 
+				// if we're nearing the end of our region vector, and don't have more than 25% of our regions as supply bases
+				// generate supply bases for the last two regions
+				|| (region.ID == (c.second.ownedRegions.end()-2)->ID && supplyHubProvinces.size() < (c.second.ownedRegions.size()/4))) {
 				// select a random gameprovince of the state
 				auto y = *select_random(region.gameProvinces);
 				for (auto& prov : region.gameProvinces) {
@@ -268,7 +273,8 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 						}
 					}
 				}
-				else if (attempts == 20) {
+				// if we can't end this rail line, wrap up. Rails shouldn't be longer than 200 provinces anyway
+				else if (attempts == 200) {
 					// clean it up: if we can't reach our target, the railway must be cleared
 					supplyNodeConnections.back().clear();
 					passthroughProvinceIDs.clear();
@@ -277,7 +283,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 				else break;
 			}
 			// are we done? If no, find the next state, but the source is now the currently chosen neighbour
-			while (passthroughProvinceIDs.back() != supplyHubs[distance] && attempts < 20);
+			while (passthroughProvinceIDs.back() != supplyHubs[distance] && attempts < 200);
 			// we are done, as we have reached the destination node
 			for (auto& passState : passthroughProvinceIDs) {
 				supplyNodeConnections.back().push_back(passState);
@@ -325,19 +331,17 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 		}
 		strengthScores[totalIndustry + totalPop / 1000000].push_back(c.first);
 		c.second.attributeDoubles["strengthScore"] = totalIndustry + totalPop / 1000000;
-
+		// global
+		totalWorldIndustry += totalIndustry;
 	}
 
-	int totalDeployedCountries = 100 - strengthScores[0].size();
+	int totalDeployedCountries = scenGen.numCountries - strengthScores[0].size();
 	int numMajorPowers = totalDeployedCountries / 10;
 	int numRegionalPowers = totalDeployedCountries / 3;
 	int numWeakStates = totalDeployedCountries - numMajorPowers - numRegionalPowers;
-	for (auto& scores : strengthScores)
-	{
-		for (auto& entry : scores.second)
-		{
-			if (scores.first > 0)
-			{
+	for (auto& scores : strengthScores)	{
+		for (auto& entry : scores.second)		{
+			if (scores.first > 0)			{
 				if (numWeakStates > weakPowers.size())
 				{
 					weakPowers.push_back(entry);
@@ -560,7 +564,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::printStatistics()
 {
-	std::cout << "Total Industry: " << totalIndustry << std::endl;
+	std::cout << "Total Industry: " << totalWorldIndustry << std::endl;
 	std::cout << "Military Industry: " << militaryIndustry << std::endl;
 	std::cout << "Civilian Industry: " << civilianIndustry << std::endl;
 	std::cout << "Naval Industry: " << navalIndustry << std::endl;
