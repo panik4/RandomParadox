@@ -24,6 +24,7 @@ public:
 	vector<GameProvince> gameProvinces;
 	set<std::string> tags;
 	map<std::string, Country> countryMap;
+	int numCountries;
 
 	NameGenerator nG;
 	ScenarioGenerator(FastWorldGenerator& f);
@@ -52,7 +53,7 @@ public:
 	// GameRegions are used for every single game,
 	GameRegion& findStartRegion();
 	// and countries are always created the same way
-	void generateCountries();
+	void generateCountries(int numCountries);
 	// see which country neighbours which
 	void evaluateNeighbours();
 };

@@ -313,16 +313,15 @@ GameRegion& ScenarioGenerator::findStartRegion()
 
 // generate countries according to given ruleset for each game
 // TODO: rulesets, e.g. naming schemes? tags? country size?
-void ScenarioGenerator::generateCountries()
+void ScenarioGenerator::generateCountries(int numCountries)
 {
+	this->numCountries = numCountries;
 	std::cout << "Generating Countries\n";
 	auto forbiddenTags = rLoader.loadForbiddenTags(gamePaths["hoi4"]);
-	for (auto tag : forbiddenTags)
-	{
+	for (auto tag : forbiddenTags)	{
 		tags.insert(tag);
 	}
-	for (int i = 0; i < 30; i++)
-	{
+	for (int i = 0; i < numCountries; i++)	{
 		// Get Name
 		auto name = nG.generateName();
 		// Tag from Name
@@ -337,17 +336,14 @@ void ScenarioGenerator::generateCountries()
 		C.developmentFactor = Data::getInstance().getRandomDouble(0.1, 1.0);
 		countryMap.emplace(tag, C);
 	}
-	for (auto& c : countryMap)
-	{
+	for (auto& c : countryMap)	{
 		auto startRegion(findStartRegion());
 		if (startRegion.assigned || startRegion.sea)
 			continue;
 		c.second.assignRegions(6, gameRegions, startRegion, gameProvinces);
 	}
-	for (auto& gameRegion : gameRegions)
-	{
-		if (!gameRegion.sea && !gameRegion.assigned)
-		{
+	for (auto& gameRegion : gameRegions)	{
+		if (!gameRegion.sea && !gameRegion.assigned)		{
 			auto x = getNearestAssignedLand(gameRegions, gameRegion, Data::getInstance().width, Data::getInstance().height);
 			countryMap.at(x.owner).addRegion(gameRegion, gameRegions, gameProvinces);
 		}

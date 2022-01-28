@@ -92,7 +92,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 	{
 		scenGen.hoi4Preparations(useDefaultStates, useDefaultProvinces); // load files, read states/create states
 		scenGen.mapRegions(); // create gameRegions
-		scenGen.generateCountries();
+		scenGen.generateCountries(numCountries);
 		scenGen.dumpDebugCountrymap(Data::getInstance().mapsPath + "countries.bmp");
 
 		hoiParse.dumpStates(hoi4ModPath + "\\history\\states", scenGen.countryMap);
@@ -115,7 +115,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 	else {
 		scenGen.mapRegions();
 		scenGen.mapContinents();
-		scenGen.generateCountries();
+		scenGen.generateCountries(numCountries);
 		scenGen.evaluateNeighbours();
 		scenGen.generateWorld();
 
@@ -190,7 +190,11 @@ void Hoi4Module::readConfig()
 		{ "rubber",{ root.get<double>("hoi4.rubberFactor"), 1029.0, 0.1 }},
 		{ "steel",{ root.get<double>("hoi4.steelFactor"), 2562.0, 0.5 }},
 		{ "tungsten",{ root.get<double>("hoi4.tungstenFactor"), 1188.0, 0.2 }}
-
+		
 	};
+	numCountries = root.get<int>("scenario.numCountries");
+	hoi4Gen.worldPopulationFactor = root.get<double>("scenario.worldPopulationFactor");
+	hoi4Gen.industryFactor = root.get<double>("scenario.industryFactor");
+	hoi4Gen.resourceFactor = root.get<double>("hoi4.resourceFactor");
 }
 

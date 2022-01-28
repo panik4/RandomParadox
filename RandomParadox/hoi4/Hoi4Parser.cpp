@@ -390,7 +390,7 @@ void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country>& co
 			pU::replaceOccurences(content, "templateID", to_string(baseRegion.ID + 1));
 			pU::replaceOccurences(content, "template_provinces", provString);
 			pU::replaceOccurences(content, "templateOwner", country.first);
-			pU::replaceOccurences(content, "templateInfrastructure", to_string(2 + (int)(region.attributeDoubles["development"] * 8.0)));
+			pU::replaceOccurences(content, "templateInfrastructure", to_string(1 + (int)(region.attributeDoubles["development"] * 4.0)));
 			pU::replaceOccurences(content, "templateAirbase", to_string(0));
 			pU::replaceOccurences(content, "templateCivilianFactory", to_string((int)region.attributeDoubles["civilianFactories"]));
 			pU::replaceOccurences(content, "templateArmsFactory", to_string((int)region.attributeDoubles["armsFactories"]));
