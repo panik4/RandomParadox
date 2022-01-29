@@ -15,8 +15,7 @@ void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator& scenGen)
 {
 	for (auto& c : scenGen.countryMap) {
 		for (auto& gameRegion : c.second.ownedRegions) {
-			for (auto& resource : resources)
-			{
+			for (auto& resource : resources) {
 				auto chance = resource.second[2];
 				if (random() % 100 < chance * 100.0) {
 					// calc total of this resource
@@ -50,9 +49,9 @@ void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator& scenGen)
 void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator& scenGen)
 {
 	// calculate the world land area
-	double worldArea = (double)(Data::getInstance().bitmapSize / 3)* Data::getInstance().landMassPercentage;
+	double worldArea = (double)(Data::getInstance().bitmapSize / 3) * Data::getInstance().landMassPercentage;
 	// calculate the target industry amount
-	auto targetWorldIndustry = (double)Data::getInstance().landMassPercentage* 3648.0 * (sqrt(Data::getInstance().bitmapSize) / sqrt((double)(5632 * 2048)));
+	auto targetWorldIndustry = (double)Data::getInstance().landMassPercentage * 3648.0 * (sqrt(Data::getInstance().bitmapSize) / sqrt((double)(5632 * 2048)));
 	for (auto& c : scenGen.countryMap) {
 		for (auto& gameRegion : c.second.ownedRegions) {
 			// count the number of land states for resource generation
@@ -121,42 +120,37 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen,
 	// {asian_gfx, asian_2d}
 	vector<std::string> gfxCultures{ "western_european", "eastern_european", "middle_eastern", "african", "southamerican", "commonwealth", "asian" };
 	vector<std::string> ideologies{ "fascism", "democratic", "communism", "neutrality" };
-	for (auto& c : countries)
-	{
+	for (auto& c : countries) {
+		// select a random country ideology
 		c.second.attributeStrings["gfxCulture"] = *select_random(gfxCultures);
-	}
-	for (auto& c : countries)
-	{
 		vector<double> popularities{};
 		double totalPop = 0;
-		for (int i = 0; i < 4; i++)
-		{
+		for (int i = 0; i < 4; i++) {
 			popularities.push_back(Data::getInstance().getRandomNumber(1, 100));
 			totalPop += popularities[i];
 		}
 		auto sumPop = 0;
-		for (int i = 0; i < 4; i++)
-		{
+		for (int i = 0; i < 4; i++) {
 			popularities[i] = popularities[i] / totalPop * 100;
 			sumPop += popularities[i];
 			int offset = 0;
-			if (i == 3 && sumPop < 100)
-			{
+			// to ensure a total of 100 as the sum for all ideologies
+			if (i == 3 && sumPop < 100) {
 				offset = 100 - sumPop;
 			}
 			c.second.attributeDoubles[ideologies[i]] = popularities[i] + offset;
 		}
+		// assign a ruling party
 		c.second.attributeStrings["rulingParty"] = ideologies[Data::getInstance().getRandomNumber(0, ideologies.size())];
+		// allow or forbid elections
 		if (c.second.attributeStrings["rulingParty"] == "democratic")
 			c.second.attributeDoubles["allowElections"] = 1;
 		else if (c.second.attributeStrings["rulingParty"] == "neutrality")
 			c.second.attributeDoubles["allowElections"] = Data::getInstance().getRandomNumber(0, 1);
 		else
 			c.second.attributeDoubles["allowElections"] = 0;
+		// now get the full name of the country
 		c.second.attributeStrings["fullName"] = scenGen.nG.modifyWithIdeology(c.second.attributeStrings["rulingParty"], c.second.name, c.second.adjective);
-
-		//c.second.attributeStrings["factionMajor"] = Data::getInstance().getRandomNumber(0, 1) ? "yes" : "no";
-
 	}
 
 }
@@ -179,10 +173,10 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 		std::set<int> gProvIDs;
 		bool connectedNavalBase = false;
 		for (auto& region : c.second.ownedRegions) {
-			if (region.attributeDoubles["stateCategory"] > 6 && region.ID != c.second.capitalRegionID 
+			if (region.attributeDoubles["stateCategory"] > 6 && region.ID != c.second.capitalRegionID
 				// if we're nearing the end of our region vector, and don't have more than 25% of our regions as supply bases
 				// generate supply bases for the last two regions
-				|| (region.ID == (c.second.ownedRegions.end()-2)->ID && supplyHubProvinces.size() < (c.second.ownedRegions.size()/4))) {
+				|| (region.ID == (c.second.ownedRegions.end() - 2)->ID && supplyHubProvinces.size() < (c.second.ownedRegions.size() / 4))) {
 				// select a random gameprovince of the state
 				auto y = *select_random(region.gameProvinces);
 				for (auto& prov : region.gameProvinces) {
@@ -289,14 +283,14 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 				supplyNodeConnections.back().push_back(passState);
 			}
 		}
-
 		for (auto& pix : capitalProvince->baseProvince->pixels) {
 			logistics.setColourAtIndex(pix, { 255,255,0 });
 		}
-		for (auto& supplyHubProvince : supplyHubProvinces)
+		for (auto& supplyHubProvince : supplyHubProvinces) {
 			for (auto& pix : supplyHubProvince.second.baseProvince->pixels) {
 				logistics.setColourAtIndex(pix, { 0,255,0 });
 			}
+		}
 	}
 	for (auto& connection : supplyNodeConnections) {
 		for (int i = 0; i < connection.size(); i++) {
@@ -324,24 +318,24 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 			auto regionIndustry = ownedRegion.attributeDoubles["civilianFactories"]
 				+ ownedRegion.attributeDoubles["dockyards"]
 				+ ownedRegion.attributeDoubles["armsFactories"];
+			// always make the most industrious region the capital
 			if (regionIndustry > maxIndustryLevel)
 				c.second.capitalRegionID = ownedRegion.ID;
 			totalIndustry += regionIndustry;
 			totalPop += ownedRegion.attributeDoubles["population"];
 		}
-		strengthScores[totalIndustry + totalPop / 1000000].push_back(c.first);
-		c.second.attributeDoubles["strengthScore"] = totalIndustry + totalPop / 1000000;
+		strengthScores[totalIndustry + totalPop / 1'000'000].push_back(c.first);
+		c.second.attributeDoubles["strengthScore"] = totalIndustry + totalPop / 1'000'000;
 		// global
 		totalWorldIndustry += totalIndustry;
 	}
-
 	int totalDeployedCountries = scenGen.numCountries - strengthScores[0].size();
 	int numMajorPowers = totalDeployedCountries / 10;
 	int numRegionalPowers = totalDeployedCountries / 3;
 	int numWeakStates = totalDeployedCountries - numMajorPowers - numRegionalPowers;
-	for (auto& scores : strengthScores)	{
-		for (auto& entry : scores.second)		{
-			if (scores.first > 0)			{
+	for (auto& scores : strengthScores) {
+		for (auto& entry : scores.second) {
+			if (scores.first > 0) {
 				if (numWeakStates > weakPowers.size())
 				{
 					weakPowers.push_back(entry);
@@ -368,9 +362,7 @@ void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator& scenGen)
 	auto compositionMajor = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionMajor.txt");
 	auto compositionRegional = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionRegional.txt");
 	auto compositionWeak = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionWeak.txt");
-
-	for (auto& c : scenGen.countryMap)
-	{
+	for (auto& c : scenGen.countryMap) {
 		// determine the countries composition
 		auto activeComposition = compositionWeak;
 		if (c.second.attributeStrings["rank"] == "major")
@@ -380,8 +372,7 @@ void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator& scenGen)
 		// make room for unit values, as the index here is also the ID taken from the composition line
 		c.second.attributeVectors["units"].resize(100);
 		auto totalUnits = c.second.attributeDoubles["strengthScore"] / 5;
-		for (auto& unit : activeComposition)
-		{
+		for (auto& unit : activeComposition) {
 			// get the composition line as numbers
 			auto nums = ParserUtils::getNumbers(unit, ';', std::set<int>{});
 			// now add the unit type. Share of total units * totalUnits
@@ -398,22 +389,19 @@ NationalFocus Hoi4ScenarioGenerator::buildFocus(vector<std::string> chainStep, C
 	NationalFocus nF(a, false, source.tag, target.tag, dateTokens);
 	return nF;
 }
-
+/* checks all requirements for a national focus. Returns false if any requirement isn't fulfilled, else returns true*/
 bool Hoi4ScenarioGenerator::fulfillsrequirements(vector<std::string> requirements, Country& source, Country& target)
 {
-	for (auto& requirement : requirements)
-	{
+	for (auto& requirement : requirements) {
 		// need to check rank
 		// first get the desired value
 		auto value = ParserUtils::getBracketBlockContent(requirement, "rank");
-		if (value != "")
-		{
+		if (value != "") {
 			if (target.attributeStrings["rank"] != value)
 				return false; // targets rank is not right
 		}
 		value = ParserUtils::getBracketBlockContent(requirement, "ideology");
-		if (value != "")
-		{
+		if (value != "") {
 			if (value == "any")
 				continue; // fine, may target any ideology
 			if (value == "same")
@@ -424,18 +412,15 @@ bool Hoi4ScenarioGenerator::fulfillsrequirements(vector<std::string> requirement
 					return false;
 		}
 		value = ParserUtils::getBracketBlockContent(requirement, "location");
-		if (value != "")
-		{
+		if (value != "") {
 			if (value == "any")
 				continue; // fine, may target any ideology
-			if (value == "neighbour")
-			{
+			if (value == "neighbour") {
 				if (source.neighbours.find(target.tag) == source.neighbours.end())
 					return false;
 			}
 		}
 	}
-
 	return true;
 }
 
@@ -446,13 +431,11 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 	auto majorChains = ParserUtils::getLinesByID("resources\\hoi4\\history\\national_focus\\major_chains.txt");
 
 	auto typeCounter = 0;
-	for (auto& majorPower : majorPowers)
-	{
+	for (auto& majorPower : majorPowers) {
 		int chainID = 0;
 		auto sourceS = scenGen.countryMap[majorPower].attributeStrings;
 		auto sourceD = scenGen.countryMap[majorPower].attributeDoubles;
-		for (auto chain : majorChains)
-		{
+		for (auto chain : majorChains) {
 			// evaluate whole chain (chain defined by ID)
 			if (!chain.size())
 				continue;
@@ -460,106 +443,40 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 			vector <vector<Country>> stepTargets;
 			//stepTargets.resize(100); // leave some space
 
-			for (auto chainFocus : chain)
-			{
+			for (auto chainFocus : chain) {
 				// evaluate every single focus of that chain
 				auto chainTokens = ParserUtils::getTokens(chainFocus, ';');
 				int chainStep = stoi(chainTokens[1]);
-				if (sourceS["rulingParty"] == chainTokens[4])
-				{
+				if (sourceS["rulingParty"] == chainTokens[4]) {
 					stepTargets.resize(stepTargets.size() + 1);
 					// source triggers this focus
 					// split requirements
 					auto targetRequirements = ParserUtils::getTokens(chainTokens[6], '+');
-					for (auto& country : scenGen.countryMap)
-					{
+					for (auto& country : scenGen.countryMap) {
 						// now check every country if it fulfills the target requirements
-						if (fulfillsrequirements(targetRequirements, scenGen.countryMap[majorPower], country.second))
-						{
+						if (fulfillsrequirements(targetRequirements, scenGen.countryMap[majorPower], country.second)) {
 							stepTargets[chainStep].push_back(country.second);
 						}
 					}
 				}
 			}
 			// now build the chain from the options
-			if (stepTargets.size())
-			{
+			if (stepTargets.size()) {
 				std::cout << "Building focus" << std::endl;
 				std::map<int, NationalFocus> fulfilledSteps;
 				int stepIndex = -1;
-				for (auto& targets : stepTargets)
-				{
+				for (auto& targets : stepTargets) {
 					stepIndex++;
 					//std::cout << targets << std::endl;
 					if (!targets.size())
 						continue;
 					auto target = *select_random(targets);
 					auto focus = buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'), scenGen.countryMap[majorPower], target);
-
 					std::cout << focus << std::endl;
 				}
 			}
 		}
 	}
-
-
-	//for (auto& majorPower : majorPowers)
-	//{
-	//	auto sourceS = scenGen.countryMap[majorPower].attributeStrings;
-	//	auto sourceD = scenGen.countryMap[majorPower].attributeDoubles;
-	//	for (auto& neighbour : scenGen.countryMap[majorPower].neighbours)
-	//	{
-	//		auto targetS = scenGen.countryMap[neighbour].attributeStrings;
-	//		auto targetD = scenGen.countryMap[neighbour].attributeDoubles;
-	//		if (sourceD["strengthScore"] < 0.66 * targetD["strengthScore"])
-	//		{
-	//			// source is significantly weaker
-	//			if (sourceS["rulingParty"] != targetS["rulingParty"])
-	//			{
-
-	//			}
-	//		}
-	//		else if (sourceD["strengthScore"] < 1.33 * targetD["strengthScore"]) {
-	//			// source is about equal strength
-	//			if (sourceS["rulingParty"] != targetS["rulingParty"])
-	//			{
-
-	//			}
-	//		}
-	//		else {
-	//			if (sourceS["rulingParty"] != targetS["rulingParty"])
-	//			{
-	//				// bool default, std::string source, std::string dest, std::vector<int> date
-	//				std::cout << majorPower << " Attacks " << neighbour << std::endl;
-	//				//NationalFocus::FocusType ftype,
-
-	//				NationalFocus f(focusID++, NationalFocus::FocusType::attack, false, majorPower, neighbour, defDate);
-	//				foci.push_back(f);
-	//				warFoci.push_back(f);
-	//			}
-	//		}
-	//	}
-	//	for (auto &otherMajor : majorPowers)
-	//	{
-	//		if (otherMajor == majorPower)
-	//			continue;
-	//		auto targetS = scenGen.countryMap[otherMajor].attributeStrings;
-	//		auto targetD = scenGen.countryMap[otherMajor].attributeDoubles;
-	//		if (sourceS["rulingParty"] == "fascism" || sourceS["rulingParty"] == "communism")
-	//		{
-	//			if (targetS["rulingParty"] == sourceS["rulingParty"])
-	//			{
-	//				// establish dominance or ally
-	//				NationalFocus f(focusID++, NationalFocus::FocusType::attack, false, majorPower, otherMajor, { 1,2,1936 });
-	//				NationalFocus f2(focusID++, NationalFocus::FocusType::ally, false, majorPower, otherMajor, { 1,2,1936 });
-	//				vector<NationalFocus> alt{ f,f2 };
-	//				NationalFocus::makeAlternative(alt);
-	//				foci.push_back(alt[0]);
-	//				foci.push_back(alt[1]);
-	//			}
-	//		}
-	//	}
-	//}
 }
 
 void Hoi4ScenarioGenerator::printStatistics()
