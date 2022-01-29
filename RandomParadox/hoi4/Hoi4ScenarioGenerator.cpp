@@ -202,13 +202,15 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 			}
 		}
 		std::sort(distances.begin(), distances.end());
-		for (auto distance : distances) {
+		for (const auto distance : distances) {
 			vector<int> passthroughProvinceIDs;
 			int attempts = 0;
 			auto sourceNodeID = capitalProvince->ID;
 			supplyNodeConnections.push_back({ sourceNodeID });
 			do {
 				attempts++;
+				// the region we want to connect to the source
+				auto destNodeID = supplyHubs[distance];
 				if (sourceNodeID == capitalProvince->ID) {
 					// we are at the start of the search
 					// distance to capital
@@ -231,10 +233,11 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 					// NOT at the start of the search, therefore sourceNodeID must be the last element of passThroughStates
 					sourceNodeID = passthroughProvinceIDs.back();
 				}
+				// break if this is another landmass. We can't reach it anyway
+				if (scenGen.gameProvinces[sourceNodeID].baseProvince->landMassID != scenGen.gameProvinces[destNodeID].baseProvince->landMassID)
+					break;;
 				// the origins position
 				auto sourceNodePosition = scenGen.gameProvinces[sourceNodeID].baseProvince->position;
-				// the region we want to connect to the source
-				auto destNodeID = supplyHubs[distance];
 				// save the distance in a temp variable
 				double tempMinDistance = width;
 				auto closestID = INT_MAX;
