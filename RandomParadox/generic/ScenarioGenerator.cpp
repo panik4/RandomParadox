@@ -99,9 +99,9 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 		f.provinceGenerator.evaluateContinents(10, Data::getInstance().width, Data::getInstance().height, tG);
 		//genericParser.writeAdjacency((Data::getInstance().debugMapsPath + ("adjacency.csv")).c_str(), provinceGenerator.provinces);		
 		//genericParser.writeDefinition((Data::getInstance().debugMapsPath + ("definition.csv")).c_str(), provinceGenerator.provinces);
-		Visualizer::provinceInfoMap(provinceMap, f.provinceGenerator);
-		Visualizer::provinceInfoMap2(provinceMap, f.provinceGenerator);
-		Visualizer::provinceInfoMap3(provinceMap, f.provinceGenerator);
+		Visualizer::provinceInfoMapNeighbours(provinceMap, f.provinceGenerator);
+		Visualizer::provinceInfoMapCoasts(provinceMap, f.provinceGenerator);
+		Visualizer::provinceInfoMapBorders(provinceMap, f.provinceGenerator);
 	}
 	if (useDefaultStates)
 	{
@@ -134,8 +134,8 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 	auto provinceMap = bitmaps["provinces"];
 	f.provinceGenerator.sortRegions();
 	f.provinceGenerator.evaluateRegionNeighbours();
-	Visualizer::provinceInfoMap3(provinceMap, f.provinceGenerator);
-	Visualizer::provinceInfoMap4(provinceMap, f.provinceGenerator);
+	Visualizer::provinceInfoMapBorders(provinceMap, f.provinceGenerator);
+	Visualizer::provinceInfoMapClassification(provinceMap, f.provinceGenerator);
 
 }
 
@@ -273,7 +273,7 @@ void ScenarioGenerator::mapTerrain()
 					gameProv.terrainType = "desert";
 				else
 					gameProv.terrainType = "plains";
-				//gameProvinces[gameProv.ID].terrainType = gameProv.terrainType;
+				gameProvinces[gameProv.ID].terrainType = gameProv.terrainType;
 				for (auto pix : gameProv.baseProvince->pixels)
 				{
 					if (pr->first == namedColours["jungle"])
@@ -292,7 +292,7 @@ void ScenarioGenerator::mapTerrain()
 						typeMap.setColourAtIndex(pix, Colour{ 255,0,0 });
 				}
 			}
-	Bitmap::SaveBMPToFile(typeMap, "debugMaps/typeMap.bmp");
+	Bitmap::SaveBMPToFile(typeMap, "Maps/typeMap.bmp");
 }
 
 GameRegion& ScenarioGenerator::findStartRegion()
