@@ -1,6 +1,7 @@
 {
 	"module": 
 	{
+		"debugLevel": 3,
 		"genHeight" : 1,
 		"genSimpleTerrain" : 1,
 		"genComplexTerrain" : 1,
@@ -11,7 +12,7 @@
 	{
 		"seed" : 5,
         "height" : 1024,
-		"width" : 2816,
+		"width" : 1024,
 		"landMassPercentage" : 35,
 		"seaLevel" : 94,
 		"accuracy": 100,
