@@ -47,6 +47,8 @@ public:
 	double worldPopulationFactor = 1.0;
 	double industryFactor = 1.0;
 	double resourceFactor = 1.0;
+	// strategic regions
+	std::vector<std::vector<int>> strategicRegions;
 
 
 	Hoi4ScenarioGenerator();
@@ -57,6 +59,9 @@ public:
 	void generateStateSpecifics(ScenarioGenerator& scenGen);
 	// politics: ideology, strength, major
 	void generateCountrySpecifics(ScenarioGenerator& scenGen, std::map<std::string, Country>& countries);
+	// build strategic regions from gameregions
+	void generateStrategicRegions(ScenarioGenerator& scenGen);
+
 	// supply hubs and railroads
 	void generateLogistics(ScenarioGenerator& scenGen);
 	// calculate how strong each country is

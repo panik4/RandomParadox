@@ -65,7 +65,9 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator& scenGen)
 				totalPopFactor += gameProv.popFactor / (double)gameRegion.gameProvinces.size();
 				totalStateArea += gameProv.baseProvince->pixels.size();
 			}
+			// state level is calculated from population and development
 			gameRegion.attributeDoubles["stateCategory"] = clamp((int)(totalPopFactor * 5.0 + totalDevFactor * 6.0), 0, 9);
+			// one province region? Must be an island state
 			if (gameRegion.gameProvinces.size() == 1) {
 				gameRegion.attributeDoubles["stateCategory"] = 1;
 			}
@@ -85,7 +87,9 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator& scenGen)
 					gameProv.attributeDoubles["naval_bases"] = 0;
 				}
 			}
+			// calculate total industry in this state
 			auto stateIndustry = (totalStateArea / worldArea) * totalPopFactor * targetWorldIndustry;
+			// distribute it to military, civilian and naval factories
 			if (totalCoastal > 0) {
 				gameRegion.attributeDoubles["dockyards"] = clamp((int)round(stateIndustry * (0.25)), 0, 4);
 				gameRegion.attributeDoubles["civilianFactories"] = clamp((int)round(stateIndustry * (0.5)), 0, 8);
@@ -153,6 +157,10 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen,
 		c.second.attributeStrings["fullName"] = scenGen.nG.modifyWithIdeology(c.second.attributeStrings["rulingParty"], c.second.name, c.second.adjective);
 	}
 
+}
+
+void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen)
+{
 }
 
 void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
