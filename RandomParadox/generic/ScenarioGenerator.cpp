@@ -63,9 +63,9 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 			else
 				province->sea = false;
 			f.provinceGenerator.provinceMap.setValue(colour, province);
-			f.provinceGenerator.provinceMap[colour]->provID = numbers[0] - 1;
+			f.provinceGenerator.provinceMap[colour]->ID = numbers[0] - 1;
 			province->colour = colour;
-			provinces[province->provID] = province;
+			provinces[province->ID] = province;
 			f.provinceGenerator.provinces.push_back(province);
 		}
 		f.provinceGenerator.provPixels(provinceMap);

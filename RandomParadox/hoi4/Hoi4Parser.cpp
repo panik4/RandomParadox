@@ -30,7 +30,7 @@ void Hoi4Parser::dumpAirports(std::string path, const vector<Region>& regions)
 			continue;
 		content.append(to_string(region.ID + 1));
 		content.append("={");
-		content.append(to_string(region.provinces[0]->provID + 1));
+		content.append(to_string(region.provinces[0]->ID + 1));
 		content.append(" }\n");
 	}
 	pU::writeFile(path, content);
@@ -125,7 +125,7 @@ void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 					if (prov->coastal)
 					{
 						auto pix = *select_random(prov->coastalPixels);
-						uint32_t provID = 0;
+						uint32_t ID = 0;
 						if (type == "naval_base")
 						{
 							// find the ocean province this coastal building is next to
@@ -137,7 +137,7 @@ void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 									{
 										if (getDistance(provPix, pix, Data::getInstance().width, 0) < 2.0)
 										{
-											provID = neighbour->provID;
+											ID = neighbour->ID;
 										}
 									}
 								}
@@ -145,7 +145,7 @@ void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 						}
 						auto widthPos = (pix % Data::getInstance().width);
 						auto heightPos = /*Data::getInstance().height -*/ (pix / Data::getInstance().width);
-						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos),  to_string((double)heightmap.getColourAtIndex(pix).getRed() / 10.0), to_string(heightPos), to_string(0.5), to_string(provID + 1) };
+						std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos),  to_string((double)heightmap.getColourAtIndex(pix).getRed() / 10.0), to_string(heightPos), to_string(0.5), to_string(ID + 1) };
 						content.append(pU::csvFormat(arguments, ';', false));
 					}
 				}
@@ -214,7 +214,7 @@ void Hoi4Parser::dumpDefinition(std::string path, vector<GameProvince>& province
 			terraintype = "lakes";
 			seaType = "lake";
 		}
-		std::vector<std::string> arguments{ to_string(prov.baseProvince->provID + 1),
+		std::vector<std::string> arguments{ to_string(prov.baseProvince->ID + 1),
 			to_string(prov.baseProvince->colour.getRed()),
 			to_string(prov.baseProvince->colour.getGreen()),
 			to_string(prov.baseProvince->colour.getBlue()),
@@ -237,7 +237,7 @@ void Hoi4Parser::dumpRocketSites(std::string path, const vector<Region>& regions
 			continue;
 		content.append(to_string(region.ID + 1));
 		content.append("={");
-		content.append(to_string(region.provinces[0]->provID + 1));
+		content.append(to_string(region.provinces[0]->ID + 1));
 		content.append(" }\n");
 	}
 	pU::writeFile(path, content);
@@ -257,7 +257,7 @@ void Hoi4Parser::dumpUnitStacks(std::string path, const vector<Province*> provin
 		auto pix = *select_random(prov->pixels);
 		auto widthPos = pix % Data::getInstance().width;
 		auto heightPos = pix / Data::getInstance().width;
-		std::vector<std::string> arguments{ to_string(prov->provID + 1), to_string(position), to_string(widthPos), to_string(1), to_string(heightPos), to_string(0.0), "0.0" };
+		std::vector<std::string> arguments{ to_string(prov->ID + 1), to_string(position), to_string(widthPos), to_string(1), to_string(heightPos), to_string(0.0), "0.0" };
 		content.append(pU::csvFormat(arguments, ';', false));
 		for (auto neighbour : prov->adjProv)
 		{
@@ -267,7 +267,7 @@ void Hoi4Parser::dumpUnitStacks(std::string path, const vector<Province*> provin
 			angle += 1.57;
 			auto widthPos = nextPos % Data::getInstance().width;
 			auto heightPos = nextPos / Data::getInstance().width;
-			std::vector<std::string> arguments{ to_string(prov->provID + 1), to_string(position), to_string(widthPos), to_string(15), to_string(heightPos), to_string(angle), "0.0" };
+			std::vector<std::string> arguments{ to_string(prov->ID + 1), to_string(position), to_string(widthPos), to_string(15), to_string(heightPos), to_string(angle), "0.0" };
 			content.append(pU::csvFormat(arguments, ';', false));
 		}
 	}
@@ -315,7 +315,7 @@ void Hoi4Parser::dumpStrategicRegions(std::string path, const vector<Region>& re
 		std::string provString{ "" };
 		for (auto prov : region.provinces)
 		{
-			provString.append(to_string(prov->provID + 1));
+			provString.append(to_string(prov->ID + 1));
 			provString.append(" ");
 		}
 		auto content = templateContent;
@@ -383,7 +383,7 @@ void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country>& co
 			std::string provString{ "" };
 			for (auto prov : baseRegion.provinces)
 			{
-				provString.append(to_string(prov->provID + 1));
+				provString.append(to_string(prov->ID + 1));
 				provString.append(" ");
 			}
 			auto content = templateContent;
