@@ -22,9 +22,9 @@ public:
 	void dumpDefinition(std::string path, vector<GameProvince>& provinces);
 	void dumpRocketSites(std::string path, const vector<Region>& regions);
 	void dumpUnitStacks(std::string path, const vector<Province*> provinces);
-	void dumpWeatherPositions(std::string path, const vector<Region>& regions);
+	void dumpWeatherPositions(std::string path, const vector<Region>& regions, const std::vector<std::set<int>> strategicRegions);
 	void dumpAdjacencyRules(std::string path);
-	void dumpStrategicRegions(std::string path, const vector<Region>& regions);
+	void dumpStrategicRegions(std::string path, const vector<Region>& regions, const std::vector<std::set<int>> strategicRegions);
 	void dumpSupplyAreas(std::string path, const vector<Region>& regions);
 	void dumpSupply(std::string path, const vector<vector<int>> supplyNodeConnections);
 	//gfx
@@ -46,5 +46,6 @@ public:
 	void writeCountryNames(std::string path, const std::map<std::string, Country>& countries);
 	void writeStateNames(std::string path, const std::map<std::string, Country>& countries);
 
+	void writeCompatibilityHistory(std::string path, std::string hoiPath, const vector<Region>& regions);
 };
 

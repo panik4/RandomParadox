@@ -211,6 +211,29 @@ public:
 		ss << elem;
 		return ss.str();
 	}
+	static std::string removeBracketBlock(std::string& content, std::string key)
+	{
+		auto pos = content.find(key);
+		if (pos != string::npos) {
+			pos = content.rfind("{", pos);
+			auto blockEnd = content.find("}", pos) + 1; // find closing bracket
+			content.erase(pos, blockEnd - pos);
+			return content;
+		}
+		return "";
+	};
+	static std::string removeBracketBlockFromLineBreak(std::string& content, std::string key)
+	{
+		auto pos = content.find(key);
+		if (pos != string::npos) {
+			pos = content.rfind("{", pos);
+			pos = content.rfind("\n", pos);
+			auto blockEnd = content.find("}", pos) + 1; // find closing bracket
+			content.erase(pos, blockEnd - pos);
+			return content;
+		}
+		return "";
+	};
 };
 
 
