@@ -40,22 +40,16 @@ std::string Hoi4Parser::getBuildingLine(std::string type, Region& region, bool c
 {
 	auto prov = *select_random(region.provinces);
 	auto pix = 0;
-	if (coastal)
-	{
+	if (coastal) {
 		while (!prov->coastal)
-		{
 			prov = *select_random(region.provinces);
-		}
 		pix = *select_random(prov->coastalPixels);
 	}
 	else {
 		while (prov->isLake)
-		{
 			prov = *select_random(region.provinces);
-		}
 		pix = *select_random(prov->pixels);
 	}
-
 	auto widthPos = (pix % Data::getInstance().width);
 	auto heightPos = /*Data::getInstance().height -*/ (pix / Data::getInstance().width);
 	std::vector<std::string> arguments{ to_string(region.ID + 1), type, to_string(widthPos), to_string((double)heightmap.getColourAtIndex(pix).getRed() / 10.0), to_string(heightPos), to_string((float)-1.57), "0" };
@@ -274,7 +268,7 @@ void Hoi4Parser::dumpUnitStacks(std::string path, const vector<Province*> provin
 	pU::writeFile(path, content);
 }
 
-void Hoi4Parser::dumpWeatherPositions(std::string path, const vector<Region>& regions)
+void Hoi4Parser::dumpWeatherPositions(std::string path, const vector<Region>& regions, const std::vector<std::set<int>> strategicRegions)
 {
 	std::cout << "HOI4 Parser: Map: Creating Storms\n";
 	// 1; 2781.24; 9.90; 1571.49; small
@@ -282,13 +276,14 @@ void Hoi4Parser::dumpWeatherPositions(std::string path, const vector<Region>& re
 	auto random = Data::getInstance().random2;
 	// stateId; pixelX; rotation??; pixelY; rotation??; size
 	// 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
-	for (auto region : regions)
-	{
-		auto prov = *select_random(region.provinces);
+
+	for (auto i = 0; i < strategicRegions.size(); i++) {
+		auto region = *select_random(strategicRegions[i]);
+		auto prov = *select_random(regions[region].provinces);
 		auto pix = *select_random(prov->pixels);
 		auto widthPos = pix % Data::getInstance().width;
 		auto heightPos = pix / Data::getInstance().width;
-		std::vector<std::string> arguments{ to_string(region.ID + 1), to_string(widthPos), to_string(9.90), to_string(heightPos), "small" };
+		std::vector<std::string> arguments{ to_string(i + 1), to_string(widthPos), to_string(9.90), to_string(heightPos), "small" };
 		content.append(pU::csvFormat(arguments, ';', false));
 	}
 	pU::writeFile(path, content);
@@ -302,26 +297,22 @@ void Hoi4Parser::dumpAdjacencyRules(std::string path)
 	pU::writeFile(path, content);
 }
 
-// awful, just awful
-void Hoi4Parser::dumpStrategicRegions(std::string path, const vector<Region>& regions)
+void Hoi4Parser::dumpStrategicRegions(std::string path, const vector<Region>& regions, const std::vector<std::set<int>> strategicRegions)
 {
 	std::cout << "HOI4 Parser: Map: Drawing Strategic Regions\n";
 	auto templateContent = pU::readFile("resources\\hoi4\\map\\strategic_region.txt");
-
-	for (auto region : regions)
-	{
-		sort(region.provinces.begin(), region.provinces.end());
-		region.provinces.erase(unique(region.provinces.begin(), region.provinces.end()), region.provinces.end());
+	for (auto i = 0; i < strategicRegions.size(); i++) {
 		std::string provString{ "" };
-		for (auto prov : region.provinces)
-		{
-			provString.append(to_string(prov->ID + 1));
-			provString.append(" ");
+		for (auto&region : strategicRegions[i]) {
+			for (auto prov : regions[region].provinces) {
+				provString.append(to_string(prov->ID + 1));
+				provString.append(" ");
+			}
 		}
 		auto content = templateContent;
-		pU::replaceOccurences(content, "templateID", to_string(region.ID + 1));
+		pU::replaceOccurences(content, "templateID", to_string(i + 1));
 		pU::replaceOccurences(content, "template_provinces", provString);
-		pU::writeFile(path + "\\" + to_string(region.ID + 1) + ".txt", content);
+		pU::writeFile(path + "\\" + to_string(i + 1) + ".txt", content);
 	}
 }
 
@@ -354,13 +345,13 @@ void Hoi4Parser::dumpSupply(std::string path, const vector<vector<int>> supplyNo
 		railways += to_string(connection.size());
 		railways += " ";
 		for (auto prov : connection) {
-			railways += to_string(prov+1);
+			railways += to_string(prov + 1);
 			railways += " ";
 		}
 		railways += "\n";
 	}
 	for (auto node : nodes) {
-		supplyNodes.append("1 " + to_string(node+1) + "\n");
+		supplyNodes.append("1 " + to_string(node + 1) + "\n");
 	}
 	ParserUtils::writeFile(path + "supply_nodes.txt", supplyNodes);
 	ParserUtils::writeFile(path + "railways.txt", railways);
@@ -397,8 +388,8 @@ void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country>& co
 			pU::replaceOccurences(content, "templatePopulation", to_string((int)region.attributeDoubles["population"]));
 			pU::replaceOccurences(content, "templateStateCategory", stateCategories[(int)region.attributeDoubles["stateCategory"]]);
 			std::string navalBaseContent = "";
-			for (auto& gameProv : region.gameProvinces)			{
-				if (gameProv.attributeDoubles["naval_bases"] > 0)				{
+			for (auto& gameProv : region.gameProvinces) {
+				if (gameProv.attributeDoubles["naval_bases"] > 0) {
 					navalBaseContent += to_string(gameProv.ID + 1) + " = {\n\t\t\t\tnaval_base = " + to_string((int)gameProv.attributeDoubles["naval_bases"]) + "\n\t\t\t}\n\t\t\t";
 				}
 			}
@@ -610,5 +601,24 @@ void Hoi4Parser::writeFoci(std::string path, vector<NationalFocus> foci, const s
 		ParserUtils::replaceOccurences(treeContent, "templateFocusTree", tempContent);
 		ParserUtils::replaceOccurences(treeContent, "templateSourceTag", c.first);
 		ParserUtils::writeFile(path + c.second.name + ".txt", treeContent);
+	}
+}
+
+void Hoi4Parser::writeCompatibilityHistory(std::string path, std::string hoiPath, const vector<Region>& regions)
+{
+	const std::experimental::filesystem::path hoiDir{ hoiPath + "\\history\\countries\\" };
+	const std::experimental::filesystem::path modDir{ path };
+	auto random = Data::getInstance().random2;
+	for (auto const& dir_entry : std::experimental::filesystem::directory_iterator{ hoiDir }) {
+		std::stringstream pathStream;
+		std::string pathString;
+		pathString = pathStream.str();
+		std::string filename = pathString.substr(pathString.find_last_of("\\") + 1, pathString.back() - pathString.find_last_of("\\"));
+		auto content = pU::readFile(pathString);
+		while (content.find("start_resistance = yes") != std::string::npos) {
+			pU::removeBracketBlockFromLineBreak(content, "start_resistance = yes");
+		}
+		pU::replaceLine(content, "capital =", "capital = " + to_string(1));
+		pU::writeFile(path + filename, content);
 	}
 }

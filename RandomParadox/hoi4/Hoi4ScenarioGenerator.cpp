@@ -161,6 +161,36 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen,
 
 void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen)
 {
+	for (auto& region : scenGen.gameRegions) {
+		if (region.attributeDoubles["stratID"] == 0.0) {
+			std::set<int>stratRegion;
+			stratRegion.insert(region.ID);
+			region.attributeDoubles["stratID"] = 1.0;
+			for (auto& neighbour : region.neighbours) {
+				// should be equal in sea/land
+				if (scenGen.gameRegions[neighbour].sea == region.sea &&
+					scenGen.gameRegions[neighbour].attributeDoubles["stratID"] == 0.0) {
+					stratRegion.insert(neighbour);
+					scenGen.gameRegions[neighbour].attributeDoubles["stratID"] = 1.0;
+				}
+			}
+			strategicRegions.push_back(stratRegion);
+		}
+	}
+	Bitmap stratRegionBMP(Data::getInstance().width, Data::getInstance().height, 24);
+	for (auto& strat : strategicRegions) {
+		Colour c{ random() % 255, random() % 255, random() % 255 };
+		for (auto& reg : strat) {
+			c.setBlue(scenGen.gameRegions[reg].sea ? 255 : 0);
+			for (auto& prov : scenGen.gameRegions[reg].gameProvinces) {
+				for (auto& pix : prov.baseProvince->pixels) {
+					stratRegionBMP.setColourAtIndex(pix, c);
+				}
+			}
+		}
+	}
+	Data::getInstance().bufferBitmap("strat", stratRegionBMP);
+	Bitmap::SaveBMPToFile(stratRegionBMP, "Maps\\stratRegions.bmp");
 }
 
 void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
