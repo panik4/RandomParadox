@@ -48,7 +48,7 @@ public:
 	double industryFactor = 1.0;
 	double resourceFactor = 1.0;
 	// strategic regions
-	std::vector<std::vector<int>> strategicRegions;
+	std::vector<std::set<int>> strategicRegions;
 
 
 	Hoi4ScenarioGenerator();
