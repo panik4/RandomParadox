@@ -522,17 +522,17 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::printStatistics()
 {
-	std::cout << "Total Industry: " << totalWorldIndustry << std::endl;
-	std::cout << "Military Industry: " << militaryIndustry << std::endl;
-	std::cout << "Civilian Industry: " << civilianIndustry << std::endl;
-	std::cout << "Naval Industry: " << navalIndustry << std::endl;
-	std::cout << "Total Aluminium: " << totalAluminium << std::endl;
-	std::cout << "Total Chromium: " << totalChromium << std::endl;
-	std::cout << "Total Rubber: " << totalRubber << std::endl;
-	std::cout << "Total Oil: " << totalOil << std::endl;
-	std::cout << "Total Steel: " << totalSteel << std::endl;
-	std::cout << "Total Tungsten: " << totalTungsten << std::endl;
-	std::cout << "World Population: " << worldPop << std::endl;
+	logLine("Total Industry: ", totalWorldIndustry, "\n");
+	logLine("Military Industry: ", militaryIndustry, "\n");
+	logLine("Civilian Industry: ", civilianIndustry, "\n");
+	logLine("Naval Industry: ", navalIndustry, "\n");
+	logLine("Total Aluminium: ", totalAluminium, "\n");
+	logLine("Total Chromium: ", totalChromium, "\n");
+	logLine("Total Rubber: ", totalRubber, "\n");
+	logLine("Total Oil: ", totalOil, "\n");
+	logLine("Total Steel: ", totalSteel, "\n");
+	logLine("Total Tungsten: ", totalTungsten, "\n");
+	logLine("World Population: ", worldPop, "\n");
 }
 
 
