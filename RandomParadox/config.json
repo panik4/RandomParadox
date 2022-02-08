@@ -11,8 +11,8 @@
 	"map": 
 	{
 		"seed" : 5,
-        "height" : 1024,
-		"width" : 2048,
+        "height" : 512,
+		"width" : 512,
 		"landMassPercentage" : 35,
 		"seaLevel" : 94,
 		"accuracy": 100,
