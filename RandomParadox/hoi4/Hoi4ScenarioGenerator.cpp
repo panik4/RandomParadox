@@ -1,18 +1,15 @@
 #include "Hoi4ScenarioGenerator.h"
 
 
-Hoi4ScenarioGenerator::Hoi4ScenarioGenerator()
-{
-	this->random = Data::getInstance().random2;
-}
-
+Hoi4ScenarioGenerator::Hoi4ScenarioGenerator() : random{ Data::getInstance().random2 }
+{}
 
 Hoi4ScenarioGenerator::~Hoi4ScenarioGenerator()
-{
-}
+{}
 
 void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator& scenGen)
 {
+	logLine("HOI4: Digging for resources\n");
 	for (auto& c : scenGen.countryMap) {
 		for (auto& gameRegion : c.second.ownedRegions) {
 			for (auto& resource : resources) {
@@ -48,6 +45,7 @@ void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator& scenGen)
 {
+	logLine("HOI4: Planning the economy\n");
 	// calculate the world land area
 	double worldArea = (double)(Data::getInstance().bitmapSize / 3) * Data::getInstance().landMassPercentage;
 	// calculate the target industry amount
@@ -111,7 +109,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen, std::map<std::string, Country>& countries)
 {
-	std::cout << "HOI4: Generating Country Specifics\n";
+	logLine("HOI4: Choosing uniforms and electing Tyrants\n");
 	// graphical culture pairs:
 	// { graphical_culture = type }
 	// { graphical_culture_2d = type_2d }
@@ -161,6 +159,7 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen,
 
 void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen)
 {
+	logLine("HOI4: Dividing world into strategic regions\n");
 	for (auto& region : scenGen.gameRegions) {
 		if (region.attributeDoubles["stratID"] == 0.0) {
 			std::set<int>stratRegion;
@@ -195,7 +194,7 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen
 
 void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 {
-	std::cout << "Building rail networks\n";
+	logLine("HOI4: Building rail networks\n");
 	auto width = Data::getInstance().width;
 	Bitmap logistics = Data::getInstance().findBitmapByKey("countries");
 	for (auto& c : scenGen.countryMap) {
@@ -214,7 +213,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 			if (region.attributeDoubles["stateCategory"] > 6 && region.ID != c.second.capitalRegionID
 				// if we're nearing the end of our region vector, and don't have more than 25% of our regions as supply bases
 				// generate supply bases for the last two regions
-				|| (c.second.ownedRegions.size()>2 && (region.ID == (c.second.ownedRegions.end() - 2)->ID)
+				|| (c.second.ownedRegions.size() > 2 && (region.ID == (c.second.ownedRegions.end() - 2)->ID)
 					&& supplyHubProvinces.size() < (c.second.ownedRegions.size() / 4))) {
 				// select a random gameprovince of the state
 				auto y = *select_random(region.gameProvinces);
@@ -349,7 +348,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 {
-	std::cout << "HOI4: Evaluating Country Strength\n";
+	logLine("HOI4: Evaluating Country Strength\n");
 	std::map<int, vector<std::string>> strengthScores;
 	for (auto& c : scenGen.countryMap) {
 		auto totalIndustry = 0;
@@ -399,7 +398,7 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator& scenGen)
 {
-	std::cout << "HOI4: Generating Country Unit Files\n";
+	logLine("HOI4: Generating Country Unit Files\n");
 	// read in different compositions
 	auto compositionMajor = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionMajor.txt");
 	auto compositionRegional = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionRegional.txt");
@@ -435,8 +434,7 @@ NationalFocus Hoi4ScenarioGenerator::buildFocus(vector<std::string> chainStep, C
 bool Hoi4ScenarioGenerator::fulfillsrequirements(vector<std::string> requirements, Country& source, Country& target)
 {
 	for (auto& requirement : requirements) {
-		// need to check rank
-		// first get the desired value
+		// need to check rank, first get the desired value
 		auto value = ParserUtils::getBracketBlockContent(requirement, "rank");
 		if (value != "") {
 			if (target.attributeStrings["rank"] != value)
@@ -468,7 +466,7 @@ bool Hoi4ScenarioGenerator::fulfillsrequirements(vector<std::string> requirement
 
 void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 {
-	std::cout << "HOI4: Generating Country Goals\n";
+	logLine("HOI4: Generating Country Goals\n");
 	std::vector<int> defDate{ 1,1,1936 };
 	auto majorChains = ParserUtils::getLinesByID("resources\\hoi4\\history\\national_focus\\major_chains.txt");
 
@@ -483,8 +481,6 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 				continue;
 			// we need to save options for every chain step
 			vector <vector<Country>> stepTargets;
-			//stepTargets.resize(100); // leave some space
-
 			for (auto chainFocus : chain) {
 				// evaluate every single focus of that chain
 				auto chainTokens = ParserUtils::getTokens(chainFocus, ';');
@@ -504,17 +500,16 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 			}
 			// now build the chain from the options
 			if (stepTargets.size()) {
-				std::cout << "Building focus" << std::endl;
+				logLine("Building focus\n");
 				std::map<int, NationalFocus> fulfilledSteps;
 				int stepIndex = -1;
 				for (auto& targets : stepTargets) {
 					stepIndex++;
-					//std::cout << targets << std::endl;
 					if (!targets.size())
 						continue;
 					auto target = *select_random(targets);
 					auto focus = buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'), scenGen.countryMap[majorPower], target);
-					std::cout << focus << std::endl;
+					logLineLevel(1, focus);
 				}
 			}
 		}

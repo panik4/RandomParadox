@@ -15,9 +15,7 @@ int main() {
 	ifstream f("basic_settings.json");
 	std::stringstream buffer;
 	if (!f.good())
-	{
 		std::cout << "Config could not be loaded" << std::endl;
-	}
 	buffer << f.rdbuf();
 	// Short alias for this namespace
 	namespace pt = boost::property_tree;
@@ -47,15 +45,17 @@ int main() {
 	bool useDefaultStates = false;
 	bool useDefaultProvinces = false;
 
-	if (!Data::getInstance().getConfig("config.json"))
-	{
+	// check if we can read the config
+	if (!Data::getInstance().getConfig("config.json")) {
 		system("pause");
 		return -1;
 	}
+
 	FastWorldGenerator fastWorldGen;
 	Hoi4Module hoi4Mod;
 	hoi4Mod.readConfig();
 	if (!useDefaultMap) {
+		// if we configured to use an existing heightmap
 		if (useGlobalExistingHeightmap) {
 			// overwrite settings of fastworldgen
 			Data::getInstance().heightmapIn = globalHeightMapPath;
@@ -63,14 +63,15 @@ int main() {
 			Data::getInstance().latLow = latLow;
 			Data::getInstance().latHigh = latHigh;
 		}
+		// now run the world generation
 		fastWorldGen.generateWorld();
 	}
-
+	// now start the generation of the scenario with the generated map files
 	ScenarioGenerator sG(fastWorldGen);
+	// and now check if we need to generate game specific files
 	if (genHoi4Scenario)
-	{
+		// generate hoi4 scenario
 		hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG);
-	}
 	return 0;
 
 }
