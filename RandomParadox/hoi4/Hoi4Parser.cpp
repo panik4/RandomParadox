@@ -378,9 +378,9 @@ void Hoi4Parser::dumpFlags(std::string path, const std::map<std::string, Country
 {
 	logLine("HOI4 Parser: Gfx: Printing Flags\n");
 	for (auto country : countries) {
-		TextureWriter::writeTGA(country.second.image.width, country.second.image.height, country.second.image.getFlag(), path + country.first + ".tga");
-		TextureWriter::writeTGA(country.second.image.width / 2, country.second.image.height / 2, country.second.image.resize(country.second.image.width / 2, country.second.image.height / 2), path + "\\medium\\" + country.first + ".tga");
-		TextureWriter::writeTGA(10, 7, country.second.image.resize(10, 7), path + "\\small\\" + country.first + ".tga");
+		TextureWriter::writeTGA(country.second.flag.width, country.second.flag.height, country.second.flag.getFlag(), path + country.first + ".tga");
+		TextureWriter::writeTGA(country.second.flag.width / 2, country.second.flag.height / 2, country.second.flag.resize(country.second.flag.width / 2, country.second.flag.height / 2), path + "\\medium\\" + country.first + ".tga");
+		TextureWriter::writeTGA(10, 7, country.second.flag.resize(10, 7), path + "\\small\\" + country.first + ".tga");
 	}
 }
 

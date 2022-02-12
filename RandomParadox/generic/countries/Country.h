@@ -24,12 +24,11 @@ public:
 	std::map<std::string, std::string> attributeStrings;
 	std::map<std::string, int> attributeDoubles;
 	std::map<std::string, vector<int>> attributeVectors;
-	Flag image;
+	Flag flag;
 	Colour colour;
 	void addRegion(GameRegion& region, vector<GameRegion>& gameRegions, vector<GameProvince>& gameProvinces);
 	void assignRegions(int maxRegions, vector<GameRegion>& gameRegions, GameRegion& startRegion, vector<GameProvince>& gameProvinces);
-	bool operator<(const Country& right) const
-	{
+	bool operator<(const Country& right) const	{
 		return ID < right.ID;
 	};
 
