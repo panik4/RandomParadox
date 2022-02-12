@@ -11,8 +11,6 @@ class Hoi4Parser
 	typedef ParserUtils pU;
 	static std::vector<std::string> defaultTags;
 public:
-	Hoi4Parser();
-	~Hoi4Parser();
 	static std::string getBuildingLine(const std::string type, const Region& region, const bool coastal, const Bitmap& heightmap);
 	// map
 	static void dumpAdj(std::string path);

@@ -6,7 +6,6 @@ Hoi4Module::Hoi4Module()
 {
 }
 
-
 Hoi4Module::~Hoi4Module()
 {
 }
@@ -59,7 +58,6 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		useDefaultProvinces = false;
 		useDefaultStates = false;
 	}
-
 	if (useDefaultMap)	{
 		scenGen.hoi4Preparations(useDefaultStates, useDefaultProvinces); // load files, read states/create states
 		scenGen.mapRegions(); // create gameRegions
@@ -177,7 +175,7 @@ void Hoi4Module::readConfig()
 	ifstream f("hoiconfig.json");
 	std::stringstream buffer;
 	if (!f.good()) {
-		std::cout << "Config could not be loaded" << std::endl;
+		logLine("Config could not be loaded");
 	}
 	buffer << f.rdbuf();
 	pt::read_json(buffer, root);
