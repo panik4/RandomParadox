@@ -1,13 +1,5 @@
 #include "TextureWriter.h"
 
-TextureWriter::TextureWriter()
-{
-}
-
-TextureWriter::~TextureWriter()
-{
-}
-
 void TextureWriter::writeDDS(int width, int height, vector<uint8_t>& pixelData, DXGI_FORMAT format, std::string destination)
 {
 	wstring destinationPath = wstring(destination.begin(), destination.end());

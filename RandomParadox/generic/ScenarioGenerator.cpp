@@ -164,7 +164,7 @@ void ScenarioGenerator::mapRegions()
 	for (auto& region : f.provinceGenerator.regions)
 	{
 		GameRegion gR(region);
-		for (auto& baseRegion : gR.baseRegion.neighbourRegions)
+		for (auto& baseRegion : gR.baseRegion.neighbours)
 		{
 			gR.neighbours.push_back(baseRegion);
 		}
@@ -172,7 +172,7 @@ void ScenarioGenerator::mapRegions()
 		for (auto& province : gR.baseRegion.provinces)
 		{
 			GameProvince gP(province);
-			for (auto& baseProvinceNeighbour : gP.baseProvince->adjProv)
+			for (auto& baseProvinceNeighbour : gP.baseProvince->neighbours)
 			{
 				gP.neighbours.push_back(baseProvinceNeighbour);
 			}
@@ -331,7 +331,7 @@ void ScenarioGenerator::generateCountries(int numCountries)
 		C.name = name;
 		C.adjective = nG.generateAdjective(name);
 		Flag f(Data::getInstance().random2, 82, 52);
-		C.flag = f;
+		C.image = f;
 		C.ID = i;
 		C.developmentFactor = Data::getInstance().getRandomDouble(0.1, 1.0);
 		countryMap.emplace(tag, C);

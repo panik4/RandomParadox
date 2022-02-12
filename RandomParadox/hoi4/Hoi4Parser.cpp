@@ -28,7 +28,12 @@ void Hoi4Parser::dumpAirports(std::string path, const vector<Region>& regions)
 			continue;
 		content.append(to_string(region.ID + 1));
 		content.append("={");
-		content.append(to_string(region.provinces[0]->ID + 1));
+		for (auto& prov : region.provinces) {
+			if (!prov->isLake) {
+				content.append(to_string(prov->ID + 1));
+				break;
+			}
+		}
 		content.append(" }\n");
 	}
 	pU::writeFile(path, content);
@@ -80,7 +85,6 @@ void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 			{
 				for (int i = 0; i < 6; i++)
 					content.append(getBuildingLine(type, region, false, heightmap));
-
 			}
 			else if (type == "bunker") {
 				for (auto prov : region.provinces) {
@@ -96,7 +100,6 @@ void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 			else if (type == "anti_air_building") {
 				for (int i = 0; i < 3; i++)
 					content.append(getBuildingLine(type, region, false, heightmap));
-
 			}
 			else if (type == "coastal_bunker" || type == "naval_base") {
 				for (auto prov : region.provinces) {
@@ -105,7 +108,7 @@ void Hoi4Parser::dumpBuildings(std::string path, const vector<Region>& regions)
 						uint32_t ID = 0;
 						if (type == "naval_base")
 							// find the ocean province this coastal building is next to
-							for (auto neighbour : prov->adjProv)
+							for (auto neighbour : prov->neighbours)
 								if (neighbour->sea)
 									for (auto provPix : neighbour->pixels)
 										if (getDistance(provPix, pix, Data::getInstance().width, 0) < 2.0)
@@ -160,7 +163,7 @@ void Hoi4Parser::dumpDefinition(std::string path, vector<GameProvince>& province
 		auto seaType = prov.baseProvince->sea ? "sea" : "land";
 		auto coastal = prov.baseProvince->coastal ? "true" : "false";
 		if (prov.baseProvince->sea) {
-			for (auto prov2 : prov.baseProvince->adjProv) {
+			for (auto prov2 : prov.baseProvince->neighbours) {
 				if (!prov2->sea)
 					coastal = "true";
 			}
@@ -196,7 +199,12 @@ void Hoi4Parser::dumpRocketSites(std::string path, const vector<Region>& regions
 			continue;
 		content.append(to_string(region.ID + 1));
 		content.append("={");
-		content.append(to_string(region.provinces[0]->ID + 1));
+		for (auto& prov : region.provinces) {
+			if (!prov->isLake) {
+				content.append(to_string(prov->ID + 1));
+				break;
+			}
+		}
 		content.append(" }\n");
 	}
 	pU::writeFile(path, content);
@@ -217,7 +225,7 @@ void Hoi4Parser::dumpUnitStacks(std::string path, const vector<Province*> provin
 		auto heightPos = pix / Data::getInstance().width;
 		std::vector<std::string> arguments{ to_string(prov->ID + 1), to_string(position), to_string(widthPos), to_string(1), to_string(heightPos), to_string(0.0), "0.0" };
 		content.append(pU::csvFormat(arguments, ';', false));
-		for (auto neighbour : prov->adjProv) {
+		for (auto neighbour : prov->neighbours) {
 			position++;
 			double angle;
 			auto nextPos = prov->getPositionBetweenProvinces(*neighbour, Data::getInstance().width, angle);
@@ -370,9 +378,9 @@ void Hoi4Parser::dumpFlags(std::string path, const std::map<std::string, Country
 {
 	logLine("HOI4 Parser: Gfx: Printing Flags\n");
 	for (auto country : countries) {
-		TextureWriter::writeTGA(country.second.flag.width, country.second.flag.height, country.second.flag.getFlag(), path + country.first + ".tga");
-		TextureWriter::writeTGA(country.second.flag.width / 2, country.second.flag.height / 2, country.second.flag.resize(country.second.flag.width / 2, country.second.flag.height / 2), path + "\\medium\\" + country.first + ".tga");
-		TextureWriter::writeTGA(10, 7, country.second.flag.resize(10, 7), path + "\\small\\" + country.first + ".tga");
+		TextureWriter::writeTGA(country.second.image.width, country.second.image.height, country.second.image.getFlag(), path + country.first + ".tga");
+		TextureWriter::writeTGA(country.second.image.width / 2, country.second.image.height / 2, country.second.image.resize(country.second.image.width / 2, country.second.image.height / 2), path + "\\medium\\" + country.first + ".tga");
+		TextureWriter::writeTGA(10, 7, country.second.image.resize(10, 7), path + "\\small\\" + country.first + ".tga");
 	}
 }
 
@@ -544,9 +552,10 @@ void Hoi4Parser::writeCompatibilityHistory(std::string path, std::string hoiPath
 	const std::experimental::filesystem::path modDir{ path };
 	auto random = Data::getInstance().random2;
 	for (auto const& dir_entry : std::experimental::filesystem::directory_iterator{ hoiDir }) {
-		std::stringstream pathStream;
-		std::string pathString;
-		pathString = pathStream.str();
+		//std::stringstream pathStream = dir_entry;
+		std::string pathString =dir_entry.path().string();
+		//pathString = pathStream.str();
+
 		std::string filename = pathString.substr(pathString.find_last_of("\\") + 1, pathString.back() - pathString.find_last_of("\\"));
 		auto content = pU::readFile(pathString);
 		while (content.find("start_resistance = yes") != std::string::npos) {
