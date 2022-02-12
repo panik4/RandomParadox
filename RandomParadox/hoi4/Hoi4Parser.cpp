@@ -1,6 +1,6 @@
 #include "Hoi4Parser.h"
 
-
+std::vector<std::string> Hoi4Parser::defaultTags;
 
 Hoi4Parser::Hoi4Parser()
 {
@@ -39,7 +39,7 @@ void Hoi4Parser::dumpAirports(std::string path, const vector<Region>& regions)
 	pU::writeFile(path, content);
 }
 
-std::string Hoi4Parser::getBuildingLine(const std::string type, const Region& region, const bool coastal, const Bitmap& heightmap) const
+std::string Hoi4Parser::getBuildingLine(const std::string type, const Region& region, const bool coastal, const Bitmap& heightmap)
 {
 	auto prov = *select_random(region.provinces);
 	auto pix = 0;
