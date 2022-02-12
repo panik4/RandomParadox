@@ -12,21 +12,21 @@ class Hoi4Parser
 public:
 	Hoi4Parser();
 	~Hoi4Parser();
-	vector<std::string> defaultTags;
-	std::string getBuildingLine(std::string type, Region& region, bool coastal, Bitmap& heightmap);
+	std::vector<std::string> defaultTags;
+	std::string getBuildingLine(const std::string type, const Region& region, const bool coastal, const Bitmap& heightmap) const;
 	// map
 	void dumpAdj(std::string path);
-	void dumpAirports(std::string path, const vector<Region>& regions);
-	void dumpBuildings(std::string path, const vector<Region>& regions);
-	void dumpContinents(std::string path, const vector<Continent>& continents);
-	void dumpDefinition(std::string path, vector<GameProvince>& provinces);
-	void dumpRocketSites(std::string path, const vector<Region>& regions);
-	void dumpUnitStacks(std::string path, const vector<Province*> provinces);
-	void dumpWeatherPositions(std::string path, const vector<Region>& regions, const std::vector<std::set<int>> strategicRegions);
 	void dumpAdjacencyRules(std::string path);
-	void dumpStrategicRegions(std::string path, const vector<Region>& regions, const std::vector<std::set<int>> strategicRegions);
-	void dumpSupplyAreas(std::string path, const vector<Region>& regions);
-	void dumpSupply(std::string path, const vector<vector<int>> supplyNodeConnections);
+	void dumpAirports(std::string path, const std::vector<Region>& regions);
+	void dumpBuildings(std::string path, const std::vector<Region>& regions);
+	void dumpContinents(std::string path, const std::vector<Continent>& continents);
+	void dumpDefinition(std::string path, std::vector<GameProvince>& provinces);
+	void dumpRocketSites(std::string path, const std::vector<Region>& regions);
+	void dumpStrategicRegions(std::string path, const std::vector<Region>& regions, const std::vector<std::set<int>> strategicRegions);
+	void dumpSupplyAreas(std::string path, const std::vector<Region>& regions);
+	void dumpSupply(std::string path, const std::vector<std::vector<int>> supplyNodeConnections);
+	void dumpUnitStacks(std::string path, const std::vector<Province*> provinces);
+	void dumpWeatherPositions(std::string path, const std::vector<Region>& regions, const std::vector<std::set<int>> strategicRegions);
 	//gfx
 	void dumpFlags(std::string path, const std::map<std::string, Country>& countries);
 
@@ -35,7 +35,7 @@ public:
 	void writeHistoryCountries(std::string path, const std::map<std::string, Country>& countries);
 	void writeHistoryUnits(std::string path, const std::map<std::string, Country>& countries);
 	// history - National Focus
-	void writeFoci(std::string path, vector<NationalFocus> foci, const std::map<std::string, Country>& countries);
+	void writeFoci(std::string path, std::vector<NationalFocus> foci, const std::map<std::string, Country>& countries);
 
 	// common
 	void dumpCommonCountries(std::string path, std::string hoiPath, const std::map<std::string, Country>& countries);

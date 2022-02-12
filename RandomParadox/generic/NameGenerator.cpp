@@ -74,7 +74,7 @@ std::string NameGenerator::getToken(vector<std::string>& rule)
 	return retString;
 }
 
-std::string NameGenerator::modifyWithIdeology(std::string & ideology, std::string name, std::string adjective)
+std::string NameGenerator::modifyWithIdeology(const std::string & ideology, std::string name, std::string adjective)
 {
 	auto stateName = getRandomMapElement(ideology, ideologyNames);
 	if (stateName.find("templateAdj") != std::string::npos)
