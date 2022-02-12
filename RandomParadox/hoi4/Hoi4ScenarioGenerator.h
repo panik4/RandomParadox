@@ -9,48 +9,53 @@ class Hoi4ScenarioGenerator
 {
 	ranlux24 random;
 	NameGenerator nG;
+	// vars
 	int landStates = 0;
-	vector<std::string> majorPowers;
-	vector<std::string> regionalPowers;
-	vector<std::string> weakPowers;
-	vector<std::string> wargoalsAttack;
-	vector<std::string> goalsDefence;
 	int focusID = 0;
-	std::map<std::string, NationalFocus::FocusType> typeMapping{
-		{"attack", NationalFocus::FocusType::attack},
-		{ "defense", NationalFocus::FocusType::defense },
-		{ "ally", NationalFocus::FocusType::ally }
-	};
-	// track industry statistics
+	// vars - track industry statistics
 	int totalWorldIndustry = 0;
 	int militaryIndustry = 0;
 	int navalIndustry = 0;
 	int civilianIndustry = 0;
-	// track civil statistics
+	// vars - track civil statistics
 	long long worldPop = 0;
-	// track resource statistics
+	// vars - track resource statistics
 	int totalAluminium = 0;
 	int totalChromium = 0;
 	int totalRubber = 0;
 	int totalOil = 0;
 	int totalSteel = 0;
 	int totalTungsten = 0;
+	// containers
+	std::vector<std::string> majorPowers;
+	std::vector<std::string> regionalPowers;
+	std::vector<std::string> weakPowers;
+	std::vector<std::string> wargoalsAttack;
+	std::vector<std::string> goalsDefence;
+	std::map<std::string, NationalFocus::FocusType> typeMapping{
+		{"attack", NationalFocus::FocusType::attack},
+		{ "defense", NationalFocus::FocusType::defense },
+		{ "ally", NationalFocus::FocusType::ally }
+	};
+
 
 public:
-	vector<NationalFocus> foci;
-	vector<NationalFocus> warFoci;
-	// a list of connections: {sourceHub, destHub, provinces the rails go through}
-	vector<vector<int>> supplyNodeConnections;
-	// container holding the resource configurations
-	std::map<std::string, std::vector<double>> resources;
-	// config options
+	// vars - config options
 	double worldPopulationFactor = 1.0;
 	double industryFactor = 1.0;
 	double resourceFactor = 1.0;
-	// strategic regions
+
+	// containers
+	std::vector<NationalFocus> foci;
+	std::vector<NationalFocus> warFoci;
+	// a list of connections: {sourceHub, destHub, provinces the rails go through}
+	std::vector<std::vector<int>> supplyNodeConnections;
+	// container holding the resource configurations
+	std::map<std::string, std::vector<double>> resources;
 	std::vector<std::set<int>> strategicRegions;
 
-
+	// member functions
+	// constructors/destructors
 	Hoi4ScenarioGenerator();
 	~Hoi4ScenarioGenerator();
 	// give resources to states
@@ -61,15 +66,19 @@ public:
 	void generateCountrySpecifics(ScenarioGenerator& scenGen, std::map<std::string, Country>& countries);
 	// build strategic regions from gameregions
 	void generateStrategicRegions(ScenarioGenerator& scenGen);
-
 	// supply hubs and railroads
 	void generateLogistics(ScenarioGenerator& scenGen);
 	// calculate how strong each country is
 	void evaluateCountries(ScenarioGenerator & scenGen);
 	// determine unit composition, templates
 	void generateCountryUnits(ScenarioGenerator & scenGen);
-	NationalFocus buildFocus(vector<std::string> chainStep, Country& source, Country& target);
-	bool fulfillsrequirements(vector<std::string> requirements, Country& source, Country& target);
+	// build a focus from the chain
+	NationalFocus buildFocus(std::vector<std::string> chainStep, Country& source, Country& target);
+	// make a tree out of all focus chains and single foci
+	void buildFocusTree();
+	// check if a national focus fulfills requirements
+	bool fulfillsrequirements(std::vector<std::string> requirements, Country& source, Country& target);
+	// evaluate the focus chains for each country
 	void evaluateCountryGoals(ScenarioGenerator & scenGen);
 	// see which countries are in need of unification
 	void evaluateBrotherlyWars();
@@ -77,9 +86,7 @@ public:
 	void evaluateCivilWars();
 	// create a strategy for this country
 	void evaluateCountryStrategy();
-	// make a tree out of all focus chains and single foci
-	void buildFocusTree();
-
+	// print world info to console
 	void printStatistics();
 };
 
