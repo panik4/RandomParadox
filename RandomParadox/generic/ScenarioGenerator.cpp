@@ -148,10 +148,9 @@ void ScenarioGenerator::generateWorld()
 
 void ScenarioGenerator::mapContinents()
 {
-	std::cout << "Mapping Continents\n";
+	logLine("Mapping Continents\n");
 	auto ID = 0;
-	for (auto& continent : f.provinceGenerator.continents)
-	{
+	for (const auto& continent : f.provinceGenerator.continents) {
 		GameContinent c;
 		c.ID = continent.ID;
 	}
@@ -159,52 +158,49 @@ void ScenarioGenerator::mapContinents()
 
 void ScenarioGenerator::mapRegions()
 {
-	std::cout << "Mapping Regions\n";
-	Visualizer::prettyRegions(f.provinceGenerator);
-	for (auto& region : f.provinceGenerator.regions)
-	{
+	logLine("Mapping Regions\n");
+	for (auto& region : f.provinceGenerator.regions) {
 		GameRegion gR(region);
 		for (auto& baseRegion : gR.baseRegion.neighbours)
-		{
 			gR.neighbours.push_back(baseRegion);
-		}
+		// generate random name for region
 		gR.name = nG.generateName();
-		for (auto& province : gR.baseRegion.provinces)
-		{
+		// now create gameprovinces from FastWorldGen provinces
+		for (auto& province : gR.baseRegion.provinces) {
 			GameProvince gP(province);
+			// also copy neighbours
 			for (auto& baseProvinceNeighbour : gP.baseProvince->neighbours)
-			{
 				gP.neighbours.push_back(baseProvinceNeighbour);
-			}
+			// give name to province
 			gP.name = nG.generateName();
 			gR.gameProvinces.push_back(gP);
 			gameProvinces.push_back(gP);
 		}
+		// save game region
 		gameRegions.push_back(gR);
 	}
+	// check if we have the same amount of gameProvinces as FastWorldGen provinces
 	if (gameProvinces.size() != f.provinceGenerator.provinces.size())
-		std::cout << "LOST provinces" << std::endl;
+		logLine("Fatal: Lost provinces\n");
+	// sort by gameprovince ID
 	std::sort(gameProvinces.begin(), gameProvinces.end());
 }
 
 void ScenarioGenerator::generatePopulations()
 {
-	std::cout << "Generating Population\n";
+	logLine("Generating Population\n");
 	auto popMap = Data::getInstance().findBitmapByKey("population");
 	auto cityMap = Data::getInstance().findBitmapByKey("cities");
 	for (auto& c : countryMap)
 		for (auto& gameRegion : c.second.ownedRegions)
-			for (auto& gameProv : gameRegion.gameProvinces)
-			{
+			for (auto& gameProv : gameRegion.gameProvinces) {
+				// calculate the population factor
 				gameProv.popFactor = 0.1 + popMap.getColourAtIndex(gameProv.baseProvince->position.weightedCenter) / Data::getInstance().namedColours["population"];
 				int cityPixels = 0;
+				// calculate share of province that is a city
 				for (auto pix : gameProv.baseProvince->pixels)
-				{
-					if (cityMap.getColourAtIndex(pix) == Data::getInstance().namedColours["cities"])
-					{
+					if (cityMap.getColourAtIndex(pix).isShadeOf(Data::getInstance().namedColours["cities"]))
 						cityPixels++;
-					}
-				}
 				gameProv.cityShare = (double)cityPixels / gameProv.baseProvince->pixels.size();
 			}
 }
@@ -215,17 +211,15 @@ void ScenarioGenerator::generateDevelopment()
 	// high city share->high dev
 	// terrain type?
 	// .....
-	std::cout << "Generating State Development\n";
+	logLine("Generating State Development\n");
 	auto cityBMP = Data::getInstance().findBitmapByKey("cities");
 	for (auto& c : countryMap)
 		for (auto& gameProv : c.second.ownedRegions)
-			for (auto& gameProv : gameProv.gameProvinces)
-			{
+			for (auto& gameProv : gameProv.gameProvinces) {
 				auto cityDensity = 0;
+				// calculate development with density of city and population factor
 				if (gameProv.baseProvince->cityPixels.size())
-				{
 					cityDensity = cityBMP.getColourAtIndex(gameProv.baseProvince->cityPixels[0]) / Data::getInstance().namedColours["cities"];
-				}
 				gameProv.devFactor = clamp(0.2 + 0.5 * gameProv.popFactor + 1.0 * gameProv.cityShare * cityDensity, 0.0, 1.0);
 			}
 }
@@ -235,30 +229,28 @@ void ScenarioGenerator::mapTerrain()
 	auto namedColours = Data::getInstance().namedColours;
 	auto climateMap = Data::getInstance().findBitmapByKey("climate");
 	Bitmap typeMap(climateMap.bInfoHeader.biWidth, climateMap.bInfoHeader.biHeight, 24);
-	std::cout << "Mapping Terrain\n";
-	vector<std::string> targetTypes{ "plains", "forest", "marsh", "hills", "mountain", "desert", "urban", "jungle" };
-	
+	logLine("Mapping Terrain\n");
+	std::vector<std::string> targetTypes{ "plains", "forest", "marsh", "hills", "mountain", "desert", "urban", "jungle" };
+
 	for (auto& c : countryMap)
 		for (auto& gameRegion : c.second.ownedRegions)
-			for (auto& gameProv : gameRegion.gameProvinces)
-			{
+			for (auto& gameProv : gameRegion.gameProvinces) {
 				std::map<Colour, int> colourPrevalence;
-				for (auto& pix : gameProv.baseProvince->pixels)
-				{
+				for (auto& pix : gameProv.baseProvince->pixels) {
 					if (colourPrevalence[climateMap.getColourAtIndex(pix)])
 						colourPrevalence[climateMap.getColourAtIndex(pix)]++;
 					else
 						colourPrevalence[climateMap.getColourAtIndex(pix)] = 1;
 				}
-
+				// find the most prevalent colour in province, which sets the terrain type
 				using pair_type = decltype(colourPrevalence)::value_type;
-				auto pr = std::max_element
-				(
+				auto pr = std::max_element(
 					std::begin(colourPrevalence), std::end(colourPrevalence),
 					[](const pair_type & p1, const pair_type & p2) {
 					return p1.second < p2.second;
 				}
 				);
+				// now check which it is and set the terrain type
 				if (pr->first == namedColours["jungle"])
 					gameProv.terrainType = "jungle";
 				else if (pr->first == namedColours["forest"])
@@ -274,8 +266,7 @@ void ScenarioGenerator::mapTerrain()
 				else
 					gameProv.terrainType = "plains";
 				gameProvinces[gameProv.ID].terrainType = gameProv.terrainType;
-				for (auto pix : gameProv.baseProvince->pixels)
-				{
+				for (auto pix : gameProv.baseProvince->pixels) {
 					if (pr->first == namedColours["jungle"])
 						typeMap.setColourAtIndex(pix, Colour{ 255,255,0 });
 					else if (pr->first == namedColours["forest"])
@@ -297,17 +288,15 @@ void ScenarioGenerator::mapTerrain()
 
 GameRegion& ScenarioGenerator::findStartRegion()
 {
-	vector<GameRegion> freeRegions;
-	for (auto& gameRegion : gameRegions)
-	{
+	std::vector<GameRegion> freeRegions;
+	for (const auto& gameRegion : gameRegions)
 		if (!gameRegion.assigned && !gameRegion.sea)
 			freeRegions.push_back(gameRegion);
-	}
+
 	if (freeRegions.size() == 0)
-	{
 		return gameRegions[0];
-	}
-	auto startRegion = *select_random(freeRegions);
+
+	const auto startRegion = *select_random(freeRegions);
 	return gameRegions[startRegion.ID];
 }
 
@@ -316,34 +305,39 @@ GameRegion& ScenarioGenerator::findStartRegion()
 void ScenarioGenerator::generateCountries(int numCountries)
 {
 	this->numCountries = numCountries;
-	std::cout << "Generating Countries\n";
-	auto forbiddenTags = rLoader.loadForbiddenTags(gamePaths["hoi4"]);
-	for (auto tag : forbiddenTags)	{
+	logLine("Generating Countries\n");
+	// load tags from hoi4 that are used by the base game
+	// do not use those to avoid conflicts
+	const auto forbiddenTags = rLoader.loadForbiddenTags(gamePaths["hoi4"]);
+	for (const auto& tag : forbiddenTags)
 		tags.insert(tag);
-	}
-	for (int i = 0; i < numCountries; i++)	{
+
+	for (int i = 0; i < numCountries; i++) {
 		// Get Name
 		auto name = nG.generateName();
 		// Tag from Name
 		auto tag = nG.generateTag(name, tags);
 		// generate flag
 		Country C(tag);
+		// get name and andjective
 		C.name = name;
 		C.adjective = nG.generateAdjective(name);
+		// get a flag
 		Flag f(Data::getInstance().random2, 82, 52);
-		C.image = f;
+		C.flag = f;
 		C.ID = i;
+		// randomly set development of countries
 		C.developmentFactor = Data::getInstance().getRandomDouble(0.1, 1.0);
 		countryMap.emplace(tag, C);
 	}
-	for (auto& c : countryMap)	{
+	for (auto& c : countryMap) {
 		auto startRegion(findStartRegion());
 		if (startRegion.assigned || startRegion.sea)
 			continue;
 		c.second.assignRegions(6, gameRegions, startRegion, gameProvinces);
 	}
-	for (auto& gameRegion : gameRegions)	{
-		if (!gameRegion.sea && !gameRegion.assigned)		{
+	for (auto& gameRegion : gameRegions) {
+		if (!gameRegion.sea && !gameRegion.assigned) {
 			auto x = getNearestAssignedLand(gameRegions, gameRegion, Data::getInstance().width, Data::getInstance().height);
 			countryMap.at(x.owner).addRegion(gameRegion, gameRegions, gameProvinces);
 		}
@@ -352,36 +346,24 @@ void ScenarioGenerator::generateCountries(int numCountries)
 
 void ScenarioGenerator::evaluateNeighbours()
 {
-	std::cout << "Evaluating Country Neighbours\n";
+	logLine("Evaluating Country Neighbours\n");
 	for (auto& c : countryMap)
-	{
-		for (auto& gameRegion : c.second.ownedRegions)
-		{
-			for (auto& neighbourRegion : gameRegion.neighbours)
-			{
+		for (const auto& gameRegion : c.second.ownedRegions)
+			for (const auto& neighbourRegion : gameRegion.neighbours)
 				if (gameRegions[neighbourRegion].owner != c.first)
 					c.second.neighbours.insert(gameRegions[neighbourRegion].owner);
-			}
-		}
-	}
 }
 
 void ScenarioGenerator::dumpDebugCountrymap(std::string path)
 {
+	logLine("Mapping Continents\n");
 	Bitmap countryBMP(Data::getInstance().width, Data::getInstance().height, 24);
-	for (auto& country : countryMap)
-	{
-		for (auto region : country.second.ownedRegions)
-		{
-			for (auto prov : region.baseRegion.provinces)
-			{
-				for (auto pix : prov->pixels)
-				{
+	for (const auto& country : countryMap)
+		for (const auto& region : country.second.ownedRegions)
+			for (const auto& prov : region.baseRegion.provinces)
+				for (const auto& pix : prov->pixels)
 					countryBMP.setColourAtIndex(pix, country.second.colour);
-				}
-			}
-		}
-	}
+
 	Data::getInstance().bufferBitmap("countries", countryBMP);
 	Bitmap::SaveBMPToFile(countryBMP, (path).c_str());
 }
