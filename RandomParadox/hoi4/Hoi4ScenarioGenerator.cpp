@@ -214,7 +214,8 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 			if (region.attributeDoubles["stateCategory"] > 6 && region.ID != c.second.capitalRegionID
 				// if we're nearing the end of our region vector, and don't have more than 25% of our regions as supply bases
 				// generate supply bases for the last two regions
-				|| (region.ID == (c.second.ownedRegions.end() - 2)->ID && supplyHubProvinces.size() < (c.second.ownedRegions.size() / 4))) {
+				|| (c.second.ownedRegions.size()>2 && (region.ID == (c.second.ownedRegions.end() - 2)->ID)
+					&& supplyHubProvinces.size() < (c.second.ownedRegions.size() / 4))) {
 				// select a random gameprovince of the state
 				auto y = *select_random(region.gameProvinces);
 				for (auto& prov : region.gameProvinces) {
