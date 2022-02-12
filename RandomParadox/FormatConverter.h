@@ -7,7 +7,9 @@
 
 class FormatConverter
 {
-	std::map<string, std::map<Colour, int>> colourMaps{
+	// map of maps of colours, defines which FastWorldGen colour 
+	// should be mapped to which game compatible colour
+	std::map<std::string, std::map<Colour, int>> colourMaps{
 		{"terrainHoi4", {
 			{ Data::getInstance().namedColours["grassland"], 0 },
 			{ Data::getInstance().namedColours["ice"], 19 },
@@ -52,18 +54,20 @@ class FormatConverter
 	}
 	}
 	};
-	std::map<string, vector<unsigned char>> colourTables;
+	std::map<std::string, vector<unsigned char>> colourTables;
 
 public:
+	// constructor/destructor
 	FormatConverter(std::string hoiPath);
 	~FormatConverter();
-	void dump8BitHeightmap(string path, string colourMapKey);
-	void dump8BitTerrain(string path, string colourMapKey);
-	void dump8BitCities(string path, string colourMapKey);
-	void dump8BitRivers(string path, string colourMapKey);
-	void dump8BitTrees(string path, string colourMapKey); // width/4, height/4
-	void dumpWorldNormal(string path); // width/2, height/2
-	void dumpTerrainColourmap(string path);
-	void dumpDDSFiles(string path);
+	// member functions
+	void dump8BitHeightmap(std::string path, std::string colourMapKey) const;
+	void dump8BitTerrain(std::string path, std::string colourMapKey) const;
+	void dump8BitCities(std::string path, std::string colourMapKey) const;
+	void dump8BitRivers(std::string path, std::string colourMapKey) const;
+	void dump8BitTrees(std::string path, std::string colourMapKey) const; // width/4, height/4
+	void dumpDDSFiles(std::string path) const;
+	void dumpTerrainColourmap(std::string path) const;
+	void dumpWorldNormal(std::string path) const; // width/2, height/2
 };
 

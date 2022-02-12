@@ -2,14 +2,6 @@
 
 std::vector<std::string> Hoi4Parser::defaultTags;
 
-Hoi4Parser::Hoi4Parser()
-{
-}
-
-
-Hoi4Parser::~Hoi4Parser()
-{
-}
 void Hoi4Parser::dumpAdj(std::string path) {
 	logLine("HOI4 Parser: Map: Writing Adjacencies\n");
 	// From;To;Type;Through;start_x;start_y;stop_x;stop_y;adjacency_rule_name;Comment
