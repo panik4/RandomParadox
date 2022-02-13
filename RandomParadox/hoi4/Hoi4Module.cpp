@@ -136,7 +136,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		Bitmap::SaveBMPToFile(Data::getInstance().findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
 
 		// now if everything worked, print info about world an pause for user to see
-		hoi4Gen.printStatistics();
+		hoi4Gen.printStatistics(scenGen);
 		system("pause");
 	}
 }
