@@ -120,12 +120,12 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen,
 	// {southamerican_gfx, southamerican_2d}
 	// {commonwealth_gfx, commonwealth_2d}
 	// {asian_gfx, asian_2d}
-	vector<std::string> gfxCultures{ "western_european", "eastern_european", "middle_eastern", "african", "southamerican", "commonwealth", "asian" };
-	vector<std::string> ideologies{ "fascism", "democratic", "communism", "neutrality" };
+	std::vector<std::string> gfxCultures{ "western_european", "eastern_european", "middle_eastern", "african", "southamerican", "commonwealth", "asian" };
+	std::vector<std::string> ideologies{ "fascism", "democratic", "communism", "neutrality" };
 	for (auto& c : countries) {
 		// select a random country ideology
 		c.second.attributeStrings["gfxCulture"] = *select_random(gfxCultures);
-		vector<double> popularities{};
+		std::vector<double> popularities{};
 		double totalPop = 0;
 		for (int i = 0; i < 4; i++) {
 			popularities.push_back(Data::getInstance().getRandomNumber(1, 100));
@@ -349,7 +349,6 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 {
 	logLine("HOI4: Evaluating Country Strength\n");
-	std::map<int, vector<std::string>> strengthScores;
 	for (auto& c : scenGen.countryMap) {
 		auto totalIndustry = 0;
 		auto totalPop = 0;
@@ -516,7 +515,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 	}
 }
 
-void Hoi4ScenarioGenerator::printStatistics()
+void Hoi4ScenarioGenerator::printStatistics(ScenarioGenerator & scenGen)
 {
 	logLine("Total Industry: ", totalWorldIndustry, "\n");
 	logLine("Military Industry: ", militaryIndustry, "\n");
@@ -529,6 +528,13 @@ void Hoi4ScenarioGenerator::printStatistics()
 	logLine("Total Steel: ", totalSteel, "\n");
 	logLine("Total Tungsten: ", totalTungsten, "\n");
 	logLine("World Population: ", worldPop, "\n");
+
+	for (auto& scores : strengthScores) {
+		for (auto& entry : scores.second) {
+			logLine("Strength: ", scores.first, " ", scenGen.countryMap.at(entry).attributeStrings.at("fullName"),
+				" ", scenGen.countryMap.at(entry).attributeStrings.at("rulingParty"), "\n");
+		}
+	}
 }
 
 
