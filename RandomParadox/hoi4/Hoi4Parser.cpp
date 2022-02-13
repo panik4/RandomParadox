@@ -437,6 +437,12 @@ void Hoi4Parser::writeHistoryUnits(std::string path, const std::map<std::string,
 	}
 }
 
+void Hoi4Parser::dumpCommonBookmarks(std::string path, std::string hoiPath, const std::map<std::string, Country>& countries, std::map<int, vector<std::string>> strengthScores)
+{
+	for (auto iter = strengthScores.rbegin(); iter != strengthScores.rend(); ++iter) {
+	}
+}
+
 void Hoi4Parser::dumpCommonCountries(std::string path, std::string hoiPath, const std::map<std::string, Country>& countries)
 {
 	logLine("HOI4 Parser: Common: Writing Countries\n");

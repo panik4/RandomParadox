@@ -32,6 +32,7 @@ class Hoi4ScenarioGenerator
 	std::vector<std::string> weakPowers;
 	std::vector<std::string> wargoalsAttack;
 	std::vector<std::string> goalsDefence;
+	std::map<int, vector<std::string>> strengthScores;
 	std::map<std::string, NationalFocus::FocusType> typeMapping{
 		{"attack", NationalFocus::FocusType::attack},
 		{ "defense", NationalFocus::FocusType::defense },
@@ -87,6 +88,6 @@ public:
 	// create a strategy for this country
 	void evaluateCountryStrategy();
 	// print world info to console
-	void printStatistics();
+	void printStatistics(ScenarioGenerator & scenGen);
 };
 
