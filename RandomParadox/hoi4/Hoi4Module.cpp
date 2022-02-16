@@ -78,7 +78,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 			//Hoi4Parser::dumpAdj(hoi4ModPath + "\\map\\adjacencies.csv");
 			Hoi4Parser::dumpDefinition(hoi4ModPath + "\\map\\definition.csv", scenGen.gameProvinces);
 		}
-		Bitmap::SaveBMPToFile(Data::getInstance().findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
+		Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
 	}
 	else {
 		// start with the generic stuff in the Scenario Generator
@@ -133,7 +133,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		formatConverter.dumpDDSFiles(hoi4ModPath + "\\map\\terrain\\colormap_water_");
 		formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp");
 		// just copy over provinces.bmp, already in a compatible format
-		Bitmap::SaveBMPToFile(Data::getInstance().findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
+		Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
 
 		// now if everything worked, print info about world an pause for user to see
 		hoi4Gen.printStatistics(scenGen);

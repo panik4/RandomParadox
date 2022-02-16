@@ -13,7 +13,7 @@ Country::Country(std::string tag) : tag{ tag }
 Country::~Country()
 {}
 
-void Country::assignRegions(int maxRegions, vector<GameRegion>& gameRegions, GameRegion& startRegion, vector<GameProvince>& gameProvinces)
+void Country::assignRegions(int maxRegions, std::vector<GameRegion>& gameRegions, GameRegion& startRegion, std::vector<GameProvince>& gameProvinces)
 {
 	addRegion(startRegion, gameRegions, gameProvinces);
 	auto breakCounter = 0;
@@ -32,7 +32,7 @@ void Country::assignRegions(int maxRegions, vector<GameRegion>& gameRegions, Gam
 	}
 }
 
-void Country::addRegion(GameRegion& region, vector<GameRegion>& gameRegions, vector<GameProvince>& gameProvinces)
+void Country::addRegion(GameRegion& region, std::vector<GameRegion>& gameRegions, std::vector<GameProvince>& gameProvinces)
 {
 	gameRegions[region.ID].assigned = true;
 	gameRegions[region.ID].owner = tag;

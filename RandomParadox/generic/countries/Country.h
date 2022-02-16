@@ -24,13 +24,13 @@ public:
 	// containers
 	std::map<std::string, std::string> attributeStrings;
 	std::map<std::string, int> attributeDoubles;
-	std::map<std::string, vector<int>> attributeVectors;
+	std::map<std::string, std::vector<int>> attributeVectors;
 	std::vector<GameRegion> ownedRegions;
 	std::vector<std::vector<NationalFocus>> foci;
 	std::set<std::string> neighbours;
 	// member functions
-	void addRegion(GameRegion& region, vector<GameRegion>& gameRegions, vector<GameProvince>& gameProvinces);
-	void assignRegions(int maxRegions, vector<GameRegion>& gameRegions, GameRegion& startRegion, vector<GameProvince>& gameProvinces);
+	void addRegion(GameRegion& region, std::vector<GameRegion>& gameRegions, std::vector<GameProvince>& gameProvinces);
+	void assignRegions(int maxRegions, std::vector<GameRegion>& gameRegions, GameRegion& startRegion, std::vector<GameProvince>& gameProvinces);
 	// operators
 	bool operator<(const Country& right) const	{
 		return ID < right.ID;

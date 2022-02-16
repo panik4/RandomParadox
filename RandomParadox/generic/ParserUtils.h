@@ -33,7 +33,7 @@ public:
 		return content;
 	};
 
-	static vector<std::string> readFilesInDirectory(std::string path)
+	static std::vector<std::string> readFilesInDirectory(std::string path)
 	{
 		const std::experimental::filesystem::path directory{ path };
 		vector<std::string> fileContents;
@@ -48,7 +48,7 @@ public:
 		return fileContents;
 	};
 
-	static vector<std::string> getLines(std::string path)
+	static std::vector<std::string> getLines(std::string path)
 	{
 		vector<std::string> content;
 		std::string line;
@@ -64,7 +64,7 @@ public:
 		return content;
 	};
 
-	static vector<vector<std::string>> getLinesByID(std::string path)
+	static std::vector<vector<std::string>> getLinesByID(std::string path)
 	{
 		vector<vector<std::string>> sortedLines;
 		sortedLines.resize(1000);
@@ -164,7 +164,7 @@ public:
 		content.erase(std::remove(content.begin(), content.end(), character), content.end());
 	};
 
-	static vector<std::string> getTokens(std::string& content, char delimiter)
+	static std::vector<std::string> getTokens(std::string& content, char delimiter)
 	{
 		vector<std::string> tokens{};
 
@@ -175,7 +175,7 @@ public:
 		return tokens;
 	};
 
-	static vector<int> getNumbers(std::string& content, char delimiter, set<int> tokensToConvert)
+	static std::vector<int> getNumbers(std::string& content, char delimiter, set<int> tokensToConvert)
 	{
 		bool convertAll = false;
 		if (!tokensToConvert.size())
@@ -193,7 +193,7 @@ public:
 		}
 		return numbers;
 	};
-	static vector<int> getNumberBlock(std::string content, std::string key)
+	static std::vector<int> getNumberBlock(std::string content, std::string key)
 	{
 		auto bracketBlock = getBracketBlock(content, key);
 		removeCharacter(bracketBlock, '{');
