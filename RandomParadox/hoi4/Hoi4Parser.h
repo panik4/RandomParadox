@@ -36,7 +36,7 @@ public:
 	static void writeFoci(std::string path, std::vector<NationalFocus> foci, const std::map<std::string, Country>& countries);
 
 	// common
-	static void dumpCommonBookmarks(std::string path, std::string hoiPath, const std::map<std::string, Country>& countries, std::map<int, vector<std::string>> strengthScores);
+	static void dumpCommonBookmarks(std::string path, std::string hoiPath, const std::map<std::string, Country>& countries, std::map<int, std::vector<std::string>> strengthScores);
 	static void dumpCommonCountries(std::string path, std::string hoiPath, const std::map<std::string, Country>& countries);
 	static void dumpCommonCountryTags(std::string path, const std::map<std::string, Country>& countries);
 
@@ -45,6 +45,6 @@ public:
 	static void writeStateNames(std::string path, const std::map<std::string, Country>& countries);
 
 	// copy base game countries and remove certain lines to reduce crashes
-	static void writeCompatibilityHistory(std::string path, std::string hoiPath, const vector<Region>& regions);
+	static void writeCompatibilityHistory(std::string path, std::string hoiPath, const std::vector<Region>& regions);
 };
 

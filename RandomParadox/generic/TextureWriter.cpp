@@ -1,8 +1,8 @@
 #include "TextureWriter.h"
 
-void TextureWriter::writeDDS(int width, int height, vector<uint8_t>& pixelData, DXGI_FORMAT format, std::string destination)
+void TextureWriter::writeDDS(int width, int height, std::vector<uint8_t>& pixelData, DXGI_FORMAT format, std::string destination)
 {
-	wstring destinationPath = wstring(destination.begin(), destination.end());
+	std::wstring destinationPath = std::wstring(destination.begin(), destination.end());
 	Image image;
 	image.width = width;
 	image.height = height;
@@ -13,9 +13,9 @@ void TextureWriter::writeDDS(int width, int height, vector<uint8_t>& pixelData, 
 	SaveToDDSFile(image, DDS_FLAGS_NONE, destinationPath.c_str());
 }
 
-void TextureWriter::writeTGA(int width, int height, vector<uint8_t>& pixelData, std::string destination)
+void TextureWriter::writeTGA(int width, int height, std::vector<uint8_t>& pixelData, std::string destination)
 {
-	wstring destinationPath = wstring(destination.begin(), destination.end());
+	std::wstring destinationPath = std::wstring(destination.begin(), destination.end());
 	Image image;
 	image.width = width;
 	image.height = height;
