@@ -18,14 +18,14 @@ void ScenarioGenerator::loadRequiredResources(std::string gamePath)
 {
 	bitmaps["provinces"] = rLoader.loadProvinceMap(gamePath);
 	bitmaps["heightmap"] = rLoader.loadHeightMap(gamePath);
-	Data::getInstance().bufferBitmap("provinces", bitmaps["provinces"]);
+	Bitmap::bufferBitmap("provinces", bitmaps["provinces"]);
 }
 
 void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultProvinces)
 {
 	loadRequiredResources(gamePaths["hoi4"]);
 	auto heightMap = bitmaps["heightmap"].get24BitRepresentation();
-	Data::getInstance().bufferBitmap("heightmap", heightMap);
+	Bitmap::bufferBitmap("heightmap", heightMap);
 	Data::getInstance().width = bitmaps["heightmap"].bInfoHeader.biWidth;
 	Data::getInstance().height = bitmaps["heightmap"].bInfoHeader.biHeight;
 	Data::getInstance().bitmapSize = Data::getInstance().width*Data::getInstance().height;
@@ -81,7 +81,7 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 		tG.createTerrain(terrainBMP, heightMap);
 		ClimateGenerator climateGenerator;
 		climateGenerator.setProvinceGenerator(&f.provinceGenerator);
-		climateGenerator.humidityMap(heightMap, humidityBMP, riverMap, tG, Data::getInstance().seaLevel, Data::getInstance().updateThreshold);
+		climateGenerator.humidityMap(heightMap, humidityBMP, riverMap, tG, Data::getInstance().seaLevel);
 		Bitmap::SaveBMPToFile(humidityBMP, (Data::getInstance().mapsPath + ("humidity.bmp")).c_str());
 		climateGenerator.climateMap(climateMap, humidityBMP, heightMap, Data::getInstance().seaLevel);
 		Bitmap::SaveBMPToFile(climateMap, (Data::getInstance().mapsPath + ("climate.bmp")).c_str());
@@ -189,8 +189,8 @@ void ScenarioGenerator::mapRegions()
 void ScenarioGenerator::generatePopulations()
 {
 	logLine("Generating Population\n");
-	auto popMap = Data::getInstance().findBitmapByKey("population");
-	auto cityMap = Data::getInstance().findBitmapByKey("cities");
+	auto popMap = Bitmap::findBitmapByKey("population");
+	auto cityMap = Bitmap::findBitmapByKey("cities");
 	for (auto& c : countryMap)
 		for (auto& gameRegion : c.second.ownedRegions)
 			for (auto& gameProv : gameRegion.gameProvinces) {
@@ -212,7 +212,7 @@ void ScenarioGenerator::generateDevelopment()
 	// terrain type?
 	// .....
 	logLine("Generating State Development\n");
-	auto cityBMP = Data::getInstance().findBitmapByKey("cities");
+	auto cityBMP = Bitmap::findBitmapByKey("cities");
 	for (auto& c : countryMap)
 		for (auto& gameProv : c.second.ownedRegions)
 			for (auto& gameProv : gameProv.gameProvinces) {
@@ -227,7 +227,7 @@ void ScenarioGenerator::generateDevelopment()
 void ScenarioGenerator::mapTerrain()
 {
 	auto namedColours = Data::getInstance().namedColours;
-	auto climateMap = Data::getInstance().findBitmapByKey("climate");
+	auto climateMap = Bitmap::findBitmapByKey("climate");
 	Bitmap typeMap(climateMap.bInfoHeader.biWidth, climateMap.bInfoHeader.biHeight, 24);
 	logLine("Mapping Terrain\n");
 	std::vector<std::string> targetTypes{ "plains", "forest", "marsh", "hills", "mountain", "desert", "urban", "jungle" };
@@ -364,7 +364,7 @@ void ScenarioGenerator::dumpDebugCountrymap(std::string path)
 				for (const auto& pix : prov->pixels)
 					countryBMP.setColourAtIndex(pix, country.second.colour);
 
-	Data::getInstance().bufferBitmap("countries", countryBMP);
+	Bitmap::bufferBitmap("countries", countryBMP);
 	Bitmap::SaveBMPToFile(countryBMP, (path).c_str());
 }
 

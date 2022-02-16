@@ -54,7 +54,7 @@ class FormatConverter
 	}
 	}
 	};
-	std::map<std::string, vector<unsigned char>> colourTables;
+	std::map<std::string, std::vector<unsigned char>> colourTables;
 
 public:
 	// constructor/destructor

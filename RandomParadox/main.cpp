@@ -2,7 +2,6 @@
 #include "FormatConverter.h"
 #include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Module.h"
-using namespace std;
 
 
 void readConfig() {

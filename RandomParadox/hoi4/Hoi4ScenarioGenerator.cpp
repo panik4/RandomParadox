@@ -188,7 +188,7 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen
 			}
 		}
 	}
-	Data::getInstance().bufferBitmap("strat", stratRegionBMP);
+	Bitmap::bufferBitmap("strat", stratRegionBMP);
 	Bitmap::SaveBMPToFile(stratRegionBMP, "Maps\\stratRegions.bmp");
 }
 
@@ -196,7 +196,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 {
 	logLine("HOI4: Building rail networks\n");
 	auto width = Data::getInstance().width;
-	Bitmap logistics = Data::getInstance().findBitmapByKey("countries");
+	Bitmap logistics = Bitmap::findBitmapByKey("countries");
 	for (auto& c : scenGen.countryMap) {
 		// GameProvince ID, distance
 		std::map<double, int> supplyHubs;
@@ -211,7 +211,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 		bool connectedNavalBase = false;
 		for (auto& region : c.second.ownedRegions) {
 			if (region.attributeDoubles["stateCategory"] > 6 && region.ID != c.second.capitalRegionID
-				// if we're nearing the end of our region vector, and don't have more than 25% of our regions as supply bases
+				// if we're nearing the end of our region std::vector, and don't have more than 25% of our regions as supply bases
 				// generate supply bases for the last two regions
 				|| (c.second.ownedRegions.size() > 2 && (region.ID == (c.second.ownedRegions.end() - 2)->ID)
 					&& supplyHubProvinces.size() < (c.second.ownedRegions.size() / 4))) {
