@@ -95,7 +95,7 @@ void Hoi4Parser::dumpBuildings(std::string path, const std::vector<Region>& regi
 				for (const auto& prov : region.provinces) {
 					if (prov->coastal) {
 						auto pix = *select_random(prov->coastalPixels);
-						uint32_t ID = 0;
+						int ID = 0;
 						if (type == "naval_base")
 							// find the ocean province this coastal building is next to
 							for (const auto& neighbour : prov->neighbours)

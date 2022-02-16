@@ -9,7 +9,7 @@ class ParserUtils
 public:
 	static void writeFile(std::string path, std::string content, bool utf8=false)
 	{
-		ofstream myfile; 
+		std::ofstream myfile; 
 		myfile.open(path);
 		if (utf8)
 		{
