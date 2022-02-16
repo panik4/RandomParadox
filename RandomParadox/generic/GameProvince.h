@@ -4,19 +4,22 @@ class GameProvince
 {
 public:
 	int ID;
-	const Province * baseProvince;
 	std::string name;
+	std::string owner;
+	std::string terrainType;
 	double popFactor;
 	double devFactor;
 	double cityShare;
-	std::map<std::string, std::string> attributeStrings;
-	std::map<std::string, double> attributeDoubles;
-	std::string terrainType;
-	std::string owner;
+	const Province * baseProvince;
+	// containers
 	std::vector<GameProvince> neighbours;
+	std::map<std::string, double> attributeDoubles;
+	std::map<std::string, std::string> attributeStrings;
+	// constructors/destructor
 	GameProvince(Province* province);
 	GameProvince() {};
 	~GameProvince();
+	// operators
 	bool operator==(const GameProvince& right) const {
 		return ID == right.ID;
 	};

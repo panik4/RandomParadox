@@ -1,7 +1,7 @@
 #pragma once
+#include "DirectXTex.h"
 #include "../FastWorldGen/FastWorldGen/utils/Data.h"
 #include "../FastWorldGen/FastWorldGen/entities/Colour.h"
-#include "DirectXTex.h"
 
 using namespace DirectX;
 class TextureWriter
