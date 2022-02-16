@@ -1,12 +1,11 @@
 #pragma once
-#include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
-#include "../FormatConverter.h"
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include "Hoi4Parser.h"
-//#include <filesystem>
 #define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 #include <experimental/filesystem>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include "../FormatConverter.h"
+#include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
+#include "Hoi4Parser.h"
 #include "Hoi4ScenarioGenerator.h"
 class Hoi4Module
 {

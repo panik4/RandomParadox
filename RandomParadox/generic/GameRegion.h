@@ -8,7 +8,7 @@ class GameRegion
 
 public:
 	std::string owner;
-	vector<uint32_t> neighbours;
+	vector<int> neighbours;
 	vector<GameProvince> gameProvinces;
 	std::map<std::string, std::string> attributeStrings;
 	std::map<std::string, double> attributeDoubles;

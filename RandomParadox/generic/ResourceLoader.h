@@ -1,23 +1,22 @@
 #pragma once
 #include <string>
-#include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
 #include "ParserUtils.h"
+#include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
 
 class ResourceLoader
 {
 public:
 	ResourceLoader();
 	~ResourceLoader();
-	void loadBitmaps();
-	
-	// hoi4
+	// member functions
+	void loadBitmaps();	
+	//  member functions - hoi4
 	void loadHistory(std::string gamePath);
 	void loadProvinces(std::string gamePath);
 	Bitmap loadProvinceMap(std::string gamePath);
 	Bitmap loadHeightMap(std::string gamePath);
-	vector<std::string> loadStates(std::string gamePath);
-	vector<std::string> loadDefinition(std::string gamePath);
-	vector<std::string> loadForbiddenTags(std::string gamePath);
-	//vector<std::string> loadStrategicRegions();
+	std::vector<std::string> loadStates(std::string gamePath);
+	std::vector<std::string> loadDefinition(std::string gamePath);
+	std::vector<std::string> loadForbiddenTags(std::string gamePath);
 };
 
