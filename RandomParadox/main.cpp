@@ -11,7 +11,7 @@ void readConfig() {
 
 int main() {
 	// Read the basic settings
-	ifstream f("basic_settings.json");
+	std::ifstream f("basic_settings.json");
 	std::stringstream buffer;
 	if (!f.good())
 		std::cout << "Config could not be loaded" << std::endl;

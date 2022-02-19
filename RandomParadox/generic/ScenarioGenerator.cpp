@@ -45,7 +45,7 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 		// now get info on provinces: who neighbours who, who is coastal...
 		auto provinceDefinition = rLoader.loadDefinition(gamePaths["hoi4"]);
 		provinceDefinition.erase(provinceDefinition.begin());
-		set<int> tokensToConvert{ 0,1,2,3,7 };
+		const std::set<int> tokensToConvert{ 0,1,2,3,7 };
 		for (auto def : provinceDefinition)
 		{
 			auto numbers = ParserUtils::getNumbers(def, ';', tokensToConvert);
