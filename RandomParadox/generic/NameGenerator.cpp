@@ -29,7 +29,7 @@ std::string NameGenerator::generateAdjective(std::string & name)
 	return name + getRandomMapElement("adjModifierConsonant", groups);
 }
 
-std::string NameGenerator::generateTag(std::string name, set<std::string>& tags)
+std::string NameGenerator::generateTag(std::string name, std::set<std::string>& tags)
 {
 	std::string tag = "";
 	int retries = 0;
@@ -51,7 +51,7 @@ std::string NameGenerator::getRandomMapElement(std::string key, std::map<std::st
 	return *select_random(map[key]);
 }
 
-std::string NameGenerator::getToken(vector<std::string>& rule)
+std::string NameGenerator::getToken(std::vector<std::string>& rule)
 {
 	std::string retString = "";
 	for (int i = 0; i < rule.size(); i++) {

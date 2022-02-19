@@ -121,6 +121,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		Hoi4Parser::writeStateNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
 		Hoi4Parser::writeCountryNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
 		Hoi4Parser::writeFoci(hoi4ModPath + "\\common\\national_focus\\", hoi4Gen.foci, scenGen.countryMap);
+		Hoi4Parser::dumpCommonBookmarks(hoi4ModPath + "\\common\\bookmarks\\", scenGen.countryMap, hoi4Gen.strengthScores);
 
 		// generate map files. Format must be converted and colours mapped to hoi4 compatbile colours
 		FormatConverter formatConverter(hoi4Path);
@@ -172,15 +173,15 @@ void Hoi4Module::readConfig()
 	namespace pt = boost::property_tree;
 	// Create a root
 	pt::ptree root;
-	ifstream f("hoiconfig.json");
+	std::ifstream f("hoiconfig.json");
 	std::stringstream buffer;
 	if (!f.good()) {
 		logLine("Config could not be loaded");
 	}
 	buffer << f.rdbuf();
 	pt::read_json(buffer, root);
-	hoi4Path = root.get<string>("module.hoi4Path");
-	hoi4ModPath = root.get<string>("module.hoi4ModPath");
+	hoi4Path = root.get<std::string>("module.hoi4Path");
+	hoi4ModPath = root.get<std::string>("module.hoi4ModPath");
 	findHoi4();
 	hoi4Gen.resources = {
 		{ "aluminium",{ root.get<double>("hoi4.aluminiumFactor"), 1169.0, 0.3 }},

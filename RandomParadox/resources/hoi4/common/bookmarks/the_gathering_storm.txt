@@ -7,7 +7,7 @@ bookmarks = {
 		default_country = "templateDefaultTAG"
 		default = yes
 		
-		"templateMajorTAG"={
+		templateMajorTAG={
 			history = "generic_GATHERING_STORM_DESC"
 			ideology = templateIdeology
 			ideas = {
@@ -15,7 +15,7 @@ bookmarks = {
 			focuses = {
 			}
 		}
-		"templateMinorTAG"={
+		templateMinorTAG={
 			minor = yes
 			history = "generic_GATHERING_STORM_DESC"
 			ideology = templateIdeology

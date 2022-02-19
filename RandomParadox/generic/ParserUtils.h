@@ -7,9 +7,9 @@
 class ParserUtils
 {
 public:
-	static void writeFile(std::string path, std::string content, bool utf8=false)
+	static void writeFile(std::string path, std::string content, bool utf8 = false)
 	{
-		std::ofstream myfile; 
+		std::ofstream myfile;
 		myfile.open(path);
 		if (utf8)
 		{
@@ -23,7 +23,7 @@ public:
 	{
 		std::string content;
 		std::string line;
-		ifstream myfile;
+		std::ifstream myfile;
 		myfile.open(path);
 		while (getline(myfile, line))
 		{
@@ -36,7 +36,7 @@ public:
 	static std::vector<std::string> readFilesInDirectory(std::string path)
 	{
 		const std::experimental::filesystem::path directory{ path };
-		vector<std::string> fileContents;
+		std::vector<std::string> fileContents;
 		for (auto const& dir_entry : std::experimental::filesystem::directory_iterator{ directory })
 		{
 			std::stringstream pathStream;
@@ -50,9 +50,9 @@ public:
 
 	static std::vector<std::string> getLines(std::string path)
 	{
-		vector<std::string> content;
+		std::vector<std::string> content;
 		std::string line;
-		ifstream myfile;
+		std::ifstream myfile;
 		myfile.open(path);
 		while (getline(myfile, line))
 		{
@@ -64,13 +64,13 @@ public:
 		return content;
 	};
 
-	static std::vector<vector<std::string>> getLinesByID(std::string path)
+	static std::vector<std::vector<std::string>> getLinesByID(std::string path)
 	{
-		vector<vector<std::string>> sortedLines;
+		std::vector<std::vector<std::string>> sortedLines;
 		sortedLines.resize(1000);
 		int IDcounter = 0;
 		std::string line;
-		ifstream myfile;
+		std::ifstream myfile;
 		myfile.open(path);
 		while (getline(myfile, line))
 		{
@@ -84,9 +84,9 @@ public:
 		return sortedLines;
 	};
 
-	static std::string csvFormat(vector<std::string> arguments, char delimiter, bool trailing)
+	static std::string csvFormat(std::vector<std::string> arguments, char delimiter, bool trailing)
 	{
-		vector<string>::iterator arg;
+		std::vector<std::string>::iterator arg;
 		std::string retString("");
 		for (arg = arguments.begin(); arg != arguments.end(); arg++)
 		{
@@ -95,7 +95,7 @@ public:
 			{
 				continue;
 			}
-			retString.append(string{ delimiter });
+			retString.append(std::string{ delimiter });
 
 		}
 		retString.append("\n");
@@ -107,11 +107,11 @@ public:
 		do
 		{
 			pos = content.find(key);
-			if (pos != string::npos)
+			if (pos != std::string::npos)
 			{
 				content.replace(pos, key.length(), value);
 			}
-		} while (pos != string::npos);
+		} while (pos != std::string::npos);
 		return content;
 	};
 
@@ -119,7 +119,7 @@ public:
 	{
 		auto pos = 0;
 		pos = content.find(key);
-		if (pos != string::npos)
+		if (pos != std::string::npos)
 		{
 			auto delimiterPos = content.find(value, pos) + 1;
 			auto lineEnd = content.find("\n", pos);
@@ -131,31 +131,66 @@ public:
 	{
 		auto pos = 0;
 		pos = content.find(key);
-		if (pos != string::npos)
+		if (pos != std::string::npos)
 		{
 			auto lineEnd = content.find("\n", pos);
 			content.replace(pos, lineEnd - pos, value);
 		}
 	};
-
+	static int findClosingBracket(std::string& content, size_t startPos) {
+		// find opening bracket of this block
+		auto openingBracket = content.find("{", startPos) + 1;
+		// find next opening bracket
+		auto nextOpenBracket = content.find("{", openingBracket) + 1;
+		// find closing bracket
+		auto blockEnd = content.find("}", startPos) + 1;
+		// found an opening bracket before the closing bracket, means this bracket doesn't close the scope we search
+		while (nextOpenBracket != std::string::npos && nextOpenBracket < blockEnd) {
+			blockEnd = content.find("}", blockEnd) + 1; // find the next closing bracket
+			nextOpenBracket = content.find("{", nextOpenBracket) + 1; // find next opening bracket
+		}
+		return blockEnd;
+	}
+	// reads the bracket block form a keyword onwards up until a closing bracket
 	static std::string getBracketBlock(std::string& content, std::string key)
 	{
 		auto pos = content.find(key);
-		if (pos != string::npos)
-		{
-			auto blockEnd = content.find("}", pos) + 1; // find closing bracket
+		if (pos != std::string::npos) {
+			auto blockEnd = findClosingBracket(content, pos);
 			return content.substr(pos, blockEnd - pos);
 		}
 		return "";
 	};
 	static std::string getBracketBlockContent(std::string& content, std::string key)
 	{
+		// first get whole block of keyword
 		auto block = getBracketBlock(content, key);
+		// now get the opening bracket
 		auto pos = block.find("{") + 1;
-		if (pos != string::npos)
-		{
-			auto blockEnd = block.find("}", pos); // find closing bracket
+		if (pos != std::string::npos) {
+			auto blockEnd = findClosingBracket(content, pos);
 			return block.substr(pos, blockEnd - pos);
+		}
+		return "";
+	};
+	// delete the bracket block from the bracket on, leaving the key
+	static std::string removeBracketBlockFromBracket(std::string& content, std::string key)
+	{
+		auto pos = content.find(key);
+		auto openingBracket = content.find("{", pos) + 1;
+		if (pos != std::string::npos) {
+			auto blockEnd = findClosingBracket(content, pos);
+			return content.erase(openingBracket, blockEnd - openingBracket);
+		}
+		return "";
+	};
+	// delete the bracket block from the key on, leaving nothing
+	static std::string removeBracketBlockFromKey(std::string& content, std::string key)
+	{
+		auto pos = content.find(key);
+		if (pos != std::string::npos) {
+			auto blockEnd = findClosingBracket(content, pos);
+			return content.erase(pos, blockEnd - pos);
 		}
 		return "";
 	};
@@ -166,23 +201,22 @@ public:
 
 	static std::vector<std::string> getTokens(std::string& content, char delimiter)
 	{
-		vector<std::string> tokens{};
-
-		stringstream sstream(content);
-		string token;
+		std::vector<std::string> tokens{};
+		std::stringstream sstream(content);
+		std::string token;
 		while (std::getline(sstream, token, delimiter))
 			tokens.push_back(token);
 		return tokens;
 	};
 
-	static std::vector<int> getNumbers(std::string& content, char delimiter, set<int> tokensToConvert)
+	static std::vector<int> getNumbers(std::string& content, char delimiter, std::set<int> tokensToConvert)
 	{
 		bool convertAll = false;
 		if (!tokensToConvert.size())
 			convertAll = true;
-		vector<int> numbers{};
-		stringstream sstream(content);
-		string token;
+		std::vector<int> numbers{};
+		std::stringstream sstream(content);
+		std::string token;
 		int counter = 0;
 		while (std::getline(sstream, token, delimiter))
 		{
@@ -202,7 +236,7 @@ public:
 		removeCharacter(bracketBlock, '=');
 		removeCharacter(bracketBlock, '}');
 		replaceOccurences(bracketBlock, key, "");
-		return getNumbers(bracketBlock, ' ', set<int>{});
+		return getNumbers(bracketBlock, ' ', std::set<int>{});
 	}
 	template <class T>
 	static std::string ostreamToString(T elem)
@@ -211,24 +245,24 @@ public:
 		ss << elem;
 		return ss.str();
 	}
-	static std::string removeBracketBlock(std::string& content, std::string key)
+	static std::string removeSurroundingBracketBlock(std::string& content, std::string key)
 	{
 		auto pos = content.find(key);
-		if (pos != string::npos) {
+		if (pos != std::string::npos) {
 			pos = content.rfind("{", pos);
-			auto blockEnd = content.find("}", pos) + 1; // find closing bracket
+			auto blockEnd = findClosingBracket(content, pos);
 			content.erase(pos, blockEnd - pos);
 			return content;
 		}
 		return "";
 	};
-	static std::string removeBracketBlockFromLineBreak(std::string& content, std::string key)
+	static std::string removeSurroundingBracketBlockFromLineBreak(std::string& content, std::string key)
 	{
 		auto pos = content.find(key);
-		if (pos != string::npos) {
+		if (pos != std::string::npos) {
 			pos = content.rfind("{", pos);
 			pos = content.rfind("\n", pos);
-			auto blockEnd = content.find("}", pos) + 1; // find closing bracket
+			auto blockEnd = findClosingBracket(content, pos);
 			content.erase(pos, blockEnd - pos);
 			return content;
 		}

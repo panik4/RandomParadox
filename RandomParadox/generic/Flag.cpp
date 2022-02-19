@@ -1,11 +1,11 @@
 #include "Flag.h"
-map<std::string, std::vector<Colour>> Flag::colourGroups;
+std::map<std::string, std::vector<Colour>> Flag::colourGroups;
 std::vector<std::vector<std::vector<int>>> Flag::flagTypes(7);
 std::vector<std::vector<std::vector<std::string>>> Flag::flagTypeColours(7);
 Flag::Flag()
 {}
 
-Flag::Flag(ranlux24 random, int width, int height) : random(random), width(width), height(height)
+Flag::Flag(std::ranlux24 random, int width, int height) : random(random), width(width), height(height)
 {
 	image = std::vector<unsigned char>(width * height * 4, 0);
 	int type = random() % flagTypes.size();

@@ -203,7 +203,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 		// add capital
 		auto capitalPosition = scenGen.gameRegions[c.second.capitalRegionID].position;
 		auto capitalProvince = select_random(scenGen.gameRegions[c.second.capitalRegionID].gameProvinces);
-		vector<double> distances;
+		std::vector<double> distances;
 		// region ID, provinceID
 		std::map<int, GameProvince> supplyHubProvinces;
 		std::map<int, bool> navalBases;
@@ -241,7 +241,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 		}
 		std::sort(distances.begin(), distances.end());
 		for (const auto distance : distances) {
-			vector<int> passthroughProvinceIDs;
+			std::vector<int> passthroughProvinceIDs;
 			int attempts = 0;
 			auto sourceNodeID = capitalProvince->ID;
 			supplyNodeConnections.push_back({ sourceNodeID });
@@ -421,7 +421,7 @@ void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator& scenGen)
 	}
 }
 
-NationalFocus Hoi4ScenarioGenerator::buildFocus(vector<std::string> chainStep, Country& source, Country& target)
+NationalFocus Hoi4ScenarioGenerator::buildFocus(std::vector<std::string> chainStep, Country& source, Country& target)
 {
 	auto x = chainStep[5];
 	auto a = typeMapping["attack"];
@@ -430,7 +430,7 @@ NationalFocus Hoi4ScenarioGenerator::buildFocus(vector<std::string> chainStep, C
 	return nF;
 }
 /* checks all requirements for a national focus. Returns false if any requirement isn't fulfilled, else returns true*/
-bool Hoi4ScenarioGenerator::fulfillsrequirements(vector<std::string> requirements, Country& source, Country& target)
+bool Hoi4ScenarioGenerator::fulfillsrequirements(std::vector<std::string> requirements, Country& source, Country& target)
 {
 	for (auto& requirement : requirements) {
 		// need to check rank, first get the desired value
@@ -479,7 +479,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 			if (!chain.size())
 				continue;
 			// we need to save options for every chain step
-			vector <vector<Country>> stepTargets;
+			std::vector<std::vector<Country>> stepTargets;
 			for (auto chainFocus : chain) {
 				// evaluate every single focus of that chain
 				auto chainTokens = ParserUtils::getTokens(chainFocus, ';');

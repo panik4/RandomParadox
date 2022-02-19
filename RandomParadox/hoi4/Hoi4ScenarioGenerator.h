@@ -7,7 +7,7 @@
 
 class Hoi4ScenarioGenerator
 {
-	ranlux24 random;
+	std::ranlux24 random;
 	NameGenerator nG;
 	// vars
 	int landStates = 0;
@@ -32,7 +32,6 @@ class Hoi4ScenarioGenerator
 	std::vector<std::string> weakPowers;
 	std::vector<std::string> wargoalsAttack;
 	std::vector<std::string> goalsDefence;
-	std::map<int, std::vector<std::string>> strengthScores;
 	std::map<std::string, NationalFocus::FocusType> typeMapping{
 		{"attack", NationalFocus::FocusType::attack},
 		{ "defense", NationalFocus::FocusType::defense },
@@ -49,6 +48,7 @@ public:
 	// containers
 	std::vector<NationalFocus> foci;
 	std::vector<NationalFocus> warFoci;
+	std::map<int, std::vector<std::string>> strengthScores;
 	// a list of connections: {sourceHub, destHub, provinces the rails go through}
 	std::vector<std::vector<int>> supplyNodeConnections;
 	// container holding the resource configurations

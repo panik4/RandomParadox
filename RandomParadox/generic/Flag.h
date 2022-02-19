@@ -14,8 +14,8 @@ class Flag
 	// static cause we only want to read them from file once
 	static std::map<std::string, std::vector<Colour>> colourGroups;
 	static std::vector<std::vector<std::vector<int>>> flagTypes;
-	static std::vector<vector<std::vector<std::string>>> flagTypeColours;
-	ranlux24 random;
+	static std::vector<std::vector<std::vector<std::string>>> flagTypeColours;
+	std::ranlux24 random;
 	// containers
 	std::vector<Colour> colours;
 	std::vector<unsigned char> image;
@@ -30,7 +30,7 @@ public:
 	int height;
 	// constructors/destructors
 	Flag();
-	Flag(ranlux24 random, int width, int height);
+	Flag(std::ranlux24 random, int width, int height);
 	~Flag();
 	// methods - shapes
 	void tricolore(int i, int j);

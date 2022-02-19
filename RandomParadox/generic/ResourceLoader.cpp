@@ -18,19 +18,19 @@ Bitmap ResourceLoader::loadHeightMap(std::string gamePath)
 	return Bitmap::Load8bitBMP((gamePath + ("\\map\\heightmap.bmp")).c_str(), "heightmap");
 }
 
-vector<std::string> ResourceLoader::loadStates(std::string gamePath)
+std::vector<std::string> ResourceLoader::loadStates(std::string gamePath)
 {
 	return ParserUtils::readFilesInDirectory(gamePath + "\\history\\states\\");
 }
 
-vector<std::string> ResourceLoader::loadDefinition(std::string gamePath)
+std::vector<std::string> ResourceLoader::loadDefinition(std::string gamePath)
 {
 	return ParserUtils::getLines(gamePath + "\\map\\definition.csv");
 }
 
-vector<std::string> ResourceLoader::loadForbiddenTags(std::string gamePath)
+std::vector<std::string> ResourceLoader::loadForbiddenTags(std::string gamePath)
 {	
-	vector<std::string> tags;
+	std::vector<std::string> tags;
 	auto lines = ParserUtils::getLines(gamePath + "\\common\\country_tags\\00_countries.txt");
 	for (auto line : lines)
 	{
