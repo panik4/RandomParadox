@@ -4,12 +4,12 @@
 #include <map>
 class GameRegion
 {
-	vector<std::string> cores;
+	std::vector<std::string> cores;
 
 public:
 	std::string owner;
-	vector<int> neighbours;
-	vector<GameProvince> gameProvinces;
+	std::vector<int> neighbours;
+	std::vector<GameProvince> gameProvinces;
 	std::map<std::string, std::string> attributeStrings;
 	std::map<std::string, double> attributeDoubles;
 	std::string name;
