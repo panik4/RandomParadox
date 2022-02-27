@@ -221,7 +221,7 @@ void Hoi4Parser::dumpUnitStacks(std::string path, const std::vector<Province*> p
 	pU::writeFile(path, content);
 }
 
-void Hoi4Parser::dumpWeatherPositions(std::string path, const std::vector<Region>& regions, const std::vector<std::set<int>> strategicRegions)
+void Hoi4Parser::dumpWeatherPositions(std::string path, const std::vector<Region>& regions, const std::vector<strategicRegion> strategicRegions)
 {
 	logLine("HOI4 Parser: Map: Creating Storms\n");
 	// 1; 2781.24; 9.90; 1571.49; small
@@ -231,7 +231,7 @@ void Hoi4Parser::dumpWeatherPositions(std::string path, const std::vector<Region
 	// 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
 
 	for (auto i = 0; i < strategicRegions.size(); i++) {
-		auto region = *select_random(strategicRegions[i]);
+		auto region = *select_random(strategicRegions[i].gameRegionIDs);
 		auto prov = *select_random(regions[region].provinces);
 		auto pix = *select_random(prov->pixels);
 		auto widthPos = pix % Data::getInstance().width;
@@ -250,13 +250,15 @@ void Hoi4Parser::dumpAdjacencyRules(std::string path)
 	pU::writeFile(path, content);
 }
 
-void Hoi4Parser::dumpStrategicRegions(std::string path, const std::vector<Region>& regions, const std::vector<std::set<int>> strategicRegions)
+void Hoi4Parser::dumpStrategicRegions(std::string path, const std::vector<Region>& regions, const std::vector<strategicRegion> strategicRegions)
 {
+	constexpr std::array<int, 12> daysInMonth{ 30, 27, 30, 29, 30, 29, 30, 30, 29, 30, 29, 30 };
 	logLine("HOI4 Parser: Map: Drawing Strategic Regions\n");
 	auto templateContent = pU::readFile("resources\\hoi4\\map\\strategic_region.txt");
+	const auto templateWeather = pU::getBracketBlock(templateContent, "period");
 	for (auto i = 0; i < strategicRegions.size(); i++) {
 		std::string provString{ "" };
-		for (const auto&region : strategicRegions[i]) {
+		for (const auto&region : strategicRegions[i].gameRegionIDs) {
 			for (auto prov : regions[region].provinces) {
 				provString.append(std::to_string(prov->ID + 1));
 				provString.append(" ");
@@ -264,6 +266,27 @@ void Hoi4Parser::dumpStrategicRegions(std::string path, const std::vector<Region
 		}
 		auto content = templateContent;
 		pU::replaceOccurences(content, "templateID", std::to_string(i + 1));
+		pU::replaceOccurences(content, "template_provinces", provString);
+
+		// weather
+		std::string weather{ "" };
+		for (auto mo = 0; mo < 12; mo++) {
+			auto month{ templateWeather };
+			pU::replaceOccurences(month, "templateDateRange", "0." + std::to_string(mo) + " " + std::to_string(daysInMonth[mo]) + "." + std::to_string(mo));
+			pU::replaceOccurences(month, "templateTemperatureRange", std::to_string(round((float)strategicRegions[i].weatherMonths[mo][3])).substr(0, 5)
+				+ " " + std::to_string(round((float)strategicRegions[i].weatherMonths[mo][4])).substr(0,5));
+			pU::replaceOccurences(month, "templateRainLightChance", std::to_string((float)strategicRegions[i].weatherMonths[mo][5]));
+			pU::replaceOccurences(month, "templateRainHeavyChance", std::to_string((float)strategicRegions[i].weatherMonths[mo][6]));
+			pU::replaceOccurences(month, "templateMud", std::to_string((float)strategicRegions[i].weatherMonths[mo][7]));
+			pU::replaceOccurences(month, "templateBlizzard", std::to_string((float)strategicRegions[i].weatherMonths[mo][8]));
+			pU::replaceOccurences(month, "templateSandStorm", std::to_string((float)strategicRegions[i].weatherMonths[mo][9]));
+			pU::replaceOccurences(month, "templateSnow", std::to_string((float)strategicRegions[i].weatherMonths[mo][10]));
+			pU::replaceOccurences(month, "templateNoPhenomenon", std::to_string((float)strategicRegions[i].weatherMonths[mo][11]));
+			//pU::replaceOccurences(month, "templateDateRange", "0." + std::to_string(i) + " 30." + std::to_string(i));
+			//pU::replaceOccurences(month, "templateDateRange", "0." + std::to_string(i) + " 30." + std::to_string(i));
+			weather.append(month + "\n\t\t");
+		}
+		pU::replaceOccurences(content, templateWeather, weather);
 		pU::replaceOccurences(content, "template_provinces", provString);
 		pU::writeFile(path + "\\" + std::to_string(i + 1) + ".txt", content);
 	}

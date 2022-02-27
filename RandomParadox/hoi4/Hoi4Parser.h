@@ -4,6 +4,7 @@
 #include "../generic/ParserUtils.h"
 #include "../generic/TextureWriter.h"
 #include "../generic/NameGenerator.h"
+#include "Hoi4ScenarioGenerator.h"
 #include "NationalFocus.h"
 
 class Hoi4Parser
@@ -20,11 +21,11 @@ public:
 	static void dumpContinents(std::string path, const std::vector<Continent>& continents);
 	static void dumpDefinition(std::string path, std::vector<GameProvince>& provinces);
 	static void dumpRocketSites(std::string path, const std::vector<Region>& regions);
-	static void dumpStrategicRegions(std::string path, const std::vector<Region>& regions, const std::vector<std::set<int>> strategicRegions);
+	static void dumpStrategicRegions(std::string path, const std::vector<Region>& regions, const std::vector<strategicRegion> strategicRegions);
 	static void dumpSupplyAreas(std::string path, const std::vector<Region>& regions);
 	static void dumpSupply(std::string path, const std::vector<std::vector<int>> supplyNodeConnections);
 	static void dumpUnitStacks(std::string path, const std::vector<Province*> provinces);
-	static void dumpWeatherPositions(std::string path, const std::vector<Region>& regions, const std::vector<std::set<int>> strategicRegions);
+	static void dumpWeatherPositions(std::string path, const std::vector<Region>& regions, const std::vector<strategicRegion> strategicRegions);
 	//gfx
 	static void dumpFlags(std::string path, const std::map<std::string, Country>& countries);
 
