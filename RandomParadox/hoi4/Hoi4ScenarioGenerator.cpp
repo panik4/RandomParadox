@@ -162,24 +162,25 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen
 	logLine("HOI4: Dividing world into strategic regions\n");
 	for (auto& region : scenGen.gameRegions) {
 		if (region.attributeDoubles["stratID"] == 0.0) {
-			std::set<int>stratRegion;
-			stratRegion.insert(region.ID);
+			strategicRegion sR;
+			//std::set<int>stratRegion;
+			sR.gameRegionIDs.insert(region.ID);
 			region.attributeDoubles["stratID"] = 1.0;
 			for (auto& neighbour : region.neighbours) {
 				// should be equal in sea/land
 				if (scenGen.gameRegions[neighbour].sea == region.sea &&
 					scenGen.gameRegions[neighbour].attributeDoubles["stratID"] == 0.0) {
-					stratRegion.insert(neighbour);
+					sR.gameRegionIDs.insert(neighbour);
 					scenGen.gameRegions[neighbour].attributeDoubles["stratID"] = 1.0;
 				}
 			}
-			strategicRegions.push_back(stratRegion);
+			strategicRegions.push_back(sR);
 		}
 	}
 	Bitmap stratRegionBMP(Data::getInstance().width, Data::getInstance().height, 24);
 	for (auto& strat : strategicRegions) {
 		Colour c{ random() % 255, random() % 255, random() % 255 };
-		for (auto& reg : strat) {
+		for (auto& reg : strat.gameRegionIDs) {
 			c.setBlue(scenGen.gameRegions[reg].sea ? 255 : 0);
 			for (auto& prov : scenGen.gameRegions[reg].gameProvinces) {
 				for (auto& pix : prov.baseProvince->pixels) {
@@ -190,6 +191,51 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen
 	}
 	Bitmap::bufferBitmap("strat", stratRegionBMP);
 	Bitmap::SaveBMPToFile(stratRegionBMP, "Maps\\stratRegions.bmp");
+}
+
+void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator & scenGen)
+{
+	//strategicRegionWeather.resize(strategicRegions.size());
+	int count = 0;
+	for (auto& strat : strategicRegions) {
+		for (auto& reg : strat.gameRegionIDs) {
+			for (auto i = 0; i < 12; i++) {
+				double averageTemperature = 0.0;
+				double averageDeviation = 0.0;
+				double averagePrecipitation = 0.0;
+				for (auto& prov : scenGen.gameRegions[reg].gameProvinces) {
+					averageDeviation += prov.baseProvince->weatherMonths[i][0];
+					averageTemperature += prov.baseProvince->weatherMonths[i][1];
+					averagePrecipitation += prov.baseProvince->weatherMonths[i][2];
+				}
+				double divisor = scenGen.gameRegions[reg].gameProvinces.size();
+				averageDeviation /= divisor;
+				averageTemperature /= divisor;
+				averagePrecipitation /= divisor;
+				// now save monthly data, 0, 1, 2
+				strat.weatherMonths.push_back({ averageDeviation, averageTemperature, averagePrecipitation });
+				// temperature low, 3
+				strat.weatherMonths[i].push_back(-20 + averageTemperature * 60);
+				// tempHigh, 4
+				strat.weatherMonths[i].push_back(-20 + averageTemperature * 60 + averageDeviation * 10);
+				// light_rain chance: cold and humid -> high, 5
+				strat.weatherMonths[i].push_back((1.0 - averageTemperature) * averagePrecipitation);
+				// heavy rain chance: warm and humid -> high, 6
+				strat.weatherMonths[i].push_back(averageTemperature * averagePrecipitation);
+				// mud chance, 7
+				strat.weatherMonths[i].push_back(0.5 * (2* strat.weatherMonths[i][6] + strat.weatherMonths[i][5]));
+				// blizzard chance, 8
+				strat.weatherMonths[i].push_back(clamp(0.2-averageTemperature, 0.0, 0.2) * averagePrecipitation);
+				// sandstorm chance, 9
+				strat.weatherMonths[i].push_back(clamp(averageTemperature-0.8, 0.0, 0.2) * clamp(0.2 - averagePrecipitation, 0.0, 0.2));
+				// snow chance, 10
+				strat.weatherMonths[i].push_back(clamp(0.4 - averageTemperature, 0.0, 0.2) * averagePrecipitation);
+				// no phenomenon chance, 11
+				strat.weatherMonths[i].push_back(1.0 - strat.weatherMonths[i][5] - strat.weatherMonths[i][6] - strat.weatherMonths[i][8] - strat.weatherMonths[i][9] - strat.weatherMonths[i][10]);
+			}
+		}
+		count++;
+	}
 }
 
 void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)

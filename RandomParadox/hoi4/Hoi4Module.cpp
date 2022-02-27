@@ -93,6 +93,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		hoi4Gen.generateStateSpecifics(scenGen);
 		hoi4Gen.generateStateResources(scenGen);
 		hoi4Gen.generateStrategicRegions(scenGen);
+		hoi4Gen.generateWeather(scenGen);
 		hoi4Gen.evaluateCountries(scenGen);
 		scenGen.dumpDebugCountrymap(Data::getInstance().mapsPath + "countries.bmp");
 		hoi4Gen.generateLogistics(scenGen);

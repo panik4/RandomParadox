@@ -141,13 +141,13 @@ public:
 		// find opening bracket of this block
 		auto openingBracket = content.find("{", startPos) + 1;
 		// find next opening bracket
-		auto nextOpenBracket = content.find("{", openingBracket) + 1;
+		auto nextOpenBracket = content.find("{", openingBracket+1);
 		// find closing bracket
 		auto blockEnd = content.find("}", startPos) + 1;
 		// found an opening bracket before the closing bracket, means this bracket doesn't close the scope we search
 		while (nextOpenBracket != std::string::npos && nextOpenBracket < blockEnd) {
 			blockEnd = content.find("}", blockEnd) + 1; // find the next closing bracket
-			nextOpenBracket = content.find("{", nextOpenBracket) + 1; // find next opening bracket
+			nextOpenBracket = content.find("{", nextOpenBracket + 1); // find next opening bracket
 		}
 		return blockEnd;
 	}
