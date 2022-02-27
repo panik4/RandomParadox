@@ -5,6 +5,15 @@
 #include "NationalFocus.h"
 #include <set>
 
+
+
+struct strategicRegion {
+	std::set<int> gameRegionIDs;
+	// weather: month{averageTemp, standard deviation, average precipitation, tempLow, tempHigh, tempNightly, snowChance, lightRainChance, heavyRainChance, blizzardChance,mudChance, sandstormChance}
+	std::vector<std::vector<double>> weatherMonths;
+};
+
+
 class Hoi4ScenarioGenerator
 {
 	std::ranlux24 random;
@@ -39,7 +48,9 @@ class Hoi4ScenarioGenerator
 	};
 
 
+
 public:
+
 	// vars - config options
 	double worldPopulationFactor = 1.0;
 	double industryFactor = 1.0;
@@ -53,7 +64,7 @@ public:
 	std::vector<std::vector<int>> supplyNodeConnections;
 	// container holding the resource configurations
 	std::map<std::string, std::vector<double>> resources;
-	std::vector<std::set<int>> strategicRegions;
+	std::vector<strategicRegion> strategicRegions;
 
 	// member functions
 	// constructors/destructors
@@ -67,6 +78,8 @@ public:
 	void generateCountrySpecifics(ScenarioGenerator& scenGen, std::map<std::string, Country>& countries);
 	// build strategic regions from gameregions
 	void generateStrategicRegions(ScenarioGenerator& scenGen);
+	// generate weather per strategic region, from baseprovinces
+	void generateWeather(ScenarioGenerator& scenGen);
 	// supply hubs and railroads
 	void generateLogistics(ScenarioGenerator& scenGen);
 	// calculate how strong each country is
