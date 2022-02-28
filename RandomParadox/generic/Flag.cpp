@@ -274,9 +274,9 @@ void Flag::triangle(int i, int j, double xPos, double yPos, double size)
 }
 void Flag::setPixel(Colour colour, int x, int y)
 {
-	image[(x * width + y) * 4] = colour.getRed();
+	image[(x * width + y) * 4] = colour.getBlue();
 	image[(x * width + y) * 4 + 1] = colour.getGreen();
-	image[(x * width + y) * 4 + 2] = colour.getBlue();
+	image[(x * width + y) * 4 + 2] = colour.getRed();
 	image[(x * width + y) * 4 + 3] = 255;
 }
 
@@ -324,8 +324,8 @@ void Flag::readColourGroups()
 		auto tokens = ParserUtils::getTokens(line, ';');
 		for (int i = 1; i < tokens.size(); i++) {
 			auto nums = ParserUtils::getNumbers(tokens[i], ',', std::set<int>{});
-			std::vector<unsigned char> colour{ (unsigned char)nums[0], (unsigned char)nums[1], (unsigned char)nums[2] };
-			colourGroups[tokens[0]].push_back(Colour(colour));
+			Colour c{ (unsigned char)nums[0], (unsigned char)nums[1], (unsigned char)nums[2] };
+			colourGroups[tokens[0]].push_back(c);
 		}
 	}
 }

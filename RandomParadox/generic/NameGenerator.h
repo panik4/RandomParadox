@@ -5,19 +5,18 @@
 class NameGenerator
 {
 	// containers
-	std::vector<std::string> nameRules;
-	std::map<std::string, std::vector<std::string>> groups;
-	std::map<std::string, std::vector<std::string>> ideologyNames;
+	static std::vector<std::string> nameRules;
+	static std::map<std::string, std::vector<std::string>> groups;
+	static std::map<std::string, std::vector<std::string>> ideologyNames;
 public:
-	NameGenerator();
-	~NameGenerator();
 	// member functions
-	std::string generateName();
-	std::string generateAdjective(std::string& name);
-	std::string generateTag(std::string name, std::set<std::string>& tags);
-	std::string getRandomMapElement(std::string key, std::map<std::string, std::vector<std::string>> map);
-	std::string getToken(std::vector<std::string>& rule);
-	std::string modifyWithIdeology(const std::string& ideology, std::string name, std::string adjective);
-	void readMap(std::string path, std::map<std::string, std::vector<std::string>>& map);
+	static std::string generateName();
+	static std::string generateAdjective(std::string& name);
+	static std::string generateTag(std::string name, std::set<std::string>& tags);
+	static std::string getRandomMapElement(std::string key, std::map<std::string, std::vector<std::string>> map);
+	static std::string getToken(std::vector<std::string>& rule);
+	static std::string modifyWithIdeology(const std::string& ideology, std::string name, std::string adjective);
+	static void readMap(std::string path, std::map<std::string, std::vector<std::string>>& map);
+	static void prepare();
 };
 
