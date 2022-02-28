@@ -152,9 +152,8 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen,
 		else
 			c.second.attributeDoubles["allowElections"] = 0;
 		// now get the full name of the country
-		c.second.attributeStrings["fullName"] = scenGen.nG.modifyWithIdeology(c.second.attributeStrings["rulingParty"], c.second.name, c.second.adjective);
+		c.second.attributeStrings["fullName"] = NameGenerator::modifyWithIdeology(c.second.attributeStrings["rulingParty"], c.second.name, c.second.adjective);
 	}
-
 }
 
 void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen)
@@ -174,6 +173,7 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen
 					scenGen.gameRegions[neighbour].attributeDoubles["stratID"] = 1.0;
 				}
 			}
+			sR.name = NameGenerator::generateName();
 			strategicRegions.push_back(sR);
 		}
 	}

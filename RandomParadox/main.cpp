@@ -49,7 +49,7 @@ int main() {
 		system("pause");
 		return -1;
 	}
-
+	NameGenerator::prepare();
 	FastWorldGenerator fastWorldGen;
 	Hoi4Module hoi4Mod;
 	hoi4Mod.readConfig();

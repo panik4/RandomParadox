@@ -44,6 +44,7 @@ public:
 	// localisation
 	static void writeCountryNames(std::string path, const std::map<std::string, Country>& countries);
 	static void writeStateNames(std::string path, const std::map<std::string, Country>& countries);
+	static void writeStrategicRegionNames(std::string path, const std::vector<strategicRegion> strategicRegions);
 
 	// copy base game countries and remove certain lines to reduce crashes
 	static void writeCompatibilityHistory(std::string path, std::string hoiPath, const std::vector<Region>& regions);

@@ -1,16 +1,8 @@
 #include "NameGenerator.h"
 
-
-
-NameGenerator::NameGenerator()
-{
-	nameRules = ParserUtils::getLines("resources\\names\\name_rules.txt");
-	readMap("resources\\names\\token_groups.txt", groups);
-	readMap("resources\\names\\state_types.txt", ideologyNames);
-}
-
-NameGenerator::~NameGenerator()
-{}
+std::vector<std::string> NameGenerator::nameRules;
+std::map<std::string, std::vector<std::string>> NameGenerator::groups;
+std::map<std::string, std::vector<std::string>> NameGenerator::ideologyNames;
 
 std::string NameGenerator::generateName()
 {
@@ -92,4 +84,11 @@ void NameGenerator::readMap(std::string path, std::map<std::string, std::vector<
 		for (int i = 1; i < tokens.size(); i++)
 			map[tokens[0]].push_back(tokens[i]);
 	}
+}
+
+void NameGenerator::prepare()
+{
+	nameRules = ParserUtils::getLines("resources\\names\\name_rules.txt");
+	readMap("resources\\names\\token_groups.txt", groups);
+	readMap("resources\\names\\state_types.txt", ideologyNames);
 }

@@ -556,6 +556,21 @@ void Hoi4Parser::writeStateNames(std::string path, const std::map<std::string, C
 	pU::writeFile(path + "state_names_l_english.yml", content, true);
 }
 
+void Hoi4Parser::writeStrategicRegionNames(std::string path, const std::vector<strategicRegion> strategicRegions)
+{
+	logLine("HOI4 Parser: Map: Naming the Regions\n");
+	std::string content = "l_english:\n";
+	for (auto i = 0; i < strategicRegions.size(); i++) {
+		//varToString("STRATEGICREGION_", i, ":0  \"", strategicRegions[i].name, "\"");
+		content += " STRATEGICREGION_";
+		content += std::to_string(i);
+		content += ":0 \"";
+		content += strategicRegions[i].name;
+		content += "\"\n";
+	}
+	pU::writeFile(path + "\\strategic_region_names_l_english.yml", content);
+}
+
 void Hoi4Parser::writeFoci(std::string path, std::vector<NationalFocus> foci, const std::map<std::string, Country>& countries)
 {
 	logLine("HOI4 Parser: History: Demanding Danzig\n");

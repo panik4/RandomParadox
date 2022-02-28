@@ -121,6 +121,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		Hoi4Parser::dumpSupply(hoi4ModPath + "\\map\\", hoi4Gen.supplyNodeConnections);
 		Hoi4Parser::writeStateNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
 		Hoi4Parser::writeCountryNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
+		Hoi4Parser::writeStrategicRegionNames(hoi4ModPath + "\\localisation\\english\\", hoi4Gen.strategicRegions);
 		Hoi4Parser::writeFoci(hoi4ModPath + "\\common\\national_focus\\", hoi4Gen.foci, scenGen.countryMap);
 		Hoi4Parser::dumpCommonBookmarks(hoi4ModPath + "\\common\\bookmarks\\", scenGen.countryMap, hoi4Gen.strengthScores);
 

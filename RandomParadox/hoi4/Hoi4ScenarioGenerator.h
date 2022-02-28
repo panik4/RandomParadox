@@ -11,13 +11,13 @@ struct strategicRegion {
 	std::set<int> gameRegionIDs;
 	// weather: month{averageTemp, standard deviation, average precipitation, tempLow, tempHigh, tempNightly, snowChance, lightRainChance, heavyRainChance, blizzardChance,mudChance, sandstormChance}
 	std::vector<std::vector<double>> weatherMonths;
+	std::string name;
 };
 
 
 class Hoi4ScenarioGenerator
 {
 	std::ranlux24 random;
-	NameGenerator nG;
 	// vars
 	int landStates = 0;
 	int focusID = 0;
