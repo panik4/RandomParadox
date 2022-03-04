@@ -1,5 +1,7 @@
 #include "NationalFocus.h"
+#include "Hoi4Parser.h"
 int NationalFocus::IDcounter = 0;
+std::map<std::string, NationalFocus::FocusType> NationalFocus::typeMapping;
 NationalFocus::NationalFocus()
 {}
 
@@ -12,14 +14,11 @@ NationalFocus::NationalFocus(FocusType fType, bool default, std::string source, 
 NationalFocus::~NationalFocus()
 {}
 
-void NationalFocus::makeAlternative(std::vector<NationalFocus>& foci)
+void NationalFocus::mapTypes()
 {
-	for (auto& focus : foci) {
-		for (auto& alternative : foci) {
-			if (focus == alternative)
-				continue;
-			focus.alternativeFoci.push_back(alternative.ID);
-		}
+	auto types = Hoi4Parser::readTypeMap("resources\\hoi4\\ai\\national_focus\\foci.txt");
+	for (int i = 0; i < types.size(); i++) {
+		typeMapping[types[i]] = (FocusType)i;
 	}
 }
 
@@ -43,6 +42,6 @@ std::ostream & operator<<(std::ostream & os, const NationalFocus & focus)
 	}
 	}
 	os << focus.sourceTag << action << focus.destTag << std::endl;
-	os << "Alternatives: " << focus.alternativeFoci.size() << "; Preceding Foci: " << focus.precedingFoci.size() << std::endl;
+	os << "Alternatives: " << focus.alternativeFoci.size() << "; Preceding Foci: " << focus.precedingFoci.size();
 	return os;
 }

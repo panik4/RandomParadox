@@ -9,7 +9,7 @@ Hoi4ScenarioGenerator::~Hoi4ScenarioGenerator()
 
 void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator& scenGen)
 {
-	logLine("HOI4: Digging for resources\n");
+	logLine("HOI4: Digging for resources");
 	for (auto& c : scenGen.countryMap) {
 		for (auto& gameRegion : c.second.ownedRegions) {
 			for (auto& resource : resources) {
@@ -45,7 +45,7 @@ void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator& scenGen)
 {
-	logLine("HOI4: Planning the economy\n");
+	logLine("HOI4: Planning the economy");
 	// calculate the world land area
 	double worldArea = (double)(Data::getInstance().bitmapSize / 3) * Data::getInstance().landMassPercentage;
 	// calculate the target industry amount
@@ -109,7 +109,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen, std::map<std::string, Country>& countries)
 {
-	logLine("HOI4: Choosing uniforms and electing Tyrants\n");
+	logLine("HOI4: Choosing uniforms and electing Tyrants");
 	// graphical culture pairs:
 	// { graphical_culture = type }
 	// { graphical_culture_2d = type_2d }
@@ -158,7 +158,7 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen,
 
 void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen)
 {
-	logLine("HOI4: Dividing world into strategic regions\n");
+	logLine("HOI4: Dividing world into strategic regions");
 	for (auto& region : scenGen.gameRegions) {
 		if (region.attributeDoubles["stratID"] == 0.0) {
 			strategicRegion sR;
@@ -195,7 +195,6 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen
 
 void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator & scenGen)
 {
-	//strategicRegionWeather.resize(strategicRegions.size());
 	int count = 0;
 	for (auto& strat : strategicRegions) {
 		for (auto& reg : strat.gameRegionIDs) {
@@ -223,11 +222,11 @@ void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator & scenGen)
 				// heavy rain chance: warm and humid -> high, 6
 				strat.weatherMonths[i].push_back(averageTemperature * averagePrecipitation);
 				// mud chance, 7
-				strat.weatherMonths[i].push_back(0.5 * (2* strat.weatherMonths[i][6] + strat.weatherMonths[i][5]));
+				strat.weatherMonths[i].push_back(0.5 * (2 * strat.weatherMonths[i][6] + strat.weatherMonths[i][5]));
 				// blizzard chance, 8
-				strat.weatherMonths[i].push_back(clamp(0.2-averageTemperature, 0.0, 0.2) * averagePrecipitation);
+				strat.weatherMonths[i].push_back(clamp(0.2 - averageTemperature, 0.0, 0.2) * averagePrecipitation);
 				// sandstorm chance, 9
-				strat.weatherMonths[i].push_back(clamp(averageTemperature-0.8, 0.0, 0.2) * clamp(0.2 - averagePrecipitation, 0.0, 0.2));
+				strat.weatherMonths[i].push_back(clamp(averageTemperature - 0.8, 0.0, 0.2) * clamp(0.2 - averagePrecipitation, 0.0, 0.2));
 				// snow chance, 10
 				strat.weatherMonths[i].push_back(clamp(0.4 - averageTemperature, 0.0, 0.2) * averagePrecipitation);
 				// no phenomenon chance, 11
@@ -240,7 +239,7 @@ void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator & scenGen)
 
 void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 {
-	logLine("HOI4: Building rail networks\n");
+	logLine("HOI4: Building rail networks");
 	auto width = Data::getInstance().width;
 	Bitmap logistics = Bitmap::findBitmapByKey("countries");
 	for (auto& c : scenGen.countryMap) {
@@ -394,7 +393,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 {
-	logLine("HOI4: Evaluating Country Strength\n");
+	logLine("HOI4: Evaluating Country Strength");
 	for (auto& c : scenGen.countryMap) {
 		auto totalIndustry = 0;
 		auto totalPop = 0;
@@ -424,15 +423,15 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 			if (scores.first > 0) {
 				if (numWeakStates > weakPowers.size())
 				{
-					weakPowers.push_back(entry);
+					weakPowers.insert(entry);
 					scenGen.countryMap[entry].attributeStrings["rank"] = "weak";
 				}
 				else if (numRegionalPowers > regionalPowers.size()) {
-					regionalPowers.push_back(entry);
+					regionalPowers.insert(entry);
 					scenGen.countryMap[entry].attributeStrings["rank"] = "regional";
 				}
 				else {
-					majorPowers.push_back(entry);
+					majorPowers.insert(entry);
 					scenGen.countryMap[entry].attributeStrings["rank"] = "major";
 				}
 			}
@@ -443,7 +442,7 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator& scenGen)
 {
-	logLine("HOI4: Generating Country Unit Files\n");
+	logLine("HOI4: Generating Country Unit Files");
 	// read in different compositions
 	auto compositionMajor = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionMajor.txt");
 	auto compositionRegional = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionRegional.txt");
@@ -469,23 +468,104 @@ void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator& scenGen)
 
 NationalFocus Hoi4ScenarioGenerator::buildFocus(std::vector<std::string> chainStep, Country& source, Country& target)
 {
-	auto x = chainStep[5];
-	auto a = typeMapping["attack"];
-	auto dateTokens = ParserUtils::getNumbers(chainStep[9], '-', std::set<int>{});
-	NationalFocus nF(a, false, source.tag, target.tag, dateTokens);
+	// map the string of the chainstep to the type
+	auto type = NationalFocus::typeMapping[chainStep[5]];
+	auto dateTokens = ParserUtils::getNumbers(chainStep[8], '-', std::set<int>{});
+	NationalFocus nF(type, false, source.tag, target.tag, dateTokens);
+	auto predecessors = ParserUtils::getNumbers(ParserUtils::getBracketBlockContent(chainStep[2], "predecessor"), ',', std::set<int>());
+	for (auto& predecessor : predecessors)
+		nF.precedingFoci.push_back(predecessor);
+	// now get the "or" and "and" foci
+	auto exclusives = ParserUtils::getNumbers(ParserUtils::getBracketBlockContent(chainStep[7], "exclusive"), ',', std::set<int>());
+	for (auto& exclusive : exclusives)
+		nF.alternativeFoci.push_back(exclusive);
+	auto ands = ParserUtils::getNumbers(ParserUtils::getBracketBlockContent(chainStep[7], "and"), ',', std::set<int>());
+	for (auto& and : ands)
+		nF.andFoci.push_back(and);
 	return nF;
 }
-/* checks all requirements for a national focus. Returns false if any requirement isn't fulfilled, else returns true*/
-bool Hoi4ScenarioGenerator::fulfillsrequirements(std::vector<std::string> requirements, Country& source, Country& target)
+void Hoi4ScenarioGenerator::buildFocusTree(Country& source)
 {
-	for (auto& requirement : requirements) {
+	std::array<std::array<int, 100>, 100> occupiedPositions;
+	// start left. Chains go down, new chains go right
+	int curX = 1;
+	int curY = 1;
+	for (auto& focusChain : source.foci) {
+		curY = 1;
+		std::array<std::set<int>, 100> levels;
+		int index = 0;
+		int width = 0;
+		for (auto& focus : focusChain) {
+			// if this focus is already on this level, just continue
+			if (levels[index].find(focus.stepID) != levels[index].end())
+				continue;
+			levels[index].insert(focus.stepID);
+			for (auto stepID : focus.alternativeFoci) {
+				levels[index].insert(stepID);
+			}
+			for (auto stepID : focus.andFoci) {
+				levels[index].insert(stepID);
+			}
+			// now check for every newly added focus, if that also has and or or foci
+			for (auto chainStepID : levels[index]) {
+				if (chainStepID < focusChain.size()) {
+					for (auto stepID : focusChain[chainStepID].alternativeFoci) {
+						levels[index].insert(stepID);
+					}
+					for (auto stepID : focusChain[chainStepID].andFoci) {
+						levels[index].insert(stepID);
+					}
+				}
+			}
+			// save the maximum width for later
+			if (levels[index].size() > width)
+				width = levels[index].size();
+			// now increment level, we have all alternatives or AND
+			index++;
+		}
+		// now that we have every focus assigned to a level, we can start setting positions for this chain
+		auto baseX = curX;
+		for (const auto& level : levels) {
+			curX = baseX;
+			for (const auto& entry : level) {
+				if (entry < focusChain.size())
+					focusChain.at(entry).position = { curX+=2, curY };
+			}
+			curY++;
+		}
+
+	}
+}
+bool Hoi4ScenarioGenerator::stepFulfillsRequirements(std::vector<std::string> stepRequirements, const std::vector<std::set<Country>> stepTargets)
+{
+	// first check if the step can be fulfilled at all
+	for (auto& stepRequirement : stepRequirements) {
+		// need to check if required steps were made, first get the desired value
+		const auto value = ParserUtils::getBracketBlockContent(stepRequirement, "requires");
+		const auto requiredPredecessors = ParserUtils::getTokens(value, ',');
+		bool hasRequiredPredecessor = requiredPredecessors.size() ? false : true;
+		for (const auto& predecessor : requiredPredecessors)
+			if (predecessor != "") {
+				if (stepTargets[stoi(value)].size())
+					hasRequiredPredecessor = true;
+			}
+		if (!hasRequiredPredecessor)
+			return false; // missing predecessor
+	}
+	return true;
+}
+/* checks all requirements for a national focus. Returns false if any requirement isn't fulfilled, else returns true*/
+bool Hoi4ScenarioGenerator::targetFulfillsRequirements(std::vector<std::string> targetRequirements, Country& source, Country& target)
+{
+	// now check if the country fulfills the target requirements
+	for (auto& targetRequirement : targetRequirements) {
 		// need to check rank, first get the desired value
-		auto value = ParserUtils::getBracketBlockContent(requirement, "rank");
+		auto value = ParserUtils::getBracketBlockContent(targetRequirement, "rank");
 		if (value != "") {
 			if (target.attributeStrings["rank"] != value)
 				return false; // targets rank is not right
 		}
-		value = ParserUtils::getBracketBlockContent(requirement, "ideology");
+		value = ParserUtils::getBracketBlockContent(targetRequirement, "ideology");
 		if (value != "") {
 			if (value == "any")
 				continue; // fine, may target any ideology
@@ -496,7 +576,7 @@ bool Hoi4ScenarioGenerator::fulfillsrequirements(std::vector<std::string> requir
 				if (target.attributeStrings["rulingParty"] == source.attributeStrings["rulingParty"])
 					return false;
 		}
-		value = ParserUtils::getBracketBlockContent(requirement, "location");
+		value = ParserUtils::getBracketBlockContent(targetRequirement, "location");
 		if (value != "") {
 			if (value == "any")
 				continue; // fine, may target any ideology
@@ -504,6 +584,7 @@ bool Hoi4ScenarioGenerator::fulfillsrequirements(std::vector<std::string> requir
 				if (source.neighbours.find(target.tag) == source.neighbours.end())
 					return false;
 			}
+			// to do: near, distant, any
 		}
 	}
 	return true;
@@ -511,74 +592,91 @@ bool Hoi4ScenarioGenerator::fulfillsrequirements(std::vector<std::string> requir
 
 void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 {
-	logLine("HOI4: Generating Country Goals\n");
+	logLine("HOI4: Generating Country Goals");
 	std::vector<int> defDate{ 1,1,1936 };
-	auto majorChains = ParserUtils::getLinesByID("resources\\hoi4\\history\\national_focus\\major_chains.txt");
+	const auto majorChains = ParserUtils::getLinesByID("resources\\hoi4\\ai\\national_focus\\major_chains.txt");
+	const auto regionalChains = ParserUtils::getLinesByID("resources\\hoi4\\ai\\national_focus\\regional_chains.txt");
 
 	auto typeCounter = 0;
-	for (auto& majorPower : majorPowers) {
+	for (auto& sourceCountry : scenGen.countryMap) {
 		int chainID = 0;
-		auto sourceS = scenGen.countryMap[majorPower].attributeStrings;
-		auto sourceD = scenGen.countryMap[majorPower].attributeDoubles;
-		for (auto chain : majorChains) {
+		auto sourceS = scenGen.countryMap[sourceCountry.first].attributeStrings;
+		auto sourceD = scenGen.countryMap[sourceCountry.first].attributeDoubles;
+		auto powerChains = majorChains;
+		if (sourceS["rank"] == "regional")
+			powerChains = regionalChains;
+		for (const auto& chain : powerChains) {
 			// evaluate whole chain (chain defined by ID)
 			if (!chain.size())
 				continue;
 			// we need to save options for every chain step
-			std::vector<std::vector<Country>> stepTargets;
-			for (auto chainFocus : chain) {
+			std::vector<std::set<Country>> stepTargets;
+			for (const auto& chainFocus : chain) {
 				// evaluate every single focus of that chain
-				auto chainTokens = ParserUtils::getTokens(chainFocus, ';');
-				int chainStep = stoi(chainTokens[1]);
-				if (sourceS["rulingParty"] == chainTokens[4]) {
+				const auto chainTokens = ParserUtils::getTokens(chainFocus, ';');
+				const int chainStep = stoi(chainTokens[1]);
+				if (sourceS["rulingParty"] == chainTokens[4] || chainTokens[4] == "any") {
 					stepTargets.resize(stepTargets.size() + 1);
+					auto stepRequirements = ParserUtils::getTokens(chainTokens[2], '+');
+					if (stepFulfillsRequirements(stepRequirements, stepTargets));
 					// source triggers this focus
 					// split requirements
 					auto targetRequirements = ParserUtils::getTokens(chainTokens[6], '+');
-					for (auto& country : scenGen.countryMap) {
+					for (auto& destCountry : scenGen.countryMap) {
 						// now check every country if it fulfills the target requirements
-						if (fulfillsrequirements(targetRequirements, scenGen.countryMap[majorPower], country.second)) {
-							stepTargets[chainStep].push_back(country.second);
+						if (targetFulfillsRequirements(targetRequirements, scenGen.countryMap[sourceCountry.first], destCountry.second)) {
+							stepTargets[chainStep].insert(destCountry.second);
 						}
 					}
 				}
 			}
 			// now build the chain from the options
+			// for every step of the chain, choose a target
 			if (stepTargets.size()) {
-				logLine("Building focus\n");
+				logLine("Building focus");
 				std::map<int, NationalFocus> fulfilledSteps;
-				int stepIndex = -1;
+				int stepIndex = 0;
+				std::vector<NationalFocus> chainFoci;
 				for (auto& targets : stepTargets) {
-					stepIndex++;
 					if (!targets.size())
 						continue;
+					// select random target
 					auto target = *select_random(targets);
-					auto focus = buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'), scenGen.countryMap[majorPower], target);
+					// however
+					//if (targets.find(scenGen.countryMap.at(chainFoci.back().destTag)) != targets.end())
+					//	target = scenGen.countryMap.at(chainFoci.back().destTag);
+					auto focus = buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'), scenGen.countryMap[sourceCountry.first], target);
+					focus.stepID = stepIndex;
 					logLineLevel(1, focus);
+					chainFoci.push_back(focus);
+					stepIndex++;
 				}
+				sourceCountry.second.foci.push_back(chainFoci);
 			}
 		}
+		// now build a tree out of the focus chains
+		buildFocusTree(sourceCountry.second);
 	}
 }
 
 void Hoi4ScenarioGenerator::printStatistics(ScenarioGenerator & scenGen)
 {
-	logLine("Total Industry: ", totalWorldIndustry, "\n");
-	logLine("Military Industry: ", militaryIndustry, "\n");
-	logLine("Civilian Industry: ", civilianIndustry, "\n");
-	logLine("Naval Industry: ", navalIndustry, "\n");
-	logLine("Total Aluminium: ", totalAluminium, "\n");
-	logLine("Total Chromium: ", totalChromium, "\n");
-	logLine("Total Rubber: ", totalRubber, "\n");
-	logLine("Total Oil: ", totalOil, "\n");
-	logLine("Total Steel: ", totalSteel, "\n");
-	logLine("Total Tungsten: ", totalTungsten, "\n");
-	logLine("World Population: ", worldPop, "\n");
+	logLine("Total Industry: ", totalWorldIndustry, "");
+	logLine("Military Industry: ", militaryIndustry, "");
+	logLine("Civilian Industry: ", civilianIndustry, "");
+	logLine("Naval Industry: ", navalIndustry, "");
+	logLine("Total Aluminium: ", totalAluminium, "");
+	logLine("Total Chromium: ", totalChromium, "");
+	logLine("Total Rubber: ", totalRubber, "");
+	logLine("Total Oil: ", totalOil, "");
+	logLine("Total Steel: ", totalSteel, "");
+	logLine("Total Tungsten: ", totalTungsten, "");
+	logLine("World Population: ", worldPop, "");
 
 	for (auto& scores : strengthScores) {
 		for (auto& entry : scores.second) {
 			logLine("Strength: ", scores.first, " ", scenGen.countryMap.at(entry).attributeStrings.at("fullName"),
-				" ", scenGen.countryMap.at(entry).attributeStrings.at("rulingParty"), "\n");
+				" ", scenGen.countryMap.at(entry).attributeStrings.at("rulingParty"), "");
 		}
 	}
 }
