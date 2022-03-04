@@ -97,6 +97,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		hoi4Gen.evaluateCountries(scenGen);
 		scenGen.dumpDebugCountrymap(Data::getInstance().mapsPath + "countries.bmp");
 		hoi4Gen.generateLogistics(scenGen);
+		NationalFocus::mapTypes();
 		hoi4Gen.evaluateCountryGoals(scenGen);
 
 		// now start writing game files
@@ -122,7 +123,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		Hoi4Parser::writeStateNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
 		Hoi4Parser::writeCountryNames(hoi4ModPath + "\\localisation\\english\\", scenGen.countryMap);
 		Hoi4Parser::writeStrategicRegionNames(hoi4ModPath + "\\localisation\\english\\", hoi4Gen.strategicRegions);
-		Hoi4Parser::writeFoci(hoi4ModPath + "\\common\\national_focus\\", hoi4Gen.foci, scenGen.countryMap);
+		Hoi4Parser::writeFoci(hoi4ModPath + "\\common\\national_focus\\", scenGen.countryMap);
 		Hoi4Parser::dumpCommonBookmarks(hoi4ModPath + "\\common\\bookmarks\\", scenGen.countryMap, hoi4Gen.strengthScores);
 
 		// generate map files. Format must be converted and colours mapped to hoi4 compatbile colours

@@ -1,0 +1,6 @@
+#chain ID;step;stepRequirements;rank;ideology;type;target;condition;order;date;available;bypass;completion_rewards
+0;0;predecessor{}+requires{};major;fascism;attack;rank{weak}+ideology{not}+location{neighbour};exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{};
+0;1;predecessor{0}+requires{};major;fascism;attack;rank{regional}+ideology{same}+location{neighbour};exclusive{2}+and{};01-01-1936;available{};bypass{};completion_reward{};
+0;2;predecessor{0}+requires{};major;fascism;ally;rank{regional}+ideology{same}+location{neighbour};exclusive{1}+and{};01-01-1936;available{};bypass{};completion_reward{};
+0;3;predecessor{1,2}+requires{1,2};major;fascism;attack;rank{major}+ideology{not}+location{neighbour};exclusive{4}+and{};01-01-1936;available{};bypass{};completion_reward{};
+0;4;predecessor{1,2}+requires{1,2};major;fascism;attack;rank{major}+ideology{not}+location{near};exclusive{3}+and{};01-01-1936;available{};bypass{};completion_reward{};

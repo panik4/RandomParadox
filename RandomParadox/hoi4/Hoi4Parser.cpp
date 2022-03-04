@@ -274,7 +274,7 @@ void Hoi4Parser::dumpStrategicRegions(std::string path, const std::vector<Region
 			auto month{ templateWeather };
 			pU::replaceOccurences(month, "templateDateRange", "0." + std::to_string(mo) + " " + std::to_string(daysInMonth[mo]) + "." + std::to_string(mo));
 			pU::replaceOccurences(month, "templateTemperatureRange", std::to_string(round((float)strategicRegions[i].weatherMonths[mo][3])).substr(0, 5)
-				+ " " + std::to_string(round((float)strategicRegions[i].weatherMonths[mo][4])).substr(0,5));
+				+ " " + std::to_string(round((float)strategicRegions[i].weatherMonths[mo][4])).substr(0, 5));
 			pU::replaceOccurences(month, "templateRainLightChance", std::to_string((float)strategicRegions[i].weatherMonths[mo][5]));
 			pU::replaceOccurences(month, "templateRainHeavyChance", std::to_string((float)strategicRegions[i].weatherMonths[mo][6]));
 			pU::replaceOccurences(month, "templateMud", std::to_string((float)strategicRegions[i].weatherMonths[mo][7]));
@@ -288,7 +288,7 @@ void Hoi4Parser::dumpStrategicRegions(std::string path, const std::vector<Region
 		}
 		pU::replaceOccurences(content, templateWeather, weather);
 		pU::replaceOccurences(content, "template_provinces", provString);
-		pU::writeFile(path + "\\" + std::to_string(i + 1) + ".txt", content);
+		pU::writeFile(varsToString(path, "\\", (i + 1), ".txt"), content);
 	}
 }
 
@@ -467,7 +467,9 @@ void Hoi4Parser::dumpCommonBookmarks(std::string path, const std::map<std::strin
 	const auto majorTemplate = pU::getBracketBlock(bookmarkTemplate, "templateMajorTAG") + "\n\t\t";
 	const auto minorTemplate = pU::getBracketBlock(bookmarkTemplate, "templateMinorTAG") + "\n\t\t";
 	pU::removeBracketBlockFromKey(bookmarkTemplate, "templateMajorTAG");
+	std::cout << bookmarkTemplate << std::endl;
 	pU::removeBracketBlockFromBracket(bookmarkTemplate, "templateMinorTAG");
+	std::cout << bookmarkTemplate << std::endl;
 	std::string bookmarkCountries{ "" };
 	for (auto iter = strengthScores.rbegin(); iter != strengthScores.rend(); ++iter) {
 		if (count == 0) {
@@ -492,7 +494,7 @@ void Hoi4Parser::dumpCommonBookmarks(std::string path, const std::map<std::strin
 			}
 		}
 	}
-	pU::replaceOccurences(bookmarkTemplate, "templateMinorTAG={", bookmarkCountries);
+	pU::replaceOccurences(bookmarkTemplate, "templateMinorTAG=", bookmarkCountries);
 	pU::writeFile(path + "the_gathering_storm.txt", bookmarkTemplate);
 }
 
@@ -505,7 +507,7 @@ void Hoi4Parser::dumpCommonCountries(std::string path, std::string hoiPath, cons
 	for (const auto& country : countries) {
 		auto tempPath = path + country.second.name + ".txt";
 		auto countryText = content;
-		auto colourString = pU::replaceOccurences(pU::ostreamToString(country.second.colour), ";", " ");
+		auto colourString = pU::replaceOccurences(varsToString(country.second.colour), ";", " ");
 		pU::replaceOccurences(countryText, "templateCulture", country.second.attributeStrings.at("gfxCulture"));
 		pU::replaceOccurences(countryText, "templateColour", colourString);
 		pU::writeFile(tempPath, countryText);
@@ -561,32 +563,32 @@ void Hoi4Parser::writeStrategicRegionNames(std::string path, const std::vector<s
 	logLine("HOI4 Parser: Map: Naming the Regions\n");
 	std::string content = "l_english:\n";
 	for (auto i = 0; i < strategicRegions.size(); i++) {
-		//varToString("STRATEGICREGION_", i, ":0  \"", strategicRegions[i].name, "\"");
-		content += " STRATEGICREGION_";
-		content += std::to_string(i);
-		content += ":0 \"";
-		content += strategicRegions[i].name;
-		content += "\"\n";
+		content += varsToString(" STRATEGICREGION_", i, ":0 \"", strategicRegions[i].name, "\"\n");
 	}
-	pU::writeFile(path + "\\strategic_region_names_l_english.yml", content);
+	pU::writeFile(path + "\\strategic_region_names_l_english.yml", content, true);
 }
 
-void Hoi4Parser::writeFoci(std::string path, std::vector<NationalFocus> foci, const std::map<std::string, Country>& countries)
+std::vector<std::string> Hoi4Parser::readTypeMap(std::string path)
+{
+	return ParserUtils::getLines("resources\\hoi4\\ai\\national_focus\\foci.txt");
+}
+
+void Hoi4Parser::writeFoci(std::string path, const std::map<std::string, Country>& countries)
 {
 	logLine("HOI4 Parser: History: Demanding Danzig\n");
-	std::string baseTree = ParserUtils::readFile("resources\\hoi4\\ai\\focusBase.txt");
-	std::string attackFocus = ParserUtils::readFile("resources\\hoi4\\ai\\attackFocus.txt");
+	auto focusTypes = ParserUtils::getLines("resources\\hoi4\\ai\\national_focus\\foci.txt");
+	std::string baseTree = ParserUtils::readFile("resources\\hoi4\\ai\\national_focus\\focusBase.txt");
+	std::vector<std::string> focusTemplates;
+	for (auto& focusType : focusTypes) {
+		focusTemplates.push_back(ParserUtils::readFile("resources\\hoi4\\ai\\national_focus\\" + focusType + "Focus.txt"));
+	}
+
 	for (const auto& c : countries) {
 		std::string treeContent = baseTree;
 		std::string tempContent = "";
-		std::vector<NationalFocus> countryFoci;
-		for (const auto& focus : foci) {
-			if (focus.sourceTag == c.first)
-				countryFoci.push_back(focus);
-		}
-		for (const auto& countryFocus : countryFoci) {
-			if (countryFocus.fType == countryFocus.attack) {
-				tempContent += attackFocus;
+		for (const auto& focusChain : c.second.foci) {
+			for (const auto& countryFocus : focusChain) {
+				tempContent += focusTemplates[countryFocus.fType];
 				ParserUtils::replaceOccurences(tempContent, "templateID", std::to_string(countryFocus.ID));
 				ParserUtils::replaceOccurences(tempContent, "templateSourceTag", c.first);
 				ParserUtils::replaceOccurences(tempContent, "templateDestTag", countryFocus.destTag);

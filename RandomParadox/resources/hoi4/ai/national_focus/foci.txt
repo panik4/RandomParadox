@@ -1,0 +1,8 @@
+attack
+ally
+foundFaction
+factionInvite
+military
+defense
+politics
+country

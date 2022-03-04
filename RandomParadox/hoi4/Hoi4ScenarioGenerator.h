@@ -36,21 +36,17 @@ class Hoi4ScenarioGenerator
 	int totalSteel = 0;
 	int totalTungsten = 0;
 	// containers
-	std::vector<std::string> majorPowers;
-	std::vector<std::string> regionalPowers;
-	std::vector<std::string> weakPowers;
+	std::set<std::string> majorPowers;
+	std::set<std::string> regionalPowers;
+	std::set<std::string> weakPowers;
 	std::vector<std::string> wargoalsAttack;
 	std::vector<std::string> goalsDefence;
-	std::map<std::string, NationalFocus::FocusType> typeMapping{
-		{"attack", NationalFocus::FocusType::attack},
-		{ "defense", NationalFocus::FocusType::defense },
-		{ "ally", NationalFocus::FocusType::ally }
-	};
-
-
-
+	//std::map<std::string, NationalFocus::FocusType> typeMapping{
+	//	{"attack", NationalFocus::FocusType::attack},
+	//	{ "defense", NationalFocus::FocusType::defense },
+	//	{ "ally", NationalFocus::FocusType::ally }
+	//};
 public:
-
 	// vars - config options
 	double worldPopulationFactor = 1.0;
 	double industryFactor = 1.0;
@@ -89,9 +85,11 @@ public:
 	// build a focus from the chain
 	NationalFocus buildFocus(std::vector<std::string> chainStep, Country& source, Country& target);
 	// make a tree out of all focus chains and single foci
-	void buildFocusTree();
+	void buildFocusTree(Country& source);
 	// check if a national focus fulfills requirements
-	bool fulfillsrequirements(std::vector<std::string> requirements, Country& source, Country& target);
+	bool stepFulfillsRequirements(std::vector<std::string> stepRequirements, const std::vector<std::set<Country>> stepTargets);
+	// check if a national focus fulfills requirements
+	bool targetFulfillsRequirements(std::vector<std::string> targetRequirements, Country& source, Country& target);
 	// evaluate the focus chains for each country
 	void evaluateCountryGoals(ScenarioGenerator & scenGen);
 	// see which countries are in need of unification

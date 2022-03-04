@@ -1,5 +1,5 @@
 #chain ID;step;predecessor;rank;ideology;type;target;condition;skippable;exclusive;date;
-0;0;;major;fascism;attack;rank{weak}+ideology{not}+location{neighbour};yes;no;01-01-1936;
+0;0;;major;fascism;attack;rank{weak}+ideology{not}+location{any};yes;no;01-01-1936;
 0;1;0;major;fascism;attack;rank{regional}+ideology{same}+location{neighbour};no;yes;01-01-1936;
 0;2;0;major;fascism;ally;rank{regional}+ideology{same}+location{neighbour};no;yes;01-01-1936;
 0;3;1,2;major;fascism;attack;rank{major}+ideology{not}+location{neighbour};no;yes;01-01-1936;
