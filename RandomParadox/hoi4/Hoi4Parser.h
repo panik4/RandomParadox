@@ -34,7 +34,8 @@ public:
 	static void writeHistoryCountries(std::string path, const std::map<std::string, Country>& countries);
 	static void writeHistoryUnits(std::string path, const std::map<std::string, Country>& countries);
 	// history - National Focus
-	static void writeFoci(std::string path, std::vector<NationalFocus> foci, const std::map<std::string, Country>& countries);
+	static std::vector<std::string> readTypeMap(std::string path);
+	static void writeFoci(std::string path, const std::map<std::string, Country>& countries);
 
 	// common
 	static void dumpCommonBookmarks(std::string path, const std::map<std::string, Country>& countries, std::map<int, std::vector<std::string>> strengthScores);

@@ -80,8 +80,7 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 		Bitmap climateMap(Data::getInstance().width, Data::getInstance().height, 24);
 		tG.createTerrain(terrainBMP, heightMap);
 		ClimateGenerator climateGenerator;
-		climateGenerator.setProvinceGenerator(&f.provinceGenerator);
-		climateGenerator.humidityMap(heightMap, humidityBMP, riverMap, tG, Data::getInstance().seaLevel);
+		climateGenerator.humidityMap(f.provinceGenerator, heightMap, humidityBMP, riverMap, tG, Data::getInstance().seaLevel);
 		Bitmap::SaveBMPToFile(humidityBMP, (Data::getInstance().mapsPath + ("humidity.bmp")).c_str());
 		climateGenerator.climateMap(climateMap, humidityBMP, heightMap, Data::getInstance().seaLevel);
 		Bitmap::SaveBMPToFile(climateMap, (Data::getInstance().mapsPath + ("climate.bmp")).c_str());
@@ -318,14 +317,13 @@ void ScenarioGenerator::generateCountries(int numCountries)
 		// Tag from Name
 		auto tag = nG.generateTag(name, tags);
 		// generate flag
-		Country C(tag);
+		Country C(tag, i);
 		// get name and andjective
 		C.name = name;
 		C.adjective = nG.generateAdjective(name);
 		// get a flag
 		Flag f(Data::getInstance().random2, 82, 52);
 		C.flag = f;
-		C.ID = i;
 		// randomly set development of countries
 		C.developmentFactor = Data::getInstance().getRandomDouble(0.1, 1.0);
 		countryMap.emplace(tag, C);

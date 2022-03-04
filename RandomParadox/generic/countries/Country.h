@@ -10,7 +10,7 @@ class Country
 public:
 	// member variables
 	std::string tag;
-	int ID;
+	const int ID;
 	std::string name;
 	std::string adjective;
 	int capitalRegionID;
@@ -19,7 +19,7 @@ public:
 	Colour colour;
 	// constructors/destructors
 	Country();
-	Country(std::string tag);
+	Country(std::string tag, int ID);
 	~Country();
 	// containers
 	std::map<std::string, std::string> attributeStrings;
