@@ -11,7 +11,7 @@ void readConfig() {
 
 int main() {
 	// Read the basic settings
-	std::ifstream f("basic_settings.json");
+	std::ifstream f("RandomParadox.json");
 	std::stringstream buffer;
 	if (!f.good())
 		std::cout << "Config could not be loaded" << std::endl;
@@ -20,7 +20,14 @@ int main() {
 	namespace pt = boost::property_tree;
 	// Create a root
 	pt::ptree root;
-	pt::read_json(buffer, root);
+	try {
+		pt::read_json(buffer, root);
+	}
+	catch (std::exception e) {
+		logLine("Incorrect config \"RandomParadox.json\"");
+		logLine("Try running it through a json validator, e.g. \"https://jsonlint.com/\" or search for \"json validator\"");
+		system("pause");
+	}
 
 	// if debug is enabled in the config, a directory subtree containing visualisation of many maps will be created
 	bool debug = root.get<bool>("randomScenario.debug");
@@ -45,9 +52,16 @@ int main() {
 	bool useDefaultProvinces = false;
 
 	// check if we can read the config
-	if (!Data::getInstance().getConfig("config.json")) {
+	try {
+		if (!Data::getInstance().getConfig("FastWorldGenerator.json")) {
+			system("pause");
+			return -1;
+		}
+	}
+	catch (std::exception e) {
+		logLine("Incorrect config \"FastWorldGenerator.json\"");
+		logLine("Try running it through a json validator, e.g. \"https://jsonlint.com/\" or \"search for json validator\"");
 		system("pause");
-		return -1;
 	}
 	NameGenerator::prepare();
 	FastWorldGenerator fastWorldGen;

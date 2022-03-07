@@ -125,6 +125,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		Hoi4Parser::writeStrategicRegionNames(hoi4ModPath + "\\localisation\\english\\", hoi4Gen.strategicRegions);
 		Hoi4Parser::writeFoci(hoi4ModPath + "\\common\\national_focus\\", scenGen.countryMap);
 		Hoi4Parser::dumpCommonBookmarks(hoi4ModPath + "\\common\\bookmarks\\", scenGen.countryMap, hoi4Gen.strengthScores);
+		Hoi4Parser::copyDescriptorFile("resources\\hoi4\\descriptor.mod", hoi4ModPath, hoi4ModsDirectory, modName);
 
 		// generate map files. Format must be converted and colours mapped to hoi4 compatbile colours
 		FormatConverter formatConverter(hoi4Path);
@@ -176,15 +177,24 @@ void Hoi4Module::readConfig()
 	namespace pt = boost::property_tree;
 	// Create a root
 	pt::ptree root;
-	std::ifstream f("hoiconfig.json");
+	std::ifstream f("Hoi4Module.json");
 	std::stringstream buffer;
 	if (!f.good()) {
 		logLine("Config could not be loaded");
 	}
-	buffer << f.rdbuf();
-	pt::read_json(buffer, root);
+	buffer << f.rdbuf();	
+	try {
+		pt::read_json(buffer, root);
+	}
+	catch (std::exception e) {
+		logLine("Incorrect config \"Hoi4Module.json\"");
+		logLine("Try running it through a json validator, e.g. \"https://jsonlint.com/\" or search for \"json validator\"");
+		system("pause");
+	}
+	modName = root.get<std::string>("module.modName");
 	hoi4Path = root.get<std::string>("module.hoi4Path");
-	hoi4ModPath = root.get<std::string>("module.hoi4ModPath");
+	hoi4ModPath = root.get<std::string>("module.hoi4ModPath") + modName;
+	hoi4ModsDirectory = root.get<std::string>("module.hoi4ModsDirectory");
 	findHoi4();
 	hoi4Gen.resources = {
 		{ "aluminium",{ root.get<double>("hoi4.aluminiumFactor"), 1169.0, 0.3 }},
@@ -193,7 +203,6 @@ void Hoi4Module::readConfig()
 		{ "rubber",{ root.get<double>("hoi4.rubberFactor"), 1029.0, 0.1 }},
 		{ "steel",{ root.get<double>("hoi4.steelFactor"), 2562.0, 0.5 }},
 		{ "tungsten",{ root.get<double>("hoi4.tungstenFactor"), 1188.0, 0.2 }}
-		
 	};
 	numCountries = root.get<int>("scenario.numCountries");
 	hoi4Gen.worldPopulationFactor = root.get<double>("scenario.worldPopulationFactor");

@@ -589,11 +589,44 @@ void Hoi4Parser::writeFoci(std::string path, const std::map<std::string, Country
 		for (const auto& focusChain : c.second.foci) {
 			for (const auto& countryFocus : focusChain) {
 				tempContent += focusTemplates[countryFocus.fType];
-				ParserUtils::replaceOccurences(tempContent, "templateID", std::to_string(countryFocus.ID));
+				ParserUtils::replaceOccurences(tempContent, "templateStepID", std::to_string(countryFocus.stepID));
+				ParserUtils::replaceOccurences(tempContent, "templateChainID", std::to_string(countryFocus.chainID));
 				ParserUtils::replaceOccurences(tempContent, "templateSourceTag", c.first);
 				ParserUtils::replaceOccurences(tempContent, "templateDestTag", countryFocus.destTag);
 				ParserUtils::replaceOccurences(tempContent, "templateXPosition", std::to_string(countryFocus.position[0]));
 				ParserUtils::replaceOccurences(tempContent, "templateYPosition", std::to_string(countryFocus.position[1]));
+				// now collect all prerequisites
+				std::string preString = "";
+				//for (const auto& prerequisite : countryFocus.precedingFoci) {
+				//	// derive the name of the preceding focus
+				//	std::string preName = varsToString(c.first, focusChain[prerequisite].chainID, ".", focusChain[prerequisite].stepID);
+				//	preString += "prerequisite = { focus = " + preName + "}\n\t\t";
+				//}
+				preString += "prerequisite = {";
+				for (const auto& prerequisite : countryFocus.precedingFoci) {
+					for (const auto& foc : focusChain) {
+						if (foc.stepID == prerequisite) {
+							// derive the name of the preceding focus
+							std::string preName = varsToString(c.first, focusChain[0].chainID, ".", prerequisite);
+							preString += " focus = " + preName;
+						}
+					}
+				}
+				preString += " }\n\t\t";
+				ParserUtils::replaceOccurences(tempContent, "templatePrerequisite", preString);
+				// now make exclusive
+				preString.clear();
+				for (const auto& exclusive : countryFocus.alternativeFoci) {
+					for (const auto& foc : focusChain) {
+						if (foc.stepID == exclusive) {
+							// derive the name of the preceding focus
+							std::string preName = varsToString(c.first, focusChain[0].chainID, ".", exclusive);
+							preString += " focus = " + preName;
+						}
+					}
+					// derive the name of the preceding focus
+				}
+				ParserUtils::replaceOccurences(tempContent, "templateExclusive", preString);
 			}
 		}
 		ParserUtils::replaceOccurences(treeContent, "templateFocusTree", tempContent);
@@ -620,4 +653,15 @@ void Hoi4Parser::writeCompatibilityHistory(std::string path, std::string hoiPath
 		pU::replaceLine(content, "capital =", "capital = " + std::to_string(1));
 		pU::writeFile(path + filename, content);
 	}
+}
+
+void Hoi4Parser::copyDescriptorFile(const std::string sourcePath, const std::string destPath, const std::string modsDirectory, const std::string modName)
+{
+	auto descriptorText = pU::readFile(sourcePath);
+	pU::replaceOccurences(descriptorText, "templateName", modName);
+	auto modText = descriptorText;
+	pU::replaceOccurences(descriptorText, "templatePath", "");
+	pU::writeFile(destPath + "\\descriptor.mod", descriptorText);
+	pU::replaceOccurences(modText, "templatePath", varsToString("path=\"", destPath, "\""));
+	pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
 }

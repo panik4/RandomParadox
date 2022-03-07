@@ -12,8 +12,10 @@ class Hoi4Module
 	// member variables
 	Hoi4ScenarioGenerator hoi4Gen;
 	int numCountries;
+	std::string modName;
 	std::string hoi4Path;
 	std::string hoi4ModPath;
+	std::string hoi4ModsDirectory;
 public:
 	Hoi4Module();
 	~Hoi4Module();

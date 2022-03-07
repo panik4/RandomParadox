@@ -472,13 +472,16 @@ NationalFocus Hoi4ScenarioGenerator::buildFocus(std::vector<std::string> chainSt
 	auto type = NationalFocus::typeMapping[chainStep[5]];
 	auto dateTokens = ParserUtils::getNumbers(chainStep[8], '-', std::set<int>{});
 	NationalFocus nF(type, false, source.tag, target.tag, dateTokens);
+
 	auto predecessors = ParserUtils::getNumbers(ParserUtils::getBracketBlockContent(chainStep[2], "predecessor"), ',', std::set<int>());
 	for (auto& predecessor : predecessors)
 		nF.precedingFoci.push_back(predecessor);
-	// now get the "or" and "and" foci
+
+	// now get the "or"...
 	auto exclusives = ParserUtils::getNumbers(ParserUtils::getBracketBlockContent(chainStep[7], "exclusive"), ',', std::set<int>());
 	for (auto& exclusive : exclusives)
 		nF.alternativeFoci.push_back(exclusive);
+	// and "and" foci
 	auto ands = ParserUtils::getNumbers(ParserUtils::getBracketBlockContent(chainStep[7], "and"), ',', std::set<int>());
 	for (auto& and : ands)
 		nF.andFoci.push_back(and);
@@ -529,7 +532,7 @@ void Hoi4ScenarioGenerator::buildFocusTree(Country& source)
 			curX = baseX;
 			for (const auto& entry : level) {
 				if (entry < focusChain.size())
-					focusChain.at(entry).position = { curX+=2, curY };
+					focusChain.at(entry).position = { curX += 2, curY };
 			}
 			curY++;
 		}
@@ -555,7 +558,7 @@ bool Hoi4ScenarioGenerator::stepFulfillsRequirements(std::vector<std::string> st
 	return true;
 }
 /* checks all requirements for a national focus. Returns false if any requirement isn't fulfilled, else returns true*/
-bool Hoi4ScenarioGenerator::targetFulfillsRequirements(std::vector<std::string> targetRequirements, Country& source, Country& target)
+bool Hoi4ScenarioGenerator::targetFulfillsRequirements(std::vector<std::string> targetRequirements, Country& source, Country& target, const std::vector<std::set<std::string>> levelTargets, const int level)
 {
 	// now check if the country fulfills the target requirements
 	for (auto& targetRequirement : targetRequirements) {
@@ -586,6 +589,36 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(std::vector<std::string> 
 			}
 			// to do: near, distant, any
 		}
+		value = ParserUtils::getBracketBlockContent(targetRequirement, "target");
+		if (value != "") {
+			if (value == "notlevel") {
+				// don't consider this country if already used on same level
+				if (levelTargets[level].find(target.tag) != levelTargets[level].end())
+					return false;
+			}
+			if (value == "level") {
+				// don't consider this country if NOT used on same level
+				if (levelTargets[level].size() && levelTargets[level].find(target.tag) == levelTargets[level].end())
+					return false;
+			}
+			if (value == "notchain") {
+				for (int i = 0; i < levelTargets.size(); i++) {
+					// don't consider this country if already used in same chain
+					if (levelTargets[i].find(target.tag) != levelTargets[level].end())
+						return false;
+				}
+			}
+			if (value == "chain") {
+				bool foundUse = false;
+				for (int i = 0; i < levelTargets.size(); i++) {
+					// don't consider this country if NOT used in same chain
+					if (levelTargets[i].find(target.tag) == levelTargets[level].end())
+						foundUse = true;
+				}
+				if (!foundUse)
+					return false;
+			}
+		}
 	}
 	return true;
 }
@@ -611,10 +644,12 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 				continue;
 			// we need to save options for every chain step
 			std::vector<std::set<Country>> stepTargets;
+			std::vector<std::set<std::string>> levelTargets(chain.size());
 			for (const auto& chainFocus : chain) {
 				// evaluate every single focus of that chain
 				const auto chainTokens = ParserUtils::getTokens(chainFocus, ';');
 				const int chainStep = stoi(chainTokens[1]);
+				const int level = stoi(chainTokens[12]);
 				if (sourceS["rulingParty"] == chainTokens[4] || chainTokens[4] == "any") {
 					stepTargets.resize(stepTargets.size() + 1);
 					auto stepRequirements = ParserUtils::getTokens(chainTokens[2], '+');
@@ -624,8 +659,10 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 					auto targetRequirements = ParserUtils::getTokens(chainTokens[6], '+');
 					for (auto& destCountry : scenGen.countryMap) {
 						// now check every country if it fulfills the target requirements
-						if (targetFulfillsRequirements(targetRequirements, scenGen.countryMap[sourceCountry.first], destCountry.second)) {
+						if (targetFulfillsRequirements(targetRequirements, scenGen.countryMap[sourceCountry.first], destCountry.second, levelTargets, level)) {
 							stepTargets[chainStep].insert(destCountry.second);
+							// save that we targeted this country on this level already. Next steps on same level should not consider this tag anymore
+							levelTargets[level].insert(destCountry.first);
 						}
 					}
 				}
@@ -635,9 +672,10 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 			if (stepTargets.size()) {
 				logLine("Building focus");
 				std::map<int, NationalFocus> fulfilledSteps;
-				int stepIndex = 0;
+				int stepIndex = -1;
 				std::vector<NationalFocus> chainFoci;
 				for (auto& targets : stepTargets) {
+					stepIndex++;
 					if (!targets.size())
 						continue;
 					// select random target
@@ -649,7 +687,6 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 					focus.stepID = stepIndex;
 					logLineLevel(1, focus);
 					chainFoci.push_back(focus);
-					stepIndex++;
 				}
 				sourceCountry.second.foci.push_back(chainFoci);
 			}

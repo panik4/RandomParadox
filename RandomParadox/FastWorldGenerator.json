@@ -5,9 +5,13 @@
 		"genHeight" : 1,
 		"genSimpleTerrain" : 1,
 		"genComplexTerrain" : 1,
-		"opencvVisualisation" : 0
+		"opencvVisualisation" : 0,
+		"interactiveMode" : 1
 	},
-
+	"interactiveMode":
+	{
+		"habitabilityMap": 1
+	},
 	"map": 
 	{
 		"seed" : 5,
