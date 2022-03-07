@@ -89,7 +89,7 @@ public:
 	// check if a national focus fulfills requirements
 	bool stepFulfillsRequirements(std::vector<std::string> stepRequirements, const std::vector<std::set<Country>> stepTargets);
 	// check if a national focus fulfills requirements
-	bool targetFulfillsRequirements(std::vector<std::string> targetRequirements, Country& source, Country& target);
+	bool targetFulfillsRequirements(std::vector<std::string> targetRequirements, Country& source, Country& target, const std::vector<std::set<std::string>> levelTargets, const int level);
 	// evaluate the focus chains for each country
 	void evaluateCountryGoals(ScenarioGenerator & scenGen);
 	// see which countries are in need of unification

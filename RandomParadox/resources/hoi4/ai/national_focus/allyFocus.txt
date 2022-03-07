@@ -1,6 +1,7 @@
 # fire event to guarantee each other
 	focus = {
-		id = templateSourceTag_ask_guarantees.templateID
+		id = templateSourceTagtemplateChainID.templateStepID
+		templatePrerequisite
 		icon = GFX_goal_generic_political_pressure
 		available = {
 			is_subject = no

@@ -1,12 +1,10 @@
 	focus = {
-		id = templateSourceTag_demand_territory.templateID
-		#prerequisite = { focus = GER_anschluss }
+		id = templateSourceTagtemplateChainID.templateStepID
+		templatePrerequisite
+		templateExclusive
 		icon = GFX_goal_generic_political_pressure
 		available = {
 			is_subject = no
-			#controls_state = 4
-			#controls_state = 152
-			#has_army_manpower = { size > 749999 } #ca 80 div
 		}
 		bypass = {
 			OR = {
