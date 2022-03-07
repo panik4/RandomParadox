@@ -49,5 +49,8 @@ public:
 
 	// copy base game countries and remove certain lines to reduce crashes
 	static void writeCompatibilityHistory(std::string path, std::string hoiPath, const std::vector<Region>& regions);
+
+	// copy over mod descriptor file
+	static void copyDescriptorFile(const std::string sourcePath, const std::string destPath, const std::string modsDirectory, const std::string modName);
 };
 
