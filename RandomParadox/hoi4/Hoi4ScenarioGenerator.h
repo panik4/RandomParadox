@@ -41,11 +41,6 @@ class Hoi4ScenarioGenerator
 	std::set<std::string> weakPowers;
 	std::vector<std::string> wargoalsAttack;
 	std::vector<std::string> goalsDefence;
-	//std::map<std::string, NationalFocus::FocusType> typeMapping{
-	//	{"attack", NationalFocus::FocusType::attack},
-	//	{ "defense", NationalFocus::FocusType::defense },
-	//	{ "ally", NationalFocus::FocusType::ally }
-	//};
 public:
 	// vars - config options
 	double worldPopulationFactor = 1.0;

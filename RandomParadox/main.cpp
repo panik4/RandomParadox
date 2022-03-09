@@ -25,18 +25,15 @@ int main() {
 	}
 	catch (std::exception e) {
 		logLine("Incorrect config \"RandomParadox.json\"");
-		logLine("Try running it through a json validator, e.g. \"https://jsonlint.com/\" or search for \"json validator\"");
+		logLine("You can try fixing it yourself. Error is: ", e.what());
+		logLine("Otherwise try running it through a json validator, e.g. \"https://jsonlint.com/\" or search for \"json validator\"");
 		system("pause");
+		return -1;
 	}
 
 	// if debug is enabled in the config, a directory subtree containing visualisation of many maps will be created
 	bool debug = root.get<bool>("randomScenario.debug");
-	if (debug) {
-		std::experimental::filesystem::create_directory("Maps");
-		std::experimental::filesystem::create_directory("Maps\\world");
-		std::experimental::filesystem::create_directory("Maps\\resourcelayers");
-		std::experimental::filesystem::create_directory("Maps\\layers");
-	}
+
 	// generate hoi4 scenario or not
 	bool genHoi4Scenario = root.get<bool>("randomScenario.genhoi4");
 	// use the same input heightmap for every scenario/map generation
@@ -60,8 +57,14 @@ int main() {
 	}
 	catch (std::exception e) {
 		logLine("Incorrect config \"FastWorldGenerator.json\"");
-		logLine("Try running it through a json validator, e.g. \"https://jsonlint.com/\" or \"search for json validator\"");
+		logLine("You can try fixing it yourself. Error is: ", e.what());
+		logLine("Otherwise try running it through a json validator, e.g. \"https://jsonlint.com/\" or \"search for json validator\"");
 		system("pause");
+		return -1;
+	}
+	// if we don't want the FastWorldGenerator output in MapsPath, debug = 0 turns this off
+	if (!debug) {
+		Data::getInstance().writeMaps = false;
 	}
 	NameGenerator::prepare();
 	FastWorldGenerator fastWorldGen;

@@ -1,13 +1,12 @@
 {
 	"randomScenario": 
 	{
-		"debug": 1,
-		"genhoi4": 1,
-		"geneu4": 0,
-		"inputheightmap": 0,
+		"debug": true,
+		"genhoi4": true,
+		"inputheightmap": false,
 		"heightmapPath": "inputs/world_1024_paint.bmp",
 		"latitudeLow" : 0.4,
 		"latitudeHigh" : 1.6,
-		"inputterrainmap": 0
+		"inputterrainmap": false
 	}
 }
