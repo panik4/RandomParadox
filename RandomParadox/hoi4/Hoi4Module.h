@@ -21,7 +21,7 @@ public:
 	~Hoi4Module();
 	// member functions
 	// clear and create all the mod paths at each run
-	void createPaths();
+	bool createPaths();
 	void genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefaultProvinces, ScenarioGenerator& scenGen);
 	// try to locate hoi4 at configured path, if not found, try other standard locations
 	bool findHoi4();

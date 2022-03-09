@@ -2,25 +2,24 @@
 	"module": 
 	{
 		"debugLevel": 3,
-		"genHeight" : 1,
-		"genSimpleTerrain" : 1,
-		"genComplexTerrain" : 1,
-		"opencvVisualisation" : 0,
-		"interactiveMode" : 1
+		"genHeight" : true,
+		"genSimpleTerrain" : true,
+		"genComplexTerrain" : true,
+		"interactiveMode" : false,
+		"writeMaps" : true
 	},
 	"interactiveMode":
 	{
-		"habitabilityMap": 1
+		"habitabilityMap": true
 	},
 	"map": 
 	{
-		"seed" : 5,
+		"seed" : 0,
         "height" : 512,
 		"width" : 512,
 		"landMassPercentage" : 35,
 		"seaLevel" : 94,
 		"accuracy": 100,
-		
 		"rivers" : 
 		{
 			"numRivers" : 100
@@ -28,6 +27,7 @@
 		"heightmap" : {
 			"complexHeight" : 1,
 			"layerAmount" : 4,
+			"overallFrequencyModifier" : 1.5,
 			"layers" :
 			{
 				"0" :
@@ -103,20 +103,26 @@
 			}
 		},
 		"provinces" : {
-			"auto" : 0,
+			"auto" : false,
 			"landProvinceFactor" : 2,
 			"seaProvinceFactor" : 1,
 			"minProvPerContinent" : 100,
 			"minProvPerRegion" : 3,
-			"minProvSize" : 10
+			"minProvSize" : 10,
+			"provinceDensityByHabitability" : 100
 		},
 		"humidity" : {
 			"coastalEffectRange" : -1,
 			"windEffectRange" : -1,
 			"latitudeLow" : 0.0,
 			"latitudeHigh" : 2.0
+		},
+		"weather":
+		{
+			"baseTemperature": -20,
+			"deviationFactor": 10,
+			"temperatureRange": 60
 		}
-		
     },
 	"paths":
 	{

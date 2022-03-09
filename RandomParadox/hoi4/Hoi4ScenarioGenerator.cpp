@@ -195,7 +195,6 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen
 
 void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator & scenGen)
 {
-	int count = 0;
 	for (auto& strat : strategicRegions) {
 		for (auto& reg : strat.gameRegionIDs) {
 			for (auto i = 0; i < 12; i++) {
@@ -214,9 +213,9 @@ void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator & scenGen)
 				// now save monthly data, 0, 1, 2
 				strat.weatherMonths.push_back({ averageDeviation, averageTemperature, averagePrecipitation });
 				// temperature low, 3
-				strat.weatherMonths[i].push_back(-20 + averageTemperature * 60);
+				strat.weatherMonths[i].push_back(Data::getInstance().baseTemperature + averageTemperature * Data::getInstance().temperatureRange);
 				// tempHigh, 4
-				strat.weatherMonths[i].push_back(-20 + averageTemperature * 60 + averageDeviation * 10);
+				strat.weatherMonths[i].push_back(Data::getInstance().baseTemperature + averageTemperature * Data::getInstance().temperatureRange + averageDeviation * Data::getInstance().deviationFactor);
 				// light_rain chance: cold and humid -> high, 5
 				strat.weatherMonths[i].push_back((1.0 - averageTemperature) * averagePrecipitation);
 				// heavy rain chance: warm and humid -> high, 6
@@ -233,7 +232,6 @@ void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator & scenGen)
 				strat.weatherMonths[i].push_back(1.0 - strat.weatherMonths[i][5] - strat.weatherMonths[i][6] - strat.weatherMonths[i][8] - strat.weatherMonths[i][9] - strat.weatherMonths[i][10]);
 			}
 		}
-		count++;
 	}
 }
 
