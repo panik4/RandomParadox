@@ -11,6 +11,8 @@ public:
 	{
 		std::ofstream myfile;
 		myfile.open(path);
+		if (!myfile)
+			throw std::exception(varsToString("Didn't manage to write to file ", path).c_str());
 		if (utf8) {
 			unsigned char bom[] = { 0xEF,0xBB,0xBF };
 			myfile.write((char*)bom, sizeof(bom));
@@ -24,6 +26,8 @@ public:
 		std::string line;
 		std::ifstream myfile;
 		myfile.open(path);
+		if (!myfile)
+			throw std::exception(varsToString("Didn't manage to read from file ", path).c_str());
 		while (getline(myfile, line)) {
 			content.append(line + "\n");
 		}
