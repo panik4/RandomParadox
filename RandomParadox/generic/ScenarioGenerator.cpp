@@ -95,7 +95,7 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 		f.provinceGenerator.evaluateNeighbours(provinceMap);
 		tG.detectContinents(terrainBMP);
 		f.provinceGenerator.generateRegions(3);
-		f.provinceGenerator.evaluateContinents(10, Data::getInstance().width, Data::getInstance().height, tG);
+		f.provinceGenerator.evaluateContinents(Data::getInstance().width, Data::getInstance().height, tG);
 		//genericParser.writeAdjacency((Data::getInstance().debugMapsPath + ("adjacency.csv")).c_str(), provinceGenerator.provinces);		
 		//genericParser.writeDefinition((Data::getInstance().debugMapsPath + ("definition.csv")).c_str(), provinceGenerator.provinces);
 		Visualizer::provinceInfoMapNeighbours(provinceMap, f.provinceGenerator);

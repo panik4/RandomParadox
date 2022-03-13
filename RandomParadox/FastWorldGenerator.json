@@ -3,10 +3,9 @@
 	{
 		"debugLevel": 3,
 		"genHeight" : true,
-		"genSimpleTerrain" : true,
-		"genComplexTerrain" : true,
 		"interactiveMode" : false,
-		"writeMaps" : true
+		"writeMaps" : true,
+		"seed" : 0
 	},
 	"interactiveMode":
 	{
@@ -14,9 +13,8 @@
 	},
 	"map": 
 	{
-		"seed" : 0,
-        "height" : 512,
-		"width" : 512,
+        "height" : 2048,
+		"width" : 5632,
 		"landMassPercentage" : 35,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -25,9 +23,9 @@
 			"numRivers" : 100
 		},
 		"heightmap" : {
-			"complexHeight" : 1,
+			"complexHeight" : true,
 			"layerAmount" : 4,
-			"overallFrequencyModifier" : 1.5,
+			"overallFrequencyModifier" : 1.0,
 			"layers" :
 			{
 				"0" :
@@ -103,10 +101,9 @@
 			}
 		},
 		"provinces" : {
-			"auto" : false,
+			"auto" : true,
 			"landProvinceFactor" : 2,
 			"seaProvinceFactor" : 1,
-			"minProvPerContinent" : 100,
 			"minProvPerRegion" : 3,
 			"minProvSize" : 10,
 			"provinceDensityByHabitability" : 100
