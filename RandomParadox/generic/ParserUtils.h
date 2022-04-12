@@ -12,7 +12,7 @@ public:
 		std::ofstream myfile;
 		myfile.open(path);
 		if (!myfile)
-			throw std::exception(varsToString("Didn't manage to write to file ", path).c_str());
+			throw std::exception(UtilLib::varsToString("Didn't manage to write to file ", path).c_str());
 		if (utf8) {
 			unsigned char bom[] = { 0xEF,0xBB,0xBF };
 			myfile.write((char*)bom, sizeof(bom));
@@ -27,7 +27,7 @@ public:
 		std::ifstream myfile;
 		myfile.open(path);
 		if (!myfile)
-			throw std::exception(varsToString("Didn't manage to read from file ", path).c_str());
+			throw std::exception(UtilLib::varsToString("Didn't manage to read from file ", path).c_str());
 		while (getline(myfile, line)) {
 			content.append(line + "\n");
 		}
@@ -141,7 +141,7 @@ public:
 
 	static std::string replaceOccurences(std::string& content, std::string key, std::string value)
 	{
-		auto pos = 0;
+		size_t pos = 0;
 		do {
 			pos = content.find(key);
 			if (pos != std::string::npos)
@@ -154,18 +154,19 @@ public:
 	// e.g. key=value and key =value
 	static std::string getLineValue(std::string& content, std::string key, std::string delimiter)
 	{
-		auto pos = 0;
+		size_t pos = 0;
 		pos = content.find(key);
 		if (pos != std::string::npos) {
 			auto delimiterPos = content.find(delimiter, pos) + 1;
 			auto lineEnd = content.find("\n", pos);
 			return content.substr(delimiterPos, lineEnd - delimiterPos);
 		}
+		return "";
 	};
 	// replace complete line from beginning of key to linebreak with value
 	static void replaceLine(std::string& content, std::string key, std::string value)
 	{
-		auto pos = 0;
+		size_t pos = 0;
 		pos = content.find(key);
 		if (pos != std::string::npos) {
 			auto lineEnd = content.find("\n", pos);
@@ -174,7 +175,7 @@ public:
 	};
 	// find the closing bracket of a block. Handles opening brackets correctly
 	// as long as every opening bracket has an opening bracket
-	static int findClosingBracket(const std::string& content, size_t startPos) {
+	static size_t findClosingBracket(const std::string& content, size_t startPos) {
 		// find opening bracket of this block
 		auto openingBracket = content.find("{", startPos);
 		// find next opening bracket
@@ -253,7 +254,7 @@ public:
 			pos = content.rfind("{", pos);
 			pos = content.rfind("\n", pos);
 			auto blockEnd = findClosingBracket(content, pos);
-			content.erase(pos, blockEnd - pos);
+			content.erase(pos, blockEnd - pos + 1);
 			return content;
 		}
 		return "";

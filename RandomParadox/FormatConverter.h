@@ -65,9 +65,9 @@ public:
 	void dump8BitTerrain(std::string path, std::string colourMapKey) const;
 	void dump8BitCities(std::string path, std::string colourMapKey) const;
 	void dump8BitRivers(std::string path, std::string colourMapKey) const;
-	void dump8BitTrees(std::string path, std::string colourMapKey) const; // width/4, height/4
+	void dump8BitTrees(std::string path, std::string colourMapKey) const;
 	void dumpDDSFiles(std::string path) const;
 	void dumpTerrainColourmap(std::string path) const;
-	void dumpWorldNormal(std::string path) const; // width/2, height/2
+	void dumpWorldNormal(std::string path) const;
 };
 

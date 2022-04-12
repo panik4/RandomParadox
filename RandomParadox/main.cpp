@@ -3,12 +3,6 @@
 #include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Module.h"
 
-
-void readConfig() {
-
-}
-
-
 int main() {
 	// Read the basic settings
 	std::ifstream f("RandomParadox.json");
@@ -24,9 +18,9 @@ int main() {
 		pt::read_json(buffer, root);
 	}
 	catch (std::exception e) {
-		logLine("Incorrect config \"RandomParadox.json\"");
-		logLine("You can try fixing it yourself. Error is: ", e.what());
-		logLine("Otherwise try running it through a json validator, e.g. \"https://jsonlint.com/\" or search for \"json validator\"");
+		UtilLib::logLine("Incorrect config \"RandomParadox.json\"");
+		UtilLib::logLine("You can try fixing it yourself. Error is: ", e.what());
+		UtilLib::logLine("Otherwise try running it through a json validator, e.g. \"https://jsonlint.com/\" or search for \"json validator\"");
 		system("pause");
 		return -1;
 	}
@@ -56,9 +50,9 @@ int main() {
 		}
 	}
 	catch (std::exception e) {
-		logLine("Incorrect config \"FastWorldGenerator.json\"");
-		logLine("You can try fixing it yourself. Error is: ", e.what());
-		logLine("Otherwise try running it through a json validator, e.g. \"https://jsonlint.com/\" or \"search for json validator\"");
+		UtilLib::logLine("Incorrect config \"FastWorldGenerator.json\"");
+		UtilLib::logLine("You can try fixing it yourself. Error is: ", e.what());
+		UtilLib::logLine("Otherwise try running it through a json validator, e.g. \"https://jsonlint.com/\" or \"search for json validator\"");
 		system("pause");
 		return -1;
 	}
@@ -88,6 +82,9 @@ int main() {
 	if (genHoi4Scenario)
 		// generate hoi4 scenario
 		hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG);
+
+	UtilLib::logLine("Done with the generation");
+	system("pause");
 	return 0;
 
 }

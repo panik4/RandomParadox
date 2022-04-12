@@ -26,7 +26,7 @@ std::string NameGenerator::generateTag(std::string name, std::set<std::string>& 
 	std::string tag = "";
 	int retries = 0;
 	while ((tag.size() == 0 || tags.find(tag) != tags.end()) && retries++ < 10) {
-		int offset = clamp(retries - 1, 0, (int)name.size() - 3);
+		int offset = UtilLib::clamp(retries - 1, 0, (int)name.size() - 3);
 		tag = name.substr(0 + offset, 3);
 		std::transform(tag.begin(), tag.end(), tag.begin(), ::toupper);
 	}
@@ -40,7 +40,7 @@ std::string NameGenerator::generateTag(std::string name, std::set<std::string>& 
 
 std::string NameGenerator::getRandomMapElement(std::string key, std::map<std::string, std::vector<std::string>> map)
 {
-	return *select_random(map[key]);
+	return *UtilLib::select_random(map[key]);
 }
 
 std::string NameGenerator::getToken(std::vector<std::string>& rule)
