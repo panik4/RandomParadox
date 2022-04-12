@@ -3,7 +3,7 @@
 std::vector<std::string> Hoi4Parser::defaultTags;
 
 void Hoi4Parser::dumpAdj(std::string path) {
-	logLine("HOI4 Parser: Map: Writing Adjacencies");
+	UtilLib::logLine("HOI4 Parser: Map: Writing Adjacencies");
 	// From;To;Type;Through;start_x;start_y;stop_x;stop_y;adjacency_rule_name;Comment
 	// empty file for now
 	std::string content;
@@ -13,7 +13,7 @@ void Hoi4Parser::dumpAdj(std::string path) {
 
 void Hoi4Parser::dumpAirports(std::string path, const std::vector<Region>& regions)
 {
-	logLine("HOI4 Parser: Map: Building Airfields");
+	UtilLib::logLine("HOI4 Parser: Map: Building Airfields");
 	std::string content;
 	for (const auto& region : regions) {
 		if (region.sea)
@@ -33,17 +33,17 @@ void Hoi4Parser::dumpAirports(std::string path, const std::vector<Region>& regio
 
 std::string Hoi4Parser::getBuildingLine(const std::string type, const Region& region, const bool coastal, const Bitmap& heightmap)
 {
-	auto prov = *select_random(region.provinces);
+	auto prov = *UtilLib::select_random(region.provinces);
 	auto pix = 0;
 	if (coastal) {
 		while (!prov->coastal)
-			prov = *select_random(region.provinces);
-		pix = *select_random(prov->coastalPixels);
+			prov = *UtilLib::select_random(region.provinces);
+		pix = *UtilLib::select_random(prov->coastalPixels);
 	}
 	else {
 		while (prov->isLake)
-			prov = *select_random(region.provinces);
-		pix = *select_random(prov->pixels);
+			prov = *UtilLib::select_random(region.provinces);
+		pix = *UtilLib::select_random(prov->pixels);
 	}
 	auto widthPos = pix % Data::getInstance().width;
 	auto heightPos = pix / Data::getInstance().width;
@@ -56,11 +56,11 @@ std::string Hoi4Parser::getBuildingLine(const std::string type, const Region& re
 // places building positions
 void Hoi4Parser::dumpBuildings(std::string path, const std::vector<Region>& regions)
 {
-	logLine("HOI4 Parser: Map: Constructing Factories");
+	UtilLib::logLine("HOI4 Parser: Map: Constructing Factories");
 	auto heightmap = Bitmap::findBitmapByKey("heightmap");
 	std::vector<std::string> buildingTypes{ "arms_factory", "industrial_complex", "air_base",
 		"bunker", "coastal_bunker", "dockyard", "naval_base", "anti_air_building",
-		"synthetic_refinery", "nuclear_reactor", "rocket_site", "radar_station", "fuel_silo" };
+		"synthetic_refinery", "nuclear_reactor", "rocket_site", "radar_station", "fuel_silo", "floating_harbor" };
 	std::string content;
 	auto random = Data::getInstance().random2;
 	// stateId; type; pixelX, rotation??, pixelY, rotation??, 0??}
@@ -69,9 +69,16 @@ void Hoi4Parser::dumpBuildings(std::string path, const std::vector<Region>& regi
 		if (region.sea)
 			continue;
 		bool coastal = false;
-		for (const auto& prov : region.provinces)
+		for (const auto& prov : region.provinces) {
 			if (prov->coastal)
 				coastal = true;
+			// add supply node buildings for each province
+			auto pix = *UtilLib::select_random(prov->pixels);
+			auto widthPos = pix % Data::getInstance().width;
+			auto heightPos = pix / Data::getInstance().width;
+			content.append(getBuildingLine("supply_node", region, coastal, heightmap));
+
+		}
 
 		for (const auto& type : buildingTypes) {
 			if (type == "arms_factory" || type == "industrial_complex")
@@ -80,7 +87,7 @@ void Hoi4Parser::dumpBuildings(std::string path, const std::vector<Region>& regi
 			else if (type == "bunker") {
 				for (const auto& prov : region.provinces) {
 					if (!prov->isLake && !prov->sea) {
-						auto pix = *select_random(prov->pixels);
+						auto pix = *UtilLib::select_random(prov->pixels);
 						auto widthPos = pix % Data::getInstance().width;
 						auto heightPos = pix / Data::getInstance().width;
 						std::vector<std::string> arguments{ std::to_string(region.ID + 1), type, std::to_string(widthPos), std::to_string((double)heightmap.getColourAtIndex(pix).getRed() / 10.0), std::to_string(heightPos), std::to_string(0.5), "0" };
@@ -94,14 +101,14 @@ void Hoi4Parser::dumpBuildings(std::string path, const std::vector<Region>& regi
 			else if (type == "coastal_bunker" || type == "naval_base") {
 				for (const auto& prov : region.provinces) {
 					if (prov->coastal) {
-						auto pix = *select_random(prov->coastalPixels);
+						auto pix = *UtilLib::select_random(prov->coastalPixels);
 						int ID = 0;
 						if (type == "naval_base")
 							// find the ocean province this coastal building is next to
 							for (const auto& neighbour : prov->neighbours)
 								if (neighbour->sea)
 									for (const auto& provPix : neighbour->pixels)
-										if (getDistance(provPix, pix, Data::getInstance().width, 0) < 2.0)
+										if (UtilLib::getDistance(provPix, pix, Data::getInstance().width, 0) < 2.0)
 											ID = neighbour->ID;
 						auto widthPos = pix % Data::getInstance().width;
 						auto heightPos = pix / Data::getInstance().width;
@@ -110,8 +117,10 @@ void Hoi4Parser::dumpBuildings(std::string path, const std::vector<Region>& regi
 					}
 				}
 			}
-			else if (type == "dockyard")
+			else if (type == "dockyard" || type == "floating_harbor")
 				content.append(getBuildingLine(type, region, coastal, heightmap));
+			else
+				content.append(getBuildingLine(type, region, false, heightmap));
 		}
 	}
 	pU::writeFile(path, content);
@@ -119,7 +128,7 @@ void Hoi4Parser::dumpBuildings(std::string path, const std::vector<Region>& regi
 
 void Hoi4Parser::dumpContinents(std::string path, const std::vector<Continent>& continents)
 {
-	logLine("HOI4 Parser: Map: Writing Continents");
+	UtilLib::logLine("HOI4 Parser: Map: Writing Continents");
 	std::string content{ "continents = {\n" };
 
 	for (const auto& continent : continents) {
@@ -133,7 +142,7 @@ void Hoi4Parser::dumpContinents(std::string path, const std::vector<Continent>& 
 
 void Hoi4Parser::dumpDefinition(std::string path, std::vector<GameProvince>& provinces)
 {
-	logLine("HOI4 Parser: Map: Defining Provinces");
+	UtilLib::logLine("HOI4 Parser: Map: Defining Provinces");
 	// province id; r value; g value; b value; province type (land/sea/lake); coastal (true/false); terrain (plains/hills/urban/etc. Defined for land or sea provinces in common/terrain); continent (int)
 	// 0;0;0;0;land;false;unknown;0
 
@@ -173,7 +182,7 @@ void Hoi4Parser::dumpDefinition(std::string path, std::vector<GameProvince>& pro
 
 void Hoi4Parser::dumpRocketSites(std::string path, const std::vector<Region>& regions)
 {
-	logLine("HOI4 Parser: Map: Launching Rockets");
+	UtilLib::logLine("HOI4 Parser: Map: Launching Rockets");
 	std::string content;
 	// regionId={provId }
 	for (const auto& region : regions) {
@@ -194,7 +203,7 @@ void Hoi4Parser::dumpRocketSites(std::string path, const std::vector<Region>& re
 
 void Hoi4Parser::dumpUnitStacks(std::string path, const std::vector<Province*> provinces)
 {
-	logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
+	UtilLib::logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
 	// 1;0;3359.00;9.50;1166.00;0.00;0.08
 	// provID, neighbour?, xPos, zPos yPos, rotation(3=north, 0=south, 1.5=east,4,5=west), ??
 	// provID, xPos, ~10, yPos, ~0, 0,5
@@ -202,7 +211,7 @@ void Hoi4Parser::dumpUnitStacks(std::string path, const std::vector<Province*> p
 	std::string content{ "" };
 	for (const auto& prov : provinces) {
 		int position = 0;
-		auto pix = *select_random(prov->pixels);
+		auto pix = *UtilLib::select_random(prov->pixels);
 		auto widthPos = pix % Data::getInstance().width;
 		auto heightPos = pix / Data::getInstance().width;
 		std::vector<std::string> arguments{ std::to_string(prov->ID + 1), std::to_string(position), std::to_string(widthPos), std::to_string(1), std::to_string(heightPos), std::to_string(0.0), "0.0" };
@@ -223,7 +232,7 @@ void Hoi4Parser::dumpUnitStacks(std::string path, const std::vector<Province*> p
 
 void Hoi4Parser::dumpWeatherPositions(std::string path, const std::vector<Region>& regions, const std::vector<strategicRegion> strategicRegions)
 {
-	logLine("HOI4 Parser: Map: Creating Storms");
+	UtilLib::logLine("HOI4 Parser: Map: Creating Storms");
 	// 1; 2781.24; 9.90; 1571.49; small
 	std::string content{ "" };
 	auto random = Data::getInstance().random2;
@@ -231,9 +240,9 @@ void Hoi4Parser::dumpWeatherPositions(std::string path, const std::vector<Region
 	// 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
 
 	for (auto i = 0; i < strategicRegions.size(); i++) {
-		auto region = *select_random(strategicRegions[i].gameRegionIDs);
-		auto prov = *select_random(regions[region].provinces);
-		auto pix = *select_random(prov->pixels);
+		auto region = *UtilLib::select_random(strategicRegions[i].gameRegionIDs);
+		auto prov = *UtilLib::select_random(regions[region].provinces);
+		auto pix = *UtilLib::select_random(prov->pixels);
 		auto widthPos = pix % Data::getInstance().width;
 		auto heightPos = pix / Data::getInstance().width;
 		std::vector<std::string> arguments{ std::to_string(i + 1), std::to_string(widthPos), std::to_string(9.90), std::to_string(heightPos), "small" };
@@ -244,7 +253,7 @@ void Hoi4Parser::dumpWeatherPositions(std::string path, const std::vector<Region
 
 void Hoi4Parser::dumpAdjacencyRules(std::string path)
 {
-	logLine("HOI4 Parser: Map: Writing Adjacency Rules");
+	UtilLib::logLine("HOI4 Parser: Map: Writing Adjacency Rules");
 	std::string content{ "" };
 	// empty for now
 	pU::writeFile(path, content);
@@ -253,7 +262,7 @@ void Hoi4Parser::dumpAdjacencyRules(std::string path)
 void Hoi4Parser::dumpStrategicRegions(std::string path, const std::vector<Region>& regions, const std::vector<strategicRegion> strategicRegions)
 {
 	constexpr std::array<int, 12> daysInMonth{ 30, 27, 30, 29, 30, 29, 30, 30, 29, 30, 29, 30 };
-	logLine("HOI4 Parser: Map: Drawing Strategic Regions");
+	UtilLib::logLine("HOI4 Parser: Map: Drawing Strategic Regions");
 	auto templateContent = pU::readFile("resources\\hoi4\\map\\strategic_region.txt");
 	const auto templateWeather = pU::getBracketBlock(templateContent, "period");
 	for (auto i = 0; i < strategicRegions.size(); i++) {
@@ -288,13 +297,13 @@ void Hoi4Parser::dumpStrategicRegions(std::string path, const std::vector<Region
 		}
 		pU::replaceOccurences(content, templateWeather, weather);
 		pU::replaceOccurences(content, "template_provinces", provString);
-		pU::writeFile(varsToString(path, "\\", (i + 1), ".txt"), content);
+		pU::writeFile(UtilLib::varsToString(path, "\\", (i + 1), ".txt"), content);
 	}
 }
 
 void Hoi4Parser::dumpSupplyAreas(std::string path, const  std::vector<Region>& regions)
 {
-	logLine("HOI4 Parser: Map: Supplying the Troops");
+	UtilLib::logLine("HOI4 Parser: Map: Supplying the Troops");
 	auto templateContent = pU::readFile("resources\\hoi4\\map\\SupplyArea.txt");
 	for (const auto& region : regions) {
 		if (region.sea)
@@ -334,7 +343,7 @@ void Hoi4Parser::dumpSupply(std::string path, const std::vector<std::vector<int>
 
 void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country>& countries)
 {
-	logLine("HOI4 Parser: History: Drawing State Borders");
+	UtilLib::logLine("HOI4 Parser: History: Drawing State Borders");
 	auto templateContent = pU::readFile("resources\\hoi4\\history\\state.txt");
 	std::vector<std::string> stateCategories{ "wasteland", "small_island", "pastoral", "rural", "town", "large_town", "city", "large_city", "metropolis", "megalopolis" };
 	for (const auto& country : countries) {
@@ -382,7 +391,7 @@ void Hoi4Parser::dumpStates(std::string path, std::map<std::string, Country>& co
 }
 void Hoi4Parser::dumpFlags(std::string path, const std::map<std::string, Country>& countries)
 {
-	logLine("HOI4 Parser: Gfx: Printing Flags");
+	UtilLib::logLine("HOI4 Parser: Gfx: Printing Flags");
 	for (auto country : countries) {
 		TextureWriter::writeTGA(country.second.flag.width, country.second.flag.height, country.second.flag.getFlag(), path + country.first + ".tga");
 		TextureWriter::writeTGA(country.second.flag.width / 2, country.second.flag.height / 2, country.second.flag.resize(country.second.flag.width / 2, country.second.flag.height / 2), path + "\\medium\\" + country.first + ".tga");
@@ -392,14 +401,14 @@ void Hoi4Parser::dumpFlags(std::string path, const std::map<std::string, Country
 
 void Hoi4Parser::writeHistoryCountries(std::string path, const std::map<std::string, Country>& countries)
 {
-	logLine("HOI4 Parser: History: Writing Country History");
+	UtilLib::logLine("HOI4 Parser: History: Writing Country History");
 	auto content = pU::readFile("resources\\hoi4\\history\\country_template.txt");
 	for (const auto& country : countries) {
 		auto tempPath = path + country.first + " - " + country.second.name + ".txt";
 		auto countryText = content;
 		auto capitalID = 1;
 		if (country.second.ownedRegions.size())
-			capitalID = (*select_random(country.second.ownedRegions)).ID + 1;
+			capitalID = (*UtilLib::select_random(country.second.ownedRegions)).ID + 1;
 		pU::replaceOccurences(countryText, "templateCapital", std::to_string(capitalID));
 		pU::replaceOccurences(countryText, "templateTag", country.first);
 		pU::replaceOccurences(countryText, "templateParty", country.second.attributeStrings.at("rulingParty"));
@@ -415,7 +424,7 @@ void Hoi4Parser::writeHistoryCountries(std::string path, const std::map<std::str
 
 void Hoi4Parser::writeHistoryUnits(std::string path, const std::map<std::string, Country>& countries)
 {
-	logLine("HOI4 Parser: History: Deploying the Troops");
+	UtilLib::logLine("HOI4 Parser: History: Deploying the Troops");
 	auto content = pU::readFile("resources\\hoi4\\history\\default_unit_template.txt");
 	auto unitBlock = pU::readFile("resources\\hoi4\\history\\unit_block.txt");
 	auto weakTemplates = pU::readFile("resources\\hoi4\\history\\divisionTemplateWeak.txt");
@@ -498,14 +507,14 @@ void Hoi4Parser::dumpCommonBookmarks(std::string path, const std::map<std::strin
 
 void Hoi4Parser::dumpCommonCountries(std::string path, std::string hoiPath, const std::map<std::string, Country>& countries)
 {
-	logLine("HOI4 Parser: Common: Writing Countries");
+	UtilLib::logLine("HOI4 Parser: Common: Writing Countries");
 	auto content = pU::readFile("resources\\hoi4\\common\\country_default.txt");
 	auto colorsTxtTemplate = pU::readFile("resources\\hoi4\\common\\colors.txt");
 	std::string colorsTxt = pU::readFile(hoiPath);
 	for (const auto& country : countries) {
 		auto tempPath = path + country.second.name + ".txt";
 		auto countryText = content;
-		auto colourString = pU::replaceOccurences(varsToString(country.second.colour), ";", " ");
+		auto colourString = pU::replaceOccurences(UtilLib::varsToString(country.second.colour), ";", " ");
 		pU::replaceOccurences(countryText, "templateCulture", country.second.attributeStrings.at("gfxCulture"));
 		pU::replaceOccurences(countryText, "templateColour", colourString);
 		pU::writeFile(tempPath, countryText);
@@ -519,7 +528,7 @@ void Hoi4Parser::dumpCommonCountries(std::string path, std::string hoiPath, cons
 
 void Hoi4Parser::dumpCommonCountryTags(std::string path, const std::map<std::string, Country>& countries)
 {
-	logLine("HOI4 Parser: Common: Writing Country Tags");
+	UtilLib::logLine("HOI4 Parser: Common: Writing Country Tags");
 	std::string content = "";
 	for (const auto& country : countries)
 		content.append(country.first + " = countries/" + country.second.name + ".txt\n");
@@ -528,7 +537,7 @@ void Hoi4Parser::dumpCommonCountryTags(std::string path, const std::map<std::str
 
 void Hoi4Parser::writeCountryNames(std::string path, const std::map<std::string, Country>& countries)
 {
-	logLine("HOI4 Parser: Localisation: Writing Country Names");
+	UtilLib::logLine("HOI4 Parser: Localisation: Writing Country Names");
 	NameGenerator nG;
 	std::string content = "l_english:\n";
 	std::vector<std::string> ideologies{ "fascism", "communism", "neutrality", "democratic" };
@@ -546,7 +555,7 @@ void Hoi4Parser::writeCountryNames(std::string path, const std::map<std::string,
 
 void Hoi4Parser::writeStateNames(std::string path, const std::map<std::string, Country>& countries)
 {
-	logLine("HOI4 Parser: Localisation: Writing State Names");
+	UtilLib::logLine("HOI4 Parser: Localisation: Writing State Names");
 	std::string content = "l_english:\n";
 
 	for (const auto& c : countries) {
@@ -558,10 +567,10 @@ void Hoi4Parser::writeStateNames(std::string path, const std::map<std::string, C
 
 void Hoi4Parser::writeStrategicRegionNames(std::string path, const std::vector<strategicRegion> strategicRegions)
 {
-	logLine("HOI4 Parser: Map: Naming the Regions");
+	UtilLib::logLine("HOI4 Parser: Map: Naming the Regions");
 	std::string content = "l_english:\n";
 	for (auto i = 0; i < strategicRegions.size(); i++) {
-		content += varsToString(" STRATEGICREGION_", i, ":0 \"", strategicRegions[i].name, "\"\n");
+		content += UtilLib::varsToString(" STRATEGICREGION_", i, ":0 \"", strategicRegions[i].name, "\"\n");
 	}
 	pU::writeFile(path + "\\strategic_region_names_l_english.yml", content, true);
 }
@@ -573,7 +582,7 @@ std::vector<std::string> Hoi4Parser::readTypeMap(std::string path)
 
 void Hoi4Parser::writeFoci(std::string path, const std::map<std::string, Country>& countries)
 {
-	logLine("HOI4 Parser: History: Demanding Danzig");
+	UtilLib::logLine("HOI4 Parser: History: Demanding Danzig");
 	auto focusTypes = ParserUtils::getLines("resources\\hoi4\\ai\\national_focus\\foci.txt");
 	std::string baseTree = ParserUtils::readFile("resources\\hoi4\\ai\\national_focus\\focusBase.txt");
 	std::vector<std::string> focusTemplates;
@@ -596,7 +605,7 @@ void Hoi4Parser::writeFoci(std::string path, const std::map<std::string, Country
 				std::string preString = "";
 				//for (const auto& prerequisite : countryFocus.precedingFoci) {
 				//	// derive the name of the preceding focus
-				//	std::string preName = varsToString(c.first, focusChain[prerequisite].chainID, ".", focusChain[prerequisite].stepID);
+				//	std::string preName = UtilLib::varsToString(c.first, focusChain[prerequisite].chainID, ".", focusChain[prerequisite].stepID);
 				//	preString += "prerequisite = { focus = " + preName + "}\n\t\t";
 				//}
 				preString += "prerequisite = {";
@@ -604,7 +613,7 @@ void Hoi4Parser::writeFoci(std::string path, const std::map<std::string, Country
 					for (const auto& foc : focusChain) {
 						if (foc.stepID == prerequisite) {
 							// derive the name of the preceding focus
-							std::string preName = varsToString(c.first, focusChain[0].chainID, ".", prerequisite);
+							std::string preName = UtilLib::varsToString(c.first, focusChain[0].chainID, ".", prerequisite);
 							preString += " focus = " + preName;
 						}
 					}
@@ -617,7 +626,7 @@ void Hoi4Parser::writeFoci(std::string path, const std::map<std::string, Country
 					for (const auto& foc : focusChain) {
 						if (foc.stepID == exclusive) {
 							// derive the name of the preceding focus
-							std::string preName = varsToString(c.first, focusChain[0].chainID, ".", exclusive);
+							std::string preName = UtilLib::varsToString(c.first, focusChain[0].chainID, ".", exclusive);
 							preString += " focus = " + preName;
 						}
 					}
@@ -656,6 +665,6 @@ void Hoi4Parser::copyDescriptorFile(const std::string sourcePath, const std::str
 	auto modText = descriptorText;
 	pU::replaceOccurences(descriptorText, "templatePath", "");
 	pU::writeFile(destPath + "\\descriptor.mod", descriptorText);
-	pU::replaceOccurences(modText, "templatePath", varsToString("path=\"", destPath, "\""));
+	pU::replaceOccurences(modText, "templatePath", UtilLib::varsToString("path=\"", destPath, "\""));
 	pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
 }

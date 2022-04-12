@@ -23,7 +23,7 @@ void Country::assignRegions(int maxRegions, std::vector<GameRegion>& gameRegions
 				break;
 			if (gameRegion.neighbours.size() == 0)
 				continue;
-			auto nextRegion = *select_random(gameRegion.neighbours);
+			auto nextRegion = *UtilLib::select_random(gameRegion.neighbours);
 			if (!gameRegions[nextRegion].assigned && !gameRegions[nextRegion].sea) {
 				gameRegions[nextRegion].assigned = true;
 				addRegion(gameRegions[nextRegion], gameRegions, gameProvinces);
