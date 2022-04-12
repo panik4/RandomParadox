@@ -1,7 +1,7 @@
 {
 	"module": 
 	{
-		"debugLevel": 3,
+		"debugLevel": 0,
 		"genHeight" : true,
 		"interactiveMode" : false,
 		"writeMaps" : true,
@@ -13,14 +13,14 @@
 	},
 	"map": 
 	{
-        "height" : 2048,
-		"width" : 5632,
+        "height" : 1024,
+		"width" : 2816,
 		"landMassPercentage" : 35,
 		"seaLevel" : 94,
 		"accuracy": 100,
 		"rivers" : 
 		{
-			"numRivers" : 100
+			"numRivers" : 100000
 		},
 		"heightmap" : {
 			"complexHeight" : true,
@@ -31,10 +31,10 @@
 				"0" :
 				{
 					"type" : 2,
-					"fractalFrequency" : 0.8,
+					"fractalFrequency" : 1.2,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
-					"seed" : 5,
+					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 0.5,
@@ -45,10 +45,10 @@
 				"1" :
 				{
 					"type" : 2,
-					"fractalFrequency" : 0.5,
+					"fractalFrequency" : 0.7,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
-					"seed" : 6,
+					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 0.5,
@@ -62,7 +62,7 @@
 					"fractalFrequency" : 2,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
-					"seed" : 7,
+					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 0.7,
@@ -76,7 +76,7 @@
 					"fractalFrequency" : 4,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
-					"seed" : 8,
+					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 0.5,
@@ -101,10 +101,10 @@
 			}
 		},
 		"provinces" : {
-			"auto" : true,
-			"landProvinceFactor" : 2,
+			"auto" : false,
+			"landProvinceFactor" : 3,
 			"seaProvinceFactor" : 1,
-			"minProvPerRegion" : 3,
+			"minProvPerRegion" : 2,
 			"minProvSize" : 10,
 			"provinceDensityByHabitability" : 100
 		},

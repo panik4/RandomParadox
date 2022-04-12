@@ -9,7 +9,7 @@ Hoi4ScenarioGenerator::~Hoi4ScenarioGenerator()
 
 void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator& scenGen)
 {
-	logLine("HOI4: Digging for resources");
+	UtilLib::logLine("HOI4: Digging for resources");
 	for (auto& c : scenGen.countryMap) {
 		for (auto& gameRegion : c.second.ownedRegions) {
 			for (auto& resource : resources) {
@@ -26,17 +26,17 @@ void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator& scenGen)
 					gameRegion.attributeDoubles[resource.first] = value;
 					// track amount of deployed resources
 					if (resource.first == "aluminium")
-						totalAluminium += value;
+						totalAluminium += (int)value;
 					else if (resource.first == "chromium")
-						totalChromium += value;
+						totalChromium += (int)value;
 					else if (resource.first == "rubber")
-						totalRubber += value;
+						totalRubber += (int)value;
 					else if (resource.first == "oil")
-						totalOil += value;
+						totalOil += (int)value;
 					else if (resource.first == "steel")
-						totalSteel += value;
+						totalSteel += (int)value;
 					else if (resource.first == "tungsten")
-						totalTungsten += value;
+						totalTungsten += (int)value;
 				}
 			}
 		}
@@ -45,7 +45,7 @@ void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator& scenGen)
 {
-	logLine("HOI4: Planning the economy");
+	UtilLib::logLine("HOI4: Planning the economy");
 	// calculate the world land area
 	double worldArea = (double)(Data::getInstance().bitmapSize / 3) * Data::getInstance().landMassPercentage;
 	// calculate the target industry amount
@@ -64,14 +64,14 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator& scenGen)
 				totalStateArea += gameProv.baseProvince->pixels.size();
 			}
 			// state level is calculated from population and development
-			gameRegion.attributeDoubles["stateCategory"] = clamp((int)(totalPopFactor * 5.0 + totalDevFactor * 6.0), 0, 9);
+			gameRegion.attributeDoubles["stateCategory"] = UtilLib::clamp((int)(totalPopFactor * 5.0 + totalDevFactor * 6.0), 0, 9);
 			// one province region? Must be an island state
 			if (gameRegion.gameProvinces.size() == 1) {
 				gameRegion.attributeDoubles["stateCategory"] = 1;
 			}
 			gameRegion.attributeDoubles["development"] = totalDevFactor;
 			gameRegion.attributeDoubles["population"] = totalStateArea * 1250.0 * totalPopFactor * worldPopulationFactor;
-			worldPop += gameRegion.attributeDoubles["population"];
+			worldPop += (long long)gameRegion.attributeDoubles["population"];
 			// count the total coastal provinces of this region
 			auto totalCoastal = 0;
 			for (auto& gameProv : gameRegion.gameProvinces) {
@@ -89,19 +89,19 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator& scenGen)
 			auto stateIndustry = (totalStateArea / worldArea) * totalPopFactor * targetWorldIndustry;
 			// distribute it to military, civilian and naval factories
 			if (totalCoastal > 0) {
-				gameRegion.attributeDoubles["dockyards"] = clamp((int)round(stateIndustry * (0.25)), 0, 4);
-				gameRegion.attributeDoubles["civilianFactories"] = clamp((int)round(stateIndustry * (0.5)), 0, 8);
-				gameRegion.attributeDoubles["armsFactories"] = clamp((int)round(stateIndustry * (0.25)), 0, 4);
-				militaryIndustry += gameRegion.attributeDoubles["armsFactories"];
-				civilianIndustry += gameRegion.attributeDoubles["civilianFactories"];
-				navalIndustry += gameRegion.attributeDoubles["dockyards"];
+				gameRegion.attributeDoubles["dockyards"] = UtilLib::clamp((int)round(stateIndustry * (0.25)), 0, 4);
+				gameRegion.attributeDoubles["civilianFactories"] = UtilLib::clamp((int)round(stateIndustry * (0.5)), 0, 8);
+				gameRegion.attributeDoubles["armsFactories"] = UtilLib::clamp((int)round(stateIndustry * (0.25)), 0, 4);
+				militaryIndustry += (int)gameRegion.attributeDoubles["armsFactories"];
+				civilianIndustry += (int)gameRegion.attributeDoubles["civilianFactories"];
+				navalIndustry += (int)gameRegion.attributeDoubles["dockyards"];
 			}
 			else {
-				gameRegion.attributeDoubles["civilianFactories"] = clamp((int)round(stateIndustry * (0.6)), 0, 8);
-				gameRegion.attributeDoubles["armsFactories"] = clamp((int)round(stateIndustry * (0.4)), 0, 4);
+				gameRegion.attributeDoubles["civilianFactories"] = UtilLib::clamp((int)round(stateIndustry * (0.6)), 0, 8);
+				gameRegion.attributeDoubles["armsFactories"] = UtilLib::clamp((int)round(stateIndustry * (0.4)), 0, 4);
 				gameRegion.attributeDoubles["dockyards"] = 0;
-				militaryIndustry += gameRegion.attributeDoubles["armsFactories"];
-				civilianIndustry += gameRegion.attributeDoubles["civilianFactories"];
+				militaryIndustry += (int)gameRegion.attributeDoubles["armsFactories"];
+				civilianIndustry += (int)gameRegion.attributeDoubles["civilianFactories"];
 			}
 		}
 	}
@@ -109,7 +109,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen, std::map<std::string, Country>& countries)
 {
-	logLine("HOI4: Choosing uniforms and electing Tyrants");
+	UtilLib::logLine("HOI4: Choosing uniforms and electing Tyrants");
 	// graphical culture pairs:
 	// { graphical_culture = type }
 	// { graphical_culture_2d = type_2d }
@@ -124,7 +124,7 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen,
 	std::vector<std::string> ideologies{ "fascism", "democratic", "communism", "neutrality" };
 	for (auto& c : countries) {
 		// select a random country ideology
-		c.second.attributeStrings["gfxCulture"] = *select_random(gfxCultures);
+		c.second.attributeStrings["gfxCulture"] = *UtilLib::select_random(gfxCultures);
 		std::vector<double> popularities{};
 		double totalPop = 0;
 		for (int i = 0; i < 4; i++) {
@@ -134,16 +134,16 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen,
 		auto sumPop = 0;
 		for (int i = 0; i < 4; i++) {
 			popularities[i] = popularities[i] / totalPop * 100;
-			sumPop += popularities[i];
+			sumPop += (int)popularities[i];
 			int offset = 0;
 			// to ensure a total of 100 as the sum for all ideologies
 			if (i == 3 && sumPop < 100) {
 				offset = 100 - sumPop;
 			}
-			c.second.attributeDoubles[ideologies[i]] = popularities[i] + offset;
+			c.second.attributeDoubles[ideologies[i]] = (int)popularities[i] + offset;
 		}
 		// assign a ruling party
-		c.second.attributeStrings["rulingParty"] = ideologies[Data::getInstance().getRandomNumber(0, ideologies.size())];
+		c.second.attributeStrings["rulingParty"] = ideologies[Data::getInstance().getRandomNumber(0, (int)ideologies.size())];
 		// allow or forbid elections
 		if (c.second.attributeStrings["rulingParty"] == "democratic")
 			c.second.attributeDoubles["allowElections"] = 1;
@@ -158,7 +158,7 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen,
 
 void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen)
 {
-	logLine("HOI4: Dividing world into strategic regions");
+	UtilLib::logLine("HOI4: Dividing world into strategic regions");
 	for (auto& region : scenGen.gameRegions) {
 		if (region.attributeDoubles["stratID"] == 0.0) {
 			strategicRegion sR;
@@ -206,7 +206,7 @@ void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator & scenGen)
 					averageTemperature += prov.baseProvince->weatherMonths[i][1];
 					averagePrecipitation += prov.baseProvince->weatherMonths[i][2];
 				}
-				double divisor = scenGen.gameRegions[reg].gameProvinces.size();
+				double divisor = (int)scenGen.gameRegions[reg].gameProvinces.size();
 				averageDeviation /= divisor;
 				averageTemperature /= divisor;
 				averagePrecipitation /= divisor;
@@ -223,11 +223,11 @@ void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator & scenGen)
 				// mud chance, 7
 				strat.weatherMonths[i].push_back(0.5 * (2 * strat.weatherMonths[i][6] + strat.weatherMonths[i][5]));
 				// blizzard chance, 8
-				strat.weatherMonths[i].push_back(clamp(0.2 - averageTemperature, 0.0, 0.2) * averagePrecipitation);
+				strat.weatherMonths[i].push_back(UtilLib::clamp(0.2 - averageTemperature, 0.0, 0.2) * averagePrecipitation);
 				// sandstorm chance, 9
-				strat.weatherMonths[i].push_back(clamp(averageTemperature - 0.8, 0.0, 0.2) * clamp(0.2 - averagePrecipitation, 0.0, 0.2));
+				strat.weatherMonths[i].push_back(UtilLib::clamp(averageTemperature - 0.8, 0.0, 0.2) * UtilLib::clamp(0.2 - averagePrecipitation, 0.0, 0.2));
 				// snow chance, 10
-				strat.weatherMonths[i].push_back(clamp(0.4 - averageTemperature, 0.0, 0.2) * averagePrecipitation);
+				strat.weatherMonths[i].push_back(UtilLib::clamp(0.4 - averageTemperature, 0.0, 0.2) * averagePrecipitation);
 				// no phenomenon chance, 11
 				strat.weatherMonths[i].push_back(1.0 - strat.weatherMonths[i][5] - strat.weatherMonths[i][6] - strat.weatherMonths[i][8] - strat.weatherMonths[i][9] - strat.weatherMonths[i][10]);
 			}
@@ -237,7 +237,7 @@ void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator & scenGen)
 
 void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 {
-	logLine("HOI4: Building rail networks");
+	UtilLib::logLine("HOI4: Building rail networks");
 	auto width = Data::getInstance().width;
 	Bitmap logistics = Bitmap::findBitmapByKey("countries");
 	for (auto& c : scenGen.countryMap) {
@@ -245,7 +245,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 		std::map<double, int> supplyHubs;
 		// add capital
 		auto capitalPosition = scenGen.gameRegions[c.second.capitalRegionID].position;
-		auto capitalProvince = select_random(scenGen.gameRegions[c.second.capitalRegionID].gameProvinces);
+		auto capitalProvince = UtilLib::select_random(scenGen.gameRegions[c.second.capitalRegionID].gameProvinces);
 		std::vector<double> distances;
 		// region ID, provinceID
 		std::map<int, GameProvince> supplyHubProvinces;
@@ -259,7 +259,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 				|| (c.second.ownedRegions.size() > 2 && (region.ID == (c.second.ownedRegions.end() - 2)->ID)
 					&& supplyHubProvinces.size() < (c.second.ownedRegions.size() / 4))) {
 				// select a random gameprovince of the state
-				auto y = *select_random(region.gameProvinces);
+				auto y = *UtilLib::select_random(region.gameProvinces);
 				for (auto& prov : region.gameProvinces) {
 					if (prov.baseProvince->coastal) {
 						// if this is a coastal region, the supply hub is a naval base as well
@@ -272,7 +272,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 				supplyHubProvinces[y.ID] = y;
 				navalBases[y.ID] = y.baseProvince->coastal;
 				// get the distance between this supply hub and the capital
-				auto distance = getDistance(capitalPosition, y.baseProvince->position, width);
+				auto distance = UtilLib::getDistance(capitalPosition, y.baseProvince->position, width);
 				// save the distance under the province ID
 				supplyHubs[distance] = y.ID;
 				// save the distance
@@ -301,7 +301,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 						if (distance2 < distance) {
 							// distance is the distance between us and the capital
 							// now find distance2, the distance between us and the other already assigned supply hubs
-							auto dist3 = getDistance(scenGen.gameProvinces[supplyHubs[distance2]].baseProvince->position, scenGen.gameProvinces[supplyHubs[distance]].baseProvince->position, width);
+							auto dist3 = UtilLib::getDistance(scenGen.gameProvinces[supplyHubs[distance2]].baseProvince->position, scenGen.gameProvinces[supplyHubs[distance]].baseProvince->position, width);
 							if (dist3 < tempDistance) {
 								sourceNodeID = scenGen.gameProvinces[supplyHubs[distance2]].ID;
 								tempDistance = dist3;
@@ -334,7 +334,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 					}
 					if (cont) continue;
 					// the distance to the sources neighbours
-					auto nodeDistance = getDistance(scenGen.gameProvinces[destNodeID].baseProvince->position, neighbourGProvince.baseProvince->position, width);
+					auto nodeDistance = UtilLib::getDistance(scenGen.gameProvinces[destNodeID].baseProvince->position, neighbourGProvince.baseProvince->position, width);
 					if (nodeDistance < tempMinDistance) {
 						tempMinDistance = nodeDistance;
 						closestID = neighbourGProvince.ID;
@@ -391,10 +391,10 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 {
-	logLine("HOI4: Evaluating Country Strength");
+	UtilLib::logLine("HOI4: Evaluating Country Strength");
 	for (auto& c : scenGen.countryMap) {
-		auto totalIndustry = 0;
-		auto totalPop = 0;
+		auto totalIndustry = 0.0;
+		auto totalPop = 0.0;
 		auto maxIndustryID = 0;
 		auto maxIndustryLevel = 0;
 		for (auto& ownedRegion : c.second.ownedRegions) {
@@ -405,14 +405,14 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 			if (regionIndustry > maxIndustryLevel)
 				c.second.capitalRegionID = ownedRegion.ID;
 			totalIndustry += regionIndustry;
-			totalPop += ownedRegion.attributeDoubles["population"];
+			totalPop += (int)ownedRegion.attributeDoubles["population"];
 		}
-		strengthScores[totalIndustry + totalPop / 1'000'000].push_back(c.first);
-		c.second.attributeDoubles["strengthScore"] = totalIndustry + totalPop / 1'000'000;
+		strengthScores[(int)(totalIndustry + totalPop / 1'000'000.0)].push_back(c.first);
+		c.second.attributeDoubles["strengthScore"] = totalIndustry + totalPop / 1'000'000.0;
 		// global
-		totalWorldIndustry += totalIndustry;
+		totalWorldIndustry += (int)totalIndustry;
 	}
-	int totalDeployedCountries = scenGen.numCountries - strengthScores[0].size();
+	int totalDeployedCountries = scenGen.numCountries - (int)strengthScores[0].size();
 	int numMajorPowers = totalDeployedCountries / 10;
 	int numRegionalPowers = totalDeployedCountries / 3;
 	int numWeakStates = totalDeployedCountries - numMajorPowers - numRegionalPowers;
@@ -440,7 +440,7 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator& scenGen)
 {
-	logLine("HOI4: Generating Country Unit Files");
+	UtilLib::logLine("HOI4: Generating Country Unit Files");
 	// read in different compositions
 	auto compositionMajor = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionMajor.txt");
 	auto compositionRegional = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionRegional.txt");
@@ -459,7 +459,7 @@ void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator& scenGen)
 			// get the composition line as numbers
 			auto nums = ParserUtils::getNumbers(unit, ';', std::set<int>{});
 			// now add the unit type. Share of total units * totalUnits
-			c.second.attributeVectors["units"][nums[0]] = ((double)nums[1] / 100.0) * (double)totalUnits;
+			c.second.attributeVectors["units"][nums[0]] = (int)(((double)nums[1] / 100.0) * (double)totalUnits);
 		}
 	}
 }
@@ -487,7 +487,7 @@ NationalFocus Hoi4ScenarioGenerator::buildFocus(std::vector<std::string> chainSt
 }
 void Hoi4ScenarioGenerator::buildFocusTree(Country& source)
 {
-	std::array<std::array<int, 100>, 100> occupiedPositions;
+	// std::array<std::array<int, 100>, 100> occupiedPositions;
 	// start left. Chains go down, new chains go right
 	int curX = 1;
 	int curY = 1;
@@ -520,7 +520,7 @@ void Hoi4ScenarioGenerator::buildFocusTree(Country& source)
 			}
 			// save the maximum width for later
 			if (levels[index].size() > width)
-				width = levels[index].size();
+				width = (int)levels[index].size();
 			// now increment level, we have all alternatives or AND
 			index++;
 		}
@@ -623,7 +623,7 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(std::vector<std::string> 
 
 void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 {
-	logLine("HOI4: Generating Country Goals");
+	UtilLib::logLine("HOI4: Generating Country Goals");
 	std::vector<int> defDate{ 1,1,1936 };
 	const auto majorChains = ParserUtils::getLinesByID("resources\\hoi4\\ai\\national_focus\\major_chains.txt");
 	const auto regionalChains = ParserUtils::getLinesByID("resources\\hoi4\\ai\\national_focus\\regional_chains.txt");
@@ -651,16 +651,17 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 				if (sourceS["rulingParty"] == chainTokens[4] || chainTokens[4] == "any") {
 					stepTargets.resize(stepTargets.size() + 1);
 					auto stepRequirements = ParserUtils::getTokens(chainTokens[2], '+');
-					if (stepFulfillsRequirements(stepRequirements, stepTargets));
-					// source triggers this focus
-					// split requirements
-					auto targetRequirements = ParserUtils::getTokens(chainTokens[6], '+');
-					for (auto& destCountry : scenGen.countryMap) {
-						// now check every country if it fulfills the target requirements
-						if (targetFulfillsRequirements(targetRequirements, scenGen.countryMap[sourceCountry.first], destCountry.second, levelTargets, level)) {
-							stepTargets[chainStep].insert(destCountry.second);
-							// save that we targeted this country on this level already. Next steps on same level should not consider this tag anymore
-							levelTargets[level].insert(destCountry.first);
+					if (stepFulfillsRequirements(stepRequirements, stepTargets)) {
+						// source triggers this focus
+						// split requirements
+						auto targetRequirements = ParserUtils::getTokens(chainTokens[6], '+');
+						for (auto& destCountry : scenGen.countryMap) {
+							// now check every country if it fulfills the target requirements
+							if (targetFulfillsRequirements(targetRequirements, scenGen.countryMap[sourceCountry.first], destCountry.second, levelTargets, level)) {
+								stepTargets[chainStep].insert(destCountry.second);
+								// save that we targeted this country on this level already. Next steps on same level should not consider this tag anymore
+								levelTargets[level].insert(destCountry.first);
+							}
 						}
 					}
 				}
@@ -668,7 +669,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 			// now build the chain from the options
 			// for every step of the chain, choose a target
 			if (stepTargets.size()) {
-				logLine("Building focus");
+				UtilLib::logLine("Building focus");
 				std::map<int, NationalFocus> fulfilledSteps;
 				int stepIndex = -1;
 				std::vector<NationalFocus> chainFoci;
@@ -677,13 +678,13 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 					if (!targets.size())
 						continue;
 					// select random target
-					auto target = *select_random(targets);
+					auto target = *UtilLib::select_random(targets);
 					// however
 					//if (targets.find(scenGen.countryMap.at(chainFoci.back().destTag)) != targets.end())
 					//	target = scenGen.countryMap.at(chainFoci.back().destTag);
 					auto focus = buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'), scenGen.countryMap[sourceCountry.first], target);
 					focus.stepID = stepIndex;
-					logLineLevel(1, focus);
+					UtilLib::logLineLevel(1, focus);
 					chainFoci.push_back(focus);
 				}
 				sourceCountry.second.foci.push_back(chainFoci);
@@ -696,21 +697,21 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 
 void Hoi4ScenarioGenerator::printStatistics(ScenarioGenerator & scenGen)
 {
-	logLine("Total Industry: ", totalWorldIndustry, "");
-	logLine("Military Industry: ", militaryIndustry, "");
-	logLine("Civilian Industry: ", civilianIndustry, "");
-	logLine("Naval Industry: ", navalIndustry, "");
-	logLine("Total Aluminium: ", totalAluminium, "");
-	logLine("Total Chromium: ", totalChromium, "");
-	logLine("Total Rubber: ", totalRubber, "");
-	logLine("Total Oil: ", totalOil, "");
-	logLine("Total Steel: ", totalSteel, "");
-	logLine("Total Tungsten: ", totalTungsten, "");
-	logLine("World Population: ", worldPop, "");
+	UtilLib::logLine("Total Industry: ", totalWorldIndustry, "");
+	UtilLib::logLine("Military Industry: ", militaryIndustry, "");
+	UtilLib::logLine("Civilian Industry: ", civilianIndustry, "");
+	UtilLib::logLine("Naval Industry: ", navalIndustry, "");
+	UtilLib::logLine("Total Aluminium: ", totalAluminium, "");
+	UtilLib::logLine("Total Chromium: ", totalChromium, "");
+	UtilLib::logLine("Total Rubber: ", totalRubber, "");
+	UtilLib::logLine("Total Oil: ", totalOil, "");
+	UtilLib::logLine("Total Steel: ", totalSteel, "");
+	UtilLib::logLine("Total Tungsten: ", totalTungsten, "");
+	UtilLib::logLine("World Population: ", worldPop, "");
 
 	for (auto& scores : strengthScores) {
 		for (auto& entry : scores.second) {
-			logLine("Strength: ", scores.first, " ", scenGen.countryMap.at(entry).attributeStrings.at("fullName"),
+			UtilLib::logLine("Strength: ", scores.first, " ", scenGen.countryMap.at(entry).attributeStrings.at("fullName"),
 				" ", scenGen.countryMap.at(entry).attributeStrings.at("rulingParty"), "");
 		}
 	}

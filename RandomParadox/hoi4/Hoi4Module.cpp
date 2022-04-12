@@ -48,8 +48,8 @@ bool Hoi4Module::createPaths()
 		return true;
 	}
 	catch (std::exception e) {
-		logLine("Configured paths seem to be messed up, check Hoi4Module.json");
-		logLine("Error is: ", e.what());
+		UtilLib::logLine("Configured paths seem to be messed up, check Hoi4Module.json");
+		UtilLib::logLine("Error is: ", e.what());
 		system("pause");
 		return false;
 	}
@@ -80,11 +80,9 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		Hoi4Parser::dumpSupplyAreas(hoi4ModPath + "\\map\\supplyareas", scenGen.f.provinceGenerator.regions);
 		Hoi4Parser::dumpWeatherPositions(hoi4ModPath + "\\map\\weatherpositions.txt", scenGen.f.provinceGenerator.regions, hoi4Gen.strategicRegions);
 		Hoi4Parser::dumpAdjacencyRules(hoi4ModPath + "\\map\\adjacency_rules.txt");
-		//Hoi4Parser::dumpAdj(hoi4ModPath + "\\map\\adjacencies.csv");
 		Hoi4Parser::dumpAirports(hoi4ModPath + "\\map\\airports.txt", scenGen.f.provinceGenerator.regions);
 		Hoi4Parser::dumpBuildings(hoi4ModPath + "\\map\\buildings.txt", scenGen.f.provinceGenerator.regions);
 		if (!useDefaultStates) {
-			//Hoi4Parser::dumpAdj(hoi4ModPath + "\\map\\adjacencies.csv");
 			Hoi4Parser::dumpDefinition(hoi4ModPath + "\\map\\definition.csv", scenGen.gameProvinces);
 		}
 		Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
@@ -151,18 +149,17 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 			Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
 		}
 		catch (std::exception e) {
-			logLine("Configured paths seem to be messed up, check Hoi4Module.json");
-			logLine("Error is: ", e.what());
+			UtilLib::logLine("Configured paths seem to be messed up, check Hoi4Module.json");
+			UtilLib::logLine("Error is: ", e.what());
 			system("pause");
 			return;
 		}
 
 		// now if everything worked, print info about world and pause for user to see
 		hoi4Gen.printStatistics(scenGen);
-		system("pause");
 	}
 }
-
+// a method to search for the original game files on the hard drive(s)
 bool Hoi4Module::findHoi4()
 {
 	std::vector<std::string> drives{ "C:\\", "D:\\", "E:\\", "F:\\", "G:\\", "H:\\" };
@@ -187,7 +184,7 @@ bool Hoi4Module::findHoi4()
 	}
 	return false;
 }
-
+// reads config for Hearts of Iron IV
 void Hoi4Module::readConfig()
 {
 	// Short alias for this namespace
@@ -197,23 +194,26 @@ void Hoi4Module::readConfig()
 	std::ifstream f("Hoi4Module.json");
 	std::stringstream buffer;
 	if (!f.good()) {
-		logLine("Config could not be loaded");
+		UtilLib::logLine("Config could not be loaded");
 	}
 	buffer << f.rdbuf();
 	try {
 		pt::read_json(buffer, root);
 	}
 	catch (std::exception e) {
-		logLine("Incorrect config \"Hoi4Module.json\"");
-		logLine("You can try fixing it yourself. Error is: ", e.what());
-		logLine("Otherwise try running it through a json validator, e.g. \"https://jsonlint.com/\" or search for \"json validator\"");
+		UtilLib::logLine("Incorrect config \"Hoi4Module.json\"");
+		UtilLib::logLine("You can try fixing it yourself. Error is: ", e.what());
+		UtilLib::logLine("Otherwise try running it through a json validator, e.g. \"https://jsonlint.com/\" or search for \"json validator\"");
 		system("pause");
 	}
+	// now read the paths
 	modName = root.get<std::string>("module.modName");
 	hoi4Path = root.get<std::string>("module.hoi4Path");
 	hoi4ModPath = root.get<std::string>("module.hoi4ModPath") + modName;
 	hoi4ModsDirectory = root.get<std::string>("module.hoi4ModsDirectory");
+	// now try to locate game files
 	findHoi4();
+	// default values taken from base game
 	hoi4Gen.resources = {
 		{ "aluminium",{ root.get<double>("hoi4.aluminiumFactor"), 1169.0, 0.3 }},
 		{ "chromium",{ root.get<double>("hoi4.chromiumFactor"), 1250.0, 0.2 } },
@@ -222,9 +222,10 @@ void Hoi4Module::readConfig()
 		{ "steel",{ root.get<double>("hoi4.steelFactor"), 2562.0, 0.5 }},
 		{ "tungsten",{ root.get<double>("hoi4.tungstenFactor"), 1188.0, 0.2 }}
 	};
-	numCountries = root.get<int>("scenario.numCountries");
 	hoi4Gen.worldPopulationFactor = root.get<double>("scenario.worldPopulationFactor");
 	hoi4Gen.industryFactor = root.get<double>("scenario.industryFactor");
 	hoi4Gen.resourceFactor = root.get<double>("hoi4.resourceFactor");
+	// passed to generic ScenarioGenerator
+	numCountries = root.get<int>("scenario.numCountries");
 }
 

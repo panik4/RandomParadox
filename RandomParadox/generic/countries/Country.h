@@ -9,8 +9,8 @@ class Country
 {
 public:
 	// member variables
-	std::string tag;
 	const int ID;
+	std::string tag;
 	std::string name;
 	std::string adjective;
 	int capitalRegionID;
@@ -23,7 +23,7 @@ public:
 	~Country();
 	// containers
 	std::map<std::string, std::string> attributeStrings;
-	std::map<std::string, int> attributeDoubles;
+	std::map<std::string, double> attributeDoubles;
 	std::map<std::string, std::vector<int>> attributeVectors;
 	std::vector<GameRegion> ownedRegions;
 	std::vector<std::vector<NationalFocus>> foci;

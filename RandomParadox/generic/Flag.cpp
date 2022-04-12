@@ -10,14 +10,14 @@ Flag::Flag(std::ranlux24 random, int width, int height) : random(random), width(
 	image = std::vector<unsigned char>(width * height * 4, 0);
 	int type = random() % flagTypes.size();
 	int flagSubType = random() % flagTypes[type].size();
-	int symbolType = flagTypes[type][flagSubType].size() ? *select_random(flagTypes[type][flagSubType]) : 0;
+	int symbolType = flagTypes[type][flagSubType].size() ? *UtilLib::select_random(flagTypes[type][flagSubType]) : 0;
 
 	auto randomIndex = random() % flagTypeColours[type].size();
 	for (auto& colGroup : flagTypeColours[type][flagSubType]) {
-		auto colour = *select_random(colourGroups[colGroup]);
+		auto colour = *UtilLib::select_random(colourGroups[colGroup]);
 		if (colours.size())
 			while (colour == colours[colours.size() - 1])
-				colour = *select_random(colourGroups[colGroup]);
+				colour = *UtilLib::select_random(colourGroups[colGroup]);
 
 		// symbol must not have the same colour as any of the previous flag colours
 		if (colGroup == flagTypeColours[type][flagSubType].back()) {
