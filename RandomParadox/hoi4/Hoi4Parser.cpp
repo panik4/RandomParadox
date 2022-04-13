@@ -301,20 +301,6 @@ void Hoi4Parser::dumpStrategicRegions(std::string path, const std::vector<Region
 	}
 }
 
-void Hoi4Parser::dumpSupplyAreas(std::string path, const  std::vector<Region>& regions)
-{
-	UtilLib::logLine("HOI4 Parser: Map: Supplying the Troops");
-	auto templateContent = pU::readFile("resources\\hoi4\\map\\SupplyArea.txt");
-	for (const auto& region : regions) {
-		if (region.sea)
-			continue;
-		auto content = templateContent;
-		pU::replaceOccurences(content, "templateID", std::to_string(region.ID + 1));
-		pU::replaceOccurences(content, "templateState", std::to_string(region.ID + 1));
-		pU::writeFile(path + "\\" + std::to_string(region.ID + 1) + "-SupplyArea.txt", content);
-	}
-}
-
 void Hoi4Parser::dumpSupply(std::string path, const std::vector<std::vector<int>> supplyNodeConnections)
 {
 	std::string supplyNodes = "";

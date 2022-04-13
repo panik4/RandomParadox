@@ -1,8 +1,0 @@
-supply_area={
-	id=templateID
-	name="SUPPLYAREA_templateID"
-	value=12
-	states={
-		templateState
-	}
-}

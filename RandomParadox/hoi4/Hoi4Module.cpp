@@ -77,7 +77,6 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		Hoi4Parser::dumpUnitStacks(hoi4ModPath + "\\map\\unitstacks.txt", scenGen.f.provinceGenerator.provinces);
 		Hoi4Parser::dumpRocketSites(hoi4ModPath + "\\map\\rocketsites.txt", scenGen.f.provinceGenerator.regions);
 		Hoi4Parser::dumpStrategicRegions(hoi4ModPath + "\\map\\strategicregions", scenGen.f.provinceGenerator.regions, hoi4Gen.strategicRegions);
-		Hoi4Parser::dumpSupplyAreas(hoi4ModPath + "\\map\\supplyareas", scenGen.f.provinceGenerator.regions);
 		Hoi4Parser::dumpWeatherPositions(hoi4ModPath + "\\map\\weatherpositions.txt", scenGen.f.provinceGenerator.regions, hoi4Gen.strategicRegions);
 		Hoi4Parser::dumpAdjacencyRules(hoi4ModPath + "\\map\\adjacency_rules.txt");
 		Hoi4Parser::dumpAirports(hoi4ModPath + "\\map\\airports.txt", scenGen.f.provinceGenerator.regions);
@@ -122,7 +121,6 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 			Hoi4Parser::dumpUnitStacks(hoi4ModPath + "\\map\\unitstacks.txt", scenGen.f.provinceGenerator.provinces);
 			Hoi4Parser::dumpRocketSites(hoi4ModPath + "\\map\\rocketsites.txt", scenGen.f.provinceGenerator.regions);
 			Hoi4Parser::dumpStrategicRegions(hoi4ModPath + "\\map\\strategicregions", scenGen.f.provinceGenerator.regions, hoi4Gen.strategicRegions);
-			Hoi4Parser::dumpSupplyAreas(hoi4ModPath + "\\map\\supplyareas", scenGen.f.provinceGenerator.regions);
 			Hoi4Parser::dumpStates(hoi4ModPath + "\\history\\states", scenGen.countryMap);
 			Hoi4Parser::dumpFlags(hoi4ModPath + "\\gfx\\flags\\", scenGen.countryMap);
 			Hoi4Parser::dumpWeatherPositions(hoi4ModPath + "\\map\\weatherpositions.txt", scenGen.f.provinceGenerator.regions, hoi4Gen.strategicRegions);
