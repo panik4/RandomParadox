@@ -95,12 +95,12 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 		f.provinceGenerator.evaluateNeighbours(provinceMap);
 		tG.detectContinents(terrainBMP);
 		f.provinceGenerator.generateRegions(3);
-		f.provinceGenerator.evaluateContinents(Data::getInstance().width, Data::getInstance().height, tG);
+		f.provinceGenerator.evaluateContinents(Data::getInstance().width, Data::getInstance().height, tG.continents, tG.landBodies);
 		//genericParser.writeAdjacency((Data::getInstance().debugMapsPath + ("adjacency.csv")).c_str(), provinceGenerator.provinces);		
 		//genericParser.writeDefinition((Data::getInstance().debugMapsPath + ("definition.csv")).c_str(), provinceGenerator.provinces);
-		Visualizer::provinceInfoMapNeighbours(provinceMap, f.provinceGenerator);
-		Visualizer::provinceInfoMapCoasts(provinceMap, f.provinceGenerator);
-		Visualizer::provinceInfoMapBorders(provinceMap, f.provinceGenerator);
+		Visualizer::provinceInfoMapNeighbours(provinceMap, f.provinceGenerator.provinces);
+		Visualizer::provinceInfoMapCoasts(provinceMap, f.provinceGenerator.provinces);
+		Visualizer::provinceInfoMapBorders(provinceMap, f.provinceGenerator.provinces);
 	}
 	if (useDefaultStates) {
 		auto textRegions = rLoader.loadStates(gamePaths["hoi4"]);
@@ -130,8 +130,8 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates, bool useDefaultP
 	auto provinceMap = bitmaps["provinces"];
 	f.provinceGenerator.sortRegions();
 	f.provinceGenerator.evaluateRegionNeighbours();
-	Visualizer::provinceInfoMapBorders(provinceMap, f.provinceGenerator);
-	Visualizer::provinceInfoMapClassification(provinceMap, f.provinceGenerator);
+	Visualizer::provinceInfoMapBorders(provinceMap, f.provinceGenerator.provinces);
+	Visualizer::provinceInfoMapClassification(provinceMap, f.provinceGenerator.provinces);
 
 }
 

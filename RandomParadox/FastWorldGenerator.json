@@ -5,7 +5,7 @@
 		"genHeight" : true,
 		"interactiveMode" : false,
 		"writeMaps" : true,
-		"seed" : 0
+		"seed" : 5
 	},
 	"interactiveMode":
 	{
@@ -13,14 +13,14 @@
 	},
 	"map": 
 	{
-        "height" : 1024,
-		"width" : 2816,
+        "height" : 512,
+		"width" : 512,
 		"landMassPercentage" : 35,
 		"seaLevel" : 94,
 		"accuracy": 100,
 		"rivers" : 
 		{
-			"numRivers" : 100000
+			"numRivers" : 100
 		},
 		"heightmap" : {
 			"complexHeight" : true,
