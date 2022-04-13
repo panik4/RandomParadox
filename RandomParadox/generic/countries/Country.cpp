@@ -18,7 +18,7 @@ void Country::assignRegions(int maxRegions, std::vector<GameRegion>& gameRegions
 	addRegion(startRegion, gameRegions, gameProvinces);
 	auto breakCounter = 0;
 	while (ownedRegions.size() < maxRegions && breakCounter++ < 100) {
-		for (auto& gameRegion : ownedRegions) {
+		for (const auto& gameRegion : ownedRegions) {
 			if (ownedRegions.size() >= maxRegions)
 				break;
 			if (gameRegion.neighbours.size() == 0)
