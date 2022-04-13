@@ -40,28 +40,21 @@ std::string NameGenerator::generateTag(std::string name, std::set<std::string>& 
 
 std::string NameGenerator::getRandomMapElement(std::string key, std::map<std::string, std::vector<std::string>> map)
 {
-	return *UtilLib::select_random(map[key]);
+	try {
+		return *UtilLib::select_random(map[key]);
+	}
+	catch (std::exception e) {
+		UtilLib::logLine("Error in Name Generation. Make sure the key: \"", key, "\" of the namegroup or token group is present");
+		system("pause");
+		return "";
+	}
 }
 
 std::string NameGenerator::getToken(std::vector<std::string>& rule)
 {
 	std::string retString = "";
 	for (int i = 0; i < rule.size(); i++) {
-		if (rule[i] == "c")
-			retString += getRandomMapElement("consonants", groups);
-		else if (rule[i] == "rc")
-			retString += getRandomMapElement("rareConsonants", groups);
-		else if (rule[i] == "gs")
-			retString += getRandomMapElement("groupStart", groups);
-		else if (rule[i] == "gm")
-			retString += getRandomMapElement("groupMiddle", groups);
-		else if (rule[i] == "ge")
-			retString += getRandomMapElement("groupEnd", groups);
-		else if (rule[i] == "gg")
-			retString += getRandomMapElement("groupGeneric", groups);
-		else {
-			retString += getRandomMapElement("vowels", groups);
-		}
+		retString += getRandomMapElement(rule[i], groups);
 	}
 	return retString;
 }
