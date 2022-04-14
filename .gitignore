@@ -16,7 +16,6 @@
 *Maps/*
 */inputs/*
 *x64
-*.tga
 *.bmp
 
 packages.config*

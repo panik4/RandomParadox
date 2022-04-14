@@ -2,122 +2,91 @@
 std::map<std::string, std::vector<Colour>> Flag::colourGroups;
 std::vector<std::vector<std::vector<int>>> Flag::flagTypes(7);
 std::vector<std::vector<std::vector<std::string>>> Flag::flagTypeColours(7);
+std::vector<std::vector<uint8_t>> Flag::flagTemplates;
+std::vector<std::vector<uint8_t>> Flag::symbolTemplates;
+std::vector<std::vector<std::string>> Flag::flagMetadata;
+std::vector<std::vector<std::string>> Flag::symbolMetadata;
 Flag::Flag()
 {}
 
 Flag::Flag(std::ranlux24 random, int width, int height) : random(random), width(width), height(height)
 {
 	image = std::vector<unsigned char>(width * height * 4, 0);
-	int type = random() % flagTypes.size();
-	int flagSubType = random() % flagTypes[type].size();
-	int symbolType = flagTypes[type][flagSubType].size() ? *UtilLib::select_random(flagTypes[type][flagSubType]) : 0;
+	auto randomIndex = Data::getInstance().random2() % flagTemplates.size();
+	image = flagTemplates[randomIndex];
+	auto flagInfo = flagMetadata[randomIndex];
+	auto flagColourGroups = ParserUtils::getTokens(flagInfo[0], ',');
+	auto symbolColourGroups = ParserUtils::getTokens(flagInfo[1], ',');
 
-	auto randomIndex = random() % flagTypeColours[type].size();
-	for (auto& colGroup : flagTypeColours[type][flagSubType]) {
+	// get the template and map all colours to indices
+	std::map<Colour, std::vector<int>> colourMapping;
+	for (auto i = 0; i < image.size(); i += 4) {
+		Colour temp(image[i], image[i + 1], image[i + 2]);
+		colourMapping[temp].push_back(i);
+	}
+	// determine replacements for the colours in the template.
+	// pool of colours is taken from colour groups defined in metadata files
+	std::vector<Colour> replacementColours;
+	for (auto& colGroup : flagColourGroups) {
 		auto colour = *UtilLib::select_random(colourGroups[colGroup]);
-		if (colours.size())
-			while (colour == colours[colours.size() - 1])
-				colour = *UtilLib::select_random(colourGroups[colGroup]);
-
-		// symbol must not have the same colour as any of the previous flag colours
-		if (colGroup == flagTypeColours[type][flagSubType].back()) {
-
-		}
-		colours.push_back(colour);
+		replacementColours.push_back(colour);
 	}
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			switch (type) {
-			case 0: {
-				flagType = TRICOLORE;
-				tricolore(i, j);
-				break;
-			}
-			case 1: {
-				flagType = ROTATEDTRICOLORE;
-				rotatedTricolore(i, j);
-				break;
-			}
-			case 2: {
-				flagType = PLAIN;
-				plain(i, j);
-				break;
-			}
-			case 3: {
-				flagType = PLAIN_TRIANGLE;
-				plain(i, j);
-				triangle(i, j, -0.1, 0.5, 0.55);
-				break;
-			}
-			case 4: {
-				flagType = BICOLORE;
-				bicolore(i, j);
-				break;
-			}
-			case 5: {
-				flagType = ROTATEDBICOLORE;
-				rotatedBicolore(i, j);
-				break;
-			}
-			case 6: {
-				flagType = BICOLORE_TRIANGLE;
-				rotatedBicolore(i, j);
-				triangle(i, j, -0.1, 0.5, 0.55);
-				break;
-			}
-			default:
-				flagType = PLAIN;
-				plain(i, j);
-				break;
-			}
+	// now convert the old colours to the replacement colours
+	// alpha values stay the same
+	int colIndex = 0;
+	for (auto mapping : colourMapping) {
+		for (auto index : mapping.second) {
+			image[index] = replacementColours[colIndex].getBlue();
+			image[index + 1] = replacementColours[colIndex].getGreen();
+			image[index + 2] = replacementColours[colIndex].getRed();
 		}
+		colIndex++;
 	}
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			switch (symbolType)
-			{
-			case 0: {
-				break;
-			}
-			case 20: {
-				flagSubType = STAR;
-				star(i, j, 0.5, 0.5, 0.35);
-				break;
-			}
-			case 21: {
-				flagSubType = MOONSTAR;
-				halfMoonStars(i, j);
-				break;
-			}
-			case 22: {
-				flagSubType = SQUARE;
-				squareSquared(i, j);
-				break;
-			}
-			case 23: {
-				flagSubType = CIRCLE;
-				circle(i, j);
-				break;
-			}
-			case 24: {
-				flagSubType = MULTISTAR;
-				circle(i, j);
-				break;
-			}
-			case 25: {
-				flagSubType = MOON;
-				halfMoon(i, j);
-				break;
-			}
-			case 26: {
-				flagSubType = LEFT_TRIANGLE;
-				triangle(i, j, -0.1, 0.5, 0.45);
-				break;
-			}
-			default:
-				break;
-			}
+
+	// now load symbol templates
+	randomIndex = Data::getInstance().random2() % symbolTemplates.size();
+	auto symbol = symbolTemplates[1];
+	auto symbolInfo = symbolMetadata[randomIndex];
+	auto symbolHeightOffset = std::stod(flagInfo[4]);
+	auto symbolWidthOffset = std::stod(flagInfo[3]);
+
+	// now resize symbol
+	auto reductionFactor = std::stod(flagInfo[5]);
+	int newSize = 52 * reductionFactor;
+	symbol = Flag::resize(newSize, newSize, symbol, 52, 52);
+
+	// check if we want to replace the colour
+	auto replaceColour = symbolInfo[0] == "true";
+	replacementColours.clear();
+	for (auto colGroup : symbolColourGroups) {
+		auto colour = colourGroups[colGroup][Data::getInstance().random2() % colourGroups[colGroup].size()];
+		replacementColours.push_back(colour);
+	}
+	// get the template and map all colours to indices
+	colourMapping.clear();
+	for (auto i = 0; i < symbol.size(); i += 4) {
+		Colour temp(symbol[i], symbol[i + 1], symbol[i + 2]);
+		// only if alpha is greater 0
+		if (symbol[i + 3] > 0)
+			colourMapping[temp].push_back(i);
+	}
+	colIndex = 0;
+	for (auto mapping : colourMapping) {
+		for (auto index : mapping.second) {
+			// map indey from normal flag size to symbol size
+			auto offset = (int)(symbolHeightOffset * 52);
+			offset -= offset % 4;
+			auto height = offset + (index / (int)(52 * reductionFactor * 4));
+
+			offset = (int)((symbolWidthOffset * 328));
+			offset -= offset % 4;
+			auto width = offset + (index % (int)(52 * reductionFactor * 4));
+			image[328 * height + width] = replacementColours[colIndex].getBlue();
+			image[328 * height + width + 1] = replacementColours[colIndex].getGreen();
+			image[328 * height + width + 2] = replacementColours[colIndex].getRed();
+			image[328 * height + width + 3] = 255;
 		}
+		colIndex++;
 	}
 }
 
@@ -125,153 +94,6 @@ Flag::~Flag()
 {
 }
 
-void Flag::tricolore(int i, int j)
-{
-	unsigned short colourIndex = j / (width / 3);
-	setPixel(colours[colourIndex], i, j);
-}
-
-void Flag::rotatedTricolore(int i, int j)
-{
-	unsigned short colourIndex = i / (height / 3);
-	setPixel(colours[colourIndex], i, j);
-}
-
-void Flag::bicolore(int i, int j)
-{
-	unsigned short colourIndex = j / (width / 2);
-	setPixel(colours[colourIndex], i, j);
-}
-
-void Flag::rotatedBicolore(int i, int j)
-{
-	unsigned short colourIndex = i / (height / 2);
-	setPixel(colours[colourIndex], i, j);
-}
-
-void Flag::plain(int i, int j)
-{
-	setPixel(colours[0], i, j);
-}
-
-void Flag::squareSquared(int i, int j)
-{
-	if (abs((int)j - width / 2) < 16 && abs((int)i - height / 2) < 16)
-		setPixel(colours.back(), i, j);
-}
-
-void Flag::circle(int i, int j)
-{
-	struct Point { int x; int y; };
-	Point center{ width / 2, height / 2 };
-	Point curPos{ j, i };
-	auto distance = abs(std::hypot(center.x - curPos.x, center.y - curPos.y));
-	if (distance < 15) {
-		setPixel(colours.back(), i, j);
-	}
-}
-
-void Flag::halfMoon(int i, int j)
-{
-	auto radius = 15.0;
-	struct Point { int x; int y; };
-	Point center{ width / 2, height / 2 };
-	Point curPos{ j, i };
-	if (curPos.x < center.x + radius) {
-		double distanceFromLeftMost = fabs(curPos.x - (center.x - radius));
-		double factor = (distanceFromLeftMost / (radius));
-		auto distance = std::hypot(center.x - curPos.x, center.y - curPos.y);
-		if (distance < radius && distance > radius * 0.5 * (factor)) {
-			setPixel(colours.back(), i, j);
-		}
-	}
-}
-bg::model::point<double, 2, bg::cs::cartesian> rotate(double angle, bg::model::point<double, 2, bg::cs::cartesian> point, bg::model::point<double, 2, bg::cs::cartesian> pivot)
-{
-	//double angle = 1.2566370614;
-	double s = sin(angle); // angle is in radians
-	double c = cos(angle); // angle is in radians
-
-	double xnew = (bg::get<0>(point) - bg::get<0>(pivot)) * c + (bg::get<1>(point) - bg::get<1>(pivot)) * s;
-	double ynew = -(bg::get<0>(point) - bg::get<0>(pivot)) * s + (bg::get<1>(point) - bg::get<1>(pivot)) * c;
-	bg::model::point<double, 2, bg::cs::cartesian> point2(xnew + bg::get<0>(pivot), ynew + bg::get<1>(pivot));
-	return point2;
-
-}
-void Flag::star(int i, int j, double xPos, double yPos, double size)
-{
-	double angle = 72 * 3.14 / 180;
-	typedef boost::geometry::model::d2::point_xy<double> point_type;
-	typedef boost::geometry::model::linestring<point_type> linestring_type;
-
-
-	bg::model::point<double, 2, bg::cs::cartesian> center(width * xPos, height * yPos);
-	bg::model::point<double, 2, bg::cs::cartesian> curPos(j, i);
-	std::vector<bg::model::point<double, 2, bg::cs::cartesian>> points;
-	bg::model::point<double, 2, bg::cs::cartesian> one(bg::get<0>(center), bg::get<1>(center) + size * width); // up
-	points.push_back(one);
-	for (int i = 0; i < 4; i++)
-		points.push_back(rotate(angle, points[i], center));
-
-	std::vector<linestring_type> lines;
-	for (auto point : points) {
-		linestring_type line;
-		line.push_back(point_type(bg::get<0>(center), bg::get<1>(center)));
-		line.push_back(point_type(bg::get<0>(point), bg::get<1>(point)));
-		lines.push_back(line);
-	}
-	for (int index = 0; index < points.size(); index++) {
-		double lineDistance = fabs(bg::distance(curPos, lines[index]));
-		double yDistance = bg::distance(curPos, points[index]);
-		double centerDistance = bg::distance(curPos, center);
-		if (yDistance < (size * width)) {
-			double factor = yDistance / (size * (double)width);
-			if (lineDistance < (width / 4 * size) * factor)
-				setPixel(colours.back(), i, j);
-		}
-	}
-}
-
-void Flag::halfMoonStars(int i, int j)
-{
-	halfMoon(i, j);
-	star(i, j, 0.65, 0.7, 0.07);
-	star(i, j, 0.7, 0.5, 0.07);
-	star(i, j, 0.65, 0.3, 0.07);
-}
-
-void Flag::triangle(int i, int j, double xPos, double yPos, double size)
-{
-	double angle = 90 * 3.14 / 180.0;
-	typedef boost::geometry::model::d2::point_xy<double> point_type;
-	typedef boost::geometry::model::linestring<point_type> linestring_type;
-
-	bg::model::point<double, 2, bg::cs::cartesian> center(width * xPos, height * yPos);
-	bg::model::point<double, 2, bg::cs::cartesian> curPos(j, i);
-	std::vector<bg::model::point<double, 2, bg::cs::cartesian>> points;
-	bg::model::point<double, 2, bg::cs::cartesian> one(bg::get<0>(center), bg::get<1>(center) + size * width); // up
-	points.push_back(rotate(angle, one, center));
-	for (int i = 0; i < 0; i++)
-		points.push_back(rotate(angle, points[i], center));
-	std::vector<linestring_type> lines;
-	for (auto point : points) {
-		linestring_type line;
-		line.push_back(point_type(bg::get<0>(center), bg::get<1>(center)));
-		line.push_back(point_type(bg::get<0>(point), bg::get<1>(point)));
-		lines.push_back(line);
-	}
-	for (int index = 0; index < points.size(); index++) {
-		double lineDistance = fabs(bg::distance(curPos, lines[index]));
-		double yDistance = bg::distance(curPos, points[index]);
-
-		double centerDistance = bg::distance(curPos, center);
-		if (yDistance < (size * width)) {
-			double factor = yDistance / (size * (double)width);
-			if (lineDistance < (width / 2 * size) * factor)
-				setPixel(colours.back(), i, j);
-		}
-	}
-}
 void Flag::setPixel(Colour colour, int x, int y)
 {
 	image[(x * width + y) * 4] = colour.getBlue();
@@ -285,7 +107,6 @@ Colour Flag::getPixel(int x, int y)
 	Colour colour{ image[(x * width + y) * 4],image[(x * width + y) * 4 + 1],image[(x * width + y) * 4 + 2] };
 	return colour;
 }
-
 
 Colour Flag::getPixel(int pos)
 {
@@ -310,6 +131,23 @@ std::vector<uint8_t> Flag::resize(int width, int height)
 			resized[(h * width + w) * 4 + 1] = image[colourmapIndex + 1];
 			resized[(h * width + w) * 4 + 2] = image[colourmapIndex + 2];
 			resized[(h * width + w) * 4 + 3] = image[colourmapIndex + 3];
+		}
+	}
+	return resized;
+}
+
+std::vector<uint8_t> Flag::resize(int width, int height, std::vector<unsigned char> tImage, int inWidth, int inHeight)
+{
+	auto resized = std::vector<unsigned char>(width * height * 4, 0);
+	auto factor = inWidth / width;
+	for (int h = 0; h < height; h++) {
+		for (int w = 0; w < width; w++) {
+			auto colourmapIndex = factor * h * inWidth + factor * w;
+			colourmapIndex *= 4;
+			resized[(h * width + w) * 4] = tImage[colourmapIndex];
+			resized[(h * width + w) * 4 + 1] = tImage[colourmapIndex + 1];
+			resized[(h * width + w) * 4 + 2] = tImage[colourmapIndex + 2];
+			resized[(h * width + w) * 4 + 3] = tImage[colourmapIndex + 3];
 		}
 	}
 	return resized;
@@ -351,5 +189,25 @@ void Flag::readFlagTypes()
 		for (auto& cGroup : colourGroupStrings)
 			flagTypeColours[flagType][flagTypeID].push_back(cGroup);
 	}
+}
 
+void Flag::readFlagTemplates()
+{
+	for (int i = 0; i < 100; i++) {
+		if (std::experimental::filesystem::exists("resources\\flags\\flag_presets\\" + std::to_string(i) + ".tga")) {
+			flagTemplates.push_back(TextureWriter::readTGA("resources\\flags\\flag_presets\\" + std::to_string(i) + ".tga"));
+			// get line and immediately tokenize it
+			flagMetadata.push_back(ParserUtils::getTokens(ParserUtils::getLines("resources\\flags\\flag_presets\\" + std::to_string(i) + ".txt")[0], ';'));
+		}
+	}
+}
+void Flag::readSymbolTemplates()
+{
+	for (int i = 0; i < 100; i++) {
+		if (std::experimental::filesystem::exists("resources\\flags\\symbol_presets\\" + std::to_string(i) + ".tga")) {
+			symbolTemplates.push_back(TextureWriter::readTGA("resources\\flags\\symbol_presets\\" + std::to_string(i) + ".tga"));
+			// get line and immediately tokenize it
+			symbolMetadata.push_back(ParserUtils::getTokens(ParserUtils::getLines("resources\\flags\\symbol_presets\\" + std::to_string(i) + ".txt")[0], ';'));
+		}
+	}
 }

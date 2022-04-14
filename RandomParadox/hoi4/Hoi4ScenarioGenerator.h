@@ -4,6 +4,7 @@
 #include "../generic/ScenarioGenerator.h"
 #include "NationalFocus.h"
 #include <set>
+#include <array>
 
 
 

@@ -6,6 +6,7 @@
 #include "../generic/NameGenerator.h"
 #include "Hoi4ScenarioGenerator.h"
 #include "NationalFocus.h"
+#include <array>
 
 class Hoi4Parser
 {
