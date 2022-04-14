@@ -7,6 +7,8 @@ ScenarioGenerator::ScenarioGenerator(FastWorldGenerator& f) : f(f)
 	gamePaths["hoi4"] = "D:\\Steam\\steamapps\\common\\Hearts of Iron IV\\";
 	Flag::readColourGroups();
 	Flag::readFlagTypes();
+	Flag::readFlagTemplates();
+	Flag::readSymbolTemplates();
 }
 
 

@@ -26,3 +26,18 @@ void TextureWriter::writeTGA(int width, int height, std::vector<uint8_t>& pixelD
 	SaveToTGAFile(image, TGA_FLAGS_NONE, destinationPath.c_str());
 }
 
+std::vector<uint8_t> TextureWriter::readTGA(std::string destination)
+{
+	std::wstring destinationPath = std::wstring(destination.begin(), destination.end());
+	ScratchImage image;
+	DirectX::LoadFromTGAFile(destinationPath.c_str(), nullptr, image);
+	std::vector<uint8_t> pixelData;
+	for (int i = 0; i < image.GetImages()->height*image.GetImages()->width *4; i++) {
+		pixelData.push_back(image.GetImages()->pixels[i]);
+	}
+	for (int i = 0; i < pixelData.size(); i += 4)
+		std::swap(pixelData[i], pixelData[i + 2]);
+	return pixelData;
+
+}
+
