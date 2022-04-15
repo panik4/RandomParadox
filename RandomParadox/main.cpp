@@ -2,13 +2,28 @@
 #include "FormatConverter.h"
 #include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Module.h"
+#include <filesystem>
+void dumpInfo(std::string error) {
+	auto dump = ParserUtils::readFile("RandomParadox.json");
+	dump += ParserUtils::readFile("Hoi4Module.json");
+	dump += ParserUtils::readFile("FastWorldGenerator.json");
+	dump += std::to_string(Data::getInstance().seed);
+	dump += "\n";
+	for (auto layerSeed : Data::getInstance().seeds) {
+		dump += std::to_string(layerSeed);
+		dump += "\n";
+	}
+	dump += error;
+	ParserUtils::writeFile("runDump.txt", dump);
+}
+
 
 int main() {
 	// Read the basic settings
 	std::ifstream f("RandomParadox.json");
 	std::stringstream buffer;
 	if (!f.good())
-		std::cout << "Config could not be loaded" << std::endl;
+		UtilLib::logLine("Config could not be loaded");
 	buffer << f.rdbuf();
 	// Short alias for this namespace
 	namespace pt = boost::property_tree;
@@ -21,12 +36,13 @@ int main() {
 		UtilLib::logLine("Incorrect config \"RandomParadox.json\"");
 		UtilLib::logLine("You can try fixing it yourself. Error is: ", e.what());
 		UtilLib::logLine("Otherwise try running it through a json validator, e.g. \"https://jsonlint.com/\" or search for \"json validator\"");
+		dumpInfo(e.what());
 		system("pause");
 		return -1;
 	}
 
 	// if debug is enabled in the config, a directory subtree containing visualisation of many maps will be created
-	bool debug = root.get<bool>("randomScenario.debug");
+	bool writeMaps = root.get<bool>("randomScenario.writeMaps");
 
 	// generate hoi4 scenario or not
 	bool genHoi4Scenario = root.get<bool>("randomScenario.genhoi4");
@@ -44,48 +60,55 @@ int main() {
 
 	// check if we can read the config
 	try {
-		if (!Data::getInstance().getConfig("FastWorldGenerator.json")) {
-			system("pause");
-			return -1;
-		}
+		Data::getInstance().getConfig("FastWorldGenerator.json");
 	}
 	catch (std::exception e) {
 		UtilLib::logLine("Incorrect config \"FastWorldGenerator.json\"");
 		UtilLib::logLine("You can try fixing it yourself. Error is: ", e.what());
 		UtilLib::logLine("Otherwise try running it through a json validator, e.g. \"https://jsonlint.com/\" or \"search for json validator\"");
+		dumpInfo(e.what());
 		system("pause");
 		return -1;
 	}
 	// if we don't want the FastWorldGenerator output in MapsPath, debug = 0 turns this off
-	if (!debug) {
+	if (!writeMaps) {
 		Data::getInstance().writeMaps = false;
 	}
-	NameGenerator::prepare();
-	FastWorldGenerator fastWorldGen;
-	Hoi4Module hoi4Mod;
-	hoi4Mod.readConfig();
-	if (!useDefaultMap) {
-		// if we configured to use an existing heightmap
-		if (useGlobalExistingHeightmap) {
-			// overwrite settings of fastworldgen
-			Data::getInstance().heightmapIn = globalHeightMapPath;
-			Data::getInstance().genHeight = false;
-			Data::getInstance().latLow = latLow;
-			Data::getInstance().latHigh = latHigh;
-		}
-		// now run the world generation
-		fastWorldGen.generateWorld();
-	}
-	// now start the generation of the scenario with the generated map files
-	ScenarioGenerator sG(fastWorldGen);
-	// and now check if we need to generate game specific files
-	if (genHoi4Scenario)
-		// generate hoi4 scenario
-		hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG);
+	try {
+		NameGenerator::prepare();
+		FastWorldGenerator fastWorldGen;
+		Hoi4Module hoi4Mod;
 
+		hoi4Mod.readConfig();
+		if (!useDefaultMap) {
+			// if we configured to use an existing heightmap
+			if (useGlobalExistingHeightmap) {
+				// overwrite settings of fastworldgen
+				Data::getInstance().heightmapIn = globalHeightMapPath;
+				Data::getInstance().genHeight = false;
+				Data::getInstance().latLow = latLow;
+				Data::getInstance().latHigh = latHigh;
+			}
+			Data::getInstance().sanityCheck();
+			// now run the world generation
+			fastWorldGen.generateWorld();
+		}
+		// now start the generation of the scenario with the generated map files
+		ScenarioGenerator sG(fastWorldGen);
+		// and now check if we need to generate game specific files
+		if (genHoi4Scenario)
+			// generate hoi4 scenario
+			hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG);
+	}
+	catch (std::exception e) {
+		UtilLib::logLine(e.what());
+		dumpInfo(e.what());
+		system("pause");
+		return -1;
+	}
 	UtilLib::logLine("Done with the generation");
+	dumpInfo("");
 	system("pause");
 	return 0;
-
 }
 
