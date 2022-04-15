@@ -44,8 +44,8 @@ std::string NameGenerator::getRandomMapElement(std::string key, std::map<std::st
 		return *UtilLib::select_random(map[key]);
 	}
 	catch (std::exception e) {
-		UtilLib::logLine("Error in Name Generation. Make sure the key: \"", key, "\" of the namegroup or token group is present");
-		system("pause");
+		auto str = "Error in Name Generation. Make sure the key: \"" + key + "\" of the namegroup or token group is present";
+		throw(std::exception(str.c_str()));
 		return "";
 	}
 }
