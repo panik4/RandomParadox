@@ -48,9 +48,10 @@ bool Hoi4Module::createPaths()
 		return true;
 	}
 	catch (std::exception e) {
-		UtilLib::logLine("Configured paths seem to be messed up, check Hoi4Module.json");
-		UtilLib::logLine("Error is: ", e.what());
-		system("pause");
+		std::string error = "Configured paths seem to be messed up, check Hoi4Module.json\n";
+		error += "You can try fixing it yourself. Error is:\n ";
+		error += e.what();
+		throw(std::exception(error.c_str()));
 		return false;
 	}
 }
@@ -147,12 +148,11 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 			Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
 		}
 		catch (std::exception e) {
-			UtilLib::logLine("Configured paths seem to be messed up, check Hoi4Module.json");
-			UtilLib::logLine("Error is: ", e.what());
-			system("pause");
-			return;
+			std::string error = "Configured paths seem to be messed up, check Hoi4Module.json\n";
+			error += "You can try fixing it yourself. Error is: \n";
+			error += e.what();
+			throw(std::exception(error.c_str()));
 		}
-
 		// now if everything worked, print info about world and pause for user to see
 		hoi4Gen.printStatistics(scenGen);
 	}
@@ -199,10 +199,12 @@ void Hoi4Module::readConfig()
 		pt::read_json(buffer, root);
 	}
 	catch (std::exception e) {
-		UtilLib::logLine("Incorrect config \"Hoi4Module.json\"");
-		UtilLib::logLine("You can try fixing it yourself. Error is: ", e.what());
-		UtilLib::logLine("Otherwise try running it through a json validator, e.g. \"https://jsonlint.com/\" or search for \"json validator\"");
-		system("pause");
+		std::string error = "Incorrect config \"Hoi4Module.json\"\n";
+		error += "You can try fixing it yourself. Error is: \n";
+		error += e.what();
+		error += "\n";
+		error += "Otherwise try running it through a json validator, e.g. \"https://jsonlint.com/\" or search for \"json validator\"\n";
+		throw(std::exception(error.c_str()));
 	}
 	// now read the paths
 	modName = root.get<std::string>("module.modName");

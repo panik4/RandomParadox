@@ -179,7 +179,7 @@ void ScenarioGenerator::mapRegions()
 	}
 	// check if we have the same amount of gameProvinces as FastWorldGen provinces
 	if (gameProvinces.size() != f.provinceGenerator.provinces.size())
-		UtilLib::logLine("Fatal: Lost provinces");
+		throw(std::exception("Fatal: Lost provinces, terminating"));
 	// sort by gameprovince ID
 	std::sort(gameProvinces.begin(), gameProvinces.end());
 }

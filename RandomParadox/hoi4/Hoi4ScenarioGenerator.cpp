@@ -534,7 +534,6 @@ void Hoi4ScenarioGenerator::buildFocusTree(Country& source)
 			}
 			curY++;
 		}
-
 	}
 }
 bool Hoi4ScenarioGenerator::stepFulfillsRequirements(std::vector<std::string> stepRequirements, const std::vector<std::set<Country>> stepTargets)
@@ -673,12 +672,16 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 				std::map<int, NationalFocus> fulfilledSteps;
 				int stepIndex = -1;
 				std::vector<NationalFocus> chainFoci;
+
 				for (auto& targets : stepTargets) {
+					std::vector<Country> t1;
+					for (auto& tar : targets)
+						t1.push_back(tar);
 					stepIndex++;
 					if (!targets.size())
 						continue;
 					// select random target
-					auto target = *UtilLib::select_random(targets);
+					auto target = t1[Data::getInstance().random2() % t1.size()];
 					// however
 					//if (targets.find(scenGen.countryMap.at(chainFoci.back().destTag)) != targets.end())
 					//	target = scenGen.countryMap.at(chainFoci.back().destTag);
