@@ -19,17 +19,18 @@ void dumpInfo(std::string error) {
 
 
 int main() {
-	// Read the basic settings
-	std::ifstream f("RandomParadox.json");
-	std::stringstream buffer;
-	if (!f.good())
-		UtilLib::logLine("Config could not be loaded");
-	buffer << f.rdbuf();
 	// Short alias for this namespace
 	namespace pt = boost::property_tree;
 	// Create a root
 	pt::ptree root;
 	try {
+		// Read the basic settings
+		std::ifstream f("RandomParadox.json");
+		std::stringstream buffer;
+		if (!f.good())
+			UtilLib::logLine("Config could not be loaded");
+		buffer << f.rdbuf();
+
 		pt::read_json(buffer, root);
 	}
 	catch (std::exception e) {

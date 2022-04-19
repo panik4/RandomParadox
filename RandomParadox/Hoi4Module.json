@@ -10,7 +10,7 @@
 	{
 		"strategicRegionSize": 2,
 		"resourceFactor": 1.0,
-		"aluminiumFactor": 1.0,
+		"aluminiumFactor": 0.00001,
 		"chromiumFactor": 1.0,
 		"oilFactor": 1.0,
 		"rubberFactor": 1.0,

@@ -15,36 +15,36 @@ bool Hoi4Module::createPaths()
 	// prepare folder structure
 	try {
 		// mod directory
-		std::experimental::filesystem::create_directory(hoi4ModPath);
+		std::filesystem::create_directory(hoi4ModPath);
 		// map
-		std::experimental::filesystem::remove_all(hoi4ModPath + "\\map\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\map\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\map\\terrain\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\map\\supplyareas\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\map\\strategicregions\\");
+		std::filesystem::remove_all(hoi4ModPath + "\\map\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\map\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\map\\terrain\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\map\\supplyareas\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\map\\strategicregions\\");
 		// gfx
-		std::experimental::filesystem::remove_all(hoi4ModPath + "\\gfx");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\gfx\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\gfx\\flags\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\gfx\\flags\\small\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\gfx\\flags\\medium\\");
+		std::filesystem::remove_all(hoi4ModPath + "\\gfx");
+		std::filesystem::create_directory(hoi4ModPath + "\\gfx\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\gfx\\flags\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\gfx\\flags\\small\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\gfx\\flags\\medium\\");
 		// history
-		std::experimental::filesystem::remove_all(hoi4ModPath + "\\history");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\units\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\states\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\history\\countries\\");
+		std::filesystem::remove_all(hoi4ModPath + "\\history");
+		std::filesystem::create_directory(hoi4ModPath + "\\history\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\history\\units\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\history\\states\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\history\\countries\\");
 		// localisation
-		std::experimental::filesystem::remove_all(hoi4ModPath + "\\localisation\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\localisation\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\localisation\\english\\");
+		std::filesystem::remove_all(hoi4ModPath + "\\localisation\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\localisation\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\localisation\\english\\");
 		// common
-		std::experimental::filesystem::remove_all(hoi4ModPath + "\\common\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\countries\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\bookmarks\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\country_tags\\");
-		std::experimental::filesystem::create_directory(hoi4ModPath + "\\common\\national_focus\\");
+		std::filesystem::remove_all(hoi4ModPath + "\\common\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\common\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\common\\countries\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\common\\bookmarks\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\common\\country_tags\\");
+		std::filesystem::create_directory(hoi4ModPath + "\\common\\national_focus\\");
 		return true;
 	}
 	catch (std::exception e) {
@@ -88,25 +88,33 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
 	}
 	else {
-		// start with the generic stuff in the Scenario Generator
-		scenGen.mapRegions();
-		scenGen.mapContinents();
-		scenGen.generateCountries(numCountries);
-		scenGen.evaluateNeighbours();
-		scenGen.generateWorld();
-		scenGen.dumpDebugCountrymap(Data::getInstance().mapsPath + "countries.bmp");
+		try {
+			// start with the generic stuff in the Scenario Generator
+			scenGen.mapRegions();
+			scenGen.mapContinents();
+			scenGen.generateCountries(numCountries);
+			scenGen.evaluateNeighbours();
+			scenGen.generateWorld();
+			scenGen.dumpDebugCountrymap(Data::getInstance().mapsPath + "countries.bmp");
 
-		// now generate hoi4 specific stuff
-		hoi4Gen.generateCountrySpecifics(scenGen, scenGen.countryMap);
-		hoi4Gen.generateStateSpecifics(scenGen);
-		hoi4Gen.generateStateResources(scenGen);
-		hoi4Gen.generateStrategicRegions(scenGen);
-		hoi4Gen.generateWeather(scenGen);
-		hoi4Gen.evaluateCountries(scenGen);
-		hoi4Gen.generateLogistics(scenGen);
-		NationalFocus::mapTypes();
-		hoi4Gen.evaluateCountryGoals(scenGen);
-		hoi4Gen.generateCountryUnits(scenGen);
+			// now generate hoi4 specific stuff
+			hoi4Gen.generateCountrySpecifics(scenGen, scenGen.countryMap);
+			hoi4Gen.generateStateSpecifics(scenGen);
+			hoi4Gen.generateStateResources(scenGen);
+			hoi4Gen.generateStrategicRegions(scenGen);
+			hoi4Gen.generateWeather(scenGen);
+			hoi4Gen.evaluateCountries(scenGen);
+			hoi4Gen.generateLogistics(scenGen);
+			NationalFocus::mapTypes();
+			hoi4Gen.evaluateCountryGoals(scenGen);
+			hoi4Gen.generateCountryUnits(scenGen);
+		}
+		catch (std::exception e) {
+			std::string error = "Error while dumping and writing files.\n";
+			error += "Error is: \n";
+			error += e.what();
+			throw(std::exception(error.c_str()));
+		}
 
 		// now start writing game files
 		try {
@@ -163,20 +171,20 @@ bool Hoi4Module::findHoi4()
 {
 	std::vector<std::string> drives{ "C:\\", "D:\\", "E:\\", "F:\\", "G:\\", "H:\\" };
 	// first try to find hoi4 at the configured location
-	if (std::experimental::filesystem::exists(hoi4Path)) {
+	if (std::filesystem::exists(hoi4Path)) {
 		hoi4Path = hoi4Path;
 		return true;
 	}
 	for (const auto& drive : drives) {
-		if (std::experimental::filesystem::exists(drive + "Program Files (x86)\\Steam\\steamapps\\common\\Hearts of Iron IV")) {
+		if (std::filesystem::exists(drive + "Program Files (x86)\\Steam\\steamapps\\common\\Hearts of Iron IV")) {
 			hoi4Path = drive + "Program Files (x86)\\Steam\\steamapps\\common\\Hearts of Iron IV";
 			return true;
 		}
-		else if (std::experimental::filesystem::exists(drive + "Program Files\\Steam\\steamapps\\common\\Hearts of Iron IV")) {
+		else if (std::filesystem::exists(drive + "Program Files\\Steam\\steamapps\\common\\Hearts of Iron IV")) {
 			hoi4Path = drive + "Program Files\\Steam\\steamapps\\common\\Hearts of Iron IV";
 			return true;
 		}
-		else if (std::experimental::filesystem::exists(drive + "Steam\\steamapps\\common\\Hearts of Iron IV")) {
+		else if (std::filesystem::exists(drive + "Steam\\steamapps\\common\\Hearts of Iron IV")) {
 			hoi4Path = drive + "Steam\\steamapps\\common\\Hearts of Iron IV";
 			return true;
 		}
