@@ -11,7 +11,7 @@ public:
 	enum FocusType { attack, ally, foundFaction, factionInvite, military, defense, politics, country };
 	// constructors/destructors
 	NationalFocus();
-	NationalFocus(FocusType fType, bool default, std::string source, std::string dest, std::vector<int> date);
+	NationalFocus(FocusType fType, bool defaultV, std::string source, std::string dest, std::vector<int> date);
 	~NationalFocus();
 	// member variables
 	int ID;
@@ -22,7 +22,7 @@ public:
 	std::string sourceTag;
 	std::string destTag;
 	std::string bypass;
-	bool default;
+	bool defaultV;
 	int validity;
 	double durationFactor = 1.0;
 	bool atWar;

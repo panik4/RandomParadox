@@ -1,10 +1,10 @@
 {
 	"module": 
 	{
-		"modName" : "pdoxMod2",
+		"modName" : "pdoxMod3",
 		"hoi4Path" : "D://Steam//steamapps//common//Hearts of Iron IV",
-		"hoi4ModPath" : "C://Users//paul-//Documents//Paradox Interactive//Hearts of Iron IV//mod//",
-		"hoi4ModsDirectory" : "C://Users//paul-//Documents//Paradox Interactive//Hearts of Iron IV//mod//"
+		"hoi4ModPath" : "C://Users//Paul//Documents//Paradox Interactive//Hearts of Iron IV//mod//",
+		"hoi4ModsDirectory" : "C://Users//Paul//Documents//Paradox Interactive//Hearts of Iron IV//mod//"
 	},
 	"hoi4":
 	{
