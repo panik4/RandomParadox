@@ -411,33 +411,45 @@ void Hoi4Parser::writeHistoryCountries(std::string path, const std::map<std::str
 void Hoi4Parser::writeHistoryUnits(std::string path, const std::map<std::string, Country>& countries)
 {
 	UtilLib::logLine("HOI4 Parser: History: Deploying the Troops");
-	auto content = pU::readFile("resources\\hoi4\\history\\default_unit_template.txt");
+	auto defaultTemplate = pU::readFile("resources\\hoi4\\history\\default_unit_template.txt");
 	auto unitBlock = pU::readFile("resources\\hoi4\\history\\unit_block.txt");
-	auto weakTemplates = pU::readFile("resources\\hoi4\\history\\divisionTemplateWeak.txt");
-	auto regionalTemplates = pU::readFile("resources\\hoi4\\history\\divisionTemplateRegional.txt");
-	auto majorTemplates = pU::readFile("resources\\hoi4\\history\\divisionTemplateMajor.txt");
-	auto IDMapFile = pU::getLines("resources\\hoi4\\history\\divisionIDMapper.txt");
+
+	const auto unitTemplateFile = ParserUtils::readFile("resources\\hoi4\\history\\divisionTemplates.txt");
+	// now tokenize by : character to get single
+	const auto unitTemplates = ParserUtils::getTokens(unitTemplateFile, ':');
+	//auto IDMapFile = pU::getLines("resources\\hoi4\\history\\divisionIDMapper.txt");
 	std::map<int, std::string> IDMap;
-	for (auto& line : IDMapFile) {
+	/*for (const auto& line : IDMapFile) {
 		if (line.size()) {
 			auto lineTokens = pU::getTokens(line, ';');
 			IDMap[stoi(lineTokens[0])] = lineTokens[1];
 		}
-	}
+	}*/
 	for (const auto& country : countries) {
-		std::string unitFile = content;
-		if (country.second.attributeStrings.at("rank") == "major")
-			ParserUtils::replaceOccurences(unitFile, "templateTemplateBlock", majorTemplates);
-		else if (country.second.attributeStrings.at("rank") == "regional")
-			ParserUtils::replaceOccurences(unitFile, "templateTemplateBlock", regionalTemplates);
-		else
-			ParserUtils::replaceOccurences(unitFile, "templateTemplateBlock", weakTemplates);
+		// get the template file
+		std::string unitFile = defaultTemplate;
+		std::string divisionTemplates = "";
+		// now insert all the unit templates for this country
+		for (const auto ID : country.second.attributeVectors.at("units")) {
+			divisionTemplates.append(unitTemplates[ID]);
+			// we need to buffer the names of the templates for use in later unit generationm
+			auto requirements = ParserUtils::getBracketBlockContent(unitTemplates[ID], "requirements");
+			auto value = ParserUtils::getBracketBlockContent(requirements, "templateName");
+			IDMap[ID] = value;
+			// remove requirements line
+			ParserUtils::replaceLine(divisionTemplates, "requirements", "");
+		}
+		ParserUtils::replaceOccurences(unitFile, "templateTemplateBlock", divisionTemplates);
 
+		// now that we have the templates written down, we deploy units of these templates under the
+		// "divisions" key in the unitFile
 		std::string totalUnits = "";
 		for (int i = 0; i < country.second.attributeVectors.at("units").size(); i++) {
-			for (int x = 0; x < country.second.attributeVectors.at("units")[i]; x++) {
+			for (int x = 0; x < country.second.attributeVectors.at("unitCount")[i]; x++) {
+				UtilLib::logLine(country.second.attributeVectors.at("units")[i]);
 				auto tempUnit = unitBlock;
-				ParserUtils::replaceOccurences(tempUnit, "templateDivisionName", IDMap[i]);
+				ParserUtils::replaceOccurences(tempUnit, "templateDivisionName", IDMap.at(i));
+				UtilLib::logLine(IDMap.at(i));
 				ParserUtils::replaceOccurences(tempUnit, "templateLocation", std::to_string(country.second.ownedRegions[0].gameProvinces[0].ID + 1));
 				totalUnits += tempUnit;
 			}

@@ -106,6 +106,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		hoi4Gen.generateLogistics(scenGen);
 		NationalFocus::mapTypes();
 		hoi4Gen.evaluateCountryGoals(scenGen);
+		hoi4Gen.generateCountryUnits(scenGen);
 
 		// now start writing game files
 		try {
@@ -148,8 +149,8 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 			Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
 		}
 		catch (std::exception e) {
-			std::string error = "Configured paths seem to be messed up, check Hoi4Module.json\n";
-			error += "You can try fixing it yourself. Error is: \n";
+			std::string error = "Error while dumping and writing files.\n";
+			error += "Error is: \n";
 			error += e.what();
 			throw(std::exception(error.c_str()));
 		}
