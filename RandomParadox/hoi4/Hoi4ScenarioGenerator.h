@@ -42,6 +42,7 @@ class Hoi4ScenarioGenerator
 	std::set<std::string> weakPowers;
 	std::vector<std::string> wargoalsAttack;
 	std::vector<std::string> goalsDefence;
+	enum doctrineType { blitz, infantry, milita, artillery, armored};
 public:
 	// vars - config options
 	double worldPopulationFactor = 1.0;
@@ -76,6 +77,8 @@ public:
 	void generateLogistics(ScenarioGenerator& scenGen);
 	// calculate how strong each country is
 	void evaluateCountries(ScenarioGenerator & scenGen);
+
+	bool unitFulfillsRequirements(std::vector<std::string> unitRequirements, Country& country);
 	// determine unit composition, templates
 	void generateCountryUnits(ScenarioGenerator & scenGen);
 	// build a focus from the chain

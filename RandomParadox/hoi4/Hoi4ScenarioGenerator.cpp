@@ -156,7 +156,7 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(ScenarioGenerator& scenGen,
 	}
 }
 
-void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen)
+void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator& scenGen)
 {
 	UtilLib::logLine("HOI4: Dividing world into strategic regions");
 	for (auto& region : scenGen.gameRegions) {
@@ -193,7 +193,7 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(ScenarioGenerator & scenGen
 	Bitmap::SaveBMPToFile(stratRegionBMP, "Maps\\stratRegions.bmp");
 }
 
-void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator & scenGen)
+void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator& scenGen)
 {
 	for (auto& strat : strategicRegions) {
 		for (auto& reg : strat.gameRegionIDs) {
@@ -392,6 +392,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 {
 	UtilLib::logLine("HOI4: Evaluating Country Strength");
+	double maxScore = 0.0;
 	for (auto& c : scenGen.countryMap) {
 		auto totalIndustry = 0.0;
 		auto totalPop = 0.0;
@@ -409,6 +410,9 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 		}
 		strengthScores[(int)(totalIndustry + totalPop / 1'000'000.0)].push_back(c.first);
 		c.second.attributeDoubles["strengthScore"] = totalIndustry + totalPop / 1'000'000.0;
+		if (c.second.attributeDoubles["strengthScore"] > maxScore) {
+			maxScore = c.second.attributeDoubles["strengthScore"];
+		}
 		// global
 		totalWorldIndustry += (int)totalIndustry;
 	}
@@ -419,6 +423,7 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 	for (auto& scores : strengthScores) {
 		for (auto& entry : scores.second) {
 			if (scores.first > 0) {
+				scenGen.countryMap[entry].attributeDoubles["relativeScore"] = (double)scores.first / maxScore;
 				if (numWeakStates > weakPowers.size())
 				{
 					weakPowers.insert(entry);
@@ -435,34 +440,95 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 			}
 		}
 	}
-	generateCountryUnits(scenGen);
 }
 
 void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator& scenGen)
 {
 	UtilLib::logLine("HOI4: Generating Country Unit Files");
 	// read in different compositions
-	auto compositionMajor = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionMajor.txt");
-	auto compositionRegional = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionRegional.txt");
-	auto compositionWeak = ParserUtils::getLines("resources\\hoi4\\history\\divisionCompositionWeak.txt");
+	auto unitTemplateFile = ParserUtils::readFile("resources\\hoi4\\history\\divisionTemplates.txt");
+	// now tokenize by : character to get single
+	auto unitTemplates = ParserUtils::getTokens(unitTemplateFile, ':');
 	for (auto& c : scenGen.countryMap) {
-		// determine the countries composition
-		auto activeComposition = compositionWeak;
-		if (c.second.attributeStrings["rank"] == "major")
-			activeComposition = compositionMajor;
-		else if (c.second.attributeStrings["rank"] == "regional")
-			activeComposition = compositionRegional;
-		// make room for unit values, as the index here is also the ID taken from the composition line
-		c.second.attributeVectors["units"].resize(100);
-		auto totalUnits = c.second.attributeDoubles["strengthScore"] / 5;
-		for (auto& unit : activeComposition) {
-			// get the composition line as numbers
-			auto nums = ParserUtils::getNumbers(unit, ';', std::set<int>{});
-			// now add the unit type. Share of total units * totalUnits
-			c.second.attributeVectors["units"][nums[0]] = (int)(((double)nums[1] / 100.0) * (double)totalUnits);
+		// determine army doctrine
+		// defensive vs offensive
+		// infantry/milita, infantry+support, mechanized+armored, artillery
+		// bully factor? Getting bullied? Infantry+artillery in defensive doctrine
+		// bully? Mechanized+armored
+		// major nation? more mechanized share
+		auto majorFactor = c.second.attributeDoubles["relativeScore"];
+		auto bullyFactor = 0.05 * c.second.attributeDoubles["bully"] / 5.0;// c.second.attributeDoubles["defensive"];
+		auto marinesFactor = 0.0;
+		auto mountaineersFactor = 0.0;
+		if (c.second.attributeStrings["rank"] == "major") {
+			bullyFactor += 0.5;
 		}
+		else if (c.second.attributeStrings["rank"] == "regional") {
+		}
+
+
+		// army focus: 
+		// simply give templates if we qualify for them
+		if (majorFactor > 0.5 && bullyFactor > 0.25) {
+			// choose on of the mechanised doctrines
+			if (Data::getInstance().random2() % 2)
+				c.second.attributeVectors["doctrines"].push_back(doctrineType::blitz);
+			else
+				c.second.attributeVectors["doctrines"].push_back(doctrineType::armored);
+		}
+		// give all stronger powers infantry with support divisions
+		if (majorFactor >= 0.2) {
+			c.second.attributeVectors["doctrines"].push_back(doctrineType::infantry);
+		}
+		// give all weaker powers infantry without support
+		if (majorFactor < 0.2)
+			c.second.attributeVectors["doctrines"].push_back(doctrineType::milita);
+
+		// then give priorities with a lot of randomness
+
+		// now evaluate each template and add it if all requirements are fulfilled
+		for (auto& unitTemplate : unitTemplates) {
+			auto requirements = ParserUtils::getBracketBlockContent(unitTemplate, "requirements");
+			auto requirementTokens = ParserUtils::getTokens(requirements, ';');
+			if (unitFulfillsRequirements(requirementTokens, c.second)) {
+				UtilLib::logLine(c.second.attributeStrings["rank"]);
+				// get the ID and save it for used divison templates
+				auto value = stoi(ParserUtils::getBracketBlockContent(requirements, "ID"));
+				c.second.attributeVectors["units"].push_back(value);
+			}
+		}
+		// now compose the army from the templates
+		std::map<int, int> unitCount;
+		c.second.attributeVectors["unitCount"].resize(100);
+		auto totalUnits = c.second.attributeDoubles["strengthScore"] / 5;
+		while (totalUnits-- > 0) {
+			// now randomly add units
+			c.second.attributeVectors["unitCount"][Data::getInstance().random2() % c.second.attributeVectors["units"].size()]++;
+		}
+		/*
+		for (const auto unitID : c.second.attributeVectors["units"]) {
+			while (totalUnits-- > 0) {
+				c.second.attributeVectors["unitCount"][]
+			}
+		}*/
 	}
+	//// determine the countries composition
+	//auto activeComposition = compositionWeak;
+	//if (c.second.attributeStrings["rank"] == "major")
+	//	activeComposition = compositionMajor;
+	//else if (c.second.attributeStrings["rank"] == "regional")
+	//	activeComposition = compositionRegional;
+	//// make room for unit values, as the index here is also the ID taken from the composition line
+	//c.second.attributeVectors["units"].resize(100);
+	//auto totalUnits = c.second.attributeDoubles["strengthScore"] / 5;
+	//for (auto& unit : activeComposition) {
+	//	// get the composition line as numbers
+	//	auto nums = ParserUtils::getNumbers(unit, ';', std::set<int>{});
+	//	// now add the unit type. Share of total units * totalUnits
+	//	c.second.attributeVectors["units"][nums[0]] = (int)(((double)nums[1] / 100.0) * (double)totalUnits);
+	//}
 }
+
 
 NationalFocus Hoi4ScenarioGenerator::buildFocus(std::vector<std::string> chainStep, Country& source, Country& target)
 {
@@ -481,7 +547,7 @@ NationalFocus Hoi4ScenarioGenerator::buildFocus(std::vector<std::string> chainSt
 		nF.alternativeFoci.push_back(exclusive);
 	// and "and" foci
 	auto ands = ParserUtils::getNumbers(ParserUtils::getBracketBlockContent(chainStep[7], "and"), ',', std::set<int>());
-	for (auto& and : ands)
+	for (auto&and : ands)
 		nF.andFoci.push_back(and);
 	return nF;
 }
@@ -632,6 +698,8 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 		int chainID = 0;
 		auto sourceS = scenGen.countryMap[sourceCountry.first].attributeStrings;
 		auto sourceD = scenGen.countryMap[sourceCountry.first].attributeDoubles;
+		sourceCountry.second.attributeDoubles["bully"] = 0;
+		sourceCountry.second.attributeDoubles["defensive"] = 0;
 		auto powerChains = majorChains;
 		if (sourceS["rank"] == "regional")
 			powerChains = regionalChains;
@@ -685,9 +753,17 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 					// however
 					//if (targets.find(scenGen.countryMap.at(chainFoci.back().destTag)) != targets.end())
 					//	target = scenGen.countryMap.at(chainFoci.back().destTag);
-					auto focus = buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'), scenGen.countryMap[sourceCountry.first], target);
+					auto focus = buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'), scenGen.countryMap.at(sourceCountry.first), target);
 					focus.stepID = stepIndex;
 					UtilLib::logLineLevel(1, focus);
+					if (focus.fType == focus.attack) {
+						// country aims to bully
+						sourceCountry.second.attributeDoubles["bully"]++;
+					}
+					else if (focus.fType == focus.defense) {
+						// country aims to bully
+						sourceCountry.second.attributeDoubles["defensive"]++;
+					}
 					chainFoci.push_back(focus);
 				}
 				sourceCountry.second.foci.push_back(chainFoci);
@@ -698,7 +774,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 	}
 }
 
-void Hoi4ScenarioGenerator::printStatistics(ScenarioGenerator & scenGen)
+void Hoi4ScenarioGenerator::printStatistics(ScenarioGenerator& scenGen)
 {
 	UtilLib::logLine("Total Industry: ", totalWorldIndustry, "");
 	UtilLib::logLine("Military Industry: ", militaryIndustry, "");
@@ -718,6 +794,22 @@ void Hoi4ScenarioGenerator::printStatistics(ScenarioGenerator & scenGen)
 				" ", scenGen.countryMap.at(entry).attributeStrings.at("rulingParty"), "");
 		}
 	}
+}
+
+bool Hoi4ScenarioGenerator::unitFulfillsRequirements(std::vector<std::string> unitRequirements, Country& country)
+{
+	// now check if the country fulfills the target requirements
+	for (auto& requirement : unitRequirements) {
+		// need to check rank, first get the desired value
+		auto value = ParserUtils::getBracketBlockContent(requirement, "rank");
+		if (value != "") {
+			if (value == "any")
+				continue; // fine, may target any ideology
+			if (country.attributeStrings["rank"] != value)
+				return false; // targets rank is not right
+		}
+	}
+	return true;
 }
 
 

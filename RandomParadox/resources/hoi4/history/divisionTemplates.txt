@@ -1,0 +1,70 @@
+division_template = {
+requirements{templateName{Infantry with Line Artillery}ID{0};rank{any};focus{any};doctrine{artillery}};
+	name = "Infantry with Line Artillery"
+	division_names_group = SPAN_INF_01
+
+	regiments = {
+		infantry = { x = 0 y = 0 }
+		infantry = { x = 0 y = 1 }
+		infantry = { x = 1 y = 0 }
+		infantry = { x = 1 y = 1 }
+		infantry = { x = 2 y = 0 }
+		infantry = { x = 2 y = 1 }
+		artillery_brigade = { x = 3 y = 0 }
+		artillery_brigade = { x = 3 y = 1 }
+	}
+}
+:
+division_template = {
+requirements{templateName{Infantry};ID{1};rank{weak};focus{any};doctrine{infantry}};
+	name = "Infantry"
+	division_names_group = SPAN_INF_01
+
+	regiments = {
+		infantry = { x = 0 y = 0 }
+		infantry = { x = 0 y = 1 }
+		infantry = { x = 1 y = 0 }
+		infantry = { x = 1 y = 1 }
+		infantry = { x = 2 y = 0 }
+		infantry = { x = 2 y = 1 }
+	}
+}
+:
+division_template = {
+requirements{templateName{Cavalry};ID{2};rank{weak};focus{any};doctrine{any}};
+	name = "Cavalry"  
+	division_names_group = SPAN_CAV_01
+
+	regiments = {
+		cavalry = { x = 0 y = 0 }
+		cavalry = { x = 0 y = 1 }
+		cavalry = { x = 1 y = 0 }
+		cavalry = { x = 1 y = 1 }
+	}
+}
+:
+division_template = {
+requirements{templateName{Motorised Light Tank};ID{3};rank{major};focus{any};doctrine{blitz}};
+	name = "Motorised Light Tank"  
+	division_names_group = SPAN_CAV_01
+
+	regiments = {
+		cavalry = { x = 0 y = 0 }
+		cavalry = { x = 0 y = 1 }
+		cavalry = { x = 1 y = 0 }
+		cavalry = { x = 1 y = 1 }
+	}
+}
+:
+division_template = {
+requirements{templateName{Armored Heavy Tank};ID{4};rank{major};focus{any};doctrine{armored}};
+	name = "Armored Heavy Tank"  
+	division_names_group = SPAN_CAV_01
+
+	regiments = {
+		cavalry = { x = 0 y = 0 }
+		cavalry = { x = 0 y = 1 }
+		cavalry = { x = 1 y = 0 }
+		cavalry = { x = 1 y = 1 }
+	}
+}
