@@ -640,10 +640,10 @@ void Hoi4Parser::writeFoci(std::string path, const std::map<std::string, Country
 
 void Hoi4Parser::writeCompatibilityHistory(std::string path, std::string hoiPath, const std::vector<Region>& regions)
 {
-	const std::experimental::filesystem::path hoiDir{ hoiPath + "\\history\\countries\\" };
-	const std::experimental::filesystem::path modDir{ path };
+	const std::filesystem::path hoiDir{ hoiPath + "\\history\\countries\\" };
+	const std::filesystem::path modDir{ path };
 	auto random = Data::getInstance().random2;
-	for (auto const& dir_entry : std::experimental::filesystem::directory_iterator{ hoiDir }) {
+	for (auto const& dir_entry : std::filesystem::directory_iterator{ hoiDir }) {
 		std::string pathString = dir_entry.path().string();
 
 		std::string filename = pathString.substr(pathString.find_last_of("\\") + 1, pathString.back() - pathString.find_last_of("\\"));
@@ -662,7 +662,10 @@ void Hoi4Parser::copyDescriptorFile(const std::string sourcePath, const std::str
 	pU::replaceOccurences(descriptorText, "templateName", modName);
 	auto modText = descriptorText;
 	pU::replaceOccurences(descriptorText, "templatePath", "");
-	pU::writeFile(destPath + "\\descriptor.mod", descriptorText);
+	pU::writeFile(destPath + "//descriptor.mod", descriptorText);
 	pU::replaceOccurences(modText, "templatePath", UtilLib::varsToString("path=\"", destPath, "\""));
 	pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
+	if (!std::filesystem::exists(modsDirectory + "//" + modName + ".mod")) {
+
+	};
 }

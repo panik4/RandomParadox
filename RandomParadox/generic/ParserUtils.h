@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
-#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
-#include <experimental/filesystem>
+#include <filesystem>
 #include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
 
 class ParserUtils
@@ -37,9 +36,9 @@ public:
 
 	static std::vector<std::string> readFilesInDirectory(std::string path)
 	{
-		const std::experimental::filesystem::path directory{ path };
+		const std::filesystem::path directory{ path };
 		std::vector<std::string> fileContents;
-		for (auto const& dir_entry : std::experimental::filesystem::directory_iterator{ directory }) {
+		for (auto const& dir_entry : std::filesystem::directory_iterator{ directory }) {
 			std::stringstream pathStream;
 			pathStream << dir_entry.path();
 			std::string pathString;
