@@ -259,6 +259,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 				|| (c.second.ownedRegions.size() > 2 && (region.ID == (c.second.ownedRegions.end() - 2)->ID)
 					&& supplyHubProvinces.size() < (c.second.ownedRegions.size() / 4))) {
 				// select a random gameprovince of the state
+			
 				auto y = *UtilLib::select_random(region.gameProvinces);
 				for (auto& prov : region.gameProvinces) {
 					if (prov.baseProvince->coastal) {
