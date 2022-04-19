@@ -5,7 +5,7 @@ std::map<std::string, NationalFocus::FocusType> NationalFocus::typeMapping;
 NationalFocus::NationalFocus()
 {}
 
-NationalFocus::NationalFocus(FocusType fType, bool default, std::string source, std::string dest, std::vector<int> date) : ID{ ID }, fType{ fType }, default{ default }, sourceTag{ source }, destTag{ dest }, date{ date }
+NationalFocus::NationalFocus(FocusType fType, bool defaultV, std::string source, std::string dest, std::vector<int> date) : ID{ ID }, fType{ fType }, defaultV{ defaultV }, sourceTag{ source }, destTag{ dest }, date{ date }
 {
 	this->ID = IDcounter++;
 	position = { 5,5 };
