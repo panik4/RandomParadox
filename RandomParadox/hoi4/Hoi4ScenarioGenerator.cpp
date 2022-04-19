@@ -20,7 +20,7 @@ void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator& scenGen)
 					// more per selected state if the chance is lower
 					double averagePerState = (totalOfResource / (double)landStates) * (1.0 / chance);
 					// range 1 to (2 times average - 1)
-					double value = 1 + random() % (int)((2.0 * averagePerState));
+					double value = 1.0 + (random() % (int)ceil((2.0 * averagePerState))-1.0);
 					// increase by industry factor
 					value *= industryFactor;
 					gameRegion.attributeDoubles[resource.first] = value;
@@ -421,8 +421,8 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator& scenGen)
 	int numMajorPowers = totalDeployedCountries / 10;
 	int numRegionalPowers = totalDeployedCountries / 3;
 	int numWeakStates = totalDeployedCountries - numMajorPowers - numRegionalPowers;
-	for (auto& scores : strengthScores) {
-		for (auto& entry : scores.second) {
+	for (const auto& scores : strengthScores) {
+		for (const auto& entry : scores.second) {
 			if (scores.first > 0) {
 				scenGen.countryMap[entry].attributeDoubles["relativeScore"] = (double)scores.first / maxScore;
 				if (numWeakStates > weakPowers.size())

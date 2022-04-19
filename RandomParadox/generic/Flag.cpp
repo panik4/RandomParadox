@@ -194,7 +194,7 @@ void Flag::readFlagTypes()
 void Flag::readFlagTemplates()
 {
 	for (int i = 0; i < 100; i++) {
-		if (std::experimental::filesystem::exists("resources\\flags\\flag_presets\\" + std::to_string(i) + ".tga")) {
+		if (std::filesystem::exists("resources\\flags\\flag_presets\\" + std::to_string(i) + ".tga")) {
 			flagTemplates.push_back(TextureWriter::readTGA("resources\\flags\\flag_presets\\" + std::to_string(i) + ".tga"));
 			// get line and immediately tokenize it
 			flagMetadata.push_back(ParserUtils::getTokens(ParserUtils::getLines("resources\\flags\\flag_presets\\" + std::to_string(i) + ".txt")[0], ';'));
@@ -204,7 +204,7 @@ void Flag::readFlagTemplates()
 void Flag::readSymbolTemplates()
 {
 	for (int i = 0; i < 100; i++) {
-		if (std::experimental::filesystem::exists("resources\\flags\\symbol_presets\\" + std::to_string(i) + ".tga")) {
+		if (std::filesystem::exists("resources\\flags\\symbol_presets\\" + std::to_string(i) + ".tga")) {
 			symbolTemplates.push_back(TextureWriter::readTGA("resources\\flags\\symbol_presets\\" + std::to_string(i) + ".tga"));
 			// get line and immediately tokenize it
 			symbolMetadata.push_back(ParserUtils::getTokens(ParserUtils::getLines("resources\\flags\\symbol_presets\\" + std::to_string(i) + ".txt")[0], ';'));
