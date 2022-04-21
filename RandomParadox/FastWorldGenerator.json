@@ -104,9 +104,9 @@
 			"auto" : false,
 			"landProvinceFactor" : 3,
 			"seaProvinceFactor" : 1,
-			"minProvPerRegion" : 2,
+			"minProvPerRegion" : 5,
 			"minProvSize" : 10,
-			"provinceDensityByHabitability" : 100
+			"provinceDensityByHabitability" : 1
 		},
 		"humidity" : {
 			"coastalEffectRange" : -1,

@@ -42,7 +42,7 @@ class Hoi4ScenarioGenerator
 	std::set<std::string> weakPowers;
 	std::vector<std::string> wargoalsAttack;
 	std::vector<std::string> goalsDefence;
-	enum doctrineType { blitz, infantry, milita, artillery, armored};
+	enum doctrineType { blitz, infantry, milita, artillery, armored };
 public:
 	// vars - config options
 	double worldPopulationFactor = 1.0;
@@ -76,13 +76,13 @@ public:
 	// supply hubs and railroads
 	void generateLogistics(ScenarioGenerator& scenGen);
 	// calculate how strong each country is
-	void evaluateCountries(ScenarioGenerator & scenGen);
+	void evaluateCountries(ScenarioGenerator& scenGen);
 
 	bool unitFulfillsRequirements(std::vector<std::string> unitRequirements, Country& country);
 	// determine unit composition, templates
-	void generateCountryUnits(ScenarioGenerator & scenGen);
+	void generateCountryUnits(ScenarioGenerator& scenGen);
 	// build a focus from the chain
-	NationalFocus buildFocus(std::vector<std::string> chainStep, Country& source, Country& target);
+	NationalFocus buildFocus(const std::vector<std::string> chainStep, const Country& source, const Country& target);
 	// make a tree out of all focus chains and single foci
 	void buildFocusTree(Country& source);
 	// check if a national focus fulfills requirements
@@ -90,7 +90,7 @@ public:
 	// check if a national focus fulfills requirements
 	bool targetFulfillsRequirements(std::vector<std::string> targetRequirements, Country& source, Country& target, const std::vector<std::set<std::string>> levelTargets, const int level);
 	// evaluate the focus chains for each country
-	void evaluateCountryGoals(ScenarioGenerator & scenGen);
+	void evaluateCountryGoals(ScenarioGenerator& scenGen);
 	// see which countries are in need of unification
 	void evaluateBrotherlyWars();
 	// see which country needs to see some action
@@ -98,6 +98,6 @@ public:
 	// create a strategy for this country
 	void evaluateCountryStrategy();
 	// print world info to console
-	void printStatistics(ScenarioGenerator & scenGen);
+	void printStatistics(ScenarioGenerator& scenGen);
 };
 

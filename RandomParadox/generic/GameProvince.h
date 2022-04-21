@@ -17,7 +17,7 @@ public:
 	std::map<std::string, std::string> attributeStrings;
 	// constructors/destructor
 	GameProvince(Province* province);
-	GameProvince() {};
+	GameProvince();
 	~GameProvince();
 	// operators
 	bool operator==(const GameProvince& right) const {
