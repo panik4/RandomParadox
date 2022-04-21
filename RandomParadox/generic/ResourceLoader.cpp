@@ -32,13 +32,13 @@ std::vector<std::string> ResourceLoader::loadForbiddenTags(std::string gamePath)
 {	
 	std::vector<std::string> tags;
 	auto lines = ParserUtils::getLines(gamePath + "\\common\\country_tags\\00_countries.txt");
-	for (auto line : lines)
+	for (const auto& line : lines)
 	{
 		auto tag = line.substr(0, 3);
 		tags.push_back(tag);
 	}
 	lines = ParserUtils::getLines(gamePath + "\\common\\country_tags\\01_countries.txt");
-	for (auto line : lines)
+	for (const auto& line : lines)
 	{
 		auto tag = line.substr(0, 3);
 		tags.push_back(tag);

@@ -34,9 +34,9 @@ public:
 	void setPixel(Colour colour, int x, int y);
 	Colour getPixel(int x, int y);
 	Colour getPixel(int pos);
-	std::vector<unsigned char> getFlag();
+	std::vector<unsigned char> getFlag() const;
 	// methods - utils
-	std::vector<unsigned char> resize(int width, int height);
+	std::vector<unsigned char> resize(int width, int height) const;
 	static std::vector<unsigned char> resize(int width, int height, std::vector<unsigned char> tImage, int inWidth, int inHeight);
 	// methods - read in configs
 	static void readColourGroups();

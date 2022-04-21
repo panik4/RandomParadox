@@ -20,7 +20,7 @@ void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator& scenGen)
 					// more per selected state if the chance is lower
 					double averagePerState = (totalOfResource / (double)landStates) * (1.0 / chance);
 					// range 1 to (2 times average - 1)
-					double value = 1.0 + (random() % (int)ceil((2.0 * averagePerState))-1.0);
+					double value = 1.0 + (random() % (int)ceil((2.0 * averagePerState)) - 1.0);
 					// increase by industry factor
 					value *= industryFactor;
 					gameRegion.attributeDoubles[resource.first] = value;
@@ -259,8 +259,8 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 				|| (c.second.ownedRegions.size() > 2 && (region.ID == (c.second.ownedRegions.end() - 2)->ID)
 					&& supplyHubProvinces.size() < (c.second.ownedRegions.size() / 4))) {
 				// select a random gameprovince of the state
-			
-				auto y = *UtilLib::select_random(region.gameProvinces);
+
+				auto y{ *UtilLib::select_random(region.gameProvinces) };
 				for (auto& prov : region.gameProvinces) {
 					if (prov.baseProvince->coastal) {
 						// if this is a coastal region, the supply hub is a naval base as well
@@ -279,7 +279,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator& scenGen)
 				// save the distance
 				distances.push_back(distance); // save distances to ensure ordering
 			}
-			for (auto gProv : region.gameProvinces) {
+			for (auto& gProv : region.gameProvinces) {
 				gProvIDs.insert(gProv.ID);
 			}
 		}
@@ -492,7 +492,6 @@ void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator& scenGen)
 			auto requirements = ParserUtils::getBracketBlockContent(unitTemplate, "requirements");
 			auto requirementTokens = ParserUtils::getTokens(requirements, ';');
 			if (unitFulfillsRequirements(requirementTokens, c.second)) {
-				UtilLib::logLine(c.second.attributeStrings["rank"]);
 				// get the ID and save it for used divison templates
 				auto value = stoi(ParserUtils::getBracketBlockContent(requirements, "ID"));
 				c.second.attributeVectors["units"].push_back(value);
@@ -530,8 +529,7 @@ void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator& scenGen)
 	//}
 }
 
-
-NationalFocus Hoi4ScenarioGenerator::buildFocus(std::vector<std::string> chainStep, Country& source, Country& target)
+NationalFocus Hoi4ScenarioGenerator::buildFocus(const std::vector<std::string> chainStep, const Country& source, const Country& target)
 {
 	// map the string of the chainstep to the type
 	auto type = NationalFocus::typeMapping[chainStep[5]];
@@ -697,12 +695,12 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 	auto typeCounter = 0;
 	for (auto& sourceCountry : scenGen.countryMap) {
 		int chainID = 0;
-		auto sourceS = scenGen.countryMap[sourceCountry.first].attributeStrings;
-		auto sourceD = scenGen.countryMap[sourceCountry.first].attributeDoubles;
+		const auto& sourceS = scenGen.countryMap[sourceCountry.first].attributeStrings;
+		auto& sourceD = scenGen.countryMap[sourceCountry.first].attributeDoubles;
 		sourceCountry.second.attributeDoubles["bully"] = 0;
 		sourceCountry.second.attributeDoubles["defensive"] = 0;
-		auto powerChains = majorChains;
-		if (sourceS["rank"] == "regional")
+		auto powerChains{ majorChains };
+		if (sourceS.at("rank") == "regional")
 			powerChains = regionalChains;
 		for (const auto& chain : powerChains) {
 			// evaluate whole chain (chain defined by ID)
@@ -716,7 +714,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 				const auto chainTokens = ParserUtils::getTokens(chainFocus, ';');
 				const int chainStep = stoi(chainTokens[1]);
 				const int level = stoi(chainTokens[12]);
-				if (sourceS["rulingParty"] == chainTokens[4] || chainTokens[4] == "any") {
+				if (sourceS.at("rulingParty") == chainTokens[4] || chainTokens[4] == "any") {
 					stepTargets.resize(stepTargets.size() + 1);
 					auto stepRequirements = ParserUtils::getTokens(chainTokens[2], '+');
 					if (stepFulfillsRequirements(stepRequirements, stepTargets)) {
@@ -750,11 +748,11 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 					if (!targets.size())
 						continue;
 					// select random target
-					auto target = t1[Data::getInstance().random2() % t1.size()];
+					const auto& target = t1[Data::getInstance().random2() % t1.size()];
 					// however
 					//if (targets.find(scenGen.countryMap.at(chainFoci.back().destTag)) != targets.end())
 					//	target = scenGen.countryMap.at(chainFoci.back().destTag);
-					auto focus = buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'), scenGen.countryMap.at(sourceCountry.first), target);
+					auto focus{ buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'), scenGen.countryMap.at(sourceCountry.first), target) };
 					focus.stepID = stepIndex;
 					UtilLib::logLineLevel(1, focus);
 					if (focus.fType == focus.attack) {

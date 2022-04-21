@@ -14,7 +14,7 @@ Flag::Flag(std::ranlux24 random, int width, int height) : random(random), width(
 	image = std::vector<unsigned char>(width * height * 4, 0);
 	auto randomIndex = Data::getInstance().random2() % flagTemplates.size();
 	image = flagTemplates[randomIndex];
-	auto flagInfo = flagMetadata[randomIndex];
+	const auto& flagInfo = flagMetadata[randomIndex];
 	auto flagColourGroups = ParserUtils::getTokens(flagInfo[0], ',');
 	auto symbolColourGroups = ParserUtils::getTokens(flagInfo[1], ',');
 
@@ -28,13 +28,13 @@ Flag::Flag(std::ranlux24 random, int width, int height) : random(random), width(
 	// pool of colours is taken from colour groups defined in metadata files
 	std::vector<Colour> replacementColours;
 	for (auto& colGroup : flagColourGroups) {
-		auto colour = *UtilLib::select_random(colourGroups[colGroup]);
+		const auto& colour = *UtilLib::select_random(colourGroups[colGroup]);
 		replacementColours.push_back(colour);
 	}
 	// now convert the old colours to the replacement colours
 	// alpha values stay the same
 	int colIndex = 0;
-	for (auto mapping : colourMapping) {
+	for (const auto& mapping : colourMapping) {
 		for (auto index : mapping.second) {
 			image[index] = replacementColours[colIndex].getBlue();
 			image[index + 1] = replacementColours[colIndex].getGreen();
@@ -45,8 +45,8 @@ Flag::Flag(std::ranlux24 random, int width, int height) : random(random), width(
 
 	// now load symbol templates
 	randomIndex = Data::getInstance().random2() % symbolTemplates.size();
-	auto symbol = symbolTemplates[1];
-	auto symbolInfo = symbolMetadata[randomIndex];
+	auto symbol{ symbolTemplates[1] };
+	auto symbolInfo{ symbolMetadata[randomIndex] };
 	auto symbolHeightOffset = std::stod(flagInfo[4]);
 	auto symbolWidthOffset = std::stod(flagInfo[3]);
 
@@ -58,8 +58,8 @@ Flag::Flag(std::ranlux24 random, int width, int height) : random(random), width(
 	// check if we want to replace the colour
 	auto replaceColour = symbolInfo[0] == "true";
 	replacementColours.clear();
-	for (auto colGroup : symbolColourGroups) {
-		auto colour = colourGroups[colGroup][Data::getInstance().random2() % colourGroups[colGroup].size()];
+	for (const auto& colGroup : symbolColourGroups) {
+		const auto& colour = colourGroups[colGroup][Data::getInstance().random2() % colourGroups[colGroup].size()];
 		replacementColours.push_back(colour);
 	}
 	// get the template and map all colours to indices
@@ -71,7 +71,7 @@ Flag::Flag(std::ranlux24 random, int width, int height) : random(random), width(
 			colourMapping[temp].push_back(i);
 	}
 	colIndex = 0;
-	for (auto mapping : colourMapping) {
+	for (const auto& mapping : colourMapping) {
 		for (auto index : mapping.second) {
 			// map indey from normal flag size to symbol size
 			auto offset = (int)(symbolHeightOffset * 52);
@@ -114,12 +114,12 @@ Colour Flag::getPixel(int pos)
 	return colour;
 }
 
-std::vector<unsigned char> Flag::getFlag()
+std::vector<unsigned char> Flag::getFlag() const
 {
 	return image;
 }
 
-std::vector<uint8_t> Flag::resize(int width, int height)
+std::vector<uint8_t> Flag::resize(int width, int height) const
 {
 	auto resized = std::vector<unsigned char>(width * height * 4, 0);
 	auto factor = this->width / width;
@@ -181,7 +181,7 @@ void Flag::readFlagTypes()
 		auto colourGroupStrings = ParserUtils::getTokens(tokens[2], ',');
 		flagTypes[flagType].push_back(std::vector<int>{});
 		flagTypeColours[flagType].push_back(std::vector<std::string>{});
-		for (auto symbolRange : symbols) {
+		for (const auto& symbolRange : symbols) {
 			auto rangeTokens = ParserUtils::getNumbers(symbolRange, '-', std::set<int>{});
 			for (auto x = rangeTokens[0]; x <= rangeTokens[1]; x++)
 				flagTypes[flagType][flagTypeID].push_back(x);

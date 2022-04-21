@@ -17,6 +17,7 @@
 */inputs/*
 *x64
 *.bmp
+*runDump*
 
 packages.config*
 *packages

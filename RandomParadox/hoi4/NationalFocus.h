@@ -21,12 +21,7 @@ public:
 	FocusType fType;
 	std::string sourceTag;
 	std::string destTag;
-	std::string bypass;
 	bool defaultV;
-	int validity;
-	double durationFactor = 1.0;
-	bool atWar;
-	int maxWarCount = 1;
 
 	// containers
 	std::vector<int> date;

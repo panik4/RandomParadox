@@ -42,22 +42,32 @@ int main() {
 		return -1;
 	}
 
-	// if debug is enabled in the config, a directory subtree containing visualisation of many maps will be created
-	bool writeMaps = root.get<bool>("randomScenario.writeMaps");
-
-	// generate hoi4 scenario or not
-	bool genHoi4Scenario = root.get<bool>("randomScenario.genhoi4");
-	// use the same input heightmap for every scenario/map generation
-	bool useGlobalExistingHeightmap = root.get<bool>("randomScenario.inputheightmap");
-	// get the path
-	std::string globalHeightMapPath = root.get<std::string>("randomScenario.heightmapPath");
-	// read the configured latitude range. 0.0 = 90 degrees south, 2.0 = 90 degrees north
-	auto latLow = root.get<double>("randomScenario.latitudeLow");
-	auto latHigh = root.get<double>("randomScenario.latitudeHigh");
-
 	bool useDefaultMap = false;
 	bool useDefaultStates = false;
 	bool useDefaultProvinces = false;
+	bool writeMaps, genHoi4Scenario, useGlobalExistingHeightmap;
+	std::string globalHeightMapPath;
+	double latLow, latHigh;
+	try {
+		// if debug is enabled in the config, a directory subtree containing visualisation of many maps will be created
+		writeMaps = root.get<bool>("randomScenario.writeMaps");
+		// generate hoi4 scenario or not
+		genHoi4Scenario = root.get<bool>("randomScenario.genhoi4");
+		// use the same input heightmap for every scenario/map generation
+		useGlobalExistingHeightmap = root.get<bool>("randomScenario.inputheightmap");
+		// get the path
+		globalHeightMapPath = root.get<std::string>("randomScenario.heightmapPath");
+		// read the configured latitude range. 0.0 = 90 degrees south, 2.0 = 90 degrees north
+		latLow = root.get<double>("randomScenario.latitudeLow");
+		latHigh = root.get<double>("randomScenario.latitudeHigh");
+	}
+	catch (std::exception e) {
+		UtilLib::logLine("Error reading boost::property_tree");
+		UtilLib::logLine("Did you rename a field in the json file?. Error is: ", e.what());
+		dumpInfo(e.what());
+		system("pause");
+		return -1;
+	}
 
 	// check if we can read the config
 	try {

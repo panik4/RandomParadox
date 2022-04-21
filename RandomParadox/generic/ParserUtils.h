@@ -108,7 +108,7 @@ public:
 		return tokens;
 	};
 
-	static std::vector<int> getNumbers(std::string& content, char delimiter, std::set<int> tokensToConvert)
+	static std::vector<int> getNumbers(const std::string& content, const char delimiter, const std::set<int> tokensToConvert)
 	{
 		bool convertAll = false;
 		if (!tokensToConvert.size())
