@@ -105,8 +105,8 @@ void FormatConverter::dumpDDSFiles(std::string path) const
 				}
 
 			}
-			TextureWriter::writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM, tempPath);
 		}
+		TextureWriter::writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM, tempPath);
 	}
 }
 
