@@ -110,7 +110,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 			hoi4Gen.generateCountryUnits(scenGen);
 		}
 		catch (std::exception e) {
-			std::string error = "Error while dumping and writing files.\n";
+			std::string error = "Error while generating the Hoi4 Module.\n";
 			error += "Error is: \n";
 			error += e.what();
 			throw(std::exception(error.c_str()));
@@ -118,6 +118,17 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 
 		// now start writing game files
 		try {
+			// generate map files. Format must be converted and colours mapped to hoi4 compatbile colours
+			FormatConverter formatConverter(hoi4Path);
+			formatConverter.dump8BitTerrain(hoi4ModPath + "\\map\\terrain.bmp", "terrainHoi4");
+			formatConverter.dump8BitCities(hoi4ModPath + "\\map\\cities.bmp", "citiesHoi4");
+			formatConverter.dump8BitRivers(hoi4ModPath + "\\map\\rivers.bmp", "riversHoi4");
+			formatConverter.dump8BitTrees(hoi4ModPath + "\\map\\trees.bmp", "treesHoi4");
+			formatConverter.dump8BitHeightmap(hoi4ModPath + "\\map\\heightmap.bmp", "heightmapHoi4");
+			formatConverter.dumpTerrainColourmap(hoi4ModPath + "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds");
+			formatConverter.dumpDDSFiles(hoi4ModPath + "\\map\\terrain\\colormap_water_");
+			formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp");
+
 			Hoi4Parser::writeCompatibilityHistory(hoi4ModPath + "\\history\\countries\\", hoi4Path, scenGen.f.provinceGenerator.regions);
 			Hoi4Parser::writeHistoryCountries(hoi4ModPath + "\\history\\countries\\", scenGen.countryMap);
 			Hoi4Parser::writeHistoryUnits(hoi4ModPath + "\\history\\units\\", scenGen.countryMap);
@@ -143,16 +154,6 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 			Hoi4Parser::dumpCommonBookmarks(hoi4ModPath + "\\common\\bookmarks\\", scenGen.countryMap, hoi4Gen.strengthScores);
 			Hoi4Parser::copyDescriptorFile("resources\\hoi4\\descriptor.mod", hoi4ModPath, hoi4ModsDirectory, modName);
 
-			// generate map files. Format must be converted and colours mapped to hoi4 compatbile colours
-			FormatConverter formatConverter(hoi4Path);
-			formatConverter.dump8BitTerrain(hoi4ModPath + "\\map\\terrain.bmp", "terrainHoi4");
-			formatConverter.dump8BitCities(hoi4ModPath + "\\map\\cities.bmp", "citiesHoi4");
-			formatConverter.dump8BitRivers(hoi4ModPath + "\\map\\rivers.bmp", "riversHoi4");
-			formatConverter.dump8BitTrees(hoi4ModPath + "\\map\\trees.bmp", "treesHoi4");
-			formatConverter.dump8BitHeightmap(hoi4ModPath + "\\map\\heightmap.bmp", "heightmapHoi4");
-			formatConverter.dumpTerrainColourmap(hoi4ModPath + "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds");
-			formatConverter.dumpDDSFiles(hoi4ModPath + "\\map\\terrain\\colormap_water_");
-			formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp");
 			// just copy over provinces.bmp, already in a compatible format
 			Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
 		}

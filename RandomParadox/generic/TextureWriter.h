@@ -1,6 +1,5 @@
 #pragma once
 #include "DirectXTex.h"
-#include "../FastWorldGen/FastWorldGen/utils/Data.h"
 #include "../FastWorldGen/FastWorldGen/entities/Colour.h"
 
 using namespace DirectX;

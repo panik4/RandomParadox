@@ -3,6 +3,7 @@
 #include "DirectXTex.h"
 #include "generic/TextureWriter.h"
 #include "FastWorldGen/FastWorldGen/utils/Data.h"
+#include "FastWorldGen/FastWorldGen/utils/Bitmap.h"
 #include "FastWorldGen/FastWorldGen/entities/Colour.h"
 
 class FormatConverter
@@ -50,6 +51,7 @@ class FormatConverter
 			{ Data::getInstance().namedColours["peaks"], 0 },
 			{ Data::getInstance().namedColours["mountains"], 0 },
 			{ Data::getInstance().namedColours["lowMountains"], 0 },
+			{ Data::getInstance().namedColours["empty"], 0 },
 			{ Data::getInstance().namedColours["sea"], 0 }
 	}
 	}
