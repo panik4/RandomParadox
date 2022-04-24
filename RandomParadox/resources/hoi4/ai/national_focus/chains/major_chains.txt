@@ -1,8 +1,8 @@
-#chain ID;step;stepRequirements;rank;ideology;type;target;condition;order;date;available;bypass;completion_rewards;level
+#chain ID;step;stepRequirements;rank;ideology;type;target;condition;date;available;bypass;completion_rewards;level
 0;0;predecessor{}+requires{};major;fascism;attack;rank{weak}+ideology{not}+location{neighbour}+target{notlevel};exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{};0;
 0;1;predecessor{}+requires{};major;fascism;attack;rank{weak}+ideology{not}+location{neighbour}+target{notlevel};exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{};0;
 0;2;predecessor{0,1}+requires{};major;fascism;attack;rank{regional}+ideology{same}+location{neighbour}+target{};exclusive{3}+and{};01-01-1936;available{};bypass{};completion_reward{};1;
-0;3;predecessor{0,1}+requires{};major;fascism;ally;rank{regional}+ideology{same}+location{neighbour}+target{};exclusive{2}+and{};01-01-1936;available{};bypass{};completion_reward{};1;
+0;3;predecessor{0,1}+requires{};major;fascism;generic;rank{regional}+ideology{same}+location{neighbour}+target{};exclusive{2}+and{};01-01-1936;available{};bypass{};completion_reward{};1;
 0;4;predecessor{2,3}+requires{2,3};major;fascism;attack;rank{major}+ideology{not}+location{neighbour}+target{notlevel};exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{};2;
 0;5;predecessor{2,3}+requires{2,3};major;fascism;attack;rank{major}+ideology{not}+location{near}+target{notlevel};exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{};2;
 0;6;predecessor{2,3}+requires{2,3};major;fascism;attack;rank{major}+ideology{not}+location{neighbour}+target{notlevel};exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{};2;

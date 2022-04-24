@@ -1,0 +1,5 @@
+key{coastalState}
+value{any_state = {
+				is_coastal = yes
+				is_controlled_by = ROOT
+			}};
