@@ -42,7 +42,17 @@ class Hoi4ScenarioGenerator
 	std::set<std::string> weakPowers;
 	std::vector<std::string> wargoalsAttack;
 	std::vector<std::string> goalsDefence;
-	enum doctrineType { blitz, infantry, milita, artillery, armored };
+	enum doctrineType { blitz, infantry, milita, artillery, armored, mass, support, defensive };
+	std::map<int, std::string> doctrineMap{
+		{0, "blitz"},
+		{1, "infantry"},
+		{2, "milita"},
+		{3, "artillery"},
+		{4, "armored"},
+		{5, "mass"},
+		{6, "support"},
+		{7, "defensive"}
+	};
 public:
 	// vars - config options
 	double worldPopulationFactor = 1.0;

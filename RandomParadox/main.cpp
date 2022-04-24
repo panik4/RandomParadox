@@ -85,7 +85,7 @@ int main() {
 	if (!writeMaps) {
 		Data::getInstance().writeMaps = false;
 	}
-	try {
+	/*try*/ {
 		NameGenerator::prepare();
 		FastWorldGenerator fastWorldGen;
 		Hoi4Module hoi4Mod;
@@ -111,12 +111,12 @@ int main() {
 			// generate hoi4 scenario
 			hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG);
 	}
-	catch (std::exception e) {
-		UtilLib::logLine(e.what());
-		dumpInfo(e.what());
-		system("pause");
-		return -1;
-	}
+	//catch (std::exception e) {
+	//	UtilLib::logLine(e.what());
+	//	dumpInfo(e.what());
+	//	system("pause");
+	//	return -1;
+	//}
 	UtilLib::logLine("Done with the generation");
 	dumpInfo("");
 	system("pause");

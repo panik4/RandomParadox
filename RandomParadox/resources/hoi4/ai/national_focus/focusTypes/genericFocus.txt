@@ -1,0 +1,22 @@
+
+	focus = {
+		id = templateSourceTagtemplateChainID.templateStepID
+		icon = GFX_goal_generic_allies_build_infantry
+		x = templateXPosition
+		y = templateYPosition
+		search_filters = {  FOCUS_FILTER_RESEARCH }
+		available_if_capitulated = yes
+		available = {
+			templateAvailable
+		}
+		bypass = {
+			templateBypasses
+		}
+		cost = 1
+		ai_will_do = {
+			factor = 1
+		}
+		completion_reward = {
+			templateCompletionRewards
+		}
+	}

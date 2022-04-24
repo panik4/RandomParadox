@@ -88,7 +88,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 		Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
 	}
 	else {
-		try {
+		/*try*/ {
 			// start with the generic stuff in the Scenario Generator
 			scenGen.mapRegions();
 			scenGen.mapContinents();
@@ -105,19 +105,19 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 			hoi4Gen.generateWeather(scenGen);
 			hoi4Gen.evaluateCountries(scenGen);
 			hoi4Gen.generateLogistics(scenGen);
-			NationalFocus::mapTypes();
+			NationalFocus::buildMaps();
 			hoi4Gen.evaluateCountryGoals(scenGen);
 			hoi4Gen.generateCountryUnits(scenGen);
 		}
-		catch (std::exception e) {
-			std::string error = "Error while generating the Hoi4 Module.\n";
-			error += "Error is: \n";
-			error += e.what();
-			throw(std::exception(error.c_str()));
-		}
+		//catch (std::exception e) {
+		//	std::string error = "Error while generating the Hoi4 Module.\n";
+		//	error += "Error is: \n";
+		//	error += e.what();
+		//	throw(std::exception(error.c_str()));
+		//}
 
 		// now start writing game files
-		try {
+		//try {
 			// generate map files. Format must be converted and colours mapped to hoi4 compatbile colours
 			FormatConverter formatConverter(hoi4Path);
 			formatConverter.dump8BitTerrain(hoi4ModPath + "\\map\\terrain.bmp", "terrainHoi4");
@@ -156,13 +156,13 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates, bool useDefau
 
 			// just copy over provinces.bmp, already in a compatible format
 			Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"), (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
-		}
-		catch (std::exception e) {
-			std::string error = "Error while dumping and writing files.\n";
-			error += "Error is: \n";
-			error += e.what();
-			throw(std::exception(error.c_str()));
-		}
+		//}
+		//catch (std::exception e) {
+		//	std::string error = "Error while dumping and writing files.\n";
+		//	error += "Error is: \n";
+		//	error += e.what();
+		//	throw(std::exception(error.c_str()));
+		//}
 		// now if everything worked, print info about world and pause for user to see
 		hoi4Gen.printStatistics(scenGen);
 	}

@@ -34,7 +34,8 @@ public:
 	static void writeHistoryCountries(std::string path, const std::map<std::string, Country>& countries);
 	static void writeHistoryUnits(std::string path, const std::map<std::string, Country>& countries);
 	// history - National Focus
-	static std::vector<std::string> readTypeMap(std::string path);
+	static std::vector<std::string> readTypeMap();
+	static std::map<std::string, std::string> readRewardMap(std::string path);
 	static void writeFoci(std::string path, const std::map<std::string, Country>& countries);
 
 	// common
