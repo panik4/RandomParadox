@@ -2,6 +2,9 @@
 #include "Hoi4Parser.h"
 int NationalFocus::IDcounter = 0;
 std::map<std::string, NationalFocus::FocusType> NationalFocus::typeMapping;
+std::map<std::string, std::string> NationalFocus::availableMap;
+std::map<std::string, std::string> NationalFocus::bypassMap;
+std::map<std::string, std::string> NationalFocus::rewardMap;
 NationalFocus::NationalFocus()
 {}
 
@@ -14,12 +17,15 @@ NationalFocus::NationalFocus(FocusType fType, bool defaultV, std::string source,
 NationalFocus::~NationalFocus()
 {}
 
-void NationalFocus::mapTypes()
+void NationalFocus::buildMaps()
 {
-	auto types = Hoi4Parser::readTypeMap("resources\\hoi4\\ai\\national_focus\\foci.txt");
+	auto types = Hoi4Parser::readTypeMap();
 	for (int i = 0; i < types.size(); i++) {
 		typeMapping[types[i]] = (FocusType)i;
 	}
+	availableMap = Hoi4Parser::readRewardMap("resources\\hoi4\\ai\\national_focus\\baseFiles\\available.txt");
+	bypassMap = Hoi4Parser::readRewardMap("resources\\hoi4\\ai\\national_focus\\baseFiles\\bypass.txt");
+	rewardMap = Hoi4Parser::readRewardMap("resources\\hoi4\\ai\\national_focus\\baseFiles\\completionRewards.txt");
 }
 
 std::ostream & operator<<(std::ostream & os, const NationalFocus & focus)
@@ -34,11 +40,6 @@ std::ostream & operator<<(std::ostream & os, const NationalFocus & focus)
 	case NationalFocus::FocusType::ally: {
 		action = " tries to ally ";
 		break;
-	}
-	case NationalFocus::FocusType::defense: {
-		action = " defends ";
-		break;
-
 	}
 	}
 	os << focus.sourceTag << action << focus.destTag << std::endl;

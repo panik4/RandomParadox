@@ -208,13 +208,14 @@ void Hoi4Parser::dumpUnitStacks(std::string path, const std::vector<Province*> p
 	// provID, neighbour?, xPos, zPos yPos, rotation(3=north, 0=south, 1.5=east,4,5=west), ??
 	// provID, xPos, ~10, yPos, ~0, 0,5
 	// for each neighbour add move state in the direction of the neighbour. 0 might be stand still
+	const auto& heightmap = Bitmap::findBitmapByKey("heightmap");
 	std::string content{ "" };
 	for (const auto& prov : provinces) {
 		int position = 0;
 		auto pix = *UtilLib::select_random(prov->pixels);
 		auto widthPos = pix % Data::getInstance().width;
 		auto heightPos = pix / Data::getInstance().width;
-		std::vector<std::string> arguments{ std::to_string(prov->ID + 1), std::to_string(position), std::to_string(widthPos), std::to_string(1), std::to_string(heightPos), std::to_string(0.0), "0.0" };
+		std::vector<std::string> arguments{ std::to_string(prov->ID + 1), std::to_string(position), std::to_string(widthPos), std::to_string((double)heightmap.getColourAtIndex(pix).getRed() / 10.0), std::to_string(heightPos), std::to_string(0.0), "0.0" };
 		content.append(pU::csvFormat(arguments, ';', false));
 		for (const auto& neighbour : prov->neighbours) {
 			position++;
@@ -223,7 +224,7 @@ void Hoi4Parser::dumpUnitStacks(std::string path, const std::vector<Province*> p
 			angle += 1.57;
 			auto widthPos = nextPos % Data::getInstance().width;
 			auto heightPos = nextPos / Data::getInstance().width;
-			std::vector<std::string> arguments{ std::to_string(prov->ID + 1), std::to_string(position), std::to_string(widthPos), std::to_string(15), std::to_string(heightPos), std::to_string(angle), "0.0" };
+			std::vector<std::string> arguments{ std::to_string(prov->ID + 1), std::to_string(position), std::to_string(widthPos), std::to_string((double)heightmap.getColourAtIndex(pix).getRed() / 10.0), std::to_string(heightPos), std::to_string(angle), "0.0" };
 			content.append(pU::csvFormat(arguments, ';', false));
 		}
 	}
@@ -444,16 +445,33 @@ void Hoi4Parser::writeHistoryUnits(std::string path, const std::map<std::string,
 		// now that we have the templates written down, we deploy units of these templates under the
 		// "divisions" key in the unitFile
 		std::string totalUnits = "";
-		for (int i = 0; i < country.second.attributeVectors.at("units").size(); i++) {
+		// for every entry in unitCount vector
+		for (int i = 0; i < country.second.attributeVectors.at("unitCount").size(); i++) {
+			// run unit generation ("unitCount")[i] times
 			for (int x = 0; x < country.second.attributeVectors.at("unitCount")[i]; x++) {
-				UtilLib::logLine(country.second.attributeVectors.at("units")[i]);
+
+				UtilLib::logLine(i, ";", country.second.attributeVectors.at("unitCount")[i]);
+				// copy the template unit file
 				auto tempUnit{ unitBlock };
-				ParserUtils::replaceOccurences(tempUnit, "templateDivisionName", IDMap.at(i));
-				UtilLib::logLine(IDMap.at(i));
+				// replace division name with the generic division name
+				ParserUtils::replaceOccurences(tempUnit, "templateDivisionName", "\"" + IDMap.at(i) + "\"");
+				// now deploy the unit in a random province
 				ParserUtils::replaceOccurences(tempUnit, "templateLocation", std::to_string(country.second.ownedRegions[0].gameProvinces[0].ID + 1));
 				totalUnits += tempUnit;
 			}
 		}
+
+		//for (int i = 0; i < country.second.attributeVectors.at("units").size(); i++) {
+// 
+		//	for (int x = 0; x < country.second.attributeVectors.at("unitCount")[i]; x++) {
+		//		UtilLib::logLine(country.second.attributeVectors.at("units")[i]);
+		//		auto tempUnit{ unitBlock };
+		//		ParserUtils::replaceOccurences(tempUnit, "templateDivisionName", IDMap.at(i));
+		//		UtilLib::logLine(IDMap.at(i));
+		//		ParserUtils::replaceOccurences(tempUnit, "templateLocation", std::to_string(country.second.ownedRegions[0].gameProvinces[0].ID + 1));
+		//		totalUnits += tempUnit;
+		//	}
+		//}
 		ParserUtils::replaceOccurences(unitFile, "templateUnitBlock", totalUnits);
 		// units
 		auto tempPath = path + country.first + "_1936.txt";
@@ -573,19 +591,32 @@ void Hoi4Parser::writeStrategicRegionNames(std::string path, const std::vector<s
 	pU::writeFile(path + "\\strategic_region_names_l_english.yml", content, true);
 }
 
-std::vector<std::string> Hoi4Parser::readTypeMap(std::string path)
+std::vector<std::string> Hoi4Parser::readTypeMap()
 {
-	return ParserUtils::getLines("resources\\hoi4\\ai\\national_focus\\foci.txt");
+	return ParserUtils::getLines("resources\\hoi4\\ai\\national_focus\\baseFiles\\foci.txt");
+}
+
+std::map<std::string, std::string> Hoi4Parser::readRewardMap(std::string path)
+{
+	auto file = ParserUtils::readFile(path);
+	auto split = ParserUtils::getTokens(file, ';');
+	std::map<std::string, std::string> rewardMap;
+	for (const auto& elem : split) {
+		auto key = ParserUtils::getBracketBlockContent(elem, "key");
+		auto value = ParserUtils::getBracketBlockContent(elem, "value");
+		rewardMap[key] = value;
+	}
+	return { rewardMap };
 }
 
 void Hoi4Parser::writeFoci(std::string path, const std::map<std::string, Country>& countries)
 {
 	UtilLib::logLine("HOI4 Parser: History: Demanding Danzig");
-	auto focusTypes = ParserUtils::getLines("resources\\hoi4\\ai\\national_focus\\foci.txt");
-	std::string baseTree = ParserUtils::readFile("resources\\hoi4\\ai\\national_focus\\focusBase.txt");
+	auto focusTypes = ParserUtils::getLines("resources\\hoi4\\ai\\national_focus\\baseFiles\\foci.txt");
+	std::string baseTree = ParserUtils::readFile("resources\\hoi4\\ai\\national_focus\\baseFiles\\focusBase.txt");
 	std::vector<std::string> focusTemplates;
 	for (auto& focusType : focusTypes)
-		focusTemplates.push_back(ParserUtils::readFile("resources\\hoi4\\ai\\national_focus\\" + focusType + "Focus.txt"));
+		focusTemplates.push_back(ParserUtils::readFile("resources\\hoi4\\ai\\national_focus\\focusTypes\\" + focusType + "Focus.txt"));
 
 	for (const auto& c : countries) {
 		std::string treeContent = baseTree;
@@ -593,6 +624,25 @@ void Hoi4Parser::writeFoci(std::string path, const std::map<std::string, Country
 		for (const auto& focusChain : c.second.foci) {
 			for (const auto& countryFocus : focusChain) {
 				tempContent += focusTemplates[countryFocus.fType];
+
+
+				// replace completion reward field with rewards in chain
+				std::string available = "";
+				for (const auto& availKey : countryFocus.available) {
+					available += NationalFocus::availableMap.at(availKey);
+				}
+				std::string bypasses = "";
+				for (const auto& bypassKey : countryFocus.bypasses) {
+					bypasses += NationalFocus::bypassMap.at(bypassKey);
+				}
+				std::string completionReward = "";
+				for (const auto& rewardKey : countryFocus.completionRewards) {
+					completionReward += NationalFocus::rewardMap.at(rewardKey);
+				}
+				ParserUtils::replaceOccurences(tempContent, "templateAvailable", completionReward);
+				ParserUtils::replaceOccurences(tempContent, "templateBypasses", completionReward);
+				ParserUtils::replaceOccurences(tempContent, "templateCompletionRewards", completionReward);
+
 				ParserUtils::replaceOccurences(tempContent, "templateStepID", std::to_string(countryFocus.stepID));
 				ParserUtils::replaceOccurences(tempContent, "templateChainID", std::to_string(countryFocus.chainID));
 				ParserUtils::replaceOccurences(tempContent, "templateSourceTag", c.first);

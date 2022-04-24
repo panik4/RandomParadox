@@ -63,7 +63,7 @@ void FormatConverter::dump8BitTrees(std::string path, std::string colourMapKey) 
 			double refHeight = ceil((double)i * factor);
 			double refWidth = UtilLib::clamp((double)w * factor, 0.0, (double)Data::getInstance().width);
 			// map the colour from 
-			trees.bit8Buffer[i*trees.bInfoHeader.biWidth + w] = colourMaps.at(colourMapKey).at(fGenTrees.getColourAtIndex(refHeight*width + refWidth));
+			trees.bit8Buffer[i * trees.bInfoHeader.biWidth + w] = colourMaps.at(colourMapKey).at(fGenTrees.getColourAtIndex(refHeight * width + refWidth));
 		}
 	}
 	Bitmap::SaveBMPToFile(trees, (path).c_str());
@@ -83,11 +83,11 @@ void FormatConverter::dumpDDSFiles(std::string path) const
 		tempPath += ".dds";
 		auto imageWidth = width / factor;
 		auto imageHeight = Data::getInstance().height / factor;
-		std::vector<uint8_t> pixels(imageWidth*imageHeight * 4, 0);
+		std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
 
 		for (auto h = 0; h < imageHeight; h++) {
 			for (auto w = 0; w < imageWidth; w++) {
-				auto referenceIndex = factor * h*width + factor * w;
+				auto referenceIndex = factor * h * width + factor * w;
 				double depth = (double)heightBMP.getColourAtIndex(referenceIndex).getBlue() / (double)Data::getInstance().seaLevel;
 				auto imageIndex = imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
 				imageIndex *= 4;
@@ -103,7 +103,6 @@ void FormatConverter::dumpDDSFiles(std::string path) const
 					pixels[imageIndex + 2] = 50;
 					pixels[imageIndex + 3] = 255;
 				}
-
 			}
 		}
 		TextureWriter::writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM, tempPath);
@@ -120,12 +119,12 @@ void FormatConverter::dumpTerrainColourmap(std::string path) const
 	auto imageWidth = width / factor;
 	auto imageHeight = Data::getInstance().height / factor;
 
-	std::vector<uint8_t> pixels(imageWidth*imageHeight * 4, 0);
+	std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
 	for (auto h = 0; h < imageHeight; h++) {
 		for (auto w = 0; w < imageWidth; w++) {
-			auto colourmapIndex = factor * h*width + factor * w;
+			auto colourmapIndex = factor * h * width + factor * w;
 			const auto& c = climateMap.getColourAtIndex(colourmapIndex);
-			auto imageIndex = imageHeight * imageWidth - (h *imageWidth + (imageWidth - w));
+			auto imageIndex = imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
 			imageIndex *= 4;
 			pixels[imageIndex] = c.getBlue();
 			pixels[imageIndex + 1] = c.getGreen();
@@ -148,7 +147,7 @@ void FormatConverter::dumpWorldNormal(std::string path) const
 	const auto sobelMap = heightBMP.sobelFilter();
 	for (auto i = 0; i < normalMap.bInfoHeader.biHeight; i++)
 		for (auto w = 0; w < normalMap.bInfoHeader.biWidth; w++)
-			normalMap.setColourAtIndex(i*normalMap.bInfoHeader.biWidth + w, sobelMap[factor * i*width + factor * w]);
+			normalMap.setColourAtIndex(i * normalMap.bInfoHeader.biWidth + w, sobelMap[factor * i * width + factor * w]);
 	Bitmap::SaveBMPToFile(normalMap, (path).c_str());
 }
 
