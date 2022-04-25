@@ -1,11 +1,7 @@
 #pragma once
-class GameContinent
-{
+class GameContinent {
 public:
-
-	int ID;
-	GameContinent();
-	~GameContinent();
-
+  int ID;
+  GameContinent();
+  ~GameContinent();
 };
-
