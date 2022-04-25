@@ -1,6 +1,6 @@
 #pragma once
 #include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
-#include "../FormatConverter.h"
+#include "../generic/FormatConverter.h"
 #include "Hoi4Parser.h"
 #include "Hoi4ScenarioGenerator.h"
 #include <boost/property_tree/json_parser.hpp>

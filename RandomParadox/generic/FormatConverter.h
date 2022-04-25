@@ -1,9 +1,9 @@
 #pragma once
 #include "DirectXTex.h"
-#include "FastWorldGen/FastWorldGen/entities/Colour.h"
-#include "FastWorldGen/FastWorldGen/utils/Bitmap.h"
-#include "FastWorldGen/FastWorldGen/utils/Data.h"
-#include "generic/TextureWriter.h"
+#include "../FastWorldGen/FastWorldGen/entities/Colour.h"
+#include "../FastWorldGen/FastWorldGen/utils/Bitmap.h"
+#include "../FastWorldGen/FastWorldGen/utils/Data.h"
+#include "TextureWriter.h"
 #include <map>
 
 class FormatConverter {
