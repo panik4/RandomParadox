@@ -26,14 +26,14 @@ int main() {
     std::ifstream f("RandomParadox.json");
     std::stringstream buffer;
     if (!f.good())
-      UtilLib::logLine("Config could not be loaded");
+      Logger::logLine("Config could not be loaded");
     buffer << f.rdbuf();
 
     pt::read_json(buffer, root);
   } catch (std::exception e) {
-    UtilLib::logLine("Incorrect config \"RandomParadox.json\"");
-    UtilLib::logLine("You can try fixing it yourself. Error is: ", e.what());
-    UtilLib::logLine(
+    Logger::logLine("Incorrect config \"RandomParadox.json\"");
+    Logger::logLine("You can try fixing it yourself. Error is: ", e.what());
+    Logger::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or search for \"json validator\"");
     dumpInfo(e.what());
@@ -63,8 +63,8 @@ int main() {
     latLow = root.get<double>("randomScenario.latitudeLow");
     latHigh = root.get<double>("randomScenario.latitudeHigh");
   } catch (std::exception e) {
-    UtilLib::logLine("Error reading boost::property_tree");
-    UtilLib::logLine("Did you rename a field in the json file?. Error is: ",
+    Logger::logLine("Error reading boost::property_tree");
+    Logger::logLine("Did you rename a field in the json file?. Error is: ",
                      e.what());
     dumpInfo(e.what());
     system("pause");
@@ -75,9 +75,9 @@ int main() {
   try {
     Data::getInstance().getConfig("FastWorldGenerator.json");
   } catch (std::exception e) {
-    UtilLib::logLine("Incorrect config \"FastWorldGenerator.json\"");
-    UtilLib::logLine("You can try fixing it yourself. Error is: ", e.what());
-    UtilLib::logLine(
+    Logger::logLine("Incorrect config \"FastWorldGenerator.json\"");
+    Logger::logLine("You can try fixing it yourself. Error is: ", e.what());
+    Logger::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or \"search for json validator\"");
     dumpInfo(e.what());
@@ -116,12 +116,12 @@ int main() {
       hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG);
   }
   // catch (std::exception e) {
-  //	UtilLib::logLine(e.what());
+  //	Logger::logLine(e.what());
   //	dumpInfo(e.what());
   //	system("pause");
   //	return -1;
   // }
-  UtilLib::logLine("Done with the generation");
+  Logger::logLine("Done with the generation");
   dumpInfo("");
   system("pause");
   return 0;
