@@ -626,15 +626,17 @@ void Hoi4Parser::writeFoci(std::string path, const std::map<std::string, Country
 				tempContent += focusTemplates[countryFocus.fType];
 
 
-				// replace completion reward field with rewards in chain
+				// build available from available keys
 				std::string available = "";
 				for (const auto& availKey : countryFocus.available) {
 					available += NationalFocus::availableMap.at(availKey);
 				}
+				// build bypasses from bypass keys
 				std::string bypasses = "";
 				for (const auto& bypassKey : countryFocus.bypasses) {
 					bypasses += NationalFocus::bypassMap.at(bypassKey);
 				}
+				// build completion rewards from completion reward keys
 				std::string completionReward = "";
 				for (const auto& rewardKey : countryFocus.completionRewards) {
 					completionReward += NationalFocus::rewardMap.at(rewardKey);
