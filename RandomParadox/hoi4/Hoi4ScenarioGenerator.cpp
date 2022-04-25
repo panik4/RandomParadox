@@ -67,7 +67,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator &scenGen) {
         totalStateArea += gameProv.baseProvince->pixels.size();
       }
       // state level is calculated from population and development
-      gameRegion.attributeDoubles["stateCategory"] = UtilLib::clamp(
+      gameRegion.attributeDoubles["stateCategory"] = std::clamp(
           (int)(totalPopFactor * 5.0 + totalDevFactor * 6.0), 0, 9);
       // one province region? Must be an island state
       if (gameRegion.gameProvinces.size() == 1) {
@@ -97,20 +97,20 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator &scenGen) {
       // distribute it to military, civilian and naval factories
       if (totalCoastal > 0) {
         gameRegion.attributeDoubles["dockyards"] =
-            UtilLib::clamp((int)round(stateIndustry * (0.25)), 0, 4);
+            std::clamp((int)round(stateIndustry * (0.25)), 0, 4);
         gameRegion.attributeDoubles["civilianFactories"] =
-            UtilLib::clamp((int)round(stateIndustry * (0.5)), 0, 8);
+            std::clamp((int)round(stateIndustry * (0.5)), 0, 8);
         gameRegion.attributeDoubles["armsFactories"] =
-            UtilLib::clamp((int)round(stateIndustry * (0.25)), 0, 4);
+            std::clamp((int)round(stateIndustry * (0.25)), 0, 4);
         militaryIndustry += (int)gameRegion.attributeDoubles["armsFactories"];
         civilianIndustry +=
             (int)gameRegion.attributeDoubles["civilianFactories"];
         navalIndustry += (int)gameRegion.attributeDoubles["dockyards"];
       } else {
         gameRegion.attributeDoubles["civilianFactories"] =
-            UtilLib::clamp((int)round(stateIndustry * (0.6)), 0, 8);
+            std::clamp((int)round(stateIndustry * (0.6)), 0, 8);
         gameRegion.attributeDoubles["armsFactories"] =
-            UtilLib::clamp((int)round(stateIndustry * (0.4)), 0, 4);
+            std::clamp((int)round(stateIndustry * (0.4)), 0, 4);
         gameRegion.attributeDoubles["dockyards"] = 0;
         militaryIndustry += (int)gameRegion.attributeDoubles["armsFactories"];
         civilianIndustry +=
@@ -255,15 +255,15 @@ void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator &scenGen) {
             0.5 * (2 * strat.weatherMonths[i][6] + strat.weatherMonths[i][5]));
         // blizzard chance, 8
         strat.weatherMonths[i].push_back(
-            UtilLib::clamp(0.2 - averageTemperature, 0.0, 0.2) *
+            std::clamp(0.2 - averageTemperature, 0.0, 0.2) *
             averagePrecipitation);
         // sandstorm chance, 9
         strat.weatherMonths[i].push_back(
-            UtilLib::clamp(averageTemperature - 0.8, 0.0, 0.2) *
-            UtilLib::clamp(0.2 - averagePrecipitation, 0.0, 0.2));
+            std::clamp(averageTemperature - 0.8, 0.0, 0.2) *
+            std::clamp(0.2 - averagePrecipitation, 0.0, 0.2));
         // snow chance, 10
         strat.weatherMonths[i].push_back(
-            UtilLib::clamp(0.4 - averageTemperature, 0.0, 0.2) *
+            std::clamp(0.4 - averageTemperature, 0.0, 0.2) *
             averagePrecipitation);
         // no phenomenon chance, 11
         strat.weatherMonths[i].push_back(
