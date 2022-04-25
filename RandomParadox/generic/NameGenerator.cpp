@@ -25,7 +25,7 @@ std::string NameGenerator::generateTag(std::string name,
   std::string tag = "";
   int retries = 0;
   while ((tag.size() == 0 || tags.find(tag) != tags.end()) && retries++ < 10) {
-    int offset = UtilLib::clamp(retries - 1, 0, (int)name.size() - 3);
+    int offset = std::clamp(retries - 1, 0, (int)name.size() - 3);
     tag = name.substr(0 + offset, 3);
     std::transform(tag.begin(), tag.end(), tag.begin(), ::toupper);
   }

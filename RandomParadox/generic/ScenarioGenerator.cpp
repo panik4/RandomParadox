@@ -232,7 +232,7 @@ void ScenarioGenerator::generateDevelopment() {
               cityBMP.getColourAtIndex(gameProv.baseProvince->cityPixels[0]) /
               Data::getInstance().namedColours["cities"];
         gameProv.devFactor =
-            UtilLib::clamp(0.2 + 0.5 * gameProv.popFactor +
+            std::clamp(0.2 + 0.5 * gameProv.popFactor +
                                1.0 * gameProv.cityShare * cityDensity,
                            0.0, 1.0);
       }

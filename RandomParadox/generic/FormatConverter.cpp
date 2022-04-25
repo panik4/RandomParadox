@@ -68,7 +68,7 @@ void FormatConverter::dump8BitTrees(std::string path,
   for (auto i = 0; i < trees.bInfoHeader.biHeight; i++) {
     for (auto w = 0; w < trees.bInfoHeader.biWidth; w++) {
       double refHeight = ceil((double)i * factor);
-      double refWidth = UtilLib::clamp((double)w * factor, 0.0,
+      double refWidth = std::clamp((double)w * factor, 0.0,
                                        (double)Data::getInstance().width);
       // map the colour from
       trees.bit8Buffer[i * trees.bInfoHeader.biWidth + w] =
