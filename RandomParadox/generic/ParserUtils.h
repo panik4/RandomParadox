@@ -65,8 +65,7 @@ public:
 
 	static std::vector<std::vector<std::string>> getLinesByID(std::string path)
 	{
-		std::vector<std::vector<std::string>> sortedLines;
-		sortedLines.resize(1000);
+		std::vector<std::vector<std::string>> sortedLines(10000);
 		std::string line;
 		std::ifstream myfile;
 		myfile.open(path);
