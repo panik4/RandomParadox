@@ -2,7 +2,7 @@
 
 void FormatConverter::dump8BitHeightmap(const std::string path,
                                         const std::string colourMapKey) const {
-  UtilLib::logLine("FormatConverter::Copying heightmap to ", path);
+  Logger::logLine("FormatConverter::Copying heightmap to ", path);
   Bitmap hoi4Heightmap(Data::getInstance().width, Data::getInstance().height,
                        8);
   hoi4Heightmap.getColourtable() = colourTables.at(colourMapKey);
@@ -15,7 +15,7 @@ void FormatConverter::dump8BitHeightmap(const std::string path,
 
 void FormatConverter::dump8BitTerrain(std::string path,
                                       std::string colourMapKey) const {
-  UtilLib::logLine("FormatConverter::Writing terrain to ", path);
+  Logger::logLine("FormatConverter::Writing terrain to ", path);
   Bitmap hoi4terrain(Data::getInstance().width, Data::getInstance().height, 8);
   hoi4terrain.getColourtable() = colourTables.at(colourMapKey);
   // now map from 24 bit climate map
@@ -28,7 +28,7 @@ void FormatConverter::dump8BitTerrain(std::string path,
 
 void FormatConverter::dump8BitCities(std::string path,
                                      std::string colourMapKey) const {
-  UtilLib::logLine("FormatConverter::Writing cities to ", path);
+  Logger::logLine("FormatConverter::Writing cities to ", path);
   Bitmap cities(Data::getInstance().width, Data::getInstance().height, 8);
   cities.getColourtable() = colourTables.at(colourMapKey);
 
@@ -43,7 +43,7 @@ void FormatConverter::dump8BitCities(std::string path,
 
 void FormatConverter::dump8BitRivers(std::string path,
                                      std::string colourMapKey) const {
-  UtilLib::logLine("FormatConverter::Writing rivers to ", path);
+  Logger::logLine("FormatConverter::Writing rivers to ", path);
   Bitmap rivers(Data::getInstance().width, Data::getInstance().height, 8);
   rivers.getColourtable() = colourTables.at(colourMapKey);
 
@@ -56,7 +56,7 @@ void FormatConverter::dump8BitRivers(std::string path,
 
 void FormatConverter::dump8BitTrees(std::string path,
                                     std::string colourMapKey) const {
-  UtilLib::logLine("FormatConverter::Writing trees to ", path);
+  Logger::logLine("FormatConverter::Writing trees to ", path);
   const double width = Data::getInstance().width;
   constexpr auto factor = 3.4133333333333333333333333333333;
   Bitmap trees(((double)Data::getInstance().width / factor),
@@ -80,7 +80,7 @@ void FormatConverter::dump8BitTrees(std::string path,
 }
 
 void FormatConverter::dumpDDSFiles(std::string path) const {
-  UtilLib::logLine("FormatConverter::Writing DDS files to ", path);
+  Logger::logLine("FormatConverter::Writing DDS files to ", path);
   using namespace DirectX;
   const auto &riverBMP = Bitmap::findBitmapByKey("rivers");
   const auto &heightBMP = Bitmap::findBitmapByKey("heightmap");
@@ -123,7 +123,7 @@ void FormatConverter::dumpDDSFiles(std::string path) const {
 }
 
 void FormatConverter::dumpTerrainColourmap(std::string path) const {
-  UtilLib::logLine("FormatConverter::Writing terrain colourmap to ", path);
+  Logger::logLine("FormatConverter::Writing terrain colourmap to ", path);
   const auto &climateMap = Bitmap::findBitmapByKey("climate2");
   const auto &cityMap = Bitmap::findBitmapByKey("cities");
   const auto &width = Data::getInstance().width;
@@ -153,7 +153,7 @@ void FormatConverter::dumpTerrainColourmap(std::string path) const {
 }
 
 void FormatConverter::dumpWorldNormal(std::string path) const {
-  UtilLib::logLine("FormatConverter::Writing normalMap to ", path);
+  Logger::logLine("FormatConverter::Writing normalMap to ", path);
   auto height = Data::getInstance().height;
   auto width = Data::getInstance().width;
   const auto &heightBMP = Bitmap::findBitmapByKey("heightmap");

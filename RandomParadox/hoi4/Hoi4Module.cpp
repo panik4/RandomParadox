@@ -252,7 +252,7 @@ void Hoi4Module::readConfig() {
   std::ifstream f("Hoi4Module.json");
   std::stringstream buffer;
   if (!f.good()) {
-    UtilLib::logLine("Config could not be loaded");
+    Logger::logLine("Config could not be loaded");
   }
   buffer << f.rdbuf();
   try {

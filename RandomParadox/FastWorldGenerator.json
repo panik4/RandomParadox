@@ -5,7 +5,7 @@
 		"genHeight" : true,
 		"interactiveMode" : false,
 		"writeMaps" : true,
-		"seed" : 5
+		"seed" : 0
 	},
 	"interactiveMode":
 	{
@@ -13,8 +13,8 @@
 	},
 	"map": 
 	{
-        "height" : 2048,
-		"width" : 5632,
+        "height" : 512,
+		"width" : 512,
 		"landMassPercentage" : 35,
 		"seaLevel" : 94,
 		"accuracy": 100,
