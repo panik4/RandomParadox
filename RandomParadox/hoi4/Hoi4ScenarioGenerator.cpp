@@ -6,7 +6,7 @@ Hoi4ScenarioGenerator::Hoi4ScenarioGenerator()
 Hoi4ScenarioGenerator::~Hoi4ScenarioGenerator() {}
 
 void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator &scenGen) {
-  UtilLib::logLine("HOI4: Digging for resources");
+  Logger::logLine("HOI4: Digging for resources");
   for (auto &c : scenGen.countryMap) {
     for (auto &gameRegion : c.second.ownedRegions) {
       for (auto &resource : resources) {
@@ -43,7 +43,7 @@ void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator &scenGen) {
 }
 
 void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator &scenGen) {
-  UtilLib::logLine("HOI4: Planning the economy");
+  Logger::logLine("HOI4: Planning the economy");
   // calculate the world land area
   double worldArea = (double)(Data::getInstance().bitmapSize / 3) *
                      Data::getInstance().landMassPercentage;
@@ -122,7 +122,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator &scenGen) {
 
 void Hoi4ScenarioGenerator::generateCountrySpecifics(
     ScenarioGenerator &scenGen, std::map<std::string, Country> &countries) {
-  UtilLib::logLine("HOI4: Choosing uniforms and electing Tyrants");
+  Logger::logLine("HOI4: Choosing uniforms and electing Tyrants");
   // graphical culture pairs:
   // { graphical_culture = type }
   // { graphical_culture_2d = type_2d }
@@ -180,7 +180,7 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(
 
 void Hoi4ScenarioGenerator::generateStrategicRegions(
     ScenarioGenerator &scenGen) {
-  UtilLib::logLine("HOI4: Dividing world into strategic regions");
+  Logger::logLine("HOI4: Dividing world into strategic regions");
   for (auto &region : scenGen.gameRegions) {
     if (region.attributeDoubles["stratID"] == 0.0) {
       strategicRegion sR;
@@ -276,7 +276,7 @@ void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator &scenGen) {
 }
 
 void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator &scenGen) {
-  UtilLib::logLine("HOI4: Building rail networks");
+  Logger::logLine("HOI4: Building rail networks");
   auto width = Data::getInstance().width;
   Bitmap logistics = Bitmap::findBitmapByKey("countries");
   for (auto &c : scenGen.countryMap) {
@@ -456,7 +456,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator &scenGen) {
 }
 
 void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator &scenGen) {
-  UtilLib::logLine("HOI4: Evaluating Country Strength");
+  Logger::logLine("HOI4: Evaluating Country Strength");
   double maxScore = 0.0;
   for (auto &c : scenGen.countryMap) {
     auto totalIndustry = 0.0;
@@ -510,7 +510,7 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator &scenGen) {
 }
 
 void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator &scenGen) {
-  UtilLib::logLine("HOI4: Generating Country Unit Files");
+  Logger::logLine("HOI4: Generating Country Unit Files");
   // read in different compositions
   auto unitTemplateFile =
       ParserUtils::readFile("resources\\hoi4\\history\\divisionTemplates.txt");
@@ -779,7 +779,7 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
 }
 
 void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator &scenGen) {
-  UtilLib::logLine("HOI4: Generating Country Goals");
+  Logger::logLine("HOI4: Generating Country Goals");
   std::vector<int> defDate{1, 1, 1936};
   std::vector<std::vector<std::vector<std::string>>> chains;
 
@@ -806,7 +806,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator &scenGen) {
         std::vector<std::set<std::string>> levelTargets(chain.size());
         int chainID = 0;
         for (const auto &chainFocus : chain) {
-          UtilLib::logLineLevel(9, chainFocus);
+          Logger::logLineLevel(9, chainFocus);
           // evaluate every single focus of that chain
           const auto chainTokens = ParserUtils::getTokens(chainFocus, ';');
           const int chainStep = stoi(chainTokens[1]);
@@ -847,7 +847,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator &scenGen) {
         // now build the chain from the options
         // for every step of the chain, choose a target
         if (stepTargets.size()) {
-          UtilLib::logLine("Building focus");
+          Logger::logLineLevel(5, "Building focus");
           std::map<int, NationalFocus> fulfilledSteps;
           int stepIndex = -1;
           std::vector<NationalFocus> chainFoci;
@@ -867,7 +867,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator &scenGen) {
                                   target)};
             focus.stepID = stepIndex;
             focus.chainID = chainID;
-            UtilLib::logLineLevel(1, focus);
+            Logger::logLineLevel(1, focus);
             if (focus.fType == focus.attack) {
               // country aims to bully
               sourceCountry.second.attributeDoubles["bully"]++;
@@ -884,21 +884,21 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator &scenGen) {
 }
 
 void Hoi4ScenarioGenerator::printStatistics(ScenarioGenerator &scenGen) {
-  UtilLib::logLine("Total Industry: ", totalWorldIndustry, "");
-  UtilLib::logLine("Military Industry: ", militaryIndustry, "");
-  UtilLib::logLine("Civilian Industry: ", civilianIndustry, "");
-  UtilLib::logLine("Naval Industry: ", navalIndustry, "");
-  UtilLib::logLine("Total Aluminium: ", totalAluminium, "");
-  UtilLib::logLine("Total Chromium: ", totalChromium, "");
-  UtilLib::logLine("Total Rubber: ", totalRubber, "");
-  UtilLib::logLine("Total Oil: ", totalOil, "");
-  UtilLib::logLine("Total Steel: ", totalSteel, "");
-  UtilLib::logLine("Total Tungsten: ", totalTungsten, "");
-  UtilLib::logLine("World Population: ", worldPop, "");
+  Logger::logLine("Total Industry: ", totalWorldIndustry, "");
+  Logger::logLine("Military Industry: ", militaryIndustry, "");
+  Logger::logLine("Civilian Industry: ", civilianIndustry, "");
+  Logger::logLine("Naval Industry: ", navalIndustry, "");
+  Logger::logLine("Total Aluminium: ", totalAluminium, "");
+  Logger::logLine("Total Chromium: ", totalChromium, "");
+  Logger::logLine("Total Rubber: ", totalRubber, "");
+  Logger::logLine("Total Oil: ", totalOil, "");
+  Logger::logLine("Total Steel: ", totalSteel, "");
+  Logger::logLine("Total Tungsten: ", totalTungsten, "");
+  Logger::logLine("World Population: ", worldPop, "");
 
   for (auto &scores : strengthScores) {
     for (auto &entry : scores.second) {
-      UtilLib::logLine(
+      Logger::logLine(
           "Strength: ", scores.first, " ",
           scenGen.countryMap.at(entry).attributeStrings.at("fullName"), " ",
           scenGen.countryMap.at(entry).attributeStrings.at("rulingParty"), "");

@@ -155,7 +155,7 @@ void ScenarioGenerator::generateWorld() {
 }
 
 void ScenarioGenerator::mapContinents() {
-  UtilLib::logLine("Mapping Continents");
+  Logger::logLine("Mapping Continents");
   auto ID = 0;
   for (const auto &continent : f.provinceGenerator.continents) {
     GameContinent c;
@@ -164,7 +164,7 @@ void ScenarioGenerator::mapContinents() {
 }
 
 void ScenarioGenerator::mapRegions() {
-  UtilLib::logLine("Mapping Regions");
+  Logger::logLine("Mapping Regions");
   for (auto &region : f.provinceGenerator.regions) {
     GameRegion gR(region);
     for (auto &baseRegion : gR.baseRegion.neighbours)
@@ -193,7 +193,7 @@ void ScenarioGenerator::mapRegions() {
 }
 
 void ScenarioGenerator::generatePopulations() {
-  UtilLib::logLine("Generating Population");
+  Logger::logLine("Generating Population");
   auto popMap = Bitmap::findBitmapByKey("population");
   auto cityMap = Bitmap::findBitmapByKey("cities");
   for (auto &c : countryMap)
@@ -220,7 +220,7 @@ void ScenarioGenerator::generateDevelopment() {
   // high city share->high dev
   // terrain type?
   // .....
-  UtilLib::logLine("Generating State Development");
+  Logger::logLine("Generating State Development");
   auto cityBMP = Bitmap::findBitmapByKey("cities");
   for (auto &c : countryMap)
     for (auto &gameProv : c.second.ownedRegions)
@@ -243,7 +243,7 @@ void ScenarioGenerator::mapTerrain() {
   auto climateMap = Bitmap::findBitmapByKey("climate");
   Bitmap typeMap(climateMap.bInfoHeader.biWidth,
                  climateMap.bInfoHeader.biHeight, 24);
-  UtilLib::logLine("Mapping Terrain");
+  Logger::logLine("Mapping Terrain");
   std::vector<std::string> targetTypes{"plains",   "forest", "marsh", "hills",
                                        "mountain", "desert", "urban", "jungle"};
 
@@ -322,7 +322,7 @@ GameRegion &ScenarioGenerator::findStartRegion() {
 // TODO: rulesets, e.g. naming schemes? tags? country size?
 void ScenarioGenerator::generateCountries(int numCountries) {
   this->numCountries = numCountries;
-  UtilLib::logLine("Generating Countries");
+  Logger::logLine("Generating Countries");
   // load tags from hoi4 that are used by the base game
   // do not use those to avoid conflicts
   const auto forbiddenTags = rLoader.loadForbiddenTags(gamePaths["hoi4"]);
@@ -363,7 +363,7 @@ void ScenarioGenerator::generateCountries(int numCountries) {
 }
 
 void ScenarioGenerator::evaluateNeighbours() {
-  UtilLib::logLine("Evaluating Country Neighbours");
+  Logger::logLine("Evaluating Country Neighbours");
   for (auto &c : countryMap)
     for (const auto &gameRegion : c.second.ownedRegions)
       for (const auto &neighbourRegion : gameRegion.neighbours)
@@ -372,7 +372,7 @@ void ScenarioGenerator::evaluateNeighbours() {
 }
 
 void ScenarioGenerator::dumpDebugCountrymap(std::string path) {
-  UtilLib::logLine("Mapping Continents");
+  Logger::logLine("Mapping Continents");
   Bitmap countryBMP(Data::getInstance().width, Data::getInstance().height, 24);
   for (const auto &country : countryMap)
     for (const auto &region : country.second.ownedRegions)
