@@ -13,6 +13,7 @@ void dumpInfo(std::string error) {
     dump += "\n";
   }
   dump += error;
+  dump += Logger::getFullLog();
   ParserUtils::writeFile("runDump.txt", dump);
 }
 
