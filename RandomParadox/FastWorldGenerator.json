@@ -13,8 +13,8 @@
 	},
 	"map": 
 	{
-        "height" : 512,
-		"width" : 512,
+        "height" : 2048,
+		"width" : 5632,
 		"landMassPercentage" : 35,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -24,7 +24,7 @@
 		},
 		"heightmap" : {
 			"complexHeight" : true,
-			"layerAmount" : 5,
+			"layerAmount" : 4,
 			"overallFrequencyModifier" : 1.0,
 			"layers" :
 			{
