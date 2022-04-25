@@ -556,6 +556,7 @@ void Hoi4ScenarioGenerator::buildFocusTree(Country& source)
 	// start left. Chains go down, new chains go right
 	int curX = 1;
 	int curY = 1;
+	int maxX = 1;
 	for (auto& focusChain : source.foci) {
 		curY = 1;
 		std::array<std::set<int>, 100> levels;
@@ -597,8 +598,13 @@ void Hoi4ScenarioGenerator::buildFocusTree(Country& source)
 				if (entry < focusChain.size())
 					focusChain.at(entry).position = { curX += 2, curY };
 			}
+			if (curX > maxX) {
+				maxX = curX;
+			}
 			curY++;
 		}
+		// use this for next chain to ensure spacing
+		curX = maxX;
 	}
 }
 bool Hoi4ScenarioGenerator::stepFulfillsRequirements(std::vector<std::string> stepRequirements, const std::vector<std::set<Country>> stepTargets)
@@ -691,20 +697,16 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 	std::vector<int> defDate{ 1,1,1936 };
 	std::vector<std::vector<std::vector<std::string>>> chains;
 
-	//chains.push_back(ParserUtils::getLinesByID("resources\\hoi4\\ai\\national_focus\\chains\\major_chains.txt"));
-	//chains.push_back(ParserUtils::getLinesByID("resources\\hoi4\\ai\\national_focus\\chains\\regional_chains.txt"));
+	chains.push_back(ParserUtils::getLinesByID("resources\\hoi4\\ai\\national_focus\\chains\\major_chains.txt"));
+	chains.push_back(ParserUtils::getLinesByID("resources\\hoi4\\ai\\national_focus\\chains\\regional_chains.txt"));
 	chains.push_back(ParserUtils::getLinesByID("resources\\hoi4\\ai\\national_focus\\chains\\army_chains.txt"));
 	auto typeCounter = 0;
 	for (auto& sourceCountry : scenGen.countryMap) {
-		int chainID = 0;
 		const auto& sourceS = scenGen.countryMap[sourceCountry.first].attributeStrings;
 		auto& sourceD = scenGen.countryMap[sourceCountry.first].attributeDoubles;
 		sourceCountry.second.attributeDoubles["bully"] = 0;
 		sourceCountry.second.attributeDoubles["defensive"] = 0;
-		//auto powerChains{ majorChains };
-		//if (sourceS.at("rank") == "regional")
-		//	powerChains = regionalChains;
-		for (const auto& chainType : chains)
+		for (const auto& chainType : chains) {
 			for (const auto& chain : chainType) {
 				// evaluate whole chain (chain defined by ID)
 				if (!chain.size())
@@ -712,11 +714,13 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 				// we need to save options for every chain step
 				std::vector<std::set<Country>> stepTargets;
 				std::vector<std::set<std::string>> levelTargets(chain.size());
+				int chainID = 0;
 				for (const auto& chainFocus : chain) {
-					UtilLib::logLine(chainFocus);
+					UtilLib::logLineLevel(9, chainFocus);
 					// evaluate every single focus of that chain
 					const auto chainTokens = ParserUtils::getTokens(chainFocus, ';');
 					const int chainStep = stoi(chainTokens[1]);
+					chainID = stoi(chainTokens[0]);
 					const int level = stoi(chainTokens[12]);
 					if (sourceS.at("rulingParty") == chainTokens[4] || chainTokens[4] == "any") {
 						stepTargets.resize(stepTargets.size() + 1);
@@ -726,7 +730,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 							// split requirements
 							auto targetRequirements = ParserUtils::getTokens(chainTokens[6], '+');
 							// if there are no target requirements, only the country itself is a target
-							if(!targetRequirements.size())
+							if (!targetRequirements.size())
 								stepTargets[chainStep].insert(sourceCountry.second);
 							else {
 								for (auto& destCountry : scenGen.countryMap) {
@@ -750,30 +754,28 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator& scenGen)
 					std::vector<NationalFocus> chainFoci;
 
 					for (auto& targets : stepTargets) {
-						std::vector<Country> t1;
-						//for (auto& tar : targets)
-						//	t1.push_back(tar);
 						stepIndex++;
-						//if (!targets.size())
-						//	continue;
+						if (!targets.size())
+							continue;
 						// select random target
-						const auto& target = *UtilLib::select_random(targets);//t1[Data::getInstance().random2() % t1.size()];
+						const auto& target = *UtilLib::select_random(targets);
 						// however
 						//if (targets.find(scenGen.countryMap.at(chainFoci.back().destTag)) != targets.end())
 						//	target = scenGen.countryMap.at(chainFoci.back().destTag);
 						auto focus{ buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'), scenGen.countryMap.at(sourceCountry.first), target) };
 						focus.stepID = stepIndex;
+						focus.chainID = chainID;
 						UtilLib::logLineLevel(1, focus);
 						if (focus.fType == focus.attack) {
 							// country aims to bully
 							sourceCountry.second.attributeDoubles["bully"]++;
 						}
-
 						chainFoci.push_back(focus);
 					}
 					sourceCountry.second.foci.push_back(chainFoci);
 				}
 			}
+		}
 		// now build a tree out of the focus chains
 		buildFocusTree(sourceCountry.second);
 	}
