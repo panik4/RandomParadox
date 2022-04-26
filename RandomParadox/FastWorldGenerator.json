@@ -13,14 +13,20 @@
 	},
 	"map": 
 	{
-        "height" : 512,
-		"width" : 512,
+        "height" : 256,
+		"width" : 768,
 		"landMassPercentage" : 35,
 		"seaLevel" : 94,
 		"accuracy": 100,
 		"rivers" : 
 		{
-			"numRivers" : 100
+			"numRivers" : 1
+		},
+		"mountains" :
+		{
+			"peakFactor" : 0.4,
+			"mountainFactor" : 0.3,
+			"hillFactor" : 0.2
 		},
 		"heightmap" : {
 			"complexHeight" : true,
@@ -65,10 +71,10 @@
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 0.7,
+					"weight" : 1.7,
 					"maxHeight" : 100,
 					"minHeight" : 0,
-					"tanFactor": 0.22
+					"tanFactor": 0.21
 				},
 				"3" :
 				{
@@ -79,10 +85,10 @@
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 0.5,
+					"weight" : 1.0,
 					"maxHeight" : 100,
 					"minHeight" : 0,
-					"tanFactor": 0.22
+					"tanFactor": 0.21
 				},
 				"4" :
 				{
@@ -93,7 +99,7 @@
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 3,
+					"weight" : 1.5,
 					"maxHeight" : 20,
 					"minHeight" : 0,
 					"tanFactor": 0.0
