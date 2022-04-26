@@ -3,9 +3,9 @@
 	{
 		"writeMaps": true,
 		"genhoi4": true,
-		"inputheightmap": false,
-		"heightmapPath": "inputs/exampleInput2.bmp",
-		"latitudeLow" : 0.5,
-		"latitudeHigh" : 1.5
+		"inputheightmap": true,
+		"heightmapPath": "inputs/heightmap_small.bmp",
+		"latitudeLow" : 0.62,
+		"latitudeHigh" : 1.8
 	}
 }
