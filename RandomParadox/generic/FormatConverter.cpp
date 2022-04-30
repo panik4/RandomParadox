@@ -3,12 +3,11 @@
 void FormatConverter::dump8BitHeightmap(const std::string path,
                                         const std::string colourMapKey) const {
   Logger::logLine("FormatConverter::Copying heightmap to ", path);
-  Bitmap hoi4Heightmap(Data::getInstance().width, Data::getInstance().height,
-                       8);
+  Bitmap hoi4Heightmap(Env::Instance().width, Env::Instance().height, 8);
   hoi4Heightmap.getColourtable() = colourTables.at(colourMapKey);
   // now map from 24 bit climate map
   const auto &heightmap = Bitmap::findBitmapByKey("heightmap");
-  for (int i = 0; i < Data::getInstance().bitmapSize; i++)
+  for (int i = 0; i < Env::Instance().bitmapSize; i++)
     hoi4Heightmap.bit8Buffer[i] = heightmap.getColourAtIndex(i).getRed();
   Bitmap::SaveBMPToFile(hoi4Heightmap, (path).c_str());
 }
@@ -16,11 +15,11 @@ void FormatConverter::dump8BitHeightmap(const std::string path,
 void FormatConverter::dump8BitTerrain(std::string path,
                                       std::string colourMapKey) const {
   Logger::logLine("FormatConverter::Writing terrain to ", path);
-  Bitmap hoi4terrain(Data::getInstance().width, Data::getInstance().height, 8);
+  Bitmap hoi4terrain(Env::Instance().width, Env::Instance().height, 8);
   hoi4terrain.getColourtable() = colourTables.at(colourMapKey);
   // now map from 24 bit climate map
   const auto &climate = Bitmap::findBitmapByKey("climate");
-  for (int i = 0; i < Data::getInstance().bitmapSize; i++)
+  for (int i = 0; i < Env::Instance().bitmapSize; i++)
     hoi4terrain.bit8Buffer[i] =
         colourMaps.at(colourMapKey).at(climate.getColourAtIndex(i));
   Bitmap::SaveBMPToFile(hoi4terrain, (path).c_str());
@@ -29,26 +28,25 @@ void FormatConverter::dump8BitTerrain(std::string path,
 void FormatConverter::dump8BitCities(std::string path,
                                      std::string colourMapKey) const {
   Logger::logLine("FormatConverter::Writing cities to ", path);
-  Bitmap cities(Data::getInstance().width, Data::getInstance().height, 8);
+  Bitmap cities(Env::Instance().width, Env::Instance().height, 8);
   cities.getColourtable() = colourTables.at(colourMapKey);
 
   const auto &climate = Bitmap::findBitmapByKey("climate");
-  for (int i = 0; i < Data::getInstance().bitmapSize; i++)
+  for (int i = 0; i < Env::Instance().bitmapSize; i++)
     cities.bit8Buffer[i] =
-        climate.getColourAtIndex(i) == Data::getInstance().namedColours["sea"]
-            ? 15
-            : 1;
+        climate.getColourAtIndex(i) == Env::Instance().namedColours["sea"] ? 15
+                                                                           : 1;
   Bitmap::SaveBMPToFile(cities, (path).c_str());
 }
 
 void FormatConverter::dump8BitRivers(std::string path,
                                      std::string colourMapKey) const {
   Logger::logLine("FormatConverter::Writing rivers to ", path);
-  Bitmap rivers(Data::getInstance().width, Data::getInstance().height, 8);
+  Bitmap rivers(Env::Instance().width, Env::Instance().height, 8);
   rivers.getColourtable() = colourTables.at(colourMapKey);
 
   const auto &rivers2 = Bitmap::findBitmapByKey("rivers");
-  for (int i = 0; i < Data::getInstance().bitmapSize; i++)
+  for (int i = 0; i < Env::Instance().bitmapSize; i++)
     rivers.bit8Buffer[i] =
         colourMaps.at(colourMapKey).at(rivers2.getColourAtIndex(i));
   Bitmap::SaveBMPToFile(rivers, (path).c_str());
@@ -57,10 +55,10 @@ void FormatConverter::dump8BitRivers(std::string path,
 void FormatConverter::dump8BitTrees(std::string path,
                                     std::string colourMapKey) const {
   Logger::logLine("FormatConverter::Writing trees to ", path);
-  const double width = Data::getInstance().width;
+  const double width = Env::Instance().width;
   constexpr auto factor = 3.4133333333333333333333333333333;
-  Bitmap trees(((double)Data::getInstance().width / factor),
-               ((double)Data::getInstance().height / factor), 8);
+  Bitmap trees(((double)Env::Instance().width / factor),
+               ((double)Env::Instance().height / factor), 8);
   trees.getColourtable() = colourTables.at(colourMapKey);
 
   const auto &climate = Bitmap::findBitmapByKey("climate");
@@ -68,8 +66,8 @@ void FormatConverter::dump8BitTrees(std::string path,
   for (auto i = 0; i < trees.bInfoHeader.biHeight; i++) {
     for (auto w = 0; w < trees.bInfoHeader.biWidth; w++) {
       double refHeight = ceil((double)i * factor);
-      double refWidth = std::clamp((double)w * factor, 0.0,
-                                       (double)Data::getInstance().width);
+      double refWidth =
+          std::clamp((double)w * factor, 0.0, (double)Env::Instance().width);
       // map the colour from
       trees.bit8Buffer[i * trees.bInfoHeader.biWidth + w] =
           colourMaps.at(colourMapKey)
@@ -84,14 +82,14 @@ void FormatConverter::dumpDDSFiles(std::string path) const {
   using namespace DirectX;
   const auto &riverBMP = Bitmap::findBitmapByKey("rivers");
   const auto &heightBMP = Bitmap::findBitmapByKey("heightmap");
-  const auto &width = Data::getInstance().width;
+  const auto &width = Env::Instance().width;
 
   for (int factor = 2, counter = 0; factor <= 8; factor *= 2, counter++) {
     auto tempPath{path};
     tempPath += std::to_string(counter);
     tempPath += ".dds";
     auto imageWidth = width / factor;
-    auto imageHeight = Data::getInstance().height / factor;
+    auto imageHeight = Env::Instance().height / factor;
     std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
 
     for (auto h = 0; h < imageHeight; h++) {
@@ -99,12 +97,12 @@ void FormatConverter::dumpDDSFiles(std::string path) const {
         auto referenceIndex = factor * h * width + factor * w;
         double depth =
             (double)heightBMP.getColourAtIndex(referenceIndex).getBlue() /
-            (double)Data::getInstance().seaLevel;
+            (double)Env::Instance().seaLevel;
         auto imageIndex =
             imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
         imageIndex *= 4;
         if (riverBMP.getColourAtIndex(referenceIndex) ==
-            Data::getInstance().namedColours["sea"]) {
+            Env::Instance().namedColours["sea"]) {
           pixels[imageIndex] = 49 * depth;
           pixels[imageIndex + 1] = 24 * depth;
           pixels[imageIndex + 2] = 16 * depth;
@@ -126,10 +124,10 @@ void FormatConverter::dumpTerrainColourmap(std::string path) const {
   Logger::logLine("FormatConverter::Writing terrain colourmap to ", path);
   const auto &climateMap = Bitmap::findBitmapByKey("climate2");
   const auto &cityMap = Bitmap::findBitmapByKey("cities");
-  const auto &width = Data::getInstance().width;
+  const auto &width = Env::Instance().width;
   int factor = 2; // map dimensions are halved
   auto imageWidth = width / factor;
-  auto imageHeight = Data::getInstance().height / factor;
+  auto imageHeight = Env::Instance().height / factor;
 
   std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
   for (auto h = 0; h < imageHeight; h++) {
@@ -145,7 +143,7 @@ void FormatConverter::dumpTerrainColourmap(std::string path) const {
       pixels[imageIndex + 3] =
           255.0 *
           (cityMap.getColourAtIndex(colourmapIndex) /
-           Data::getInstance().namedColours["cities"]); // alpha for city lights
+           Env::Instance().namedColours["cities"]); // alpha for city lights
     }
   }
   TextureWriter::writeDDS(imageWidth, imageHeight, pixels,
@@ -154,8 +152,8 @@ void FormatConverter::dumpTerrainColourmap(std::string path) const {
 
 void FormatConverter::dumpWorldNormal(std::string path) const {
   Logger::logLine("FormatConverter::Writing normalMap to ", path);
-  auto height = Data::getInstance().height;
-  auto width = Data::getInstance().width;
+  auto height = Env::Instance().height;
+  auto width = Env::Instance().width;
   const auto &heightBMP = Bitmap::findBitmapByKey("heightmap");
 
   int factor = 2; // image width and height are halved

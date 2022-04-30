@@ -47,8 +47,8 @@ std::string Hoi4Parser::getBuildingLine(const std::string type,
       prov = *UtilLib::select_random(region.provinces);
     pix = *UtilLib::select_random(prov->pixels);
   }
-  auto widthPos = pix % Data::getInstance().width;
-  auto heightPos = pix / Data::getInstance().width;
+  auto widthPos = pix % Env::Instance().width;
+  auto heightPos = pix / Env::Instance().width;
   std::vector<std::string> arguments{
       std::to_string(region.ID + 1),
       type,
@@ -72,7 +72,7 @@ void Hoi4Parser::dumpBuildings(std::string path,
       "nuclear_reactor", "rocket_site",        "radar_station",
       "fuel_silo",       "floating_harbor"};
   std::string content;
-  auto random = Data::getInstance().random2;
+  auto random = Env::Instance().random2;
   // stateId; type; pixelX, rotation??, pixelY, rotation??, 0??}
   // 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
   for (const auto &region : regions) {
@@ -84,8 +84,8 @@ void Hoi4Parser::dumpBuildings(std::string path,
         coastal = true;
       // add supply node buildings for each province
       auto pix = *UtilLib::select_random(prov->pixels);
-      auto widthPos = pix % Data::getInstance().width;
-      auto heightPos = pix / Data::getInstance().width;
+      auto widthPos = pix % Env::Instance().width;
+      auto heightPos = pix / Env::Instance().width;
       content.append(
           getBuildingLine("supply_node", region, coastal, heightmap));
     }
@@ -98,8 +98,8 @@ void Hoi4Parser::dumpBuildings(std::string path,
         for (const auto &prov : region.provinces) {
           if (!prov->isLake && !prov->sea) {
             auto pix = *UtilLib::select_random(prov->pixels);
-            auto widthPos = pix % Data::getInstance().width;
-            auto heightPos = pix / Data::getInstance().width;
+            auto widthPos = pix % Env::Instance().width;
+            auto heightPos = pix / Env::Instance().width;
             std::vector<std::string> arguments{
                 std::to_string(region.ID + 1),
                 type,
@@ -125,11 +125,11 @@ void Hoi4Parser::dumpBuildings(std::string path,
               for (const auto &neighbour : prov->neighbours)
                 if (neighbour->sea)
                   for (const auto &provPix : neighbour->pixels)
-                    if (UtilLib::getDistance(
-                            provPix, pix, Data::getInstance().width, 0) < 2.0)
+                    if (UtilLib::getDistance(provPix, pix,
+                                             Env::Instance().width) < 2.0)
                       ID = neighbour->ID;
-            auto widthPos = pix % Data::getInstance().width;
-            auto heightPos = pix / Data::getInstance().width;
+            auto widthPos = pix % Env::Instance().width;
+            auto heightPos = pix / Env::Instance().width;
             std::vector<std::string> arguments{
                 std::to_string(region.ID + 1),
                 type,
@@ -248,8 +248,8 @@ void Hoi4Parser::dumpUnitStacks(std::string path,
   for (const auto &prov : provinces) {
     int position = 0;
     auto pix = *UtilLib::select_random(prov->pixels);
-    auto widthPos = pix % Data::getInstance().width;
-    auto heightPos = pix / Data::getInstance().width;
+    auto widthPos = pix % Env::Instance().width;
+    auto heightPos = pix / Env::Instance().width;
     std::vector<std::string> arguments{
         std::to_string(prov->ID + 1),
         std::to_string(position),
@@ -263,10 +263,10 @@ void Hoi4Parser::dumpUnitStacks(std::string path,
       position++;
       double angle;
       auto nextPos = prov->getPositionBetweenProvinces(
-          *neighbour, Data::getInstance().width, angle);
+          *neighbour, Env::Instance().width, angle);
       angle += 1.57;
-      auto widthPos = nextPos % Data::getInstance().width;
-      auto heightPos = nextPos / Data::getInstance().width;
+      auto widthPos = nextPos % Env::Instance().width;
+      auto heightPos = nextPos / Env::Instance().width;
       std::vector<std::string> arguments{
           std::to_string(prov->ID + 1),
           std::to_string(position),
@@ -288,7 +288,7 @@ void Hoi4Parser::dumpWeatherPositions(
   Logger::logLine("HOI4 Parser: Map: Creating Storms");
   // 1; 2781.24; 9.90; 1571.49; small
   std::string content{""};
-  auto random = Data::getInstance().random2;
+  auto random = Env::Instance().random2;
   // stateId; pixelX; rotation??; pixelY; rotation??; size
   // 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
 
@@ -296,8 +296,8 @@ void Hoi4Parser::dumpWeatherPositions(
     auto region = *UtilLib::select_random(strategicRegions[i].gameRegionIDs);
     auto prov = *UtilLib::select_random(regions[region].provinces);
     auto pix = *UtilLib::select_random(prov->pixels);
-    auto widthPos = pix % Data::getInstance().width;
-    auto heightPos = pix / Data::getInstance().width;
+    auto widthPos = pix % Env::Instance().width;
+    auto heightPos = pix / Env::Instance().width;
     std::vector<std::string> arguments{
         std::to_string(i + 1), std::to_string(widthPos), std::to_string(9.90),
         std::to_string(heightPos), "small"};
@@ -886,7 +886,7 @@ void Hoi4Parser::writeCompatibilityHistory(std::string path,
                                            const std::vector<Region> &regions) {
   const std::filesystem::path hoiDir{hoiPath + "\\history\\countries\\"};
   const std::filesystem::path modDir{path};
-  auto random = Data::getInstance().random2;
+  auto random = Env::Instance().random2;
   for (auto const &dir_entry : std::filesystem::directory_iterator{hoiDir}) {
     std::string pathString = dir_entry.path().string();
 

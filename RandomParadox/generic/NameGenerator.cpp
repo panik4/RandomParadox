@@ -5,8 +5,7 @@ std::map<std::string, std::vector<std::string>> NameGenerator::groups;
 std::map<std::string, std::vector<std::string>> NameGenerator::ideologyNames;
 
 std::string NameGenerator::generateName() {
-  auto selectedRule{
-      nameRules[Data::getInstance().random2() % nameRules.size()]};
+  auto selectedRule{nameRules[Env::Instance().random2() % nameRules.size()]};
   auto selectedRuleNum{ParserUtils::getTokens(selectedRule, ';')};
   std::string name{getToken(selectedRuleNum)};
   std::transform(name.begin(), name.begin() + 1, name.begin(), ::toupper);

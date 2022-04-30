@@ -3,7 +3,7 @@
 	{
 		"writeMaps": true,
 		"genhoi4": true,
-		"inputheightmap": true,
+		"inputheightmap": false,
 		"heightmapPath": "inputs/heightmap_small.bmp",
 		"latitudeLow" : 0.62,
 		"latitudeHigh" : 1.8

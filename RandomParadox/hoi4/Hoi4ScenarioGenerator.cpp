@@ -1,7 +1,7 @@
 #include "Hoi4ScenarioGenerator.h"
 
 Hoi4ScenarioGenerator::Hoi4ScenarioGenerator()
-    : random{Data::getInstance().random2} {}
+    : random{Env::Instance().random2} {}
 
 Hoi4ScenarioGenerator::~Hoi4ScenarioGenerator() {}
 
@@ -45,12 +45,12 @@ void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator &scenGen) {
 void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator &scenGen) {
   Logger::logLine("HOI4: Planning the economy");
   // calculate the world land area
-  double worldArea = (double)(Data::getInstance().bitmapSize / 3) *
-                     Data::getInstance().landMassPercentage;
+  double worldArea = (double)(Env::Instance().bitmapSize / 3) *
+                     Env::Instance().landPercentage;
   // calculate the target industry amount
   auto targetWorldIndustry =
-      (double)Data::getInstance().landMassPercentage * 3648.0 *
-      (sqrt(Data::getInstance().bitmapSize) / sqrt((double)(5632 * 2048)));
+      (double)Env::Instance().landPercentage * 3648.0 *
+      (sqrt(Env::Instance().bitmapSize) / sqrt((double)(5632 * 2048)));
   for (auto &c : scenGen.countryMap) {
     for (auto &gameRegion : c.second.ownedRegions) {
       // count the number of land states for resource generation
@@ -67,8 +67,8 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator &scenGen) {
         totalStateArea += gameProv.baseProvince->pixels.size();
       }
       // state level is calculated from population and development
-      gameRegion.attributeDoubles["stateCategory"] = std::clamp(
-          (int)(totalPopFactor * 5.0 + totalDevFactor * 6.0), 0, 9);
+      gameRegion.attributeDoubles["stateCategory"] =
+          std::clamp((int)(totalPopFactor * 5.0 + totalDevFactor * 6.0), 0, 9);
       // one province region? Must be an island state
       if (gameRegion.gameProvinces.size() == 1) {
         gameRegion.attributeDoubles["stateCategory"] = 1;
@@ -86,7 +86,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator &scenGen) {
           // this province
           if (gameProv.attributeDoubles["naval_bases"] == 1)
             gameProv.attributeDoubles["naval_bases"] =
-                Data::getInstance().getRandomNumber(1, 5);
+                Env::Instance().getRandomNumber(1, 5);
         } else {
           gameProv.attributeDoubles["naval_bases"] = 0;
         }
@@ -145,7 +145,7 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(
     std::vector<double> popularities{};
     double totalPop = 0;
     for (int i = 0; i < 4; i++) {
-      popularities.push_back(Data::getInstance().getRandomNumber(1, 100));
+      popularities.push_back(Env::Instance().getRandomNumber(1, 100));
       totalPop += popularities[i];
     }
     auto sumPop = 0;
@@ -161,14 +161,13 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(
     }
     // assign a ruling party
     c.second.attributeStrings["rulingParty"] =
-        ideologies[Data::getInstance().getRandomNumber(0,
-                                                       (int)ideologies.size())];
+        ideologies[Env::Instance().getRandomNumber(0, (int)ideologies.size())];
     // allow or forbid elections
     if (c.second.attributeStrings["rulingParty"] == "democratic")
       c.second.attributeDoubles["allowElections"] = 1;
     else if (c.second.attributeStrings["rulingParty"] == "neutrality")
       c.second.attributeDoubles["allowElections"] =
-          Data::getInstance().getRandomNumber(0, 1);
+          Env::Instance().getRandomNumber(0, 1);
     else
       c.second.attributeDoubles["allowElections"] = 0;
     // now get the full name of the country
@@ -199,8 +198,7 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(
       strategicRegions.push_back(sR);
     }
   }
-  Bitmap stratRegionBMP(Data::getInstance().width, Data::getInstance().height,
-                        24);
+  Bitmap stratRegionBMP(Env::Instance().width, Env::Instance().height, 24);
   for (auto &strat : strategicRegions) {
     Colour c{random() % 255, random() % 255, random() % 255};
     for (auto &reg : strat.gameRegionIDs) {
@@ -236,14 +234,14 @@ void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator &scenGen) {
         strat.weatherMonths.push_back(
             {averageDeviation, averageTemperature, averagePrecipitation});
         // temperature low, 3
-        strat.weatherMonths[i].push_back(
-            Data::getInstance().baseTemperature +
-            averageTemperature * Data::getInstance().temperatureRange);
+        strat.weatherMonths[i].push_back(Env::Instance().baseTemperature +
+                                         averageTemperature *
+                                             Env::Instance().temperatureRange);
         // tempHigh, 4
         strat.weatherMonths[i].push_back(
-            Data::getInstance().baseTemperature +
-            averageTemperature * Data::getInstance().temperatureRange +
-            averageDeviation * Data::getInstance().deviationFactor);
+            Env::Instance().baseTemperature +
+            averageTemperature * Env::Instance().temperatureRange +
+            averageDeviation * Env::Instance().deviationFactor);
         // light_rain chance: cold and humid -> high, 5
         strat.weatherMonths[i].push_back((1.0 - averageTemperature) *
                                          averagePrecipitation);
@@ -277,7 +275,7 @@ void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator &scenGen) {
 
 void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator &scenGen) {
   Logger::logLine("HOI4: Building rail networks");
-  auto width = Data::getInstance().width;
+  auto width = Env::Instance().width;
   Bitmap logistics = Bitmap::findBitmapByKey("countries");
   for (auto &c : scenGen.countryMap) {
     // GameProvince ID, distance
@@ -535,7 +533,7 @@ void Hoi4ScenarioGenerator::generateCountryUnits(ScenarioGenerator &scenGen) {
     // simply give templates if we qualify for them
     if (majorFactor > 0.5 && bullyFactor > 0.25) {
       // choose one of the mechanised doctrines
-      if (Data::getInstance().random2() % 2)
+      if (Env::Instance().random2() % 2)
         c.second.attributeVectors["doctrines"].push_back(doctrineType::blitz);
       else
         c.second.attributeVectors["doctrines"].push_back(doctrineType::armored);
@@ -861,7 +859,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(ScenarioGenerator &scenGen) {
             // however
             // if (targets.find(scenGen.countryMap.at(chainFoci.back().destTag))
             // != targets.end()) 	target =
-            //scenGen.countryMap.at(chainFoci.back().destTag);
+            // scenGen.countryMap.at(chainFoci.back().destTag);
             auto focus{buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'),
                                   scenGen.countryMap.at(sourceCountry.first),
                                   target)};

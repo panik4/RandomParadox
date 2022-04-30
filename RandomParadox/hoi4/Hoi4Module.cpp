@@ -70,7 +70,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
         useDefaultProvinces); // load files, read states/create states
     scenGen.mapRegions();     // create gameRegions
     scenGen.generateCountries(numCountries);
-    scenGen.dumpDebugCountrymap(Data::getInstance().mapsPath + "countries.bmp");
+    scenGen.dumpDebugCountrymap(Env::Instance().mapsPath + "countries.bmp");
 
     Hoi4Parser::dumpStates(hoi4ModPath + "\\history\\states",
                            scenGen.countryMap);
@@ -103,8 +103,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
       scenGen.generateCountries(numCountries);
       scenGen.evaluateNeighbours();
       scenGen.generateWorld();
-      scenGen.dumpDebugCountrymap(Data::getInstance().mapsPath +
-                                  "countries.bmp");
+      scenGen.dumpDebugCountrymap(Env::Instance().mapsPath + "countries.bmp");
 
       // now generate hoi4 specific stuff
       hoi4Gen.generateCountrySpecifics(scenGen, scenGen.countryMap);

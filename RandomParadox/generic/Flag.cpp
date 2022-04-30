@@ -11,7 +11,7 @@ Flag::Flag() {}
 Flag::Flag(std::ranlux24 random, int width, int height)
     : random(random), width(width), height(height) {
   image = std::vector<unsigned char>(width * height * 4, 0);
-  auto randomIndex = Data::getInstance().random2() % flagTemplates.size();
+  auto randomIndex = Env::Instance().random2() % flagTemplates.size();
   image = flagTemplates[randomIndex];
   const auto &flagInfo = flagMetadata[randomIndex];
   auto flagColourGroups = ParserUtils::getTokens(flagInfo[0], ',');
@@ -43,7 +43,7 @@ Flag::Flag(std::ranlux24 random, int width, int height)
   }
 
   // now load symbol templates
-  randomIndex = Data::getInstance().random2() % symbolTemplates.size();
+  randomIndex = Env::Instance().random2() % symbolTemplates.size();
   auto symbol{symbolTemplates[1]};
   auto symbolInfo{symbolMetadata[randomIndex]};
   auto symbolHeightOffset = std::stod(flagInfo[4]);
@@ -58,7 +58,7 @@ Flag::Flag(std::ranlux24 random, int width, int height)
   auto replaceColour = symbolInfo[0] == "true";
   replacementColours.clear();
   for (const auto &colGroup : symbolColourGroups) {
-    const auto &colour = colourGroups[colGroup][Data::getInstance().random2() %
+    const auto &colour = colourGroups[colGroup][Env::Instance().random2() %
                                                 colourGroups[colGroup].size()];
     replacementColours.push_back(colour);
   }

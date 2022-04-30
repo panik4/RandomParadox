@@ -3,7 +3,7 @@
 Country::Country() : ID{-1} {}
 
 Country::Country(std::string tag, int ID) : tag{tag}, ID{ID} {
-  auto random = Data::getInstance().random2;
+  auto random = Env::Instance().random2;
   colour = {random() % 255, random() % 255, random() % 255};
 }
 
