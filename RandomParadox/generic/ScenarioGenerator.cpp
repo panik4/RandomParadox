@@ -264,7 +264,7 @@ void ScenarioGenerator::mapTerrain() {
           gameProv.terrainType = "jungle";
         else if (pr->first == namedColours["forest"])
           gameProv.terrainType = "forest";
-        else if (pr->first == namedColours["lowMountains"])
+        else if (pr->first == namedColours["hills"])
           gameProv.terrainType = "hills";
         else if (pr->first == namedColours["mountains"] ||
                  pr->first == namedColours["peaks"])
@@ -282,7 +282,7 @@ void ScenarioGenerator::mapTerrain() {
             typeMap.setColourAtIndex(pix, Colour{255, 255, 0});
           else if (pr->first == namedColours["forest"])
             typeMap.setColourAtIndex(pix, Colour{0, 255, 0});
-          else if (pr->first == namedColours["lowMountains"])
+          else if (pr->first == namedColours["hills"])
             typeMap.setColourAtIndex(pix, Colour{128, 128, 128});
           else if (pr->first == namedColours["mountains"] ||
                    pr->first == namedColours["peaks"])
@@ -334,7 +334,7 @@ void ScenarioGenerator::generateCountries(int numCountries) {
     C.name = name;
     C.adjective = nG.generateAdjective(name);
     // get a flag
-    Flag f(Env::Instance().random2, 82, 52);
+    Flag f(82, 52);
     C.flag = f;
     // randomly set development of countries
     C.developmentFactor = Env::Instance().getRandomDouble(0.1, 1.0);
