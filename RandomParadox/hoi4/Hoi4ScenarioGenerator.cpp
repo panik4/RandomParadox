@@ -1,7 +1,6 @@
 #include "Hoi4ScenarioGenerator.h"
 
-Hoi4ScenarioGenerator::Hoi4ScenarioGenerator()
-    : random{Env::Instance().random2} {}
+Hoi4ScenarioGenerator::Hoi4ScenarioGenerator() {}
 
 Hoi4ScenarioGenerator::~Hoi4ScenarioGenerator() {}
 
@@ -11,15 +10,16 @@ void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator &scenGen) {
     for (auto &gameRegion : c.second.ownedRegions) {
       for (auto &resource : resources) {
         auto chance = resource.second[2];
-        if (random() % 100 < chance * 100.0) {
+        if (Env::Instance().random2() % 100 < chance * 100.0) {
           // calc total of this resource
           auto totalOfResource = resource.second[1] * resource.second[0];
           // more per selected state if the chance is lower
           double averagePerState =
               (totalOfResource / (double)landStates) * (1.0 / chance);
           // range 1 to (2 times average - 1)
-          double value =
-              1.0 + (random() % (int)ceil((2.0 * averagePerState)) - 1.0);
+          double value = 1.0 + (Env::Instance().random2() %
+                                    (int)ceil((2.0 * averagePerState)) -
+                                1.0);
           // increase by industry factor
           value *= industryFactor;
           gameRegion.attributeDoubles[resource.first] = value;
@@ -45,8 +45,8 @@ void Hoi4ScenarioGenerator::generateStateResources(ScenarioGenerator &scenGen) {
 void Hoi4ScenarioGenerator::generateStateSpecifics(ScenarioGenerator &scenGen) {
   Logger::logLine("HOI4: Planning the economy");
   // calculate the world land area
-  double worldArea = (double)(Env::Instance().bitmapSize / 3) *
-                     Env::Instance().landPercentage;
+  double worldArea =
+      (double)(Env::Instance().bitmapSize / 3) * Env::Instance().landPercentage;
   // calculate the target industry amount
   auto targetWorldIndustry =
       (double)Env::Instance().landPercentage * 3648.0 *
@@ -200,7 +200,8 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(
   }
   Bitmap stratRegionBMP(Env::Instance().width, Env::Instance().height, 24);
   for (auto &strat : strategicRegions) {
-    Colour c{random() % 255, random() % 255, random() % 255};
+    Colour c{Env::Instance().random2() % 255, Env::Instance().random2() % 255,
+             Env::Instance().random2() % 255};
     for (auto &reg : strat.gameRegionIDs) {
       c.setBlue(scenGen.gameRegions[reg].sea ? 255 : 0);
       for (auto &prov : scenGen.gameRegions[reg].gameProvinces) {
