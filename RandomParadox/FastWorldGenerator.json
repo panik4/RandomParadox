@@ -5,7 +5,7 @@
 		"genHeight" : true,
 		"interactiveMode" : false,
 		"writeMaps" : true,
-		"seed" : 0
+		"seed" : 5
 	},
 	"interactiveMode":
 	{
@@ -13,9 +13,9 @@
 	},
 	"map": 
 	{
-        "height" : 256,
-		"width" : 768,
-		"landMassPercentage" : 35,
+        "height" : 512,
+		"width" : 512,
+		"landPercentage" : 34,
 		"seaLevel" : 94,
 		"accuracy": 100,
 		"rivers" : 
@@ -71,10 +71,10 @@
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 1.7,
+					"weight" : 0.7,
 					"maxHeight" : 100,
 					"minHeight" : 0,
-					"tanFactor": 0.21
+					"tanFactor": 0.22
 				},
 				"3" :
 				{
@@ -85,10 +85,10 @@
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 1.0,
+					"weight" : 0.5,
 					"maxHeight" : 100,
 					"minHeight" : 0,
-					"tanFactor": 0.21
+					"tanFactor": 0.22
 				},
 				"4" :
 				{

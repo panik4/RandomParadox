@@ -21,15 +21,13 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates,
   loadRequiredResources(gamePaths["hoi4"]);
   auto heightMap = bitmaps["heightmap"].get24BitRepresentation();
   Bitmap::bufferBitmap("heightmap", heightMap);
-  Data::getInstance().width = bitmaps["heightmap"].bInfoHeader.biWidth;
-  Data::getInstance().height = bitmaps["heightmap"].bInfoHeader.biHeight;
-  Data::getInstance().bitmapSize =
-      Data::getInstance().width * Data::getInstance().height;
-  Data::getInstance().seaLevel = 94; // hardcoded for hoi4
-  Data::getInstance().mapsPath = "Maps//";
+  Env::Instance().width = bitmaps["heightmap"].bInfoHeader.biWidth;
+  Env::Instance().height = bitmaps["heightmap"].bInfoHeader.biHeight;
+  Env::Instance().bitmapSize = Env::Instance().width * Env::Instance().height;
+  Env::Instance().seaLevel = 94; // hardcoded for hoi4
+  Env::Instance().mapsPath = "Maps//";
 
-  Bitmap terrainBMP =
-      Bitmap(Data::getInstance().width, Data::getInstance().height, 24);
+  Bitmap terrainBMP = Bitmap(Env::Instance().width, Env::Instance().height, 24);
   TerrainGenerator tG;
 
   std::map<int, Province *> provinces;
@@ -67,45 +65,41 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates,
     for (auto prov : f.provinceGenerator.provinces)
       prov->position.calcWeightedCenter(prov->pixels);
   } else {
-    Data::getInstance().calcParameters();
-    Bitmap riverMap(Data::getInstance().width, Data::getInstance().height, 24);
-    Bitmap humidityBMP(Data::getInstance().width, Data::getInstance().height,
-                       24);
-    Bitmap climateMap(Data::getInstance().width, Data::getInstance().height,
-                      24);
+    Env::Instance().calcParameters();
+    Bitmap riverMap(Env::Instance().width, Env::Instance().height, 24);
+    Bitmap humidityBMP(Env::Instance().width, Env::Instance().height, 24);
+    Bitmap climateMap(Env::Instance().width, Env::Instance().height, 24);
     tG.createTerrain(terrainBMP, heightMap);
     ClimateGenerator climateGenerator;
     climateGenerator.humidityMap(f.provinceGenerator.provinces, heightMap,
                                  humidityBMP, riverMap,
-                                 Data::getInstance().seaLevel);
+                                 Env::Instance().seaLevel);
     Bitmap::SaveBMPToFile(
-        humidityBMP, (Data::getInstance().mapsPath + ("humidity.bmp")).c_str());
+        humidityBMP, (Env::Instance().mapsPath + ("humidity.bmp")).c_str());
     climateGenerator.climateMap(climateMap, humidityBMP, heightMap,
-                                Data::getInstance().seaLevel);
-    Bitmap::SaveBMPToFile(
-        climateMap, (Data::getInstance().mapsPath + ("climate.bmp")).c_str());
+                                Env::Instance().seaLevel);
+    Bitmap::SaveBMPToFile(climateMap,
+                          (Env::Instance().mapsPath + ("climate.bmp")).c_str());
 
-    Bitmap::SaveBMPToFile(
-        terrainBMP, (Data::getInstance().mapsPath + ("terrain.bmp")).c_str());
-    Bitmap provinceMap(Data::getInstance().width, Data::getInstance().height,
-                       24);
+    Bitmap::SaveBMPToFile(terrainBMP,
+                          (Env::Instance().mapsPath + ("terrain.bmp")).c_str());
+    Bitmap provinceMap(Env::Instance().width, Env::Instance().height, 24);
     f.provinceGenerator.generateProvinces(terrainBMP, provinceMap, riverMap,
                                           tG.landBodies);
     Bitmap::SaveBMPToFile(
-        provinceMap,
-        (Data::getInstance().mapsPath + ("provinces.bmp")).c_str());
+        provinceMap, (Env::Instance().mapsPath + ("provinces.bmp")).c_str());
     bitmaps["provinces"] = provinceMap;
     f.provinceGenerator.createProvinceMap();
     f.provinceGenerator.beautifyProvinces(provinceMap, riverMap);
     f.provinceGenerator.evaluateNeighbours(provinceMap);
     tG.detectContinents(terrainBMP);
     f.provinceGenerator.generateRegions(3);
-    f.provinceGenerator.evaluateContinents(Data::getInstance().width,
-                                           Data::getInstance().height,
+    f.provinceGenerator.evaluateContinents(Env::Instance().width,
+                                           Env::Instance().height,
                                            tG.continents, tG.landBodies);
-    // genericParser.writeAdjacency((Data::getInstance().debugMapsPath +
+    // genericParser.writeAdjacency((Env::Instance().debugMapsPath +
     // ("adjacency.csv")).c_str(), provinceGenerator.provinces);
-    // genericParser.writeDefinition((Data::getInstance().debugMapsPath +
+    // genericParser.writeDefinition((Env::Instance().debugMapsPath +
     // ("definition.csv")).c_str(), provinceGenerator.provinces);
     Visualizer::provinceInfoMapNeighbours(provinceMap,
                                           f.provinceGenerator.provinces);
@@ -203,12 +197,12 @@ void ScenarioGenerator::generatePopulations() {
         gameProv.popFactor =
             0.1 + popMap.getColourAtIndex(
                       gameProv.baseProvince->position.weightedCenter) /
-                      Data::getInstance().namedColours["population"];
+                      Env::Instance().namedColours["population"];
         int cityPixels = 0;
         // calculate share of province that is a city
         for (auto pix : gameProv.baseProvince->pixels)
           if (cityMap.getColourAtIndex(pix).isShadeOf(
-                  Data::getInstance().namedColours["cities"]))
+                  Env::Instance().namedColours["cities"]))
             cityPixels++;
         gameProv.cityShare =
             (double)cityPixels / gameProv.baseProvince->pixels.size();
@@ -230,16 +224,16 @@ void ScenarioGenerator::generateDevelopment() {
         if (gameProv.baseProvince->cityPixels.size())
           cityDensity =
               cityBMP.getColourAtIndex(gameProv.baseProvince->cityPixels[0]) /
-              Data::getInstance().namedColours["cities"];
+              Env::Instance().namedColours["cities"];
         gameProv.devFactor =
             std::clamp(0.2 + 0.5 * gameProv.popFactor +
-                               1.0 * gameProv.cityShare * cityDensity,
-                           0.0, 1.0);
+                           1.0 * gameProv.cityShare * cityDensity,
+                       0.0, 1.0);
       }
 }
 
 void ScenarioGenerator::mapTerrain() {
-  auto namedColours = Data::getInstance().namedColours;
+  auto namedColours = Env::Instance().namedColours;
   auto climateMap = Bitmap::findBitmapByKey("climate");
   Bitmap typeMap(climateMap.bInfoHeader.biWidth,
                  climateMap.bInfoHeader.biHeight, 24);
@@ -340,10 +334,10 @@ void ScenarioGenerator::generateCountries(int numCountries) {
     C.name = name;
     C.adjective = nG.generateAdjective(name);
     // get a flag
-    Flag f(Data::getInstance().random2, 82, 52);
+    Flag f(Env::Instance().random2, 82, 52);
     C.flag = f;
     // randomly set development of countries
-    C.developmentFactor = Data::getInstance().getRandomDouble(0.1, 1.0);
+    C.developmentFactor = Env::Instance().getRandomDouble(0.1, 1.0);
     countryMap.emplace(tag, C);
   }
   for (auto &c : countryMap) {
@@ -355,8 +349,8 @@ void ScenarioGenerator::generateCountries(int numCountries) {
   for (auto &gameRegion : gameRegions) {
     if (!gameRegion.sea && !gameRegion.assigned) {
       auto x = UtilLib::getNearestAssignedLand(gameRegions, gameRegion,
-                                               Data::getInstance().width,
-                                               Data::getInstance().height);
+                                               Env::Instance().width,
+                                               Env::Instance().height);
       countryMap.at(x.owner).addRegion(gameRegion, gameRegions, gameProvinces);
     }
   }
@@ -373,7 +367,7 @@ void ScenarioGenerator::evaluateNeighbours() {
 
 void ScenarioGenerator::dumpDebugCountrymap(std::string path) {
   Logger::logLine("Mapping Continents");
-  Bitmap countryBMP(Data::getInstance().width, Data::getInstance().height, 24);
+  Bitmap countryBMP(Env::Instance().width, Env::Instance().height, 24);
   for (const auto &country : countryMap)
     for (const auto &region : country.second.ownedRegions)
       for (const auto &prov : region.baseRegion.provinces)
