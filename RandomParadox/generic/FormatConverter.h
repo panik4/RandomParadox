@@ -1,8 +1,8 @@
 #pragma once
-#include "DirectXTex.h"
 #include "../FastWorldGen/FastWorldGen/entities/Colour.h"
 #include "../FastWorldGen/FastWorldGen/utils/Bitmap.h"
-#include "../FastWorldGen/FastWorldGen/utils/Data.h"
+#include "../FastWorldGen/FastWorldGen/utils/Env.h"
+#include "DirectXTex.h"
 #include "TextureWriter.h"
 #include <map>
 
@@ -11,43 +11,43 @@ class FormatConverter {
   // should be mapped to which game compatible colour
   std::map<std::string, std::map<Colour, int>> colourMaps{
       {"terrainHoi4",
-       {{Data::getInstance().namedColours["grassland"], 0},
-        {Data::getInstance().namedColours["ice"], 19},
-        {Data::getInstance().namedColours["tundra"], 9},
-        {Data::getInstance().namedColours["forest"], 1},
-        {Data::getInstance().namedColours["jungle"], 21},
-        {Data::getInstance().namedColours["savannah"], 0},
-        {Data::getInstance().namedColours["desert"], 7},
-        {Data::getInstance().namedColours["peaks"], 16},
-        {Data::getInstance().namedColours["mountains"], 11},
-        {Data::getInstance().namedColours["lowMountains"], 20},
-        {Data::getInstance().namedColours["sea"], 15}}},
+       {{Env::Instance().namedColours["grassland"], 0},
+        {Env::Instance().namedColours["ice"], 19},
+        {Env::Instance().namedColours["tundra"], 9},
+        {Env::Instance().namedColours["forest"], 1},
+        {Env::Instance().namedColours["jungle"], 21},
+        {Env::Instance().namedColours["savannah"], 0},
+        {Env::Instance().namedColours["desert"], 7},
+        {Env::Instance().namedColours["peaks"], 16},
+        {Env::Instance().namedColours["mountains"], 11},
+        {Env::Instance().namedColours["lowMountains"], 20},
+        {Env::Instance().namedColours["sea"], 15}}},
       {"riversHoi4",
-       {{Data::getInstance().namedColours["land"], 255},
-        {Data::getInstance().namedColours["river"], 3},
-        {Data::getInstance().namedColours["river"] * 0.9, 3},
-        {Data::getInstance().namedColours["river"] * 0.8, 6},
-        {Data::getInstance().namedColours["river"] * 0.7, 6},
-        {Data::getInstance().namedColours["river"] * 0.6, 10},
-        {Data::getInstance().namedColours["river"] * 0.5, 11},
-        {Data::getInstance().namedColours["river"] * 0.4, 11},
-        {Data::getInstance().namedColours["sea"], 254},
-        {Data::getInstance().namedColours["riverStart"], 0},
-        {Data::getInstance().namedColours["riverStartTributary"], 3},
-        {Data::getInstance().namedColours["riverEnd"], 1}}},
+       {{Env::Instance().namedColours["land"], 255},
+        {Env::Instance().namedColours["river"], 3},
+        {Env::Instance().namedColours["river"] * 0.9, 3},
+        {Env::Instance().namedColours["river"] * 0.8, 6},
+        {Env::Instance().namedColours["river"] * 0.7, 6},
+        {Env::Instance().namedColours["river"] * 0.6, 10},
+        {Env::Instance().namedColours["river"] * 0.5, 11},
+        {Env::Instance().namedColours["river"] * 0.4, 11},
+        {Env::Instance().namedColours["sea"], 254},
+        {Env::Instance().namedColours["riverStart"], 0},
+        {Env::Instance().namedColours["riverStartTributary"], 3},
+        {Env::Instance().namedColours["riverEnd"], 1}}},
       {"treesHoi4",
-       {{Data::getInstance().namedColours["grassland"], 0},
-        {Data::getInstance().namedColours["ice"], 0},
-        {Data::getInstance().namedColours["tundra"], 0},
-        {Data::getInstance().namedColours["forest"], 6},
-        {Data::getInstance().namedColours["jungle"], 28},
-        {Data::getInstance().namedColours["savannah"], 0},
-        {Data::getInstance().namedColours["desert"], 0},
-        {Data::getInstance().namedColours["peaks"], 0},
-        {Data::getInstance().namedColours["mountains"], 0},
-        {Data::getInstance().namedColours["lowMountains"], 0},
-        {Data::getInstance().namedColours["empty"], 0},
-        {Data::getInstance().namedColours["sea"], 0}}}};
+       {{Env::Instance().namedColours["grassland"], 0},
+        {Env::Instance().namedColours["ice"], 0},
+        {Env::Instance().namedColours["tundra"], 0},
+        {Env::Instance().namedColours["forest"], 6},
+        {Env::Instance().namedColours["jungle"], 28},
+        {Env::Instance().namedColours["savannah"], 0},
+        {Env::Instance().namedColours["desert"], 0},
+        {Env::Instance().namedColours["peaks"], 0},
+        {Env::Instance().namedColours["mountains"], 0},
+        {Env::Instance().namedColours["lowMountains"], 0},
+        {Env::Instance().namedColours["empty"], 0},
+        {Env::Instance().namedColours["sea"], 0}}}};
   std::map<std::string, std::vector<unsigned char>> colourTables;
 
 public:

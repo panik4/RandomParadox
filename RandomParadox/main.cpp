@@ -6,9 +6,9 @@ void dumpInfo(std::string error) {
   auto dump = ParserUtils::readFile("RandomParadox.json");
   dump += ParserUtils::readFile("Hoi4Module.json");
   dump += ParserUtils::readFile("FastWorldGenerator.json");
-  dump += std::to_string(Data::getInstance().seed);
+  dump += std::to_string(Env::Instance().seed);
   dump += "\n";
-  for (auto layerSeed : Data::getInstance().seeds) {
+  for (auto layerSeed : Env::Instance().seeds) {
     dump += std::to_string(layerSeed);
     dump += "\n";
   }
@@ -18,6 +18,7 @@ void dumpInfo(std::string error) {
 }
 
 int main() {
+
   // Short alias for this namespace
   namespace pt = boost::property_tree;
   // Create a root
@@ -66,7 +67,7 @@ int main() {
   } catch (std::exception e) {
     Logger::logLine("Error reading boost::property_tree");
     Logger::logLine("Did you rename a field in the json file?. Error is: ",
-                     e.what());
+                    e.what());
     dumpInfo(e.what());
     system("pause");
     return -1;
@@ -74,7 +75,7 @@ int main() {
 
   // check if we can read the config
   try {
-    Data::getInstance().getConfig("FastWorldGenerator.json");
+    Env::Instance().getConfig("FastWorldGenerator.json");
   } catch (std::exception e) {
     Logger::logLine("Incorrect config \"FastWorldGenerator.json\"");
     Logger::logLine("You can try fixing it yourself. Error is: ", e.what());
@@ -85,10 +86,11 @@ int main() {
     system("pause");
     return -1;
   }
+
   // if we don't want the FastWorldGenerator output in MapsPath, debug = 0 turns
   // this off
   if (!writeMaps) {
-    Data::getInstance().writeMaps = false;
+    Env::Instance().writeMaps = false;
   }
   /*try*/ {
     NameGenerator::prepare();
@@ -100,12 +102,12 @@ int main() {
       // if we configured to use an existing heightmap
       if (useGlobalExistingHeightmap) {
         // overwrite settings of fastworldgen
-        Data::getInstance().heightmapIn = globalHeightMapPath;
-        Data::getInstance().genHeight = false;
-        Data::getInstance().latLow = latLow;
-        Data::getInstance().latHigh = latHigh;
+        Env::Instance().heightmapIn = globalHeightMapPath;
+        Env::Instance().genHeight = false;
+        Env::Instance().latLow = latLow;
+        Env::Instance().latHigh = latHigh;
       }
-      Data::getInstance().sanityCheck();
+      Env::Instance().sanityCheck();
       // now run the world generation
       fastWorldGen.generateWorld();
     }
