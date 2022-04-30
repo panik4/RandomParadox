@@ -96,7 +96,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
     Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"),
                           (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
   } else {
-    /*try*/ {
+    try {
       // start with the generic stuff in the Scenario Generator
       scenGen.mapRegions();
       scenGen.mapContinents();
@@ -116,96 +116,96 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
       NationalFocus::buildMaps();
       hoi4Gen.evaluateCountryGoals(scenGen);
       hoi4Gen.generateCountryUnits(scenGen);
+    } catch (std::exception e) {
+      std::string error = "Error while generating the Hoi4 Module.\n";
+      error += "Error is: \n";
+      error += e.what();
+      throw(std::exception(error.c_str()));
     }
-    // catch (std::exception e) {
-    //	std::string error = "Error while generating the Hoi4 Module.\n";
-    //	error += "Error is: \n";
-    //	error += e.what();
-    //	throw(std::exception(error.c_str()));
-    // }
 
     // now start writing game files
-    // try {
-    // generate map files. Format must be converted and colours mapped to hoi4
-    // compatbile colours
-    FormatConverter formatConverter(hoi4Path);
-    formatConverter.dump8BitTerrain(hoi4ModPath + "\\map\\terrain.bmp",
-                                    "terrainHoi4");
-    formatConverter.dump8BitCities(hoi4ModPath + "\\map\\cities.bmp",
-                                   "citiesHoi4");
-    formatConverter.dump8BitRivers(hoi4ModPath + "\\map\\rivers.bmp",
-                                   "riversHoi4");
-    formatConverter.dump8BitTrees(hoi4ModPath + "\\map\\trees.bmp",
-                                  "treesHoi4");
-    formatConverter.dump8BitHeightmap(hoi4ModPath + "\\map\\heightmap.bmp",
-                                      "heightmapHoi4");
-    formatConverter.dumpTerrainColourmap(
-        hoi4ModPath + "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds");
-    formatConverter.dumpDDSFiles(hoi4ModPath +
-                                 "\\map\\terrain\\colormap_water_");
-    formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp");
+    try {
+      // generate map files. Format must be converted and colours mapped to hoi4
+      // compatbile colours
+      FormatConverter formatConverter(hoi4Path);
+      formatConverter.dump8BitTerrain(hoi4ModPath + "\\map\\terrain.bmp",
+                                      "terrainHoi4");
+      formatConverter.dump8BitCities(hoi4ModPath + "\\map\\cities.bmp",
+                                     "citiesHoi4");
+      formatConverter.dump8BitRivers(hoi4ModPath + "\\map\\rivers.bmp",
+                                     "riversHoi4");
+      formatConverter.dump8BitTrees(hoi4ModPath + "\\map\\trees.bmp",
+                                    "treesHoi4");
+      formatConverter.dump8BitHeightmap(hoi4ModPath + "\\map\\heightmap.bmp",
+                                        "heightmapHoi4");
+      formatConverter.dumpTerrainColourmap(
+          hoi4ModPath + "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds");
+      formatConverter.dumpDDSFiles(hoi4ModPath +
+                                   "\\map\\terrain\\colormap_water_");
+      formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp");
 
-    Hoi4Parser::writeCompatibilityHistory(
-        hoi4ModPath + "\\history\\countries\\", hoi4Path,
-        scenGen.f.provinceGenerator.regions);
-    Hoi4Parser::writeHistoryCountries(hoi4ModPath + "\\history\\countries\\",
-                                      scenGen.countryMap);
-    Hoi4Parser::writeHistoryUnits(hoi4ModPath + "\\history\\units\\",
-                                  scenGen.countryMap);
-    Hoi4Parser::dumpCommonCountryTags(
-        hoi4ModPath + "\\common\\country_tags\\02_countries.txt",
-        scenGen.countryMap);
-    Hoi4Parser::dumpCommonCountries(
-        hoi4ModPath + "\\common\\countries\\",
-        hoi4Path + "\\common\\countries\\colors.txt", scenGen.countryMap);
-    Hoi4Parser::dumpAdj(hoi4ModPath + "\\map\\adjacencies.csv");
-    Hoi4Parser::dumpAirports(hoi4ModPath + "\\map\\airports.txt",
-                             scenGen.f.provinceGenerator.regions);
-    Hoi4Parser::dumpBuildings(hoi4ModPath + "\\map\\buildings.txt",
-                              scenGen.f.provinceGenerator.regions);
-    Hoi4Parser::dumpContinents(hoi4ModPath + "\\map\\continents.txt",
-                               scenGen.f.provinceGenerator.continents);
-    Hoi4Parser::dumpDefinition(hoi4ModPath + "\\map\\definition.csv",
-                               scenGen.gameProvinces);
-    Hoi4Parser::dumpUnitStacks(hoi4ModPath + "\\map\\unitstacks.txt",
-                               scenGen.f.provinceGenerator.provinces);
-    Hoi4Parser::dumpRocketSites(hoi4ModPath + "\\map\\rocketsites.txt",
+      Hoi4Parser::writeCompatibilityHistory(
+          hoi4ModPath + "\\history\\countries\\", hoi4Path,
+          scenGen.f.provinceGenerator.regions);
+      Hoi4Parser::writeHistoryCountries(hoi4ModPath + "\\history\\countries\\",
+                                        scenGen.countryMap);
+      Hoi4Parser::writeHistoryUnits(hoi4ModPath + "\\history\\units\\",
+                                    scenGen.countryMap);
+      Hoi4Parser::dumpCommonCountryTags(
+          hoi4ModPath + "\\common\\country_tags\\02_countries.txt",
+          scenGen.countryMap);
+      Hoi4Parser::dumpCommonCountries(
+          hoi4ModPath + "\\common\\countries\\",
+          hoi4Path + "\\common\\countries\\colors.txt", scenGen.countryMap);
+      Hoi4Parser::dumpAdj(hoi4ModPath + "\\map\\adjacencies.csv");
+      Hoi4Parser::dumpAirports(hoi4ModPath + "\\map\\airports.txt",
+                               scenGen.f.provinceGenerator.regions);
+      Hoi4Parser::dumpBuildings(hoi4ModPath + "\\map\\buildings.txt",
                                 scenGen.f.provinceGenerator.regions);
-    Hoi4Parser::dumpStrategicRegions(hoi4ModPath + "\\map\\strategicregions",
-                                     scenGen.f.provinceGenerator.regions,
-                                     hoi4Gen.strategicRegions);
-    Hoi4Parser::dumpStates(hoi4ModPath + "\\history\\states",
-                           scenGen.countryMap);
-    Hoi4Parser::dumpFlags(hoi4ModPath + "\\gfx\\flags\\", scenGen.countryMap);
-    Hoi4Parser::dumpWeatherPositions(
-        hoi4ModPath + "\\map\\weatherpositions.txt",
-        scenGen.f.provinceGenerator.regions, hoi4Gen.strategicRegions);
-    Hoi4Parser::dumpAdjacencyRules(hoi4ModPath + "\\map\\adjacency_rules.txt");
-    Hoi4Parser::dumpSupply(hoi4ModPath + "\\map\\",
-                           hoi4Gen.supplyNodeConnections);
-    Hoi4Parser::writeStateNames(hoi4ModPath + "\\localisation\\english\\",
-                                scenGen.countryMap);
-    Hoi4Parser::writeCountryNames(hoi4ModPath + "\\localisation\\english\\",
+      Hoi4Parser::dumpContinents(hoi4ModPath + "\\map\\continents.txt",
+                                 scenGen.f.provinceGenerator.continents);
+      Hoi4Parser::dumpDefinition(hoi4ModPath + "\\map\\definition.csv",
+                                 scenGen.gameProvinces);
+      Hoi4Parser::dumpUnitStacks(hoi4ModPath + "\\map\\unitstacks.txt",
+                                 scenGen.f.provinceGenerator.provinces);
+      Hoi4Parser::dumpRocketSites(hoi4ModPath + "\\map\\rocketsites.txt",
+                                  scenGen.f.provinceGenerator.regions);
+      Hoi4Parser::dumpStrategicRegions(hoi4ModPath + "\\map\\strategicregions",
+                                       scenGen.f.provinceGenerator.regions,
+                                       hoi4Gen.strategicRegions);
+      Hoi4Parser::dumpStates(hoi4ModPath + "\\history\\states",
+                             scenGen.countryMap);
+      Hoi4Parser::dumpFlags(hoi4ModPath + "\\gfx\\flags\\", scenGen.countryMap);
+      Hoi4Parser::dumpWeatherPositions(
+          hoi4ModPath + "\\map\\weatherpositions.txt",
+          scenGen.f.provinceGenerator.regions, hoi4Gen.strategicRegions);
+      Hoi4Parser::dumpAdjacencyRules(hoi4ModPath +
+                                     "\\map\\adjacency_rules.txt");
+      Hoi4Parser::dumpSupply(hoi4ModPath + "\\map\\",
+                             hoi4Gen.supplyNodeConnections);
+      Hoi4Parser::writeStateNames(hoi4ModPath + "\\localisation\\english\\",
                                   scenGen.countryMap);
-    Hoi4Parser::writeStrategicRegionNames(
-        hoi4ModPath + "\\localisation\\english\\", hoi4Gen.strategicRegions);
-    Hoi4Parser::writeFoci(hoi4ModPath + "\\common\\national_focus\\",
-                          scenGen.countryMap);
-    Hoi4Parser::dumpCommonBookmarks(hoi4ModPath + "\\common\\bookmarks\\",
-                                    scenGen.countryMap, hoi4Gen.strengthScores);
-    Hoi4Parser::copyDescriptorFile("resources\\hoi4\\descriptor.mod",
-                                   hoi4ModPath, hoi4ModsDirectory, modName);
+      Hoi4Parser::writeCountryNames(hoi4ModPath + "\\localisation\\english\\",
+                                    scenGen.countryMap);
+      Hoi4Parser::writeStrategicRegionNames(
+          hoi4ModPath + "\\localisation\\english\\", hoi4Gen.strategicRegions);
+      Hoi4Parser::writeFoci(hoi4ModPath + "\\common\\national_focus\\",
+                            scenGen.countryMap);
+      Hoi4Parser::dumpCommonBookmarks(hoi4ModPath + "\\common\\bookmarks\\",
+                                      scenGen.countryMap,
+                                      hoi4Gen.strengthScores);
+      Hoi4Parser::copyDescriptorFile("resources\\hoi4\\descriptor.mod",
+                                     hoi4ModPath, hoi4ModsDirectory, modName);
 
-    // just copy over provinces.bmp, already in a compatible format
-    Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"),
-                          (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
-    //}
-    // catch (std::exception e) {
-    //	std::string error = "Error while dumping and writing files.\n";
-    //	error += "Error is: \n";
-    //	error += e.what();
-    //	throw(std::exception(error.c_str()));
-    //}
+      // just copy over provinces.bmp, already in a compatible format
+      Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"),
+                            (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
+    } catch (std::exception e) {
+      std::string error = "Error while dumping and writing files.\n";
+      error += "Error is: \n";
+      error += e.what();
+      throw(std::exception(error.c_str()));
+    }
     // now if everything worked, print info about world and pause for user to
     // see
     hoi4Gen.printStatistics(scenGen);

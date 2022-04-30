@@ -20,7 +20,7 @@ class FormatConverter {
         {Env::Instance().namedColours["desert"], 7},
         {Env::Instance().namedColours["peaks"], 16},
         {Env::Instance().namedColours["mountains"], 11},
-        {Env::Instance().namedColours["lowMountains"], 20},
+        {Env::Instance().namedColours["hills"], 20},
         {Env::Instance().namedColours["sea"], 15}}},
       {"riversHoi4",
        {{Env::Instance().namedColours["land"], 255},
@@ -45,7 +45,7 @@ class FormatConverter {
         {Env::Instance().namedColours["desert"], 0},
         {Env::Instance().namedColours["peaks"], 0},
         {Env::Instance().namedColours["mountains"], 0},
-        {Env::Instance().namedColours["lowMountains"], 0},
+        {Env::Instance().namedColours["hills"], 0},
         {Env::Instance().namedColours["empty"], 0},
         {Env::Instance().namedColours["sea"], 0}}}};
   std::map<std::string, std::vector<unsigned char>> colourTables;

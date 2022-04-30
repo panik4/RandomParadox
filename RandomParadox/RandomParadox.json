@@ -4,8 +4,8 @@
 		"writeMaps": true,
 		"genhoi4": true,
 		"inputheightmap": false,
-		"heightmapPath": "inputs/heightmap_small.bmp",
-		"latitudeLow" : 0.62,
+		"heightmapPath": "inputs/heightmap_small_normalDimensions.bmp",
+		"latitudeLow" : 0.36,
 		"latitudeHigh" : 1.8
 	}
 }

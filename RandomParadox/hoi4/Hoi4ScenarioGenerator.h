@@ -16,7 +16,6 @@ struct strategicRegion {
 };
 
 class Hoi4ScenarioGenerator {
-  std::ranlux24 random;
   // vars
   int landStates = 0;
   int focusID = 0;

@@ -12,7 +12,6 @@ class Flag {
   static std::vector<std::vector<std::string>> flagMetadata;
   static std::vector<std::vector<uint8_t>> symbolTemplates;
   static std::vector<std::vector<std::string>> symbolMetadata;
-  std::ranlux24 random;
   // containers
   std::vector<Colour> colours;
   std::vector<unsigned char> image;
@@ -43,7 +42,7 @@ public:
   int height;
   // constructors/destructors
   Flag();
-  Flag(std::ranlux24 random, int width, int height);
+  Flag(int width, int height);
   ~Flag();
   // methods - image read/write
   void setPixel(Colour colour, int x, int y);

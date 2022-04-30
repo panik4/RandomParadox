@@ -8,8 +8,8 @@ std::vector<std::vector<std::string>> Flag::flagMetadata;
 std::vector<std::vector<std::string>> Flag::symbolMetadata;
 Flag::Flag() {}
 
-Flag::Flag(std::ranlux24 random, int width, int height)
-    : random(random), width(width), height(height) {
+Flag::Flag(int width, int height)
+    : width(width), height(height) {
   image = std::vector<unsigned char>(width * height * 4, 0);
   auto randomIndex = Env::Instance().random2() % flagTemplates.size();
   image = flagTemplates[randomIndex];
