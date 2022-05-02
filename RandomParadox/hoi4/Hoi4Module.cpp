@@ -73,7 +73,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
     scenGen.dumpDebugCountrymap(Env::Instance().mapsPath + "countries.bmp");
 
     Hoi4Parser::dumpStates(hoi4ModPath + "\\history\\states",
-                           scenGen.countryMap);
+                           hoi4Gen.countryMap);
     Hoi4Parser::dumpUnitStacks(hoi4ModPath + "\\map\\unitstacks.txt",
                                scenGen.f.provinceGenerator.provinces);
     Hoi4Parser::dumpRocketSites(hoi4ModPath + "\\map\\rocketsites.txt",
@@ -107,15 +107,15 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
 
       // now generate hoi4 specific stuff
       hoi4Gen.generateCountrySpecifics(scenGen, scenGen.countryMap);
-      hoi4Gen.generateStateSpecifics(scenGen);
-      hoi4Gen.generateStateResources(scenGen);
+      hoi4Gen.generateStateSpecifics();
+      hoi4Gen.generateStateResources();
       hoi4Gen.generateStrategicRegions(scenGen);
       hoi4Gen.generateWeather(scenGen);
       hoi4Gen.evaluateCountries(scenGen);
       hoi4Gen.generateLogistics(scenGen);
       NationalFocus::buildMaps();
-      hoi4Gen.evaluateCountryGoals(scenGen);
-      hoi4Gen.generateCountryUnits(scenGen);
+      hoi4Gen.evaluateCountryGoals();
+      hoi4Gen.generateCountryUnits();
     } catch (std::exception e) {
       std::string error = "Error while generating the Hoi4 Module.\n";
       error += "Error is: \n";
@@ -148,15 +148,15 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
           hoi4ModPath + "\\history\\countries\\", hoi4Path,
           scenGen.f.provinceGenerator.regions);
       Hoi4Parser::writeHistoryCountries(hoi4ModPath + "\\history\\countries\\",
-                                        scenGen.countryMap);
+                                        hoi4Gen.countryMap);
       Hoi4Parser::writeHistoryUnits(hoi4ModPath + "\\history\\units\\",
-                                    scenGen.countryMap);
+                                    hoi4Gen.countryMap);
       Hoi4Parser::dumpCommonCountryTags(
           hoi4ModPath + "\\common\\country_tags\\02_countries.txt",
-          scenGen.countryMap);
+          hoi4Gen.countryMap);
       Hoi4Parser::dumpCommonCountries(
           hoi4ModPath + "\\common\\countries\\",
-          hoi4Path + "\\common\\countries\\colors.txt", scenGen.countryMap);
+          hoi4Path + "\\common\\countries\\colors.txt", hoi4Gen.countryMap);
       Hoi4Parser::dumpAdj(hoi4ModPath + "\\map\\adjacencies.csv");
       Hoi4Parser::dumpAirports(hoi4ModPath + "\\map\\airports.txt",
                                scenGen.f.provinceGenerator.regions);
@@ -174,8 +174,8 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
                                        scenGen.f.provinceGenerator.regions,
                                        hoi4Gen.strategicRegions);
       Hoi4Parser::dumpStates(hoi4ModPath + "\\history\\states",
-                             scenGen.countryMap);
-      Hoi4Parser::dumpFlags(hoi4ModPath + "\\gfx\\flags\\", scenGen.countryMap);
+                             hoi4Gen.countryMap);
+      Hoi4Parser::dumpFlags(hoi4ModPath + "\\gfx\\flags\\", hoi4Gen.countryMap);
       Hoi4Parser::dumpWeatherPositions(
           hoi4ModPath + "\\map\\weatherpositions.txt",
           scenGen.f.provinceGenerator.regions, hoi4Gen.strategicRegions);
@@ -184,15 +184,15 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
       Hoi4Parser::dumpSupply(hoi4ModPath + "\\map\\",
                              hoi4Gen.supplyNodeConnections);
       Hoi4Parser::writeStateNames(hoi4ModPath + "\\localisation\\english\\",
-                                  scenGen.countryMap);
+                                  hoi4Gen.countryMap);
       Hoi4Parser::writeCountryNames(hoi4ModPath + "\\localisation\\english\\",
-                                    scenGen.countryMap);
+                                    hoi4Gen.countryMap);
       Hoi4Parser::writeStrategicRegionNames(
           hoi4ModPath + "\\localisation\\english\\", hoi4Gen.strategicRegions);
       Hoi4Parser::writeFoci(hoi4ModPath + "\\common\\national_focus\\",
-                            scenGen.countryMap);
+                            hoi4Gen.countryMap);
       Hoi4Parser::dumpCommonBookmarks(hoi4ModPath + "\\common\\bookmarks\\",
-                                      scenGen.countryMap,
+                                      hoi4Gen.countryMap,
                                       hoi4Gen.strengthScores);
       Hoi4Parser::copyDescriptorFile("resources\\hoi4\\descriptor.mod",
                                      hoi4ModPath, hoi4ModsDirectory, modName);

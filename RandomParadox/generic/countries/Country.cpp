@@ -21,7 +21,7 @@ void Country::assignRegions(int maxRegions,
         break;
       if (gameRegion.neighbours.size() == 0)
         continue;
-      auto nextRegion = *UtilLib::select_random(gameRegion.neighbours);
+      auto &nextRegion = UtilLib::selectRandom(gameRegion.neighbours);
       if (!gameRegions[nextRegion].assigned && !gameRegions[nextRegion].sea) {
         gameRegions[nextRegion].assigned = true;
         addRegion(gameRegions[nextRegion], gameRegions, gameProvinces);

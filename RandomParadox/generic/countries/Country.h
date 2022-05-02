@@ -21,9 +21,9 @@ public:
   Country(std::string tag, int ID);
   ~Country();
   // containers
-  std::map<std::string, std::string> attributeStrings;
-  std::map<std::string, double> attributeDoubles;
-  std::map<std::string, std::vector<int>> attributeVectors;
+  // std::map<std::string, std::string> attributeStrings;
+  // std::map<std::string, double> attributeDoubles;
+  // std::map<std::string, std::vector<int>> attributeVectors;
   std::vector<GameRegion> ownedRegions;
   std::vector<std::vector<NationalFocus>> foci;
   std::set<std::string> neighbours;

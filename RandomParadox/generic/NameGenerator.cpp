@@ -41,7 +41,7 @@ std::string NameGenerator::generateTag(std::string name,
 std::string NameGenerator::getRandomMapElement(
     std::string key, std::map<std::string, std::vector<std::string>> map) {
   try {
-    return *UtilLib::select_random(map[key]);
+    return UtilLib::selectRandom(map[key]);
   } catch (std::exception e) {
     auto str = "Error in Name Generation. Make sure the key: \"" + key +
                "\" of the namegroup or token group is present";
