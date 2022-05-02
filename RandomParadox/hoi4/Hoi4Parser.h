@@ -3,7 +3,7 @@
 #include "../generic/NameGenerator.h"
 #include "../generic/ParserUtils.h"
 #include "../generic/TextureWriter.h"
-#include "../generic/countries/Country.h"
+#include "Hoi4Country.h"
 #include "Hoi4ScenarioGenerator.h"
 #include "NationalFocus.h"
 #include <array>
@@ -42,41 +42,41 @@ public:
                        const std::vector<strategicRegion> strategicRegions);
   // gfx
   static void dumpFlags(std::string path,
-                        const std::map<std::string, Country> &countries);
+                        const std::map<std::string, Hoi4Country> &countries);
 
   // history
   static void dumpStates(std::string path,
-                         std::map<std::string, Country> &countries);
+                         std::map<std::string, Hoi4Country> &countries);
   static void
   writeHistoryCountries(std::string path,
-                        const std::map<std::string, Country> &countries);
+                        const std::map<std::string, Hoi4Country> &countries);
   static void
   writeHistoryUnits(std::string path,
-                    const std::map<std::string, Country> &countries);
+                    const std::map<std::string, Hoi4Country> &countries);
   // history - National Focus
   static std::vector<std::string> readTypeMap();
   static std::map<std::string, std::string> readRewardMap(std::string path);
   static void writeFoci(std::string path,
-                        const std::map<std::string, Country> &countries);
+                        const std::map<std::string, Hoi4Country> &countries);
 
   // common
   static void
   dumpCommonBookmarks(std::string path,
-                      const std::map<std::string, Country> &countries,
+                      const std::map<std::string, Hoi4Country> &countries,
                       std::map<int, std::vector<std::string>> strengthScores);
   static void
   dumpCommonCountries(std::string path, std::string hoiPath,
-                      const std::map<std::string, Country> &countries);
+                      const std::map<std::string, Hoi4Country> &countries);
   static void
   dumpCommonCountryTags(std::string path,
-                        const std::map<std::string, Country> &countries);
+                        const std::map<std::string, Hoi4Country> &countries);
 
   // localisation
   static void
   writeCountryNames(std::string path,
-                    const std::map<std::string, Country> &countries);
+                    const std::map<std::string, Hoi4Country> &countries);
   static void writeStateNames(std::string path,
-                              const std::map<std::string, Country> &countries);
+                  const std::map<std::string, Hoi4Country> &countries);
   static void writeStrategicRegionNames(
       std::string path, const std::vector<strategicRegion> strategicRegions);
 

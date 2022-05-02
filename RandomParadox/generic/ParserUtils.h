@@ -150,7 +150,7 @@ public:
   // returns the line from a delimiter after a key to the end of the line
   // helpful when the delimiter isn't always in the same format behind the key
   // e.g. key=value and key =value
-  static std::string getLineValue(std::string &content, std::string key,
+  static std::string getLineValue(const std::string &content, std::string key,
                                   std::string delimiter) {
     size_t pos = 0;
     pos = content.find(key);
