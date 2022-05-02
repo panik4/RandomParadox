@@ -2,6 +2,8 @@
 #include "../FastWorldGen/FastWorldGen/FastWorldGenerator.h"
 #include "../generic/ScenarioGenerator.h"
 #include "../generic/countries/Country.h"
+#include "Hoi4Country.h"
+#include "Hoi4GameRegion.h"
 #include "NationalFocus.h"
 #include <array>
 #include <set>
@@ -33,6 +35,8 @@ class Hoi4ScenarioGenerator {
   int totalOil = 0;
   int totalSteel = 0;
   int totalTungsten = 0;
+  std::map<std::string, int> totalResources;
+  std::vector<Hoi4GameRegion> hoi4Regions;
   // containers
   std::set<std::string> majorPowers;
   std::set<std::string> regionalPowers;
@@ -63,6 +67,7 @@ public:
   std::vector<NationalFocus> foci;
   std::vector<NationalFocus> warFoci;
   std::map<int, std::vector<std::string>> strengthScores;
+  std::map<std::string, Hoi4Country> countryMap;
   // a list of connections: {sourceHub, destHub, provinces the rails go through}
   std::vector<std::vector<int>> supplyNodeConnections;
   // container holding the resource configurations
@@ -74,9 +79,9 @@ public:
   Hoi4ScenarioGenerator();
   ~Hoi4ScenarioGenerator();
   // give resources to states
-  void generateStateResources(ScenarioGenerator &scenGen);
+  void generateStateResources();
   // industry, development, population, state category
-  void generateStateSpecifics(ScenarioGenerator &scenGen);
+  void generateStateSpecifics();
   // politics: ideology, strength, major
   void generateCountrySpecifics(ScenarioGenerator &scenGen,
                                 std::map<std::string, Country> &countries);
@@ -90,25 +95,28 @@ public:
   void evaluateCountries(ScenarioGenerator &scenGen);
 
   bool unitFulfillsRequirements(std::vector<std::string> unitRequirements,
-                                Country &country);
+                                Hoi4Country &country);
   // determine unit composition, templates
-  void generateCountryUnits(ScenarioGenerator &scenGen);
+  void generateCountryUnits();
   // build a focus from the chain
   NationalFocus buildFocus(const std::vector<std::string> chainStep,
-                           const Country &source, const Country &target);
+                           const Hoi4Country &source,
+                           const Hoi4Country &target);
   // make a tree out of all focus chains and single foci
-  void buildFocusTree(Country &source);
+  void buildFocusTree(Hoi4Country &source);
   // check if a national focus fulfills requirements
-  bool
-  stepFulfillsRequirements(std::vector<std::string> stepRequirements,
-                           const std::vector<std::set<Country>> stepTargets);
+  bool stepFulfillsRequirements(
+      std::vector<std::string> stepRequirements,
+      const std::vector<std::set<Hoi4Country>> stepTargets);
   // check if a national focus fulfills requirements
   bool targetFulfillsRequirements(
-      std::vector<std::string> targetRequirements, Country &source,
-      Country &target, const std::vector<std::set<std::string>> levelTargets,
-      const int level);
+      std::vector<std::string> targetRequirements, Hoi4Country &source,
+      Hoi4Country &target,
+      const std::vector<std::set<std::string>> levelTargets, const int level);
   // evaluate the focus chains for each country
-  void evaluateCountryGoals(ScenarioGenerator &scenGen);
+  void evaluateCountryGoals();
+  // 
+  void generateHoi4RegionList();
   // see which countries are in need of unification
   void evaluateBrotherlyWars();
   // see which country needs to see some action

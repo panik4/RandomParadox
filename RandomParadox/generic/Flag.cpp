@@ -27,7 +27,7 @@ Flag::Flag(int width, int height)
   // pool of colours is taken from colour groups defined in metadata files
   std::vector<Colour> replacementColours;
   for (auto &colGroup : flagColourGroups) {
-    const auto &colour = *UtilLib::select_random(colourGroups[colGroup]);
+    const auto &colour = UtilLib::selectRandom(colourGroups[colGroup]);
     replacementColours.push_back(colour);
   }
   // now convert the old colours to the replacement colours
