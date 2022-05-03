@@ -22,8 +22,8 @@ void Hoi4ScenarioGenerator::generateStateResources() {
                                 1.0);
           // increase by industry factor
           value *= industryFactor;
-          gameRegion.resources.insert({resource.first, value});
-          totalResources.insert({resource.first, value});
+          gameRegion.resources.insert({resource.first, (int)value});
+          totalResources.insert({resource.first, (int)value});
           //  track amount of deployed resources
           // if (resource.first == "aluminium") {
           //  gameRegion.aluminium += value;
@@ -197,6 +197,8 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(
       assignedIdeas.insert(region.ID);
       for (auto &neighbour : region.neighbours) {
         // should be equal in sea/land
+        if (neighbour>scenGen.gameRegions.size())
+            continue;
         if (scenGen.gameRegions[neighbour].sea == region.sea &&
             assignedIdeas.find(neighbour) == assignedIdeas.end()) {
           sR.gameRegionIDs.insert(neighbour);
@@ -601,19 +603,24 @@ Hoi4ScenarioGenerator::buildFocus(const std::vector<std::string> chainStep,
   for (const auto &predecessor : predecessors)
     nF.precedingFoci.push_back(predecessor);
 
-  // now get the "or"...
+  // now get the "xor"...
   auto exclusives = ParserUtils::getNumbers(
       ParserUtils::getBracketBlockContent(chainStep[7], "exclusive"), ',',
       std::set<int>());
   for (const auto &exclusive : exclusives)
-    nF.alternativeFoci.push_back(exclusive);
+    nF.xorFoci.push_back(exclusive);
   // and "and" foci
   auto ands = ParserUtils::getNumbers(
       ParserUtils::getBracketBlockContent(chainStep[7], "and"), ',',
       std::set<int>());
   for (const auto &and : ands)
     nF.andFoci.push_back(and);
-
+  // and "or" foci
+  auto ors = ParserUtils::getNumbers(
+      ParserUtils::getBracketBlockContent(chainStep[7], "or"), ',',
+      std::set<int>());
+  for (const auto &or: ors)
+    nF.orFoci.push_back(or);
   // add completion reward keys
   auto available = ParserUtils::getTokens(
       ParserUtils::getBracketBlockContent(chainStep[9], "available"), '+');
@@ -641,8 +648,11 @@ void Hoi4ScenarioGenerator::buildFocusTree(Hoi4Country &source) {
   int curX = 1;
   int curY = 1;
   int maxX = 1;
+  if (source.tag == "DIA")
+    Logger::logLine("AA");
   for (auto &focusChain : source.foci) {
     curY = 1;
+    std::set<int> fociIDs;
     std::array<std::set<int>, 100> levels;
     int index = 0;
     int width = 0;
@@ -650,21 +660,33 @@ void Hoi4ScenarioGenerator::buildFocusTree(Hoi4Country &source) {
       // if this focus is already on this level, just continue
       if (levels[index].find(focus.stepID) != levels[index].end())
         continue;
+      // if this focus is already assgined on SOME level, just continue
+      if (fociIDs.find(focus.stepID) != fociIDs.end())
+        continue;
       levels[index].insert(focus.stepID);
-      for (auto stepID : focus.alternativeFoci) {
+      fociIDs.insert(focus.stepID);
+      for (auto stepID : focus.xorFoci) {
         levels[index].insert(stepID);
+        fociIDs.insert(stepID);
       }
       for (auto stepID : focus.andFoci) {
         levels[index].insert(stepID);
+        fociIDs.insert(stepID);
       }
       // now check for every newly added focus, if that also has and or or foci
       for (auto chainStepID : levels[index]) {
         if (chainStepID < focusChain.size()) {
-          for (auto stepID : focusChain[chainStepID].alternativeFoci) {
+          for (auto stepID : focusChain[chainStepID].xorFoci) {
             levels[index].insert(stepID);
+            fociIDs.insert(stepID);
           }
           for (auto stepID : focusChain[chainStepID].andFoci) {
             levels[index].insert(stepID);
+            fociIDs.insert(stepID);
+          }
+          for (auto stepID : focusChain[chainStepID].orFoci) {
+            levels[index].insert(stepID);
+            fociIDs.insert(stepID);
           }
         }
       }
@@ -677,11 +699,11 @@ void Hoi4ScenarioGenerator::buildFocusTree(Hoi4Country &source) {
     // now that we have every focus assigned to a level, we can start setting
     // positions for this chain
     auto baseX = curX;
+    index = 0;
     for (const auto &level : levels) {
       curX = baseX;
       for (const auto &entry : level) {
-        if (entry < focusChain.size())
-          focusChain.at(entry).position = {curX += 2, curY};
+        focusChain.at(index++).position = {curX += 2, curY};
       }
       if (curX > maxX) {
         maxX = curX;
@@ -880,15 +902,6 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals() {
     // now build a tree out of the focus chains
     buildFocusTree(sourceCountry.second);
   }
-}
-
-void Hoi4ScenarioGenerator::generateHoi4RegionList() {
-  hoi4Regions.clear();
-  // for (auto &r : c.second.hoi4Regions) {
-  //   hoi4Regions.push_back(r);
-  // }
-
-  std::sort(hoi4Regions.begin(), hoi4Regions.end());
 }
 
 void Hoi4ScenarioGenerator::printStatistics(ScenarioGenerator &scenGen) {

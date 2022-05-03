@@ -126,7 +126,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
     // now start writing game files
     try {
       // generate map files. Format must be converted and colours mapped to hoi4
-      // compatbile colours
+      // compatible colours
       FormatConverter formatConverter(hoi4Path);
       formatConverter.dump8BitTerrain(hoi4ModPath + "\\map\\terrain.bmp",
                                       "terrainHoi4");

@@ -43,7 +43,7 @@ std::ostream &operator<<(std::ostream &os, const NationalFocus &focus) {
   }
   }
   os << focus.sourceTag << action << focus.destTag << std::endl;
-  os << "Alternatives: " << focus.alternativeFoci.size()
+  os << "Alternatives: " << focus.xorFoci.size()
      << "; Preceding Foci: " << focus.precedingFoci.size();
   return os;
 }

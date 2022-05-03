@@ -1,7 +1,8 @@
-
 	focus = {
 		id = templateSourceTagtemplateChainID.templateStepID
 		icon = GFX_goal_generic_allies_build_infantry
+		templatePrerequisite
+		templateExclusive
 		x = templateXPosition
 		y = templateYPosition
 		search_filters = {  FOCUS_FILTER_RESEARCH }
