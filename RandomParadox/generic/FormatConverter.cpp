@@ -161,8 +161,9 @@ void FormatConverter::dumpWorldNormal(std::string path) const {
   const auto sobelMap = heightBMP.sobelFilter();
   for (auto i = 0; i < normalMap.bInfoHeader.biHeight; i++)
     for (auto w = 0; w < normalMap.bInfoHeader.biWidth; w++)
-      normalMap.setColourAtIndex(i * normalMap.bInfoHeader.biWidth + w,
-                                 sobelMap[factor * i * width + factor * w]);
+      normalMap.setColourAtIndex(
+          i * normalMap.bInfoHeader.biWidth + w,
+          sobelMap.getColourAtIndex(factor * i * width + factor * w));
   Bitmap::SaveBMPToFile(normalMap, (path).c_str());
 }
 

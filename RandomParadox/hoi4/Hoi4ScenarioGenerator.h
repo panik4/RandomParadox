@@ -36,7 +36,6 @@ class Hoi4ScenarioGenerator {
   int totalSteel = 0;
   int totalTungsten = 0;
   std::map<std::string, int> totalResources;
-  std::vector<Hoi4GameRegion> hoi4Regions;
   // containers
   std::set<std::string> majorPowers;
   std::set<std::string> regionalPowers;
@@ -115,8 +114,6 @@ public:
       const std::vector<std::set<std::string>> levelTargets, const int level);
   // evaluate the focus chains for each country
   void evaluateCountryGoals();
-  // 
-  void generateHoi4RegionList();
   // see which countries are in need of unification
   void evaluateBrotherlyWars();
   // see which country needs to see some action
