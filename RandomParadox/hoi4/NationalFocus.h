@@ -29,7 +29,8 @@ public:
   std::vector<int> position;
   std::vector<int> precedingFoci;
   std::vector<int> andFoci;
-  std::vector<int> alternativeFoci;
+  std::vector<int> xorFoci;
+  std::vector<int> orFoci;
   std::vector<std::string> available;
   std::vector<std::string> bypasses;
   std::vector<std::string> completionRewards; // e.g. set_country_flag

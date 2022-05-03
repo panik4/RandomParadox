@@ -844,7 +844,8 @@ void Hoi4Parser::writeFoci(
                                        preString);
         // now make exclusive
         preString.clear();
-        for (const auto &exclusive : countryFocus.alternativeFoci) {
+        preString += "exclusive = {";
+        for (const auto &exclusive : countryFocus.xorFoci) {
           for (const auto &foc : focusChain) {
             if (foc.stepID == exclusive) {
               // derive the name of the preceding focus
@@ -854,6 +855,7 @@ void Hoi4Parser::writeFoci(
             }
           }
         }
+        preString += " }\n\t\t";
         ParserUtils::replaceOccurences(tempContent, "templateExclusive",
                                        preString);
       }
