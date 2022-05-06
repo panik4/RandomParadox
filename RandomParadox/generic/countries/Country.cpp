@@ -3,8 +3,10 @@
 Country::Country() : ID{-1} {}
 
 Country::Country(std::string tag, int ID) : tag{tag}, ID{ID} {
-  auto random = Env::Instance().random2;
-  colour = {random() % 255, random() % 255, random() % 255};
+  //auto random = Env::Instance().randNum;
+  colour = {static_cast<unsigned char>(Env::Instance().randNum() % 255),
+            static_cast<unsigned char>(Env::Instance().randNum() % 255),
+            static_cast<unsigned char>(Env::Instance().randNum() % 255)};
 }
 
 Country::~Country() {}

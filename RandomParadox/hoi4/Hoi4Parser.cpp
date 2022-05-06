@@ -72,7 +72,6 @@ void Hoi4Parser::dumpBuildings(std::string path,
       "nuclear_reactor", "rocket_site",        "radar_station",
       "fuel_silo",       "floating_harbor"};
   std::string content;
-  auto random = Env::Instance().random2;
   // stateId; type; pixelX, rotation??, pixelY, rotation??, 0??}
   // 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
   for (const auto &region : regions) {
@@ -288,7 +287,6 @@ void Hoi4Parser::dumpWeatherPositions(
   Logger::logLine("HOI4 Parser: Map: Creating Storms");
   // 1; 2781.24; 9.90; 1571.49; small
   std::string content{""};
-  auto random = Env::Instance().random2;
   // stateId; pixelX; rotation??; pixelY; rotation??; size
   // 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
 
@@ -781,7 +779,7 @@ void Hoi4Parser::writeFoci(
     std::string tempContent = "";
     for (const auto &focusChain : c.second.foci) {
       for (const auto &countryFocus : focusChain) {
-        tempContent += focusTemplates[countryFocus.fType];
+        tempContent += focusTemplates[(size_t)countryFocus.fType];
 
         // build available from available keys
         std::string available = "";
@@ -832,10 +830,20 @@ void Hoi4Parser::writeFoci(
         for (const auto &prerequisite : countryFocus.precedingFoci) {
           for (const auto &foc : focusChain) {
             if (foc.stepID == prerequisite) {
+
               // derive the name of the preceding focus
+              // and write it down
               std::string preName = UtilLib::varsToString(
                   c.first, focusChain[0].chainID, ".", prerequisite);
               preString += " focus = " + preName;
+              // now: do we need one or both of the preceding?
+              // for that, check if prerequisite is in andFoci of foc
+              for (auto and : foc.andFoci) {
+                preName = UtilLib::varsToString(c.first, focusChain[0].chainID,
+                                                ".", and);
+                preString += " }\n\t\t";
+                preString += " focus = " + preName;
+              }
             }
           }
         }
@@ -844,7 +852,7 @@ void Hoi4Parser::writeFoci(
                                        preString);
         // now make exclusive
         preString.clear();
-        preString += "exclusive = {";
+        preString += "mutually_exclusive = {";
         for (const auto &exclusive : countryFocus.xorFoci) {
           for (const auto &foc : focusChain) {
             if (foc.stepID == exclusive) {
@@ -872,7 +880,6 @@ void Hoi4Parser::writeCompatibilityHistory(std::string path,
                                            const std::vector<Region> &regions) {
   const std::filesystem::path hoiDir{hoiPath + "\\history\\countries\\"};
   const std::filesystem::path modDir{path};
-  auto random = Env::Instance().random2;
   for (auto const &dir_entry : std::filesystem::directory_iterator{hoiDir}) {
     std::string pathString = dir_entry.path().string();
 

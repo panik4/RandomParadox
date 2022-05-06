@@ -42,16 +42,6 @@ class Hoi4ScenarioGenerator {
   std::set<std::string> weakPowers;
   std::vector<std::string> wargoalsAttack;
   std::vector<std::string> goalsDefence;
-  enum doctrineType {
-    blitz,
-    infantry,
-    milita,
-    artillery,
-    armored,
-    mass,
-    support,
-    defensive
-  };
   std::map<int, std::string> doctrineMap{
       {0, "blitz"},   {1, "infantry"}, {2, "milita"},  {3, "artillery"},
       {4, "armored"}, {5, "mass"},     {6, "support"}, {7, "defensive"}};
@@ -105,13 +95,13 @@ public:
   void buildFocusTree(Hoi4Country &source);
   // check if a national focus fulfills requirements
   bool stepFulfillsRequirements(
-      std::vector<std::string> stepRequirements,
-      const std::vector<std::set<Hoi4Country>> stepTargets);
+      const std::string stepRequirements,
+      const std::vector<std::set<Hoi4Country>> &stepTargets);
   // check if a national focus fulfills requirements
   bool targetFulfillsRequirements(
-      std::vector<std::string> targetRequirements, Hoi4Country &source,
-      Hoi4Country &target,
-      const std::vector<std::set<std::string>> levelTargets, const int level);
+      const std::string &targetRequirements, const Hoi4Country &source,
+      const Hoi4Country &target,
+      const std::vector<std::set<std::string>>& levelTargets, const int level);
   // evaluate the focus chains for each country
   void evaluateCountryGoals();
   // see which countries are in need of unification

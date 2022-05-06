@@ -15,26 +15,6 @@ class Flag {
   // containers
   std::vector<Colour> colours;
   std::vector<unsigned char> image;
-  enum type {
-    TRICOLORE,
-    ROTATEDTRICOLORE,
-    PLAIN,
-    PLAIN_TRIANGLE,
-    BICOLORE,
-    BICOLORE_TRIANGLE,
-    ROTATEDBICOLORE
-  };
-  enum symbolType {
-    CIRCLE,
-    SQUARE,
-    MOON,
-    STAR,
-    MOONSTAR,
-    MULTISTAR,
-    LEFT_TRIANGLE
-  };
-  type flagType;
-  symbolType symbolType;
 
 public:
   // vars

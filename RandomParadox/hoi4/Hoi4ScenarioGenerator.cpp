@@ -10,40 +10,20 @@ void Hoi4ScenarioGenerator::generateStateResources() {
     for (auto &gameRegion : c.second.hoi4Regions) {
       for (auto &resource : resources) {
         auto chance = resource.second[2];
-        if (Env::Instance().random2() % 100 < chance * 100.0) {
+        if (Env::Instance().randNum() % 100 < chance * 100.0) {
           // calc total of this resource
           auto totalOfResource = resource.second[1] * resource.second[0];
           // more per selected state if the chance is lower
           double averagePerState =
               (totalOfResource / (double)landStates) * (1.0 / chance);
           // range 1 to (2 times average - 1)
-          double value = 1.0 + (Env::Instance().random2() %
+          double value = 1.0 + (Env::Instance().randNum() %
                                     (int)ceil((2.0 * averagePerState)) -
                                 1.0);
           // increase by industry factor
           value *= industryFactor;
           gameRegion.resources.insert({resource.first, (int)value});
           totalResources.insert({resource.first, (int)value});
-          //  track amount of deployed resources
-          // if (resource.first == "aluminium") {
-          //  gameRegion.aluminium += value;
-          //  totalAluminium += (int)value;
-          //} else if (resource.first == "chromium") {
-          //  gameRegion.chromium += value;
-          //  totalChromium += (int)value;
-          //} else if (resource.first == "rubber") {
-          //  gameRegion.rubber += value;
-          //  totalRubber += (int)value;
-          //} else if (resource.first == "oil") {
-          //  gameRegion.oil += value;
-          //  totalOil += (int)value;
-          //} else if (resource.first == "steel") {
-          //  gameRegion.steel += value;
-          //  totalSteel += (int)value;
-          //} else if (resource.first == "tungsten") {
-          //  gameRegion.tungsten += value;
-          //  totalTungsten += (int)value;
-          //}
         }
       }
     }
@@ -197,8 +177,8 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(
       assignedIdeas.insert(region.ID);
       for (auto &neighbour : region.neighbours) {
         // should be equal in sea/land
-        if (neighbour>scenGen.gameRegions.size())
-            continue;
+        if (neighbour > scenGen.gameRegions.size())
+          continue;
         if (scenGen.gameRegions[neighbour].sea == region.sea &&
             assignedIdeas.find(neighbour) == assignedIdeas.end()) {
           sR.gameRegionIDs.insert(neighbour);
@@ -211,8 +191,9 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(
   }
   Bitmap stratRegionBMP(Env::Instance().width, Env::Instance().height, 24);
   for (auto &strat : strategicRegions) {
-    Colour c{Env::Instance().random2() % 255, Env::Instance().random2() % 255,
-             Env::Instance().random2() % 255};
+    Colour c{static_cast<unsigned char>(Env::Instance().randNum() % 255),
+             static_cast<unsigned char>(Env::Instance().randNum() % 255),
+             static_cast<unsigned char>(Env::Instance().randNum() % 255)};
     for (auto &reg : strat.gameRegionIDs) {
       c.setBlue(scenGen.gameRegions[reg].sea ? 255 : 0);
       for (auto &prov : scenGen.gameRegions[reg].gameProvinces) {
@@ -543,27 +524,27 @@ void Hoi4ScenarioGenerator::generateCountryUnits() {
     // simply give templates if we qualify for them
     if (majorFactor > 0.5 && bullyFactor > 0.25) {
       // choose one of the mechanised doctrines
-      if (Env::Instance().random2() % 2)
-        c.second.doctrines.push_back(doctrineType::blitz);
+      if (Env::Instance().randNum() % 2)
+        c.second.doctrines.push_back(Hoi4Country::doctrineType::blitz);
       else
-        c.second.doctrines.push_back(doctrineType::armored);
+        c.second.doctrines.push_back(Hoi4Country::doctrineType::armored);
     }
     if (bullyFactor < 0.25) {
       // will likely get bullied, add defensive doctrines
-      c.second.doctrines.push_back(doctrineType::defensive);
+      c.second.doctrines.push_back(Hoi4Country::doctrineType::defensive);
     }
     // give all stronger powers infantry with support divisions
     if (majorFactor >= 0.2) {
       // any relatively large power has support divisions
-      c.second.doctrines.push_back(doctrineType::infantry);
-      c.second.doctrines.push_back(doctrineType::artillery);
+      c.second.doctrines.push_back(Hoi4Country::doctrineType::infantry);
+      c.second.doctrines.push_back(Hoi4Country::doctrineType::artillery);
       // any relatively large power has support divisions
-      c.second.doctrines.push_back(doctrineType::support);
+      c.second.doctrines.push_back(Hoi4Country::doctrineType::support);
     }
     // give all weaker powers infantry without support
     if (majorFactor < 0.2) {
-      c.second.doctrines.push_back(doctrineType::milita);
-      c.second.doctrines.push_back(doctrineType::mass);
+      c.second.doctrines.push_back(Hoi4Country::doctrineType::milita);
+      c.second.doctrines.push_back(Hoi4Country::doctrineType::mass);
     }
 
     // now evaluate each template and add it if all requirements are fulfilled
@@ -619,7 +600,7 @@ Hoi4ScenarioGenerator::buildFocus(const std::vector<std::string> chainStep,
   auto ors = ParserUtils::getNumbers(
       ParserUtils::getBracketBlockContent(chainStep[7], "or"), ',',
       std::set<int>());
-  for (const auto &or: ors)
+  for (const auto & or : ors)
     nF.orFoci.push_back(or);
   // add completion reward keys
   auto available = ParserUtils::getTokens(
@@ -715,92 +696,86 @@ void Hoi4ScenarioGenerator::buildFocusTree(Hoi4Country &source) {
   }
 }
 bool Hoi4ScenarioGenerator::stepFulfillsRequirements(
-    std::vector<std::string> stepRequirements,
-    const std::vector<std::set<Hoi4Country>> stepTargets) {
-  // first check if the step can be fulfilled at all
-  for (auto &stepRequirement : stepRequirements) {
-    // need to check if required steps were made, first get the desired value
-    const auto value =
-        ParserUtils::getBracketBlockContent(stepRequirement, "requires");
-    const auto requiredPredecessors = ParserUtils::getTokens(value, ',');
-    bool hasRequiredPredecessor = requiredPredecessors.size() ? false : true;
-    for (const auto &predecessor : requiredPredecessors)
-      if (predecessor != "") {
-        if (stepTargets[stoi(value)].size())
-          hasRequiredPredecessor = true;
-      }
-    if (!hasRequiredPredecessor)
-      return false; // missing predecessor
-  }
-  return true;
+    const std::string stepRequirements,
+    const std::vector<std::set<Hoi4Country>> &stepTargets) {
+
+  const auto requiredPredecessors =
+      ParserUtils::getTokens(stepRequirements, ',');
+  bool hasRequiredPredecessor = requiredPredecessors.size() ? false : true;
+  for (const auto &predecessor : requiredPredecessors)
+    if (predecessor != "") {
+      if (stepTargets[stoi(stepRequirements)].size())
+        hasRequiredPredecessor = true;
+    }
+  return hasRequiredPredecessor;
 }
 /* checks all requirements for a national focus. Returns false if any
  * requirement isn't fulfilled, else returns true*/
 bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
-    std::vector<std::string> targetRequirements, Hoi4Country &source,
-    Hoi4Country &target, const std::vector<std::set<std::string>> levelTargets,
-    const int level) {
+    const std::string& targetRequirements, const Hoi4Country &source,
+    const Hoi4Country &target,
+    const std::vector<std::set<std::string>> &levelTargets, const int level) {
   // now check if the country fulfills the target requirements
-  for (auto &targetRequirement : targetRequirements) {
-    // need to check rank, first get the desired value
-    auto value = ParserUtils::getBracketBlockContent(targetRequirement, "rank");
-    if (value != "") {
-      if (target.rank != value)
-        return false; // targets rank is not right
+  // for (auto &targetRequirement : targetRequirements) {
+  // need to check rank, first get the desired value
+  auto value = ParserUtils::getBracketBlockContent(targetRequirements, "rank");
+  if (value != "") {
+    if (target.rank != value)
+      return false; // targets rank is not right
+  }
+  value = ParserUtils::getBracketBlockContent(targetRequirements, "ideology");
+  if (value != "") {
+    // if (value == "any")
+    //   continue; // fine, may target any ideology
+    if (value == "same")
+      if (target.rulingParty != source.rulingParty)
+        return false;
+    if (value == "not")
+      if (target.rulingParty == source.rulingParty)
+        return false;
+  }
+  value = ParserUtils::getBracketBlockContent(targetRequirements, "location");
+  if (value != "") {
+    // if (value == "any")
+    //   continue; // fine, may target any ideology
+    if (value == "neighbour") {
+      if (source.neighbours.find(target.tag) == source.neighbours.end())
+        return false;
     }
-    value = ParserUtils::getBracketBlockContent(targetRequirement, "ideology");
-    if (value != "") {
-      if (value == "any")
-        continue; // fine, may target any ideology
-      if (value == "same")
-        if (target.rulingParty != source.rulingParty)
-          return false;
-      if (value == "not")
-        if (target.rulingParty == source.rulingParty)
-          return false;
+    // to do: near, distant, any
+  }
+  value = ParserUtils::getBracketBlockContent(targetRequirements, "target");
+  if (value != "") {
+    if (value == "notlevel") {
+      // don't consider this country if already used on same level
+      if (levelTargets[level].find(target.tag) != levelTargets[level].end())
+        return false;
     }
-    value = ParserUtils::getBracketBlockContent(targetRequirement, "location");
-    if (value != "") {
-      if (value == "any")
-        continue; // fine, may target any ideology
-      if (value == "neighbour") {
-        if (source.neighbours.find(target.tag) == source.neighbours.end())
-          return false;
-      }
-      // to do: near, distant, any
+    if (value == "level") {
+      // don't consider this country if NOT used on same level
+      if (levelTargets[level].size() &&
+          levelTargets[level].find(target.tag) == levelTargets[level].end())
+        return false;
     }
-    value = ParserUtils::getBracketBlockContent(targetRequirement, "target");
-    if (value != "") {
-      if (value == "notlevel") {
-        // don't consider this country if already used on same level
-        if (levelTargets[level].find(target.tag) != levelTargets[level].end())
+    if (value == "notchain") {
+      for (int i = 0; i < levelTargets.size(); i++) {
+        // don't consider this country if already used in same chain
+        if (levelTargets[i].find(target.tag) != levelTargets[level].end())
           return false;
       }
-      if (value == "level") {
-        // don't consider this country if NOT used on same level
-        if (levelTargets[level].size() &&
-            levelTargets[level].find(target.tag) == levelTargets[level].end())
-          return false;
+    }
+    if (value == "chain") {
+      bool foundUse = false;
+      for (int i = 0; i < levelTargets.size(); i++) {
+        // don't consider this country if NOT used in same chain
+        if (levelTargets[i].find(target.tag) == levelTargets[level].end())
+          foundUse = true;
       }
-      if (value == "notchain") {
-        for (int i = 0; i < levelTargets.size(); i++) {
-          // don't consider this country if already used in same chain
-          if (levelTargets[i].find(target.tag) != levelTargets[level].end())
-            return false;
-        }
-      }
-      if (value == "chain") {
-        bool foundUse = false;
-        for (int i = 0; i < levelTargets.size(); i++) {
-          // don't consider this country if NOT used in same chain
-          if (levelTargets[i].find(target.tag) == levelTargets[level].end())
-            foundUse = true;
-        }
-        if (!foundUse)
-          return false;
-      }
+      if (!foundUse)
+        return false;
     }
   }
+  //}
   return true;
 }
 
@@ -827,6 +802,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals() {
           continue;
         // we need to save options for every chain step
         std::vector<std::set<Hoi4Country>> stepTargets;
+        stepTargets.resize(100);
         std::vector<std::set<std::string>> levelTargets(chain.size());
         int chainID = 0;
         for (const auto &chainFocus : chain) {
@@ -837,13 +813,14 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals() {
           chainID = stoi(chainTokens[0]);
           const int level = stoi(chainTokens[12]);
           if (source.rulingParty == chainTokens[4] || chainTokens[4] == "any") {
-            stepTargets.resize(stepTargets.size() + 1);
-            auto stepRequirements = ParserUtils::getTokens(chainTokens[2], '+');
+            auto stepRequirements =
+                ParserUtils::getBracketBlockContent(chainTokens[2], "requires");
             if (stepFulfillsRequirements(stepRequirements, stepTargets)) {
               // source triggers this focus
               // split requirements
-              auto targetRequirements =
-                  ParserUtils::getTokens(chainTokens[6], '+');
+              // auto targetRequirements =
+              //    ParserUtils::getTokens(chainTokens[6], '+');
+              auto targetRequirements = chainTokens[6];
               // if there are no target requirements, only the country itself is
               // a target
               if (!targetRequirements.size())
@@ -889,7 +866,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals() {
             focus.stepID = stepIndex;
             focus.chainID = chainID;
             Logger::logLineLevel(1, focus);
-            if (focus.fType == focus.attack) {
+            if (focus.fType == NationalFocus::FocusType::attack) {
               // country aims to bully
               sourceCountry.second.bully++;
             }
@@ -953,7 +930,7 @@ bool Hoi4ScenarioGenerator::unitFulfillsRequirements(
         bool found = false;
         for (const auto doctrine : country.doctrines) {
           // map doctrine ID to a string and compare
-          if (requiredDoctrine.find(doctrineMap.at(doctrine))) {
+          if (requiredDoctrine.find(doctrineMap.at((int)doctrine))) {
             found = true;
           }
         }

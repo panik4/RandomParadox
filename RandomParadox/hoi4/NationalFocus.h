@@ -8,7 +8,7 @@ class NationalFocus {
 
 public:
   // typedefs
-  enum FocusType { attack, ally, generic };
+  enum class FocusType { attack, ally, generic };
   // constructors/destructors
   NationalFocus();
   NationalFocus(FocusType fType, bool defaultV, std::string source,

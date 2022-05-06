@@ -8,9 +8,9 @@
 1000;4;predecessor{1,2}+requires{1,2};any;any;generic;;exclusive{}+and{3};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
 1000;5;predecessor{3,4}+requires{3,4};any;any;generic;;exclusive{}+and{}+or{6};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
 1000;6;predecessor{3,4}+requires{3,4};any;any;generic;;exclusive{}+and{}+or{5};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;7;predecessor{5,6}+requires{5,6};any;any;generic;;exclusive{8,9}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;8;predecessor{5,6}+requires{5,6};any;any;generic;;exclusive{7,9}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;9;predecessor{5,6}+requires{5,6};any;any;generic;;exclusive{7,8}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;7;predecessor{5,6}+requires{};any;any;generic;;exclusive{8,9}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;8;predecessor{5,6}+requires{};any;any;generic;;exclusive{7,9}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;9;predecessor{5,6}+requires{};any;any;generic;;exclusive{7,8}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
 1000;10;predecessor{7,8,9}+requires{7,8,9};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
 1000;11;predecessor{10}+requires{10};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
 1000;12;predecessor{11}+requires{11};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
