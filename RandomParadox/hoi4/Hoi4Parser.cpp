@@ -797,9 +797,9 @@ void Hoi4Parser::writeFoci(
           completionReward += NationalFocus::rewardMap.at(rewardKey);
         }
         ParserUtils::replaceOccurences(tempContent, "templateAvailable",
-                                       completionReward);
+                                       available);
         ParserUtils::replaceOccurences(tempContent, "templateBypasses",
-                                       completionReward);
+                                       bypasses);
         ParserUtils::replaceOccurences(tempContent, "templateCompletionRewards",
                                        completionReward);
 
@@ -827,27 +827,60 @@ void Hoi4Parser::writeFoci(
         // focus = " + preName + "}\n\t\t";
         // }
         preString += "prerequisite = {";
+        std::vector<std::vector<int>> andBlocks;
+
         for (const auto &prerequisite : countryFocus.precedingFoci) {
+          // for every prerequisite, resolve and/or dependencies
+          // first, resolve ands, and put them together
+          // then, resolve or, and put them together
+          // for every or, check if it has an and
+          // if it has an and, resolve it and put in the group
           for (const auto &foc : focusChain) {
+            // we found the prerequisite
+            // iterate over and block from prerequisites
+            std::vector<int> andBlock;
             if (foc.stepID == prerequisite) {
+              for (auto andF : foc.andFoci) {
+                // now, we have found the focus. Now, resolve its and
+                // dependencies
+                andBlock.push_back(andF);
+                andBlock.push_back(foc.stepID);
+              }
 
               // derive the name of the preceding focus
               // and write it down
-              std::string preName = UtilLib::varsToString(
-                  c.first, focusChain[0].chainID, ".", prerequisite);
-              preString += " focus = " + preName;
-              // now: do we need one or both of the preceding?
-              // for that, check if prerequisite is in andFoci of foc
-              for (auto and : foc.andFoci) {
-                preName = UtilLib::varsToString(c.first, focusChain[0].chainID,
-                                                ".", and);
-                preString += " }\n\t\t";
-                preString += " focus = " + preName;
-              }
+              // std::string preName = UtilLib::varsToString(
+              //    c.first, focusChain[0].chainID, ".", prerequisite);
+              // preString += " focus = " + preName;
+              //// now: do we need one or both of the preceding?
+              //// for that, check if prerequisite is in andFoci of foc
+              // for (auto and : foc.andFoci) {
+              //   preName = UtilLib::varsToString(c.first,
+              //   focusChain[0].chainID,
+              //                                   ".", and);
+              //   preString += " }\n\t\t";
+              //   preString += " focus = " + preName;
+              // }
             }
+            andBlocks.push_back(andBlock);
           }
         }
-        preString += " }\n\t\t";
+        
+        for (auto &andBlock : andBlocks)
+          std::sort(andBlock.begin(), andBlock.end());
+        std::sort(andBlocks.begin(), andBlocks.end());
+        auto unique = std::unique(andBlocks.begin(), andBlocks.end());
+        std::vector<std::vector<int>> preRequisiteBlocks;
+
+
+        
+        int counter = 0;
+        for (auto aBlock : andBlocks) {
+          if (aBlock.size()) {
+            preRequisiteBlocks.push_back(std::vector<int>{});
+            preRequisiteBlocks[counter++].push_back(aBlock[0]);
+          }
+        }
         ParserUtils::replaceOccurences(tempContent, "templatePrerequisite",
                                        preString);
         // now make exclusive

@@ -13,8 +13,8 @@
 	},
 	"map": 
 	{
-        "height" : 1024,
-		"width" : 2816,
+        "height" : 512,
+		"width" : 512,
 		"landPercentage" : 34,
 		"seaLevel" : 94,
 		"accuracy": 100,

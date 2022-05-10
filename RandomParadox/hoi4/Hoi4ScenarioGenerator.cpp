@@ -699,12 +699,20 @@ bool Hoi4ScenarioGenerator::stepFulfillsRequirements(
     const std::string stepRequirements,
     const std::vector<std::set<Hoi4Country>> &stepTargets) {
 
-  const auto requiredPredecessors =
-      ParserUtils::getTokens(stepRequirements, ',');
+  const auto predecessors =
+      ParserUtils::getBracketBlockContent(stepRequirements, "predecessor");
+  const auto v = ParserUtils::getNumbers(
+      ParserUtils::getBracketBlockContent(stepRequirements, "skippable"), ',',
+      std::set<int>());
+  std::set<int> skipNumbers(std::make_move_iterator(v.begin()),
+                            std::make_move_iterator(v.end()));
+  const auto requiredPredecessors = ParserUtils::getTokens(predecessors, ',');
   bool hasRequiredPredecessor = requiredPredecessors.size() ? false : true;
   for (const auto &predecessor : requiredPredecessors)
     if (predecessor != "") {
-      if (stepTargets[stoi(stepRequirements)].size())
+      if (stepTargets[stoi(predecessors)].size())
+        hasRequiredPredecessor = true;
+      else if (skipNumbers.find(stoi(predecessors)) != skipNumbers.end())
         hasRequiredPredecessor = true;
     }
   return hasRequiredPredecessor;
@@ -712,7 +720,7 @@ bool Hoi4ScenarioGenerator::stepFulfillsRequirements(
 /* checks all requirements for a national focus. Returns false if any
  * requirement isn't fulfilled, else returns true*/
 bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
-    const std::string& targetRequirements, const Hoi4Country &source,
+    const std::string &targetRequirements, const Hoi4Country &source,
     const Hoi4Country &target,
     const std::vector<std::set<std::string>> &levelTargets, const int level) {
   // now check if the country fulfills the target requirements
@@ -813,9 +821,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals() {
           chainID = stoi(chainTokens[0]);
           const int level = stoi(chainTokens[12]);
           if (source.rulingParty == chainTokens[4] || chainTokens[4] == "any") {
-            auto stepRequirements =
-                ParserUtils::getBracketBlockContent(chainTokens[2], "requires");
-            if (stepFulfillsRequirements(stepRequirements, stepTargets)) {
+            if (stepFulfillsRequirements(chainTokens[2], stepTargets)) {
               // source triggers this focus
               // split requirements
               // auto targetRequirements =
