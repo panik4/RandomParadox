@@ -1,18 +1,18 @@
 #chain ID;step;stepRequirements;rank;ideology;type;target;condition;date;available;bypass;completion_rewards;level
 # army chain;;;;;;;;;;;;
 # start ID is 1000
-1000;0;predecessor{}+requires{};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;1;predecessor{0}+requires{0};any;any;generic;;exclusive{}+and{2};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;2;predecessor{0}+requires{0};any;any;generic;;exclusive{}+and{1};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;3;predecessor{1,2}+requires{1,2};any;any;generic;;exclusive{}+and{4};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;4;predecessor{1,2}+requires{1,2};any;any;generic;;exclusive{}+and{3};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;5;predecessor{3,4}+requires{3,4};any;any;generic;;exclusive{}+and{}+or{6};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;6;predecessor{3,4}+requires{3,4};any;any;generic;;exclusive{}+and{}+or{5};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;7;predecessor{5,6}+requires{};any;any;generic;;exclusive{8,9}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;8;predecessor{5,6}+requires{};any;any;generic;;exclusive{7,9}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;9;predecessor{5,6}+requires{};any;any;generic;;exclusive{7,8}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;10;predecessor{7,8,9}+requires{7,8,9};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;11;predecessor{10}+requires{10};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;12;predecessor{11}+requires{11};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;13;predecessor{12}+requires{12};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;14;predecessor{13}+requires{13};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;0;predecessor{};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;1;predecessor{0};any;any;generic;;exclusive{}+and{2};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;2;predecessor{0};any;any;generic;;exclusive{}+and{1}+or{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;3;predecessor{1,2};any;any;generic;;exclusive{}+and{4}+or{5,6};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;4;predecessor{1,2};any;any;generic;;exclusive{}+and{3}+or{5,6};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;5;predecessor{1,2};any;any;generic;;exclusive{}+and{6}+or{3,4};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;6;predecessor{1,2};any;any;generic;;exclusive{}+and{5}+or{3,4};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;7;predecessor{3,4,5,6};any;any;generic;;exclusive{8,9}+and{}+or{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;8;predecessor{3,4,5,6};any;any;generic;;exclusive{7,9}+and{}+or{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;9;predecessor{3,4,5,6};any;any;generic;;exclusive{7,8}+and{}+or{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;10;predecessor{7,8,9};any;any;generic;;exclusive{}+and{}+or{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;11;predecessor{10};any;any;generic;;exclusive{}+and{}+or{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;12;predecessor{11};any;any;generic;;exclusive{}+and{}+or{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;13;predecessor{12};any;any;generic;;exclusive{}+and{}+or{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;14;predecessor{13};any;any;generic;;exclusive{}+and{}+or{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
