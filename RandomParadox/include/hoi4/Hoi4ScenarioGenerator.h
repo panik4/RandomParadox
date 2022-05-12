@@ -56,7 +56,7 @@ public:
   std::vector<NationalFocus> foci;
   std::vector<NationalFocus> warFoci;
   std::map<int, std::vector<std::string>> strengthScores;
-  std::map<std::string, Hoi4Country> countryMap;
+  std::map<std::string, Hoi4Country> countries;
   // a list of connections: {sourceHub, destHub, provinces the rails go through}
   std::vector<std::vector<int>> supplyNodeConnections;
   // container holding the resource configurations
