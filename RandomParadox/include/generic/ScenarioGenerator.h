@@ -1,6 +1,6 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include "Country.h"
+#include "PdoxCountry.h"
 #include "Flag.h"
 #include "GameContinent.h"
 #include "GameProvince.h"
@@ -27,7 +27,7 @@ public:
   std::vector<GameRegion> gameRegions;
   std::vector<GameProvince> gameProvinces;
   std::set<std::string> tags;
-  std::map<std::string, Country> countries;
+  std::map<std::string, PdoxCountry> countries;
   // constructors/destructors
   ScenarioGenerator(FastWorldGenerator &f);
   ~ScenarioGenerator();

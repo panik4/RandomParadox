@@ -1,11 +1,11 @@
 #pragma once
-#include "generic/Country.h"
+#include "generic/PdoxCountry.h"
 #include "Hoi4GameRegion.h"
 #include "NationalFocus.h"
 #include <array>
 #include <string>
 #include <vector>
-class Hoi4Country : public Country {
+class Hoi4Country : public PdoxCountry {
 public:
   enum class doctrineType {
     blitz,
@@ -18,7 +18,7 @@ public:
     defensive
   };
   Hoi4Country();
-  Hoi4Country(Country &country);
+  Hoi4Country(PdoxCountry &country);
   ~Hoi4Country();
   std::string fullName;
   std::string gfxCulture;
