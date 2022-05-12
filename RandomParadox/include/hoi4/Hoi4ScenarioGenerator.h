@@ -1,7 +1,7 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "generic/ScenarioGenerator.h"
-#include "generic/Country.h"
+#include "generic/PdoxCountry.h"
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4GameRegion.h"
 #include "hoi4/NationalFocus.h"
@@ -73,7 +73,7 @@ public:
   void generateStateSpecifics();
   // politics: ideology, strength, major
   void generateCountrySpecifics(ScenarioGenerator &scenGen,
-                                std::map<std::string, Country> &countries);
+                           std::map<std::string, PdoxCountry> &pdoxCountries);
   // build strategic regions from gameregions
   void generateStrategicRegions(ScenarioGenerator &scenGen);
   // generate weather per strategic region, from baseprovinces

@@ -107,7 +107,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics() {
 }
 
 void Hoi4ScenarioGenerator::generateCountrySpecifics(
-    ScenarioGenerator &scenGen, std::map<std::string, Country> &countries) {
+    ScenarioGenerator &scenGen, std::map<std::string, PdoxCountry> &pdoxCountries) {
   Logger::logLine("HOI4: Choosing uniforms and electing Tyrants");
   // graphical culture pairs:
   // { graphical_culture = type }
@@ -124,7 +124,7 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(
       "southamerican",    "commonwealth",     "asian"};
   std::vector<std::string> ideologies{"fascism", "democratic", "communism",
                                       "neutrality"};
-  for (auto &country : countries) {
+  for (auto &country : pdoxCountries) {
     // construct a hoi4country with country from ScenarioGenerator.
     // We want a copy here
     Hoi4Country hC(country.second);

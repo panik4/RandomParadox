@@ -331,7 +331,7 @@ void ScenarioGenerator::generateCountries(int numCountries) {
     // Tag from Name
     auto tag = nG.generateTag(name, tags);
     // generate flag
-    Country C(tag, i);
+    PdoxCountry C(tag, i);
     // get name and andjective
     C.name = name;
     C.adjective = nG.generateAdjective(name);
