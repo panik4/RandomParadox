@@ -1,44 +1,43 @@
 #include "generic/FormatConverter.h"
-const std::map<std::string, std::map<Colour, int>>
-     FormatConverter::colourMaps{
-        {"terrainHoi4",
-            {{Env::Instance().namedColours["grassland"], 0},
-             {Env::Instance().namedColours["ice"], 19},
-             {Env::Instance().namedColours["tundra"], 9},
-             {Env::Instance().namedColours["forest"], 1},
-             {Env::Instance().namedColours["jungle"], 21},
-             {Env::Instance().namedColours["savannah"], 0},
-             {Env::Instance().namedColours["desert"], 7},
-             {Env::Instance().namedColours["peaks"], 16},
-             {Env::Instance().namedColours["mountains"], 11},
-             {Env::Instance().namedColours["hills"], 20},
-             {Env::Instance().namedColours["sea"], 15}}},
-           {"riversHoi4",
-            {{Env::Instance().namedColours["land"], 255},
-             {Env::Instance().namedColours["river"], 3},
-             {Env::Instance().namedColours["river"] * 0.9, 3},
-             {Env::Instance().namedColours["river"] * 0.8, 6},
-             {Env::Instance().namedColours["river"] * 0.7, 6},
-             {Env::Instance().namedColours["river"] * 0.6, 10},
-             {Env::Instance().namedColours["river"] * 0.5, 11},
-             {Env::Instance().namedColours["river"] * 0.4, 11},
-             {Env::Instance().namedColours["sea"], 254},
-             {Env::Instance().namedColours["riverStart"], 0},
-             {Env::Instance().namedColours["riverStartTributary"], 3},
-             {Env::Instance().namedColours["riverEnd"], 1}}},
-           {"treesHoi4",
-            {{Env::Instance().namedColours["grassland"], 0},
-             {Env::Instance().namedColours["ice"], 0},
-             {Env::Instance().namedColours["tundra"], 0},
-             {Env::Instance().namedColours["forest"], 6},
-             {Env::Instance().namedColours["jungle"], 28},
-             {Env::Instance().namedColours["savannah"], 0},
-             {Env::Instance().namedColours["desert"], 0},
-             {Env::Instance().namedColours["peaks"], 0},
-             {Env::Instance().namedColours["mountains"], 0},
-             {Env::Instance().namedColours["hills"], 0},
-             {Env::Instance().namedColours["empty"], 0},
-             {Env::Instance().namedColours["sea"], 0}}}};
+const std::map<std::string, std::map<Colour, int>> FormatConverter::colourMaps{
+    {"terrainHoi4",
+     {{Env::Instance().namedColours["grassland"], 0},
+      {Env::Instance().namedColours["ice"], 19},
+      {Env::Instance().namedColours["tundra"], 9},
+      {Env::Instance().namedColours["forest"], 1},
+      {Env::Instance().namedColours["jungle"], 21},
+      {Env::Instance().namedColours["savannah"], 0},
+      {Env::Instance().namedColours["desert"], 7},
+      {Env::Instance().namedColours["peaks"], 16},
+      {Env::Instance().namedColours["mountains"], 11},
+      {Env::Instance().namedColours["hills"], 20},
+      {Env::Instance().namedColours["sea"], 15}}},
+    {"riversHoi4",
+     {{Env::Instance().namedColours["land"], 255},
+      {Env::Instance().namedColours["river"], 3},
+      {Env::Instance().namedColours["river"] * 0.9, 3},
+      {Env::Instance().namedColours["river"] * 0.8, 6},
+      {Env::Instance().namedColours["river"] * 0.7, 6},
+      {Env::Instance().namedColours["river"] * 0.6, 10},
+      {Env::Instance().namedColours["river"] * 0.5, 11},
+      {Env::Instance().namedColours["river"] * 0.4, 11},
+      {Env::Instance().namedColours["sea"], 254},
+      {Env::Instance().namedColours["riverStart"], 0},
+      {Env::Instance().namedColours["riverStartTributary"], 3},
+      {Env::Instance().namedColours["riverEnd"], 1}}},
+    {"treesHoi4",
+     {{Env::Instance().namedColours["grassland"], 0},
+      {Env::Instance().namedColours["ice"], 0},
+      {Env::Instance().namedColours["tundra"], 0},
+      {Env::Instance().namedColours["forest"], 6},
+      {Env::Instance().namedColours["jungle"], 28},
+      {Env::Instance().namedColours["savannah"], 0},
+      {Env::Instance().namedColours["desert"], 0},
+      {Env::Instance().namedColours["peaks"], 0},
+      {Env::Instance().namedColours["mountains"], 0},
+      {Env::Instance().namedColours["hills"], 0},
+      {Env::Instance().namedColours["empty"], 0},
+      {Env::Instance().namedColours["sea"], 0}}}};
 
 void FormatConverter::dump8BitHeightmap(const std::string path,
                                         const std::string colourMapKey) const {
@@ -52,8 +51,8 @@ void FormatConverter::dump8BitHeightmap(const std::string path,
   Bitmap::SaveBMPToFile(hoi4Heightmap, (path).c_str());
 }
 
-void FormatConverter::dump8BitTerrain(std::string path,
-                                      std::string colourMapKey) const {
+void FormatConverter::dump8BitTerrain(const std::string path,
+                                      const std::string colourMapKey) const {
   Logger::logLine("FormatConverter::Writing terrain to ", path);
   Bitmap hoi4terrain(Env::Instance().width, Env::Instance().height, 8);
   hoi4terrain.getColourtable() = colourTables.at(colourMapKey);
@@ -65,8 +64,8 @@ void FormatConverter::dump8BitTerrain(std::string path,
   Bitmap::SaveBMPToFile(hoi4terrain, (path).c_str());
 }
 
-void FormatConverter::dump8BitCities(std::string path,
-                                     std::string colourMapKey) const {
+void FormatConverter::dump8BitCities(const std::string path,
+                                     const std::string colourMapKey) const {
   Logger::logLine("FormatConverter::Writing cities to ", path);
   Bitmap cities(Env::Instance().width, Env::Instance().height, 8);
   cities.getColourtable() = colourTables.at(colourMapKey);
@@ -79,8 +78,8 @@ void FormatConverter::dump8BitCities(std::string path,
   Bitmap::SaveBMPToFile(cities, (path).c_str());
 }
 
-void FormatConverter::dump8BitRivers(std::string path,
-                                     std::string colourMapKey) const {
+void FormatConverter::dump8BitRivers(const std::string path,
+                                     const std::string colourMapKey) const {
   Logger::logLine("FormatConverter::Writing rivers to ", path);
   Bitmap rivers(Env::Instance().width, Env::Instance().height, 8);
   rivers.getColourtable() = colourTables.at(colourMapKey);
@@ -92,8 +91,8 @@ void FormatConverter::dump8BitRivers(std::string path,
   Bitmap::SaveBMPToFile(rivers, (path).c_str());
 }
 
-void FormatConverter::dump8BitTrees(std::string path,
-                                    std::string colourMapKey) const {
+void FormatConverter::dump8BitTrees(const std::string path,
+                                    const std::string colourMapKey) const {
   Logger::logLine("FormatConverter::Writing trees to ", path);
   const double width = Env::Instance().width;
   constexpr auto factor = 3.4133333333333333333333333333333;
@@ -117,7 +116,7 @@ void FormatConverter::dump8BitTrees(std::string path,
   Bitmap::SaveBMPToFile(trees, (path).c_str());
 }
 
-void FormatConverter::dumpDDSFiles(std::string path) const {
+void FormatConverter::dumpDDSFiles(const std::string path) const {
   Logger::logLine("FormatConverter::Writing DDS files to ", path);
   using namespace DirectX;
   const auto &riverBMP = Bitmap::findBitmapByKey("rivers");
@@ -160,7 +159,7 @@ void FormatConverter::dumpDDSFiles(std::string path) const {
   }
 }
 
-void FormatConverter::dumpTerrainColourmap(std::string path) const {
+void FormatConverter::dumpTerrainColourmap(const std::string path) const {
   Logger::logLine("FormatConverter::Writing terrain colourmap to ", path);
   const auto &climateMap = Bitmap::findBitmapByKey("climate2");
   const auto &cityMap = Bitmap::findBitmapByKey("cities");
@@ -190,7 +189,7 @@ void FormatConverter::dumpTerrainColourmap(std::string path) const {
                           DXGI_FORMAT_B8G8R8A8_UNORM, path);
 }
 
-void FormatConverter::dumpWorldNormal(std::string path) const {
+void FormatConverter::dumpWorldNormal(const std::string path) const {
   Logger::logLine("FormatConverter::Writing normalMap to ", path);
   auto height = Env::Instance().height;
   auto width = Env::Instance().width;
@@ -207,7 +206,7 @@ void FormatConverter::dumpWorldNormal(std::string path) const {
   Bitmap::SaveBMPToFile(normalMap, (path).c_str());
 }
 
-FormatConverter::FormatConverter(std::string hoiPath) {
+FormatConverter::FormatConverter(const std::string hoiPath) {
   std::string terrainsourceString = (hoiPath + "\\map\\terrain.bmp");
   Bitmap terrain = Bitmap::Load8bitBMP(terrainsourceString.c_str(), "terrain");
   colourTables["terrainHoi4"] = terrain.getColourtable();
