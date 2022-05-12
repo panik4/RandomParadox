@@ -4,6 +4,8 @@
 #include "TextureWriter.h"
 
 class Flag {
+  // keep code shorter
+  using PU = ParserUtils;
   // static cause we only want to read them from file once
   static std::map<std::string, std::vector<Colour>> colourGroups;
   static std::vector<std::vector<std::vector<int>>> flagTypes;
@@ -22,18 +24,18 @@ public:
   int height;
   // constructors/destructors
   Flag();
-  Flag(int width, int height);
+  Flag(const int width, const int height);
   ~Flag();
   // methods - image read/write
-  void setPixel(Colour colour, int x, int y);
-  Colour getPixel(int x, int y);
-  Colour getPixel(int pos);
+  void setPixel(const Colour colour, const int x, const int y);
+  void setPixel(const Colour colour, const int index);
   std::vector<unsigned char> getFlag() const;
   // methods - utils
-  std::vector<unsigned char> resize(int width, int height) const;
-  static std::vector<unsigned char> resize(int width, int height,
-                                           std::vector<unsigned char> tImage,
-                                           int inWidth, int inHeight);
+  std::vector<unsigned char> resize(const int width, const int height) const;
+  static std::vector<unsigned char>
+  resize(const int width, const int height,
+         const std::vector<unsigned char> tImage, const int inWidth,
+         const int inHeight);
   // methods - read in configs
   static void readColourGroups();
   static void readFlagTypes();
