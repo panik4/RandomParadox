@@ -8,14 +8,13 @@ std::vector<std::vector<std::string>> Flag::flagMetadata;
 std::vector<std::vector<std::string>> Flag::symbolMetadata;
 Flag::Flag() {}
 
-Flag::Flag(int width, int height)
-    : width(width), height(height) {
+Flag::Flag(const int width, const int height) : width(width), height(height) {
   image = std::vector<unsigned char>(width * height * 4, 0);
   auto randomIndex = Env::Instance().randNum() % flagTemplates.size();
   image = flagTemplates[randomIndex];
   const auto &flagInfo = flagMetadata[randomIndex];
-  auto flagColourGroups = ParserUtils::getTokens(flagInfo[0], ',');
-  auto symbolColourGroups = ParserUtils::getTokens(flagInfo[1], ',');
+  auto flagColourGroups = PU::getTokens(flagInfo[0], ',');
+  auto symbolColourGroups = PU::getTokens(flagInfo[1], ',');
 
   // get the template and map all colours to indices
   std::map<Colour, std::vector<int>> colourMapping;
@@ -81,10 +80,7 @@ Flag::Flag(int width, int height)
       offset = (int)((symbolWidthOffset * 328));
       offset -= offset % 4;
       auto width = offset + (index % (int)(52 * reductionFactor * 4));
-      image[328 * height + width] = replacementColours[colIndex].getBlue();
-      image[328 * height + width + 1] = replacementColours[colIndex].getGreen();
-      image[328 * height + width + 2] = replacementColours[colIndex].getRed();
-      image[328 * height + width + 3] = 255;
+      setPixel(replacementColours[colIndex], 328 * height + width);
     }
     colIndex++;
   }
@@ -92,29 +88,23 @@ Flag::Flag(int width, int height)
 
 Flag::~Flag() {}
 
-void Flag::setPixel(Colour colour, int x, int y) {
-  image[(x * width + y) * 4] = colour.getBlue();
-  image[(x * width + y) * 4 + 1] = colour.getGreen();
-  image[(x * width + y) * 4 + 2] = colour.getRed();
+void Flag::setPixel(const Colour colour, const int x, const int y) {
+  for (auto i = 0; i < 3; i++)
+    image[(x * width + y) * 4 + i] = colour.getBGR()[i];
   image[(x * width + y) * 4 + 3] = 255;
 }
 
-Colour Flag::getPixel(int x, int y) {
-  Colour colour{image[(x * width + y) * 4], image[(x * width + y) * 4 + 1],
-                image[(x * width + y) * 4 + 2]};
-  return colour;
-}
-
-Colour Flag::getPixel(int pos) {
-  Colour colour{image[pos * 4], image[pos * 4 + 1], image[pos * 4 + 2]};
-  return colour;
+void Flag::setPixel(const Colour colour, const int index) {
+  for (auto i = 0; i < 3; i++)
+    image[index * 4 + i] = colour.getBGR()[i];
+  image[index * 4 + 3] = 255;
 }
 
 std::vector<unsigned char> Flag::getFlag() const { return image; }
 
-std::vector<uint8_t> Flag::resize(int width, int height) const {
+std::vector<uint8_t> Flag::resize(const int width, const int height) const {
   auto resized = std::vector<unsigned char>(width * height * 4, 0);
-  auto factor = this->width / width;
+  const auto factor = this->width / width;
   for (int h = 0; h < height; h++) {
     for (int w = 0; w < width; w++) {
       auto colourmapIndex = factor * h * this->width + factor * w;
@@ -128,32 +118,30 @@ std::vector<uint8_t> Flag::resize(int width, int height) const {
   return resized;
 }
 
-std::vector<uint8_t> Flag::resize(int width, int height,
-                                  std::vector<unsigned char> tImage,
-                                  int inWidth, int inHeight) {
+std::vector<uint8_t> Flag::resize(const int width, const int height,
+                                  const std::vector<unsigned char> tImage,
+                                  const int inWidth, const int inHeight) {
   auto resized = std::vector<unsigned char>(width * height * 4, 0);
-  auto factor = inWidth / width;
-  for (int h = 0; h < height; h++) {
-    for (int w = 0; w < width; w++) {
+  const auto factor = inWidth / width;
+  for (auto h = 0; h < height; h++) {
+    for (auto w = 0; w < width; w++) {
       auto colourmapIndex = factor * h * inWidth + factor * w;
       colourmapIndex *= 4;
-      resized[(h * width + w) * 4] = tImage[colourmapIndex];
-      resized[(h * width + w) * 4 + 1] = tImage[colourmapIndex + 1];
-      resized[(h * width + w) * 4 + 2] = tImage[colourmapIndex + 2];
-      resized[(h * width + w) * 4 + 3] = tImage[colourmapIndex + 3];
+      for (auto i = 0; i < 4; i++)
+        resized[(h * width + w) * 4 + i] = tImage[colourmapIndex + i];
     }
   }
   return resized;
 }
 
 void Flag::readColourGroups() {
-  auto lines = ParserUtils::getLines("resources\\flags\\colour_groups.txt");
+  auto lines = PU::getLines("resources\\flags\\colour_groups.txt");
   for (auto &line : lines) {
     if (!line.size())
       continue;
-    auto tokens = ParserUtils::getTokens(line, ';');
+    auto tokens = PU::getTokens(line, ';');
     for (int i = 1; i < tokens.size(); i++) {
-      auto nums = ParserUtils::getNumbers(tokens[i], ',', std::set<int>{});
+      auto nums = PU::getNumbers(tokens[i], ',', std::set<int>{});
       Colour c{(unsigned char)nums[0], (unsigned char)nums[1],
                (unsigned char)nums[2]};
       colourGroups[tokens[0]].push_back(c);
@@ -162,39 +150,39 @@ void Flag::readColourGroups() {
 }
 
 void Flag::readFlagTypes() {
-  auto lines = ParserUtils::getLines("resources\\flags\\flag_types.txt");
-  for (auto &line : lines) {
+  auto lines = PU::getLines("resources\\flags\\flag_types.txt");
+  for (const auto &line : lines) {
     if (!line.size())
       continue;
-    auto tokens = ParserUtils::getTokens(line, ';');
+    auto tokens = PU::getTokens(line, ';');
     const auto flagType = stoi(tokens[0]);
     const auto flagTypeID = flagTypes[flagType].size();
-    auto symbols = ParserUtils::getTokens(tokens[1], ',');
-    auto colourGroupStrings = ParserUtils::getTokens(tokens[2], ',');
+    const auto symbols = PU::getTokens(tokens[1], ',');
+    const auto colourGroupStrings = PU::getTokens(tokens[2], ',');
     flagTypes[flagType].push_back(std::vector<int>{});
     flagTypeColours[flagType].push_back(std::vector<std::string>{});
     for (const auto &symbolRange : symbols) {
-      auto rangeTokens =
-          ParserUtils::getNumbers(symbolRange, '-', std::set<int>{});
+      const auto &rangeTokens =
+          PU::getNumbers(symbolRange, '-', std::set<int>{});
       for (auto x = rangeTokens[0]; x <= rangeTokens[1]; x++)
         flagTypes[flagType][flagTypeID].push_back(x);
     }
-    for (auto &cGroup : colourGroupStrings)
+    for (const auto &cGroup : colourGroupStrings)
       flagTypeColours[flagType][flagTypeID].push_back(cGroup);
   }
 }
 
 void Flag::readFlagTemplates() {
-  for (int i = 0; i < 100; i++) {
+  for (auto i = 0; i < 100; i++) {
     if (std::filesystem::exists("resources\\flags\\flag_presets\\" +
                                 std::to_string(i) + ".tga")) {
       flagTemplates.push_back(TextureWriter::readTGA(
           "resources\\flags\\flag_presets\\" + std::to_string(i) + ".tga"));
       // get line and immediately tokenize it
-      flagMetadata.push_back(ParserUtils::getTokens(
-          ParserUtils::getLines("resources\\flags\\flag_presets\\" +
-                                std::to_string(i) + ".txt")[0],
-          ';'));
+      flagMetadata.push_back(
+          PU::getTokens(PU::getLines("resources\\flags\\flag_presets\\" +
+                                     std::to_string(i) + ".txt")[0],
+                        ';'));
     }
   }
 }
@@ -205,10 +193,10 @@ void Flag::readSymbolTemplates() {
       symbolTemplates.push_back(TextureWriter::readTGA(
           "resources\\flags\\symbol_presets\\" + std::to_string(i) + ".tga"));
       // get line and immediately tokenize it
-      symbolMetadata.push_back(ParserUtils::getTokens(
-          ParserUtils::getLines("resources\\flags\\symbol_presets\\" +
-                                std::to_string(i) + ".txt")[0],
-          ';'));
+      symbolMetadata.push_back(
+          PU::getTokens(PU::getLines("resources\\flags\\symbol_presets\\" +
+                                     std::to_string(i) + ".txt")[0],
+                        ';'));
     }
   }
 }
