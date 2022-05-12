@@ -1,4 +1,4 @@
-#include "FastWorldGen/FastWorldGen/FastWorldGenerator.h"
+#include "FastWorldGenerator.h"
 #include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Module.h"
 #include <filesystem>

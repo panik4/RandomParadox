@@ -10,7 +10,7 @@
 /FastWorldGen/FastNoiseLite
 /FastWorldGen/.vs/
 *FastWorldGen
-*.vcxproj
+*.vcxproj*
 *libtga
 */Maps/*
 *Maps/*
