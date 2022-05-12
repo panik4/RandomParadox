@@ -27,7 +27,7 @@ public:
   std::vector<GameRegion> gameRegions;
   std::vector<GameProvince> gameProvinces;
   std::set<std::string> tags;
-  std::map<std::string, Country> countryMap;
+  std::map<std::string, Country> countries;
   // constructors/destructors
   ScenarioGenerator(FastWorldGenerator &f);
   ~ScenarioGenerator();
