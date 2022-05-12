@@ -4,7 +4,7 @@
 #include "generic/GameRegion.h"
 #include <string>
 #include <vector>
-class Country {
+class PdoxCountry {
 public:
   // member variables
   const int ID;
@@ -16,9 +16,9 @@ public:
   Flag flag;
   Colour colour;
   // constructors/destructors
-  Country();
-  Country(std::string tag, int ID);
-  ~Country();
+  PdoxCountry();
+  PdoxCountry(std::string tag, int ID);
+  ~PdoxCountry();
   // containers
   std::vector<GameRegion> ownedRegions;
   std::set<std::string> neighbours;
@@ -29,5 +29,5 @@ public:
                      GameRegion &startRegion,
                      std::vector<GameProvince> &gameProvinces);
   // operators
-  bool operator<(const Country &right) const { return ID < right.ID; };
+  bool operator<(const PdoxCountry &right) const { return ID < right.ID; };
 };

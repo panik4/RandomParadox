@@ -2,7 +2,7 @@
 
 Hoi4Country::Hoi4Country() { Logger::logLine("AAAA"); }
 
-Hoi4Country::Hoi4Country(Country &c) : Country(c) {
+Hoi4Country::Hoi4Country(PdoxCountry &c) : PdoxCountry(c) {
   for (auto &region : ownedRegions) {
     hoi4Regions.push_back(region);
   }

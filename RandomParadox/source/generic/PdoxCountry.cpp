@@ -1,17 +1,17 @@
-#include "generic/Country.h"
+#include "generic/PdoxCountry.h"
 
-Country::Country() : ID{-1} {}
+PdoxCountry::PdoxCountry() : ID{-1} {}
 
-Country::Country(std::string tag, int ID) : tag{tag}, ID{ID} {
+PdoxCountry::PdoxCountry(std::string tag, int ID) : tag{tag}, ID{ID} {
   //auto random = Env::Instance().randNum;
   colour = {static_cast<unsigned char>(Env::Instance().randNum() % 255),
             static_cast<unsigned char>(Env::Instance().randNum() % 255),
             static_cast<unsigned char>(Env::Instance().randNum() % 255)};
 }
 
-Country::~Country() {}
+PdoxCountry::~PdoxCountry() {}
 
-void Country::assignRegions(int maxRegions,
+void PdoxCountry::assignRegions(int maxRegions,
                             std::vector<GameRegion> &gameRegions,
                             GameRegion &startRegion,
                             std::vector<GameProvince> &gameProvinces) {
@@ -32,7 +32,7 @@ void Country::assignRegions(int maxRegions,
   }
 }
 
-void Country::addRegion(GameRegion &region,
+void PdoxCountry::addRegion(GameRegion &region,
                         std::vector<GameRegion> &gameRegions,
                         std::vector<GameProvince> &gameProvinces) {
   gameRegions[region.ID].assigned = true;
