@@ -192,7 +192,7 @@ void ScenarioGenerator::generatePopulations() {
   Logger::logLine("Generating Population");
   const auto &popMap = Bitmap::findBitmapByKey("population");
   const auto &cityMap = Bitmap::findBitmapByKey("cities");
-  for (auto &c : countryMap)
+  for (auto &c : countries)
     for (auto &gameRegion : c.second.ownedRegions)
       for (auto &gameProv : gameRegion.gameProvinces) {
         // calculate the population factor
@@ -218,7 +218,7 @@ void ScenarioGenerator::generateDevelopment() {
   // .....
   Logger::logLine("Generating State Development");
   const auto &cityBMP = Bitmap::findBitmapByKey("cities");
-  for (auto &c : countryMap)
+  for (auto &c : countries)
     for (auto &gameProv : c.second.ownedRegions)
       for (auto &gameProv : gameProv.gameProvinces) {
         auto cityDensity = 0.0;
@@ -243,7 +243,7 @@ void ScenarioGenerator::mapTerrain() {
   std::vector<std::string> targetTypes{"plains",   "forest", "marsh", "hills",
                                        "mountain", "desert", "urban", "jungle"};
 
-  for (auto &c : countryMap)
+  for (auto &c : countries)
     for (auto &gameRegion : c.second.ownedRegions)
       for (auto &gameProv : gameRegion.gameProvinces) {
         std::map<Colour, int> colourPrevalence;
@@ -340,9 +340,9 @@ void ScenarioGenerator::generateCountries(int numCountries) {
     C.flag = f;
     // randomly set development of countries
     C.developmentFactor = Env::Instance().getRandomDouble(0.1, 1.0);
-    countryMap.emplace(tag, C);
+    countries.emplace(tag, C);
   }
-  for (auto &c : countryMap) {
+  for (auto &c : countries) {
     auto startRegion(findStartRegion());
     if (startRegion.assigned || startRegion.sea)
       continue;
@@ -353,14 +353,14 @@ void ScenarioGenerator::generateCountries(int numCountries) {
       auto &x = UtilLib::getNearestAssignedLand(gameRegions, gameRegion,
                                                 Env::Instance().width,
                                                 Env::Instance().height);
-      countryMap.at(x.owner).addRegion(gameRegion, gameRegions, gameProvinces);
+      countries.at(x.owner).addRegion(gameRegion, gameRegions, gameProvinces);
     }
   }
 }
 
 void ScenarioGenerator::evaluateNeighbours() {
   Logger::logLine("Evaluating Country Neighbours");
-  for (auto &c : countryMap)
+  for (auto &c : countries)
     for (const auto &gameRegion : c.second.ownedRegions)
       for (const auto &neighbourRegion : gameRegion.neighbours)
         if (gameRegions[neighbourRegion].owner != c.first)
@@ -370,7 +370,7 @@ void ScenarioGenerator::evaluateNeighbours() {
 void ScenarioGenerator::dumpDebugCountrymap(std::string path) {
   Logger::logLine("Mapping Continents");
   Bitmap countryBMP(Env::Instance().width, Env::Instance().height, 24);
-  for (const auto &country : countryMap)
+  for (const auto &country : countries)
     for (const auto &region : country.second.ownedRegions)
       for (const auto &prov : region.provinces)
         for (const auto &pix : prov->pixels)

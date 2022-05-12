@@ -6,7 +6,7 @@ Hoi4ScenarioGenerator::~Hoi4ScenarioGenerator() {}
 
 void Hoi4ScenarioGenerator::generateStateResources() {
   Logger::logLine("HOI4: Digging for resources");
-  for (auto &c : countryMap) {
+  for (auto &c : countries) {
     for (auto &gameRegion : c.second.hoi4Regions) {
       for (auto &resource : resources) {
         auto chance = resource.second[2];
@@ -39,7 +39,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics() {
   auto targetWorldIndustry =
       (double)Env::Instance().landPercentage * 3648.0 *
       (sqrt(Env::Instance().bitmapSize) / sqrt((double)(5632 * 2048)));
-  for (auto &c : countryMap) {
+  for (auto &c : countries) {
     for (auto &gameRegion : c.second.hoi4Regions) {
       // count the number of land states for resource generation
       landStates++;
@@ -161,7 +161,7 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(
     // now get the full name of the country
     hC.fullName = NameGenerator::modifyWithIdeology(
         hC.rulingParty, country.second.name, country.second.adjective);
-    countryMap.insert({hC.tag, hC});
+    countries.insert({hC.tag, hC});
   }
 }
 
@@ -270,7 +270,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator &scenGen) {
   Logger::logLine("HOI4: Building rail networks");
   auto width = Env::Instance().width;
   Bitmap logistics = Bitmap::findBitmapByKey("countries");
-  for (auto &country : countryMap) {
+  for (auto &country : countries) {
     // GameProvince ID, distance
     std::map<double, int> supplyHubs;
     // add capital
@@ -450,7 +450,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator &scenGen) {
 void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator &scenGen) {
   Logger::logLine("HOI4: Evaluating Country Strength");
   double maxScore = 0.0;
-  for (auto &c : countryMap) {
+  for (auto &c : countries) {
     auto totalIndustry = 0.0;
     auto totalPop = 0.0;
     auto maxIndustryID = 0;
@@ -481,17 +481,17 @@ void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator &scenGen) {
       totalDeployedCountries - numMajorPowers - numRegionalPowers;
   for (const auto &scores : strengthScores) {
     for (const auto &entry : scores.second) {
-      if (countryMap[entry].strengthScore > 0.0) {
-        countryMap[entry].relativeScore = (double)scores.first / maxScore;
+      if (countries[entry].strengthScore > 0.0) {
+        countries[entry].relativeScore = (double)scores.first / maxScore;
         if (numWeakStates > weakPowers.size()) {
           weakPowers.insert(entry);
-          countryMap[entry].rank = "weak";
+          countries[entry].rank = "weak";
         } else if (numRegionalPowers > regionalPowers.size()) {
           regionalPowers.insert(entry);
-          countryMap[entry].rank = "regional";
+          countries[entry].rank = "regional";
         } else {
           majorPowers.insert(entry);
-          countryMap[entry].rank = "major";
+          countries[entry].rank = "major";
         }
       }
     }
@@ -505,7 +505,7 @@ void Hoi4ScenarioGenerator::generateCountryUnits() {
       ParserUtils::readFile("resources\\hoi4\\history\\divisionTemplates.txt");
   // now tokenize by : character to get single
   auto unitTemplates = ParserUtils::getTokens(unitTemplateFile, ':');
-  for (auto &c : countryMap) {
+  for (auto &c : countries) {
     // determine army doctrine
     // defensive vs offensive
     // infantry/milita, infantry+support, mechanized+armored, artillery
@@ -799,8 +799,8 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals() {
   chains.push_back(ParserUtils::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\army_chains.txt"));
   auto typeCounter = 0;
-  for (auto &sourceCountry : countryMap) {
-    const auto &source = countryMap[sourceCountry.first];
+  for (auto &sourceCountry : countries) {
+    const auto &source = countries[sourceCountry.first];
     sourceCountry.second.bully = 0;
     // sourceCountry.second.defensive = 0;
     for (const auto &chainType : chains) {
@@ -832,11 +832,11 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals() {
               if (!targetRequirements.size())
                 stepTargets[chainStep].insert(sourceCountry.second);
               else {
-                for (auto &destCountry : countryMap) {
+                for (auto &destCountry : countries) {
                   // now check every country if it fulfills the target
                   // requirements
                   if (targetFulfillsRequirements(
-                          targetRequirements, countryMap[sourceCountry.first],
+                          targetRequirements, countries[sourceCountry.first],
                           destCountry.second, levelTargets, level)) {
                     stepTargets[chainStep].insert(destCountry.second);
                     // save that we targeted this country on this level already.
@@ -864,11 +864,11 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals() {
             // select random target
             const auto &target = UtilLib::selectRandom(targets);
             // however
-            // if (targets.find(scenGen.countryMap.at(chainFoci.back().destTag))
+            // if (targets.find(scenGen.countries.at(chainFoci.back().destTag))
             // != targets.end()) 	target =
-            // scenGen.countryMap.at(chainFoci.back().destTag);
+            // scenGen.countries.at(chainFoci.back().destTag);
             auto focus{buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'),
-                                  countryMap.at(sourceCountry.first), target)};
+                                  countries.at(sourceCountry.first), target)};
             focus.stepID = stepIndex;
             focus.chainID = chainID;
             Logger::logLineLevel(1, focus);
@@ -903,8 +903,8 @@ void Hoi4ScenarioGenerator::printStatistics(ScenarioGenerator &scenGen) {
   for (auto &scores : strengthScores) {
     for (auto &entry : scores.second) {
       Logger::logLine("Strength: ", scores.first, " ",
-                      countryMap.at(entry).fullName, " ",
-                      countryMap.at(entry).rulingParty, "");
+                      countries.at(entry).fullName, " ",
+                      countries.at(entry).rulingParty, "");
     }
   }
 }
