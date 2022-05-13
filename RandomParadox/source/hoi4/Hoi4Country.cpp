@@ -1,6 +1,6 @@
 #include "hoi4/Hoi4Country.h"
 
-Hoi4Country::Hoi4Country() { Logger::logLine("AAAA"); }
+Hoi4Country::Hoi4Country() {  }
 
 Hoi4Country::Hoi4Country(PdoxCountry &c) : PdoxCountry(c) {
   for (auto &region : ownedRegions) {

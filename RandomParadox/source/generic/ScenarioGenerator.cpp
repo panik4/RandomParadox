@@ -328,24 +328,18 @@ void ScenarioGenerator::generateCountries(int numCountries) {
     // Get Name
     auto name = nG.generateName();
     // Tag from Name
-    auto tag = nG.generateTag(name, tags);
-    // generate flag
-    PdoxCountry C(tag, i);
-    // get name and andjective
-    C.name = name;
-    C.adjective = nG.generateAdjective(name);
-    // get a flag
-    Flag f(82, 52);
-    C.flag = f;
+    PdoxCountry pdoxC(nG.generateTag(name, tags), i, name,
+                      nG.generateAdjective(name), Flag(82, 52));
     // randomly set development of countries
-    C.developmentFactor = Env::Instance().getRandomDouble(0.1, 1.0);
-    countries.emplace(tag, C);
+    pdoxC.developmentFactor = Env::Instance().getRandomDouble(0.1, 1.0);
+    countries.emplace(pdoxC.tag, pdoxC);
   }
-  for (auto &c : countries) {
+  for (auto &pdoxCountry : countries) {
     auto startRegion(findStartRegion());
     if (startRegion.assigned || startRegion.sea)
       continue;
-    c.second.assignRegions(6, gameRegions, startRegion, gameProvinces);
+    pdoxCountry.second.assignRegions(6, gameRegions, startRegion,
+                                     gameProvinces);
   }
   for (auto &gameRegion : gameRegions) {
     if (!gameRegion.sea && !gameRegion.assigned) {
