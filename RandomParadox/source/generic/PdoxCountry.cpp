@@ -2,8 +2,10 @@
 
 PdoxCountry::PdoxCountry() : ID{-1} {}
 
-PdoxCountry::PdoxCountry(std::string tag, int ID) : tag{tag}, ID{ID} {
-  //auto random = Env::Instance().randNum;
+PdoxCountry::PdoxCountry(std::string tag, int ID, std::string name,
+                         std::string adjective, Flag &&flag)
+    : tag{tag}, ID{ID}, name{name}, adjective{adjective}, flag{flag} {
+  // auto random = Env::Instance().randNum;
   colour = {static_cast<unsigned char>(Env::Instance().randNum() % 255),
             static_cast<unsigned char>(Env::Instance().randNum() % 255),
             static_cast<unsigned char>(Env::Instance().randNum() % 255)};
@@ -12,9 +14,9 @@ PdoxCountry::PdoxCountry(std::string tag, int ID) : tag{tag}, ID{ID} {
 PdoxCountry::~PdoxCountry() {}
 
 void PdoxCountry::assignRegions(int maxRegions,
-                            std::vector<GameRegion> &gameRegions,
-                            GameRegion &startRegion,
-                            std::vector<GameProvince> &gameProvinces) {
+                                std::vector<GameRegion> &gameRegions,
+                                GameRegion &startRegion,
+                                std::vector<GameProvince> &gameProvinces) {
   addRegion(startRegion, gameRegions, gameProvinces);
   auto breakCounter = 0;
   while (ownedRegions.size() < maxRegions && breakCounter++ < 100) {
@@ -33,8 +35,8 @@ void PdoxCountry::assignRegions(int maxRegions,
 }
 
 void PdoxCountry::addRegion(GameRegion &region,
-                        std::vector<GameRegion> &gameRegions,
-                        std::vector<GameProvince> &gameProvinces) {
+                            std::vector<GameRegion> &gameRegions,
+                            std::vector<GameProvince> &gameProvinces) {
   gameRegions[region.ID].assigned = true;
   gameRegions[region.ID].owner = tag;
   for (auto &gameProvince : gameRegions[region.ID].gameProvinces)

@@ -107,7 +107,8 @@ void Hoi4ScenarioGenerator::generateStateSpecifics() {
 }
 
 void Hoi4ScenarioGenerator::generateCountrySpecifics(
-    ScenarioGenerator &scenGen, std::map<std::string, PdoxCountry> &pdoxCountries) {
+    ScenarioGenerator &scenGen,
+    std::map<std::string, PdoxCountry> &pdoxCountries) {
   Logger::logLine("HOI4: Choosing uniforms and electing Tyrants");
   // graphical culture pairs:
   // { graphical_culture = type }
