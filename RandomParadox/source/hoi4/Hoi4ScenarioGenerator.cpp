@@ -582,6 +582,7 @@ Hoi4ScenarioGenerator::buildFocus(const std::vector<std::string> chainStep,
   auto predecessors = ParserUtils::getNumbers(
       ParserUtils::getBracketBlockContent(chainStep[2], "predecessor"), ',',
       std::set<int>());
+  std::cout << chainStep[2];
   for (const auto &predecessor : predecessors)
     nF.precedingFoci.push_back(predecessor);
 
@@ -722,10 +723,9 @@ bool Hoi4ScenarioGenerator::stepFulfillsRequirements(
  * requirement isn't fulfilled, else returns true*/
 bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
     const std::string &targetRequirements, const Hoi4Country &source,
-    const Hoi4Country &target,
+    const Hoi4Country &target, const std::vector<GameRegion> &gameRegions,
     const std::vector<std::set<std::string>> &levelTargets, const int level) {
   // now check if the country fulfills the target requirements
-  // for (auto &targetRequirement : targetRequirements) {
   // need to check rank, first get the desired value
   auto value = ParserUtils::getBracketBlockContent(targetRequirements, "rank");
   if (value != "") {
@@ -734,8 +734,6 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
   }
   value = ParserUtils::getBracketBlockContent(targetRequirements, "ideology");
   if (value != "") {
-    // if (value == "any")
-    //   continue; // fine, may target any ideology
     if (value == "same")
       if (target.rulingParty != source.rulingParty)
         return false;
@@ -745,10 +743,23 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
   }
   value = ParserUtils::getBracketBlockContent(targetRequirements, "location");
   if (value != "") {
-    // if (value == "any")
-    //   continue; // fine, may target any ideology
     if (value == "neighbour") {
       if (source.neighbours.find(target.tag) == source.neighbours.end())
+        return false;
+    }
+    if (value == "near") {
+      auto maxDistance =
+          sqrt(Env::Instance().width * Env::Instance().height) * 0.5;
+      if (UtilLib::getDistance(gameRegions[source.capitalRegionID].position,
+                               gameRegions[target.capitalRegionID].position,
+                               Env::Instance().width) > maxDistance)
+        return false;
+    }
+    if (value == "far") {
+      auto minDistance = sqrt(Env::Instance().width * Env::Instance().height);
+      if (UtilLib::getDistance(gameRegions[source.capitalRegionID].position,
+                               gameRegions[target.capitalRegionID].position,
+                               Env::Instance().width) < minDistance)
         return false;
     }
     // to do: near, distant, any
@@ -784,11 +795,11 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
         return false;
     }
   }
-  //}
   return true;
 }
 
-void Hoi4ScenarioGenerator::evaluateCountryGoals() {
+void Hoi4ScenarioGenerator::evaluateCountryGoals(
+    const ScenarioGenerator &scenGen) {
   Logger::logLine("HOI4: Generating Country Goals");
   std::vector<int> defDate{1, 1, 1936};
   std::vector<std::vector<std::vector<std::string>>> chains;
@@ -838,7 +849,8 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals() {
                   // requirements
                   if (targetFulfillsRequirements(
                           targetRequirements, countries[sourceCountry.first],
-                          destCountry.second, levelTargets, level)) {
+                          destCountry.second, scenGen.gameRegions, levelTargets,
+                          level)) {
                     stepTargets[chainStep].insert(destCountry.second);
                     // save that we targeted this country on this level already.
                     // Next steps on same level should not consider this tag
@@ -868,6 +880,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals() {
             // if (targets.find(scenGen.countries.at(chainFoci.back().destTag))
             // != targets.end()) 	target =
             // scenGen.countries.at(chainFoci.back().destTag);
+            std::cout << chain[stepIndex] << std::endl;
             auto focus{buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'),
                                   countries.at(sourceCountry.first), target)};
             focus.stepID = stepIndex;

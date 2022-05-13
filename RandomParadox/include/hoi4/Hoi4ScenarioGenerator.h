@@ -1,7 +1,7 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include "generic/ScenarioGenerator.h"
 #include "generic/PdoxCountry.h"
+#include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4GameRegion.h"
 #include "hoi4/NationalFocus.h"
@@ -72,7 +72,8 @@ public:
   // industry, development, population, state category
   void generateStateSpecifics();
   // politics: ideology, strength, major
-  void generateCountrySpecifics(ScenarioGenerator &scenGen,
+  void
+  generateCountrySpecifics(ScenarioGenerator &scenGen,
                            std::map<std::string, PdoxCountry> &pdoxCountries);
   // build strategic regions from gameregions
   void generateStrategicRegions(ScenarioGenerator &scenGen);
@@ -100,10 +101,10 @@ public:
   // check if a national focus fulfills requirements
   bool targetFulfillsRequirements(
       const std::string &targetRequirements, const Hoi4Country &source,
-      const Hoi4Country &target,
-      const std::vector<std::set<std::string>>& levelTargets, const int level);
+      const Hoi4Country &target, const std::vector<GameRegion>& gameRegions,
+      const std::vector<std::set<std::string>> &levelTargets, const int level);
   // evaluate the focus chains for each country
-  void evaluateCountryGoals();
+  void evaluateCountryGoals(const ScenarioGenerator &scenGen);
   // see which countries are in need of unification
   void evaluateBrotherlyWars();
   // see which country needs to see some action

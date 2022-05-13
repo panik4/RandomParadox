@@ -814,7 +814,7 @@ void Hoi4Parser::writeFoci(const std::string path, const hoiMap &countries) {
             std::to_string(countryFocus.position[1]));
         // now collect all prerequisites
         std::string preString = "";
-        preString += "prerequisite = {";
+        preString += "prerequisite = { ";
         std::vector<std::vector<int>> andBlocks;
         std::set<int> usedF;
         for (const auto &prerequisite : countryFocus.precedingFoci) {
