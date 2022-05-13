@@ -114,7 +114,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
       hoi4Gen.evaluateCountries(scenGen);
       hoi4Gen.generateLogistics(scenGen);
       NationalFocus::buildMaps();
-      hoi4Gen.evaluateCountryGoals();
+      hoi4Gen.evaluateCountryGoals(scenGen);
       hoi4Gen.generateCountryUnits();
     } catch (std::exception e) {
       std::string error = "Error while generating the Hoi4 Module.\n";
