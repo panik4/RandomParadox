@@ -20,7 +20,7 @@ public:
   PdoxCountry(std::string tag, int ID, std::string name, std::string adjective, Flag&& flag);
   ~PdoxCountry();
   // containers
-  std::vector<GameRegion> ownedRegions;
+  std::vector<int> ownedRegions;
   std::set<std::string> neighbours;
   // member functions
   void addRegion(GameRegion &region, std::vector<GameRegion> &gameRegions,

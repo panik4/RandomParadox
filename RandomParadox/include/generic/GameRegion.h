@@ -12,7 +12,6 @@ public:
   bool assigned;
   // containers
   std::vector<GameProvince> gameProvinces;
-
   std::vector<double> temperatureRange;
   std::vector<double> dateRange;
   double snowChance, lightRainChance, heavyRainChance, blizzardChance,

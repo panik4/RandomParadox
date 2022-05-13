@@ -192,21 +192,21 @@ void ScenarioGenerator::generatePopulations() {
   const auto &popMap = Bitmap::findBitmapByKey("population");
   const auto &cityMap = Bitmap::findBitmapByKey("cities");
   for (auto &c : countries)
-    for (auto &gameRegion : c.second.ownedRegions)
-      for (auto &gameProv : gameRegion.gameProvinces) {
+    for (auto &gR : c.second.ownedRegions)
+      for (auto &gProv : gameRegions[gR].gameProvinces) {
         // calculate the population factor
-        gameProv.popFactor =
+        gProv.popFactor =
             0.1 + popMap.getColourAtIndex(
-                      gameProv.baseProvince->position.weightedCenter) /
+                      gProv.baseProvince->position.weightedCenter) /
                       Env::Instance().namedColours["population"];
         int cityPixels = 0;
         // calculate share of province that is a city
-        for (auto pix : gameProv.baseProvince->pixels)
+        for (auto pix : gProv.baseProvince->pixels)
           if (cityMap.getColourAtIndex(pix).isShadeOf(
                   Env::Instance().namedColours["cities"]))
             cityPixels++;
-        gameProv.cityShare =
-            (double)cityPixels / gameProv.baseProvince->pixels.size();
+        gProv.cityShare =
+            (double)cityPixels / gProv.baseProvince->pixels.size();
       }
 }
 
@@ -218,8 +218,8 @@ void ScenarioGenerator::generateDevelopment() {
   Logger::logLine("Generating State Development");
   const auto &cityBMP = Bitmap::findBitmapByKey("cities");
   for (auto &c : countries)
-    for (auto &gameProv : c.second.ownedRegions)
-      for (auto &gameProv : gameProv.gameProvinces) {
+    for (auto &gR : c.second.ownedRegions)
+      for (auto &gameProv : gameRegions[gR].gameProvinces) {
         auto cityDensity = 0.0;
         // calculate development with density of city and population factor
         if (gameProv.baseProvince->cityPixels.size())
@@ -244,7 +244,7 @@ void ScenarioGenerator::mapTerrain() {
 
   for (auto &c : countries)
     for (auto &gameRegion : c.second.ownedRegions)
-      for (auto &gameProv : gameRegion.gameProvinces) {
+      for (auto &gameProv : gameRegions[gameRegion].gameProvinces) {
         std::map<Colour, int> colourPrevalence;
         for (auto &pix : gameProv.baseProvince->pixels) {
           if (colourPrevalence[climateMap.getColourAtIndex(pix)])
@@ -354,8 +354,8 @@ void ScenarioGenerator::generateCountries(int numCountries) {
 void ScenarioGenerator::evaluateNeighbours() {
   Logger::logLine("Evaluating Country Neighbours");
   for (auto &c : countries)
-    for (const auto &gameRegion : c.second.ownedRegions)
-      for (const auto &neighbourRegion : gameRegion.neighbours)
+    for (const auto &gR : c.second.ownedRegions)
+      for (const auto &neighbourRegion : gameRegions[gR].neighbours)
         if (gameRegions[neighbourRegion].owner != c.first)
           c.second.neighbours.insert(gameRegions[neighbourRegion].owner);
 }
@@ -365,7 +365,7 @@ void ScenarioGenerator::dumpDebugCountrymap(std::string path) {
   Bitmap countryBMP(Env::Instance().width, Env::Instance().height, 24);
   for (const auto &country : countries)
     for (const auto &region : country.second.ownedRegions)
-      for (const auto &prov : region.provinces)
+      for (const auto &prov : gameRegions[region].provinces)
         for (const auto &pix : prov->pixels)
           countryBMP.setColourAtIndex(pix, country.second.colour);
 

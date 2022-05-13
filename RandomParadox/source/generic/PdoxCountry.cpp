@@ -5,7 +5,6 @@ PdoxCountry::PdoxCountry() : ID{-1} {}
 PdoxCountry::PdoxCountry(std::string tag, int ID, std::string name,
                          std::string adjective, Flag &&flag)
     : tag{tag}, ID{ID}, name{name}, adjective{adjective}, flag{flag} {
-  // auto random = Env::Instance().randNum;
   colour = {static_cast<unsigned char>(Env::Instance().randNum() % 255),
             static_cast<unsigned char>(Env::Instance().randNum() % 255),
             static_cast<unsigned char>(Env::Instance().randNum() % 255)};
@@ -23,9 +22,10 @@ void PdoxCountry::assignRegions(int maxRegions,
     for (const auto &gameRegion : ownedRegions) {
       if (ownedRegions.size() >= maxRegions)
         break;
-      if (gameRegion.neighbours.size() == 0)
+      if (gameRegions[gameRegion].neighbours.size() == 0)
         continue;
-      auto &nextRegion = UtilLib::selectRandom(gameRegion.neighbours);
+      auto &nextRegion =
+          UtilLib::selectRandom(gameRegions[gameRegion].neighbours);
       if (!gameRegions[nextRegion].assigned && !gameRegions[nextRegion].sea) {
         gameRegions[nextRegion].assigned = true;
         addRegion(gameRegions[nextRegion], gameRegions, gameProvinces);
@@ -45,5 +45,5 @@ void PdoxCountry::addRegion(GameRegion &region,
   region.owner = tag;
   for (auto &gameProvince : region.gameProvinces)
     gameProvince.owner = tag;
-  ownedRegions.push_back(region);
+  ownedRegions.push_back(region.ID);
 }
