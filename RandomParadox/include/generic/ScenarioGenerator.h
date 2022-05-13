@@ -2,7 +2,7 @@
 #include "FastWorldGenerator.h"
 #include "PdoxCountry.h"
 #include "Flag.h"
-#include "GameContinent.h"
+#include "PdoxContinent.h"
 #include "GameProvince.h"
 #include "GameRegion.h"
 #include "NameGenerator.h"
@@ -23,7 +23,7 @@ public:
   int numCountries;
   // containers - used for every game
   std::vector<Province *> provinces;
-  std::vector<GameContinent> gameContinents;
+  std::vector<PdoxContinent> pdoxContinents;
   std::vector<GameRegion> gameRegions;
   std::vector<GameProvince> gameProvinces;
   std::set<std::string> tags;
