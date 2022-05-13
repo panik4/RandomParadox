@@ -128,7 +128,7 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(
   for (auto &country : pdoxCountries) {
     // construct a hoi4country with country from ScenarioGenerator.
     // We want a copy here
-    Hoi4Country hC(country.second);
+    Hoi4Country hC(country.second, scenGen.gameRegions);
 
     // select a random country ideology
     hC.gfxCulture = UtilLib::selectRandom(gfxCultures);
