@@ -122,7 +122,6 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
       error += e.what();
       throw(std::exception(error.c_str()));
     }
-
     // now start writing game files
     try {
       // generate map files. Format must be converted and colours mapped to hoi4
