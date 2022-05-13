@@ -1,0 +1,1 @@
+#chain ID;step;stepRequirements;rank;ideology;type;target;condition;date;available;bypass;completion_rewards;level

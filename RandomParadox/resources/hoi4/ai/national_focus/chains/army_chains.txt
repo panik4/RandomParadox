@@ -2,8 +2,8 @@
 # army chain;;;;;;;;;;;;
 # start ID is 1000
 1000;0;predecessor{};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;1;predecessor{0};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
-1000;2;predecessor{0};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;1;predecessor{0};any;any;generic;;exclusive{2}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
+1000;2;predecessor{0};any;any;generic;;exclusive{1}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
 1000;3;predecessor{1,2};any;any;generic;;exclusive{}+and{4}+or{5,6};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
 1000;4;predecessor{1,2};any;any;generic;;exclusive{}+and{3}+or{5,6};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
 1000;5;predecessor{1,2};any;any;generic;;exclusive{}+and{6}+or{3,4};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
