@@ -4,8 +4,8 @@ std::vector<std::vector<std::vector<int>>> Flag::flagTypes(7);
 std::vector<std::vector<std::vector<std::string>>> Flag::flagTypeColours(7);
 std::vector<std::vector<uint8_t>> Flag::flagTemplates;
 std::vector<std::vector<uint8_t>> Flag::symbolTemplates;
-std::vector<std::vector<std::string>> Flag::flagMetadata;
-std::vector<std::vector<std::string>> Flag::symbolMetadata;
+std::vector<FlagInfo> Flag::flagMetadata;
+std::vector<SymbolInfo> Flag::symbolMetadata;
 Flag::Flag() {}
 
 Flag::Flag(const int width, const int height) : width(width), height(height) {
@@ -13,8 +13,6 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
   auto randomIndex = Env::Instance().randNum() % flagTemplates.size();
   image = flagTemplates[randomIndex];
   const auto &flagInfo = flagMetadata[randomIndex];
-  auto flagColourGroups = PU::getTokens(flagInfo[0], ',');
-  auto symbolColourGroups = PU::getTokens(flagInfo[1], ',');
 
   // get the template and map all colours to indices
   std::map<Colour, std::vector<int>> colourMapping;
@@ -25,7 +23,7 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
   // determine replacements for the colours in the template.
   // pool of colours is taken from colour groups defined in metadata files
   std::vector<Colour> replacementColours;
-  for (auto &colGroup : flagColourGroups) {
+  for (auto &colGroup : flagInfo.flagColourGroups) {
     const auto &colour = UtilLib::selectRandom(colourGroups[colGroup]);
     replacementColours.push_back(colour);
   }
@@ -33,11 +31,8 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
   // alpha values stay the same
   int colIndex = 0;
   for (const auto &mapping : colourMapping) {
-    for (auto index : mapping.second) {
-      image[index] = replacementColours[colIndex].getBlue();
-      image[index + 1] = replacementColours[colIndex].getGreen();
-      image[index + 2] = replacementColours[colIndex].getRed();
-    }
+    for (auto index : mapping.second)
+      setPixel(replacementColours[colIndex], index);
     colIndex++;
   }
 
@@ -45,18 +40,15 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
   randomIndex = Env::Instance().randNum() % symbolTemplates.size();
   auto symbol{symbolTemplates[1]};
   auto symbolInfo{symbolMetadata[randomIndex]};
-  auto symbolHeightOffset = std::stod(flagInfo[4]);
-  auto symbolWidthOffset = std::stod(flagInfo[3]);
 
   // now resize symbol
-  auto reductionFactor = std::stod(flagInfo[5]);
-  int newSize = 52 * reductionFactor;
+  int newSize = 52 * flagInfo.reductionFactor;
   symbol = Flag::resize(newSize, newSize, symbol, 52, 52);
 
   // check if we want to replace the colour
-  auto replaceColour = symbolInfo[0] == "true";
+  auto replaceColour = symbolInfo.replaceColour;
   replacementColours.clear();
-  for (const auto &colGroup : symbolColourGroups) {
+  for (const auto &colGroup : flagInfo.symbolColourGroups) {
     const auto &colour = colourGroups[colGroup][Env::Instance().randNum() %
                                                 colourGroups[colGroup].size()];
     replacementColours.push_back(colour);
@@ -73,13 +65,13 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
   for (const auto &mapping : colourMapping) {
     for (auto index : mapping.second) {
       // map indey from normal flag size to symbol size
-      auto offset = (int)(symbolHeightOffset * 52);
+      auto offset = (int)(flagInfo.symbolHeightOffset * 52);
       offset -= offset % 4;
-      auto height = offset + (index / (int)(52 * reductionFactor * 4));
+      auto height = offset + (index / (int)(52 * flagInfo.reductionFactor * 4));
 
-      offset = (int)((symbolWidthOffset * 328));
+      offset = (int)((flagInfo.symbolWidthOffset * 328));
       offset -= offset % 4;
-      auto width = offset + (index % (int)(52 * reductionFactor * 4));
+      auto width = offset + (index % (int)(52 * flagInfo.reductionFactor * 4));
       setPixel(replacementColours[colIndex], 328 * height + width);
     }
     colIndex++;
@@ -96,8 +88,8 @@ void Flag::setPixel(const Colour colour, const int x, const int y) {
 
 void Flag::setPixel(const Colour colour, const int index) {
   for (auto i = 0; i < 3; i++)
-    image[index * 4 + i] = colour.getBGR()[i];
-  image[index * 4 + 3] = 255;
+    image[index + i] = colour.getBGR()[i];
+  image[index + 3] = 255;
 }
 
 std::vector<unsigned char> Flag::getFlag() const { return image; }
@@ -136,12 +128,12 @@ std::vector<uint8_t> Flag::resize(const int width, const int height,
 
 void Flag::readColourGroups() {
   auto lines = PU::getLines("resources\\flags\\colour_groups.txt");
-  for (auto &line : lines) {
+  for (const auto &line : lines) {
     if (!line.size())
       continue;
     auto tokens = PU::getTokens(line, ';');
-    for (int i = 1; i < tokens.size(); i++) {
-      auto nums = PU::getNumbers(tokens[i], ',', std::set<int>{});
+    for (auto i = 1; i < tokens.size(); i++) {
+      const auto nums = PU::getNumbers(tokens[i], ',', std::set<int>{});
       Colour c{(unsigned char)nums[0], (unsigned char)nums[1],
                (unsigned char)nums[2]};
       colourGroups[tokens[0]].push_back(c);
@@ -179,10 +171,17 @@ void Flag::readFlagTemplates() {
       flagTemplates.push_back(TextureWriter::readTGA(
           "resources\\flags\\flag_presets\\" + std::to_string(i) + ".tga"));
       // get line and immediately tokenize it
-      flagMetadata.push_back(
+      auto tokens =
           PU::getTokens(PU::getLines("resources\\flags\\flag_presets\\" +
                                      std::to_string(i) + ".txt")[0],
-                        ';'));
+                        ';');
+      FlagInfo f;
+      f.flagColourGroups = PU::getTokens(tokens[0], ',');
+      f.symbolColourGroups = PU::getTokens(tokens[1], ',');
+      f.symbolWidthOffset = stod(tokens[3]);
+      f.symbolHeightOffset = stod(tokens[4]);
+      f.reductionFactor = stod(tokens[5]);
+      flagMetadata.push_back(f);
     }
   }
 }
@@ -193,10 +192,13 @@ void Flag::readSymbolTemplates() {
       symbolTemplates.push_back(TextureWriter::readTGA(
           "resources\\flags\\symbol_presets\\" + std::to_string(i) + ".tga"));
       // get line and immediately tokenize it
-      symbolMetadata.push_back(
+      auto tokens =
           PU::getTokens(PU::getLines("resources\\flags\\symbol_presets\\" +
                                      std::to_string(i) + ".txt")[0],
-                        ';'));
+                        ';');
+      SymbolInfo sInf;
+      sInf.replaceColour = tokens[0] == "true";
+      symbolMetadata.push_back(sInf);
     }
   }
 }

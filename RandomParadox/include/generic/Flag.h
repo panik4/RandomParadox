@@ -3,6 +3,18 @@
 #include "ParserUtils.h"
 #include "TextureWriter.h"
 
+struct FlagInfo {
+  std::vector<std::string> flagColourGroups;
+  std::vector<std::string> symbolColourGroups;
+  double symbolHeightOffset;
+  double symbolWidthOffset;
+  double reductionFactor;
+};
+
+struct SymbolInfo {
+  bool replaceColour;
+};
+
 class Flag {
   // keep code shorter
   using PU = ParserUtils;
@@ -11,9 +23,9 @@ class Flag {
   static std::vector<std::vector<std::vector<int>>> flagTypes;
   static std::vector<std::vector<std::vector<std::string>>> flagTypeColours;
   static std::vector<std::vector<uint8_t>> flagTemplates;
-  static std::vector<std::vector<std::string>> flagMetadata;
+  static std::vector<FlagInfo> flagMetadata;
+  static std::vector<SymbolInfo> symbolMetadata;
   static std::vector<std::vector<uint8_t>> symbolTemplates;
-  static std::vector<std::vector<std::string>> symbolMetadata;
   // containers
   std::vector<Colour> colours;
   std::vector<unsigned char> image;
