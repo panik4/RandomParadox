@@ -8,7 +8,8 @@
 #include <array>
 
 class Hoi4Parser {
-  typedef ParserUtils pU;
+  using pU = ParserUtils;
+  using hoiMap = std::map<std::string, Hoi4Country>;
   static std::vector<std::string> defaultTags;
 
 public:
@@ -16,71 +17,74 @@ public:
                                      const Region &region, const bool coastal,
                                      const Bitmap &heightmap);
   // map
-  static void dumpAdj(std::string path);
-  static void dumpAdjacencyRules(std::string path);
-  static void dumpAirports(std::string path,
+  static void dumpAdj(const std::string path);
+  static void dumpAdjacencyRules(const std::string path);
+  static void dumpAirports(const std::string path,
                            const std::vector<Region> &regions);
-  static void dumpBuildings(std::string path,
+  static void dumpBuildings(const std::string path,
                             const std::vector<Region> &regions);
-  static void dumpContinents(std::string path,
+  static void dumpContinents(const std::string path,
                              const std::vector<Continent> &continents);
-  static void dumpDefinition(std::string path,
-                             std::vector<GameProvince> &provinces);
-  static void dumpRocketSites(std::string path,
+  static void dumpDefinition(const std::string path,
+                             const std::vector<GameProvince> &provinces);
+  static void dumpRocketSites(const std::string path,
                               const std::vector<Region> &regions);
   static void
-  dumpStrategicRegions(std::string path, const std::vector<Region> &regions,
+  dumpStrategicRegions(const std::string path,
+                       const std::vector<Region> &regions,
                        const std::vector<strategicRegion> strategicRegions);
   static void
-  dumpSupply(std::string path,
+  dumpSupply(const std::string path,
              const std::vector<std::vector<int>> supplyNodeConnections);
-  static void dumpUnitStacks(std::string path,
+  static void dumpUnitStacks(const std::string path,
                              const std::vector<Province *> provinces);
   static void
-  dumpWeatherPositions(std::string path, const std::vector<Region> &regions,
+  dumpWeatherPositions(const std::string path,
+                       const std::vector<Region> &regions,
                        const std::vector<strategicRegion> strategicRegions);
   // gfx
-  static void dumpFlags(std::string path,
-                        const std::map<std::string, Hoi4Country> &countries);
+  static void dumpFlags(const std::string path, const hoiMap &countries);
 
   // history
-  static void dumpStates(std::string path,
-                         std::map<std::string, Hoi4Country> &countries);
+  static void dumpStates(const std::string path, const hoiMap &countries);
   static void
-  writeHistoryCountries(std::string path,
-                        const std::map<std::string, Hoi4Country> &countries);
+  writeHistoryCountries(const std::string path,
+                                    const hoiMap &countries);
   static void
-  writeHistoryUnits(std::string path,
-                    const std::map<std::string, Hoi4Country> &countries);
+  writeHistoryUnits(const std::string path,
+                                const hoiMap &countries);
   // history - National Focus
   static std::vector<std::string> readTypeMap();
-  static std::map<std::string, std::string> readRewardMap(std::string path);
-  static void writeFoci(std::string path,
-                        const std::map<std::string, Hoi4Country> &countries);
+  static std::map<std::string, std::string>
+  readRewardMap(const std::string path);
+  static void writeFoci(const std::string path, const hoiMap &countries);
 
   // common
+  static void dumpCommonBookmarks(
+      const std::string path,
+      const hoiMap &countries,
+      const std::map<int, std::vector<std::string>> strengthScores);
   static void
-  dumpCommonBookmarks(std::string path,
-                      const std::map<std::string, Hoi4Country> &countries,
-                      std::map<int, std::vector<std::string>> strengthScores);
+  dumpCommonCountries(const std::string path, const std::string hoiPath,
+                      const hoiMap &countries);
   static void
-  dumpCommonCountries(std::string path, std::string hoiPath,
-                      const std::map<std::string, Hoi4Country> &countries);
-  static void
-  dumpCommonCountryTags(std::string path,
-                        const std::map<std::string, Hoi4Country> &countries);
+  dumpCommonCountryTags(const std::string path,
+                        const hoiMap &countries);
 
   // localisation
   static void
-  writeCountryNames(std::string path,
-                    const std::map<std::string, Hoi4Country> &countries);
-  static void writeStateNames(std::string path,
-                  const std::map<std::string, Hoi4Country> &countries);
+  writeCountryNames(const std::string path,
+                    const hoiMap &countries);
+  static void
+  writeStateNames(const std::string path,
+                  const hoiMap &countries);
   static void writeStrategicRegionNames(
-      std::string path, const std::vector<strategicRegion> strategicRegions);
+      const std::string path,
+      const std::vector<strategicRegion> strategicRegions);
 
   // copy base game countries and remove certain lines to reduce crashes
-  static void writeCompatibilityHistory(std::string path, std::string hoiPath,
+  static void writeCompatibilityHistory(const std::string path,
+                                        const std::string hoiPath,
                                         const std::vector<Region> &regions);
 
   // copy over mod descriptor file

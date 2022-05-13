@@ -3,7 +3,7 @@
 PdoxCountry::PdoxCountry() : ID{-1} {}
 
 PdoxCountry::PdoxCountry(std::string tag, int ID, std::string name,
-                         std::string adjective, Flag &&flag)
+                         std::string adjective, Flag flag)
     : tag{tag}, ID{ID}, name{name}, adjective{adjective}, flag{flag} {
   colour = {static_cast<unsigned char>(Env::Instance().randNum() % 255),
             static_cast<unsigned char>(Env::Instance().randNum() % 255),

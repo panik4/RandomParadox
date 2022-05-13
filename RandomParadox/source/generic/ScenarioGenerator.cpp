@@ -159,6 +159,8 @@ void ScenarioGenerator::mapContinents() {
 void ScenarioGenerator::mapRegions() {
   Logger::logLine("Mapping Regions");
   for (auto &region : f.provinceGenerator.regions) {
+    std::sort(region.provinces.begin(), region.provinces.end(),
+              [](const Province *a, const Province *b) { return (*a < *b); });
     GameRegion gR(region);
     for (auto &baseRegion : gR.neighbours)
       gR.neighbours.push_back(baseRegion);
@@ -328,6 +330,7 @@ void ScenarioGenerator::generateCountries(int numCountries) {
     // Get Name
     auto name = nG.generateName();
     // Tag from Name
+    ;
     PdoxCountry pdoxC(nG.generateTag(name, tags), i, name,
                       nG.generateAdjective(name), Flag(82, 52));
     // randomly set development of countries

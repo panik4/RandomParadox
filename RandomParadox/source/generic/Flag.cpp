@@ -175,13 +175,9 @@ void Flag::readFlagTemplates() {
           PU::getTokens(PU::getLines("resources\\flags\\flag_presets\\" +
                                      std::to_string(i) + ".txt")[0],
                         ';');
-      FlagInfo f;
-      f.flagColourGroups = PU::getTokens(tokens[0], ',');
-      f.symbolColourGroups = PU::getTokens(tokens[1], ',');
-      f.symbolWidthOffset = stod(tokens[3]);
-      f.symbolHeightOffset = stod(tokens[4]);
-      f.reductionFactor = stod(tokens[5]);
-      flagMetadata.push_back(f);
+      flagMetadata.push_back({PU::getTokens(tokens[0], ','),
+                              PU::getTokens(tokens[1], ','), stod(tokens[3]),
+                              stod(tokens[4]), stod(tokens[5])});
     }
   }
 }
@@ -196,9 +192,7 @@ void Flag::readSymbolTemplates() {
           PU::getTokens(PU::getLines("resources\\flags\\symbol_presets\\" +
                                      std::to_string(i) + ".txt")[0],
                         ';');
-      SymbolInfo sInf;
-      sInf.replaceColour = tokens[0] == "true";
-      symbolMetadata.push_back(sInf);
+      symbolMetadata.push_back({tokens[0] == "true"});
     }
   }
 }
