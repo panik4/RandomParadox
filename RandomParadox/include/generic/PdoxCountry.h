@@ -17,7 +17,7 @@ public:
   Colour colour;
   // constructors/destructors
   PdoxCountry();
-  PdoxCountry(std::string tag, int ID);
+  PdoxCountry(std::string tag, int ID, std::string name, std::string adjective, Flag&& flag);
   ~PdoxCountry();
   // containers
   std::vector<GameRegion> ownedRegions;
