@@ -5,9 +5,11 @@
 using namespace DirectX;
 class TextureWriter {
 public:
-  static void writeDDS(int width, int height, std::vector<uint8_t> &pixelData,
-                       DXGI_FORMAT format, std::string destination);
-  static void writeTGA(int width, int height, std::vector<uint8_t> &pixelData,
-                       std::string destination);
-  static std::vector<uint8_t> readTGA(std::string destination);
+  static void writeDDS(const int width, const int height,
+                       std::vector<uint8_t> &pixelData,
+                       const DXGI_FORMAT format, const std::string& path);
+  static void writeTGA(const int width, const int height,
+                       std::vector<uint8_t> &pixelData,
+                       const std::string& path);
+  static std::vector<uint8_t> readTGA(const std::string& path);
 };
