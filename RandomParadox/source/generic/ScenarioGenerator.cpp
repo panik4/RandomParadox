@@ -327,10 +327,7 @@ void ScenarioGenerator::generateCountries(int numCountries) {
     tags.insert(tag);
 
   for (int i = 0; i < numCountries; i++) {
-    // Get Name
-    auto name = nG.generateName();
-    // Tag from Name
-    ;
+    auto name{nG.generateName()};
     PdoxCountry pdoxC(nG.generateTag(name, tags), i, name,
                       nG.generateAdjective(name), Flag(82, 52));
     // randomly set development of countries
@@ -346,10 +343,10 @@ void ScenarioGenerator::generateCountries(int numCountries) {
   }
   for (auto &gameRegion : gameRegions) {
     if (!gameRegion.sea && !gameRegion.assigned) {
-      auto &x = UtilLib::getNearestAssignedLand(gameRegions, gameRegion,
-                                                Env::Instance().width,
-                                                Env::Instance().height);
-      countries.at(x.owner).addRegion(gameRegion, gameRegions, gameProvinces);
+      auto &gR = UtilLib::getNearestAssignedLand(gameRegions, gameRegion,
+                                                 Env::Instance().width,
+                                                 Env::Instance().height);
+      countries.at(gR.owner).addRegion(gameRegion, gameRegions, gameProvinces);
     }
   }
 }

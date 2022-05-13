@@ -292,7 +292,8 @@ void Hoi4Parser::dumpWeatherPositions(
   // 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
 
   for (auto i = 0; i < strategicRegions.size(); i++) {
-    const auto& region = UtilLib::selectRandom(strategicRegions[i].gameRegionIDs);
+    const auto &region =
+        UtilLib::selectRandom(strategicRegions[i].gameRegionIDs);
     const auto prov = UtilLib::selectRandom(regions[region].provinces);
     const auto pix = UtilLib::selectRandom(prov->pixels);
     auto widthPos = pix % Env::Instance().width;
@@ -758,12 +759,12 @@ Hoi4Parser::readRewardMap(const std::string path) {
 
 void Hoi4Parser::writeFoci(const std::string path, const hoiMap &countries) {
   Logger::logLine("HOI4 Parser: History: Demanding Danzig");
-  auto focusTypes = ParserUtils::getLines(
+  const auto focusTypes = ParserUtils::getLines(
       "resources\\hoi4\\ai\\national_focus\\baseFiles\\foci.txt");
   std::string baseTree = ParserUtils::readFile(
       "resources\\hoi4\\ai\\national_focus\\baseFiles\\focusBase.txt");
   std::vector<std::string> focusTemplates;
-  for (auto &focusType : focusTypes)
+  for (const auto &focusType : focusTypes)
     focusTemplates.push_back(ParserUtils::readFile(
         "resources\\hoi4\\ai\\national_focus\\focusTypes\\" + focusType +
         "Focus.txt"));
@@ -813,16 +814,9 @@ void Hoi4Parser::writeFoci(const std::string path, const hoiMap &countries) {
             std::to_string(countryFocus.position[1]));
         // now collect all prerequisites
         std::string preString = "";
-        // for (const auto& prerequisite : countryFocus.precedingFoci) {
-        //	// derive the name of the preceding focus
-        //	std::string preName = UtilLib::varsToString(c.first,
-        // focusChain[prerequisite].chainID, ".",
-        // focusChain[prerequisite].stepID); 	preString += "prerequisite = {
-        // focus = " + preName + "}\n\t\t";
-        // }
         preString += "prerequisite = {";
         std::vector<std::vector<int>> andBlocks;
-
+        std::set<int> usedF;
         for (const auto &prerequisite : countryFocus.precedingFoci) {
           // for every prerequisite, resolve and/or dependencies
           // first, resolve ands, and put them together
@@ -837,42 +831,51 @@ void Hoi4Parser::writeFoci(const std::string path, const hoiMap &countries) {
               for (const auto andF : foc.andFoci) {
                 // now, we have found the focus. Now, resolve its and
                 // dependencies
-                andBlock.push_back(andF);
-                andBlock.push_back(foc.stepID);
+                if (usedF.find(andF) == usedF.end())
+                  andBlock.push_back(andF);
+                if (usedF.find(foc.stepID) == usedF.end())
+                  andBlock.push_back(foc.stepID);
+                usedF.insert(andF);
+                usedF.insert(foc.stepID);
               }
-
-              // derive the name of the preceding focus
-              // and write it down
-              // std::string preName = UtilLib::varsToString(
-              //    c.first, focusChain[0].chainID, ".", prerequisite);
-              // preString += " focus = " + preName;
-              //// now: do we need one or both of the preceding?
-              //// for that, check if prerequisite is in andFoci of foc
-              // for (auto and : foc.andFoci) {
-              //   preName = UtilLib::varsToString(c.first,
-              //   focusChain[0].chainID,
-              //                                   ".", and);
-              //   preString += " }\n\t\t";
-              //   preString += " focus = " + preName;
-              // }
+              usedF.insert(foc.stepID);
             }
-            andBlocks.push_back(andBlock);
+            if (andBlock.size())
+              andBlocks.push_back(andBlock);
           }
         }
 
         for (auto &andBlock : andBlocks)
           std::sort(andBlock.begin(), andBlock.end());
-        std::sort(andBlocks.begin(), andBlocks.end());
-        auto unique = std::unique(andBlocks.begin(), andBlocks.end());
         std::vector<std::vector<int>> preRequisiteBlocks;
-
-        int counter = 0;
-        for (auto aBlock : andBlocks) {
-          if (aBlock.size()) {
-            preRequisiteBlocks.push_back(std::vector<int>{});
-            preRequisiteBlocks[counter++].push_back(aBlock[0]);
+        if (andBlocks.size() > 1) {
+          int counter = 0;
+          for (auto aBlock : andBlocks) {
+            if (aBlock.size()) {
+              preRequisiteBlocks.push_back(std::vector<int>{});
+              preRequisiteBlocks[counter++].push_back(aBlock[0]);
+            }
           }
+        } else if (andBlocks.size() == 1) {
+
+        } else {
+            // no and cases, so just list all potential predecessors
+          for (const auto elem : usedF) {
+
+            std::string preName = UtilLib::varsToString(
+                c.first, focusChain[0].chainID, ".", elem);
+            preString += preName + " ";
+          }
+          preString += "}\n";
         }
+        /* we now have the main prerequisites. Those prerequisiteBlocks will
+        be placed in the file as prerequisite = { block1.focus1 ... }
+        Now, these might have an OR relation
+        * Now check for alternatives
+        * this means that we check the rest of the and blocks
+
+        */
+
         ParserUtils::replaceOccurences(tempContent, "templatePrerequisite",
                                        preString);
         // now make exclusive
