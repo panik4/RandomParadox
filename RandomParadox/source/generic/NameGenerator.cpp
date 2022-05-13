@@ -6,22 +6,22 @@ std::map<std::string, std::vector<std::string>> NameGenerator::ideologyNames;
 
 std::string NameGenerator::generateName() {
   auto selectedRule{nameRules[Env::Instance().randNum() % nameRules.size()]};
-  auto selectedRuleNum{ParserUtils::getTokens(selectedRule, ';')};
+  auto selectedRuleNum{PU::getTokens(selectedRule, ';')};
   std::string name{getToken(selectedRuleNum)};
   std::transform(name.begin(), name.begin() + 1, name.begin(), ::toupper);
   return name;
 }
 
-std::string NameGenerator::generateAdjective(std::string &name) {
-  for (auto vowel : groups["vowels"])
+std::string NameGenerator::generateAdjective(const std::string &name) {
+  for (const auto &vowel : groups["vowels"])
     if (vowel.front() == name.back())
       return name + getRandomMapElement("adjModifierVowel", groups);
   return name + getRandomMapElement("adjModifierConsonant", groups);
 }
 
-std::string NameGenerator::generateTag(std::string name,
+std::string NameGenerator::generateTag(const std::string name,
                                        std::set<std::string> &tags) {
-  std::string tag = "";
+  std::string tag{""};
   int retries = 0;
   while ((tag.size() == 0 || tags.find(tag) != tags.end()) && retries++ < 10) {
     int offset = std::clamp(retries - 1, 0, (int)name.size() - 3);
@@ -39,9 +39,10 @@ std::string NameGenerator::generateTag(std::string name,
 }
 
 std::string NameGenerator::getRandomMapElement(
-    std::string key, std::map<std::string, std::vector<std::string>> map) {
+    const std::string key,
+    const std::map<std::string, std::vector<std::string>> map) {
   try {
-    return UtilLib::selectRandom(map[key]);
+    return UtilLib::selectRandom(map.at(key));
   } catch (std::exception e) {
     auto str = "Error in Name Generation. Make sure the key: \"" + key +
                "\" of the namegroup or token group is present";
@@ -50,37 +51,37 @@ std::string NameGenerator::getRandomMapElement(
   }
 }
 
-std::string NameGenerator::getToken(std::vector<std::string> &rule) {
-  std::string retString = "";
-  for (int i = 0; i < rule.size(); i++) {
+std::string NameGenerator::getToken(const std::vector<std::string> &rule) {
+  std::string retString{""};
+  for (auto i = 0; i < rule.size(); i++)
     retString += getRandomMapElement(rule[i], groups);
-  }
   return retString;
 }
 
 std::string NameGenerator::modifyWithIdeology(const std::string &ideology,
-                                              std::string name,
-                                              std::string adjective) {
-  auto stateName = getRandomMapElement(ideology, ideologyNames);
+                                              const std::string name,
+                                              const std::string adjective) {
+  auto stateName{getRandomMapElement(ideology, ideologyNames)};
   if (stateName.find("templateAdj") != std::string::npos)
-    ParserUtils::replaceOccurences(stateName, "templateAdj", adjective);
+    PU::replaceOccurences(stateName, "templateAdj", adjective);
   else
-    ParserUtils::replaceOccurences(stateName, "template", name);
+    PU::replaceOccurences(stateName, "template", name);
   return stateName;
 }
 
 void NameGenerator::readMap(
-    std::string path, std::map<std::string, std::vector<std::string>> &map) {
-  auto groupLines = ParserUtils::getLines(path);
-  for (auto &line : groupLines) {
-    auto tokens = ParserUtils::getTokens(line, ';');
+    const std::string path,
+    std::map<std::string, std::vector<std::string>> &map) {
+  auto groupLines{PU::getLines(path)};
+  for (const auto &line : groupLines) {
+    auto tokens = PU::getTokens(line, ';');
     for (int i = 1; i < tokens.size(); i++)
       map[tokens[0]].push_back(tokens[i]);
   }
 }
 
 void NameGenerator::prepare() {
-  nameRules = ParserUtils::getLines("resources\\names\\name_rules.txt");
+  nameRules = PU::getLines("resources\\names\\name_rules.txt");
   readMap("resources\\names\\token_groups.txt", groups);
   readMap("resources\\names\\state_types.txt", ideologyNames);
 }
