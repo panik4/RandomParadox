@@ -143,17 +143,16 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates,
 }
 
 void ScenarioGenerator::generateWorld() {
+  mapTerrain();
   generatePopulations();
   generateDevelopment();
-  mapTerrain();
 }
 
 void ScenarioGenerator::mapContinents() {
   Logger::logLine("Mapping Continents");
-  auto ID = 0;
   for (const auto &continent : f.provinceGenerator.continents) {
-    GameContinent c;
-    c.ID = continent.ID;
+    // we copy the fwg continents by choice, to leave them untouched
+    pdoxContinents.push_back(PdoxContinent(continent));
   }
 }
 
