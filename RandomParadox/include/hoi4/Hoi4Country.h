@@ -18,7 +18,7 @@ public:
     defensive
   };
   Hoi4Country();
-  Hoi4Country(PdoxCountry &country);
+  Hoi4Country(PdoxCountry &country, std::vector<GameRegion> &gameRegions);
   ~Hoi4Country();
   std::string fullName;
   std::string gfxCulture;
@@ -28,7 +28,6 @@ public:
   double bully;
   double strengthScore;
   double relativeScore;
-  int stateCategory;
   //typedef doctrineType mytype;
   std::vector<doctrineType> doctrines;
   std::vector<int> units;
