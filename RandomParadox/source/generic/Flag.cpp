@@ -13,7 +13,6 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
   auto randomIndex = Env::Instance().randNum() % flagTemplates.size();
   image = flagTemplates[randomIndex];
   const auto &flagInfo = flagMetadata[randomIndex];
-
   // get the template and map all colours to indices
   std::map<Colour, std::vector<int>> colourMapping;
   for (auto i = 0; i < image.size(); i += 4) {
@@ -27,6 +26,7 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
     const auto &colour = UtilLib::selectRandom(colourGroups[colGroup]);
     replacementColours.push_back(colour);
   }
+
   // now convert the old colours to the replacement colours
   // alpha values stay the same
   int colIndex = 0;
@@ -35,10 +35,9 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
       setPixel(replacementColours[colIndex], index);
     colIndex++;
   }
-
   // now load symbol templates
   randomIndex = Env::Instance().randNum() % symbolTemplates.size();
-  auto symbol{symbolTemplates[1]};
+  auto symbol{symbolTemplates[randomIndex]};
   auto symbolInfo{symbolMetadata[randomIndex]};
 
   // now resize symbol
@@ -62,34 +61,41 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
       colourMapping[temp].push_back(i);
   }
   colIndex = 0;
+  const int lineSize = 328;
+  const int symbolLineSize = 52 * 4;
   for (const auto &mapping : colourMapping) {
     for (auto index : mapping.second) {
-      // map indey from normal flag size to symbol size
+      // map index from normal flag size to symbol size
       auto offset = (int)(flagInfo.symbolHeightOffset * 52);
       offset -= offset % 4;
-      auto height = offset + (index / (int)(52 * flagInfo.reductionFactor * 4));
-
-      offset = (int)((flagInfo.symbolWidthOffset * 328));
+      auto height =
+          offset + (index / (int)(symbolLineSize * flagInfo.reductionFactor));
+      offset = (int)((flagInfo.symbolWidthOffset * lineSize));
       offset -= offset % 4;
       auto width = offset + (index % (int)(52 * flagInfo.reductionFactor * 4));
-      setPixel(replacementColours[colIndex], 328 * height + width);
+      setPixel(replacementColours[colIndex], lineSize * height + width);
     }
     colIndex++;
   }
+  return;
 }
 
 Flag::~Flag() {}
 
 void Flag::setPixel(const Colour colour, const int x, const int y) {
-  for (auto i = 0; i < 3; i++)
-    image[(x * width + y) * 4 + i] = colour.getBGR()[i];
-  image[(x * width + y) * 4 + 3] = 255;
+  if (UtilLib::inRange(0, width * height * 4 + 3, (x * width + y) * 4 + 3)) {
+    for (auto i = 0; i < 3; i++)
+      image[(x * width + y) * 4 + i] = colour.getBGR()[i];
+    image[(x * width + y) * 4 + 3] = 255;
+  }
 }
 
 void Flag::setPixel(const Colour colour, const int index) {
-  for (auto i = 0; i < 3; i++)
-    image[index + i] = colour.getBGR()[i];
-  image[index + 3] = 255;
+  if (UtilLib::inRange(0, width * height * 4 + 3, index)) {
+    for (auto i = 0; i < 3; i++)
+      image[index + i] = colour.getBGR()[i];
+    image[index + 3] = 255;
+  }
 }
 
 std::vector<unsigned char> Flag::getFlag() const { return image; }

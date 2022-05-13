@@ -6,8 +6,8 @@
 struct FlagInfo {
   std::vector<std::string> flagColourGroups;
   std::vector<std::string> symbolColourGroups;
-  double symbolHeightOffset;
   double symbolWidthOffset;
+  double symbolHeightOffset;
   double reductionFactor;
 };
 
