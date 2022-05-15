@@ -1,4 +1,4 @@
-#chain ID;step;stepRequirements;rank;ideology;type;target;condition;date;available;bypass;completion_rewards;level
+#chain ID;step;stepRequirements;rank;ideology;type;target;relation;date;available;bypass;completion_rewards;level
 # army chain;;;;;;;;;;;;
 # start ID is 1000
 1000;0;predecessor{};any;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{doctrine_0};0;
