@@ -4,8 +4,15 @@
 		"debugLevel": 0,
 		"genHeight" : true,
 		"interactiveMode" : false,
+		"loadMaps" : true,
 		"writeMaps" : true,
 		"seed" : 6
+	},
+	"loadMaps":
+	{
+		"habitabilityMap": true,
+		"heightMap" : true,
+		"provinceMap" : true
 	},
 	"interactiveMode":
 	{
