@@ -1,3 +1,0 @@
-bypass;\tbypass = {\n\t\t\ttemplate\n\t\t};
-warCondition;available = {\n\t\t\thas_war = no\t\t};
-annex;create_wargoal = {\t\t\t\t\ntype = annex_everything\n\t\t\t\ttarget = template\n\t\t\t\texpire = 0\n\t\t\t\t}

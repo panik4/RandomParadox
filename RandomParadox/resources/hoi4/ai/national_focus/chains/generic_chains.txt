@@ -1,5 +1,5 @@
 #chain ID;step;stepRequirements;rank;ideology;type;target;condition;exclusive;date;available;bypass;completion_rewards
 # start ID is 3000
 # civil war chain
-3000;0;predecessor{}+requires{};major;any;internal;rank{weak}+ideology{not}+location{neighbour};no;01-01-1936;available{!flag{templateSourceTag_over}};bypass{};completion_reward{}
+3000;0;predecessor{}+requires{};major;any;internal;rank{weak}+ideology{not}+location{neighbour};no;01-01-1936;available{};bypass{};completion_reward{}
 

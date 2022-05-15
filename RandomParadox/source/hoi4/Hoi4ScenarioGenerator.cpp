@@ -582,7 +582,6 @@ Hoi4ScenarioGenerator::buildFocus(const std::vector<std::string> chainStep,
   auto predecessors = ParserUtils::getNumbers(
       ParserUtils::getBracketBlockContent(chainStep[2], "predecessor"), ',',
       std::set<int>());
-  std::cout << chainStep[2];
   for (const auto &predecessor : predecessors)
     nF.precedingFoci.push_back(predecessor);
 
@@ -625,6 +624,7 @@ Hoi4ScenarioGenerator::buildFocus(const std::vector<std::string> chainStep,
   }
   return nF;
 }
+
 void Hoi4ScenarioGenerator::buildFocusTree(Hoi4Country &source) {
   // std::array<std::array<int, 100>, 100> occupiedPositions;
   // start left. Chains go down, new chains go right
@@ -697,6 +697,7 @@ void Hoi4ScenarioGenerator::buildFocusTree(Hoi4Country &source) {
     curX = maxX;
   }
 }
+
 bool Hoi4ScenarioGenerator::stepFulfillsRequirements(
     const std::string stepRequirements,
     const std::vector<std::set<Hoi4Country>> &stepTargets) {
@@ -719,6 +720,7 @@ bool Hoi4ScenarioGenerator::stepFulfillsRequirements(
     }
   return hasRequiredPredecessor;
 }
+
 /* checks all requirements for a national focus. Returns false if any
  * requirement isn't fulfilled, else returns true*/
 bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
@@ -728,21 +730,26 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
   // now check if the country fulfills the target requirements
   // need to check rank, first get the desired value
   auto value = ParserUtils::getBracketBlockContent(targetRequirements, "rank");
-  if (value != "") {
+  if (value != "" && value != "any") {
     if (target.rank != value)
       return false; // targets rank is not right
   }
   value = ParserUtils::getBracketBlockContent(targetRequirements, "ideology");
-  if (value != "") {
+  if (value != "" && value != "any") {
     if (value == "same")
       if (target.rulingParty != source.rulingParty)
         return false;
-    if (value == "not")
-      if (target.rulingParty == source.rulingParty)
-        return false;
+      else if (value == "not") {
+        if (target.rulingParty == source.rulingParty)
+          return false;
+      } else {
+          // for any other value, must be specific ideology
+        if (target.rulingParty != source.rulingParty)
+          return false;
+      }
   }
   value = ParserUtils::getBracketBlockContent(targetRequirements, "location");
-  if (value != "") {
+  if (value != "" && value != "any") {
     if (value == "neighbour") {
       if (source.neighbours.find(target.tag) == source.neighbours.end())
         return false;
@@ -762,10 +769,9 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
                                Env::Instance().width) < minDistance)
         return false;
     }
-    // to do: near, distant, any
   }
   value = ParserUtils::getBracketBlockContent(targetRequirements, "target");
-  if (value != "") {
+  if (value != "" && value != "any") {
     if (value == "notlevel") {
       // don't consider this country if already used on same level
       if (levelTargets[level].find(target.tag) != levelTargets[level].end())
@@ -880,7 +886,6 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(
             // if (targets.find(scenGen.countries.at(chainFoci.back().destTag))
             // != targets.end()) 	target =
             // scenGen.countries.at(chainFoci.back().destTag);
-            std::cout << chain[stepIndex] << std::endl;
             auto focus{buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'),
                                   countries.at(sourceCountry.first), target)};
             focus.stepID = stepIndex;
