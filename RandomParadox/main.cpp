@@ -103,7 +103,7 @@ int main() {
       if (useGlobalExistingHeightmap) {
         // overwrite settings of fastworldgen
         Env::Instance().heightmapIn = globalHeightMapPath;
-        Env::Instance().genHeight = false;
+        Env::Instance().loadHeight = true;
         Env::Instance().latLow = latLow;
         Env::Instance().latHigh = latHigh;
       }
