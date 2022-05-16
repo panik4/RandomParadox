@@ -39,7 +39,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics() {
       (double)(Env::Instance().bitmapSize / 3) * Env::Instance().landPercentage;
   // calculate the target industry amount
   auto targetWorldIndustry =
-      (double)Env::Instance().landPercentage * 3648.0 *
+      (double)Env::Instance().landPercentage * 1248.0 *
       (sqrt(Env::Instance().bitmapSize) / sqrt((double)(5632 * 2048)));
   for (auto &c : countries) {
     for (auto &gameRegion : c.second.hoi4Regions) {
@@ -840,7 +840,8 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(
           const int chainStep = stoi(chainTokens[1]);
           chainID = stoi(chainTokens[0]);
           const int level = stoi(chainTokens[12]);
-          if (source.rulingParty == chainTokens[4] || chainTokens[4] == "any") {
+          if (chainTokens[4].find(source.rulingParty) != std::string::npos ||
+              chainTokens[4] == "any") {
             if (stepFulfillsRequirements(chainTokens[2], stepTargets)) {
               // source triggers this focus
               // split requirements

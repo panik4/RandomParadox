@@ -1,0 +1,4 @@
+democratic;Allies;United_Front;
+communism;Comintern;
+neutrality;Block_of_Unaligned_Powers;
+fascism;Axis;
