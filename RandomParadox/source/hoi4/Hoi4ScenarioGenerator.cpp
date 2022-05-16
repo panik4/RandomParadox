@@ -7,8 +7,8 @@ Hoi4ScenarioGenerator::~Hoi4ScenarioGenerator() {}
 void Hoi4ScenarioGenerator::generateStateResources() {
   Logger::logLine("HOI4: Digging for resources");
   for (auto &c : countries) {
-    for (auto &gameRegion : c.second.hoi4Regions) {
-      for (auto &resource : resources) {
+    for (auto &hoi4Region : c.second.hoi4Regions) {
+      for (const auto &resource : resources) {
         auto chance = resource.second[2];
         if (Env::Instance().randNum() % 100 < chance * 100.0) {
           // calc total of this resource
@@ -22,7 +22,9 @@ void Hoi4ScenarioGenerator::generateStateResources() {
                                 1.0);
           // increase by industry factor
           value *= industryFactor;
-          gameRegion.resources.insert({resource.first, (int)value});
+          hoi4Region.resources.insert(
+              std::pair<std::string, int>(resource.first, (int)value));
+          hoi4Region.resources[resource.first] = (int)value;
           totalResources.insert({resource.first, (int)value});
         }
       }
@@ -743,7 +745,7 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
         if (target.rulingParty == source.rulingParty)
           return false;
       } else {
-          // for any other value, must be specific ideology
+        // for any other value, must be specific ideology
         if (target.rulingParty != source.rulingParty)
           return false;
       }

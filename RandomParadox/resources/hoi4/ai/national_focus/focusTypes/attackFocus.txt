@@ -4,9 +4,11 @@
 		templateExclusive
 		icon = GFX_goal_generic_political_pressure
 		available = {
+			templateAvailable
 			is_subject = no
 		}
 		bypass = {
+			templateBypasses
 			OR = {
 				has_war_with = templateDestTag
 				is_in_faction_with = templateDestTag
@@ -17,13 +19,13 @@
 		cancel_if_invalid = yes
 		x = templateXPosition
 		y = templateYPosition
-		relative_position_id = templateSourceTag_anschluss
 		cost = 1
 		ai_will_do = {
 			factor = 1
 		}	
 		search_filters = { FOCUS_FILTER_ANNEXATION }
 		completion_reward = {
+			templateCompletionRewards
 			create_wargoal = {
 				type = annex_everything
 				target = templateDestTag

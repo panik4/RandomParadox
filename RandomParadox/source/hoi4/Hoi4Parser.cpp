@@ -781,6 +781,9 @@ void Hoi4Parser::writeFoci(const std::string path, const hoiMap &countries) {
         for (const auto &availKey : countryFocus.available) {
           available += NationalFocus::availableMap.at(availKey);
         }
+        available += "if = { date > " + std::to_string(countryFocus.date.year) +
+                     "." + std::to_string(countryFocus.date.day) + "." +
+                     std::to_string(countryFocus.date.month) + "}\n";
         // build bypasses from bypass keys
         std::string bypasses = "";
         for (const auto &bypassKey : countryFocus.bypasses) {
@@ -814,7 +817,6 @@ void Hoi4Parser::writeFoci(const std::string path, const hoiMap &countries) {
             std::to_string(countryFocus.position[1]));
         // now collect all prerequisites
         std::string preString = "";
-        preString += "prerequisite = { ";
         std::vector<std::vector<int>> andBlocks;
         std::set<int> usedF;
         for (const auto &prerequisite : countryFocus.precedingFoci) {
@@ -855,16 +857,19 @@ void Hoi4Parser::writeFoci(const std::string path, const hoiMap &countries) {
               preRequisiteBlocks.push_back(std::vector<int>{});
               preRequisiteBlocks[counter++].push_back(aBlock[0]);
             }
+            std::string preName = UtilLib::varsToString(
+                c.first, focusChain[0].chainID, ".", aBlock[0]);
+
+            preString += "prerequisite = {";
+            preString += " focus = " + preName + " }\n\t\t";
           }
-        } else if (andBlocks.size() == 1) {
-
         } else {
-            // no and cases, so just list all potential predecessors
+          // no and cases, so just list all potential predecessors
+          preString += "prerequisite = {";
           for (const auto elem : usedF) {
-
             std::string preName = UtilLib::varsToString(
                 c.first, focusChain[0].chainID, ".", elem);
-            preString += preName + " ";
+            preString += " focus = " + preName + " ";
           }
           preString += "}\n";
         }
