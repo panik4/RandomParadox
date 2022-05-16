@@ -10,7 +10,7 @@ NationalFocus::NationalFocus() {}
 NationalFocus::NationalFocus(FocusType fType, bool defaultV, std::string source,
                              std::string dest, std::vector<int> date)
     : ID{ID}, fType{fType}, defaultV{defaultV}, sourceTag{source},
-      destTag{dest}, date{date} {
+      destTag{dest}, date{date[0], date[1], date[2]} {
   this->ID = IDcounter++;
   position = {5, 5};
 }

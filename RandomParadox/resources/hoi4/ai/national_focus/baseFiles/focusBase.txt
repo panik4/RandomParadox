@@ -11,6 +11,7 @@ focus_tree = {
 	}
 	
 	default = no
+	continuous_focus_position = { x = 55 y = 1500 }
 	
 	templateFocusTree
 	

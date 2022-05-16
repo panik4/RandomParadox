@@ -3,6 +3,13 @@
 #include <map>
 #include <string>
 #include <vector>
+
+struct Date {
+  int day;
+  int month;
+  int year;
+};
+
 class NationalFocus {
   static int IDcounter;
 
@@ -25,7 +32,8 @@ public:
   bool defaultV;
 
   // containers
-  std::vector<int> date;
+  //std::vector<int> date;
+  Date date;
   std::vector<int> position;
   std::vector<int> precedingFoci;
   std::vector<int> andFoci;
