@@ -3,6 +3,7 @@
 std::vector<std::string> NameGenerator::nameRules;
 std::map<std::string, std::vector<std::string>> NameGenerator::groups;
 std::map<std::string, std::vector<std::string>> NameGenerator::ideologyNames;
+std::map<std::string, std::vector<std::string>> NameGenerator::factionNames;
 
 std::string NameGenerator::generateName() {
   auto selectedRule{nameRules[Env::Instance().randNum() % nameRules.size()]};
@@ -36,6 +37,13 @@ std::string NameGenerator::generateTag(const std::string name,
   }
   tags.insert(tag);
   return tag;
+}
+
+std::string NameGenerator::generateFactionName(const std::string &ideology,
+                                               const std::string name,
+                                               const std::string adjective) {
+
+  return getRandomMapElement(ideology, factionNames);
 }
 
 std::string NameGenerator::getRandomMapElement(
@@ -84,4 +92,5 @@ void NameGenerator::prepare() {
   nameRules = PU::getLines("resources\\names\\name_rules.txt");
   readMap("resources\\names\\token_groups.txt", groups);
   readMap("resources\\names\\state_types.txt", ideologyNames);
+  readMap("resources\\names\\faction_names.txt", factionNames);
 }

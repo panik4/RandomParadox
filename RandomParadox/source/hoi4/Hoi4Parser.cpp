@@ -809,6 +809,15 @@ void Hoi4Parser::writeFoci(const std::string path, const hoiMap &countries) {
                                        c.first);
         ParserUtils::replaceOccurences(tempContent, "templateDestTag",
                                        countryFocus.destTag);
+        // need a faction name
+        if (tempContent.find("templateFactionname") != std::string::npos) {
+          auto facName = NameGenerator::generateFactionName(
+              c.second.rulingParty, c.second.name, c.second.adjective);
+          ParserUtils::replaceOccurences(tempContent, "templateFactionname",
+                                         facName);
+        }
+        ParserUtils::replaceOccurences(tempContent, "templateDestTag",
+                                       countryFocus.destTag);
         ParserUtils::replaceOccurences(
             tempContent, "templateXPosition",
             std::to_string(countryFocus.position[0]));
