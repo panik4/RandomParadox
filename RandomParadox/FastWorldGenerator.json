@@ -5,7 +5,7 @@
 		"interactiveMode" : false,
 		"loadMaps" : false,
 		"writeMaps" : true,
-		"seed" : 6
+		"seed" : 1
 	},
 	"loadMaps":
 	{
@@ -14,7 +14,7 @@
 		"continentMap" : true,
 		"humidityMap" : true,
 		"habitabilityMap" : true,
-		"provinceMap" : true
+		"provinceMap" : false
 	},
 	"interactiveMode":
 	{
@@ -125,11 +125,11 @@
 		},
 		"provinces" : {
 			"auto" : false,
-			"landProvinceFactor" : 1,
+			"landProvinceFactor" : 2,
 			"seaProvinceFactor" : 1,
 			"minProvPerRegion" : 4,
-			"minProvSize" : 10,
-			"provinceDensityByHabitability" : 1
+			"minProvSize" : 5,
+			"provinceDensityByHabitability" : 30
 		},
 		"humidity" : {
 			"coastalEffectRange" : -1,
