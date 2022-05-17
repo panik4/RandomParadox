@@ -758,14 +758,15 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
     }
     if (value == "near") {
       auto maxDistance =
-          sqrt(Env::Instance().width * Env::Instance().height) * 0.5;
+          sqrt(Env::Instance().width * Env::Instance().height) * 0.2;
       if (UtilLib::getDistance(gameRegions[source.capitalRegionID].position,
                                gameRegions[target.capitalRegionID].position,
                                Env::Instance().width) > maxDistance)
         return false;
     }
     if (value == "far") {
-      auto minDistance = sqrt(Env::Instance().width * Env::Instance().height);
+      auto minDistance =
+          sqrt(Env::Instance().width * Env::Instance().height) * 0.2;
       if (UtilLib::getDistance(gameRegions[source.capitalRegionID].position,
                                gameRegions[target.capitalRegionID].position,
                                Env::Instance().width) < minDistance)
@@ -788,7 +789,7 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
     if (value == "notchain") {
       for (int i = 0; i < levelTargets.size(); i++) {
         // don't consider this country if already used in same chain
-        if (levelTargets[i].find(target.tag) != levelTargets[level].end())
+        if (levelTargets[i].find(target.tag) != levelTargets[i].end())
           return false;
       }
     }
@@ -796,7 +797,7 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
       bool foundUse = false;
       for (int i = 0; i < levelTargets.size(); i++) {
         // don't consider this country if NOT used in same chain
-        if (levelTargets[i].find(target.tag) == levelTargets[level].end())
+        if (levelTargets[i].find(target.tag) == levelTargets[i].end())
           foundUse = true;
       }
       if (!foundUse)
@@ -840,13 +841,10 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(
           const int chainStep = stoi(chainTokens[1]);
           chainID = stoi(chainTokens[0]);
           const int level = stoi(chainTokens[12]);
-          if (chainTokens[4].find(source.rulingParty) != std::string::npos ||
-              chainTokens[4] == "any") {
+          if ((chainTokens[3].find(source.rank) || chainTokens[3] == "any") &&
+              (chainTokens[4].find(source.rulingParty) != std::string::npos ||
+               chainTokens[4] == "any")) {
             if (stepFulfillsRequirements(chainTokens[2], stepTargets)) {
-              // source triggers this focus
-              // split requirements
-              // auto targetRequirements =
-              //    ParserUtils::getTokens(chainTokens[6], '+');
               auto targetRequirements = chainTokens[6];
               // if there are no target requirements, only the country itself is
               // a target
@@ -885,10 +883,6 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(
               continue;
             // select random target
             const auto &target = UtilLib::selectRandom(targets);
-            // however
-            // if (targets.find(scenGen.countries.at(chainFoci.back().destTag))
-            // != targets.end()) 	target =
-            // scenGen.countries.at(chainFoci.back().destTag);
             auto focus{buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'),
                                   countries.at(sourceCountry.first), target)};
             focus.stepID = stepIndex;

@@ -193,11 +193,10 @@ void FormatConverter::dumpWorldNormal(const std::string path) const {
   Logger::logLine("FormatConverter::Writing normalMap to ", path);
   auto height = Env::Instance().height;
   auto width = Env::Instance().width;
-  const auto &heightBMP = Bitmap::findBitmapByKey("heightmap");
+  const auto &sobelMap = Bitmap::findBitmapByKey("sobel");
 
   int factor = 2; // image width and height are halved
   Bitmap normalMap(width / factor, height / factor, 24);
-  const auto sobelMap = heightBMP.sobelFilter();
   for (auto i = 0; i < normalMap.bInfoHeader.biHeight; i++)
     for (auto w = 0; w < normalMap.bInfoHeader.biWidth; w++)
       normalMap.setColourAtIndex(
