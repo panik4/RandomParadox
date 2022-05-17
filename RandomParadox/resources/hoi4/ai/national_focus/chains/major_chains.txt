@@ -3,9 +3,9 @@
 0;1;predecessor{}+skippable{};major;fascism;attack;rank{weak}+ideology{not}+location{neighbour}+target{notlevel};exclusive{}+and{};01-01-1937;available{};bypass{};completion_reward{};0;
 0;2;predecessor{0,1}+skippable{0,1};major;fascism;attack;rank{regional}+ideology{same}+location{near}+target{};exclusive{3}+and{};01-01-1938;available{};bypass{};completion_reward{};1;
 0;3;predecessor{0,1}+skippable{0,1};major;fascism;generic;rank{regional}+ideology{same}+location{near}+target{level};exclusive{2}+and{};01-01-1938;available{};bypass{};completion_reward{};1;
-0;4;predecessor{2,3}+skippable{2,3};major;fascism;attack;rank{major}+ideology{not}+location{neighbour}+target{};exclusive{}+and{};01-01-1939;available{};bypass{};completion_reward{};2;
-0;5;predecessor{2,3}+skippable{2,3};major;fascism;attack;rank{major}+ideology{not}+location{near}+target{};exclusive{}+and{};01-01-1939;available{};bypass{};completion_reward{};2;
-0;6;predecessor{2,3}+skippable{2,3};major;fascism;attack;rank{major}+ideology{not}+location{far}+target{};exclusive{}+and{};01-01-1939;available{};bypass{};completion_reward{};2;
-0;7;predecessor{2,3}+skippable{2,3};major;fascism;attack;rank{major}+ideology{not}+location{far}+target{};exclusive{}+and{};01-01-1945;available{no_war};bypass{};completion_reward{};2;
+0;4;predecessor{2,3}+skippable{2,3};major;fascism;attack;rank{major}+ideology{not}+location{neighbour}+target{notchain};exclusive{}+and{};01-01-1939;available{};bypass{};completion_reward{};2;
+0;5;predecessor{2,3}+skippable{2,3};major;fascism;attack;rank{major}+ideology{not}+location{near}+target{notchain};exclusive{}+and{};01-01-1939;available{};bypass{};completion_reward{};2;
+0;6;predecessor{2,3}+skippable{2,3};major;fascism;attack;rank{major}+ideology{not}+location{far}+target{notchain};exclusive{}+and{};01-01-1939;available{};bypass{};completion_reward{};2;
+0;7;predecessor{2,3}+skippable{2,3};major;fascism;attack;rank{major}+ideology{not}+location{far}+target{notchain};exclusive{}+and{};01-01-1945;available{no_war};bypass{};completion_reward{};2;
 #leader chains
 1;0;predecessor{}+skippable{};major;any;generic;;exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{faction_leader};0;

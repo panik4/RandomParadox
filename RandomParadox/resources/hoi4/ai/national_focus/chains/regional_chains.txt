@@ -1,4 +1,4 @@
 #chain ID;step;rank;political;type;source;target;condition;
 # start ID is 2000
-0;0;predecessor{}+skippable{};major;fascism,communism;attack;rank{weak}+ideology{not}+location{near}+target{notlevel};exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{};0;
-0;1;predecessor{}+skippable{};major;fascism,communism;attack;rank{weak}+ideology{not}+location{near}+target{notlevel};exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{};0;
+0;0;predecessor{}+skippable{};regional;fascism,communism;attack;rank{weak}+ideology{not}+location{neighbour}+target{notlevel};exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{};0;
+0;1;predecessor{}+skippable{};regional;fascism,communism;attack;rank{weak}+ideology{not}+location{near}+target{notlevel};exclusive{}+and{};01-01-1936;available{};bypass{};completion_reward{};0;

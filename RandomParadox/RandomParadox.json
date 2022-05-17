@@ -4,7 +4,7 @@
 		"writeMaps": true,
 		"genhoi4": true,
 		"inputheightmap": false,
-		"heightmapPath": "inputs/heightmap_small_normalDimensions.bmp",
+		"heightmapPath": "inputs/japan-grayscale.bmp",
 		"latitudeLow" : 0.36,
 		"latitudeHigh" : 1.8
 	}

@@ -9,5 +9,5 @@ value{army_experience = 500
 key{faction_leader}
 value{templateSourceTag = {
 			set_rule = { can_create_factions = yes }
-			create_faction = templateFactionname
+			create_faction = templateSourcename_templateFactionname
 			}};
