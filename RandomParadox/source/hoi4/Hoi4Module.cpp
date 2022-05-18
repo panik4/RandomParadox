@@ -97,6 +97,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
                           (hoi4ModPath + ("\\map\\provinces.bmp")).c_str());
   } else {
     try {
+
       // start with the generic stuff in the Scenario Generator
       scenGen.mapRegions();
       scenGen.mapContinents();
@@ -107,7 +108,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
 
       // now generate hoi4 specific stuff
       hoi4Gen.generateCountrySpecifics(scenGen, scenGen.countries);
-      hoi4Gen.generateStateSpecifics();
+      hoi4Gen.generateStateSpecifics(scenGen.gameRegions.size());
       hoi4Gen.generateStateResources();
       hoi4Gen.generateStrategicRegions(scenGen);
       hoi4Gen.generateWeather(scenGen);

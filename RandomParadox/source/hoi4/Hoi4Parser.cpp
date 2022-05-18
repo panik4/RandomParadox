@@ -438,6 +438,7 @@ void Hoi4Parser::dumpStates(const std::string path, const hoiMap &countries) {
                             std::to_string((int)region.civilianFactories));
       pU::replaceOccurences(content, "templateArmsFactory",
                             std::to_string((int)region.armsFactories));
+
       pU::replaceOccurences(content, "templatePopulation",
                             std::to_string((int)region.population));
       pU::replaceOccurences(content, "templateStateCategory",
