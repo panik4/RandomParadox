@@ -5,13 +5,12 @@
 		"interactiveMode" : false,
 		"loadMaps" : false,
 		"writeMaps" : true,
-		"seed" : 1
+		"seed" : 0
 	},
 	"loadMaps":
 	{
 		"heightMap" : true,
 		"terrainMap" : true,
-		"continentMap" : true,
 		"humidityMap" : true,
 		"habitabilityMap" : true,
 		"provinceMap" : false
@@ -22,8 +21,8 @@
 	},
 	"map": 
 	{
-        "height" : 512,
-		"width" : 512,
+        "height" : 2048,
+		"width" : 5632,
 		"landPercentage" : 34,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -124,11 +123,11 @@
 			}
 		},
 		"provinces" : {
-			"auto" : false,
-			"landProvinceFactor" : 2,
+			"auto" : true,
+			"landProvinceFactor" : 1,
 			"seaProvinceFactor" : 1,
 			"minProvPerRegion" : 4,
-			"minProvSize" : 5,
+			"minProvSize" : 10,
 			"provinceDensityByHabitability" : 30
 		},
 		"humidity" : {
