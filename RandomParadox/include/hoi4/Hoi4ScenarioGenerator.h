@@ -28,13 +28,6 @@ class Hoi4ScenarioGenerator {
   int civilianIndustry = 0;
   // vars - track civil statistics
   long long worldPop = 0;
-  // vars - track resource statistics
-  int totalAluminium = 0;
-  int totalChromium = 0;
-  int totalRubber = 0;
-  int totalOil = 0;
-  int totalSteel = 0;
-  int totalTungsten = 0;
   std::map<std::string, int> totalResources;
   // containers
   std::set<std::string> majorPowers;
@@ -51,6 +44,7 @@ public:
   double worldPopulationFactor = 1.0;
   double industryFactor = 1.0;
   double resourceFactor = 1.0;
+  double sizeFactor = 1.0;
 
   // containers
   std::vector<NationalFocus> foci;
@@ -70,7 +64,7 @@ public:
   // give resources to states
   void generateStateResources();
   // industry, development, population, state category
-  void generateStateSpecifics();
+  void generateStateSpecifics(const int regionAmount);
   // politics: ideology, strength, major
   void
   generateCountrySpecifics(ScenarioGenerator &scenGen,

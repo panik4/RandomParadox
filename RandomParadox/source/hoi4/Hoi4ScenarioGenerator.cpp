@@ -22,54 +22,50 @@ void Hoi4ScenarioGenerator::generateStateResources() {
                                 1.0);
           // increase by industry factor
           value *= industryFactor;
-          hoi4Region.resources.insert(
-              std::pair<std::string, int>(resource.first, (int)value));
+          value *= sizeFactor;
           hoi4Region.resources[resource.first] = (int)value;
-          totalResources.insert({resource.first, (int)value});
+          totalResources[resource.first] += (int)value;
         }
       }
     }
   }
 }
 
-void Hoi4ScenarioGenerator::generateStateSpecifics() {
+void Hoi4ScenarioGenerator::generateStateSpecifics(const int regionAmount) {
   Logger::logLine("HOI4: Planning the economy");
-  // calculate the world land area
-  double worldArea =
-      (double)(Env::Instance().bitmapSize / 3) * Env::Instance().landPercentage;
+  auto &config = Env::Instance();
   // calculate the target industry amount
-  auto targetWorldIndustry =
-      (double)Env::Instance().landPercentage * 1248.0 *
-      (sqrt(Env::Instance().bitmapSize) / sqrt((double)(5632 * 2048)));
+  auto targetWorldIndustry = 1248 * sizeFactor * industryFactor;
+  Logger::logLine(config.landPercentage);
   for (auto &c : countries) {
-    for (auto &gameRegion : c.second.hoi4Regions) {
+    for (auto &hoi4Region : c.second.hoi4Regions) {
       // count the number of land states for resource generation
       landStates++;
       int totalPop = 0;
       double totalStateArea = 0;
       double totalDevFactor = 0;
       double totalPopFactor = 0;
-      for (const auto &gameProv : gameRegion.gameProvinces) {
+      for (const auto &gameProv : hoi4Region.gameProvinces) {
         totalDevFactor +=
-            gameProv.devFactor / (double)gameRegion.gameProvinces.size();
+            gameProv.devFactor / (double)hoi4Region.gameProvinces.size();
         totalPopFactor +=
-            gameProv.popFactor / (double)gameRegion.gameProvinces.size();
+            gameProv.popFactor / (double)hoi4Region.gameProvinces.size();
         totalStateArea += gameProv.baseProvince->pixels.size();
       }
       // state level is calculated from population and development
-      gameRegion.stateCategory =
+      hoi4Region.stateCategory =
           std::clamp((int)(totalPopFactor * 5.0 + totalDevFactor * 6.0), 0, 9);
       // one province region? Must be an island state
-      if (gameRegion.gameProvinces.size() == 1) {
-        gameRegion.stateCategory = 1;
+      if (hoi4Region.gameProvinces.size() == 1) {
+        hoi4Region.stateCategory = 1;
       }
-      gameRegion.development = totalDevFactor;
-      gameRegion.population =
-          totalStateArea * 1250.0 * totalPopFactor * worldPopulationFactor;
-      worldPop += (long long)gameRegion.population;
+      hoi4Region.development = totalDevFactor;
+      hoi4Region.population = totalStateArea * 1250.0 * totalPopFactor *
+                              worldPopulationFactor * (1.0 / sizeFactor);
+      worldPop += (long long)hoi4Region.population;
       // count the total coastal provinces of this region
       auto totalCoastal = 0;
-      for (auto &gameProv : gameRegion.gameProvinces) {
+      for (auto &gameProv : hoi4Region.gameProvinces) {
         if (gameProv.baseProvince->coastal) {
           totalCoastal++;
           // only create a naval base, if a coastal supply hub was determined in
@@ -83,27 +79,31 @@ void Hoi4ScenarioGenerator::generateStateSpecifics() {
       }
       // calculate total industry in this state
       auto stateIndustry =
-          (totalStateArea / worldArea) * totalPopFactor * targetWorldIndustry;
+          round(totalPopFactor * (targetWorldIndustry / (double)(regionAmount)));
+      double dockChance = 0.25;
+      double civChance = 0.5;
+      double milChance = 0.25;
       // distribute it to military, civilian and naval factories
-      if (totalCoastal > 0) {
-        gameRegion.dockyards =
-            std::clamp((int)round(stateIndustry * (0.25)), 0, 4);
-        gameRegion.civilianFactories =
-            std::clamp((int)round(stateIndustry * (0.5)), 0, 8);
-        gameRegion.armsFactories =
-            std::clamp((int)round(stateIndustry * (0.25)), 0, 4);
-        militaryIndustry += (int)gameRegion.armsFactories;
-        civilianIndustry += (int)gameRegion.civilianFactories;
-        navalIndustry += (int)gameRegion.dockyards;
-      } else {
-        gameRegion.civilianFactories =
-            std::clamp((int)round(stateIndustry * (0.6)), 0, 8);
-        gameRegion.armsFactories =
-            std::clamp((int)round(stateIndustry * (0.4)), 0, 4);
-        gameRegion.dockyards = 0;
-        militaryIndustry += (int)gameRegion.armsFactories;
-        civilianIndustry += (int)gameRegion.civilianFactories;
+      if (!totalCoastal) {
+        dockChance = 0.0;
+        civChance = 0.6;
+        milChance = 0.4;
       }
+      while (--stateIndustry >= 0) {
+        auto choice = config.getRandomDouble(0.0, 1.0);
+        if (choice < dockChance) {
+          hoi4Region.dockyards++;
+        } else if (UtilLib::inRange(dockChance, dockChance + civChance,
+                                    choice)) {
+          hoi4Region.civilianFactories++;
+
+        } else {
+          hoi4Region.armsFactories++;
+        }
+      }
+      militaryIndustry += (int)hoi4Region.armsFactories;
+      civilianIndustry += (int)hoi4Region.civilianFactories;
+      navalIndustry += (int)hoi4Region.dockyards;
     }
   }
 }
@@ -112,6 +112,8 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(
     ScenarioGenerator &scenGen,
     std::map<std::string, PdoxCountry> &pdoxCountries) {
   Logger::logLine("HOI4: Choosing uniforms and electing Tyrants");
+  sizeFactor = sqrt((double)(Env::Instance().width * Env::Instance().height) /
+                    (double)(5632 * 2048));
   // graphical culture pairs:
   // { graphical_culture = type }
   // { graphical_culture_2d = type_2d }
@@ -841,7 +843,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(
           const int chainStep = stoi(chainTokens[1]);
           chainID = stoi(chainTokens[0]);
           const int level = stoi(chainTokens[12]);
-          if ((chainTokens[3].find(source.rank) || chainTokens[3] == "any") &&
+          if ((chainTokens[3].find(source.rank) != std::string::npos || chainTokens[3] == "any") &&
               (chainTokens[4].find(source.rulingParty) != std::string::npos ||
                chainTokens[4] == "any")) {
             if (stepFulfillsRequirements(chainTokens[2], stepTargets)) {
@@ -904,17 +906,15 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(
 }
 
 void Hoi4ScenarioGenerator::printStatistics(ScenarioGenerator &scenGen) {
-  Logger::logLine("Total Industry: ", totalWorldIndustry, "");
-  Logger::logLine("Military Industry: ", militaryIndustry, "");
-  Logger::logLine("Civilian Industry: ", civilianIndustry, "");
-  Logger::logLine("Naval Industry: ", navalIndustry, "");
-  Logger::logLine("Total Aluminium: ", totalAluminium, "");
-  Logger::logLine("Total Chromium: ", totalChromium, "");
-  Logger::logLine("Total Rubber: ", totalRubber, "");
-  Logger::logLine("Total Oil: ", totalOil, "");
-  Logger::logLine("Total Steel: ", totalSteel, "");
-  Logger::logLine("Total Tungsten: ", totalTungsten, "");
-  Logger::logLine("World Population: ", worldPop, "");
+  Logger::logLine("Total Industry: ", totalWorldIndustry);
+  Logger::logLine("Military Industry: ", militaryIndustry);
+  Logger::logLine("Civilian Industry: ", civilianIndustry);
+  Logger::logLine("Naval Industry: ", navalIndustry);
+  for (auto &res : totalResources) {
+    Logger::logLine(res.first, " ", res.second);
+  }
+
+  Logger::logLine("World Population: ", worldPop);
 
   for (auto &scores : strengthScores) {
     for (auto &entry : scores.second) {
