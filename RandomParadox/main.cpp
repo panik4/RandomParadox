@@ -49,6 +49,7 @@ int main() {
   bool writeMaps, genHoi4Scenario, useGlobalExistingHeightmap;
   std::string globalHeightMapPath;
   double latLow, latHigh;
+  bool cut;
   try {
     // if debug is enabled in the config, a directory subtree containing
     // visualisation of many maps will be created
@@ -64,6 +65,7 @@ int main() {
     // degrees north
     latLow = root.get<double>("randomScenario.latitudeLow");
     latHigh = root.get<double>("randomScenario.latitudeHigh");
+    cut = root.get<bool>("randomScenario.cut");
   } catch (std::exception e) {
     Logger::logLine("Error reading boost::property_tree");
     Logger::logLine("Did you rename a field in the json file?. Error is: ",
@@ -116,7 +118,7 @@ int main() {
     // and now check if we need to generate game specific files
     if (genHoi4Scenario)
       // generate hoi4 scenario
-      hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG);
+      hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG, cut);
   } catch (std::exception e) {
     Logger::logLine(e.what());
     dumpInfo(e.what());
