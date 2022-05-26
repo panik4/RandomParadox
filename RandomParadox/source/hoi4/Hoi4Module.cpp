@@ -53,7 +53,8 @@ bool Hoi4Module::createPaths() {
 }
 
 void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
-                        bool useDefaultProvinces, ScenarioGenerator &scenGen) {
+                        bool useDefaultProvinces, ScenarioGenerator &scenGen,
+                        bool cut) {
   if (!createPaths())
     return;
   // validate options:
@@ -129,19 +130,19 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
       // compatible colours
       FormatConverter formatConverter(hoi4Path);
       formatConverter.dump8BitTerrain(hoi4ModPath + "\\map\\terrain.bmp",
-                                      "terrainHoi4");
+                                      "terrainHoi4", cut);
       formatConverter.dump8BitCities(hoi4ModPath + "\\map\\cities.bmp",
-                                     "citiesHoi4");
+                                     "citiesHoi4", cut);
       formatConverter.dump8BitRivers(hoi4ModPath + "\\map\\rivers.bmp",
-                                     "riversHoi4");
+                                     "riversHoi4", cut);
       formatConverter.dump8BitTrees(hoi4ModPath + "\\map\\trees.bmp",
-                                    "treesHoi4");
+                                    "treesHoi4", cut);
       formatConverter.dump8BitHeightmap(hoi4ModPath + "\\map\\heightmap.bmp",
                                         "heightmapHoi4");
       formatConverter.dumpTerrainColourmap(
-          hoi4ModPath + "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds");
-      formatConverter.dumpDDSFiles(hoi4ModPath +
-                                   "\\map\\terrain\\colormap_water_");
+          hoi4ModPath + "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds",
+          cut);
+      formatConverter.dumpDDSFiles(hoi4ModPath + "\\map\\terrain\\colormap_water_", cut);
       formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp");
 
       Hoi4Parser::writeCompatibilityHistory(
