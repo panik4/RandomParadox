@@ -42,12 +42,12 @@ const std::map<std::string, std::map<Colour, int>> FormatConverter::colourMaps{
 Bitmap FormatConverter::cutBaseMap(const std::string &path, double factor,
                                    int bit) const {
   auto &conf = Env::Instance();
-  std::string sourceMap = (gamePath + path);
-
+  std::string sourceMap{gamePath + path};
   Bitmap baseMap = bit == 24 ? Bitmap::Load24bitBMP(sourceMap.c_str(), "")
                              : Bitmap::Load8bitBMP(sourceMap.c_str(), "");
   auto &cutBase = baseMap.cut(conf.minX * factor, conf.maxX * factor,
                               conf.minY * factor, conf.maxY * factor);
+  cutBase = cutBase.scale(conf.scaleX, conf.scaleY, conf.keepRatio);
   return cutBase;
 }
 
