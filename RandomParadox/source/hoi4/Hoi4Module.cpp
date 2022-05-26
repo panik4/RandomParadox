@@ -142,7 +142,8 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
       formatConverter.dumpTerrainColourmap(
           hoi4ModPath + "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds",
           cut);
-      formatConverter.dumpDDSFiles(hoi4ModPath + "\\map\\terrain\\colormap_water_", cut);
+      formatConverter.dumpDDSFiles(
+          hoi4ModPath + "\\map\\terrain\\colormap_water_", cut);
       formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp");
 
       Hoi4Parser::writeCompatibilityHistory(

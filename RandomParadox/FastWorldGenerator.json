@@ -25,7 +25,7 @@
 		"scale" : true,
 		"scaleX" : 1024,
 		"scaleY" : 1024,
-		"keepRatio" : true
+		"keepRatio" : false
 	},
 	"interactiveMode":
 	{
@@ -36,7 +36,7 @@
         "height" : 512,
 		"width" : 512,
 		"landPercentage" : 34,
-		"seaLevel" : 94,
+		"seaLevel" : 93,
 		"accuracy": 100,
 		"rivers" : 
 		{
@@ -138,7 +138,7 @@
 			"auto" : true,
 			"landProvinceFactor" : 1,
 			"seaProvinceFactor" : 1,
-			"minProvPerRegion" : 4,
+			"minProvPerRegion" : 1,
 			"minProvSize" : 10,
 			"provinceDensityByHabitability" : 30
 		},
