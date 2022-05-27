@@ -30,7 +30,7 @@
 		"scale" : true,
 		"scaleX" : 1024,
 		"scaleY" : 1024,
-		"keepRatio" : false
+		"keepRatio" : true
 	},
 	"interactiveMode":
 	{
