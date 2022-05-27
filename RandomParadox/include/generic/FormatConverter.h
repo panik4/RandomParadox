@@ -32,5 +32,5 @@ public:
   void dumpDDSFiles(const std::string path, const bool cut = false) const;
   void dumpTerrainColourmap(const std::string path,
                             const bool cut = false) const;
-  void dumpWorldNormal(const std::string path) const;
+  void dumpWorldNormal(const std::string path, const bool cut) const;
 };
