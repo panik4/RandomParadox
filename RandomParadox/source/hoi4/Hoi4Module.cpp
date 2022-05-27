@@ -136,7 +136,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
       formatConverter.dump8BitRivers(hoi4ModPath + "\\map\\rivers.bmp",
                                      "riversHoi4", cut);
       formatConverter.dump8BitTrees(hoi4ModPath + "\\map\\trees.bmp",
-                                    "treesHoi4", cut);
+                                    "treesHoi4", false);
       formatConverter.dump8BitHeightmap(hoi4ModPath + "\\map\\heightmap.bmp",
                                         "heightmapHoi4");
       formatConverter.dumpTerrainColourmap(
@@ -144,7 +144,7 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
           cut);
       formatConverter.dumpDDSFiles(
           hoi4ModPath + "\\map\\terrain\\colormap_water_", cut);
-      formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp");
+      formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp", cut);
 
       Hoi4Parser::writeCompatibilityHistory(
           hoi4ModPath + "\\history\\countries\\", hoi4Path,

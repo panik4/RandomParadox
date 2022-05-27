@@ -46,8 +46,8 @@ Bitmap FormatConverter::cutBaseMap(const std::string &path, double factor,
   Bitmap baseMap = bit == 24 ? Bitmap::Load24bitBMP(sourceMap.c_str(), "")
                              : Bitmap::Load8bitBMP(sourceMap.c_str(), "");
   auto &cutBase = baseMap.cut(conf.minX * factor, conf.maxX * factor,
-                              conf.minY * factor, conf.maxY * factor);
-  cutBase = cutBase.scale(conf.scaleX, conf.scaleY, conf.keepRatio);
+                              conf.minY * factor, conf.maxY * factor, factor);
+  // cutBase = cutBase.scale(conf.scaleX, conf.scaleY, conf.keepRatio);
   return cutBase;
 }
 
@@ -226,7 +226,8 @@ void FormatConverter::dumpTerrainColourmap(const std::string path,
                           DXGI_FORMAT_B8G8R8A8_UNORM, path);
 }
 
-void FormatConverter::dumpWorldNormal(const std::string path) const {
+void FormatConverter::dumpWorldNormal(const std::string path,
+                                      const bool cut) const {
   Logger::logLine("FormatConverter::Writing normalMap to ", path);
   auto height = Env::Instance().height;
   auto width = Env::Instance().width;
@@ -234,11 +235,16 @@ void FormatConverter::dumpWorldNormal(const std::string path) const {
 
   int factor = 2; // image width and height are halved
   Bitmap normalMap(width / factor, height / factor, 24);
-  for (auto i = 0; i < normalMap.bInfoHeader.biHeight; i++)
-    for (auto w = 0; w < normalMap.bInfoHeader.biWidth; w++)
-      normalMap.setColourAtIndex(
-          i * normalMap.bInfoHeader.biWidth + w,
-          sobelMap.getColourAtIndex(factor * i * width + factor * w));
+  if (!cut) {
+    for (auto i = 0; i < normalMap.bInfoHeader.biHeight; i++)
+      for (auto w = 0; w < normalMap.bInfoHeader.biWidth; w++)
+        normalMap.setColourAtIndex(
+            i * normalMap.bInfoHeader.biWidth + w,
+            sobelMap.getColourAtIndex(factor * i * width + factor * w));
+  } else {
+    normalMap =
+        cutBaseMap("\\map\\world_normal.bmp", (1.0 / (double)factor), 24);
+  }
   Bitmap::SaveBMPToFile(normalMap, (path).c_str());
 }
 
