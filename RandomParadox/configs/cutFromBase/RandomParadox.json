@@ -5,8 +5,8 @@
 		"genhoi4": true,
 		"inputheightmap": false,
 		"heightmapPath": "inputs/heightmap24.bmp",
-		"latitudeLow" : 0.33,
-		"latitudeHigh" : 1.17,
+		"latitudeLow" : 0.00,
+		"latitudeHigh" : 2.00,
 		"cut" : "true"
 	}
 }
