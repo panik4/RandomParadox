@@ -2,10 +2,10 @@
 #include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Module.h"
 #include <filesystem>
-void dumpInfo(std::string error) {
-  auto dump = ParserUtils::readFile("RandomParadox.json");
-  dump += ParserUtils::readFile("Hoi4Module.json");
-  dump += ParserUtils::readFile("FastWorldGenerator.json");
+void dumpInfo(std::string error, std::string configSubFolder) {
+  auto dump = ParserUtils::readFile(configSubFolder + "RandomParadox.json");
+  dump += ParserUtils::readFile(configSubFolder + "Hoi4Module.json");
+  dump += ParserUtils::readFile(configSubFolder + "FastWorldGenerator.json");
   dump += std::to_string(Env::Instance().seed);
   dump += "\n";
   for (auto layerSeed : Env::Instance().seeds) {
@@ -22,10 +22,34 @@ int main() {
   // Short alias for this namespace
   namespace pt = boost::property_tree;
   // Create a root
+  pt::ptree root1;
+  try {
+    // Read the basic settings
+    std::ifstream f("MetaConf.json");
+    std::stringstream buffer;
+    if (!f.good())
+      Logger::logLine("Config could not be loaded");
+    buffer << f.rdbuf();
+
+    pt::read_json(buffer, root1);
+  } catch (std::exception e) {
+    Logger::logLine("Incorrect config \"MetaConf.json\"");
+    Logger::logLine("You can try fixing it yourself. Error is: ", e.what());
+    Logger::logLine(
+        "Otherwise try running it through a json validator, e.g. "
+        "\"https://jsonlint.com/\" or search for \"json validator\"");
+    dumpInfo(e.what(), "");
+    system("pause");
+    return -1;
+  }
+  std::string username = root1.get<std::string>("config.username");
+  std::string configSubFolder =
+      root1.get<std::string>("config.configSubFolder");
+  // Create a root
   pt::ptree root;
   try {
     // Read the basic settings
-    std::ifstream f("RandomParadox.json");
+    std::ifstream f(configSubFolder + "RandomParadox.json");
     std::stringstream buffer;
     if (!f.good())
       Logger::logLine("Config could not be loaded");
@@ -38,7 +62,7 @@ int main() {
     Logger::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or search for \"json validator\"");
-    dumpInfo(e.what());
+    dumpInfo(e.what(), configSubFolder);
     system("pause");
     return -1;
   }
@@ -70,21 +94,21 @@ int main() {
     Logger::logLine("Error reading boost::property_tree");
     Logger::logLine("Did you rename a field in the json file?. Error is: ",
                     e.what());
-    dumpInfo(e.what());
+    dumpInfo(e.what(), configSubFolder);
     system("pause");
     return -1;
   }
 
   // check if we can read the config
   try {
-    Env::Instance().getConfig("FastWorldGenerator.json");
+    Env::Instance().getConfig(configSubFolder + "FastWorldGenerator.json");
   } catch (std::exception e) {
     Logger::logLine("Incorrect config \"FastWorldGenerator.json\"");
     Logger::logLine("You can try fixing it yourself. Error is: ", e.what());
     Logger::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or \"search for json validator\"");
-    dumpInfo(e.what());
+    dumpInfo(e.what(), configSubFolder);
     system("pause");
     return -1;
   }
@@ -96,10 +120,10 @@ int main() {
   }
   try {
     NameGenerator::prepare();
-    FastWorldGenerator fastWorldGen;
+    FastWorldGenerator fastWorldGen(configSubFolder);
     Hoi4Module hoi4Mod;
 
-    hoi4Mod.readConfig();
+    hoi4Mod.readConfig(configSubFolder, username);
     if (!useDefaultMap) {
       // if we configured to use an existing heightmap
       if (useGlobalExistingHeightmap) {
@@ -118,15 +142,16 @@ int main() {
     // and now check if we need to generate game specific files
     if (genHoi4Scenario)
       // generate hoi4 scenario
-      hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG, cut);
+      hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG,
+                     cut);
   } catch (std::exception e) {
     Logger::logLine(e.what());
-    dumpInfo(e.what());
+    dumpInfo(e.what(), configSubFolder);
     system("pause");
     return -1;
   }
   Logger::logLine("Done with the generation");
-  dumpInfo("");
+  dumpInfo("", configSubFolder);
   system("pause");
   return 0;
 }

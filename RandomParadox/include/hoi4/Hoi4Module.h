@@ -27,5 +27,5 @@ public:
   // locations
   bool findHoi4();
   // read the config specific to hoi4
-  void readConfig();
+  void readConfig(std::string configSubFolder, std::string username);
 };

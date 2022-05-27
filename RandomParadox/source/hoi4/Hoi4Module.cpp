@@ -245,12 +245,12 @@ bool Hoi4Module::findHoi4() {
   return false;
 }
 // reads config for Hearts of Iron IV
-void Hoi4Module::readConfig() {
+void Hoi4Module::readConfig(std::string configSubFolder, std::string username) {
   // Short alias for this namespace
   namespace pt = boost::property_tree;
   // Create a root
   pt::ptree root;
-  std::ifstream f("Hoi4Module.json");
+  std::ifstream f(configSubFolder + "Hoi4Module.json");
   std::stringstream buffer;
   if (!f.good()) {
     Logger::logLine("Config could not be loaded");
@@ -259,7 +259,8 @@ void Hoi4Module::readConfig() {
   try {
     pt::read_json(buffer, root);
   } catch (std::exception e) {
-    std::string error = "Incorrect config \"Hoi4Module.json\"\n";
+    std::string error =
+        "Incorrect config " + configSubFolder + " \"Hoi4Module.json\"\n";
     error += "You can try fixing it yourself. Error is: \n";
     error += e.what();
     error += "\n";
@@ -271,7 +272,10 @@ void Hoi4Module::readConfig() {
   modName = root.get<std::string>("module.modName");
   hoi4Path = root.get<std::string>("module.hoi4Path");
   hoi4ModPath = root.get<std::string>("module.hoi4ModPath") + modName;
+  ParserUtils::replaceOccurences(hoi4ModPath, "<username>", username);
   hoi4ModsDirectory = root.get<std::string>("module.hoi4ModsDirectory");
+  ParserUtils::replaceOccurences(hoi4ModsDirectory, "<username>", username);
+
   // now try to locate game files
   findHoi4();
   // default values taken from base game

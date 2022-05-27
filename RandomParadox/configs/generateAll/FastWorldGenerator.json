@@ -3,33 +3,38 @@
 	{
 		"debugLevel": 0,
 		"interactiveMode" : false,
-		"loadMaps" : true,
+		"loadMaps" : false,
 		"writeMaps" : true,
-		"seed" : 1
+		"seed" : 0
+	},
+	"paths":
+	{
+		"mapsPath": "Maps//",
+		"loadMapsPath" : "Maps//"
 	},
 	"loadMaps":
 	{
-		"heightMap" : true,
+		"heightMap" : false,
 		"terrainMap" : false,
 		"humidityMap" : false,
 		"habitabilityMap" : false,
-		"provinceMap" : true
+		"provinceMap" : false
 	},
 	"cut":
 	{
-		"cut" : true,
+		"cut" : false,
 		"minX" : 1300,
 		"maxX" : 2324,
 		"minY" : 0,
 		"maxY" : 1024,
-		"scale" : true,
+		"scale" : false,
 		"scaleX" : 1024,
 		"scaleY" : 1024,
 		"keepRatio" : false
 	},
 	"interactiveMode":
 	{
-		"habitabilityMap": true
+		"habitabilityMap": false
 	},
 	"map": 
 	{
@@ -154,10 +159,5 @@
 			"deviationFactor": 10,
 			"temperatureRange": 60
 		}
-    },
-	"paths":
-	{
-		"mapsPath": "Maps//",
-		"loadMapsPath" : "hoi4Inputs//"
-	}
+    }
 }
