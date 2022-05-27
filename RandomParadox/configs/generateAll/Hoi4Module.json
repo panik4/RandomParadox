@@ -1,0 +1,26 @@
+{
+	"module": 
+	{
+		"modName" : "pdoxMod3",
+		"hoi4Path" : "C://Program Files (x86)//Steam//steamapps//common//Hearts of Iron IV",
+		"hoi4ModPath" : "C://Users//<username>//Documents//Paradox Interactive//Hearts of Iron IV//mod//",
+		"hoi4ModsDirectory" : "C://Users//<username>//Documents//Paradox Interactive//Hearts of Iron IV//mod//"
+	},
+	"hoi4":
+	{
+		"strategicRegionSize": 2,
+		"resourceFactor": 1.0,
+		"aluminiumFactor": 1.0,
+		"chromiumFactor": 1.0,
+		"oilFactor": 1.0,
+		"rubberFactor": 1.0,
+		"steelFactor": 1.0,
+		"tungstenFactor": 1.0
+	},
+	"scenario":
+	{
+		"numCountries" : 50,
+		"worldPopulationFactor" : 1.0,
+		"industryFactor" : 1.0
+	}
+}
