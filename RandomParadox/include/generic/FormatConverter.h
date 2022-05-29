@@ -18,7 +18,8 @@ public:
   FormatConverter(const std::string gamePath);
   ~FormatConverter();
   // member functions
-  Bitmap cutBaseMap(const std::string &path, double factor = 1.0, int bit = 8) const;
+  Bitmap cutBaseMap(const std::string &path, const double factor = 1.0,
+                    const int bit = 8) const;
   void dump8BitHeightmap(const std::string path,
                          const std::string colourMapKey) const;
   void dump8BitTerrain(const std::string path, const std::string colourMapKey,
