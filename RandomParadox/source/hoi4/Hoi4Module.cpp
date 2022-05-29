@@ -144,7 +144,8 @@ void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
           cut);
       formatConverter.dumpDDSFiles(
           hoi4ModPath + "\\map\\terrain\\colormap_water_", cut);
-      formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp", cut);
+      formatConverter.dumpWorldNormal(hoi4ModPath + "\\map\\world_normal.bmp",
+                                      cut);
 
       Hoi4Parser::writeCompatibilityHistory(
           hoi4ModPath + "\\history\\countries\\", hoi4Path,
@@ -221,6 +222,12 @@ bool Hoi4Module::findHoi4() {
   if (std::filesystem::exists(hoi4Path)) {
     hoi4Path = hoi4Path;
     return true;
+  //} else {
+    Logger::logLine("Could not find game under configured path ", hoi4Path,
+                    " it doesn't exist or is malformed. Auto search will now "
+                    "try to locate the game, but may not succeed. It is "
+                    "recommended to correctly configure the path");
+    system("pause");
   }
   for (const auto &drive : drives) {
     if (std::filesystem::exists(
@@ -229,19 +236,24 @@ bool Hoi4Module::findHoi4() {
       hoi4Path =
           drive +
           "Program Files (x86)\\Steam\\steamapps\\common\\Hearts of Iron IV";
+      Logger::logLine("Located game under ", hoi4Path);
       return true;
     } else if (std::filesystem::exists(
                    drive + "Program Files\\Steam\\steamapps\\common\\Hearts of "
                            "Iron IV")) {
       hoi4Path =
           drive + "Program Files\\Steam\\steamapps\\common\\Hearts of Iron IV";
+      Logger::logLine("Located game under ", hoi4Path);
       return true;
     } else if (std::filesystem::exists(
                    drive + "Steam\\steamapps\\common\\Hearts of Iron IV")) {
       hoi4Path = drive + "Steam\\steamapps\\common\\Hearts of Iron IV";
+      Logger::logLine("Located game under ", hoi4Path);
       return true;
     }
   }
+  Logger::logLine("Could not find the game anywhere. Make sure the hoi4Path is "
+                  "configured correctly in the config files");
   return false;
 }
 // reads config for Hearts of Iron IV
@@ -277,7 +289,9 @@ void Hoi4Module::readConfig(std::string configSubFolder, std::string username) {
   ParserUtils::replaceOccurences(hoi4ModsDirectory, "<username>", username);
 
   // now try to locate game files
-  findHoi4();
+  if (!findHoi4()) {
+    throw(std::exception("Could not locate the game. Exiting"));
+  }
   // default values taken from base game
   hoi4Gen.resources = {
       {"aluminium", {root.get<double>("hoi4.aluminiumFactor"), 1169.0, 0.3}},
