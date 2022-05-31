@@ -34,3 +34,15 @@ std::vector<uint8_t> TextureWriter::readTGA(const std::string &path) {
     std::swap(pixelData[i], pixelData[i + 2]);
   return pixelData;
 }
+
+std::vector<uint8_t> TextureWriter::readDDS(const std::string &path) {
+  auto wPath{std::wstring(path.begin(), path.end())};
+  ScratchImage image;
+  DirectX::LoadFromDDSFile(wPath.c_str(), DDS_FLAGS_NONE, nullptr, image);
+  std::vector<uint8_t> pixelData;
+  for (int i = 0; i < image.GetImages()->height * image.GetImages()->width * 4;
+       i++) {
+    pixelData.push_back(image.GetImages()->pixels[i]);
+  }
+  return pixelData;
+}

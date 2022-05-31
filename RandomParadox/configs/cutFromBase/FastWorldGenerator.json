@@ -23,14 +23,14 @@
 	"cut":
 	{
 		"cut" : true,
-		"minX" : 1300,
-		"maxX" : 2324,
-		"minY" : 0,
-		"maxY" : 1024,
+		"minX" : 4200,
+		"maxX" : 5224,
+		"minY" : 448,
+		"maxY" : 856,
 		"scale" : true,
-		"scaleX" : 1024,
-		"scaleY" : 1024,
-		"keepRatio" : true
+		"scaleX" : 5632,
+		"scaleY" : 2048,
+		"keepRatio" : false
 	},
 	"interactiveMode":
 	{
@@ -143,7 +143,7 @@
 			"auto" : true,
 			"landProvinceFactor" : 1,
 			"seaProvinceFactor" : 1,
-			"minProvPerRegion" : 1,
+			"minProvPerRegion" : 3,
 			"minProvSize" : 10,
 			"provinceDensityByHabitability" : 30
 		},
