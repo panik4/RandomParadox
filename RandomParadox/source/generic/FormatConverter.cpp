@@ -39,15 +39,18 @@ const std::map<std::string, std::map<Colour, int>> FormatConverter::colourMaps{
       {Env::Instance().namedColours["empty"], 0},
       {Env::Instance().namedColours["sea"], 0}}}};
 
-Bitmap FormatConverter::cutBaseMap(const std::string &path, double factor,
-                                   int bit) const {
+Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
+                                   const int bit) const {
   auto &conf = Env::Instance();
   std::string sourceMap{gamePath + path};
   Bitmap baseMap = bit == 24 ? Bitmap::Load24bitBMP(sourceMap.c_str(), "")
                              : Bitmap::Load8bitBMP(sourceMap.c_str(), "");
   auto &cutBase = baseMap.cut(conf.minX * factor, conf.maxX * factor,
                               conf.minY * factor, conf.maxY * factor, factor);
-  // cutBase = cutBase.scale(conf.scaleX, conf.scaleY, conf.keepRatio);
+  if (conf.scale) {
+    cutBase = cutBase.scale(conf.scaleX * factor, conf.scaleY * factor,
+                            conf.keepRatio);
+  }
   return cutBase;
 }
 
@@ -198,32 +201,57 @@ void FormatConverter::dumpDDSFiles(const std::string path,
 void FormatConverter::dumpTerrainColourmap(const std::string path,
                                            const bool cut) const {
   Logger::logLine("FormatConverter::Writing terrain colourmap to ", path);
+  auto &config = Env::Instance();
   const auto &climateMap = Bitmap::findBitmapByKey("climate2");
   const auto &cityMap = Bitmap::findBitmapByKey("cities");
-  const auto &width = Env::Instance().width;
+  const auto &height = config.height;
+  const auto &width = config.width;
   int factor = 2; // map dimensions are halved
   auto imageWidth = width / factor;
-  auto imageHeight = Env::Instance().height / factor;
+  auto imageHeight = height / factor;
 
   std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
-  for (auto h = 0; h < imageHeight; h++) {
-    for (auto w = 0; w < imageWidth; w++) {
-      auto colourmapIndex = factor * h * width + factor * w;
-      const auto &c = climateMap.getColourAtIndex(colourmapIndex);
-      auto imageIndex =
-          imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
-      imageIndex *= 4;
-      pixels[imageIndex] = c.getBlue();
-      pixels[imageIndex + 1] = c.getGreen();
-      pixels[imageIndex + 2] = c.getRed();
-      pixels[imageIndex + 3] =
-          255.0 *
-          (cityMap.getColourAtIndex(colourmapIndex) /
-           Env::Instance().namedColours["cities"]); // alpha for city lights
+  if (!cut) {
+    for (auto h = 0; h < imageHeight; h++) {
+      for (auto w = 0; w < imageWidth; w++) {
+        auto colourmapIndex = factor * h * width + factor * w;
+        const auto &c = climateMap.getColourAtIndex(colourmapIndex);
+        auto imageIndex =
+            imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
+        imageIndex *= 4;
+        pixels[imageIndex] = c.getBlue();
+        pixels[imageIndex + 1] = c.getGreen();
+        pixels[imageIndex + 2] = c.getRed();
+        pixels[imageIndex + 3] =
+            255.0 *
+            (cityMap.getColourAtIndex(colourmapIndex) /
+             Env::Instance().namedColours["cities"]); // alpha for city lights
+      }
+    }
+  } else {
+    // load base game colourmap
+    pixels = TextureWriter::readDDS(
+        gamePath + "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds");
+    auto maxY = 1024 - config.maxY / (double)factor;
+    auto minY = 1024 - config.minY / (double)factor;
+    auto maxX = config.maxX / (double)factor;
+    auto minX = config.minX / (double)factor;
+    std::swap(minY, maxY);
+    // cut it and reassign it
+    pixels = UtilLib::cutBuffer(pixels, 2816, 1024, minX, maxX, minY, maxY, 4);
+    if (config.scale) {
+      pixels = UtilLib::scaleBuffer(pixels, abs(maxX - minX), abs(maxY - minY),
+                                    config.scaleX / factor,
+          config.scaleY / factor, 4, config.keepRatio);
     }
   }
-  TextureWriter::writeDDS(imageWidth, imageHeight, pixels,
-                          DXGI_FORMAT_B8G8R8A8_UNORM, path);
+  if (config.scale)
+    TextureWriter::writeDDS(config.scaleX / factor, config.scaleY / factor,
+                            pixels,
+                            DXGI_FORMAT_B8G8R8A8_UNORM, path);
+  else
+    TextureWriter::writeDDS(imageWidth, imageHeight, pixels,
+                            DXGI_FORMAT_B8G8R8A8_UNORM, path);
 }
 
 void FormatConverter::dumpWorldNormal(const std::string path,
