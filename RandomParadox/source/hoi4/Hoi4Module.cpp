@@ -222,7 +222,7 @@ bool Hoi4Module::findHoi4() {
   if (std::filesystem::exists(hoi4Path)) {
     hoi4Path = hoi4Path;
     return true;
-  //} else {
+  } else {
     Logger::logLine("Could not find game under configured path ", hoi4Path,
                     " it doesn't exist or is malformed. Auto search will now "
                     "try to locate the game, but may not succeed. It is "
