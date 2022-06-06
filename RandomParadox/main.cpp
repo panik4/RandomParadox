@@ -3,9 +3,11 @@
 #include "hoi4/Hoi4Module.h"
 #include <filesystem>
 void dumpInfo(std::string error, std::string configSubFolder) {
-  auto dump = ParserUtils::readFile(configSubFolder + "RandomParadox.json");
-  dump += ParserUtils::readFile(configSubFolder + "Hoi4Module.json");
-  dump += ParserUtils::readFile(configSubFolder + "FastWorldGenerator.json");
+  std::string dump = "";
+  std::string path = configSubFolder;
+  for (const auto &entry : std::filesystem::directory_iterator(path)) {
+    dump += ParserUtils::readFile(entry.path().string());
+  }
   dump += std::to_string(Env::Instance().seed);
   dump += "\n";
   for (auto layerSeed : Env::Instance().seeds) {
@@ -70,7 +72,7 @@ int main() {
   bool useDefaultMap = false;
   bool useDefaultStates = false;
   bool useDefaultProvinces = false;
-  bool writeMaps, genHoi4Scenario, useGlobalExistingHeightmap;
+  bool writeMaps, genHoi4Scenario, useGlobalExistingHeightmap, genEu4Scenario;
   std::string globalHeightMapPath;
   double latLow, latHigh;
   bool cut;
@@ -80,6 +82,7 @@ int main() {
     writeMaps = root.get<bool>("randomScenario.writeMaps");
     // generate hoi4 scenario or not
     genHoi4Scenario = root.get<bool>("randomScenario.genhoi4");
+    genEu4Scenario = root.get<bool>("randomScenario.geneu4");
     // use the same input heightmap for every scenario/map generation
     useGlobalExistingHeightmap =
         root.get<bool>("randomScenario.inputheightmap");
@@ -123,7 +126,7 @@ int main() {
     FastWorldGenerator fastWorldGen(configSubFolder);
     Hoi4Module hoi4Mod;
 
-    hoi4Mod.readConfig(configSubFolder, username);
+    hoi4Mod.readHoiConfig(configSubFolder, username);
     if (!useDefaultMap) {
       // if we configured to use an existing heightmap
       if (useGlobalExistingHeightmap) {
@@ -144,6 +147,10 @@ int main() {
       // generate hoi4 scenario
       hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG,
                      cut);
+
+    if (genEu4Scenario) {
+    
+    }
   } catch (std::exception e) {
     Logger::logLine(e.what());
     dumpInfo(e.what(), configSubFolder);
