@@ -1,15 +1,10 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "generic/FormatConverter.h"
-#include "generic/GenericModule.h"
-#include "hoi4/Hoi4Parser.h"
-#include "hoi4/Hoi4ScenarioGenerator.h"
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <filesystem>
-class Hoi4Module {
+#include "generic/ScenarioGenerator.h"
+class Eu4Module {
   // member variables
-  Hoi4ScenarioGenerator hoi4Gen;
+  //Hoi4ScenarioGenerator hoi4Gen;
   int numCountries;
   std::string modName;
   std::string hoi4Path;
@@ -17,13 +12,12 @@ class Hoi4Module {
   std::string hoi4ModsDirectory;
 
 public:
-  Hoi4Module();
-  ~Hoi4Module();
+  Eu4Module();
+  ~Eu4Module();
   // member functions
   // clear and create all the mod paths at each run
   bool createPaths();
-  void genHoi(bool useDefaultMap, bool useDefaultStates,
-              bool useDefaultProvinces, ScenarioGenerator &scenGen, bool cut);
+  void genEu4(ScenarioGenerator &scenGen, bool cut);
   // try to locate hoi4 at configured path, if not found, try other standard
   // locations
   bool findHoi4();
