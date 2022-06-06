@@ -7,38 +7,22 @@ Hoi4Module::~Hoi4Module() {}
 bool Hoi4Module::createPaths() {
   // prepare folder structure
   try {
-    // mod directory
-    std::filesystem::create_directory(hoi4ModPath);
+    // generic cleanup and path creation
+    GenericModule::createPaths(hoi4ModPath);
     // map
-    std::filesystem::remove_all(hoi4ModPath + "\\map\\");
-    std::filesystem::create_directory(hoi4ModPath + "\\map\\");
-    std::filesystem::create_directory(hoi4ModPath + "\\map\\terrain\\");
     std::filesystem::create_directory(hoi4ModPath + "\\map\\supplyareas\\");
     std::filesystem::create_directory(hoi4ModPath +
                                       "\\map\\strategicregions\\");
     // gfx
-    std::filesystem::remove_all(hoi4ModPath + "\\gfx");
-    std::filesystem::create_directory(hoi4ModPath + "\\gfx\\");
-    std::filesystem::create_directory(hoi4ModPath + "\\gfx\\flags\\");
     std::filesystem::create_directory(hoi4ModPath + "\\gfx\\flags\\small\\");
     std::filesystem::create_directory(hoi4ModPath + "\\gfx\\flags\\medium\\");
     // history
-    std::filesystem::remove_all(hoi4ModPath + "\\history");
-    std::filesystem::create_directory(hoi4ModPath + "\\history\\");
     std::filesystem::create_directory(hoi4ModPath + "\\history\\units\\");
     std::filesystem::create_directory(hoi4ModPath + "\\history\\states\\");
-    std::filesystem::create_directory(hoi4ModPath + "\\history\\countries\\");
     // localisation
-    std::filesystem::remove_all(hoi4ModPath + "\\localisation\\");
-    std::filesystem::create_directory(hoi4ModPath + "\\localisation\\");
     std::filesystem::create_directory(hoi4ModPath +
                                       "\\localisation\\english\\");
     // common
-    std::filesystem::remove_all(hoi4ModPath + "\\common\\");
-    std::filesystem::create_directory(hoi4ModPath + "\\common\\");
-    std::filesystem::create_directory(hoi4ModPath + "\\common\\countries\\");
-    std::filesystem::create_directory(hoi4ModPath + "\\common\\bookmarks\\");
-    std::filesystem::create_directory(hoi4ModPath + "\\common\\country_tags\\");
     std::filesystem::create_directory(hoi4ModPath +
                                       "\\common\\national_focus\\");
     return true;
