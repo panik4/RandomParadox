@@ -1,4 +1,5 @@
 #include "FastWorldGenerator.h"
+#include "eu4/Eu4Module.h"
 #include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Module.h"
 #include <filesystem>
@@ -124,32 +125,44 @@ int main() {
   try {
     NameGenerator::prepare();
     FastWorldGenerator fastWorldGen(configSubFolder);
-    Hoi4Module hoi4Mod;
+    if (genHoi4Scenario) {
 
-    hoi4Mod.readHoiConfig(configSubFolder, username);
-    if (!useDefaultMap) {
-      // if we configured to use an existing heightmap
-      if (useGlobalExistingHeightmap) {
-        // overwrite settings of fastworldgen
-        Env::Instance().heightmapIn = globalHeightMapPath;
-        Env::Instance().loadHeight = true;
-        Env::Instance().latLow = latLow;
-        Env::Instance().latHigh = latHigh;
+      Hoi4Module hoi4Mod;
+
+      hoi4Mod.readHoiConfig(configSubFolder, username);
+      if (!useDefaultMap) {
+        // if we configured to use an existing heightmap
+        if (useGlobalExistingHeightmap) {
+          // overwrite settings of fastworldgen
+          Env::Instance().heightmapIn = globalHeightMapPath;
+          Env::Instance().loadHeight = true;
+          Env::Instance().latLow = latLow;
+          Env::Instance().latHigh = latHigh;
+        }
+        Env::Instance().sanityCheck();
+        // now run the world generation
+        fastWorldGen.generateWorld();
       }
-      Env::Instance().sanityCheck();
-      // now run the world generation
-      fastWorldGen.generateWorld();
+      // now start the generation of the scenario with the generated map files
+      ScenarioGenerator sG(fastWorldGen);
+      // and now check if we need to generate game specific files
+      if (genHoi4Scenario)
+        // generate hoi4 scenario
+        hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG,
+                       cut);
     }
-    // now start the generation of the scenario with the generated map files
-    ScenarioGenerator sG(fastWorldGen);
-    // and now check if we need to generate game specific files
-    if (genHoi4Scenario)
-      // generate hoi4 scenario
-      hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG,
-                     cut);
-
     if (genEu4Scenario) {
-    
+      // only run if not already run
+      if (!genHoi4Scenario) {
+
+        // now run the world generation
+        fastWorldGen.generateWorld();
+      }
+      // now start the generation of the scenario with the generated map files
+      ScenarioGenerator sG(fastWorldGen);
+      Eu4Module eu4;
+      eu4.readEu4Config(configSubFolder, username);
+      eu4.genEu4(useDefaultMap, useDefaultStates, useDefaultProvinces, sG, cut);
     }
   } catch (std::exception e) {
     Logger::logLine(e.what());

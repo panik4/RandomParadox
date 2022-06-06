@@ -81,7 +81,7 @@ GenericModule::readConfig(const std::string configSubFolder,
     pt::read_json(buffer, root);
   } catch (std::exception e) {
     std::string error = "Incorrect config " + configSubFolder + gameName +
-                        " \"Module.json\"\n";
+                        " Module.json\n";
     error += "You can try fixing it yourself. Error is: \n";
     error += e.what();
     error += "\n";
