@@ -12,10 +12,11 @@ class FormatConverter {
   const static std::map<std::string, std::map<Colour, int>> colourMaps;
   std::map<std::string, std::vector<unsigned char>> colourTables;
   std::string gamePath;
+  std::string gameTag;
 
 public:
   // constructor/destructor
-  FormatConverter(const std::string gamePath);
+  FormatConverter(const std::string gamePath, const std::string gameTag);
   ~FormatConverter();
   // member functions
   Bitmap cutBaseMap(const std::string &path, const double factor = 1.0,
@@ -30,8 +31,10 @@ public:
                       const bool cut = false) const;
   void dump8BitTrees(const std::string path, const std::string colourMapKey,
                      const bool cut = false) const;
-  void dumpDDSFiles(const std::string path, const bool cut = false) const;
-  void dumpTerrainColourmap(const std::string path,
+  void dumpDDSFiles(const std::string path, const bool cut = false,
+                    const int maxFactor = 2) const;
+  void dumpTerrainColourmap(const std::string ModPath,
+                            const std::string mapName, const DXGI_FORMAT format,
                             const bool cut = false) const;
   void dumpWorldNormal(const std::string path, const bool cut) const;
 };
