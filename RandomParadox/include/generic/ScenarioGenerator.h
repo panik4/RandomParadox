@@ -19,7 +19,7 @@ class ScenarioGenerator {
 public:
   // vars - used for every game
   NameGenerator nG;
-  FastWorldGenerator f;
+  FastWorldGenerator fwg;
   int numCountries;
   // containers - used for every game
   std::vector<Province *> provinces;
@@ -29,7 +29,7 @@ public:
   std::set<std::string> tags;
   std::map<std::string, PdoxCountry> countries;
   // constructors/destructors
-  ScenarioGenerator(FastWorldGenerator &f);
+  ScenarioGenerator(FastWorldGenerator &fwg);
   ~ScenarioGenerator();
   /* member functions*/
   // print a map showing all countries for debug purposes
