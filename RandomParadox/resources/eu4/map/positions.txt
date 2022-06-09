@@ -1,0 +1,11 @@
+templateID={
+	position={
+		templatePositions
+	}
+	rotation={
+		0.000 0.000 0.000 0.000 0.000 0.000 0.000 
+	}
+	height={
+		0.000 0.000 1.000 0.000 0.000 0.000 0.000 
+	}
+}

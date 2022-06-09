@@ -1,0 +1,41 @@
+tropical = {
+	templateTropical
+}
+
+arid = {
+	templateArid
+}
+
+arctic = {
+	templateArctic
+}
+
+mild_winter = {
+	templateMildWinter
+}
+
+normal_winter = {
+	templateNormalWinter
+}
+
+severe_winter = {
+	templateSevereWinter
+}
+
+impassable = {
+	templateImpassable
+}
+
+mild_monsoon = {
+	templateMildMonsoon
+}
+
+normal_monsoon = {
+	templateNormalMonsoon
+}
+
+severe_monsoon = {
+	templateSevereMonsoon
+}
+
+equator_y_on_province_image = 656
