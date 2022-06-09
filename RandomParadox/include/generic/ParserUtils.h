@@ -76,10 +76,9 @@ public:
     }
     return sortedLines;
   };
-
-  static std::string csvFormat(std::vector<std::string> arguments,
+  static std::string csvFormat(const std::vector<std::string> arguments,
                                char delimiter, bool trailing) {
-    std::vector<std::string>::iterator arg;
+    std::vector<std::string>::const_iterator arg;
     std::string retString("");
     for (arg = arguments.begin(); arg != arguments.end(); arg++) {
       retString.append(*arg);

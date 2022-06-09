@@ -77,7 +77,25 @@ void Eu4Module::genEu4(bool useDefaultMap, bool useDefaultStates,
     // now do text
     Eu4Parser::writeDefaultMap(gameModPath + "\\map\\default.map",
                                scenGen.gameProvinces);
-    Eu4Parser::dumpAdj(gameModPath + "\\map\\adjacency.csv", scenGen.gameProvinces);
+    Eu4Parser::writeAdj(gameModPath + "\\map\\adjacencies.csv",
+                        scenGen.gameProvinces);
+    Eu4Parser::writeAmbientObjects(gameModPath + "\\map\\adjacencies.csv",
+                                   scenGen.gameProvinces);
+    Eu4Parser::writeAreas(gameModPath + "\\map\\area.txt", scenGen.gameRegions);
+    Eu4Parser::writeClimate(gameModPath + "\\map\\climate.txt",
+                        scenGen.gameProvinces);
+    Eu4Parser::writeDefinition(gameModPath + "\\map\\definition.csv",
+                               scenGen.gameProvinces);
+    Eu4Parser::writePositions(gameModPath + "\\map\\positions.txt",
+                              scenGen.gameProvinces);
+    Eu4Parser::writeRegions(gameModPath + "\\map\\region.txt",
+                            scenGen.gameRegions);
+    Eu4Parser::writeSuperregion(gameModPath + "\\map\\superregion.txt",
+                                scenGen.gameRegions);
+    Eu4Parser::writeTerrain(gameModPath + "\\map\\terrain.txt",
+                            scenGen.gameProvinces);
+    Eu4Parser::writeTradewinds(gameModPath + "\\map\\trade_winds.txt",
+                               scenGen.gameProvinces);
 
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";
