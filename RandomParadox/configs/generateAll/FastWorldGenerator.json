@@ -150,8 +150,8 @@
 		"humidity" : {
 			"coastalEffectRange" : -1,
 			"windEffectRange" : -1,
-			"latitudeLow" : 0.33,
-			"latitudeHigh" : 1.16
+			"latitudeLow" : 0.0,
+			"latitudeHigh" : 2.0
 		},
 		"weather":
 		{
