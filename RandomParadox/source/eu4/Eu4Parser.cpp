@@ -1,6 +1,46 @@
 #include "eu4/Eu4Parser.h"
+std::string Eu4Parser::loadVanillaAreas(const std::string &path) {
+  std::string content{""};
+  auto lines = pU::getLines(path);
+  for (auto &line : lines) {
+    if (line.find("{") != std::string::npos ||
+        line.find("}") != std::string::npos ||
+        line.find("_area") != std::string::npos) {
+      content.append(line + "\n");
+    }
+  }
+  return content;
+}
+std::string Eu4Parser::loadVanillaRegions(const std::string &path) {
+  std::string content{""};
+  auto lines = pU::getLines(path);
+  for (auto &line : lines) {
+    if (line.find("{") != std::string::npos ||
+        line.find("}") != std::string::npos ||
+        line.find("areas") != std::string::npos) {
+      content.append(line + "\n");
+    }
+  }
+  while (pU::removeBracketBlockFromKey(content, "monsoon")) {
+  }
+  return content;
+}
 
-void Eu4Parser::writeAdj(const std::string path,
+std::string Eu4Parser::loadVanillaSuperRegions(const std::string &path) {
+  std::string content{""};
+  auto lines = pU::getLines(path);
+  for (auto &line : lines) {
+    if (line.find("{") != std::string::npos ||
+        line.find("}") != std::string::npos ||
+        line.find("superregion") != std::string::npos) {
+      content.append(line + "\n");
+    }
+  }
+  while (pU::removeBracketBlockFromKey(content, "monsoon")) {
+  }
+  return content;
+}
+void Eu4Parser::writeAdj(const std::string &path,
                          const std::vector<GameProvince> &provinces) {
   Logger::logLine("EU4 Parser: Map: Writing Adjacencies");
   // From;To;Type;Through;start_x;start_y;stop_x;stop_y;adjacency_rule_name;Comment
@@ -9,6 +49,7 @@ void Eu4Parser::writeAdj(const std::string path,
   content.append(
       "From;To;Type;Through;start_x;start_y;stop_x;stop_y;Comment\n");
   const auto &randProv = provinces[0];
+
   content.append(std::to_string(randProv.ID));
   content.append(";");
   content.append(std::to_string(randProv.ID));
@@ -22,26 +63,27 @@ void Eu4Parser::writeAdj(const std::string path,
 }
 
 void Eu4Parser::writeAmbientObjects(
-    const std::string path, const std::vector<GameProvince> &provinces) {
+    const std::string &path, const std::vector<GameProvince> &provinces) {
   Logger::logLine("Eu4 Parser: Map: Writing Ambient Objects");
   // empty file for now
   std::string content{""};
   pU::writeFile(path, content);
 }
 
-void Eu4Parser::writeAreas(const std::string path,
-                           const std::vector<GameRegion> &regions) {
+void Eu4Parser::writeAreas(const std::string &path,
+                           const std::vector<GameRegion> &regions,
+                           const std::string &gamePath) {
   Logger::logLine("EU4 Parser: Map: Writing Areas");
-  std::string content{""};
+  std::string content = loadVanillaAreas(gamePath + "\\map\\area.txt");
   const auto templateArea = pU::readFile("resources\\eu4\\map\\area.txt");
 
   for (auto &region : regions) {
     std::string areaText{templateArea};
     pU::replaceOccurences(areaText, "template_name",
-                          region.name + std::to_string(region.ID));
+                          "area_" + std::to_string(region.ID + 1));
     std::string provs{""};
     for (auto &prov : region.provinces) {
-      provs.append(std::to_string(prov->ID));
+      provs.append(std::to_string(prov->ID + 1));
       provs.append(" ");
     }
     pU::replaceOccurences(areaText, "templateProvinces", provs);
@@ -50,7 +92,7 @@ void Eu4Parser::writeAreas(const std::string path,
   pU::writeFile(path, content);
 }
 
-void Eu4Parser::writeClimate(const std::string path,
+void Eu4Parser::writeClimate(const std::string &path,
                              const std::vector<GameProvince> &provinces) {
   Logger::logLine("EU4 Parser: Map: Writing climate");
   /* climate types:
@@ -70,7 +112,7 @@ void Eu4Parser::writeClimate(const std::string path,
   std::string severe_monsoon{""};
 
   for (const auto &province : provinces) {
-    const auto provID = std::to_string(province.ID);
+    const auto provID = std::to_string(province.ID + 1);
     auto minTemp = 400.0;
     auto maxTemp = -200.0;
     auto maxPrecipitation = 0.0;
@@ -80,7 +122,6 @@ void Eu4Parser::writeClimate(const std::string path,
       UtilLib::switchIfComparator(temp[1], maxTemp, std::greater());
       UtilLib::switchIfComparator(temp[2], maxPrecipitation, std::greater());
     }
-    std::cout << minTemp << std::endl;
     if (minTemp < 0.1)
       severe_winter.append(provID + " ");
     else if (minTemp < 0.25)
@@ -119,7 +160,32 @@ void Eu4Parser::writeClimate(const std::string path,
   pU::writeFile(path, content);
 }
 
-void Eu4Parser::writeDefaultMap(const std::string path,
+void Eu4Parser::writeContinent(const std::string &path,
+                               const std::vector<GameProvince> &provinces) {
+
+  Logger::logLine("EU4 Parser: Map: Writing continents");
+  auto content = pU::readFile("resources\\eu4\\map\\continent.txt");
+  // must not be more than 6 continents!
+  std::array<std::vector<int>, 6> continents;
+  for (const auto &province : provinces) {
+    if (province.baseProvince->continentID >= 0 &&
+        province.baseProvince->continentID != 1000000) {
+      continents.at(province.baseProvince->continentID)
+          .push_back(province.ID + 1);
+    }
+  }
+  auto count = 0;
+  for (auto &continent : continents) {
+    std::string continentProvs{""};
+    for (auto elem : continent) {
+      continentProvs.append(std::to_string(elem) + " ");
+    }
+    pU::replaceOccurences(content, "template" + std::to_string(count++),
+                          continentProvs);
+  }
+  pU::writeFile(path, content);
+}
+void Eu4Parser::writeDefaultMap(const std::string &path,
                                 const std::vector<GameProvince> &provinces) {
   Logger::logLine("EU4 Parser: Map: Writing default map");
   auto content = pU::readFile("resources\\eu4\\map\\default.map");
@@ -128,16 +194,16 @@ void Eu4Parser::writeDefaultMap(const std::string path,
   pU::replaceOccurences(content, "templateHeight",
                         std::to_string(Env::Instance().height));
   pU::replaceOccurences(content, "templateProvinces",
-                        std::to_string(provinces.size()));
+                        std::to_string(provinces.size() + 1));
   std::string seaStarts{""};
   std::string lakes{""};
   for (const auto &province : provinces) {
     if (province.baseProvince->sea) {
-      seaStarts.append(std::to_string(province.ID) + " ");
+      seaStarts.append(std::to_string(province.ID + 1) + " ");
       if (seaStarts.size() % 76 < 10 && seaStarts.size() >= 10)
         seaStarts.append("\n\t\t\t\t");
     } else if (province.baseProvince->isLake) {
-      lakes.append(std::to_string(province.ID) + " ");
+      lakes.append(std::to_string(province.ID + 1) + " ");
       if (lakes.size() % 76 < 10 && lakes.size() >= 10)
         lakes.append("\n\t\t\t");
     }
@@ -147,7 +213,7 @@ void Eu4Parser::writeDefaultMap(const std::string path,
   pU::writeFile(path, content);
 }
 
-void Eu4Parser::writeDefinition(const std::string path,
+void Eu4Parser::writeDefinition(const std::string &path,
                                 const std::vector<GameProvince> &provinces) {
   Logger::logLine("EU4 Parser: Map: Defining Provinces");
   std::string content{"province;red;green;blue;x;x\n"};
@@ -156,13 +222,15 @@ void Eu4Parser::writeDefinition(const std::string path,
         std::to_string(prov.baseProvince->ID + 1),
         std::to_string(prov.baseProvince->colour.getRed()),
         std::to_string(prov.baseProvince->colour.getGreen()),
-        std::to_string(prov.baseProvince->colour.getBlue())};
+        std::to_string(prov.baseProvince->colour.getBlue()),
+        "x",
+        "x"};
     content.append(pU::csvFormat(arguments, ';', false));
   }
   pU::writeFile(path, content);
 }
 
-void Eu4Parser::writePositions(const std::string path,
+void Eu4Parser::writePositions(const std::string &path,
                                const std::vector<GameProvince> &provinces) {
   Logger::logLine("EU4 Parser: Map: Writing Positions");
 
@@ -198,30 +266,76 @@ void Eu4Parser::writePositions(const std::string path,
   pU::writeFile(path, content);
 }
 
-void Eu4Parser::writeRegions(const std::string path,
-                             const std::vector<GameRegion> &regions) {
+void Eu4Parser::writeRegions(const std::string &path,
+                             const std::string &gamePath,
+                             const std::vector<eu4Region> &eu4regions) {
   Logger::logLine("EU4 Parser: Map: Writing Regions");
-  // TODO
-  pU::writeFile(path, "");
+  std::string content = loadVanillaRegions(gamePath + "\\map\\region.txt");
+  const auto templateRegion = pU::readFile("resources\\eu4\\map\\region.txt");
+  for (const auto &eu4Region : eu4regions) {
+    auto regionStr{templateRegion};
+    std::string areaString{""};
+    pU::replaceOccurences(regionStr, "templateRegion", eu4Region.name);
+    for (const auto areaID : eu4Region.areaIDs) {
+      areaString.append("area_" + std::to_string(areaID + 1) + " ");
+    }
+    pU::replaceOccurences(regionStr, "templateAreaList", areaString);
+    content.append(regionStr);
+  }
+
+  pU::writeFile(path, content);
 }
 
-void Eu4Parser::writeSuperregion(const std::string path,
+void Eu4Parser::writeSuperregion(const std::string &path,
+                                 const std::string &gamePath,
                                  const std::vector<GameRegion> &regions) {
   Logger::logLine("EU4 Parser: Map: Writing Superregions");
   // not really necessary
-  pU::writeFile(path, pU::readFile("resources\\eu4\\map\\superregion.txt"));
+
+  pU::writeFile(path, loadVanillaSuperRegions(gamePath + "\\map\\superregion.txt"));
 }
 
-void Eu4Parser::writeTerrain(const std::string path,
+void Eu4Parser::writeTerrain(const std::string &path,
                              const std::vector<GameProvince> &provinces) {
   Logger::logLine("EU4 Parser: Map: Writing Terrain");
   // copying for now, as overwrites of terrain type are not a necessity
   pU::writeFile(path, pU::readFile("resources\\eu4\\map\\terrain.txt"));
 }
 
-void Eu4Parser::writeTradewinds(const std::string path,
+void Eu4Parser::writeTradewinds(const std::string &path,
                                 const std::vector<GameProvince> &provinces) {
   Logger::logLine("EU4 Parser: Map: Writing Tradewinds");
   // empty for now, as tradewinds are not a necessity
   pU::writeFile(path, pU::readFile("resources\\eu4\\map\\trade_winds.txt"));
+}
+
+void Eu4Parser::copyDescriptorFile(const std::string &sourcePath,
+                                   const std::string &destPath,
+                                   const std::string &modsDirectory,
+                                   const std::string &modName) {
+  Logger::logLine("EU4 Parser: Copying Descriptor file");
+  auto descriptorText = pU::readFile(sourcePath);
+  pU::replaceOccurences(descriptorText, "templateName", modName);
+  auto modText{descriptorText};
+  pU::replaceOccurences(descriptorText, "templatePath", "");
+  pU::writeFile(destPath + "//descriptor.mod", descriptorText);
+  pU::replaceOccurences(modText, "templatePath",
+                        UtilLib::varsToString("path=\"", destPath, "\""));
+  pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
+}
+
+void Eu4Parser::writeProvinces(const std::string &path,
+                               const std::vector<GameProvince> &provinces,
+                               const std::vector<GameRegion> &regions) {
+  Logger::logLine("Eu4 Parser: History: Drawing Province Borders");
+  auto templateContent =
+      pU::readFile("resources\\eu4\\history\\provinceTemplate.txt");
+  for (const auto &region : regions) {
+    for (const auto &prov : region.gameProvinces) {
+      std::string content{templateContent};
+
+      pU::writeFile(path + "\\" + std::to_string(prov.ID + 1) + "-a.txt",
+                    content);
+    }
+  }
 }

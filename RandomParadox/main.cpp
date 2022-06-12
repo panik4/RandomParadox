@@ -124,8 +124,8 @@ int main() {
   }
   try {
     NameGenerator::prepare();
-    FastWorldGenerator fastWorldGen(configSubFolder);
     if (genHoi4Scenario) {
+      FastWorldGenerator fastWorldGen(configSubFolder);
 
       Hoi4Module hoi4Mod;
 
@@ -153,11 +153,10 @@ int main() {
     }
     if (genEu4Scenario) {
       // only run if not already run
-      if (!genHoi4Scenario) {
-
-        // now run the world generation
-        fastWorldGen.generateWorld();
-      }
+      FastWorldGenerator fastWorldGen(configSubFolder);
+      Env::Instance().seaLevel = 95;
+      // now run the world generation
+      fastWorldGen.generateWorld();
       // now start the generation of the scenario with the generated map files
       ScenarioGenerator sG(fastWorldGen);
       Eu4Module eu4;
