@@ -1,6 +1,7 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "eu4/Eu4Parser.h"
+#include "eu4/Eu4ScenarioGenerator.h"
 #include "generic/FormatConverter.h"
 #include "generic/GenericModule.h"
 #include "generic/ScenarioGenerator.h"

@@ -1,5 +1,0 @@
-# A region can only belong to one super region.
-
-# Sea super regions are used by AI to plan naval bases (it wants at least one fleet in each it has non-home presence if possible).
-
-

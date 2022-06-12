@@ -38,8 +38,8 @@
 	},
 	"map": 
 	{
-        "height" : 512,
-		"width" : 512,
+        "height" : 1024,
+		"width" : 1024,
 		"landPercentage" : 34,
 		"seaLevel" : 93,
 		"accuracy": 100,
@@ -140,8 +140,8 @@
 			}
 		},
 		"provinces" : {
-			"auto" : true,
-			"landProvinceFactor" : 1,
+			"auto" : false,
+			"landProvinceFactor" : 3,
 			"seaProvinceFactor" : 1,
 			"minProvPerRegion" : 3,
 			"minProvSize" : 10,

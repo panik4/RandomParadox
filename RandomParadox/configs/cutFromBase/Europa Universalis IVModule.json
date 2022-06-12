@@ -1,0 +1,16 @@
+{
+	"module": 
+	{
+		"modName" : "eu4Mod1",
+		"gamePath" : "D://Steam//steamapps//common//Europa Universalis IV",
+		"modPath" : "C://Users//<username>//Documents//Paradox Interactive//Europa Universalis IV//mod//",
+		"modsDirectory" : "C://Users//<username>//Documents//Paradox Interactive//Europa Universalis IV//mod//"
+	},
+	"eu4":
+	{
+	},
+	"scenario":
+	{
+		"numCountries" : 50
+	}
+}

@@ -224,13 +224,15 @@ public:
     }
   };
   // delete the bracket block from the key on, leaving nothing
-  static void removeBracketBlockFromKey(std::string &content,
+  static bool removeBracketBlockFromKey(std::string &content,
                                         const std::string key) {
     const auto pos = content.find(key);
     if (pos != std::string::npos) {
       const auto blockEnd = findClosingBracket(content, pos);
       content.erase(pos, blockEnd - pos + 1);
+      return true;
     }
+    return false;
   };
 
   static void removeSurroundingBracketBlock(std::string &content,
