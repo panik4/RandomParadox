@@ -1,0 +1,12 @@
+owner = FRA
+controller = FRA
+add_core = FRA
+culture = somali
+religion = sunni
+capital = "Afgooye"
+trade_goods = grain
+is_city = yes
+hre = no
+base_tax = 1 
+base_production = 1
+base_manpower = 1

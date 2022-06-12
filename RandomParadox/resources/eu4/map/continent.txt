@@ -1,25 +1,25 @@
 europe = {
-
+	template0
 }
 
 asia = {
-
+	template1
 }
 
 africa = {
-
+	template2
 }
 
 north_america = {
-
+	template3
 }
 
 south_america = {
-
+	template4
 }
 
 oceania = {
-
+	template5
 }
 
 # Used for RNW

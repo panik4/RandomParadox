@@ -2,7 +2,8 @@
 	"randomScenario": 
 	{
 		"writeMaps": true,
-		"genhoi4": true,
+		"genhoi4": false,
+		"geneu4": true,
 		"inputheightmap": false,
 		"heightmapPath": "inputs/heightmap24.bmp",
 		"latitudeLow" : 0.00,
