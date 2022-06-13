@@ -5,11 +5,11 @@
 
 class Eu4Parser {
   using pU = ParserUtils;
+  static std::vector<std::string> locKeys;
 
 public:
-  static std::string loadVanillaAreas(const std::string &path);
-  static std::string loadVanillaRegions(const std::string &path);
-  static std::string loadVanillaSuperRegions(const std::string &path);
+  static std::string loadVanillaFile(const std::string &path,
+                                     const std::vector<std::string> &&filters);
   static void writeAdj(const std::string &path,
                        const std::vector<GameProvince> &provinces);
   static void writeAmbientObjects(const std::string &path,
@@ -20,6 +20,9 @@ public:
                          const std::string &gamePath);
   static void writeClimate(const std::string &path,
                            const std::vector<GameProvince> &provinces);
+  static void writeColonialRegions(const std::string &path,
+                                   const std::string &gamePath,
+                                   const std::vector<GameProvince> &provinces);
   // continents consist of multiple provinces
   static void writeContinent(const std::string &path,
                              const std::vector<GameProvince> &provinces);
@@ -38,6 +41,9 @@ public:
                                const std::vector<GameRegion> &regions);
   static void writeTerrain(const std::string &path,
                            const std::vector<GameProvince> &provinces);
+  static void writeTradeCompanies(const std::string &path,
+                                  const std::string &gamePath,
+                                  const std::vector<GameProvince> &provinces);
   static void writeTradewinds(const std::string &path,
                               const std::vector<GameProvince> &provinces);
   static void copyDescriptorFile(const std::string &sourcePath,
@@ -48,4 +54,9 @@ public:
   static void writeProvinces(const std::string &path,
                              const std::vector<GameProvince> &provinces,
                              const std::vector<GameRegion> &regions);
+
+  static void writeLoc(const std::string &path, const std::string &gamePath,
+                       const std::vector<GameRegion> &regions,
+                       const std::vector<GameProvince> &provinces,
+                       const std::vector<eu4Region> &eu4regions);
 };
