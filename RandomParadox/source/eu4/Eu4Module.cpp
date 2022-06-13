@@ -11,6 +11,10 @@ bool Eu4Module::createPaths() { // prepare folder structure
     // map
     // history
     std::filesystem::create_directory(gameModPath + "\\history\\provinces\\");
+    std::filesystem::create_directory(gameModPath +
+                                      "\\common\\colonial_regions\\");
+    std::filesystem::create_directory(gameModPath +
+                                      "\\common\\trade_companies\\");
 
     return true;
   } catch (std::exception e) {
@@ -85,6 +89,8 @@ void Eu4Module::genEu4(bool useDefaultMap, bool useDefaultStates,
                                    scenGen.gameProvinces);
     Eu4Parser::writeAreas(gameModPath + "\\map\\area.txt", scenGen.gameRegions,
                           gamePath);
+    Eu4Parser::writeColonialRegions(gameModPath + "\\common\\colonial_regions\\00_colonial_regions.txt",
+                                   gamePath, scenGen.gameProvinces);
     Eu4Parser::writeClimate(gameModPath + "\\map\\climate.txt",
                             scenGen.gameProvinces);
     Eu4Parser::writeContinent(gameModPath + "\\map\\continent.txt",
@@ -101,6 +107,8 @@ void Eu4Module::genEu4(bool useDefaultMap, bool useDefaultStates,
                                 gamePath, scenGen.gameRegions);
     Eu4Parser::writeTerrain(gameModPath + "\\map\\terrain.txt",
                             scenGen.gameProvinces);
+    Eu4Parser::writeTradeCompanies(gameModPath + "\\common\\trade_companies\\00_trade_companies.txt",
+                                gamePath, scenGen.gameProvinces);
     Eu4Parser::writeTradewinds(gameModPath + "\\map\\trade_winds.txt",
                                scenGen.gameProvinces);
 
@@ -109,6 +117,9 @@ void Eu4Module::genEu4(bool useDefaultMap, bool useDefaultStates,
 
     Eu4Parser::writeProvinces(gameModPath + "\\history\\provinces\\",
                               scenGen.gameProvinces, scenGen.gameRegions);
+
+    Eu4Parser::writeLoc(gameModPath + "\\localisation\\", gamePath,
+                        scenGen.gameRegions, scenGen.gameProvinces, eu4scenGen.getEu4Regions());
 
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";
