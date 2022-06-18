@@ -81,45 +81,46 @@ void Eu4Module::genEu4(bool useDefaultMap, bool useDefaultStates,
     // just copy over provinces.bmp, already in a compatible format
     Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"),
                           (gameModPath + ("\\map\\provinces.bmp")).c_str());
+    {
+      using namespace Eu4::Parser;
+      // now do text
+      writeAdj(gameModPath + "\\map\\adjacencies.csv", scenGen.gameProvinces);
+      writeAmbientObjects(gameModPath + "\\map\\ambient_object.txt",
+                          scenGen.gameProvinces);
+      Eu4::Parser::writeAreas(gameModPath + "\\map\\area.txt",
+                            scenGen.gameRegions,
+                 gamePath);
+      writeColonialRegions(
+          gameModPath + "\\common\\colonial_regions\\00_colonial_regions.txt",
+          gamePath, scenGen.gameProvinces);
+      writeClimate(gameModPath + "\\map\\climate.txt", scenGen.gameProvinces);
+      writeContinent(gameModPath + "\\map\\continent.txt",
+                     scenGen.gameProvinces);
+      writeDefaultMap(gameModPath + "\\map\\default.map",
+                      scenGen.gameProvinces);
+      writeDefinition(gameModPath + "\\map\\definition.csv",
+                      scenGen.gameProvinces);
+      writePositions(gameModPath + "\\map\\positions.txt",
+                     scenGen.gameProvinces);
+      writeRegions(gameModPath + "\\map\\region.txt", gamePath,
+                   eu4scenGen.getEu4Regions());
+      writeSuperregion(gameModPath + "\\map\\superregion.txt", gamePath,
+                       scenGen.gameRegions);
+      writeTerrain(gameModPath + "\\map\\terrain.txt", scenGen.gameProvinces);
+      writeTradeCompanies(
+          gameModPath + "\\common\\trade_companies\\00_trade_companies.txt",
+          gamePath, scenGen.gameProvinces);
+      writeTradewinds(gameModPath + "\\map\\trade_winds.txt",
+                      scenGen.gameProvinces);
 
-    // now do text
-    Eu4Parser::writeAdj(gameModPath + "\\map\\adjacencies.csv",
-                        scenGen.gameProvinces);
-    Eu4Parser::writeAmbientObjects(gameModPath + "\\map\\ambient_object.txt",
-                                   scenGen.gameProvinces);
-    Eu4Parser::writeAreas(gameModPath + "\\map\\area.txt", scenGen.gameRegions,
-                          gamePath);
-    Eu4Parser::writeColonialRegions(gameModPath + "\\common\\colonial_regions\\00_colonial_regions.txt",
-                                   gamePath, scenGen.gameProvinces);
-    Eu4Parser::writeClimate(gameModPath + "\\map\\climate.txt",
-                            scenGen.gameProvinces);
-    Eu4Parser::writeContinent(gameModPath + "\\map\\continent.txt",
-                              scenGen.gameProvinces);
-    Eu4Parser::writeDefaultMap(gameModPath + "\\map\\default.map",
-                               scenGen.gameProvinces);
-    Eu4Parser::writeDefinition(gameModPath + "\\map\\definition.csv",
-                               scenGen.gameProvinces);
-    Eu4Parser::writePositions(gameModPath + "\\map\\positions.txt",
-                              scenGen.gameProvinces);
-    Eu4Parser::writeRegions(gameModPath + "\\map\\region.txt", gamePath,
-                            eu4scenGen.getEu4Regions());
-    Eu4Parser::writeSuperregion(gameModPath + "\\map\\superregion.txt",
-                                gamePath, scenGen.gameRegions);
-    Eu4Parser::writeTerrain(gameModPath + "\\map\\terrain.txt",
-                            scenGen.gameProvinces);
-    Eu4Parser::writeTradeCompanies(gameModPath + "\\common\\trade_companies\\00_trade_companies.txt",
-                                gamePath, scenGen.gameProvinces);
-    Eu4Parser::writeTradewinds(gameModPath + "\\map\\trade_winds.txt",
-                               scenGen.gameProvinces);
+      Eu4::Parser::copyDescriptorFile("resources\\eu4\\descriptor.mod", gameModPath,
+                         gameModsDirectory, modName);
 
-    Eu4Parser::copyDescriptorFile("resources\\eu4\\descriptor.mod", gameModPath,
-                                  gameModsDirectory, modName);
-
-    Eu4Parser::writeProvinces(gameModPath + "\\history\\provinces\\",
-                              scenGen.gameProvinces, scenGen.gameRegions);
-
-    Eu4Parser::writeLoc(gameModPath + "\\localisation\\", gamePath,
-                        scenGen.gameRegions, scenGen.gameProvinces, eu4scenGen.getEu4Regions());
+      writeProvinces(gameModPath + "\\history\\provinces\\",
+                     scenGen.gameProvinces, scenGen.gameRegions);
+      writeLoc(gameModPath + "\\localisation\\", gamePath, scenGen.gameRegions,
+               scenGen.gameProvinces, eu4scenGen.getEu4Regions());
+    }
 
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";
@@ -129,8 +130,8 @@ void Eu4Module::genEu4(bool useDefaultMap, bool useDefaultStates,
   }
 }
 
-void Eu4Module::readEu4Config(std::string configSubFolder,
-                              std::string username) {
+void Eu4Module::readEu4Config(std::string& configSubFolder,
+                              std::string& username) {
   Logger::logLine("Reading Eu4 Config");
   const auto root =
       this->readConfig(configSubFolder, username, "Europa Universalis IV");
