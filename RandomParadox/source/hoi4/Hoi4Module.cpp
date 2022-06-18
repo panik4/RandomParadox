@@ -37,7 +37,7 @@ bool Hoi4Module::createPaths() {
 }
 
 void Hoi4Module::genHoi(bool useDefaultMap, bool useDefaultStates,
-                        bool useDefaultProvinces, ScenarioGenerator &scenGen,
+                        bool useDefaultProvinces, Scenario::Generator &scenGen,
                         bool cut) {
   if (!createPaths())
     return;

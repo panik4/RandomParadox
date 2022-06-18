@@ -144,7 +144,7 @@ int main() {
         fastWorldGen.generateWorld();
       }
       // now start the generation of the scenario with the generated map files
-      ScenarioGenerator sG(fastWorldGen);
+      Scenario::Generator sG(fastWorldGen);
       // and now check if we need to generate game specific files
       if (genHoi4Scenario)
         // generate hoi4 scenario
@@ -158,8 +158,8 @@ int main() {
       // now run the world generation
       fastWorldGen.generateWorld();
       // now start the generation of the scenario with the generated map files
-      ScenarioGenerator sG(fastWorldGen);
-      Eu4Module eu4;
+      Eu4::Generator sG(fastWorldGen);
+      Eu4::Module eu4;
       eu4.readEu4Config(configSubFolder, username);
       eu4.genEu4(useDefaultMap, useDefaultStates, useDefaultProvinces, sG, cut);
     }
