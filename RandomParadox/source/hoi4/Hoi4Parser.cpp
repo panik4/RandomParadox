@@ -1,6 +1,7 @@
 #include "hoi4/Hoi4Parser.h"
 #include "hoi4/NationalFocus.h"
 
+namespace Hoi4 {
 std::vector<std::string> Hoi4Parser::defaultTags;
 
 void Hoi4Parser::dumpAdj(const std::string path) {
@@ -954,3 +955,4 @@ void Hoi4Parser::copyDescriptorFile(const std::string sourcePath,
                         UtilLib::varsToString("path=\"", destPath, "\""));
   pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
 }
+} // namespace Hoi4

@@ -1,5 +1,6 @@
 #include "hoi4/Hoi4GameRegion.h"
 
+namespace Hoi4 {
 Hoi4GameRegion::Hoi4GameRegion() {}
 
 Hoi4GameRegion::Hoi4GameRegion(const GameRegion &gameRegion)
@@ -11,3 +12,4 @@ Hoi4GameRegion::Hoi4GameRegion(const GameRegion &gameRegion)
 }
 
 Hoi4GameRegion::~Hoi4GameRegion() {}
+} // namespace Hoi4
