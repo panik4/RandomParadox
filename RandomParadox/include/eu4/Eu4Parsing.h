@@ -1,9 +1,9 @@
-#include "eu4/Eu4ScenarioGenerator.h"
+#include "eu4/Eu4Generator.h"
 #include "generic/ParserUtils.h"
 #include <generic/GameProvince.h>
 #include <generic/GameRegion.h>
 
-namespace Eu4::Parser {
+namespace Eu4::Parsing {
 using pU = ParserUtils;
 std::string loadVanillaFile(const std::string &path,
                             const std::vector<std::string> &&filters);
@@ -52,4 +52,4 @@ void writeLoc(const std::string &path, const std::string &gamePath,
               const std::vector<GameRegion> &regions,
               const std::vector<GameProvince> &provinces,
               const std::vector<eu4Region> &eu4regions);
-}; // namespace Eu4::Parser
+}; // namespace Eu4::Parsing

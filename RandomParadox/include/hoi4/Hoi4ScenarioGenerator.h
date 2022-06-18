@@ -67,16 +67,16 @@ public:
   void generateStateSpecifics(const int regionAmount);
   // politics: ideology, strength, major
   void
-  generateCountrySpecifics(ScenarioGenerator &scenGen,
+  generateCountrySpecifics(Scenario::Generator &scenGen,
                            std::map<std::string, PdoxCountry> &pdoxCountries);
   // build strategic regions from gameregions
-  void generateStrategicRegions(ScenarioGenerator &scenGen);
+  void generateStrategicRegions(Scenario::Generator &scenGen);
   // generate weather per strategic region, from baseprovinces
-  void generateWeather(ScenarioGenerator &scenGen);
+  void generateWeather(Scenario::Generator &scenGen);
   // supply hubs and railroads
-  void generateLogistics(ScenarioGenerator &scenGen);
+  void generateLogistics(Scenario::Generator &scenGen);
   // calculate how strong each country is
-  void evaluateCountries(ScenarioGenerator &scenGen);
+  void evaluateCountries(Scenario::Generator &scenGen);
 
   bool unitFulfillsRequirements(std::vector<std::string> unitRequirements,
                                 Hoi4Country &country);
@@ -98,7 +98,7 @@ public:
       const Hoi4Country &target, const std::vector<GameRegion>& gameRegions,
       const std::vector<std::set<std::string>> &levelTargets, const int level);
   // evaluate the focus chains for each country
-  void evaluateCountryGoals(const ScenarioGenerator &scenGen);
+  void evaluateCountryGoals(const Scenario::Generator &scenGen);
   // see which countries are in need of unification
   void evaluateBrotherlyWars();
   // see which country needs to see some action
@@ -106,5 +106,5 @@ public:
   // create a strategy for this country
   void evaluateCountryStrategy();
   // print world info to console
-  void printStatistics(ScenarioGenerator &scenGen);
+  void printStatistics(Scenario::Generator &scenGen);
 };

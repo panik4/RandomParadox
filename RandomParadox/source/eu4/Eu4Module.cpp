@@ -1,10 +1,10 @@
 #include "eu4/Eu4Module.h"
+namespace Eu4 {
+Module::Module() {}
 
-Eu4Module::Eu4Module() {}
+Module::~Module() {}
 
-Eu4Module::~Eu4Module() {}
-
-bool Eu4Module::createPaths() { // prepare folder structure
+bool Module::createPaths() { // prepare folder structure
   try {
     // generic cleanup and path creation
     GenericModule::createPaths(gameModPath);
@@ -27,22 +27,20 @@ bool Eu4Module::createPaths() { // prepare folder structure
   }
 }
 
-void Eu4Module::genEu4(bool useDefaultMap, bool useDefaultStates,
-                       bool useDefaultProvinces, ScenarioGenerator &scenGen,
-                       bool cut) {
+void Module::genEu4(bool useDefaultMap, bool useDefaultStates,
+                    bool useDefaultProvinces, Generator &eu4Gen, bool cut) {
   if (!createPaths())
     return;
 
-  Eu4ScenarioGenerator eu4scenGen;
   try {
     // start with the generic stuff in the Scenario Generator
-    scenGen.mapRegions();
-    scenGen.mapContinents();
-    scenGen.generateCountries(numCountries);
-    scenGen.evaluateNeighbours();
-    scenGen.generateWorld();
-    scenGen.dumpDebugCountrymap(Env::Instance().mapsPath + "countries.bmp");
-    eu4scenGen.generateRegions(scenGen.gameRegions);
+    eu4Gen.mapRegions();
+    eu4Gen.mapContinents();
+    eu4Gen.generateCountries(numCountries);
+    eu4Gen.evaluateNeighbours();
+    eu4Gen.generateWorld();
+    eu4Gen.dumpDebugCountrymap(Env::Instance().mapsPath + "countries.bmp");
+    eu4Gen.generateRegions(eu4Gen.gameRegions);
   } catch (std::exception e) {
     std::string error = "Error while generating the Eu4 Module.\n";
     error += "Error is: \n";
@@ -82,44 +80,42 @@ void Eu4Module::genEu4(bool useDefaultMap, bool useDefaultStates,
     Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"),
                           (gameModPath + ("\\map\\provinces.bmp")).c_str());
     {
-      using namespace Eu4::Parser;
+      using namespace Eu4::Parsing;
       // now do text
-      writeAdj(gameModPath + "\\map\\adjacencies.csv", scenGen.gameProvinces);
+      writeAdj(gameModPath + "\\map\\adjacencies.csv", eu4Gen.gameProvinces);
       writeAmbientObjects(gameModPath + "\\map\\ambient_object.txt",
-                          scenGen.gameProvinces);
-      Eu4::Parser::writeAreas(gameModPath + "\\map\\area.txt",
-                            scenGen.gameRegions,
-                 gamePath);
+                          eu4Gen.gameProvinces);
+      Eu4::Parsing::writeAreas(gameModPath + "\\map\\area.txt",
+                               eu4Gen.gameRegions, gamePath);
       writeColonialRegions(
           gameModPath + "\\common\\colonial_regions\\00_colonial_regions.txt",
-          gamePath, scenGen.gameProvinces);
-      writeClimate(gameModPath + "\\map\\climate.txt", scenGen.gameProvinces);
+          gamePath, eu4Gen.gameProvinces);
+      writeClimate(gameModPath + "\\map\\climate.txt", eu4Gen.gameProvinces);
       writeContinent(gameModPath + "\\map\\continent.txt",
-                     scenGen.gameProvinces);
-      writeDefaultMap(gameModPath + "\\map\\default.map",
-                      scenGen.gameProvinces);
+                     eu4Gen.gameProvinces);
+      writeDefaultMap(gameModPath + "\\map\\default.map", eu4Gen.gameProvinces);
       writeDefinition(gameModPath + "\\map\\definition.csv",
-                      scenGen.gameProvinces);
+                      eu4Gen.gameProvinces);
       writePositions(gameModPath + "\\map\\positions.txt",
-                     scenGen.gameProvinces);
+                     eu4Gen.gameProvinces);
       writeRegions(gameModPath + "\\map\\region.txt", gamePath,
-                   eu4scenGen.getEu4Regions());
+                   eu4Gen.getEu4Regions());
       writeSuperregion(gameModPath + "\\map\\superregion.txt", gamePath,
-                       scenGen.gameRegions);
-      writeTerrain(gameModPath + "\\map\\terrain.txt", scenGen.gameProvinces);
+                       eu4Gen.gameRegions);
+      writeTerrain(gameModPath + "\\map\\terrain.txt", eu4Gen.gameProvinces);
       writeTradeCompanies(
           gameModPath + "\\common\\trade_companies\\00_trade_companies.txt",
-          gamePath, scenGen.gameProvinces);
+          gamePath, eu4Gen.gameProvinces);
       writeTradewinds(gameModPath + "\\map\\trade_winds.txt",
-                      scenGen.gameProvinces);
+                      eu4Gen.gameProvinces);
 
-      Eu4::Parser::copyDescriptorFile("resources\\eu4\\descriptor.mod", gameModPath,
+      copyDescriptorFile("resources\\eu4\\descriptor.mod", gameModPath,
                          gameModsDirectory, modName);
 
       writeProvinces(gameModPath + "\\history\\provinces\\",
-                     scenGen.gameProvinces, scenGen.gameRegions);
-      writeLoc(gameModPath + "\\localisation\\", gamePath, scenGen.gameRegions,
-               scenGen.gameProvinces, eu4scenGen.getEu4Regions());
+                     eu4Gen.gameProvinces, eu4Gen.gameRegions);
+      writeLoc(gameModPath + "\\localisation\\", gamePath, eu4Gen.gameRegions,
+               eu4Gen.gameProvinces, eu4Gen.getEu4Regions());
     }
 
   } catch (std::exception e) {
@@ -130,8 +126,8 @@ void Eu4Module::genEu4(bool useDefaultMap, bool useDefaultStates,
   }
 }
 
-void Eu4Module::readEu4Config(std::string& configSubFolder,
-                              std::string& username) {
+void Module::readEu4Config(std::string &configSubFolder,
+                           std::string &username) {
   Logger::logLine("Reading Eu4 Config");
   const auto root =
       this->readConfig(configSubFolder, username, "Europa Universalis IV");
@@ -142,3 +138,4 @@ void Eu4Module::readEu4Config(std::string& configSubFolder,
   }
   // default values taken from base game
 }
+} // namespace Eu4
