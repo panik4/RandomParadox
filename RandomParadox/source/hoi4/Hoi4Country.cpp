@@ -1,5 +1,6 @@
 #include "hoi4/Hoi4Country.h"
 
+namespace Hoi4 {
 Hoi4Country::Hoi4Country() {}
 
 Hoi4Country::Hoi4Country(PdoxCountry &c, std::vector<GameRegion> &gameRegions)
@@ -11,3 +12,5 @@ Hoi4Country::Hoi4Country(PdoxCountry &c, std::vector<GameRegion> &gameRegions)
 }
 
 Hoi4Country::~Hoi4Country() {}
+
+} // namespace Hoi4
