@@ -1,12 +1,13 @@
-#include "hoi4/Hoi4ScenarioGenerator.h"
+#include "hoi4/Hoi4Generator.h"
 
-Hoi4ScenarioGenerator::Hoi4ScenarioGenerator() {}
+namespace Hoi4 {
+Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
 
-Hoi4ScenarioGenerator::~Hoi4ScenarioGenerator() {}
+Generator::~Generator() {}
 
-void Hoi4ScenarioGenerator::generateStateResources() {
+void Generator::generateStateResources() {
   Logger::logLine("HOI4: Digging for resources");
-  for (auto &c : countries) {
+  for (auto &c : hoi4Countries) {
     for (auto &hoi4Region : c.second.hoi4Regions) {
       for (const auto &resource : resources) {
         auto chance = resource.second[2];
@@ -31,13 +32,13 @@ void Hoi4ScenarioGenerator::generateStateResources() {
   }
 }
 
-void Hoi4ScenarioGenerator::generateStateSpecifics(const int regionAmount) {
+void Generator::generateStateSpecifics(const int regionAmount) {
   Logger::logLine("HOI4: Planning the economy");
   auto &config = Env::Instance();
   // calculate the target industry amount
   auto targetWorldIndustry = 1248 * sizeFactor * industryFactor;
   Logger::logLine(config.landPercentage);
-  for (auto &c : countries) {
+  for (auto &c : hoi4Countries) {
     for (auto &hoi4Region : c.second.hoi4Regions) {
       // count the number of land states for resource generation
       landStates++;
@@ -108,9 +109,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(const int regionAmount) {
   }
 }
 
-void Hoi4ScenarioGenerator::generateCountrySpecifics(
-    Scenario::Generator &scenGen,
-    std::map<std::string, PdoxCountry> &pdoxCountries) {
+void Generator::generateCountrySpecifics() {
   Logger::logLine("HOI4: Choosing uniforms and electing Tyrants");
   sizeFactor = sqrt((double)(Env::Instance().width * Env::Instance().height) /
                     (double)(5632 * 2048));
@@ -129,10 +128,10 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(
       "southamerican",    "commonwealth",     "asian"};
   std::vector<std::string> ideologies{"fascism", "democratic", "communism",
                                       "neutrality"};
-  for (auto &country : pdoxCountries) {
+  for (auto &country : countries) {
     // construct a hoi4country with country from ScenarioGenerator.
     // We want a copy here
-    Hoi4Country hC(country.second, scenGen.gameRegions);
+    Hoi4Country hC(country.second, gameRegions);
 
     // select a random country ideology
     hC.gfxCulture = UtilLib::selectRandom(gfxCultures);
@@ -166,15 +165,14 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(
     // now get the full name of the country
     hC.fullName = NameGenerator::modifyWithIdeology(
         hC.rulingParty, country.second.name, country.second.adjective);
-    countries.insert({hC.tag, hC});
+    hoi4Countries.insert({hC.tag, hC});
   }
 }
 
-void Hoi4ScenarioGenerator::generateStrategicRegions(
-    Scenario::Generator &scenGen) {
+void Generator::generateStrategicRegions() {
   Logger::logLine("HOI4: Dividing world into strategic regions");
   std::set<int> assignedIdeas;
-  for (auto &region : scenGen.gameRegions) {
+  for (auto &region : gameRegions) {
     if (assignedIdeas.find(region.ID) == assignedIdeas.end()) {
       strategicRegion sR;
       // std::set<int>stratRegion;
@@ -182,9 +180,9 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(
       assignedIdeas.insert(region.ID);
       for (auto &neighbour : region.neighbours) {
         // should be equal in sea/land
-        if (neighbour > scenGen.gameRegions.size())
+        if (neighbour > gameRegions.size())
           continue;
-        if (scenGen.gameRegions[neighbour].sea == region.sea &&
+        if (gameRegions[neighbour].sea == region.sea &&
             assignedIdeas.find(neighbour) == assignedIdeas.end()) {
           sR.gameRegionIDs.insert(neighbour);
           assignedIdeas.insert(neighbour);
@@ -200,8 +198,8 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(
              static_cast<unsigned char>(RandNum::randNum() % 255),
              static_cast<unsigned char>(RandNum::randNum() % 255)};
     for (auto &reg : strat.gameRegionIDs) {
-      c.setBlue(scenGen.gameRegions[reg].sea ? 255 : 0);
-      for (auto &prov : scenGen.gameRegions[reg].gameProvinces) {
+      c.setBlue(gameRegions[reg].sea ? 255 : 0);
+      for (auto &prov : gameRegions[reg].gameProvinces) {
         for (auto &pix : prov.baseProvince->pixels) {
           stratRegionBMP.setColourAtIndex(pix, c);
         }
@@ -212,19 +210,19 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(
   Bitmap::SaveBMPToFile(stratRegionBMP, "Maps\\stratRegions.bmp");
 }
 
-void Hoi4ScenarioGenerator::generateWeather(Scenario::Generator &scenGen) {
+void Generator::generateWeather() {
   for (auto &strat : strategicRegions) {
     for (auto &reg : strat.gameRegionIDs) {
       for (auto i = 0; i < 12; i++) {
         double averageTemperature = 0.0;
         double averageDeviation = 0.0;
         double averagePrecipitation = 0.0;
-        for (auto &prov : scenGen.gameRegions[reg].gameProvinces) {
+        for (auto &prov : gameRegions[reg].gameProvinces) {
           averageDeviation += prov.baseProvince->weatherMonths[i][0];
           averageTemperature += prov.baseProvince->weatherMonths[i][1];
           averagePrecipitation += prov.baseProvince->weatherMonths[i][2];
         }
-        double divisor = (int)scenGen.gameRegions[reg].gameProvinces.size();
+        double divisor = (int)gameRegions[reg].gameProvinces.size();
         averageDeviation /= divisor;
         averageTemperature /= divisor;
         averagePrecipitation /= divisor;
@@ -271,18 +269,17 @@ void Hoi4ScenarioGenerator::generateWeather(Scenario::Generator &scenGen) {
   }
 }
 
-void Hoi4ScenarioGenerator::generateLogistics(Scenario::Generator &scenGen) {
+void Generator::generateLogistics() {
   Logger::logLine("HOI4: Building rail networks");
   auto width = Env::Instance().width;
   Bitmap logistics = Bitmap::findBitmapByKey("countries");
-  for (auto &country : countries) {
+  for (auto &country : hoi4Countries) {
     // GameProvince ID, distance
     std::map<double, int> supplyHubs;
     // add capital
-    auto capitalPosition =
-        scenGen.gameRegions[country.second.capitalRegionID].position;
+    auto capitalPosition = gameRegions[country.second.capitalRegionID].position;
     auto &capitalProvince = UtilLib::selectRandom(
-        scenGen.gameRegions[country.second.capitalRegionID].gameProvinces);
+        gameRegions[country.second.capitalRegionID].gameProvinces);
     std::vector<double> distances;
     // region ID, provinceID
     std::map<int, GameProvince> supplyHubProvinces;
@@ -347,13 +344,11 @@ void Hoi4ScenarioGenerator::generateLogistics(Scenario::Generator &scenGen) {
               // now find distance2, the distance between us and the other
               // already assigned supply hubs
               auto dist3 = UtilLib::getDistance(
-                  scenGen.gameProvinces[supplyHubs[distance2]]
-                      .baseProvince->position,
-                  scenGen.gameProvinces[supplyHubs[distance]]
-                      .baseProvince->position,
+                  gameProvinces[supplyHubs[distance2]].baseProvince->position,
+                  gameProvinces[supplyHubs[distance]].baseProvince->position,
                   width);
               if (dist3 < tempDistance) {
-                sourceNodeID = scenGen.gameProvinces[supplyHubs[distance2]].ID;
+                sourceNodeID = gameProvinces[supplyHubs[distance2]].ID;
                 tempDistance = dist3;
               }
             }
@@ -365,19 +360,19 @@ void Hoi4ScenarioGenerator::generateLogistics(Scenario::Generator &scenGen) {
           sourceNodeID = passthroughProvinceIDs.back();
         }
         // break if this is another landmass. We can't reach it anyway
-        if (scenGen.gameProvinces[sourceNodeID].baseProvince->landMassID !=
-            scenGen.gameProvinces[destNodeID].baseProvince->landMassID)
+        if (gameProvinces[sourceNodeID].baseProvince->landMassID !=
+            gameProvinces[destNodeID].baseProvince->landMassID)
           break;
         ;
         // the origins position
         auto sourceNodePosition =
-            scenGen.gameProvinces[sourceNodeID].baseProvince->position;
+            gameProvinces[sourceNodeID].baseProvince->position;
         // save the distance in a temp variable
         double tempMinDistance = width;
         auto closestID = INT_MAX;
         // now check every sourceNode neighbour for distance to destinationNode
         for (auto &neighbourGProvince :
-             scenGen.gameProvinces[sourceNodeID].neighbours) {
+             gameProvinces[sourceNodeID].neighbours) {
           // check if this belongs to us
           if (gProvIDs.find(neighbourGProvince.ID) == gProvIDs.end())
             continue;
@@ -390,7 +385,7 @@ void Hoi4ScenarioGenerator::generateLogistics(Scenario::Generator &scenGen) {
             continue;
           // the distance to the sources neighbours
           auto nodeDistance = UtilLib::getDistance(
-              scenGen.gameProvinces[destNodeID].baseProvince->position,
+              gameProvinces[destNodeID].baseProvince->position,
               neighbourGProvince.baseProvince->position, width);
           if (nodeDistance < tempMinDistance) {
             tempMinDistance = nodeDistance;
@@ -439,8 +434,7 @@ void Hoi4ScenarioGenerator::generateLogistics(Scenario::Generator &scenGen) {
   }
   for (auto &connection : supplyNodeConnections) {
     for (int i = 0; i < connection.size(); i++) {
-      for (auto pix :
-           scenGen.gameProvinces[connection[i]].baseProvince->pixels) {
+      for (auto pix : gameProvinces[connection[i]].baseProvince->pixels) {
         // don't overwrite capitals and supply nodes
         if (logistics.getColourAtIndex(pix) == Colour{255, 255, 0} ||
             logistics.getColourAtIndex(pix) == Colour{0, 255, 0})
@@ -452,10 +446,10 @@ void Hoi4ScenarioGenerator::generateLogistics(Scenario::Generator &scenGen) {
   Bitmap::SaveBMPToFile(logistics, "Maps//logistics.bmp");
 }
 
-void Hoi4ScenarioGenerator::evaluateCountries(Scenario::Generator &scenGen) {
+void Generator::evaluateCountries() {
   Logger::logLine("HOI4: Evaluating Country Strength");
   double maxScore = 0.0;
-  for (auto &c : countries) {
+  for (auto &c : hoi4Countries) {
     auto totalIndustry = 0.0;
     auto totalPop = 0.0;
     auto maxIndustryID = 0;
@@ -478,39 +472,38 @@ void Hoi4ScenarioGenerator::evaluateCountries(Scenario::Generator &scenGen) {
     // global
     totalWorldIndustry += (int)totalIndustry;
   }
-  int totalDeployedCountries =
-      scenGen.numCountries - (int)strengthScores[0].size();
+  int totalDeployedCountries = numCountries - (int)strengthScores[0].size();
   int numMajorPowers = totalDeployedCountries / 10;
   int numRegionalPowers = totalDeployedCountries / 3;
   int numWeakStates =
       totalDeployedCountries - numMajorPowers - numRegionalPowers;
   for (const auto &scores : strengthScores) {
     for (const auto &entry : scores.second) {
-      if (countries[entry].strengthScore > 0.0) {
-        countries[entry].relativeScore = (double)scores.first / maxScore;
+      if (hoi4Countries[entry].strengthScore > 0.0) {
+        hoi4Countries[entry].relativeScore = (double)scores.first / maxScore;
         if (numWeakStates > weakPowers.size()) {
           weakPowers.insert(entry);
-          countries[entry].rank = "weak";
+          hoi4Countries[entry].rank = "weak";
         } else if (numRegionalPowers > regionalPowers.size()) {
           regionalPowers.insert(entry);
-          countries[entry].rank = "regional";
+          hoi4Countries[entry].rank = "regional";
         } else {
           majorPowers.insert(entry);
-          countries[entry].rank = "major";
+          hoi4Countries[entry].rank = "major";
         }
       }
     }
   }
 }
 
-void Hoi4ScenarioGenerator::generateCountryUnits() {
+void Generator::generateCountryUnits() {
   Logger::logLine("HOI4: Generating Country Unit Files");
   // read in different compositions
   auto unitTemplateFile =
       ParserUtils::readFile("resources\\hoi4\\history\\divisionTemplates.txt");
   // now tokenize by : character to get single
   auto unitTemplates = ParserUtils::getTokens(unitTemplateFile, ':');
-  for (auto &c : countries) {
+  for (auto &c : hoi4Countries) {
     // determine army doctrine
     // defensive vs offensive
     // infantry/milita, infantry+support, mechanized+armored, artillery
@@ -574,10 +567,9 @@ void Hoi4ScenarioGenerator::generateCountryUnits() {
   }
 }
 
-NationalFocus
-Hoi4ScenarioGenerator::buildFocus(const std::vector<std::string> chainStep,
-                                  const Hoi4Country &source,
-                                  const Hoi4Country &target) {
+NationalFocus Generator::buildFocus(const std::vector<std::string> chainStep,
+                                    const Hoi4Country &source,
+                                    const Hoi4Country &target) {
   // map the string of the chainstep to the type
   auto type = NationalFocus::typeMapping[chainStep[5]];
   auto dateTokens = ParserUtils::getNumbers(chainStep[8], '-', std::set<int>{});
@@ -629,7 +621,7 @@ Hoi4ScenarioGenerator::buildFocus(const std::vector<std::string> chainStep,
   return nF;
 }
 
-void Hoi4ScenarioGenerator::buildFocusTree(Hoi4Country &source) {
+void Generator::buildFocusTree(Hoi4Country &source) {
   // std::array<std::array<int, 100>, 100> occupiedPositions;
   // start left. Chains go down, new chains go right
   int curX = 1;
@@ -702,7 +694,7 @@ void Hoi4ScenarioGenerator::buildFocusTree(Hoi4Country &source) {
   }
 }
 
-bool Hoi4ScenarioGenerator::stepFulfillsRequirements(
+bool Generator::stepFulfillsRequirements(
     const std::string stepRequirements,
     const std::vector<std::set<Hoi4Country>> &stepTargets) {
 
@@ -727,7 +719,7 @@ bool Hoi4ScenarioGenerator::stepFulfillsRequirements(
 
 /* checks all requirements for a national focus. Returns false if any
  * requirement isn't fulfilled, else returns true*/
-bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
+bool Generator::targetFulfillsRequirements(
     const std::string &targetRequirements, const Hoi4Country &source,
     const Hoi4Country &target, const std::vector<GameRegion> &gameRegions,
     const std::vector<std::set<std::string>> &levelTargets, const int level) {
@@ -809,8 +801,7 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
   return true;
 }
 
-void Hoi4ScenarioGenerator::evaluateCountryGoals(
-    const Scenario::Generator &scenGen) {
+void Generator::evaluateCountryGoals() {
   Logger::logLine("HOI4: Generating Country Goals");
   std::vector<int> defDate{1, 1, 1936};
   std::vector<std::vector<std::vector<std::string>>> chains;
@@ -822,8 +813,8 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(
   chains.push_back(ParserUtils::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\army_chains.txt"));
   auto typeCounter = 0;
-  for (auto &sourceCountry : countries) {
-    const auto &source = countries[sourceCountry.first];
+  for (auto &sourceCountry : hoi4Countries) {
+    const auto &source = hoi4Countries[sourceCountry.first];
     sourceCountry.second.bully = 0;
     // sourceCountry.second.defensive = 0;
     for (const auto &chainType : chains) {
@@ -854,12 +845,13 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(
               if (!targetRequirements.size())
                 stepTargets[chainStep].insert(sourceCountry.second);
               else {
-                for (auto &destCountry : countries) {
+                for (auto &destCountry : hoi4Countries) {
                   // now check every country if it fulfills the target
                   // requirements
                   if (targetFulfillsRequirements(
-                          targetRequirements, countries[sourceCountry.first],
-                          destCountry.second, scenGen.gameRegions, levelTargets,
+                          targetRequirements,
+                          hoi4Countries[sourceCountry.first],
+                          destCountry.second, gameRegions, levelTargets,
                           level)) {
                     stepTargets[chainStep].insert(destCountry.second);
                     // save that we targeted this country on this level already.
@@ -887,7 +879,8 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(
             // select random target
             const auto &target = UtilLib::selectRandom(targets);
             auto focus{buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'),
-                                  countries.at(sourceCountry.first), target)};
+                                  hoi4Countries.at(sourceCountry.first),
+                                  target)};
             focus.stepID = stepIndex;
             focus.chainID = chainID;
             Logger::logLineLevel(1, focus);
@@ -906,7 +899,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(
   }
 }
 
-void Hoi4ScenarioGenerator::printStatistics(Scenario::Generator &scenGen) {
+void Generator::printStatistics() {
   Logger::logLine("Total Industry: ", totalWorldIndustry);
   Logger::logLine("Military Industry: ", militaryIndustry);
   Logger::logLine("Civilian Industry: ", civilianIndustry);
@@ -920,13 +913,13 @@ void Hoi4ScenarioGenerator::printStatistics(Scenario::Generator &scenGen) {
   for (auto &scores : strengthScores) {
     for (auto &entry : scores.second) {
       Logger::logLine("Strength: ", scores.first, " ",
-                      countries.at(entry).fullName, " ",
-                      countries.at(entry).rulingParty, "");
+                      hoi4Countries.at(entry).fullName, " ",
+                      hoi4Countries.at(entry).rulingParty, "");
     }
   }
 }
 
-bool Hoi4ScenarioGenerator::unitFulfillsRequirements(
+bool Generator::unitFulfillsRequirements(
     std::vector<std::string> unitRequirements, Hoi4Country &country) {
   // now check if the country fulfills the target requirements
   for (auto &requirement : unitRequirements) {
@@ -965,3 +958,4 @@ bool Hoi4ScenarioGenerator::unitFulfillsRequirements(
   }
   return true;
 }
+} // namespace Hoi4
