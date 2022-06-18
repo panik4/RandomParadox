@@ -7,7 +7,6 @@
 #include "generic/ScenarioGenerator.h"
 class Eu4Module : GenericModule {
   // member variables
-  // Hoi4ScenarioGenerator hoi4Gen;
 
 public:
   Eu4Module();
@@ -18,5 +17,5 @@ public:
   void genEu4(bool useDefaultMap, bool useDefaultStates,
               bool useDefaultProvinces, ScenarioGenerator &scenGen, bool cut);
   // read the config options specific to eu4
-  void readEu4Config(std::string configSubFolder, std::string username);
+  void readEu4Config(std::string& configSubFolder, std::string& username);
 };
