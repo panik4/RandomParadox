@@ -6,11 +6,9 @@
 #include "GameProvince.h"
 #include "GameRegion.h"
 #include "NameGenerator.h"
-#include "ResourceLoader.h"
+#include "ResourceLoading.h"
 #include <map>
 class ScenarioGenerator {
-  // used to gather data we don't want to generate ourselves
-  ResourceLoader rLoader;
   // containers
   std::vector<Region> baseRegions;
   std::map<std::string, Bitmap> bitmaps;
