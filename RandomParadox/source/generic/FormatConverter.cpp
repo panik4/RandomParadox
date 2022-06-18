@@ -81,8 +81,8 @@ Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
                                    const int bit) const {
   auto &conf = Env::Instance();
   std::string sourceMap{gamePath + path};
-  Bitmap baseMap = bit == 24 ? Bitmap::Load24bitBMP(sourceMap.c_str(), "")
-                             : Bitmap::Load8bitBMP(sourceMap.c_str(), "");
+  Bitmap baseMap = bit == 24 ? Bitmap::Load24bitBMP(sourceMap, "")
+                             : Bitmap::Load8bitBMP(sourceMap, "");
   auto &cutBase = baseMap.cut(conf.minX * factor, conf.maxX * factor,
                               conf.minY * factor, conf.maxY * factor, factor);
   if (conf.scale) {

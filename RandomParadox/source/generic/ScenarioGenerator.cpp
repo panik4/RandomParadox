@@ -11,8 +11,8 @@ ScenarioGenerator::ScenarioGenerator(FastWorldGenerator &fwg) : fwg(fwg) {
 ScenarioGenerator::~ScenarioGenerator() {}
 
 void ScenarioGenerator::loadRequiredResources(std::string gamePath) {
-  bitmaps["provinces"] = rLoader.loadProvinceMap(gamePath);
-  bitmaps["heightmap"] = rLoader.loadHeightMap(gamePath);
+  bitmaps["provinces"] = ResourceLoading::loadProvinceMap(gamePath);
+  bitmaps["heightmap"] = ResourceLoading::loadHeightMap(gamePath);
   Bitmap::bufferBitmap("provinces", bitmaps["provinces"]);
 }
 
@@ -37,7 +37,8 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates,
     // write info to Data that is needed by FastWorldGenerator
 
     // now get info on provinces: who neighbours who, who is coastal...
-    auto provinceDefinition = rLoader.loadDefinition(gamePaths["hoi4"]);
+    auto provinceDefinition =
+        ResourceLoading::loadDefinition(gamePaths["hoi4"]);
     provinceDefinition.erase(provinceDefinition.begin());
     const std::set<int> tokensToConvert{0, 1, 2, 3, 7};
     for (const auto &def : provinceDefinition) {
@@ -107,7 +108,7 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates,
     bordersMap(provinceMap, fwg.provinceGenerator.provinces);
   }
   if (useDefaultStates) {
-    auto textRegions = rLoader.loadStates(gamePaths["hoi4"]);
+    auto textRegions = ResourceLoading::loadStates(gamePaths["hoi4"]);
     for (const auto &textRegion : textRegions) {
       Region R;
       auto ID = ParserUtils::getLineValue(textRegion, "id", "=");
@@ -319,7 +320,8 @@ void ScenarioGenerator::generateCountries(int numCountries) {
   Logger::logLine("Generating Countries");
   // load tags from hoi4 that are used by the base game
   // do not use those to avoid conflicts
-  const auto forbiddenTags = rLoader.loadForbiddenTags(gamePaths["hoi4"]);
+  const auto forbiddenTags =
+      ResourceLoading::loadForbiddenTags(gamePaths["hoi4"]);
   for (const auto &tag : forbiddenTags)
     tags.insert(tag);
 
