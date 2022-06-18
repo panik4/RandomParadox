@@ -8,7 +8,8 @@
 #include "NameGenerator.h"
 #include "ResourceLoading.h"
 #include <map>
-class ScenarioGenerator {
+namespace Scenario {
+class Generator {
   // containers
   std::vector<Region> baseRegions;
   std::map<std::string, Bitmap> bitmaps;
@@ -27,8 +28,8 @@ public:
   std::set<std::string> tags;
   std::map<std::string, PdoxCountry> countries;
   // constructors/destructors
-  ScenarioGenerator(FastWorldGenerator &fwg);
-  ~ScenarioGenerator();
+  Generator(FastWorldGenerator &fwg);
+  ~Generator();
   /* member functions*/
   // print a map showing all countries for debug purposes
   void dumpDebugCountrymap(std::string path);
@@ -57,3 +58,4 @@ public:
   // see which country neighbours which
   void evaluateNeighbours();
 };
+} // namespace Scenario

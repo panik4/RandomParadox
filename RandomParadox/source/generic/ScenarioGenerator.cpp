@@ -1,6 +1,6 @@
 #include "generic/ScenarioGenerator.h"
-
-ScenarioGenerator::ScenarioGenerator(FastWorldGenerator &fwg) : fwg(fwg) {
+namespace Scenario {
+Generator::Generator(FastWorldGenerator &fwg) : fwg(fwg) {
   gamePaths["hoi4"] = "D:\\Steam\\steamapps\\common\\Hearts of Iron IV\\";
   Flag::readColourGroups();
   Flag::readFlagTypes();
@@ -8,16 +8,16 @@ ScenarioGenerator::ScenarioGenerator(FastWorldGenerator &fwg) : fwg(fwg) {
   Flag::readSymbolTemplates();
 }
 
-ScenarioGenerator::~ScenarioGenerator() {}
+Generator::~Generator() {}
 
-void ScenarioGenerator::loadRequiredResources(std::string gamePath) {
+void Generator::loadRequiredResources(std::string gamePath) {
   bitmaps["provinces"] = ResourceLoading::loadProvinceMap(gamePath);
   bitmaps["heightmap"] = ResourceLoading::loadHeightMap(gamePath);
   Bitmap::bufferBitmap("provinces", bitmaps["provinces"]);
 }
 
-void ScenarioGenerator::hoi4Preparations(bool useDefaultStates,
-                                         bool useDefaultProvinces) {
+void Generator::hoi4Preparations(bool useDefaultStates,
+                                 bool useDefaultProvinces) {
   loadRequiredResources(gamePaths["hoi4"]);
   auto heightMap = bitmaps["heightmap"].get24BitRepresentation();
   Bitmap::bufferBitmap("heightmap", heightMap);
@@ -75,15 +75,13 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates,
     climateGenerator.humidityMap(fwg.provinceGenerator.provinces, heightMap,
                                  humidityBMP, riverMap,
                                  Env::Instance().seaLevel);
-    Bitmap::SaveBMPToFile(
-        humidityBMP, Env::Instance().mapsPath + "humidity.bmp");
+    Bitmap::SaveBMPToFile(humidityBMP,
+                          Env::Instance().mapsPath + "humidity.bmp");
     climateGenerator.climateMap(climateMap, humidityBMP, heightMap,
                                 Env::Instance().seaLevel);
-    Bitmap::SaveBMPToFile(climateMap,
-                          Env::Instance().mapsPath + "climate.bmp");
+    Bitmap::SaveBMPToFile(climateMap, Env::Instance().mapsPath + "climate.bmp");
 
-    Bitmap::SaveBMPToFile(terrainBMP,
-                          Env::Instance().mapsPath + "terrain.bmp");
+    Bitmap::SaveBMPToFile(terrainBMP, Env::Instance().mapsPath + "terrain.bmp");
     Bitmap provinceMap(Env::Instance().width, Env::Instance().height, 24);
     fwg.provinceGenerator.generateProvinces(terrainBMP, provinceMap, riverMap,
                                             tG.landBodies);
@@ -140,13 +138,13 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates,
   classificationMap(provinceMap, fwg.provinceGenerator.provinces);
 }
 
-void ScenarioGenerator::generateWorld() {
+void Generator::generateWorld() {
   mapTerrain();
   generatePopulations();
   generateDevelopment();
 }
 
-void ScenarioGenerator::mapContinents() {
+void Generator::mapContinents() {
   Logger::logLine("Mapping Continents");
   for (const auto &continent : fwg.provinceGenerator.continents) {
     // we copy the fwg continents by choice, to leave them untouched
@@ -154,7 +152,7 @@ void ScenarioGenerator::mapContinents() {
   }
 }
 
-void ScenarioGenerator::mapRegions() {
+void Generator::mapRegions() {
   Logger::logLine("Mapping Regions");
   for (auto &region : fwg.provinceGenerator.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
@@ -187,7 +185,7 @@ void ScenarioGenerator::mapRegions() {
   std::sort(gameProvinces.begin(), gameProvinces.end());
 }
 
-void ScenarioGenerator::generatePopulations() {
+void Generator::generatePopulations() {
   Logger::logLine("Generating Population");
   const auto &popMap = Bitmap::findBitmapByKey("population");
   const auto &cityMap = Bitmap::findBitmapByKey("cities");
@@ -210,7 +208,7 @@ void ScenarioGenerator::generatePopulations() {
       }
 }
 
-void ScenarioGenerator::generateDevelopment() {
+void Generator::generateDevelopment() {
   // high pop-> high development
   // high city share->high dev
   // terrain type?
@@ -233,7 +231,7 @@ void ScenarioGenerator::generateDevelopment() {
       }
 }
 
-void ScenarioGenerator::mapTerrain() {
+void Generator::mapTerrain() {
   const auto &namedColours = Env::Instance().namedColours;
   const auto &climateMap = Bitmap::findBitmapByKey("climate");
   Bitmap typeMap(climateMap.bInfoHeader.biWidth,
@@ -300,7 +298,7 @@ void ScenarioGenerator::mapTerrain() {
   Bitmap::SaveBMPToFile(typeMap, "Maps/typeMap.bmp");
 }
 
-GameRegion &ScenarioGenerator::findStartRegion() {
+GameRegion &Generator::findStartRegion() {
   std::vector<GameRegion> freeRegions;
   for (const auto &gameRegion : gameRegions)
     if (!gameRegion.assigned && !gameRegion.sea)
@@ -315,7 +313,7 @@ GameRegion &ScenarioGenerator::findStartRegion() {
 
 // generate countries according to given ruleset for each game
 // TODO: rulesets, e.g. naming schemes? tags? country size?
-void ScenarioGenerator::generateCountries(int numCountries) {
+void Generator::generateCountries(int numCountries) {
   this->numCountries = numCountries;
   Logger::logLine("Generating Countries");
   // load tags from hoi4 that are used by the base game
@@ -350,7 +348,7 @@ void ScenarioGenerator::generateCountries(int numCountries) {
   }
 }
 
-void ScenarioGenerator::evaluateNeighbours() {
+void Generator::evaluateNeighbours() {
   Logger::logLine("Evaluating Country Neighbours");
   for (auto &c : countries)
     for (const auto &gR : c.second.ownedRegions)
@@ -359,7 +357,7 @@ void ScenarioGenerator::evaluateNeighbours() {
           c.second.neighbours.insert(gameRegions[neighbourRegion].owner);
 }
 
-void ScenarioGenerator::dumpDebugCountrymap(std::string path) {
+void Generator::dumpDebugCountrymap(std::string path) {
   Logger::logLine("Mapping Continents");
   Bitmap countryBMP(Env::Instance().width, Env::Instance().height, 24);
   for (const auto &country : countries)
@@ -371,3 +369,4 @@ void ScenarioGenerator::dumpDebugCountrymap(std::string path) {
   Bitmap::bufferBitmap("countries", countryBMP);
   Bitmap::SaveBMPToFile(countryBMP, (path).c_str());
 }
+} // namespace Scenario

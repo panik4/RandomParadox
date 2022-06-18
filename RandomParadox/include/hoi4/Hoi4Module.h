@@ -18,7 +18,7 @@ public:
   // clear and create all the mod paths at each run
   bool createPaths();
   void genHoi(bool useDefaultMap, bool useDefaultStates,
-              bool useDefaultProvinces, ScenarioGenerator &scenGen, bool cut);
+              bool useDefaultProvinces, Scenario::Generator &scenGen, bool cut);
   // read the config specific to hoi4
   void readHoiConfig(std::string configSubFolder, std::string username);
 };

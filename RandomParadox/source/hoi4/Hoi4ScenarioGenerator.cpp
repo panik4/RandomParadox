@@ -109,7 +109,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(const int regionAmount) {
 }
 
 void Hoi4ScenarioGenerator::generateCountrySpecifics(
-    ScenarioGenerator &scenGen,
+    Scenario::Generator &scenGen,
     std::map<std::string, PdoxCountry> &pdoxCountries) {
   Logger::logLine("HOI4: Choosing uniforms and electing Tyrants");
   sizeFactor = sqrt((double)(Env::Instance().width * Env::Instance().height) /
@@ -171,7 +171,7 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(
 }
 
 void Hoi4ScenarioGenerator::generateStrategicRegions(
-    ScenarioGenerator &scenGen) {
+    Scenario::Generator &scenGen) {
   Logger::logLine("HOI4: Dividing world into strategic regions");
   std::set<int> assignedIdeas;
   for (auto &region : scenGen.gameRegions) {
@@ -212,7 +212,7 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(
   Bitmap::SaveBMPToFile(stratRegionBMP, "Maps\\stratRegions.bmp");
 }
 
-void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator &scenGen) {
+void Hoi4ScenarioGenerator::generateWeather(Scenario::Generator &scenGen) {
   for (auto &strat : strategicRegions) {
     for (auto &reg : strat.gameRegionIDs) {
       for (auto i = 0; i < 12; i++) {
@@ -271,7 +271,7 @@ void Hoi4ScenarioGenerator::generateWeather(ScenarioGenerator &scenGen) {
   }
 }
 
-void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator &scenGen) {
+void Hoi4ScenarioGenerator::generateLogistics(Scenario::Generator &scenGen) {
   Logger::logLine("HOI4: Building rail networks");
   auto width = Env::Instance().width;
   Bitmap logistics = Bitmap::findBitmapByKey("countries");
@@ -452,7 +452,7 @@ void Hoi4ScenarioGenerator::generateLogistics(ScenarioGenerator &scenGen) {
   Bitmap::SaveBMPToFile(logistics, "Maps//logistics.bmp");
 }
 
-void Hoi4ScenarioGenerator::evaluateCountries(ScenarioGenerator &scenGen) {
+void Hoi4ScenarioGenerator::evaluateCountries(Scenario::Generator &scenGen) {
   Logger::logLine("HOI4: Evaluating Country Strength");
   double maxScore = 0.0;
   for (auto &c : countries) {
@@ -810,7 +810,7 @@ bool Hoi4ScenarioGenerator::targetFulfillsRequirements(
 }
 
 void Hoi4ScenarioGenerator::evaluateCountryGoals(
-    const ScenarioGenerator &scenGen) {
+    const Scenario::Generator &scenGen) {
   Logger::logLine("HOI4: Generating Country Goals");
   std::vector<int> defDate{1, 1, 1936};
   std::vector<std::vector<std::vector<std::string>>> chains;
@@ -906,7 +906,7 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(
   }
 }
 
-void Hoi4ScenarioGenerator::printStatistics(ScenarioGenerator &scenGen) {
+void Hoi4ScenarioGenerator::printStatistics(Scenario::Generator &scenGen) {
   Logger::logLine("Total Industry: ", totalWorldIndustry);
   Logger::logLine("Military Industry: ", militaryIndustry);
   Logger::logLine("Civilian Industry: ", civilianIndustry);

@@ -1,6 +1,7 @@
-#include "eu4/Eu4ScenarioGenerator.h"
-
-void Eu4ScenarioGenerator::generateRegions(std::vector<GameRegion>& regions) {
+#include "eu4/Eu4Generator.h"
+namespace Eu4 {
+Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
+void Generator::generateRegions(std::vector<GameRegion> &regions) {
   Logger::logLine("HOI4: Dividing world into strategic regions");
   std::set<int> assignedIdeas;
   for (auto &region : regions) {
@@ -39,5 +40,6 @@ void Eu4ScenarioGenerator::generateRegions(std::vector<GameRegion>& regions) {
   }
   Bitmap::bufferBitmap("eu4regions", eu4RegionBmp);
   Bitmap::SaveBMPToFile(eu4RegionBmp, "Maps\\eu4Regions.bmp");
-
 }
+
+} // namespace Eu4
