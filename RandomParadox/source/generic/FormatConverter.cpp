@@ -101,7 +101,7 @@ void FormatConverter::dump8BitHeightmap(const std::string path,
   const auto &heightmap = Bitmap::findBitmapByKey("heightmap");
   for (int i = 0; i < Env::Instance().bitmapSize; i++)
     hoi4Heightmap.bit8Buffer[i] = heightmap.getColourAtIndex(i).getRed();
-  Bitmap::SaveBMPToFile(hoi4Heightmap, (path).c_str());
+  Bitmap::SaveBMPToFile(hoi4Heightmap, path);
 }
 
 void FormatConverter::dump8BitTerrain(const std::string path,
@@ -123,7 +123,7 @@ void FormatConverter::dump8BitTerrain(const std::string path,
   } else {
     hoi4terrain = cutBaseMap("\\map\\terrain.bmp");
   }
-  Bitmap::SaveBMPToFile(hoi4terrain, (path).c_str());
+  Bitmap::SaveBMPToFile(hoi4terrain, path);
 }
 
 void FormatConverter::dump8BitCities(const std::string path,
@@ -144,7 +144,7 @@ void FormatConverter::dump8BitCities(const std::string path,
     cities = cutBaseMap("\\map\\cities.bmp");
   }
 
-  Bitmap::SaveBMPToFile(cities, (path).c_str());
+  Bitmap::SaveBMPToFile(cities, path);
 }
 
 void FormatConverter::dump8BitRivers(const std::string path,
@@ -162,7 +162,7 @@ void FormatConverter::dump8BitRivers(const std::string path,
   } else {
     rivers = cutBaseMap("\\map\\rivers.bmp");
   }
-  Bitmap::SaveBMPToFile(rivers, (path).c_str());
+  Bitmap::SaveBMPToFile(rivers, path);
 }
 
 void FormatConverter::dump8BitTrees(const std::string path,
@@ -192,7 +192,7 @@ void FormatConverter::dump8BitTrees(const std::string path,
   } else {
     trees = cutBaseMap("\\map\\trees.bmp", (1.0 / factor));
   }
-  Bitmap::SaveBMPToFile(trees, (path).c_str());
+  Bitmap::SaveBMPToFile(trees, path);
 }
 
 void FormatConverter::dumpDDSFiles(const std::string path, const bool cut,

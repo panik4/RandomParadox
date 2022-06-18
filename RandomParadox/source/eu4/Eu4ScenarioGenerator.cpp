@@ -25,9 +25,9 @@ void Eu4ScenarioGenerator::generateRegions(std::vector<GameRegion>& regions) {
   }
   Bitmap eu4RegionBmp(Env::Instance().width, Env::Instance().height, 24);
   for (auto &strat : eu4regions) {
-    Colour c{static_cast<unsigned char>(Env::Instance().randNum() % 255),
-             static_cast<unsigned char>(Env::Instance().randNum() % 255),
-             static_cast<unsigned char>(Env::Instance().randNum() % 255)};
+    Colour c{static_cast<unsigned char>(RandNum::randNum() % 255),
+             static_cast<unsigned char>(RandNum::randNum() % 255),
+             static_cast<unsigned char>(RandNum::randNum() % 255)};
     for (auto &area : strat.areaIDs) {
       c.setBlue(regions[area].sea ? 255 : 0);
       for (auto &prov : regions[area].gameProvinces) {

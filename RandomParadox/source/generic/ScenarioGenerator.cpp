@@ -75,17 +75,17 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates,
                                  humidityBMP, riverMap,
                                  Env::Instance().seaLevel);
     Bitmap::SaveBMPToFile(
-        humidityBMP, (Env::Instance().mapsPath + ("humidity.bmp")).c_str());
+        humidityBMP, Env::Instance().mapsPath + "humidity.bmp");
     climateGenerator.climateMap(climateMap, humidityBMP, heightMap,
                                 Env::Instance().seaLevel);
     Bitmap::SaveBMPToFile(climateMap,
-                          (Env::Instance().mapsPath + ("climate.bmp")).c_str());
+                          Env::Instance().mapsPath + "climate.bmp");
 
     Bitmap::SaveBMPToFile(terrainBMP,
-                          (Env::Instance().mapsPath + ("terrain.bmp")).c_str());
+                          Env::Instance().mapsPath + "terrain.bmp");
     Bitmap provinceMap(Env::Instance().width, Env::Instance().height, 24);
     fwg.provinceGenerator.generateProvinces(terrainBMP, provinceMap, riverMap,
-                                          tG.landBodies);
+                                            tG.landBodies);
     Bitmap::SaveBMPToFile(
         provinceMap, (Env::Instance().mapsPath + ("provinces.bmp")).c_str());
     bitmaps["provinces"] = provinceMap;
@@ -95,18 +95,16 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates,
     tG.detectContinents(terrainBMP);
     fwg.provinceGenerator.generateRegions(3);
     fwg.provinceGenerator.evaluateContinents(Env::Instance().width,
-                                           Env::Instance().height,
-                                           tG.continents, tG.landBodies);
+                                             Env::Instance().height,
+                                             tG.continents, tG.landBodies);
     // genericParser.writeAdjacency((Env::Instance().debugMapsPath +
     // ("adjacency.csv")).c_str(), provinceGenerator.provinces);
     // genericParser.writeDefinition((Env::Instance().debugMapsPath +
     // ("definition.csv")).c_str(), provinceGenerator.provinces);
-    Visualizer::provinceInfoMapNeighbours(provinceMap,
-                                          fwg.provinceGenerator.provinces);
-    Visualizer::provinceInfoMapCoasts(provinceMap,
-                                      fwg.provinceGenerator.provinces);
-    Visualizer::provinceInfoMapBorders(provinceMap,
-                                       fwg.provinceGenerator.provinces);
+    using namespace Visualize::Provinces;
+    neighboursMap(provinceMap, fwg.provinceGenerator.provinces);
+    coastsMap(provinceMap, fwg.provinceGenerator.provinces);
+    bordersMap(provinceMap, fwg.provinceGenerator.provinces);
   }
   if (useDefaultStates) {
     auto textRegions = rLoader.loadStates(gamePaths["hoi4"]);
@@ -136,10 +134,9 @@ void ScenarioGenerator::hoi4Preparations(bool useDefaultStates,
   const auto &provinceMap = bitmaps["provinces"];
   fwg.provinceGenerator.sortRegions();
   fwg.provinceGenerator.evaluateRegionNeighbours();
-  Visualizer::provinceInfoMapBorders(provinceMap,
-                                     fwg.provinceGenerator.provinces);
-  Visualizer::provinceInfoMapClassification(provinceMap,
-                                            fwg.provinceGenerator.provinces);
+  using namespace Visualize::Provinces;
+  bordersMap(provinceMap, fwg.provinceGenerator.provinces);
+  classificationMap(provinceMap, fwg.provinceGenerator.provinces);
 }
 
 void ScenarioGenerator::generateWorld() {
@@ -331,7 +328,7 @@ void ScenarioGenerator::generateCountries(int numCountries) {
     PdoxCountry pdoxC(nG.generateTag(name, tags), i, name,
                       nG.generateAdjective(name), Flag(82, 52));
     // randomly set development of countries
-    pdoxC.developmentFactor = Env::Instance().getRandomDouble(0.1, 1.0);
+    pdoxC.developmentFactor = RandNum::getRandomDouble(0.1, 1.0);
     countries.emplace(pdoxC.tag, pdoxC);
   }
   for (auto &pdoxCountry : countries) {
