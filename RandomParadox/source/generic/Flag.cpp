@@ -10,7 +10,7 @@ Flag::Flag() {}
 
 Flag::Flag(const int width, const int height) : width(width), height(height) {
   image = std::vector<unsigned char>(width * height * 4, 0);
-  auto randomIndex = Env::Instance().randNum() % flagTemplates.size();
+  auto randomIndex = RandNum::randNum() % flagTemplates.size();
   image = flagTemplates[randomIndex];
   const auto &flagInfo = flagMetadata[randomIndex];
   // get the template and map all colours to indices
@@ -36,7 +36,7 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
     colIndex++;
   }
   // now load symbol templates
-  randomIndex = Env::Instance().randNum() % symbolTemplates.size();
+  randomIndex = RandNum::randNum() % symbolTemplates.size();
   auto symbol{symbolTemplates[randomIndex]};
   auto symbolInfo{symbolMetadata[randomIndex]};
 
@@ -48,7 +48,7 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
   auto replaceColour = symbolInfo.replaceColour;
   replacementColours.clear();
   for (const auto &colGroup : flagInfo.symbolColourGroups) {
-    const auto &colour = colourGroups[colGroup][Env::Instance().randNum() %
+    const auto &colour = colourGroups[colGroup][RandNum::randNum() %
                                                 colourGroups[colGroup].size()];
     replacementColours.push_back(colour);
   }

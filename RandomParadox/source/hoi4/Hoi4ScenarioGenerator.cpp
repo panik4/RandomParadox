@@ -10,16 +10,16 @@ void Hoi4ScenarioGenerator::generateStateResources() {
     for (auto &hoi4Region : c.second.hoi4Regions) {
       for (const auto &resource : resources) {
         auto chance = resource.second[2];
-        if (Env::Instance().randNum() % 100 < chance * 100.0) {
+        if (RandNum::randNum() % 100 < chance * 100.0) {
           // calc total of this resource
           auto totalOfResource = resource.second[1] * resource.second[0];
           // more per selected state if the chance is lower
           double averagePerState =
               (totalOfResource / (double)landStates) * (1.0 / chance);
           // range 1 to (2 times average - 1)
-          double value = 1.0 + (Env::Instance().randNum() %
-                                    (int)ceil((2.0 * averagePerState)) -
-                                1.0);
+          double value =
+              1.0 +
+              (RandNum::randNum() % (int)ceil((2.0 * averagePerState)) - 1.0);
           // increase by industry factor
           value *= industryFactor;
           value *= sizeFactor;
@@ -72,14 +72,14 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(const int regionAmount) {
           // this province
           if (gameProv.attributeDoubles["naval_bases"] == 1)
             gameProv.attributeDoubles["naval_bases"] =
-                Env::Instance().getRandomNumber(1, 5);
+                RandNum::getRandomNumber(1, 5);
         } else {
           gameProv.attributeDoubles["naval_bases"] = 0;
         }
       }
       // calculate total industry in this state
-      auto stateIndustry =
-          round(totalPopFactor * (targetWorldIndustry / (double)(regionAmount)));
+      auto stateIndustry = round(
+          totalPopFactor * (targetWorldIndustry / (double)(regionAmount)));
       double dockChance = 0.25;
       double civChance = 0.5;
       double milChance = 0.25;
@@ -90,7 +90,7 @@ void Hoi4ScenarioGenerator::generateStateSpecifics(const int regionAmount) {
         milChance = 0.4;
       }
       while (--stateIndustry >= 0) {
-        auto choice = config.getRandomDouble(0.0, 1.0);
+        auto choice = RandNum::getRandomDouble(0.0, 1.0);
         if (choice < dockChance) {
           hoi4Region.dockyards++;
         } else if (UtilLib::inRange(dockChance, dockChance + civChance,
@@ -139,7 +139,7 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(
     std::vector<double> popularities{};
     double totalPop = 0;
     for (int i = 0; i < 4; i++) {
-      popularities.push_back(Env::Instance().getRandomNumber(1, 100));
+      popularities.push_back(RandNum::getRandomNumber(1, 100));
       totalPop += popularities[i];
     }
     auto sumPop = 0;
@@ -155,12 +155,12 @@ void Hoi4ScenarioGenerator::generateCountrySpecifics(
     }
     // assign a ruling party
     hC.rulingParty =
-        ideologies[Env::Instance().getRandomNumber(0, (int)ideologies.size())];
+        ideologies[RandNum::getRandomNumber(0, (int)ideologies.size())];
     // allow or forbid elections
     if (hC.rulingParty == "democratic")
       hC.allowElections = 1;
     else if (hC.rulingParty == "neutrality")
-      hC.allowElections = Env::Instance().getRandomNumber(0, 1);
+      hC.allowElections = RandNum::getRandomNumber(0, 1);
     else
       hC.allowElections = 0;
     // now get the full name of the country
@@ -196,9 +196,9 @@ void Hoi4ScenarioGenerator::generateStrategicRegions(
   }
   Bitmap stratRegionBMP(Env::Instance().width, Env::Instance().height, 24);
   for (auto &strat : strategicRegions) {
-    Colour c{static_cast<unsigned char>(Env::Instance().randNum() % 255),
-             static_cast<unsigned char>(Env::Instance().randNum() % 255),
-             static_cast<unsigned char>(Env::Instance().randNum() % 255)};
+    Colour c{static_cast<unsigned char>(RandNum::randNum() % 255),
+             static_cast<unsigned char>(RandNum::randNum() % 255),
+             static_cast<unsigned char>(RandNum::randNum() % 255)};
     for (auto &reg : strat.gameRegionIDs) {
       c.setBlue(scenGen.gameRegions[reg].sea ? 255 : 0);
       for (auto &prov : scenGen.gameRegions[reg].gameProvinces) {
@@ -529,7 +529,7 @@ void Hoi4ScenarioGenerator::generateCountryUnits() {
     // simply give templates if we qualify for them
     if (majorFactor > 0.5 && bullyFactor > 0.25) {
       // choose one of the mechanised doctrines
-      if (Env::Instance().randNum() % 2)
+      if (RandNum::randNum() % 2)
         c.second.doctrines.push_back(Hoi4Country::doctrineType::blitz);
       else
         c.second.doctrines.push_back(Hoi4Country::doctrineType::armored);
@@ -843,7 +843,8 @@ void Hoi4ScenarioGenerator::evaluateCountryGoals(
           const int chainStep = stoi(chainTokens[1]);
           chainID = stoi(chainTokens[0]);
           const int level = stoi(chainTokens[12]);
-          if ((chainTokens[3].find(source.rank) != std::string::npos || chainTokens[3] == "any") &&
+          if ((chainTokens[3].find(source.rank) != std::string::npos ||
+               chainTokens[3] == "any") &&
               (chainTokens[4].find(source.rulingParty) != std::string::npos ||
                chainTokens[4] == "any")) {
             if (stepFulfillsRequirements(chainTokens[2], stepTargets)) {

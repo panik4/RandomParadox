@@ -149,16 +149,16 @@ void writeContinent(const std::string &path,
   Logger::logLine("EU4 Parser: Map: Writing continents");
   auto content = pU::readFile("resources\\eu4\\map\\continent.txt");
   // must not be more than 6 continents!
-  std::array<std::vector<int>, 6> continents;
+  std::array<std::vector<int>, 6> continentMap;
   for (const auto &province : provinces) {
     if (province.baseProvince->continentID >= 0 &&
         province.baseProvince->continentID != 1000000) {
-      continents.at(province.baseProvince->continentID)
+      continentMap.at(province.baseProvince->continentID)
           .push_back(province.ID + 1);
     }
   }
   auto count = 0;
-  for (auto &continent : continents) {
+  for (auto &continent : continentMap) {
     std::string continentProvs{""};
     for (auto elem : continent) {
       continentProvs.append(std::to_string(elem) + " ");
