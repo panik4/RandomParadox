@@ -5,9 +5,9 @@ PdoxCountry::PdoxCountry() : ID{-1} {}
 PdoxCountry::PdoxCountry(std::string tag, int ID, std::string name,
                          std::string adjective, Graphics::Flag flag)
     : tag{tag}, ID{ID}, name{name}, adjective{adjective}, flag{flag} {
-  colour = {static_cast<unsigned char>(RandNum::randNum() % 255),
-            static_cast<unsigned char>(RandNum::randNum() % 255),
-            static_cast<unsigned char>(RandNum::randNum() % 255)};
+  colour = {static_cast<unsigned char>(FastWorldGen::RandNum::randNum() % 255),
+            static_cast<unsigned char>(FastWorldGen::RandNum::randNum() % 255),
+            static_cast<unsigned char>(FastWorldGen::RandNum::randNum() % 255)};
 }
 
 PdoxCountry::~PdoxCountry() {}

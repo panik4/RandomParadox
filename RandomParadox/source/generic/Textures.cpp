@@ -1,5 +1,6 @@
 #include "generic/Textures.h"
 
+using namespace DirectX;
 namespace Graphics::Textures {
 void writeDDS(const int width, const int height,
               std::vector<uint8_t> &pixelData, const DXGI_FORMAT format,
