@@ -18,8 +18,8 @@ public:
   enum class FocusType { attack, ally, generic };
   // constructors/destructors
   NationalFocus();
-  NationalFocus(FocusType fType, bool defaultV, std::string source,
-                std::string dest, std::vector<int> date);
+  NationalFocus(FocusType fType, bool defaultV, const std::string& source,
+                const std::string &dest, const std::vector<int>& date);
   ~NationalFocus();
   // member variables
   int ID;
