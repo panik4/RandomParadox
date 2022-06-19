@@ -1,9 +1,8 @@
 #include "eu4/Eu4Module.h"
-namespace Eu4 {
+namespace Scenario::Eu4 {
 Module::Module(FastWorldGenerator &fastWorldGen,
                const std::string &configSubFolder, const std::string &username)
     : eu4Gen{fastWorldGen} {
-
   readEu4Config(configSubFolder, username);
 }
 
@@ -138,4 +137,4 @@ void Module::genEu4(bool cut) {
   }
 }
 
-} // namespace Eu4
+} // namespace Scenario::Eu4

@@ -2,6 +2,7 @@
 #include "FastWorldGenerator.h"
 #include "GameProvince.h"
 #include <map>
+namespace Scenario {
 class GameRegion : public Region {
   std::vector<std::string> cores;
 
@@ -20,3 +21,4 @@ public:
   GameRegion(const Region &baseRegion);
   ~GameRegion();
 };
+} // namespace Scenario

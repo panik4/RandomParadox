@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 #include <vector>
-namespace Hoi4 {
+namespace Scenario::Hoi4 {
 struct Date {
   int day;
   int month;
@@ -54,4 +54,4 @@ public:
   friend std::ostream &operator<<(std::ostream &os, const NationalFocus &focus);
   bool operator==(const NationalFocus &right) const { return ID == right.ID; }
 };
-} // namespace Hoi4
+} // namespace Scenario::Hoi4
