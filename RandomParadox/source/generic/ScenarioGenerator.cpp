@@ -333,7 +333,7 @@ void Generator::generateCountries(int numCountries) {
     PdoxCountry pdoxC(nG.generateTag(name, tags), i, name,
                       nG.generateAdjective(name), Graphics::Flag(82, 52));
     // randomly set development of countries
-    pdoxC.developmentFactor = RandNum::getRandomDouble(0.1, 1.0);
+    pdoxC.developmentFactor = FastWorldGen::RandNum::getRandomDouble(0.1, 1.0);
     countries.emplace(pdoxC.tag, pdoxC);
   }
   for (auto &pdoxCountry : countries) {
