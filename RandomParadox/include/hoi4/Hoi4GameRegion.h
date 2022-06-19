@@ -2,6 +2,7 @@
 #include "FastWorldGenerator.h"
 #include "generic/GameRegion.h"
 
+namespace Hoi4 {
 class Hoi4GameRegion : public GameRegion {
 public:
   // member variables
@@ -18,3 +19,4 @@ public:
   Hoi4GameRegion(const GameRegion &gameRegion);
   ~Hoi4GameRegion();
 };
+} // namespace Hoi4
