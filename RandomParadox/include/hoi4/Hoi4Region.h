@@ -3,7 +3,7 @@
 #include "generic/GameRegion.h"
 
 namespace Hoi4 {
-class Hoi4GameRegion : public GameRegion {
+class Hoi4Region : public GameRegion {
 public:
   // member variables
   int civilianFactories;
@@ -15,8 +15,8 @@ public:
   double development;
   int stratID;
   // Constructors/Destructors
-  Hoi4GameRegion();
-  Hoi4GameRegion(const GameRegion &gameRegion);
-  ~Hoi4GameRegion();
+  Hoi4Region();
+  Hoi4Region(const GameRegion &gameRegion);
+  ~Hoi4Region();
 };
 } // namespace Hoi4

@@ -1,5 +1,5 @@
 #pragma once
-#include "Hoi4GameRegion.h"
+#include "Hoi4Region.h"
 #include "NationalFocus.h"
 #include "generic/PdoxCountry.h"
 #include <array>
@@ -36,7 +36,7 @@ public:
   std::vector<int> units;
   std::vector<int> unitCount;
   std::array<int, 4> parties;
-  std::vector<Hoi4GameRegion> hoi4Regions;
+  std::vector<Hoi4Region> hoi4Regions;
   std::vector<std::vector<NationalFocus>> foci;
 };
 } // namespace Hoi4

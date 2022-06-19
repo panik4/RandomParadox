@@ -70,9 +70,6 @@ int main() {
     return -1;
   }
 
-  bool useDefaultMap = false;
-  bool useDefaultStates = false;
-  bool useDefaultProvinces = false;
   bool writeMaps, genHoi4Scenario, useGlobalExistingHeightmap, genEu4Scenario;
   std::string globalHeightMapPath;
   double latLow, latHigh;
@@ -103,9 +100,10 @@ int main() {
     return -1;
   }
 
+  auto &config = Env::Instance();
   // check if we can read the config
   try {
-    Env::Instance().getConfig(configSubFolder + "FastWorldGenerator.json");
+    config.getConfig(configSubFolder + "FastWorldGenerator.json");
   } catch (std::exception e) {
     Logger::logLine("Incorrect config \"FastWorldGenerator.json\"");
     Logger::logLine("You can try fixing it yourself. Error is: ", e.what());
@@ -120,48 +118,40 @@ int main() {
   // if we don't want the FastWorldGenerator output in MapsPath, debug = 0 turns
   // this off
   if (!writeMaps) {
-    Env::Instance().writeMaps = false;
+    config.writeMaps = false;
   }
   try {
     NameGenerator::prepare();
     if (genHoi4Scenario) {
       FastWorldGenerator fastWorldGen(configSubFolder);
-
-      Hoi4::Hoi4Module hoi4Mod;
-
-      hoi4Mod.readHoiConfig(configSubFolder, username);
-      if (!useDefaultMap) {
-        // if we configured to use an existing heightmap
-        if (useGlobalExistingHeightmap) {
-          // overwrite settings of fastworldgen
-          Env::Instance().heightmapIn = globalHeightMapPath;
-          Env::Instance().loadHeight = true;
-          Env::Instance().latLow = latLow;
-          Env::Instance().latHigh = latHigh;
-        }
-        Env::Instance().sanityCheck();
-        // now run the world generation
-        fastWorldGen.generateWorld();
-      }
       // now start the generation of the scenario with the generated map files
-      Hoi4::Generator sG(fastWorldGen);
-      // and now check if we need to generate game specific files
-      if (genHoi4Scenario)
-        // generate hoi4 scenario
-        hoi4Mod.genHoi(useDefaultMap, useDefaultStates, useDefaultProvinces, sG,
-                       cut);
+      // if we configured to use an existing heightmap
+      if (useGlobalExistingHeightmap) {
+        // overwrite settings of fastworldgen
+        config.heightmapIn = globalHeightMapPath;
+        config.loadHeight = true;
+        config.latLow = latLow;
+        config.latHigh = latHigh;
+      }
+      // check if config settings are fine
+      config.sanityCheck();
+      // now run the world generation
+      fastWorldGen.generateWorld();
+      // generate hoi4 scenario
+      Hoi4::Hoi4Module hoi4Mod(fastWorldGen, configSubFolder, username);
+      hoi4Mod.genHoi(cut);
     }
     if (genEu4Scenario) {
       // only run if not already run
       FastWorldGenerator fastWorldGen(configSubFolder);
-      Env::Instance().seaLevel = 95;
+      config.seaLevel = 95;
       // now run the world generation
       fastWorldGen.generateWorld();
       // now start the generation of the scenario with the generated map files
       Eu4::Generator sG(fastWorldGen);
       Eu4::Module eu4;
       eu4.readEu4Config(configSubFolder, username);
-      eu4.genEu4(useDefaultMap, useDefaultStates, useDefaultProvinces, sG, cut);
+      eu4.genEu4(sG, cut);
     }
   } catch (std::exception e) {
     Logger::logLine(e.what());
