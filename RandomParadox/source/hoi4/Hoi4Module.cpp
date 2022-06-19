@@ -1,5 +1,5 @@
 #include "hoi4/Hoi4Module.h"
-
+using namespace FastWorldGen;
 namespace Scenario::Hoi4 {
 Hoi4Module::Hoi4Module(FastWorldGenerator &fastWorldGen,
                        const std::string &configSubFolder,

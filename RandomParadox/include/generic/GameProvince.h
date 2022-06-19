@@ -10,13 +10,13 @@ public:
   double popFactor;
   double devFactor;
   double cityShare;
-  const Province *baseProvince;
+  const FastWorldGen::Province *baseProvince;
   // containers
   std::vector<GameProvince> neighbours;
   std::map<std::string, double> attributeDoubles;
   std::map<std::string, std::string> attributeStrings;
   // constructors/destructor
-  GameProvince(Province *province);
+  GameProvince(FastWorldGen::Province *province);
   GameProvince();
   ~GameProvince();
   // operators

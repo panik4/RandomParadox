@@ -1,6 +1,6 @@
 #include "generic/GameProvince.h"
 namespace Scenario {
-GameProvince::GameProvince(Province *province)
+GameProvince::GameProvince(FastWorldGen::Province *province)
     : baseProvince(province), ID(province->ID), popFactor(0.0), devFactor(0.0),
       cityShare(0.0) {}
 

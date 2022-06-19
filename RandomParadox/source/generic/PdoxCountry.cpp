@@ -25,7 +25,7 @@ void PdoxCountry::assignRegions(int maxRegions,
       if (gameRegions[gameRegion].neighbours.size() == 0)
         continue;
       auto &nextRegion =
-          UtilLib::selectRandom(gameRegions[gameRegion].neighbours);
+          FastWorldGen::Utils::selectRandom(gameRegions[gameRegion].neighbours);
       if (!gameRegions[nextRegion].assigned && !gameRegions[nextRegion].sea) {
         gameRegions[nextRegion].assigned = true;
         addRegion(gameRegions[nextRegion], gameRegions, gameProvinces);

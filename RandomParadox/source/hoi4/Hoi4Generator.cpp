@@ -1,5 +1,5 @@
 #include "hoi4/Hoi4Generator.h"
-
+using namespace FastWorldGen;
 namespace Scenario::Hoi4 {
 Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
 
@@ -94,7 +94,7 @@ void Generator::generateStateSpecifics(const int regionAmount) {
         auto choice = RandNum::getRandomDouble(0.0, 1.0);
         if (choice < dockChance) {
           hoi4Region.dockyards++;
-        } else if (UtilLib::inRange(dockChance, dockChance + civChance,
+        } else if (Utils::inRange(dockChance, dockChance + civChance,
                                     choice)) {
           hoi4Region.civilianFactories++;
 
@@ -134,7 +134,7 @@ void Generator::generateCountrySpecifics() {
     Hoi4Country hC(country.second, gameRegions);
 
     // select a random country ideology
-    hC.gfxCulture = UtilLib::selectRandom(gfxCultures);
+    hC.gfxCulture = Utils::selectRandom(gfxCultures);
     std::vector<double> popularities{};
     double totalPop = 0;
     for (int i = 0; i < 4; i++) {
@@ -278,7 +278,7 @@ void Generator::generateLogistics() {
     std::map<double, int> supplyHubs;
     // add capital
     auto capitalPosition = gameRegions[country.second.capitalRegionID].position;
-    auto &capitalProvince = UtilLib::selectRandom(
+    auto &capitalProvince = Utils::selectRandom(
         gameRegions[country.second.capitalRegionID].gameProvinces);
     std::vector<double> distances;
     // region ID, provinceID
@@ -298,7 +298,7 @@ void Generator::generateLogistics() {
                   (country.second.hoi4Regions.size() / 4))) {
         // select a random gameprovince of the state
 
-        auto y{UtilLib::selectRandom(region.gameProvinces)};
+        auto y{Utils::selectRandom(region.gameProvinces)};
         for (auto &prov : region.gameProvinces) {
           if (prov.baseProvince->coastal) {
             // if this is a coastal region, the supply hub is a naval base as
@@ -312,7 +312,7 @@ void Generator::generateLogistics() {
         supplyHubProvinces[y.ID] = y;
         navalBases[y.ID] = y.baseProvince->coastal;
         // get the distance between this supply hub and the capital
-        auto distance = UtilLib::getDistance(capitalPosition,
+        auto distance = Utils::getDistance(capitalPosition,
                                              y.baseProvince->position, width);
         // save the distance under the province ID
         supplyHubs[distance] = y.ID;
@@ -343,7 +343,7 @@ void Generator::generateLogistics() {
               // distance is the distance between us and the capital
               // now find distance2, the distance between us and the other
               // already assigned supply hubs
-              auto dist3 = UtilLib::getDistance(
+              auto dist3 = Utils::getDistance(
                   gameProvinces[supplyHubs[distance2]].baseProvince->position,
                   gameProvinces[supplyHubs[distance]].baseProvince->position,
                   width);
@@ -384,7 +384,7 @@ void Generator::generateLogistics() {
           if (cont)
             continue;
           // the distance to the sources neighbours
-          auto nodeDistance = UtilLib::getDistance(
+          auto nodeDistance = Utils::getDistance(
               gameProvinces[destNodeID].baseProvince->position,
               neighbourGProvince.baseProvince->position, width);
           if (nodeDistance < tempMinDistance) {
@@ -561,7 +561,7 @@ void Generator::generateCountryUnits() {
     auto totalUnits = c.second.strengthScore / 5;
     while (totalUnits-- > 0) {
       // now randomly add units
-      auto unit = UtilLib::selectRandom(c.second.units);
+      auto unit = Utils::selectRandom(c.second.units);
       c.second.unitCount[unit]++;
     }
   }
@@ -753,7 +753,7 @@ bool Generator::targetFulfillsRequirements(
     if (value == "near") {
       auto maxDistance =
           sqrt(Env::Instance().width * Env::Instance().height) * 0.2;
-      if (UtilLib::getDistance(gameRegions[source.capitalRegionID].position,
+      if (Utils::getDistance(gameRegions[source.capitalRegionID].position,
                                gameRegions[target.capitalRegionID].position,
                                Env::Instance().width) > maxDistance)
         return false;
@@ -761,7 +761,7 @@ bool Generator::targetFulfillsRequirements(
     if (value == "far") {
       auto minDistance =
           sqrt(Env::Instance().width * Env::Instance().height) * 0.2;
-      if (UtilLib::getDistance(gameRegions[source.capitalRegionID].position,
+      if (Utils::getDistance(gameRegions[source.capitalRegionID].position,
                                gameRegions[target.capitalRegionID].position,
                                Env::Instance().width) < minDistance)
         return false;
@@ -877,7 +877,7 @@ void Generator::evaluateCountryGoals() {
             if (!targets.size())
               continue;
             // select random target
-            const auto &target = UtilLib::selectRandom(targets);
+            const auto &target = Utils::selectRandom(targets);
             auto focus{buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'),
                                   hoi4Countries.at(sourceCountry.first),
                                   target)};
