@@ -721,7 +721,7 @@ bool Generator::stepFulfillsRequirements(
  * requirement isn't fulfilled, else returns true*/
 bool Generator::targetFulfillsRequirements(
     const std::string &targetRequirements, const Hoi4Country &source,
-    const Hoi4Country &target, const std::vector<GameRegion> &gameRegions,
+    const Hoi4Country &target, const std::vector<Region> &gameRegions,
     const std::vector<std::set<std::string>> &levelTargets, const int level) {
   // now check if the country fulfills the target requirements
   // need to check rank, first get the desired value

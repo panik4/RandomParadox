@@ -13,8 +13,8 @@ PdoxCountry::PdoxCountry(std::string tag, int ID, std::string name,
 PdoxCountry::~PdoxCountry() {}
 
 void PdoxCountry::assignRegions(int maxRegions,
-                                std::vector<GameRegion> &gameRegions,
-                                GameRegion &startRegion,
+                                std::vector<Region> &gameRegions,
+                                Region &startRegion,
                                 std::vector<GameProvince> &gameProvinces) {
   addRegion(startRegion, gameRegions, gameProvinces);
   auto breakCounter = 0;
@@ -34,8 +34,8 @@ void PdoxCountry::assignRegions(int maxRegions,
   }
 }
 
-void PdoxCountry::addRegion(GameRegion &region,
-                            std::vector<GameRegion> &gameRegions,
+void PdoxCountry::addRegion(Region &region,
+                            std::vector<Region> &gameRegions,
                             std::vector<GameProvince> &gameProvinces) {
   gameRegions[region.ID].assigned = true;
   gameRegions[region.ID].owner = tag;
