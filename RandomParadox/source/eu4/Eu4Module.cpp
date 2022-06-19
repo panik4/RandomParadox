@@ -6,16 +6,12 @@ Module::~Module() {}
 
 bool Module::createPaths() { // prepare folder structure
   try {
+    using namespace std::filesystem;
     // generic cleanup and path creation
     GenericModule::createPaths(gameModPath);
-    // map
-    // history
-    std::filesystem::create_directory(gameModPath + "\\history\\provinces\\");
-    std::filesystem::create_directory(gameModPath +
-                                      "\\common\\colonial_regions\\");
-    std::filesystem::create_directory(gameModPath +
-                                      "\\common\\trade_companies\\");
-
+    create_directory(gameModPath + "\\history\\provinces\\");
+    create_directory(gameModPath + "\\common\\colonial_regions\\");
+    create_directory(gameModPath + "\\common\\trade_companies\\");
     return true;
   } catch (std::exception e) {
     std::string error = "Configured paths seem to be messed up, check Europa "
@@ -79,12 +75,12 @@ void Module::genEu4(Generator &eu4Gen, bool cut) {
     Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"),
                           (gameModPath + ("\\map\\provinces.bmp")).c_str());
     {
-      using namespace Eu4::Parsing;
+      using namespace Parsing;
       // now do text
       writeAdj(gameModPath + "\\map\\adjacencies.csv", eu4Gen.gameProvinces);
       writeAmbientObjects(gameModPath + "\\map\\ambient_object.txt",
                           eu4Gen.gameProvinces);
-      Eu4::Parsing::writeAreas(gameModPath + "\\map\\area.txt",
+      writeAreas(gameModPath + "\\map\\area.txt",
                                eu4Gen.gameRegions, gamePath);
       writeColonialRegions(
           gameModPath + "\\common\\colonial_regions\\00_colonial_regions.txt",
