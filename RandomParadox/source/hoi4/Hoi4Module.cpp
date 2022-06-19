@@ -15,22 +15,20 @@ bool Hoi4Module::createPaths() {
   try {
     // generic cleanup and path creation
     GenericModule::createPaths(gameModPath);
+    using namespace std::filesystem;
     // map
-    std::filesystem::create_directory(gameModPath + "\\map\\supplyareas\\");
-    std::filesystem::create_directory(gameModPath +
-                                      "\\map\\strategicregions\\");
+    create_directory(gameModPath + "\\map\\supplyareas\\");
+    create_directory(gameModPath + "\\map\\strategicregions\\");
     // gfx
-    std::filesystem::create_directory(gameModPath + "\\gfx\\flags\\small\\");
-    std::filesystem::create_directory(gameModPath + "\\gfx\\flags\\medium\\");
+    create_directory(gameModPath + "\\gfx\\flags\\small\\");
+    create_directory(gameModPath + "\\gfx\\flags\\medium\\");
     // history
-    std::filesystem::create_directory(gameModPath + "\\history\\units\\");
-    std::filesystem::create_directory(gameModPath + "\\history\\states\\");
+    create_directory(gameModPath + "\\history\\units\\");
+    create_directory(gameModPath + "\\history\\states\\");
     // localisation
-    std::filesystem::create_directory(gameModPath +
-                                      "\\localisation\\english\\");
+    create_directory(gameModPath + "\\localisation\\english\\");
     // common
-    std::filesystem::create_directory(gameModPath +
-                                      "\\common\\national_focus\\");
+    create_directory(gameModPath + "\\common\\national_focus\\");
     return true;
   } catch (std::exception e) {
     std::string error =
@@ -119,53 +117,49 @@ void Hoi4Module::genHoi(bool cut) {
     formatConverter.dumpWorldNormal(gameModPath + "\\map\\world_normal.bmp",
                                     cut);
 
-    Parsing::writeCompatibilityHistory(gameModPath + "\\history\\countries\\",
-                                       gamePath,
-                                       hoi4Gen.fwg.provinceGenerator.regions);
-    Parsing::writeHistoryCountries(gameModPath + "\\history\\countries\\",
-                                   hoi4Gen.hoi4Countries);
-    Parsing::writeHistoryUnits(gameModPath + "\\history\\units\\",
-                               hoi4Gen.hoi4Countries);
-    Parsing::dumpCommonCountryTags(
-        gameModPath + "\\common\\country_tags\\02_countries.txt",
-        hoi4Gen.hoi4Countries);
-    Parsing::dumpCommonCountries(gameModPath + "\\common\\countries\\",
-                                 gamePath + "\\common\\countries\\colors.txt",
-                                 hoi4Gen.hoi4Countries);
-    Parsing::dumpAdj(gameModPath + "\\map\\adjacencies.csv");
-    Parsing::dumpAirports(gameModPath + "\\map\\airports.txt",
-                          hoi4Gen.fwg.provinceGenerator.regions);
-    Parsing::dumpBuildings(gameModPath + "\\map\\buildings.txt",
-                           hoi4Gen.fwg.provinceGenerator.regions);
-    Parsing::dumpContinents(gameModPath + "\\map\\continents.txt",
-                            hoi4Gen.fwg.provinceGenerator.continents);
-    Parsing::dumpDefinition(gameModPath + "\\map\\definition.csv",
-                            hoi4Gen.gameProvinces);
-    Parsing::dumpUnitStacks(gameModPath + "\\map\\unitstacks.txt",
-                            hoi4Gen.fwg.provinceGenerator.provinces);
-    Parsing::dumpRocketSites(gameModPath + "\\map\\rocketsites.txt",
-                             hoi4Gen.fwg.provinceGenerator.regions);
-    Parsing::dumpStrategicRegions(gameModPath + "\\map\\strategicregions",
-                                  hoi4Gen.fwg.provinceGenerator.regions,
-                                  hoi4Gen.strategicRegions);
-    Parsing::dumpStates(gameModPath + "\\history\\states",
-                        hoi4Gen.hoi4Countries);
-    Parsing::dumpFlags(gameModPath + "\\gfx\\flags\\", hoi4Gen.hoi4Countries);
-    Parsing::dumpWeatherPositions(gameModPath + "\\map\\weatherpositions.txt",
-                                  hoi4Gen.fwg.provinceGenerator.regions,
-                                  hoi4Gen.strategicRegions);
-    Parsing::dumpAdjacencyRules(gameModPath + "\\map\\adjacency_rules.txt");
-    Parsing::dumpSupply(gameModPath + "\\map\\", hoi4Gen.supplyNodeConnections);
-    Parsing::writeStateNames(gameModPath + "\\localisation\\english\\",
-                             hoi4Gen.hoi4Countries);
-    Parsing::writeCountryNames(gameModPath + "\\localisation\\english\\",
-                               hoi4Gen.hoi4Countries);
-    Parsing::writeStrategicRegionNames(
-        gameModPath + "\\localisation\\english\\", hoi4Gen.strategicRegions);
-    Parsing::writeFoci(gameModPath + "\\common\\national_focus\\",
-                       hoi4Gen.hoi4Countries);
-    Parsing::dumpCommonBookmarks(gameModPath + "\\common\\bookmarks\\",
-                                 hoi4Gen.hoi4Countries, hoi4Gen.strengthScores);
+    using namespace Parsing::Writing;
+    compatibilityHistory(gameModPath + "\\history\\countries\\", gamePath,
+                         hoi4Gen.fwg.provinceGenerator.regions);
+    historyCountries(gameModPath + "\\history\\countries\\",
+                     hoi4Gen.hoi4Countries);
+    historyUnits(gameModPath + "\\history\\units\\", hoi4Gen.hoi4Countries);
+    commonCountryTags(gameModPath + "\\common\\country_tags\\02_countries.txt",
+                      hoi4Gen.hoi4Countries);
+    commonCountries(gameModPath + "\\common\\countries\\",
+                    gamePath + "\\common\\countries\\colors.txt",
+                    hoi4Gen.hoi4Countries);
+    adj(gameModPath + "\\map\\adjacencies.csv");
+    airports(gameModPath + "\\map\\airports.txt",
+             hoi4Gen.fwg.provinceGenerator.regions);
+    buildings(gameModPath + "\\map\\buildings.txt",
+              hoi4Gen.fwg.provinceGenerator.regions);
+    continents(gameModPath + "\\map\\continents.txt",
+               hoi4Gen.fwg.provinceGenerator.continents);
+    definition(gameModPath + "\\map\\definition.csv", hoi4Gen.gameProvinces);
+    unitStacks(gameModPath + "\\map\\unitstacks.txt",
+               hoi4Gen.fwg.provinceGenerator.provinces);
+    rocketSites(gameModPath + "\\map\\rocketsites.txt",
+                hoi4Gen.fwg.provinceGenerator.regions);
+    strategicRegions(gameModPath + "\\map\\strategicregions",
+                     hoi4Gen.fwg.provinceGenerator.regions,
+                     hoi4Gen.strategicRegions);
+    states(gameModPath + "\\history\\states", hoi4Gen.hoi4Countries);
+    flags(gameModPath + "\\gfx\\flags\\", hoi4Gen.hoi4Countries);
+    weatherPositions(gameModPath + "\\map\\weatherpositions.txt",
+                     hoi4Gen.fwg.provinceGenerator.regions,
+                     hoi4Gen.strategicRegions);
+    adjacencyRules(gameModPath + "\\map\\adjacency_rules.txt");
+    supply(gameModPath + "\\map\\", hoi4Gen.supplyNodeConnections);
+    stateNames(gameModPath + "\\localisation\\english\\",
+               hoi4Gen.hoi4Countries);
+    countryNames(gameModPath + "\\localisation\\english\\",
+                 hoi4Gen.hoi4Countries);
+    strategicRegionNames(gameModPath + "\\localisation\\english\\",
+                         hoi4Gen.strategicRegions);
+    foci(gameModPath + "\\common\\national_focus\\", hoi4Gen.hoi4Countries);
+    commonBookmarks(gameModPath + "\\common\\bookmarks\\",
+                    hoi4Gen.hoi4Countries, hoi4Gen.strengthScores);
+
     Parsing::copyDescriptorFile("resources\\hoi4\\descriptor.mod", gameModPath,
                                 gameModsDirectory, modName);
 
