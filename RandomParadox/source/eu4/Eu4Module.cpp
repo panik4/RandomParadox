@@ -49,7 +49,7 @@ void Module::genEu4(Generator &eu4Gen, bool cut) {
   try {
     // generate map files. Format must be converted and colours mapped to eu4
     // compatible colours
-    FormatConverter formatConverter(gamePath, "Eu4");
+    Graphics::FormatConverter formatConverter(gamePath, "Eu4");
     formatConverter.dump8BitTerrain(gameModPath + "\\map\\terrain.bmp",
                                     "terrain", cut);
     formatConverter.dump8BitRivers(gameModPath + "\\map\\rivers.bmp", "rivers",

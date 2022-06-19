@@ -1,4 +1,6 @@
 #include "generic/FormatConverter.h"
+namespace Graphics {
+using namespace Textures;
 const std::map<std::string, std::map<Colour, int>> FormatConverter::colourMaps{
     {"terrainHoi4",
      {{Env::Instance().namedColours["grassland"], 0},
@@ -236,8 +238,8 @@ void FormatConverter::dumpDDSFiles(const std::string &path, const bool cut,
         }
       }
     }
-    TextureWriter::writeDDS(imageWidth, imageHeight, pixels,
-                            DXGI_FORMAT_B8G8R8A8_UNORM, tempPath);
+    Graphics::Textures::writeDDS(imageWidth, imageHeight, pixels,
+                                 DXGI_FORMAT_B8G8R8A8_UNORM, tempPath);
   }
 }
 
@@ -279,7 +281,7 @@ void FormatConverter::dumpTerrainColourmap(const std::string &modPath,
     }
   } else {
     // load base game colourmap
-    pixels = TextureWriter::readDDS(gamePath + mapName);
+    pixels = readDDS(gamePath + mapName);
     auto maxY = 1024 - config.maxY / (double)factor;
     auto minY = 1024 - config.minY / (double)factor;
     auto maxX = config.maxX / (double)factor;
@@ -294,11 +296,10 @@ void FormatConverter::dumpTerrainColourmap(const std::string &modPath,
     }
   }
   if (config.scale)
-    TextureWriter::writeDDS(config.scaleX / factor, config.scaleY / factor,
-                            pixels, format, modPath + mapName);
+    writeDDS(config.scaleX / factor, config.scaleY / factor, pixels, format,
+             modPath + mapName);
   else
-    TextureWriter::writeDDS(imageWidth, imageHeight, pixels, format,
-                            modPath + mapName);
+    writeDDS(imageWidth, imageHeight, pixels, format, modPath + mapName);
 }
 
 void FormatConverter::dumpWorldNormal(const std::string &path,
@@ -348,3 +349,4 @@ FormatConverter::FormatConverter(const std::string &gamePath,
 }
 
 FormatConverter::~FormatConverter() {}
+} // namespace Graphics

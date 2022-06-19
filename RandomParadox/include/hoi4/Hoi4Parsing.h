@@ -2,7 +2,7 @@
 #include "FastWorldGenerator.h"
 #include "generic/NameGenerator.h"
 #include "generic/ParserUtils.h"
-#include "generic/TextureWriter.h"
+#include "generic/Textures.h"
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4Generator.h"
 #include <array>
