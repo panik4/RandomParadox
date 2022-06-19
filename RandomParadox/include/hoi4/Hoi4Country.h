@@ -1,10 +1,13 @@
 #pragma once
-#include "generic/PdoxCountry.h"
 #include "Hoi4GameRegion.h"
 #include "NationalFocus.h"
+#include "generic/PdoxCountry.h"
 #include <array>
 #include <string>
 #include <vector>
+
+namespace Hoi4 {
+
 class Hoi4Country : public PdoxCountry {
 public:
   enum class doctrineType {
@@ -28,7 +31,7 @@ public:
   double bully;
   double strengthScore;
   double relativeScore;
-  //typedef doctrineType mytype;
+  // typedef doctrineType mytype;
   std::vector<doctrineType> doctrines;
   std::vector<int> units;
   std::vector<int> unitCount;
@@ -36,3 +39,4 @@ public:
   std::vector<Hoi4GameRegion> hoi4Regions;
   std::vector<std::vector<NationalFocus>> foci;
 };
+} // namespace Hoi4

@@ -127,7 +127,7 @@ int main() {
     if (genHoi4Scenario) {
       FastWorldGenerator fastWorldGen(configSubFolder);
 
-      Hoi4Module hoi4Mod;
+      Hoi4::Hoi4Module hoi4Mod;
 
       hoi4Mod.readHoiConfig(configSubFolder, username);
       if (!useDefaultMap) {
@@ -144,7 +144,7 @@ int main() {
         fastWorldGen.generateWorld();
       }
       // now start the generation of the scenario with the generated map files
-      Scenario::Generator sG(fastWorldGen);
+      Hoi4::Generator sG(fastWorldGen);
       // and now check if we need to generate game specific files
       if (genHoi4Scenario)
         // generate hoi4 scenario

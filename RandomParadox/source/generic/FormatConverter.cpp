@@ -92,8 +92,8 @@ Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
   return cutBase;
 }
 
-void FormatConverter::dump8BitHeightmap(const std::string path,
-                                        const std::string colourMapKey) const {
+void FormatConverter::dump8BitHeightmap(const std::string &path,
+                                        const std::string &colourMapKey) const {
   Logger::logLine("FormatConverter::Copying heightmap to ", path);
   Bitmap hoi4Heightmap(Env::Instance().width, Env::Instance().height, 8);
   hoi4Heightmap.getColourtable() = colourTables.at(colourMapKey + gameTag);
@@ -104,8 +104,8 @@ void FormatConverter::dump8BitHeightmap(const std::string path,
   Bitmap::SaveBMPToFile(hoi4Heightmap, path);
 }
 
-void FormatConverter::dump8BitTerrain(const std::string path,
-                                      const std::string colourMapKey,
+void FormatConverter::dump8BitTerrain(const std::string &path,
+                                      const std::string &colourMapKey,
                                       const bool cut) const {
   Logger::logLine("FormatConverter::Writing terrain to ", path);
   auto &conf = Env::Instance();
@@ -126,8 +126,8 @@ void FormatConverter::dump8BitTerrain(const std::string path,
   Bitmap::SaveBMPToFile(hoi4terrain, path);
 }
 
-void FormatConverter::dump8BitCities(const std::string path,
-                                     const std::string colourMapKey,
+void FormatConverter::dump8BitCities(const std::string &path,
+                                     const std::string &colourMapKey,
                                      const bool cut) const {
   Logger::logLine("FormatConverter::Writing cities to ", path);
   Bitmap cities(Env::Instance().width, Env::Instance().height, 8);
@@ -147,8 +147,8 @@ void FormatConverter::dump8BitCities(const std::string path,
   Bitmap::SaveBMPToFile(cities, path);
 }
 
-void FormatConverter::dump8BitRivers(const std::string path,
-                                     const std::string colourMapKey,
+void FormatConverter::dump8BitRivers(const std::string &path,
+                                     const std::string &colourMapKey,
                                      const bool cut) const {
   Logger::logLine("FormatConverter::Writing rivers to ", path);
   Bitmap rivers(Env::Instance().width, Env::Instance().height, 8);
@@ -165,8 +165,8 @@ void FormatConverter::dump8BitRivers(const std::string path,
   Bitmap::SaveBMPToFile(rivers, path);
 }
 
-void FormatConverter::dump8BitTrees(const std::string path,
-                                    const std::string colourMapKey,
+void FormatConverter::dump8BitTrees(const std::string &path,
+                                    const std::string &colourMapKey,
                                     const bool cut) const {
   Logger::logLine("FormatConverter::Writing trees to ", path);
   const double width = Env::Instance().width;
@@ -195,7 +195,7 @@ void FormatConverter::dump8BitTrees(const std::string path,
   Bitmap::SaveBMPToFile(trees, path);
 }
 
-void FormatConverter::dumpDDSFiles(const std::string path, const bool cut,
+void FormatConverter::dumpDDSFiles(const std::string &path, const bool cut,
                                    const int maxFactor) const {
   Logger::logLine("FormatConverter::Writing DDS files to ", path);
   using namespace DirectX;
@@ -203,7 +203,7 @@ void FormatConverter::dumpDDSFiles(const std::string path, const bool cut,
   const auto &heightBMP = Bitmap::findBitmapByKey("heightmap");
   const auto &width = Env::Instance().width;
 
-  for (int factor = 2, counter = 0; factor <= maxFactor;
+  for (auto factor = 2, counter = 0; factor <= maxFactor;
        factor *= 2, counter++) {
     auto tempPath{path};
     if (gameTag == "Hoi4")
@@ -241,10 +241,12 @@ void FormatConverter::dumpDDSFiles(const std::string path, const bool cut,
   }
 }
 
-void FormatConverter::dumpTerrainColourmap(const std::string ModPath,
-                                           const std::string mapName, const DXGI_FORMAT format,
+void FormatConverter::dumpTerrainColourmap(const std::string &modPath,
+                                           const std::string &mapName,
+                                           const DXGI_FORMAT format,
                                            const bool cut) const {
-  Logger::logLine("FormatConverter::Writing terrain colourmap to ", ModPath + mapName);
+  Logger::logLine("FormatConverter::Writing terrain colourmap to ",
+                  modPath + mapName);
   auto &config = Env::Instance();
   const auto &climateMap = Bitmap::findBitmapByKey("climate2");
   const auto &cityMap = Bitmap::findBitmapByKey("cities");
@@ -269,10 +271,10 @@ void FormatConverter::dumpTerrainColourmap(const std::string ModPath,
         if (gameTag == "Eu4") {
           pixels[imageIndex + 3] = 255;
         } else
-        pixels[imageIndex + 3] =
-            255.0 *
-            (cityMap.getColourAtIndex(colourmapIndex) /
-             Env::Instance().namedColours["cities"]); // alpha for city lights
+          pixels[imageIndex + 3] =
+              255.0 *
+              (cityMap.getColourAtIndex(colourmapIndex) /
+               Env::Instance().namedColours["cities"]); // alpha for city lights
       }
     }
   } else {
@@ -293,14 +295,13 @@ void FormatConverter::dumpTerrainColourmap(const std::string ModPath,
   }
   if (config.scale)
     TextureWriter::writeDDS(config.scaleX / factor, config.scaleY / factor,
-                            pixels, format,
-                            ModPath + mapName);
+                            pixels, format, modPath + mapName);
   else
-    TextureWriter::writeDDS(imageWidth, imageHeight, pixels,
-                            format, ModPath + mapName);
+    TextureWriter::writeDDS(imageWidth, imageHeight, pixels, format,
+                            modPath + mapName);
 }
 
-void FormatConverter::dumpWorldNormal(const std::string path,
+void FormatConverter::dumpWorldNormal(const std::string &path,
                                       const bool cut) const {
   Logger::logLine("FormatConverter::Writing normalMap to ", path);
   auto height = Env::Instance().height;
@@ -322,8 +323,8 @@ void FormatConverter::dumpWorldNormal(const std::string path,
   Bitmap::SaveBMPToFile(normalMap, (path).c_str());
 }
 
-FormatConverter::FormatConverter(const std::string gamePath,
-                                 const std::string gameTag)
+FormatConverter::FormatConverter(const std::string &gamePath,
+                                 const std::string &gameTag)
     : gamePath{gamePath}, gameTag{gameTag} {
   std::string terrainsourceString = (gamePath + "\\map\\terrain.bmp");
   Bitmap terrain = Bitmap::Load8bitBMP(terrainsourceString.c_str(), "terrain");

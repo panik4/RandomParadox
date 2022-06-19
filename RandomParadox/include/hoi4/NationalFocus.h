@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 #include <vector>
-
+namespace Hoi4 {
 struct Date {
   int day;
   int month;
@@ -32,7 +32,7 @@ public:
   bool defaultV;
 
   // containers
-  //std::vector<int> date;
+  // std::vector<int> date;
   Date date;
   std::vector<int> position;
   std::vector<int> precedingFoci;
@@ -54,3 +54,4 @@ public:
   friend std::ostream &operator<<(std::ostream &os, const NationalFocus &focus);
   bool operator==(const NationalFocus &right) const { return ID == right.ID; }
 };
+} // namespace Hoi4
