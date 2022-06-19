@@ -15,11 +15,12 @@ struct SymbolInfo {
   bool replaceColour;
 };
 
+namespace Fwg = FastWorldGen;
 class Flag {
   // keep code shorter
   using PU = ParserUtils;
   // static cause we only want to read them from file once
-  static std::map<std::string, std::vector<Colour>> colourGroups;
+  static std::map<std::string, std::vector<Fwg::Colour>> colourGroups;
   static std::vector<std::vector<std::vector<int>>> flagTypes;
   static std::vector<std::vector<std::vector<std::string>>> flagTypeColours;
   static std::vector<std::vector<uint8_t>> flagTemplates;
@@ -27,7 +28,7 @@ class Flag {
   static std::vector<SymbolInfo> symbolMetadata;
   static std::vector<std::vector<uint8_t>> symbolTemplates;
   // containers
-  std::vector<Colour> colours;
+  std::vector<Fwg::Colour> colours;
   std::vector<unsigned char> image;
 
 public:
@@ -39,8 +40,8 @@ public:
   Flag(const int width, const int height);
   ~Flag();
   // methods - image read/write
-  void setPixel(const Colour colour, const int x, const int y);
-  void setPixel(const Colour colour, const int index);
+  void setPixel(const Fwg::Colour colour, const int x, const int y);
+  void setPixel(const Fwg::Colour colour, const int index);
   std::vector<unsigned char> getFlag() const;
   // methods - utils
   std::vector<unsigned char> resize(const int width, const int height) const;

@@ -1,4 +1,5 @@
 #include "eu4/Eu4Module.h"
+using namespace FastWorldGen;
 namespace Scenario::Eu4 {
 Module::Module(FastWorldGenerator &fastWorldGen,
                const std::string &configSubFolder, const std::string &username)
