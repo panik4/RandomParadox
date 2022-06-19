@@ -6,7 +6,7 @@
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4Generator.h"
 #include <array>
-
+namespace Fwg = FastWorldGen;
 namespace Scenario::Hoi4::Parsing {
 using pU = ParserUtils;
 using hoiMap = std::map<std::string, Hoi4::Hoi4Country>;
@@ -15,22 +15,24 @@ static std::vector<std::string> defaultTags;
 namespace Writing {
 void adj(const std::string &path);
 void adjacencyRules(const std::string &path);
-void airports(const std::string &path, const std::vector<Region> &regions);
-void buildings(const std::string &path, const std::vector<Region> &regions);
+void airports(const std::string &path, const std::vector<Fwg::Region> &regions);
+void buildings(const std::string &path,
+               const std::vector<Fwg::Region> &regions);
 void continents(const std::string &path,
-                const std::vector<Continent> &continents);
+                const std::vector<Fwg::Continent> &continents);
 void definition(const std::string &path,
                 const std::vector<GameProvince> &provinces);
-void rocketSites(const std::string &path, const std::vector<Region> &regions);
+void rocketSites(const std::string &path,
+                 const std::vector<Fwg::Region> &regions);
 void strategicRegions(const std::string &path,
-                      const std::vector<Region> &regions,
+                      const std::vector<Fwg::Region> &regions,
                       const std::vector<strategicRegion> &strategicRegions);
 void supply(const std::string &path,
             const std::vector<std::vector<int>> supplyNodeConnections);
 void unitStacks(const std::string &path,
-                const std::vector<Province *> provinces);
+                const std::vector<Fwg::Province *> provinces);
 void weatherPositions(const std::string &path,
-                      const std::vector<Region> &regions,
+                      const std::vector<Fwg::Region> &regions,
                       const std::vector<strategicRegion> &strategicRegions);
 // gfx
 void flags(const std::string &path, const hoiMap &countries);
@@ -57,12 +59,12 @@ void strategicRegionNames(const std::string &path,
 
 // copy base game countries and remove certain lines to reduce crashes
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
-                          const std::vector<Region> &regions);
+                          const std::vector<Fwg::Region> &regions);
 
 } // namespace Writing
 
-std::string getBuildingLine(const std::string &type, const Region &region,
-                            const bool coastal, const Bitmap &heightmap);
+std::string getBuildingLine(const std::string &type, const Fwg::Region &region,
+                            const bool coastal, const Fwg::Bitmap &heightmap);
 // history - National Focus
 std::vector<std::string> readTypeMap();
 std::map<std::string, std::string> readRewardMap(const std::string &path);

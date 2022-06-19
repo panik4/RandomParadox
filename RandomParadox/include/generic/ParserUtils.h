@@ -11,8 +11,8 @@ public:
     std::ofstream file;
     file.open(path);
     if (!file)
-      throw std::exception(
-          UtilLib::varsToString("Didn't manage to write to file ", path)
+      throw std::exception(FastWorldGen::Utils::varsToString(
+                               "Didn't manage to write to file ", path)
               .c_str());
     if (utf8) {
       const std::array<unsigned char, 3> bom[] = {0xEF, 0xBB, 0xBF};
@@ -27,8 +27,8 @@ public:
     std::ifstream file;
     file.open(path);
     if (!file)
-      throw std::exception(
-          UtilLib::varsToString("Didn't manage to read from file ", path)
+      throw std::exception(FastWorldGen::Utils::varsToString(
+                               "Didn't manage to read from file ", path)
               .c_str());
     while (getline(file, line)) {
       content.append(line + "\n");

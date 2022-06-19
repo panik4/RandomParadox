@@ -1,6 +1,6 @@
 #include "hoi4/Hoi4Parsing.h"
 #include "hoi4/NationalFocus.h"
-
+using namespace Fwg;
 namespace Scenario::Hoi4::Parsing {
 namespace Writing {
 void adj(const std::string &path) {
@@ -53,7 +53,7 @@ void buildings(const std::string &path, const std::vector<Region> &regions) {
       if (prov->coastal)
         coastal = true;
       // add supply node buildings for each province
-      auto pix = UtilLib::selectRandom(prov->pixels);
+      auto pix = Utils::selectRandom(prov->pixels);
       auto widthPos = pix % Env::Instance().width;
       auto heightPos = pix / Env::Instance().width;
       content.append(
@@ -67,7 +67,7 @@ void buildings(const std::string &path, const std::vector<Region> &regions) {
       else if (type == "bunker") {
         for (const auto &prov : region.provinces) {
           if (!prov->isLake && !prov->sea) {
-            auto pix = UtilLib::selectRandom(prov->pixels);
+            auto pix = Utils::selectRandom(prov->pixels);
             auto widthPos = pix % Env::Instance().width;
             auto heightPos = pix / Env::Instance().width;
             std::vector<std::string> arguments{
@@ -88,14 +88,14 @@ void buildings(const std::string &path, const std::vector<Region> &regions) {
       else if (type == "coastal_bunker" || type == "naval_base") {
         for (const auto &prov : region.provinces) {
           if (prov->coastal) {
-            auto pix = UtilLib::selectRandom(prov->coastalPixels);
+            auto pix = Utils::selectRandom(prov->coastalPixels);
             int ID = 0;
             if (type == "naval_base")
               // find the ocean province this coastal building is next to
               for (const auto &neighbour : prov->neighbours)
                 if (neighbour->sea)
                   for (const auto &provPix : neighbour->pixels)
-                    if (UtilLib::getDistance(provPix, pix,
+                    if (Utils::getDistance(provPix, pix,
                                              Env::Instance().width) < 2.0)
                       ID = neighbour->ID;
             auto widthPos = pix % Env::Instance().width;
@@ -216,7 +216,7 @@ void unitStacks(const std::string &path,
   std::string content{""};
   for (const auto &prov : provinces) {
     int position = 0;
-    auto pix = UtilLib::selectRandom(prov->pixels);
+    auto pix = Utils::selectRandom(prov->pixels);
     auto widthPos = pix % Env::Instance().width;
     auto heightPos = pix / Env::Instance().width;
     std::vector<std::string> arguments{
@@ -262,9 +262,9 @@ void weatherPositions(const std::string &path,
 
   for (auto i = 0; i < strategicRegions.size(); i++) {
     const auto &region =
-        UtilLib::selectRandom(strategicRegions[i].gameRegionIDs);
-    const auto prov = UtilLib::selectRandom(regions[region].provinces);
-    const auto pix = UtilLib::selectRandom(prov->pixels);
+        Utils::selectRandom(strategicRegions[i].gameRegionIDs);
+    const auto prov = Utils::selectRandom(regions[region].provinces);
+    const auto pix = Utils::selectRandom(prov->pixels);
     auto widthPos = pix % Env::Instance().width;
     auto heightPos = pix / Env::Instance().width;
     std::vector<std::string> arguments{
@@ -348,7 +348,7 @@ void strategicRegions(const std::string &path,
     }
     pU::replaceOccurences(content, templateWeather, weather);
     pU::replaceOccurences(content, "template_provinces", provString);
-    pU::writeFile(UtilLib::varsToString(path, "\\", (i + 1), ".txt"), content);
+    pU::writeFile(Utils::varsToString(path, "\\", (i + 1), ".txt"), content);
   }
 }
 
@@ -463,7 +463,7 @@ void historyCountries(const std::string &path, const hoiMap &countries) {
     auto countryText{content};
     auto capitalID = 1;
     if (country.second.hoi4Regions.size())
-      capitalID = (UtilLib::selectRandom(country.second.hoi4Regions)).ID + 1;
+      capitalID = (Utils::selectRandom(country.second.hoi4Regions)).ID + 1;
     pU::replaceOccurences(countryText, "templateCapital",
                           std::to_string(capitalID));
     pU::replaceOccurences(countryText, "templateTag", country.first);
@@ -631,7 +631,7 @@ void commonCountries(const std::string &path, const std::string &hoiPath,
     auto tempPath = path + country.second.name + ".txt";
     auto countryText{content};
     auto colourString = pU::replaceOccurences(
-        UtilLib::varsToString(country.second.colour), ";", " ");
+        Utils::varsToString(country.second.colour), ";", " ");
     pU::replaceOccurences(countryText, "templateCulture",
                           country.second.gfxCulture);
     pU::replaceOccurences(countryText, "templateColour", colourString);
@@ -695,7 +695,7 @@ void strategicRegionNames(
   Logger::logLine("HOI4 Parser: Map: Naming the Regions");
   std::string content = "l_english:\n";
   for (auto i = 0; i < strategicRegions.size(); i++) {
-    content += UtilLib::varsToString(" STRATEGICREGION_", i, ":0 \"",
+    content += Utils::varsToString(" STRATEGICREGION_", i, ":0 \"",
                                      strategicRegions[i].name, "\"\n");
   }
   pU::writeFile(path + "\\strategic_region_names_l_english.yml", content, true);
@@ -812,7 +812,7 @@ void foci(const std::string &path, const hoiMap &countries) {
               preRequisiteBlocks.push_back(std::vector<int>{});
               preRequisiteBlocks[counter++].push_back(aBlock[0]);
             }
-            std::string preName = UtilLib::varsToString(
+            std::string preName = Utils::varsToString(
                 c.first, focusChain[0].chainID, ".", aBlock[0]);
 
             preString += "prerequisite = {";
@@ -822,7 +822,7 @@ void foci(const std::string &path, const hoiMap &countries) {
           // no and cases, so just list all potential predecessors
           preString += "prerequisite = {";
           for (const auto elem : usedF) {
-            std::string preName = UtilLib::varsToString(
+            std::string preName = Utils::varsToString(
                 c.first, focusChain[0].chainID, ".", elem);
             preString += " focus = " + preName + " ";
           }
@@ -845,7 +845,7 @@ void foci(const std::string &path, const hoiMap &countries) {
           for (const auto &foc : focusChain) {
             if (foc.stepID == exclusive) {
               // derive the name of the preceding focus
-              std::string preName = UtilLib::varsToString(
+              std::string preName = Utils::varsToString(
                   c.first, focusChain[0].chainID, ".", exclusive);
               preString += " focus = " + preName;
             }
@@ -911,21 +911,21 @@ void copyDescriptorFile(const std::string &sourcePath,
   pU::replaceOccurences(descriptorText, "templatePath", "");
   pU::writeFile(destPath + "//descriptor.mod", descriptorText);
   pU::replaceOccurences(modText, "templatePath",
-                        UtilLib::varsToString("path=\"", destPath, "\""));
+                        Utils::varsToString("path=\"", destPath, "\""));
   pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
 }
 std::string getBuildingLine(const std::string &type, const Region &region,
                             const bool coastal, const Bitmap &heightmap) {
-  auto prov = UtilLib::selectRandom(region.provinces);
+  auto prov = Utils::selectRandom(region.provinces);
   auto pix = 0;
   if (coastal) {
     while (!prov->coastal)
-      prov = UtilLib::selectRandom(region.provinces);
-    pix = UtilLib::selectRandom(prov->coastalPixels);
+      prov = Utils::selectRandom(region.provinces);
+    pix = Utils::selectRandom(prov->coastalPixels);
   } else {
     while (prov->isLake)
-      prov = UtilLib::selectRandom(region.provinces);
-    pix = UtilLib::selectRandom(prov->pixels);
+      prov = Utils::selectRandom(region.provinces);
+    pix = Utils::selectRandom(prov->pixels);
   }
   auto widthPos = pix % Env::Instance().width;
   auto heightPos = pix / Env::Instance().width;

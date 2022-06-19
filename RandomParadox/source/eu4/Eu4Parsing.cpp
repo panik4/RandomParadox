@@ -1,4 +1,5 @@
 #include "eu4/Eu4Parsing.h"
+using namespace FastWorldGen;
 namespace Scenario::Eu4::Parsing {
 std::string loadVanillaFile(const std::string &path,
                             const std::vector<std::string> &&filters) {
@@ -93,9 +94,9 @@ void writeClimate(const std::string &path,
     auto maxPrecipitation = 0.0;
     for (const auto &temp : province.baseProvince->weatherMonths) {
       // find min and max temperatures
-      UtilLib::switchIfComparator(temp[1], minTemp, std::less());
-      UtilLib::switchIfComparator(temp[1], maxTemp, std::greater());
-      UtilLib::switchIfComparator(temp[2], maxPrecipitation, std::greater());
+      Utils::switchIfComparator(temp[1], minTemp, std::less());
+      Utils::switchIfComparator(temp[1], maxTemp, std::greater());
+      Utils::switchIfComparator(temp[2], maxPrecipitation, std::greater());
     }
     if (minTemp < 0.1)
       severe_winter.append(provID + " ");
@@ -314,7 +315,7 @@ void copyDescriptorFile(const std::string &sourcePath,
   pU::replaceOccurences(descriptorText, "templatePath", "");
   pU::writeFile(destPath + "//descriptor.mod", descriptorText);
   pU::replaceOccurences(modText, "templatePath",
-                        UtilLib::varsToString("path=\"", destPath, "\""));
+                        Utils::varsToString("path=\"", destPath, "\""));
   pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
 }
 

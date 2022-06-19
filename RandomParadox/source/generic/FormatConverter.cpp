@@ -1,6 +1,7 @@
 #include "generic/FormatConverter.h"
 namespace Graphics {
 using namespace Textures;
+using namespace FastWorldGen;
 const std::map<std::string, std::map<Colour, int>> FormatConverter::colourMaps{
     {"terrainHoi4",
      {{Env::Instance().namedColours["grassland"], 0},
@@ -288,9 +289,9 @@ void FormatConverter::dumpTerrainColourmap(const std::string &modPath,
     auto minX = config.minX / (double)factor;
     std::swap(minY, maxY);
     // cut it and reassign it
-    pixels = UtilLib::cutBuffer(pixels, 2816, 1024, minX, maxX, minY, maxY, 4);
+    pixels = Utils::cutBuffer(pixels, 2816, 1024, minX, maxX, minY, maxY, 4);
     if (config.scale) {
-      pixels = UtilLib::scaleBuffer(
+      pixels = Utils::scaleBuffer(
           pixels, abs(maxX - minX), abs(maxY - minY), config.scaleX / factor,
           config.scaleY / factor, 4, config.keepRatio);
     }

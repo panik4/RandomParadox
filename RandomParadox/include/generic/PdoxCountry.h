@@ -15,7 +15,7 @@ public:
   int capitalRegionID;
   double developmentFactor;
   Graphics::Flag flag;
-  Colour colour;
+  FastWorldGen::Colour colour;
   // constructors/destructors
   PdoxCountry();
   PdoxCountry(std::string tag, int ID, std::string name, std::string adjective,

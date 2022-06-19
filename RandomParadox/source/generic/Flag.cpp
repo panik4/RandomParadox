@@ -1,6 +1,7 @@
 #include "generic/Flag.h"
 
 namespace Graphics {
+using namespace FastWorldGen;
 std::map<std::string, std::vector<Colour>> Flag::colourGroups;
 std::vector<std::vector<std::vector<int>>> Flag::flagTypes(7);
 std::vector<std::vector<std::vector<std::string>>> Flag::flagTypeColours(7);
@@ -25,7 +26,7 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
   // pool of colours is taken from colour groups defined in metadata files
   std::vector<Colour> replacementColours;
   for (auto &colGroup : flagInfo.flagColourGroups) {
-    const auto &colour = UtilLib::selectRandom(colourGroups[colGroup]);
+    const auto &colour = Utils::selectRandom(colourGroups[colGroup]);
     replacementColours.push_back(colour);
   }
 
@@ -85,7 +86,7 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
 Flag::~Flag() {}
 
 void Flag::setPixel(const Colour colour, const int x, const int y) {
-  if (UtilLib::inRange(0, width * height * 4 + 3, (x * width + y) * 4 + 3)) {
+  if (Utils::inRange(0, width * height * 4 + 3, (x * width + y) * 4 + 3)) {
     for (auto i = 0; i < 3; i++)
       image[(x * width + y) * 4 + i] = colour.getBGR()[i];
     image[(x * width + y) * 4 + 3] = 255;
@@ -93,7 +94,7 @@ void Flag::setPixel(const Colour colour, const int x, const int y) {
 }
 
 void Flag::setPixel(const Colour colour, const int index) {
-  if (UtilLib::inRange(0, width * height * 4 + 3, index)) {
+  if (Utils::inRange(0, width * height * 4 + 3, index)) {
     for (auto i = 0; i < 3; i++)
       image[index + i] = colour.getBGR()[i];
     image[index + 3] = 255;

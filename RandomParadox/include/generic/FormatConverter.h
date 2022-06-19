@@ -9,7 +9,7 @@ namespace Graphics {
 class FormatConverter {
   // map of maps of colours, defines which FastWorldGen colour
   // should be mapped to which game compatible colour
-  const static std::map<std::string, std::map<Colour, int>> colourMaps;
+  const static std::map<std::string, std::map<FastWorldGen::Colour, int>> colourMaps;
   std::map<std::string, std::vector<unsigned char>> colourTables;
   std::string gamePath;
   std::string gameTag;
@@ -19,7 +19,7 @@ public:
   FormatConverter(const std::string &gamePath, const std::string &gameTag);
   ~FormatConverter();
   // member functions
-  Bitmap cutBaseMap(const std::string &path, const double factor = 1.0,
+  FastWorldGen::Bitmap cutBaseMap(const std::string &path, const double factor = 1.0,
                     const int bit = 8) const;
   void dump8BitHeightmap(const std::string &path,
                          const std::string &colourMapKey) const;

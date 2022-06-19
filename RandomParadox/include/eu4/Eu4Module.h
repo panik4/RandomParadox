@@ -15,7 +15,7 @@ class Module : GenericModule {
                      const std::string &username);
 
 public:
-  Module(FastWorldGenerator &fastWorldGen, const std::string &configSubFolder,
+  Module(FastWorldGen::FastWorldGenerator &fastWorldGen, const std::string &configSubFolder,
          const std::string &username);
   ~Module();
   // member functions

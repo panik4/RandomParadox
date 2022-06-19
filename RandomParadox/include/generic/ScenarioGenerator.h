@@ -8,27 +8,28 @@
 #include "NameGenerator.h"
 #include "ResourceLoading.h"
 #include <map>
+namespace Fwg = FastWorldGen;
 namespace Scenario {
 class Generator {
   // containers
-  std::vector<Region> baseRegions;
-  std::map<std::string, Bitmap> bitmaps;
+  std::vector<Fwg::Region> baseRegions;
+  std::map<std::string, Fwg::Bitmap> bitmaps;
   std::map<std::string, std::string> gamePaths;
 
 public:
   // vars - used for every game
   NameGenerator nG;
-  FastWorldGenerator fwg;
+  Fwg::FastWorldGenerator fwg;
   int numCountries;
   // containers - used for every game
-  std::vector<Province *> provinces;
+  std::vector<Fwg::Province *> provinces;
   std::vector<PdoxContinent> pdoxContinents;
   std::vector<GameRegion> gameRegions;
   std::vector<GameProvince> gameProvinces;
   std::set<std::string> tags;
   std::map<std::string, PdoxCountry> countries;
   // constructors/destructors
-  Generator(FastWorldGenerator &fwg);
+  Generator(Fwg::FastWorldGenerator &fwg);
   ~Generator();
   /* member functions*/
   // print a map showing all countries for debug purposes
