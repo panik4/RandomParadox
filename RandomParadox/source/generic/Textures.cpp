@@ -1,18 +1,17 @@
-#include "generic/TextureWriter.h"
+#include "generic/Textures.h"
 
-void TextureWriter::writeDDS(const int width, const int height,
-                             std::vector<uint8_t> &pixelData,
-                             const DXGI_FORMAT format,
-                             const std::string &path) {
+namespace Graphics::Textures {
+void writeDDS(const int width, const int height,
+              std::vector<uint8_t> &pixelData, const DXGI_FORMAT format,
+              const std::string &path) {
   auto wPath{std::wstring(path.begin(), path.end())};
   Image image(width, height, format, sizeof(uint8_t) * width * 4,
               sizeof(uint8_t) * width * height, pixelData.data());
   SaveToDDSFile(image, DDS_FLAGS_NONE, wPath.c_str());
 }
 
-void TextureWriter::writeTGA(const int width, const int height,
-                             std::vector<uint8_t> &pixelData,
-                             const std::string &path) {
+void writeTGA(const int width, const int height,
+              std::vector<uint8_t> &pixelData, const std::string &path) {
   auto wPath{std::wstring(path.begin(), path.end())};
   Image image(width, height, DXGI_FORMAT_B8G8R8A8_UNORM,
               sizeof(uint8_t) * width * 4, sizeof(uint8_t) * width * height,
@@ -20,7 +19,7 @@ void TextureWriter::writeTGA(const int width, const int height,
   SaveToTGAFile(image, TGA_FLAGS_NONE, wPath.c_str());
 }
 
-std::vector<uint8_t> TextureWriter::readTGA(const std::string &path) {
+std::vector<uint8_t> readTGA(const std::string &path) {
   auto wPath{std::wstring(path.begin(), path.end())};
   ScratchImage image;
   DirectX::LoadFromTGAFile(wPath.c_str(), nullptr, image);
@@ -34,7 +33,7 @@ std::vector<uint8_t> TextureWriter::readTGA(const std::string &path) {
   return pixelData;
 }
 
-std::vector<uint8_t> TextureWriter::readDDS(const std::string &path) {
+std::vector<uint8_t> readDDS(const std::string &path) {
   auto wPath{std::wstring(path.begin(), path.end())};
   ScratchImage image;
   DirectX::LoadFromDDSFile(wPath.c_str(), DDS_FLAGS_FORCE_RGB, nullptr, image);
@@ -57,3 +56,4 @@ std::vector<uint8_t> TextureWriter::readDDS(const std::string &path) {
   }
   return pixelData;
 }
+} // namespace Graphics::Textures

@@ -1,8 +1,8 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "ParserUtils.h"
-#include "TextureWriter.h"
-
+#include "Textures.h"
+namespace Graphics {
 struct FlagInfo {
   std::vector<std::string> flagColourGroups;
   std::vector<std::string> symbolColourGroups;
@@ -54,3 +54,4 @@ public:
   static void readFlagTemplates();
   static void readSymbolTemplates();
 };
+} // namespace Graphics

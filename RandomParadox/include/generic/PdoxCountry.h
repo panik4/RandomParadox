@@ -13,12 +13,12 @@ public:
   std::string adjective;
   int capitalRegionID;
   double developmentFactor;
-  Flag flag;
+  Graphics::Flag flag;
   Colour colour;
   // constructors/destructors
   PdoxCountry();
   PdoxCountry(std::string tag, int ID, std::string name, std::string adjective,
-              Flag flag);
+              Graphics::Flag flag);
   ~PdoxCountry();
   // containers
   std::vector<int> ownedRegions;
