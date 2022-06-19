@@ -1,5 +1,5 @@
 #include "hoi4/NationalFocus.h"
-#include "hoi4/Hoi4Parser.h"
+#include "hoi4/Hoi4Parsing.h"
 namespace Hoi4 {
 int NationalFocus::IDcounter = 0;
 std::map<std::string, NationalFocus::FocusType> NationalFocus::typeMapping;
@@ -19,15 +19,15 @@ NationalFocus::NationalFocus(FocusType fType, bool defaultV, std::string source,
 NationalFocus::~NationalFocus() {}
 
 void NationalFocus::buildMaps() {
-  auto types = Hoi4Parser::readTypeMap();
+  auto types = Parsing::readTypeMap();
   for (int i = 0; i < types.size(); i++) {
     typeMapping[types[i]] = (FocusType)i;
   }
-  availableMap = Hoi4Parser::readRewardMap(
+  availableMap = Parsing::readRewardMap(
       "resources\\hoi4\\ai\\national_focus\\baseFiles\\available.txt");
-  bypassMap = Hoi4Parser::readRewardMap(
+  bypassMap = Parsing::readRewardMap(
       "resources\\hoi4\\ai\\national_focus\\baseFiles\\bypass.txt");
-  rewardMap = Hoi4Parser::readRewardMap(
+  rewardMap = Parsing::readRewardMap(
       "resources\\hoi4\\ai\\national_focus\\baseFiles\\completionRewards.txt");
 }
 

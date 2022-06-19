@@ -8,6 +8,7 @@
 #include <array>
 #include <set>
 
+namespace Hoi4 {
 struct strategicRegion {
   std::set<int> gameRegionIDs;
   // weather: month{averageTemp, standard deviation, average precipitation,
@@ -17,7 +18,7 @@ struct strategicRegion {
   std::string name;
 };
 
-class Hoi4ScenarioGenerator {
+class Generator : public Scenario::Generator {
   // vars
   int landStates = 0;
   int focusID = 0;
@@ -50,7 +51,7 @@ public:
   std::vector<NationalFocus> foci;
   std::vector<NationalFocus> warFoci;
   std::map<int, std::vector<std::string>> strengthScores;
-  std::map<std::string, Hoi4Country> countries;
+  std::map<std::string, Hoi4Country> hoi4Countries;
   // a list of connections: {sourceHub, destHub, provinces the rails go through}
   std::vector<std::vector<int>> supplyNodeConnections;
   // container holding the resource configurations
@@ -59,24 +60,22 @@ public:
 
   // member functions
   // constructors/destructors
-  Hoi4ScenarioGenerator();
-  ~Hoi4ScenarioGenerator();
+  Generator(FastWorldGenerator &fwg);
+  ~Generator();
   // give resources to states
   void generateStateResources();
   // industry, development, population, state category
   void generateStateSpecifics(const int regionAmount);
   // politics: ideology, strength, major
-  void
-  generateCountrySpecifics(Scenario::Generator &scenGen,
-                           std::map<std::string, PdoxCountry> &pdoxCountries);
+  void generateCountrySpecifics();
   // build strategic regions from gameregions
-  void generateStrategicRegions(Scenario::Generator &scenGen);
+  void generateStrategicRegions();
   // generate weather per strategic region, from baseprovinces
-  void generateWeather(Scenario::Generator &scenGen);
+  void generateWeather();
   // supply hubs and railroads
-  void generateLogistics(Scenario::Generator &scenGen);
+  void generateLogistics();
   // calculate how strong each country is
-  void evaluateCountries(Scenario::Generator &scenGen);
+  void evaluateCountries();
 
   bool unitFulfillsRequirements(std::vector<std::string> unitRequirements,
                                 Hoi4Country &country);
@@ -95,10 +94,10 @@ public:
   // check if a national focus fulfills requirements
   bool targetFulfillsRequirements(
       const std::string &targetRequirements, const Hoi4Country &source,
-      const Hoi4Country &target, const std::vector<GameRegion>& gameRegions,
+      const Hoi4Country &target, const std::vector<GameRegion> &gameRegions,
       const std::vector<std::set<std::string>> &levelTargets, const int level);
   // evaluate the focus chains for each country
-  void evaluateCountryGoals(const Scenario::Generator &scenGen);
+  void evaluateCountryGoals();
   // see which countries are in need of unification
   void evaluateBrotherlyWars();
   // see which country needs to see some action
@@ -106,5 +105,6 @@ public:
   // create a strategy for this country
   void evaluateCountryStrategy();
   // print world info to console
-  void printStatistics(Scenario::Generator &scenGen);
+  void printStatistics();
 };
+} // namespace Hoi4
