@@ -142,16 +142,15 @@ int main() {
       hoi4Mod.genHoi(cut);
     }
     if (genEu4Scenario) {
-      // only run if not already run
+      // need to run fwg with different settings from hoi4, even if it ran there
+      // already
       FastWorldGenerator fastWorldGen(configSubFolder);
       config.seaLevel = 95;
       // now run the world generation
       fastWorldGen.generateWorld();
-      // now start the generation of the scenario with the generated map files
-      Eu4::Generator sG(fastWorldGen);
-      Eu4::Module eu4;
-      eu4.readEu4Config(configSubFolder, username);
-      eu4.genEu4(sG, cut);
+      // create eu4module and have it run the scenario generation
+      Eu4::Module eu4(fastWorldGen, configSubFolder, username);
+      eu4.genEu4(cut);
     }
   } catch (std::exception e) {
     Logger::logLine(e.what());

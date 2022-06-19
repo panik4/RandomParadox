@@ -7,16 +7,18 @@
 #include "generic/ScenarioGenerator.h"
 namespace Eu4 {
 class Module : GenericModule {
-  // member variables
-
-public:
-  Module();
-  ~Module();
-  // member functions
+  Generator eu4Gen;
   // clear and create all the mod paths at each run
   bool createPaths();
-  void genEu4(Generator &scenGen, bool cut);
   // read the config options specific to eu4
-  void readEu4Config(std::string &configSubFolder, std::string &username);
+  void readEu4Config(const std::string &configSubFolder,
+                     const std::string &username);
+
+public:
+  Module(FastWorldGenerator &fastWorldGen, const std::string &configSubFolder,
+         const std::string &username);
+  ~Module();
+  // member functions
+  void genEu4(bool cut);
 };
 } // namespace Eu4

@@ -1,6 +1,11 @@
 #include "eu4/Eu4Module.h"
 namespace Eu4 {
-Module::Module() {}
+Module::Module(FastWorldGenerator &fastWorldGen,
+               const std::string &configSubFolder, const std::string &username)
+    : eu4Gen{fastWorldGen} {
+
+  readEu4Config(configSubFolder, username);
+}
 
 Module::~Module() {}
 
@@ -23,7 +28,20 @@ bool Module::createPaths() { // prepare folder structure
   }
 }
 
-void Module::genEu4(Generator &eu4Gen, bool cut) {
+void Module::readEu4Config(const std::string &configSubFolder,
+                           const std::string &username) {
+  Logger::logLine("Reading Eu4 Config");
+  const auto root =
+      this->readConfig(configSubFolder, username, "Europa Universalis IV");
+
+  // now try to locate game files
+  if (!findGame(gamePath, "Europa Universalis IV")) {
+    throw(std::exception("Could not locate the game. Exiting"));
+  }
+  // default values taken from base game
+}
+
+void Module::genEu4(bool cut) {
   if (!createPaths())
     return;
 
@@ -80,8 +98,7 @@ void Module::genEu4(Generator &eu4Gen, bool cut) {
       writeAdj(gameModPath + "\\map\\adjacencies.csv", eu4Gen.gameProvinces);
       writeAmbientObjects(gameModPath + "\\map\\ambient_object.txt",
                           eu4Gen.gameProvinces);
-      writeAreas(gameModPath + "\\map\\area.txt",
-                               eu4Gen.gameRegions, gamePath);
+      writeAreas(gameModPath + "\\map\\area.txt", eu4Gen.gameRegions, gamePath);
       writeColonialRegions(
           gameModPath + "\\common\\colonial_regions\\00_colonial_regions.txt",
           gamePath, eu4Gen.gameProvinces);
@@ -121,16 +138,4 @@ void Module::genEu4(Generator &eu4Gen, bool cut) {
   }
 }
 
-void Module::readEu4Config(std::string &configSubFolder,
-                           std::string &username) {
-  Logger::logLine("Reading Eu4 Config");
-  const auto root =
-      this->readConfig(configSubFolder, username, "Europa Universalis IV");
-
-  // now try to locate game files
-  if (!findGame(gamePath, "Europa Universalis IV")) {
-    throw(std::exception("Could not locate the game. Exiting"));
-  }
-  // default values taken from base game
-}
 } // namespace Eu4
