@@ -7,7 +7,7 @@ std::map<std::string, std::vector<std::string>> NameGenerator::ideologyNames;
 std::map<std::string, std::vector<std::string>> NameGenerator::factionNames;
 
 std::string NameGenerator::generateName() {
-  auto selectedRule{nameRules[RandNum::randNum() % nameRules.size()]};
+  auto selectedRule{nameRules[FastWorldGen::RandNum::randNum() % nameRules.size()]};
   auto selectedRuleNum{PU::getTokens(selectedRule, ';')};
   std::string name{getToken(selectedRuleNum)};
   std::transform(name.begin(), name.begin() + 1, name.begin(), ::toupper);
