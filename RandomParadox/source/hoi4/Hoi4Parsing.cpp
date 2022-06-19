@@ -13,7 +13,8 @@ void adj(const std::string &path) {
   pU::writeFile(path, content);
 }
 
-void airports(const std::string &path, const std::vector<Region> &regions) {
+void airports(const std::string &path,
+              const std::vector<Fwg::Region> &regions) {
   Logger::logLine("HOI4 Parser: Map: Building Airfields");
   std::string content;
   for (const auto &region : regions) {
@@ -33,7 +34,8 @@ void airports(const std::string &path, const std::vector<Region> &regions) {
 }
 
 // places building positions
-void buildings(const std::string &path, const std::vector<Region> &regions) {
+void buildings(const std::string &path,
+               const std::vector<Fwg::Region> &regions) {
   Logger::logLine("HOI4 Parser: Map: Constructing Factories");
   const auto &heightmap = Bitmap::findBitmapByKey("heightmap");
   std::vector<std::string> buildingTypes{
@@ -184,7 +186,8 @@ void definition(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void rocketSites(const std::string &path, const std::vector<Region> &regions) {
+void rocketSites(const std::string &path,
+                 const std::vector<Fwg::Region> &regions) {
   Logger::logLine("HOI4 Parser: Map: Launching Rockets");
   std::string content;
   // regionId={provId }
@@ -252,7 +255,7 @@ void unitStacks(const std::string &path,
 }
 
 void weatherPositions(const std::string &path,
-                      const std::vector<Region> &regions,
+                      const std::vector<Fwg::Region> &regions,
                       const std::vector<strategicRegion> &strategicRegions) {
   Logger::logLine("HOI4 Parser: Map: Creating Storms");
   // 1; 2781.24; 9.90; 1571.49; small
@@ -283,7 +286,7 @@ void adjacencyRules(const std::string &path) {
 }
 
 void strategicRegions(const std::string &path,
-                      const std::vector<Region> &regions,
+                      const std::vector<Fwg::Region> &regions,
                       const std::vector<strategicRegion> &strategicRegions) {
   constexpr std::array<int, 12> daysInMonth{30, 27, 30, 29, 30, 29,
                                             30, 30, 29, 30, 29, 30};
@@ -864,7 +867,7 @@ void foci(const std::string &path, const hoiMap &countries) {
 }
 
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
-                          const std::vector<Region> &regions) {
+                          const std::vector<Fwg::Region> &regions) {
   const std::filesystem::path hoiDir{hoiPath + "\\history\\countries\\"};
   const std::filesystem::path modDir{path};
   for (auto const &dir_entry : std::filesystem::directory_iterator{hoiDir}) {
@@ -914,7 +917,7 @@ void copyDescriptorFile(const std::string &sourcePath,
                         Utils::varsToString("path=\"", destPath, "\""));
   pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
 }
-std::string getBuildingLine(const std::string &type, const Region &region,
+std::string getBuildingLine(const std::string &type, const Fwg::Region &region,
                             const bool coastal, const Bitmap &heightmap) {
   auto prov = Utils::selectRandom(region.provinces);
   auto pix = 0;

@@ -158,7 +158,7 @@ void Generator::mapRegions() {
               [](const Fwg::Province *a, const Fwg::Province *b) {
                 return (*a < *b);
               });
-    GameRegion gR(region);
+    Region gR(region);
     for (auto &baseRegion : gR.neighbours)
       gR.neighbours.push_back(baseRegion);
     // generate random name for region
@@ -302,8 +302,8 @@ void Generator::mapTerrain() {
   Fwg::Bitmap::SaveBMPToFile(typeMap, "Maps/typeMap.bmp");
 }
 
-GameRegion &Generator::findStartRegion() {
-  std::vector<GameRegion> freeRegions;
+Region &Generator::findStartRegion() {
+  std::vector<Region> freeRegions;
   for (const auto &gameRegion : gameRegions)
     if (!gameRegion.assigned && !gameRegion.sea)
       freeRegions.push_back(gameRegion);

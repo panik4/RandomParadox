@@ -94,7 +94,7 @@ public:
   // check if a national focus fulfills requirements
   bool targetFulfillsRequirements(
       const std::string &targetRequirements, const Hoi4Country &source,
-      const Hoi4Country &target, const std::vector<GameRegion> &gameRegions,
+      const Hoi4Country &target, const std::vector<Region> &gameRegions,
       const std::vector<std::set<std::string>> &levelTargets, const int level);
   // evaluate the focus chains for each country
   void evaluateCountryGoals();
