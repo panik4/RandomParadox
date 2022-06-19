@@ -1,11 +1,11 @@
 #pragma once
 #include "DirectXTex.h"
-#include "TextureWriter.h"
+#include "Textures.h"
 #include "entities/Colour.h"
 #include "utils/Bitmap.h"
 #include "utils/Env.h"
 #include <map>
-
+namespace Graphics {
 class FormatConverter {
   // map of maps of colours, defines which FastWorldGen colour
   // should be mapped to which game compatible colour
@@ -39,3 +39,4 @@ public:
                             const bool cut = false) const;
   void dumpWorldNormal(const std::string &path, const bool cut) const;
 };
+} // namespace Graphics

@@ -2,10 +2,11 @@
 namespace Scenario {
 Generator::Generator(FastWorldGenerator &fwg) : fwg(fwg) {
   gamePaths["hoi4"] = "D:\\Steam\\steamapps\\common\\Hearts of Iron IV\\";
-  Flag::readColourGroups();
-  Flag::readFlagTypes();
-  Flag::readFlagTemplates();
-  Flag::readSymbolTemplates();
+
+  Graphics::Flag::readColourGroups();
+  Graphics::Flag::readFlagTypes();
+  Graphics::Flag::readFlagTemplates();
+  Graphics::Flag::readSymbolTemplates();
 }
 
 Generator::~Generator() {}
@@ -326,7 +327,7 @@ void Generator::generateCountries(int numCountries) {
   for (int i = 0; i < numCountries; i++) {
     auto name{nG.generateName()};
     PdoxCountry pdoxC(nG.generateTag(name, tags), i, name,
-                      nG.generateAdjective(name), Flag(82, 52));
+                      nG.generateAdjective(name), Graphics::Flag(82, 52));
     // randomly set development of countries
     pdoxC.developmentFactor = RandNum::getRandomDouble(0.1, 1.0);
     countries.emplace(pdoxC.tag, pdoxC);

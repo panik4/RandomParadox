@@ -1,4 +1,6 @@
 #include "generic/Flag.h"
+
+namespace Graphics {
 std::map<std::string, std::vector<Colour>> Flag::colourGroups;
 std::vector<std::vector<std::vector<int>>> Flag::flagTypes(7);
 std::vector<std::vector<std::vector<std::string>>> Flag::flagTypeColours(7);
@@ -174,7 +176,7 @@ void Flag::readFlagTemplates() {
   for (auto i = 0; i < 100; i++) {
     if (std::filesystem::exists("resources\\flags\\flag_presets\\" +
                                 std::to_string(i) + ".tga")) {
-      flagTemplates.push_back(TextureWriter::readTGA(
+      flagTemplates.push_back(Graphics::Textures::readTGA(
           "resources\\flags\\flag_presets\\" + std::to_string(i) + ".tga"));
       // get line and immediately tokenize it
       auto tokens =
@@ -191,7 +193,7 @@ void Flag::readSymbolTemplates() {
   for (int i = 0; i < 100; i++) {
     if (std::filesystem::exists("resources\\flags\\symbol_presets\\" +
                                 std::to_string(i) + ".tga")) {
-      symbolTemplates.push_back(TextureWriter::readTGA(
+      symbolTemplates.push_back(Graphics::Textures::readTGA(
           "resources\\flags\\symbol_presets\\" + std::to_string(i) + ".tga"));
       // get line and immediately tokenize it
       auto tokens =
@@ -202,3 +204,4 @@ void Flag::readSymbolTemplates() {
     }
   }
 }
+} // namespace Graphics
