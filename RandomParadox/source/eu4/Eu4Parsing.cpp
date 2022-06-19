@@ -46,7 +46,7 @@ void writeAmbientObjects(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void writeAreas(const std::string &path, const std::vector<GameRegion> &regions,
+void writeAreas(const std::string &path, const std::vector<Region> &regions,
                 const std::string &gamePath) {
   Logger::logLine("EU4 Parser: Map: Writing Areas");
   std::string content =
@@ -273,7 +273,7 @@ void writeRegions(const std::string &path, const std::string &gamePath,
 }
 
 void writeSuperregion(const std::string &path, const std::string &gamePath,
-                      const std::vector<GameRegion> &regions) {
+                      const std::vector<Region> &regions) {
   Logger::logLine("EU4 Parser: Map: Writing Superregions");
   // not really necessary
 
@@ -321,7 +321,7 @@ void copyDescriptorFile(const std::string &sourcePath,
 
 void writeProvinces(const std::string &path,
                     const std::vector<GameProvince> &provinces,
-                    const std::vector<GameRegion> &regions) {
+                    const std::vector<Region> &regions) {
   Logger::logLine("Eu4 Parser: History: Drawing Province Borders");
   auto templateContent =
       pU::readFile("resources\\eu4\\history\\provinceTemplate.txt");
@@ -340,7 +340,7 @@ void writeProvinces(const std::string &path,
 }
 
 void writeLoc(const std::string &path, const std::string &gamePath,
-              const std::vector<GameRegion> &regions,
+              const std::vector<Region> &regions,
               const std::vector<GameProvince> &provinces,
               const std::vector<eu4Region> &eu4regions) {
 

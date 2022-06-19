@@ -13,7 +13,7 @@ class Generator : public Scenario::Generator {
 
 public:
   Generator(Fwg::FastWorldGenerator &fwg);
-  void generateRegions(std::vector<GameRegion> &regions);
+  void generateRegions(std::vector<Region> &regions);
   std::vector<eu4Region> getEu4Regions() { return eu4regions; };
 };
 } // namespace Scenario::Eu4

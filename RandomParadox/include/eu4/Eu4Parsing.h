@@ -12,7 +12,7 @@ void writeAdj(const std::string &path,
 void writeAmbientObjects(const std::string &path,
                          const std::vector<GameProvince> &provinces);
 // areas consist of multiple provinces
-void writeAreas(const std::string &path, const std::vector<GameRegion> &regions,
+void writeAreas(const std::string &path, const std::vector<Region> &regions,
                 const std::string &gamePath);
 void writeClimate(const std::string &path,
                   const std::vector<GameProvince> &provinces);
@@ -32,7 +32,7 @@ void writeRegions(const std::string &path, const std::string &gamePath,
                   const std::vector<eu4Region> &eu4regions);
 // superregions consist of multiple regions
 void writeSuperregion(const std::string &path, const std::string &gamePath,
-                      const std::vector<GameRegion> &regions);
+                      const std::vector<Region> &regions);
 void writeTerrain(const std::string &path,
                   const std::vector<GameProvince> &provinces);
 void writeTradeCompanies(const std::string &path, const std::string &gamePath,
@@ -46,10 +46,10 @@ void copyDescriptorFile(const std::string &sourcePath,
 
 void writeProvinces(const std::string &path,
                     const std::vector<GameProvince> &provinces,
-                    const std::vector<GameRegion> &regions);
+                    const std::vector<Region> &regions);
 
 void writeLoc(const std::string &path, const std::string &gamePath,
-              const std::vector<GameRegion> &regions,
+              const std::vector<Region> &regions,
               const std::vector<GameProvince> &provinces,
               const std::vector<eu4Region> &eu4regions);
 }; // namespace Scenario::Eu4::Parsing

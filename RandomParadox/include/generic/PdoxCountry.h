@@ -25,10 +25,10 @@ public:
   std::vector<int> ownedRegions;
   std::set<std::string> neighbours;
   // member functions
-  void addRegion(GameRegion &region, std::vector<GameRegion> &gameRegions,
+  void addRegion(Region &region, std::vector<Region> &gameRegions,
                  std::vector<GameProvince> &gameProvinces);
-  void assignRegions(int maxRegions, std::vector<GameRegion> &gameRegions,
-                     GameRegion &startRegion,
+  void assignRegions(int maxRegions, std::vector<Region> &gameRegions,
+                     Region &startRegion,
                      std::vector<GameProvince> &gameProvinces);
   // operators
   bool operator<(const PdoxCountry &right) const { return ID < right.ID; };

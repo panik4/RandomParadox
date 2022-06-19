@@ -3,7 +3,7 @@
 #include "GameProvince.h"
 #include <map>
 namespace Scenario {
-class GameRegion : public FastWorldGen::Region {
+class Region : public FastWorldGen::Region {
   std::vector<std::string> cores;
 
 public:
@@ -17,8 +17,8 @@ public:
   std::vector<double> dateRange;
   double snowChance, lightRainChance, heavyRainChance, blizzardChance,
       mudChance, sandStormChance;
-  GameRegion();
-  GameRegion(const Region &baseRegion);
-  ~GameRegion();
+  Region();
+  Region(const FastWorldGen::Region &baseRegion);
+  ~Region();
 };
 } // namespace Scenario
