@@ -1,35 +1,37 @@
 #include "generic/GenericModule.h"
 
 void GenericModule::createPaths(const std::string basePath) { // mod directory
-  std::filesystem::create_directory(basePath);
+  using namespace std::filesystem;
+  create_directory(basePath);
   // map
-  std::filesystem::remove_all(basePath + "\\map\\");
-  std::filesystem::remove_all(basePath + "\\gfx");
-  std::filesystem::remove_all(basePath + "\\history");
-  std::filesystem::remove_all(basePath + "\\common\\");
-  std::filesystem::remove_all(basePath + "\\localisation\\");
-  std::filesystem::create_directory(basePath + "\\map\\");
-  std::filesystem::create_directory(basePath + "\\map\\terrain\\");
+  remove_all(basePath + "\\map\\");
+  remove_all(basePath + "\\gfx");
+  remove_all(basePath + "\\history");
+  remove_all(basePath + "\\common\\");
+  remove_all(basePath + "\\localisation\\");
+  create_directory(basePath + "\\map\\");
+  create_directory(basePath + "\\map\\terrain\\");
   // gfx
-  std::filesystem::create_directory(basePath + "\\gfx\\");
-  std::filesystem::create_directory(basePath + "\\gfx\\flags\\");
+  create_directory(basePath + "\\gfx\\");
+  create_directory(basePath + "\\gfx\\flags\\");
   // history
-  std::filesystem::create_directory(basePath + "\\history\\");
-  std::filesystem::create_directory(basePath + "\\history\\countries\\");
+  create_directory(basePath + "\\history\\");
+  create_directory(basePath + "\\history\\countries\\");
   // localisation
-  std::filesystem::create_directory(basePath + "\\localisation\\");
+  create_directory(basePath + "\\localisation\\");
   // common
-  std::filesystem::create_directory(basePath + "\\common\\");
-  std::filesystem::create_directory(basePath + "\\common\\countries\\");
-  std::filesystem::create_directory(basePath + "\\common\\bookmarks\\");
-  std::filesystem::create_directory(basePath + "\\common\\country_tags\\");
+  create_directory(basePath + "\\common\\");
+  create_directory(basePath + "\\common\\countries\\");
+  create_directory(basePath + "\\common\\bookmarks\\");
+  create_directory(basePath + "\\common\\country_tags\\");
 }
 // a method to search for the original game files on the hard drive(s)
 bool GenericModule::findGame(std::string &path, const std::string game) {
+  using namespace std::filesystem;
   std::vector<std::string> drives{"C:\\", "D:\\", "E:\\",
                                   "F:\\", "G:\\", "H:\\"};
   // first try to find hoi4 at the configured location
-  if (std::filesystem::exists(path)) {
+  if (exists(path)) {
     return true;
   } else {
     Logger::logLine("Could not find game under configured path ", path,
@@ -39,19 +41,17 @@ bool GenericModule::findGame(std::string &path, const std::string game) {
     system("pause");
   }
   for (const auto &drive : drives) {
-    if (std::filesystem::exists(
-            drive + "Program Files (x86)\\Steam\\steamapps\\common\\" + game)) {
+    if (exists(drive + "Program Files (x86)\\Steam\\steamapps\\common\\" +
+               game)) {
       path = drive + "Program Files (x86)\\Steam\\steamapps\\common\\" + game;
       Logger::logLine("Located game under ", path);
       return true;
-    } else if (std::filesystem::exists(
-                   drive + "Program Files\\Steam\\steamapps\\common\\" +
-                   game)) {
+    } else if (exists(drive + "Program Files\\Steam\\steamapps\\common\\" +
+                      game)) {
       path = drive + "Program Files\\Steam\\steamapps\\common\\" + game;
       Logger::logLine("Located game under ", path);
       return true;
-    } else if (std::filesystem::exists(drive + "Steam\\steamapps\\common\\" +
-                                       game)) {
+    } else if (exists(drive + "Steam\\steamapps\\common\\" + game)) {
       path = drive + "Steam\\steamapps\\common\\" + game;
       Logger::logLine("Located game under ", path);
       return true;
@@ -80,8 +80,8 @@ GenericModule::readConfig(const std::string configSubFolder,
   try {
     pt::read_json(buffer, root);
   } catch (std::exception e) {
-    std::string error = "Incorrect config " + configSubFolder + gameName +
-                        " Module.json\n";
+    std::string error =
+        "Incorrect config " + configSubFolder + gameName + " Module.json\n";
     error += "You can try fixing it yourself. Error is: \n";
     error += e.what();
     error += "\n";

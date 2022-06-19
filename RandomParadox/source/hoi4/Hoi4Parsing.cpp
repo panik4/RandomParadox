@@ -2,7 +2,8 @@
 #include "hoi4/NationalFocus.h"
 
 namespace Hoi4::Parsing {
-void dumpAdj(const std::string &path) {
+namespace Writing {
+void adj(const std::string &path) {
   Logger::logLine("HOI4 Parser: Map: Writing Adjacencies");
   // From;To;Type;Through;start_x;start_y;stop_x;stop_y;adjacency_rule_name;Comment
   // empty file for now
@@ -12,7 +13,7 @@ void dumpAdj(const std::string &path) {
   pU::writeFile(path, content);
 }
 
-void dumpAirports(const std::string &path, const std::vector<Region> &regions) {
+void airports(const std::string &path, const std::vector<Region> &regions) {
   Logger::logLine("HOI4 Parser: Map: Building Airfields");
   std::string content;
   for (const auto &region : regions) {
@@ -31,35 +32,8 @@ void dumpAirports(const std::string &path, const std::vector<Region> &regions) {
   pU::writeFile(path, content);
 }
 
-std::string getBuildingLine(const std::string &type, const Region &region,
-                            const bool coastal, const Bitmap &heightmap) {
-  auto prov = UtilLib::selectRandom(region.provinces);
-  auto pix = 0;
-  if (coastal) {
-    while (!prov->coastal)
-      prov = UtilLib::selectRandom(region.provinces);
-    pix = UtilLib::selectRandom(prov->coastalPixels);
-  } else {
-    while (prov->isLake)
-      prov = UtilLib::selectRandom(region.provinces);
-    pix = UtilLib::selectRandom(prov->pixels);
-  }
-  auto widthPos = pix % Env::Instance().width;
-  auto heightPos = pix / Env::Instance().width;
-  std::vector<std::string> arguments{
-      std::to_string(region.ID + 1),
-      type,
-      std::to_string(widthPos),
-      std::to_string((double)heightmap.getColourAtIndex(pix).getRed() / 10.0),
-      std::to_string(heightPos),
-      std::to_string((float)-1.57),
-      "0"};
-  return pU::csvFormat(arguments, ';', false);
-}
-
 // places building positions
-void dumpBuildings(const std::string &path,
-                   const std::vector<Region> &regions) {
+void buildings(const std::string &path, const std::vector<Region> &regions) {
   Logger::logLine("HOI4 Parser: Map: Constructing Factories");
   const auto &heightmap = Bitmap::findBitmapByKey("heightmap");
   std::vector<std::string> buildingTypes{
@@ -147,8 +121,8 @@ void dumpBuildings(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void dumpContinents(const std::string &path,
-                    const std::vector<Continent> &continents) {
+void continents(const std::string &path,
+                const std::vector<Continent> &continents) {
   Logger::logLine("HOI4 Parser: Map: Writing Continents");
   std::string content{"continents = {\n"};
 
@@ -161,8 +135,8 @@ void dumpContinents(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void dumpDefinition(const std::string &path,
-                    const std::vector<GameProvince> &provinces) {
+void definition(const std::string &path,
+                const std::vector<GameProvince> &provinces) {
   Logger::logLine("HOI4 Parser: Map: Defining Provinces");
   // province id; r value; g value; b value; province type (land/sea/lake);
   // coastal (true/false); terrain (plains/hills/urban/etc. Defined for land or
@@ -210,8 +184,7 @@ void dumpDefinition(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void dumpRocketSites(const std::string &path,
-                     const std::vector<Region> &regions) {
+void rocketSites(const std::string &path, const std::vector<Region> &regions) {
   Logger::logLine("HOI4 Parser: Map: Launching Rockets");
   std::string content;
   // regionId={provId }
@@ -231,8 +204,8 @@ void dumpRocketSites(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void dumpUnitStacks(const std::string &path,
-                    const std::vector<Province *> provinces) {
+void unitStacks(const std::string &path,
+                const std::vector<Province *> provinces) {
   Logger::logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
   // 1;0;3359.00;9.50;1166.00;0.00;0.08
   // provID, neighbour?, xPos, zPos yPos, rotation(3=north,
@@ -278,9 +251,9 @@ void dumpUnitStacks(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void dumpWeatherPositions(
-    const std::string &path, const std::vector<Region> &regions,
-    const std::vector<strategicRegion> &strategicRegions) {
+void weatherPositions(const std::string &path,
+                      const std::vector<Region> &regions,
+                      const std::vector<strategicRegion> &strategicRegions) {
   Logger::logLine("HOI4 Parser: Map: Creating Storms");
   // 1; 2781.24; 9.90; 1571.49; small
   std::string content{""};
@@ -302,16 +275,16 @@ void dumpWeatherPositions(
   pU::writeFile(path, content);
 }
 
-void dumpAdjacencyRules(const std::string &path) {
+void adjacencyRules(const std::string &path) {
   Logger::logLine("HOI4 Parser: Map: Writing Adjacency Rules");
   std::string content{""};
   // empty for now
   pU::writeFile(path, content);
 }
 
-void dumpStrategicRegions(
-    const std::string &path, const std::vector<Region> &regions,
-    const std::vector<strategicRegion> &strategicRegions) {
+void strategicRegions(const std::string &path,
+                      const std::vector<Region> &regions,
+                      const std::vector<strategicRegion> &strategicRegions) {
   constexpr std::array<int, 12> daysInMonth{30, 27, 30, 29, 30, 29,
                                             30, 30, 29, 30, 29, 30};
   Logger::logLine("HOI4 Parser: Map: Drawing Strategic Regions");
@@ -379,8 +352,8 @@ void dumpStrategicRegions(
   }
 }
 
-void dumpSupply(const std::string &path,
-                const std::vector<std::vector<int>> supplyNodeConnections) {
+void supply(const std::string &path,
+            const std::vector<std::vector<int>> supplyNodeConnections) {
   std::string supplyNodes = "";
   std::string railways = "";
   std::set<int> nodes;
@@ -405,7 +378,7 @@ void dumpSupply(const std::string &path,
   ParserUtils::writeFile(path + "railways.txt", railways);
 }
 
-void dumpStates(const std::string &path, const hoiMap &countries) {
+void states(const std::string &path, const hoiMap &countries) {
   Logger::logLine("HOI4 Parser: History: Drawing State Borders");
   auto templateContent = pU::readFile("resources\\hoi4\\history\\state.txt");
   std::vector<std::string> stateCategories{
@@ -466,24 +439,22 @@ void dumpStates(const std::string &path, const hoiMap &countries) {
     }
   }
 }
-void dumpFlags(const std::string &path, const hoiMap &countries) {
+void flags(const std::string &path, const hoiMap &countries) {
   Logger::logLine("HOI4 Parser: Gfx: Printing Flags");
   using namespace Graphics::Textures;
   for (const auto &country : countries) {
-    writeTGA(
-        country.second.flag.width, country.second.flag.height,
-        country.second.flag.getFlag(), path + country.first + ".tga");
-    writeTGA(
-        country.second.flag.width / 2, country.second.flag.height / 2,
-        country.second.flag.resize(country.second.flag.width / 2,
-                                   country.second.flag.height / 2),
-        path + "\\medium\\" + country.first + ".tga");
+    writeTGA(country.second.flag.width, country.second.flag.height,
+             country.second.flag.getFlag(), path + country.first + ".tga");
+    writeTGA(country.second.flag.width / 2, country.second.flag.height / 2,
+             country.second.flag.resize(country.second.flag.width / 2,
+                                        country.second.flag.height / 2),
+             path + "\\medium\\" + country.first + ".tga");
     writeTGA(10, 7, country.second.flag.resize(10, 7),
-                            path + "\\small\\" + country.first + ".tga");
+             path + "\\small\\" + country.first + ".tga");
   }
 }
 
-void writeHistoryCountries(const std::string &path, const hoiMap &countries) {
+void historyCountries(const std::string &path, const hoiMap &countries) {
   Logger::logLine("HOI4 Parser: History: Writing Country History");
   const auto content =
       pU::readFile("resources\\hoi4\\history\\country_template.txt");
@@ -512,7 +483,7 @@ void writeHistoryCountries(const std::string &path, const hoiMap &countries) {
   }
 }
 
-void writeHistoryUnits(const std::string &path, const hoiMap &countries) {
+void historyUnits(const std::string &path, const hoiMap &countries) {
   Logger::logLine("HOI4 Parser: History: Deploying the Troops");
   const auto defaultTemplate =
       pU::readFile("resources\\hoi4\\history\\default_unit_template.txt");
@@ -602,7 +573,7 @@ void writeHistoryUnits(const std::string &path, const hoiMap &countries) {
   }
 }
 
-void dumpCommonBookmarks(
+void commonBookmarks(
     const std::string &path, const hoiMap &countries,
     const std::map<int, std::vector<std::string>> &strengthScores) {
   auto bookmarkTemplate = pU::readFile(
@@ -648,8 +619,8 @@ void dumpCommonBookmarks(
   pU::writeFile(path + "the_gathering_storm.txt", bookmarkTemplate);
 }
 
-void dumpCommonCountries(const std::string &path, const std::string &hoiPath,
-                         const hoiMap &countries) {
+void commonCountries(const std::string &path, const std::string &hoiPath,
+                     const hoiMap &countries) {
   Logger::logLine("HOI4 Parser: Common: Writing Countries");
   const auto content =
       pU::readFile("resources\\hoi4\\common\\country_default.txt");
@@ -673,7 +644,7 @@ void dumpCommonCountries(const std::string &path, const std::string &hoiPath,
   pU::writeFile(path + "colors.txt", colorsTxt);
 }
 
-void dumpCommonCountryTags(const std::string &path, const hoiMap &countries) {
+void commonCountryTags(const std::string &path, const hoiMap &countries) {
   Logger::logLine("HOI4 Parser: Common: Writing Country Tags");
   std::string content = "";
   for (const auto &country : countries)
@@ -682,7 +653,7 @@ void dumpCommonCountryTags(const std::string &path, const hoiMap &countries) {
   pU::writeFile(path, content);
 }
 
-void writeCountryNames(const std::string &path, const hoiMap &countries) {
+void countryNames(const std::string &path, const hoiMap &countries) {
   Logger::logLine("HOI4 Parser: Localisation: Writing Country Names");
   NameGenerator nG;
   std::string content = "l_english:\n";
@@ -706,7 +677,7 @@ void writeCountryNames(const std::string &path, const hoiMap &countries) {
   pU::writeFile(path + "countries_l_english.yml", content, true);
 }
 
-void writeStateNames(const std::string &path, const hoiMap &countries) {
+void stateNames(const std::string &path, const hoiMap &countries) {
   Logger::logLine("HOI4 Parser: Localisation: Writing State Names");
   std::string content = "l_english:\n";
 
@@ -718,7 +689,7 @@ void writeStateNames(const std::string &path, const hoiMap &countries) {
   pU::writeFile(path + "state_names_l_english.yml", content, true);
 }
 
-void writeStrategicRegionNames(
+void strategicRegionNames(
     const std::string &path,
     const std::vector<strategicRegion> &strategicRegions) {
   Logger::logLine("HOI4 Parser: Map: Naming the Regions");
@@ -730,24 +701,7 @@ void writeStrategicRegionNames(
   pU::writeFile(path + "\\strategic_region_names_l_english.yml", content, true);
 }
 
-std::vector<std::string> readTypeMap() {
-  return ParserUtils::getLines(
-      "resources\\hoi4\\ai\\national_focus\\baseFiles\\foci.txt");
-}
-
-std::map<std::string, std::string> readRewardMap(const std::string &path) {
-  auto file = ParserUtils::readFile(path);
-  auto split = ParserUtils::getTokens(file, ';');
-  std::map<std::string, std::string> rewardMap;
-  for (const auto &elem : split) {
-    auto key = ParserUtils::getBracketBlockContent(elem, "key");
-    auto value = ParserUtils::getBracketBlockContent(elem, "value");
-    rewardMap[key] = value;
-  }
-  return {rewardMap};
-}
-
-void writeFoci(const std::string &path, const hoiMap &countries) {
+void foci(const std::string &path, const hoiMap &countries) {
   Logger::logLine("HOI4 Parser: History: Demanding Danzig");
   const auto focusTypes = ParserUtils::getLines(
       "resources\\hoi4\\ai\\national_focus\\baseFiles\\foci.txt");
@@ -909,9 +863,8 @@ void writeFoci(const std::string &path, const hoiMap &countries) {
   }
 }
 
-void writeCompatibilityHistory(const std::string &path,
-                               const std::string &hoiPath,
-                               const std::vector<Region> &regions) {
+void compatibilityHistory(const std::string &path, const std::string &hoiPath,
+                          const std::vector<Region> &regions) {
   const std::filesystem::path hoiDir{hoiPath + "\\history\\countries\\"};
   const std::filesystem::path modDir{path};
   for (auto const &dir_entry : std::filesystem::directory_iterator{hoiDir}) {
@@ -930,6 +883,24 @@ void writeCompatibilityHistory(const std::string &path,
   }
 }
 
+} // namespace Writing
+
+std::vector<std::string> readTypeMap() {
+  return ParserUtils::getLines(
+      "resources\\hoi4\\ai\\national_focus\\baseFiles\\foci.txt");
+}
+
+std::map<std::string, std::string> readRewardMap(const std::string &path) {
+  auto file = ParserUtils::readFile(path);
+  auto split = ParserUtils::getTokens(file, ';');
+  std::map<std::string, std::string> rewardMap;
+  for (const auto &elem : split) {
+    auto key = ParserUtils::getBracketBlockContent(elem, "key");
+    auto value = ParserUtils::getBracketBlockContent(elem, "value");
+    rewardMap[key] = value;
+  }
+  return {rewardMap};
+}
 void copyDescriptorFile(const std::string &sourcePath,
                         const std::string &destPath,
                         const std::string &modsDirectory,
@@ -943,4 +914,30 @@ void copyDescriptorFile(const std::string &sourcePath,
                         UtilLib::varsToString("path=\"", destPath, "\""));
   pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
 }
+std::string getBuildingLine(const std::string &type, const Region &region,
+                            const bool coastal, const Bitmap &heightmap) {
+  auto prov = UtilLib::selectRandom(region.provinces);
+  auto pix = 0;
+  if (coastal) {
+    while (!prov->coastal)
+      prov = UtilLib::selectRandom(region.provinces);
+    pix = UtilLib::selectRandom(prov->coastalPixels);
+  } else {
+    while (prov->isLake)
+      prov = UtilLib::selectRandom(region.provinces);
+    pix = UtilLib::selectRandom(prov->pixels);
+  }
+  auto widthPos = pix % Env::Instance().width;
+  auto heightPos = pix / Env::Instance().width;
+  std::vector<std::string> arguments{
+      std::to_string(region.ID + 1),
+      type,
+      std::to_string(widthPos),
+      std::to_string((double)heightmap.getColourAtIndex(pix).getRed() / 10.0),
+      std::to_string(heightPos),
+      std::to_string((float)-1.57),
+      "0"};
+  return pU::csvFormat(arguments, ';', false);
+}
+
 } // namespace Hoi4::Parsing
