@@ -27,8 +27,7 @@ bool Module::createPaths() { // prepare folder structure
   }
 }
 
-void Module::genEu4(bool useDefaultMap, bool useDefaultStates,
-                    bool useDefaultProvinces, Generator &eu4Gen, bool cut) {
+void Module::genEu4(Generator &eu4Gen, bool cut) {
   if (!createPaths())
     return;
 

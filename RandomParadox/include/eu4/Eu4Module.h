@@ -15,8 +15,7 @@ public:
   // member functions
   // clear and create all the mod paths at each run
   bool createPaths();
-  void genEu4(bool useDefaultMap, bool useDefaultStates,
-              bool useDefaultProvinces, Generator &scenGen, bool cut);
+  void genEu4(Generator &scenGen, bool cut);
   // read the config options specific to eu4
   void readEu4Config(std::string &configSubFolder, std::string &username);
 };

@@ -8,13 +8,11 @@ std::map<std::string, std::string> NationalFocus::bypassMap;
 std::map<std::string, std::string> NationalFocus::rewardMap;
 NationalFocus::NationalFocus() {}
 
-NationalFocus::NationalFocus(FocusType fType, bool defaultV, std::string source,
-                             std::string dest, std::vector<int> date)
-    : ID{ID}, fType{fType}, defaultV{defaultV}, sourceTag{source},
-      destTag{dest}, date{date[0], date[1], date[2]} {
-  this->ID = IDcounter++;
-  position = {5, 5};
-}
+NationalFocus::NationalFocus(FocusType fType, bool defaultV,
+                             const std::string &source, const std::string &dest,
+                             const std::vector<int> &date)
+    : ID{IDcounter++}, fType{fType}, defaultV{defaultV}, sourceTag{source},
+      destTag{dest}, date{date[0], date[1], date[2]}, position{5, 5} {}
 
 NationalFocus::~NationalFocus() {}
 
