@@ -1,5 +1,5 @@
 #include "generic/GenericModule.h"
-
+namespace Scenario {
 void GenericModule::createPaths(const std::string basePath) { // mod directory
   using namespace std::filesystem;
   create_directory(basePath);
@@ -102,3 +102,4 @@ GenericModule::readConfig(const std::string configSubFolder,
   // return tree to specific module
   return root;
 }
+} // namespace Scenario

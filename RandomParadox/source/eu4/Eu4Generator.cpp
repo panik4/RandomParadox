@@ -1,5 +1,5 @@
 #include "eu4/Eu4Generator.h"
-namespace Eu4 {
+namespace Scenario::Eu4 {
 Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
 void Generator::generateRegions(std::vector<GameRegion> &regions) {
   Logger::logLine("HOI4: Dividing world into strategic regions");
@@ -42,4 +42,4 @@ void Generator::generateRegions(std::vector<GameRegion> &regions) {
   Bitmap::SaveBMPToFile(eu4RegionBmp, "Maps\\eu4Regions.bmp");
 }
 
-} // namespace Eu4
+} // namespace Scenario::Eu4

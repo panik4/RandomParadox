@@ -7,7 +7,7 @@
 #include "hoi4/Hoi4Generator.h"
 #include <array>
 
-namespace Hoi4::Parsing {
+namespace Scenario::Hoi4::Parsing {
 using pU = ParserUtils;
 using hoiMap = std::map<std::string, Hoi4::Hoi4Country>;
 static std::vector<std::string> defaultTags;
@@ -71,4 +71,4 @@ void copyDescriptorFile(const std::string &sourcePath,
                         const std::string &destPath,
                         const std::string &modsDirectory,
                         const std::string &modName);
-} // namespace Hoi4::Parsing
+} // namespace Scenario::Hoi4::Parsing

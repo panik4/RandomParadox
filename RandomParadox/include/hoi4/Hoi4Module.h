@@ -8,7 +8,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <filesystem>
 
-namespace Hoi4 {
+namespace Scenario::Hoi4 {
 class Hoi4Module : GenericModule {
   Generator hoi4Gen;
 
@@ -25,4 +25,4 @@ public:
   // member functions
   void genHoi(bool cut);
 };
-} // namespace Hoi4
+} // namespace Scenario::Hoi4

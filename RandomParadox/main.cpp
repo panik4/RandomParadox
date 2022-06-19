@@ -121,9 +121,9 @@ int main() {
     config.writeMaps = false;
   }
   try {
-    NameGenerator::prepare();
+    Scenario::NameGenerator::prepare();
     if (genHoi4Scenario) {
-      FastWorldGenerator fastWorldGen(configSubFolder);
+      FastWorldGenerator fwg(configSubFolder);
       // now start the generation of the scenario with the generated map files
       // if we configured to use an existing heightmap
       if (useGlobalExistingHeightmap) {
@@ -136,20 +136,20 @@ int main() {
       // check if config settings are fine
       config.sanityCheck();
       // now run the world generation
-      fastWorldGen.generateWorld();
+      fwg.generateWorld();
       // generate hoi4 scenario
-      Hoi4::Hoi4Module hoi4Mod(fastWorldGen, configSubFolder, username);
+      Scenario::Hoi4::Hoi4Module hoi4Mod(fwg, configSubFolder, username);
       hoi4Mod.genHoi(cut);
     }
     if (genEu4Scenario) {
       // need to run fwg with different settings from hoi4, even if it ran there
       // already
-      FastWorldGenerator fastWorldGen(configSubFolder);
+      FastWorldGenerator fwg(configSubFolder);
       config.seaLevel = 95;
       // now run the world generation
-      fastWorldGen.generateWorld();
+      fwg.generateWorld();
       // create eu4module and have it run the scenario generation
-      Eu4::Module eu4(fastWorldGen, configSubFolder, username);
+      Scenario::Eu4::Module eu4(fwg, configSubFolder, username);
       eu4.genEu4(cut);
     }
   } catch (std::exception e) {

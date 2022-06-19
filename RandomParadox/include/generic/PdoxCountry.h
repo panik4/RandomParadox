@@ -4,6 +4,7 @@
 #include "generic/GameRegion.h"
 #include <string>
 #include <vector>
+namespace Scenario {
 class PdoxCountry {
 public:
   // member variables
@@ -32,3 +33,4 @@ public:
   // operators
   bool operator<(const PdoxCountry &right) const { return ID < right.ID; };
 };
+} // namespace Scenario

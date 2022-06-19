@@ -1,5 +1,6 @@
 #pragma once
 #include "FastWorldGenerator.h"
+namespace Scenario {
 class GameProvince {
 public:
   int ID;
@@ -22,3 +23,4 @@ public:
   bool operator==(const GameProvince &right) const { return ID == right.ID; };
   bool operator<(const GameProvince &right) const { return ID < right.ID; };
 };
+} // namespace Scenario

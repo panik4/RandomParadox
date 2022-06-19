@@ -8,7 +8,7 @@
 #include <array>
 #include <set>
 
-namespace Hoi4 {
+namespace Scenario::Hoi4 {
 struct strategicRegion {
   std::set<int> gameRegionIDs;
   // weather: month{averageTemp, standard deviation, average precipitation,
@@ -107,4 +107,4 @@ public:
   // print world info to console
   void printStatistics();
 };
-} // namespace Hoi4
+} // namespace Scenario::Hoi4

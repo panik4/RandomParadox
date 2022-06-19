@@ -1,5 +1,5 @@
 #include "generic/PdoxCountry.h"
-
+namespace Scenario {
 PdoxCountry::PdoxCountry() : ID{-1} {}
 
 PdoxCountry::PdoxCountry(std::string tag, int ID, std::string name,
@@ -47,3 +47,4 @@ void PdoxCountry::addRegion(GameRegion &region,
     gameProvince.owner = tag;
   ownedRegions.push_back(region.ID);
 }
+} // namespace Scenario

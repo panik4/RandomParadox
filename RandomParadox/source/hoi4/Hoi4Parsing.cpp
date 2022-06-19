@@ -1,7 +1,7 @@
 #include "hoi4/Hoi4Parsing.h"
 #include "hoi4/NationalFocus.h"
 
-namespace Hoi4::Parsing {
+namespace Scenario::Hoi4::Parsing {
 namespace Writing {
 void adj(const std::string &path) {
   Logger::logLine("HOI4 Parser: Map: Writing Adjacencies");
@@ -940,4 +940,4 @@ std::string getBuildingLine(const std::string &type, const Region &region,
   return pU::csvFormat(arguments, ';', false);
 }
 
-} // namespace Hoi4::Parsing
+} // namespace Scenario::Hoi4::Parsing

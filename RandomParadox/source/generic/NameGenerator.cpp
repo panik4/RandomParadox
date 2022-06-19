@@ -1,5 +1,6 @@
 #include "generic/NameGenerator.h"
 
+namespace Scenario {
 std::vector<std::string> NameGenerator::nameRules;
 std::map<std::string, std::vector<std::string>> NameGenerator::groups;
 std::map<std::string, std::vector<std::string>> NameGenerator::ideologyNames;
@@ -94,3 +95,4 @@ void NameGenerator::prepare() {
   readMap("resources\\names\\state_types.txt", ideologyNames);
   readMap("resources\\names\\faction_names.txt", factionNames);
 }
+} // namespace Scenario
