@@ -1,6 +1,6 @@
 #include "hoi4/NationalFocus.h"
 #include "hoi4/Hoi4Parsing.h"
-namespace Hoi4 {
+namespace Scenario::Hoi4 {
 int NationalFocus::IDcounter = 0;
 std::map<std::string, NationalFocus::FocusType> NationalFocus::typeMapping;
 std::map<std::string, std::string> NationalFocus::availableMap;
@@ -46,4 +46,4 @@ std::ostream &operator<<(std::ostream &os, const NationalFocus &focus) {
      << "; Preceding Foci: " << focus.precedingFoci.size();
   return os;
 }
-} // namespace Hoi4
+} // namespace Scenario::Hoi4

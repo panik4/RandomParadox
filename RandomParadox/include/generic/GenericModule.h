@@ -5,6 +5,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <filesystem>
 #include <string>
+namespace Scenario {
 class GenericModule {
 
 protected:
@@ -23,3 +24,4 @@ public:
   // standard locations
   static bool findGame(std::string &path, const std::string game);
 };
+} // namespace Scenario

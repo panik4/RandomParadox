@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <vector>
+namespace Scenario {
 class NameGenerator {
   using PU = ParserUtils;
   // containers
@@ -31,3 +32,4 @@ public:
                       std::map<std::string, std::vector<std::string>> &map);
   static void prepare();
 };
+} // namespace Scenario

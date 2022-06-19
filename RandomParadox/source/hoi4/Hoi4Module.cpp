@@ -1,6 +1,6 @@
 #include "hoi4/Hoi4Module.h"
 
-namespace Hoi4 {
+namespace Scenario::Hoi4 {
 Hoi4Module::Hoi4Module(FastWorldGenerator &fastWorldGen,
                        const std::string &configSubFolder,
                        const std::string &username)
@@ -176,4 +176,4 @@ void Hoi4Module::genHoi(bool cut) {
   // see
   hoi4Gen.printStatistics();
 }
-} // namespace Hoi4
+} // namespace Scenario::Hoi4

@@ -5,7 +5,7 @@
 #include "generic/FormatConverter.h"
 #include "generic/GenericModule.h"
 #include "generic/ScenarioGenerator.h"
-namespace Eu4 {
+namespace Scenario::Eu4 {
 class Module : GenericModule {
   Generator eu4Gen;
   // clear and create all the mod paths at each run
@@ -21,4 +21,4 @@ public:
   // member functions
   void genEu4(bool cut);
 };
-} // namespace Eu4
+} // namespace Scenario::Eu4

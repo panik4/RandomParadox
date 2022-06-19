@@ -1,6 +1,6 @@
 #include "hoi4/Hoi4Generator.h"
 
-namespace Hoi4 {
+namespace Scenario::Hoi4 {
 Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
 
 Generator::~Generator() {}
@@ -958,4 +958,4 @@ bool Generator::unitFulfillsRequirements(
   }
   return true;
 }
-} // namespace Hoi4
+} // namespace Scenario::Hoi4

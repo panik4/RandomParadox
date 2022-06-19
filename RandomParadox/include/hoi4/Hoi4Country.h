@@ -6,9 +6,9 @@
 #include <string>
 #include <vector>
 
-namespace Hoi4 {
+namespace Scenario::Hoi4 {
 
-class Hoi4Country : public PdoxCountry {
+class Hoi4Country : public Scenario::PdoxCountry {
 public:
   enum class doctrineType {
     blitz,
@@ -21,7 +21,8 @@ public:
     defensive
   };
   Hoi4Country();
-  Hoi4Country(PdoxCountry &country, std::vector<GameRegion> &gameRegions);
+  Hoi4Country(Scenario::PdoxCountry &country,
+              std::vector<GameRegion> &gameRegions);
   ~Hoi4Country();
   std::string fullName;
   std::string gfxCulture;
@@ -39,4 +40,4 @@ public:
   std::vector<Hoi4Region> hoi4Regions;
   std::vector<std::vector<NationalFocus>> foci;
 };
-} // namespace Hoi4
+} // namespace Scenario::Hoi4
