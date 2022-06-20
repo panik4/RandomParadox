@@ -1,7 +1,7 @@
 #pragma once
 #include "entities/Continent.h"
 namespace Scenario {
-class PdoxContinent : public FastWorldGen::Continent {
+class PdoxContinent : public Fwg::Continent {
 public:
   PdoxContinent(const Continent &continent);
   ~PdoxContinent();

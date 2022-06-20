@@ -8,12 +8,11 @@
 #include "NameGenerator.h"
 #include "ResourceLoading.h"
 #include <map>
-namespace Fwg = FastWorldGen;
 namespace Scenario {
 class Generator {
   // containers
   std::vector<Fwg::Region> baseRegions;
-  std::map<std::string, Fwg::Bitmap> bitmaps;
+  std::map<std::string, Fwg::Gfx::Bitmap> bitmaps;
   std::map<std::string, std::string> gamePaths;
 
 public:

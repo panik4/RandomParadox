@@ -1,5 +1,6 @@
 #include "generic/ResourceLoading.h"
-using namespace FastWorldGen;
+using namespace Fwg;
+using namespace Fwg::Gfx;
 namespace ResourceLoading {
 Bitmap loadProvinceMap(const std::string &gamePath) {
   return Bitmap::Load24bitBMP(gamePath + "\\map\\provinces.bmp", "provinces");

@@ -5,11 +5,12 @@
 #include "utils/Bitmap.h"
 #include "utils/Env.h"
 #include <map>
-namespace Graphics {
+namespace Scenario::Gfx {
 class FormatConverter {
   // map of maps of colours, defines which FastWorldGen colour
   // should be mapped to which game compatible colour
-  const static std::map<std::string, std::map<FastWorldGen::Colour, int>> colourMaps;
+  const static std::map<std::string, std::map<Fwg::Colour, int>>
+      colourMaps;
   std::map<std::string, std::vector<unsigned char>> colourTables;
   std::string gamePath;
   std::string gameTag;
@@ -19,8 +20,9 @@ public:
   FormatConverter(const std::string &gamePath, const std::string &gameTag);
   ~FormatConverter();
   // member functions
-  FastWorldGen::Bitmap cutBaseMap(const std::string &path, const double factor = 1.0,
-                    const int bit = 8) const;
+  Fwg::Gfx::Bitmap cutBaseMap(const std::string &path,
+                                  const double factor = 1.0,
+                                  const int bit = 8) const;
   void dump8BitHeightmap(const std::string &path,
                          const std::string &colourMapKey) const;
   void dump8BitTerrain(const std::string &path, const std::string &colourMapKey,
@@ -39,4 +41,4 @@ public:
                             const bool cut = false) const;
   void dumpWorldNormal(const std::string &path, const bool cut) const;
 };
-} // namespace Graphics
+} // namespace Scenario::Gfx

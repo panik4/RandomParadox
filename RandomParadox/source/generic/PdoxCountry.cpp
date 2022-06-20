@@ -3,11 +3,11 @@ namespace Scenario {
 PdoxCountry::PdoxCountry() : ID{-1} {}
 
 PdoxCountry::PdoxCountry(std::string tag, int ID, std::string name,
-                         std::string adjective, Graphics::Flag flag)
+                         std::string adjective, Gfx::Flag flag)
     : tag{tag}, ID{ID}, name{name}, adjective{adjective}, flag{flag} {
-  colour = {static_cast<unsigned char>(FastWorldGen::RandNum::randNum() % 255),
-            static_cast<unsigned char>(FastWorldGen::RandNum::randNum() % 255),
-            static_cast<unsigned char>(FastWorldGen::RandNum::randNum() % 255)};
+  colour = {static_cast<unsigned char>(Fwg::RandNum::randNum() % 255),
+            static_cast<unsigned char>(Fwg::RandNum::randNum() % 255),
+            static_cast<unsigned char>(Fwg::RandNum::randNum() % 255)};
 }
 
 PdoxCountry::~PdoxCountry() {}
@@ -25,7 +25,7 @@ void PdoxCountry::assignRegions(int maxRegions,
       if (gameRegions[gameRegion].neighbours.size() == 0)
         continue;
       auto &nextRegion =
-          FastWorldGen::Utils::selectRandom(gameRegions[gameRegion].neighbours);
+          Fwg::Utils::selectRandom(gameRegions[gameRegion].neighbours);
       if (!gameRegions[nextRegion].assigned && !gameRegions[nextRegion].sea) {
         gameRegions[nextRegion].assigned = true;
         addRegion(gameRegions[nextRegion], gameRegions, gameProvinces);

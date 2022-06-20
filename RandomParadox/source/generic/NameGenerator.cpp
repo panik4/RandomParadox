@@ -7,7 +7,7 @@ std::map<std::string, std::vector<std::string>> NameGenerator::ideologyNames;
 std::map<std::string, std::vector<std::string>> NameGenerator::factionNames;
 
 std::string NameGenerator::generateName() {
-  auto selectedRule{nameRules[FastWorldGen::RandNum::randNum() % nameRules.size()]};
+  auto selectedRule{nameRules[Fwg::RandNum::randNum() % nameRules.size()]};
   auto selectedRuleNum{PU::getTokens(selectedRule, ';')};
   std::string name{getToken(selectedRuleNum)};
   std::transform(name.begin(), name.begin() + 1, name.begin(), ::toupper);
@@ -51,7 +51,7 @@ std::string NameGenerator::getRandomMapElement(
     const std::string key,
     const std::map<std::string, std::vector<std::string>> map) {
   try {
-    return FastWorldGen::Utils::selectRandom(map.at(key));
+    return Fwg::Utils::selectRandom(map.at(key));
   } catch (std::exception e) {
     auto str = "Error in Name Generation. Make sure the key: \"" + key +
                "\" of the namegroup or token group is present";

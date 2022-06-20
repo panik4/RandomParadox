@@ -1,5 +1,5 @@
 #include "eu4/Eu4Parsing.h"
-using namespace FastWorldGen;
+using namespace Fwg;
 namespace Scenario::Eu4::Parsing {
 std::string loadVanillaFile(const std::string &path,
                             const std::vector<std::string> &&filters) {

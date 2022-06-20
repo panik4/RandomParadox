@@ -11,7 +11,7 @@ public:
     std::ofstream file;
     file.open(path);
     if (!file)
-      throw std::exception(FastWorldGen::Utils::varsToString(
+      throw std::exception(Fwg::Utils::varsToString(
                                "Didn't manage to write to file ", path)
               .c_str());
     if (utf8) {
@@ -27,7 +27,7 @@ public:
     std::ifstream file;
     file.open(path);
     if (!file)
-      throw std::exception(FastWorldGen::Utils::varsToString(
+      throw std::exception(Fwg::Utils::varsToString(
                                "Didn't manage to read from file ", path)
               .c_str());
     while (getline(file, line)) {

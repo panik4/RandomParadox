@@ -28,14 +28,14 @@ void GenericModule::createPaths(const std::string basePath) { // mod directory
 // a method to search for the original game files on the hard drive(s)
 bool GenericModule::findGame(std::string &path, const std::string game) {
   using namespace std::filesystem;
-  namespace Logging = FastWorldGen::Utils::Logging;
+  namespace Logging = Fwg::Utils::Logging;
   std::vector<std::string> drives{"C:\\", "D:\\", "E:\\",
                                   "F:\\", "G:\\", "H:\\"};
   // first try to find hoi4 at the configured location
   if (exists(path)) {
     return true;
   } else {
-    FastWorldGen::Utils::Logging::logLine(
+    Fwg::Utils::Logging::logLine(
         "Could not find game under configured path ", path,
                     " it doesn't exist or is malformed. Auto search will now "
                     "try to locate the game, but may not succeed. It is "
@@ -71,7 +71,7 @@ GenericModule::readConfig(const std::string configSubFolder,
                           const std::string gameName) {
   // Short alias for this namespace
   namespace pt = boost::property_tree;
-  namespace Logging = FastWorldGen::Utils::Logging;
+  namespace Logging = Fwg::Utils::Logging;
   // Create a root
   pt::ptree root;
   std::ifstream f(configSubFolder + gameName + "Module.json");
