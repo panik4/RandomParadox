@@ -3,7 +3,8 @@
 namespace Scenario::Hoi4 {
 Hoi4Country::Hoi4Country() {}
 
-Hoi4Country::Hoi4Country(PdoxCountry &c, std::vector<Region> &gameRegions)
+Hoi4Country::Hoi4Country(PdoxCountry &c,
+                         std::vector<Scenario::Region> &gameRegions)
     : PdoxCountry(c), allowElections{true}, bully{0.0}, parties{25, 25, 25, 25},
       relativeScore{0.0}, strengthScore{0} {
   for (auto &region : c.ownedRegions) {

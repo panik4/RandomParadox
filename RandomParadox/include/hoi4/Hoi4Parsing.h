@@ -10,7 +10,6 @@ namespace Fwg = FastWorldGen;
 namespace Scenario::Hoi4::Parsing {
 using pU = ParserUtils;
 using hoiMap = std::map<std::string, Hoi4::Hoi4Country>;
-static std::vector<std::string> defaultTags;
 
 namespace Writing {
 void adj(const std::string &path);

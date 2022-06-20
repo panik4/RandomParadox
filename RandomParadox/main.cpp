@@ -17,7 +17,7 @@ void dumpInfo(std::string error, std::string configSubFolder) {
     dump += "\n";
   }
   dump += error;
-  dump += Logger::getFullLog();
+  dump += Utils::Logging::logInstance.getFullLog();
   ParserUtils::writeFile("runDump.txt", dump);
 }
 
@@ -32,14 +32,14 @@ int main() {
     std::ifstream f("MetaConf.json");
     std::stringstream buffer;
     if (!f.good())
-      Logger::logLine("Config could not be loaded");
+      Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
 
     pt::read_json(buffer, root1);
   } catch (std::exception e) {
-    Logger::logLine("Incorrect config \"MetaConf.json\"");
-    Logger::logLine("You can try fixing it yourself. Error is: ", e.what());
-    Logger::logLine(
+    Utils::Logging::logLine("Incorrect config \"MetaConf.json\"");
+    Utils::Logging::logLine("You can try fixing it yourself. Error is: ", e.what());
+    Utils::Logging::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or search for \"json validator\"");
     dumpInfo(e.what(), "");
@@ -56,14 +56,14 @@ int main() {
     std::ifstream f(configSubFolder + "RandomParadox.json");
     std::stringstream buffer;
     if (!f.good())
-      Logger::logLine("Config could not be loaded");
+      Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
 
     pt::read_json(buffer, root);
   } catch (std::exception e) {
-    Logger::logLine("Incorrect config \"RandomParadox.json\"");
-    Logger::logLine("You can try fixing it yourself. Error is: ", e.what());
-    Logger::logLine(
+    Utils::Logging::logLine("Incorrect config \"RandomParadox.json\"");
+    Utils::Logging::logLine("You can try fixing it yourself. Error is: ", e.what());
+    Utils::Logging::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or search for \"json validator\"");
     dumpInfo(e.what(), configSubFolder);
@@ -93,8 +93,8 @@ int main() {
     latHigh = root.get<double>("randomScenario.latitudeHigh");
     cut = root.get<bool>("randomScenario.cut");
   } catch (std::exception e) {
-    Logger::logLine("Error reading boost::property_tree");
-    Logger::logLine("Did you rename a field in the json file?. Error is: ",
+    Utils::Logging::logLine("Error reading boost::property_tree");
+    Utils::Logging::logLine("Did you rename a field in the json file?. Error is: ",
                     e.what());
     dumpInfo(e.what(), configSubFolder);
     system("pause");
@@ -106,9 +106,9 @@ int main() {
   try {
     config.getConfig(configSubFolder + "FastWorldGenerator.json");
   } catch (std::exception e) {
-    Logger::logLine("Incorrect config \"FastWorldGenerator.json\"");
-    Logger::logLine("You can try fixing it yourself. Error is: ", e.what());
-    Logger::logLine(
+    Utils::Logging::logLine("Incorrect config \"FastWorldGenerator.json\"");
+    Utils::Logging::logLine("You can try fixing it yourself. Error is: ", e.what());
+    Utils::Logging::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or \"search for json validator\"");
     dumpInfo(e.what(), configSubFolder);
@@ -154,12 +154,12 @@ int main() {
       eu4.genEu4(cut);
     }
   } catch (std::exception e) {
-    Logger::logLine(e.what());
+    Utils::Logging::logLine(e.what());
     dumpInfo(e.what(), configSubFolder);
     system("pause");
     return -1;
   }
-  Logger::logLine("Done with the generation");
+  Utils::Logging::logLine("Done with the generation");
   dumpInfo("", configSubFolder);
   system("pause");
   return 0;

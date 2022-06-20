@@ -1,4 +1,5 @@
 #include "generic/ScenarioGenerator.h"
+namespace Logging = FastWorldGen::Utils::Logging;
 namespace Scenario {
 Generator::Generator(Fwg::FastWorldGenerator &fwg) : fwg(fwg) {
   gamePaths["hoi4"] = "D:\\Steam\\steamapps\\common\\Hearts of Iron IV\\";
@@ -144,7 +145,7 @@ void Generator::generateWorld() {
 }
 
 void Generator::mapContinents() {
-  Logger::logLine("Mapping Continents");
+  Logging::logLine("Mapping Continents");
   for (const auto &continent : fwg.provinceGenerator.continents) {
     // we copy the fwg continents by choice, to leave them untouched
     pdoxContinents.push_back(PdoxContinent(continent));
@@ -152,7 +153,7 @@ void Generator::mapContinents() {
 }
 
 void Generator::mapRegions() {
-  Logger::logLine("Mapping Regions");
+  Logging::logLine("Mapping Regions");
   for (auto &region : fwg.provinceGenerator.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
               [](const Fwg::Province *a, const Fwg::Province *b) {
@@ -187,7 +188,7 @@ void Generator::mapRegions() {
 }
 
 void Generator::generatePopulations() {
-  Logger::logLine("Generating Population");
+  Logging::logLine("Generating Population");
   auto &config = Fwg::Env::Instance();
   const auto &popMap = Fwg::Bitmap::findBitmapByKey("population");
   const auto &cityMap = Fwg::Bitmap::findBitmapByKey("cities");
@@ -215,7 +216,7 @@ void Generator::generateDevelopment() {
   // high city share->high dev
   // terrain type?
   // .....
-  Logger::logLine("Generating State Development");
+  Logging::logLine("Generating State Development");
   auto &config = Fwg::Env::Instance();
   const auto &cityBMP = Fwg::Bitmap::findBitmapByKey("cities");
   for (auto &c : countries)
@@ -240,7 +241,7 @@ void Generator::mapTerrain() {
   const auto &climateMap = Fwg::Bitmap::findBitmapByKey("climate");
   Fwg::Bitmap typeMap(climateMap.bInfoHeader.biWidth,
                       climateMap.bInfoHeader.biHeight, 24);
-  Logger::logLine("Mapping Terrain");
+  Logging::logLine("Mapping Terrain");
   std::vector<std::string> targetTypes{"plains",   "forest", "marsh", "hills",
                                        "mountain", "desert", "urban", "jungle"};
 
@@ -320,7 +321,7 @@ Region &Generator::findStartRegion() {
 void Generator::generateCountries(int numCountries) {
   auto &config = Fwg::Env::Instance();
   this->numCountries = numCountries;
-  Logger::logLine("Generating Countries");
+  Logging::logLine("Generating Countries");
   // load tags from hoi4 that are used by the base game
   // do not use those to avoid conflicts
   const auto forbiddenTags =
@@ -353,7 +354,7 @@ void Generator::generateCountries(int numCountries) {
 }
 
 void Generator::evaluateNeighbours() {
-  Logger::logLine("Evaluating Country Neighbours");
+  Logging::logLine("Evaluating Country Neighbours");
   for (auto &c : countries)
     for (const auto &gR : c.second.ownedRegions)
       for (const auto &neighbourRegion : gameRegions[gR].neighbours)
@@ -362,7 +363,7 @@ void Generator::evaluateNeighbours() {
 }
 
 void Generator::dumpDebugCountrymap(std::string path) {
-  Logger::logLine("Mapping Continents");
+  Logging::logLine("Mapping Continents");
   auto &config = Fwg::Env::Instance();
   Fwg::Bitmap countryBMP(config.width, config.height, 24);
   for (const auto &country : countries)

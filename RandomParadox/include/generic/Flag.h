@@ -2,6 +2,8 @@
 #include "FastWorldGenerator.h"
 #include "ParserUtils.h"
 #include "Textures.h"
+
+namespace Fwg = FastWorldGen;
 namespace Graphics {
 struct FlagInfo {
   std::vector<std::string> flagColourGroups;
@@ -15,7 +17,6 @@ struct SymbolInfo {
   bool replaceColour;
 };
 
-namespace Fwg = FastWorldGen;
 class Flag {
   // keep code shorter
   using PU = ParserUtils;

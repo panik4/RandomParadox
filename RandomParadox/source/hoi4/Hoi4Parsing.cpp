@@ -1,10 +1,11 @@
 #include "hoi4/Hoi4Parsing.h"
 #include "hoi4/NationalFocus.h"
 using namespace Fwg;
+namespace Logging = Utils::Logging;
 namespace Scenario::Hoi4::Parsing {
 namespace Writing {
 void adj(const std::string &path) {
-  Logger::logLine("HOI4 Parser: Map: Writing Adjacencies");
+  Logging::logLine("HOI4 Parser: Map: Writing Adjacencies");
   // From;To;Type;Through;start_x;start_y;stop_x;stop_y;adjacency_rule_name;Comment
   // empty file for now
   std::string content;
@@ -15,7 +16,7 @@ void adj(const std::string &path) {
 
 void airports(const std::string &path,
               const std::vector<Fwg::Region> &regions) {
-  Logger::logLine("HOI4 Parser: Map: Building Airfields");
+  Logging::logLine("HOI4 Parser: Map: Building Airfields");
   std::string content;
   for (const auto &region : regions) {
     if (region.sea)
@@ -36,7 +37,7 @@ void airports(const std::string &path,
 // places building positions
 void buildings(const std::string &path,
                const std::vector<Fwg::Region> &regions) {
-  Logger::logLine("HOI4 Parser: Map: Constructing Factories");
+  Logging::logLine("HOI4 Parser: Map: Constructing Factories");
   const auto &heightmap = Bitmap::findBitmapByKey("heightmap");
   std::vector<std::string> buildingTypes{
       "arms_factory",    "industrial_complex", "air_base",
@@ -98,7 +99,7 @@ void buildings(const std::string &path,
                 if (neighbour->sea)
                   for (const auto &provPix : neighbour->pixels)
                     if (Utils::getDistance(provPix, pix,
-                                             Env::Instance().width) < 2.0)
+                                           Env::Instance().width) < 2.0)
                       ID = neighbour->ID;
             auto widthPos = pix % Env::Instance().width;
             auto heightPos = pix / Env::Instance().width;
@@ -125,7 +126,7 @@ void buildings(const std::string &path,
 
 void continents(const std::string &path,
                 const std::vector<Continent> &continents) {
-  Logger::logLine("HOI4 Parser: Map: Writing Continents");
+  Logging::logLine("HOI4 Parser: Map: Writing Continents");
   std::string content{"continents = {\n"};
 
   for (const auto &continent : continents) {
@@ -139,7 +140,7 @@ void continents(const std::string &path,
 
 void definition(const std::string &path,
                 const std::vector<GameProvince> &provinces) {
-  Logger::logLine("HOI4 Parser: Map: Defining Provinces");
+  Logging::logLine("HOI4 Parser: Map: Defining Provinces");
   // province id; r value; g value; b value; province type (land/sea/lake);
   // coastal (true/false); terrain (plains/hills/urban/etc. Defined for land or
   // sea provinces in common/terrain); continent (int)
@@ -188,7 +189,7 @@ void definition(const std::string &path,
 
 void rocketSites(const std::string &path,
                  const std::vector<Fwg::Region> &regions) {
-  Logger::logLine("HOI4 Parser: Map: Launching Rockets");
+  Logging::logLine("HOI4 Parser: Map: Launching Rockets");
   std::string content;
   // regionId={provId }
   for (const auto &region : regions) {
@@ -209,7 +210,7 @@ void rocketSites(const std::string &path,
 
 void unitStacks(const std::string &path,
                 const std::vector<Province *> provinces) {
-  Logger::logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
+  Logging::logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
   // 1;0;3359.00;9.50;1166.00;0.00;0.08
   // provID, neighbour?, xPos, zPos yPos, rotation(3=north,
   // 0=south, 1.5=east,4,5=west), ?? provID, xPos, ~10, yPos, ~0, 0,5 for each
@@ -257,15 +258,14 @@ void unitStacks(const std::string &path,
 void weatherPositions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
                       const std::vector<strategicRegion> &strategicRegions) {
-  Logger::logLine("HOI4 Parser: Map: Creating Storms");
+  Logging::logLine("HOI4 Parser: Map: Creating Storms");
   // 1; 2781.24; 9.90; 1571.49; small
   std::string content{""};
   // stateId; pixelX; rotation??; pixelY; rotation??; size
   // 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
 
   for (auto i = 0; i < strategicRegions.size(); i++) {
-    const auto &region =
-        Utils::selectRandom(strategicRegions[i].gameRegionIDs);
+    const auto &region = Utils::selectRandom(strategicRegions[i].gameRegionIDs);
     const auto prov = Utils::selectRandom(regions[region].provinces);
     const auto pix = Utils::selectRandom(prov->pixels);
     auto widthPos = pix % Env::Instance().width;
@@ -279,7 +279,7 @@ void weatherPositions(const std::string &path,
 }
 
 void adjacencyRules(const std::string &path) {
-  Logger::logLine("HOI4 Parser: Map: Writing Adjacency Rules");
+  Logging::logLine("HOI4 Parser: Map: Writing Adjacency Rules");
   std::string content{""};
   // empty for now
   pU::writeFile(path, content);
@@ -290,7 +290,7 @@ void strategicRegions(const std::string &path,
                       const std::vector<strategicRegion> &strategicRegions) {
   constexpr std::array<int, 12> daysInMonth{30, 27, 30, 29, 30, 29,
                                             30, 30, 29, 30, 29, 30};
-  Logger::logLine("HOI4 Parser: Map: Drawing Strategic Regions");
+  Logging::logLine("HOI4 Parser: Map: Drawing Strategic Regions");
   auto templateContent =
       pU::readFile("resources\\hoi4\\map\\strategic_region.txt");
   const auto templateWeather = pU::getBracketBlock(templateContent, "period");
@@ -382,7 +382,7 @@ void supply(const std::string &path,
 }
 
 void states(const std::string &path, const hoiMap &countries) {
-  Logger::logLine("HOI4 Parser: History: Drawing State Borders");
+  Logging::logLine("HOI4 Parser: History: Drawing State Borders");
   auto templateContent = pU::readFile("resources\\hoi4\\history\\state.txt");
   std::vector<std::string> stateCategories{
       "wasteland",  "small_island", "pastoral",   "rural",      "town",
@@ -443,7 +443,7 @@ void states(const std::string &path, const hoiMap &countries) {
   }
 }
 void flags(const std::string &path, const hoiMap &countries) {
-  Logger::logLine("HOI4 Parser: Gfx: Printing Flags");
+  Logging::logLine("HOI4 Parser: Gfx: Printing Flags");
   using namespace Graphics::Textures;
   for (const auto &country : countries) {
     writeTGA(country.second.flag.width, country.second.flag.height,
@@ -458,7 +458,7 @@ void flags(const std::string &path, const hoiMap &countries) {
 }
 
 void historyCountries(const std::string &path, const hoiMap &countries) {
-  Logger::logLine("HOI4 Parser: History: Writing Country History");
+  Logging::logLine("HOI4 Parser: History: Writing Country History");
   const auto content =
       pU::readFile("resources\\hoi4\\history\\country_template.txt");
   for (const auto &country : countries) {
@@ -487,7 +487,7 @@ void historyCountries(const std::string &path, const hoiMap &countries) {
 }
 
 void historyUnits(const std::string &path, const hoiMap &countries) {
-  Logger::logLine("HOI4 Parser: History: Deploying the Troops");
+  Logging::logLine("HOI4 Parser: History: Deploying the Troops");
   const auto defaultTemplate =
       pU::readFile("resources\\hoi4\\history\\default_unit_template.txt");
   const auto unitBlock =
@@ -552,11 +552,11 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
     //
     //	for (int x = 0; x < country.second.attributeVectors.at("unitCount")[i];
     // x++) {
-    // Logger::logLine(country.second.attributeVectors.at("units")[i]);
+    // Logging::logLine(country.second.attributeVectors.at("units")[i]);
     // auto
     // tempUnit{ unitBlock }; 		ParserUtils::replaceOccurences(tempUnit,
     //"templateDivisionName", IDMap.at(i));
-    // Logger::logLine(IDMap.at(i));
+    // Logging::logLine(IDMap.at(i));
     // ParserUtils::replaceOccurences(tempUnit,
     //"templateLocation",
     // std::to_string(country.second.ownedRegions[0].gameProvinces[0].ID + 1));
@@ -624,7 +624,7 @@ void commonBookmarks(
 
 void commonCountries(const std::string &path, const std::string &hoiPath,
                      const hoiMap &countries) {
-  Logger::logLine("HOI4 Parser: Common: Writing Countries");
+  Logging::logLine("HOI4 Parser: Common: Writing Countries");
   const auto content =
       pU::readFile("resources\\hoi4\\common\\country_default.txt");
   const auto colorsTxtTemplate =
@@ -648,7 +648,7 @@ void commonCountries(const std::string &path, const std::string &hoiPath,
 }
 
 void commonCountryTags(const std::string &path, const hoiMap &countries) {
-  Logger::logLine("HOI4 Parser: Common: Writing Country Tags");
+  Logging::logLine("HOI4 Parser: Common: Writing Country Tags");
   std::string content = "";
   for (const auto &country : countries)
     content.append(country.first + " = countries/" + country.second.name +
@@ -657,7 +657,7 @@ void commonCountryTags(const std::string &path, const hoiMap &countries) {
 }
 
 void countryNames(const std::string &path, const hoiMap &countries) {
-  Logger::logLine("HOI4 Parser: Localisation: Writing Country Names");
+  Logging::logLine("HOI4 Parser: Localisation: Writing Country Names");
   NameGenerator nG;
   std::string content = "l_english:\n";
   std::vector<std::string> ideologies{"fascism", "communism", "neutrality",
@@ -681,7 +681,7 @@ void countryNames(const std::string &path, const hoiMap &countries) {
 }
 
 void stateNames(const std::string &path, const hoiMap &countries) {
-  Logger::logLine("HOI4 Parser: Localisation: Writing State Names");
+  Logging::logLine("HOI4 Parser: Localisation: Writing State Names");
   std::string content = "l_english:\n";
 
   for (const auto &c : countries) {
@@ -695,17 +695,17 @@ void stateNames(const std::string &path, const hoiMap &countries) {
 void strategicRegionNames(
     const std::string &path,
     const std::vector<strategicRegion> &strategicRegions) {
-  Logger::logLine("HOI4 Parser: Map: Naming the Regions");
+  Logging::logLine("HOI4 Parser: Map: Naming the Regions");
   std::string content = "l_english:\n";
   for (auto i = 0; i < strategicRegions.size(); i++) {
     content += Utils::varsToString(" STRATEGICREGION_", i, ":0 \"",
-                                     strategicRegions[i].name, "\"\n");
+                                   strategicRegions[i].name, "\"\n");
   }
   pU::writeFile(path + "\\strategic_region_names_l_english.yml", content, true);
 }
 
 void foci(const std::string &path, const hoiMap &countries) {
-  Logger::logLine("HOI4 Parser: History: Demanding Danzig");
+  Logging::logLine("HOI4 Parser: History: Demanding Danzig");
   const auto focusTypes = ParserUtils::getLines(
       "resources\\hoi4\\ai\\national_focus\\baseFiles\\foci.txt");
   std::string baseTree = ParserUtils::readFile(
@@ -825,8 +825,8 @@ void foci(const std::string &path, const hoiMap &countries) {
           // no and cases, so just list all potential predecessors
           preString += "prerequisite = {";
           for (const auto elem : usedF) {
-            std::string preName = Utils::varsToString(
-                c.first, focusChain[0].chainID, ".", elem);
+            std::string preName =
+                Utils::varsToString(c.first, focusChain[0].chainID, ".", elem);
             preString += " focus = " + preName + " ";
           }
           preString += "}\n";

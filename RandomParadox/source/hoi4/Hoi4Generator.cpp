@@ -6,7 +6,7 @@ Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
 Generator::~Generator() {}
 
 void Generator::generateStateResources() {
-  Logger::logLine("HOI4: Digging for resources");
+  Utils::Logging::logLine("HOI4: Digging for resources");
   for (auto &c : hoi4Countries) {
     for (auto &hoi4Region : c.second.hoi4Regions) {
       for (const auto &resource : resources) {
@@ -33,11 +33,11 @@ void Generator::generateStateResources() {
 }
 
 void Generator::generateStateSpecifics(const int regionAmount) {
-  Logger::logLine("HOI4: Planning the economy");
+  Utils::Logging::logLine("HOI4: Planning the economy");
   auto &config = Env::Instance();
   // calculate the target industry amount
   auto targetWorldIndustry = 1248 * sizeFactor * industryFactor;
-  Logger::logLine(config.landPercentage);
+  Utils::Logging::logLine(config.landPercentage);
   for (auto &c : hoi4Countries) {
     for (auto &hoi4Region : c.second.hoi4Regions) {
       // count the number of land states for resource generation
@@ -110,7 +110,7 @@ void Generator::generateStateSpecifics(const int regionAmount) {
 }
 
 void Generator::generateCountrySpecifics() {
-  Logger::logLine("HOI4: Choosing uniforms and electing Tyrants");
+  Utils::Logging::logLine("HOI4: Choosing uniforms and electing Tyrants");
   sizeFactor = sqrt((double)(Env::Instance().width * Env::Instance().height) /
                     (double)(5632 * 2048));
   // graphical culture pairs:
@@ -170,7 +170,7 @@ void Generator::generateCountrySpecifics() {
 }
 
 void Generator::generateStrategicRegions() {
-  Logger::logLine("HOI4: Dividing world into strategic regions");
+  Utils::Logging::logLine("HOI4: Dividing world into strategic regions");
   std::set<int> assignedIdeas;
   for (auto &region : gameRegions) {
     if (assignedIdeas.find(region.ID) == assignedIdeas.end()) {
@@ -270,7 +270,7 @@ void Generator::generateWeather() {
 }
 
 void Generator::generateLogistics() {
-  Logger::logLine("HOI4: Building rail networks");
+  Utils::Logging::logLine("HOI4: Building rail networks");
   auto width = Env::Instance().width;
   Bitmap logistics = Bitmap::findBitmapByKey("countries");
   for (auto &country : hoi4Countries) {
@@ -447,7 +447,7 @@ void Generator::generateLogistics() {
 }
 
 void Generator::evaluateCountries() {
-  Logger::logLine("HOI4: Evaluating Country Strength");
+  Utils::Logging::logLine("HOI4: Evaluating Country Strength");
   double maxScore = 0.0;
   for (auto &c : hoi4Countries) {
     auto totalIndustry = 0.0;
@@ -497,7 +497,7 @@ void Generator::evaluateCountries() {
 }
 
 void Generator::generateCountryUnits() {
-  Logger::logLine("HOI4: Generating Country Unit Files");
+  Utils::Logging::logLine("HOI4: Generating Country Unit Files");
   // read in different compositions
   auto unitTemplateFile =
       ParserUtils::readFile("resources\\hoi4\\history\\divisionTemplates.txt");
@@ -628,7 +628,7 @@ void Generator::buildFocusTree(Hoi4Country &source) {
   int curY = 1;
   int maxX = 1;
   if (source.tag == "DIA")
-    Logger::logLine("AA");
+    Utils::Logging::logLine("AA");
   for (auto &focusChain : source.foci) {
     curY = 1;
     std::set<int> fociIDs;
@@ -721,7 +721,7 @@ bool Generator::stepFulfillsRequirements(
  * requirement isn't fulfilled, else returns true*/
 bool Generator::targetFulfillsRequirements(
     const std::string &targetRequirements, const Hoi4Country &source,
-    const Hoi4Country &target, const std::vector<Region> &gameRegions,
+    const Hoi4Country &target, const std::vector<Scenario::Region> &gameRegions,
     const std::vector<std::set<std::string>> &levelTargets, const int level) {
   // now check if the country fulfills the target requirements
   // need to check rank, first get the desired value
@@ -802,7 +802,7 @@ bool Generator::targetFulfillsRequirements(
 }
 
 void Generator::evaluateCountryGoals() {
-  Logger::logLine("HOI4: Generating Country Goals");
+  Utils::Logging::logLine("HOI4: Generating Country Goals");
   std::vector<int> defDate{1, 1, 1936};
   std::vector<std::vector<std::vector<std::string>>> chains;
 
@@ -828,7 +828,7 @@ void Generator::evaluateCountryGoals() {
         std::vector<std::set<std::string>> levelTargets(chain.size());
         int chainID = 0;
         for (const auto &chainFocus : chain) {
-          Logger::logLineLevel(9, chainFocus);
+          Utils::Logging::logLineLevel(9, chainFocus);
           // evaluate every single focus of that chain
           const auto chainTokens = ParserUtils::getTokens(chainFocus, ';');
           const int chainStep = stoi(chainTokens[1]);
@@ -867,7 +867,7 @@ void Generator::evaluateCountryGoals() {
         // now build the chain from the options
         // for every step of the chain, choose a target
         if (stepTargets.size()) {
-          Logger::logLineLevel(5, "Building focus");
+          Utils::Logging::logLineLevel(5, "Building focus");
           std::map<int, NationalFocus> fulfilledSteps;
           int stepIndex = -1;
           std::vector<NationalFocus> chainFoci;
@@ -883,7 +883,7 @@ void Generator::evaluateCountryGoals() {
                                   target)};
             focus.stepID = stepIndex;
             focus.chainID = chainID;
-            Logger::logLineLevel(1, focus);
+            Utils::Logging::logLineLevel(1, focus);
             if (focus.fType == NationalFocus::FocusType::attack) {
               // country aims to bully
               sourceCountry.second.bully++;
@@ -900,19 +900,19 @@ void Generator::evaluateCountryGoals() {
 }
 
 void Generator::printStatistics() {
-  Logger::logLine("Total Industry: ", totalWorldIndustry);
-  Logger::logLine("Military Industry: ", militaryIndustry);
-  Logger::logLine("Civilian Industry: ", civilianIndustry);
-  Logger::logLine("Naval Industry: ", navalIndustry);
+  Utils::Logging::logLine("Total Industry: ", totalWorldIndustry);
+  Utils::Logging::logLine("Military Industry: ", militaryIndustry);
+  Utils::Logging::logLine("Civilian Industry: ", civilianIndustry);
+  Utils::Logging::logLine("Naval Industry: ", navalIndustry);
   for (auto &res : totalResources) {
-    Logger::logLine(res.first, " ", res.second);
+    Utils::Logging::logLine(res.first, " ", res.second);
   }
 
-  Logger::logLine("World Population: ", worldPop);
+  Utils::Logging::logLine("World Population: ", worldPop);
 
   for (auto &scores : strengthScores) {
     for (auto &entry : scores.second) {
-      Logger::logLine("Strength: ", scores.first, " ",
+      Utils::Logging::logLine("Strength: ", scores.first, " ",
                       hoi4Countries.at(entry).fullName, " ",
                       hoi4Countries.at(entry).rulingParty, "");
     }
