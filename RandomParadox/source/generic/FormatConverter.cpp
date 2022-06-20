@@ -1,7 +1,8 @@
 #include "generic/FormatConverter.h"
-namespace Graphics {
+namespace Scenario::Gfx {
 using namespace Textures;
-using namespace FastWorldGen;
+using namespace Fwg;
+using namespace Fwg::Gfx;
 const std::map<std::string, std::map<Colour, int>> FormatConverter::colourMaps{
     {"terrainHoi4",
      {{Env::Instance().namedColours["grassland"], 0},
@@ -239,8 +240,8 @@ void FormatConverter::dumpDDSFiles(const std::string &path, const bool cut,
         }
       }
     }
-    Graphics::Textures::writeDDS(imageWidth, imageHeight, pixels,
-                                 DXGI_FORMAT_B8G8R8A8_UNORM, tempPath);
+    writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
+             tempPath);
   }
 }
 
@@ -249,7 +250,7 @@ void FormatConverter::dumpTerrainColourmap(const std::string &modPath,
                                            const DXGI_FORMAT format,
                                            const bool cut) const {
   Utils::Logging::logLine("FormatConverter::Writing terrain colourmap to ",
-                  modPath + mapName);
+                          modPath + mapName);
   auto &config = Env::Instance();
   const auto &climateMap = Bitmap::findBitmapByKey("climate2");
   const auto &cityMap = Bitmap::findBitmapByKey("cities");
@@ -291,9 +292,9 @@ void FormatConverter::dumpTerrainColourmap(const std::string &modPath,
     // cut it and reassign it
     pixels = Utils::cutBuffer(pixels, 2816, 1024, minX, maxX, minY, maxY, 4);
     if (config.scale) {
-      pixels = Utils::scaleBuffer(
-          pixels, abs(maxX - minX), abs(maxY - minY), config.scaleX / factor,
-          config.scaleY / factor, 4, config.keepRatio);
+      pixels = Utils::scaleBuffer(pixels, abs(maxX - minX), abs(maxY - minY),
+                                  config.scaleX / factor,
+                                  config.scaleY / factor, 4, config.keepRatio);
     }
   }
   if (config.scale)
@@ -350,4 +351,4 @@ FormatConverter::FormatConverter(const std::string &gamePath,
 }
 
 FormatConverter::~FormatConverter() {}
-} // namespace Graphics
+} // namespace Scenario::Gfx

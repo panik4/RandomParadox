@@ -3,8 +3,7 @@
 #include "ParserUtils.h"
 #include "Textures.h"
 
-namespace Fwg = FastWorldGen;
-namespace Graphics {
+namespace Scenario::Gfx {
 struct FlagInfo {
   std::vector<std::string> flagColourGroups;
   std::vector<std::string> symbolColourGroups;
@@ -56,4 +55,4 @@ public:
   static void readFlagTemplates();
   static void readSymbolTemplates();
 };
-} // namespace Graphics
+} // namespace Scenario::Gfx

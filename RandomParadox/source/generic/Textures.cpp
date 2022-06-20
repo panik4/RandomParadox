@@ -1,7 +1,7 @@
 #include "generic/Textures.h"
 
 using namespace DirectX;
-namespace Graphics::Textures {
+namespace Scenario::Gfx::Textures {
 void writeDDS(const int width, const int height,
               std::vector<uint8_t> &pixelData, const DXGI_FORMAT format,
               const std::string &path) {
@@ -57,4 +57,4 @@ std::vector<uint8_t> readDDS(const std::string &path) {
   }
   return pixelData;
 }
-} // namespace Graphics::Textures
+} // namespace Gfx::Textures

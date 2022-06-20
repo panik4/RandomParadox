@@ -1,5 +1,6 @@
 #include "hoi4/Hoi4Generator.h"
-using namespace FastWorldGen;
+using namespace Fwg;
+using namespace Fwg::Gfx;
 namespace Scenario::Hoi4 {
 Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
 

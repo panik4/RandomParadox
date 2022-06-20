@@ -6,7 +6,6 @@
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4Generator.h"
 #include <array>
-namespace Fwg = FastWorldGen;
 namespace Scenario::Hoi4::Parsing {
 using pU = ParserUtils;
 using hoiMap = std::map<std::string, Hoi4::Hoi4Country>;
@@ -63,7 +62,7 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
 } // namespace Writing
 
 std::string getBuildingLine(const std::string &type, const Fwg::Region &region,
-                            const bool coastal, const Fwg::Bitmap &heightmap);
+                            const bool coastal, const Fwg::Gfx::Bitmap &heightmap);
 // history - National Focus
 std::vector<std::string> readTypeMap();
 std::map<std::string, std::string> readRewardMap(const std::string &path);

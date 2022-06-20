@@ -1,5 +1,5 @@
 #include "hoi4/Hoi4Module.h"
-using namespace FastWorldGen;
+using namespace Fwg;
 namespace Scenario::Hoi4 {
 Hoi4Module::Hoi4Module(FastWorldGenerator &fastWorldGen,
                        const std::string &configSubFolder,
@@ -98,7 +98,7 @@ void Hoi4Module::genHoi(bool cut) {
   try {
     // generate map files. Format must be converted and colours mapped to hoi4
     // compatible colours
-    Graphics::FormatConverter formatConverter(gamePath, "Hoi4");
+    Gfx::FormatConverter formatConverter(gamePath, "Hoi4");
     formatConverter.dump8BitTerrain(gameModPath + "\\map\\terrain.bmp",
                                     "terrain", cut);
     formatConverter.dump8BitCities(gameModPath + "\\map\\cities.bmp", "cities",
@@ -164,7 +164,8 @@ void Hoi4Module::genHoi(bool cut) {
                                 gameModsDirectory, modName);
 
     // just copy over provinces.bmp, already in a compatible format
-    Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"),
+    Fwg::Gfx::Bitmap::SaveBMPToFile(
+        Fwg::Gfx::Bitmap::findBitmapByKey("provinces"),
                           (gameModPath + ("\\map\\provinces.bmp")).c_str());
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";

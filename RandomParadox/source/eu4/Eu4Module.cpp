@@ -1,5 +1,6 @@
 #include "eu4/Eu4Module.h"
-using namespace FastWorldGen;
+using namespace Fwg;
+
 namespace Scenario::Eu4 {
 Module::Module(FastWorldGenerator &fastWorldGen,
                const std::string &configSubFolder, const std::string &username)
@@ -63,7 +64,7 @@ void Module::genEu4(bool cut) {
   try {
     // generate map files. Format must be converted and colours mapped to eu4
     // compatible colours
-    Graphics::FormatConverter formatConverter(gamePath, "Eu4");
+    Gfx::FormatConverter formatConverter(gamePath, "Eu4");
     formatConverter.dump8BitTerrain(gameModPath + "\\map\\terrain.bmp",
                                     "terrain", cut);
     formatConverter.dump8BitRivers(gameModPath + "\\map\\rivers.bmp", "rivers",
@@ -89,6 +90,7 @@ void Module::genEu4(bool cut) {
     formatConverter.dumpWorldNormal(gameModPath + "\\map\\world_normal.bmp",
                                     cut);
 
+    using namespace Fwg::Gfx;
     // just copy over provinces.bmp, already in a compatible format
     Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"),
                           (gameModPath + ("\\map\\provinces.bmp")).c_str());

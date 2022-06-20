@@ -1,6 +1,7 @@
 #include "eu4/Eu4Generator.h"
 namespace Scenario::Eu4 {
-using namespace FastWorldGen;
+using namespace Fwg;
+using namespace Fwg::Gfx;
 Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
 void Generator::generateRegions(std::vector<Region> &regions) {
   Utils::Logging::logLine("HOI4: Dividing world into strategic regions");

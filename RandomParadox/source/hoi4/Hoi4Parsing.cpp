@@ -1,7 +1,7 @@
 #include "hoi4/Hoi4Parsing.h"
 #include "hoi4/NationalFocus.h"
 using namespace Fwg;
-namespace Logging = Utils::Logging;
+namespace Logging = Fwg::Utils::Logging;
 namespace Scenario::Hoi4::Parsing {
 namespace Writing {
 void adj(const std::string &path) {
@@ -38,7 +38,7 @@ void airports(const std::string &path,
 void buildings(const std::string &path,
                const std::vector<Fwg::Region> &regions) {
   Logging::logLine("HOI4 Parser: Map: Constructing Factories");
-  const auto &heightmap = Bitmap::findBitmapByKey("heightmap");
+  const auto &heightmap = Fwg::Gfx::Bitmap::findBitmapByKey("heightmap");
   std::vector<std::string> buildingTypes{
       "arms_factory",    "industrial_complex", "air_base",
       "bunker",          "coastal_bunker",     "dockyard",
@@ -216,7 +216,7 @@ void unitStacks(const std::string &path,
   // 0=south, 1.5=east,4,5=west), ?? provID, xPos, ~10, yPos, ~0, 0,5 for each
   // neighbour add move state in the direction of the neighbour. 0 might be
   // stand still
-  const auto &heightmap = Bitmap::findBitmapByKey("heightmap");
+  const auto &heightmap = Fwg::Gfx::Bitmap::findBitmapByKey("heightmap");
   std::string content{""};
   for (const auto &prov : provinces) {
     int position = 0;
@@ -444,7 +444,7 @@ void states(const std::string &path, const hoiMap &countries) {
 }
 void flags(const std::string &path, const hoiMap &countries) {
   Logging::logLine("HOI4 Parser: Gfx: Printing Flags");
-  using namespace Graphics::Textures;
+  using namespace Gfx::Textures;
   for (const auto &country : countries) {
     writeTGA(country.second.flag.width, country.second.flag.height,
              country.second.flag.getFlag(), path + country.first + ".tga");
@@ -918,7 +918,7 @@ void copyDescriptorFile(const std::string &sourcePath,
   pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
 }
 std::string getBuildingLine(const std::string &type, const Fwg::Region &region,
-                            const bool coastal, const Bitmap &heightmap) {
+                            const bool coastal, const Fwg::Gfx::Bitmap &heightmap) {
   auto prov = Utils::selectRandom(region.provinces);
   auto pix = 0;
   if (coastal) {
