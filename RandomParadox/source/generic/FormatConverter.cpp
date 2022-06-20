@@ -97,7 +97,7 @@ Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
 
 void FormatConverter::dump8BitHeightmap(const std::string &path,
                                         const std::string &colourMapKey) const {
-  Logger::logLine("FormatConverter::Copying heightmap to ", path);
+  Utils::Logging::logLine("FormatConverter::Copying heightmap to ", path);
   Bitmap hoi4Heightmap(Env::Instance().width, Env::Instance().height, 8);
   hoi4Heightmap.getColourtable() = colourTables.at(colourMapKey + gameTag);
   // now map from 24 bit climate map
@@ -110,7 +110,7 @@ void FormatConverter::dump8BitHeightmap(const std::string &path,
 void FormatConverter::dump8BitTerrain(const std::string &path,
                                       const std::string &colourMapKey,
                                       const bool cut) const {
-  Logger::logLine("FormatConverter::Writing terrain to ", path);
+  Utils::Logging::logLine("FormatConverter::Writing terrain to ", path);
   auto &conf = Env::Instance();
   Bitmap hoi4terrain(conf.width, conf.height, 8);
   hoi4terrain.getColourtable() = colourTables.at(colourMapKey + gameTag);
@@ -132,7 +132,7 @@ void FormatConverter::dump8BitTerrain(const std::string &path,
 void FormatConverter::dump8BitCities(const std::string &path,
                                      const std::string &colourMapKey,
                                      const bool cut) const {
-  Logger::logLine("FormatConverter::Writing cities to ", path);
+  Utils::Logging::logLine("FormatConverter::Writing cities to ", path);
   Bitmap cities(Env::Instance().width, Env::Instance().height, 8);
   cities.getColourtable() = colourTables.at(colourMapKey + gameTag);
 
@@ -153,7 +153,7 @@ void FormatConverter::dump8BitCities(const std::string &path,
 void FormatConverter::dump8BitRivers(const std::string &path,
                                      const std::string &colourMapKey,
                                      const bool cut) const {
-  Logger::logLine("FormatConverter::Writing rivers to ", path);
+  Utils::Logging::logLine("FormatConverter::Writing rivers to ", path);
   Bitmap rivers(Env::Instance().width, Env::Instance().height, 8);
   rivers.getColourtable() = colourTables.at(colourMapKey + gameTag);
 
@@ -171,7 +171,7 @@ void FormatConverter::dump8BitRivers(const std::string &path,
 void FormatConverter::dump8BitTrees(const std::string &path,
                                     const std::string &colourMapKey,
                                     const bool cut) const {
-  Logger::logLine("FormatConverter::Writing trees to ", path);
+  Utils::Logging::logLine("FormatConverter::Writing trees to ", path);
   const double width = Env::Instance().width;
   constexpr auto factor = 3.4133333333333333333333333333333;
   Bitmap trees(((double)Env::Instance().width / factor),
@@ -200,7 +200,7 @@ void FormatConverter::dump8BitTrees(const std::string &path,
 
 void FormatConverter::dumpDDSFiles(const std::string &path, const bool cut,
                                    const int maxFactor) const {
-  Logger::logLine("FormatConverter::Writing DDS files to ", path);
+  Utils::Logging::logLine("FormatConverter::Writing DDS files to ", path);
   using namespace DirectX;
   const auto &riverBMP = Bitmap::findBitmapByKey("rivers");
   const auto &heightBMP = Bitmap::findBitmapByKey("heightmap");
@@ -248,7 +248,7 @@ void FormatConverter::dumpTerrainColourmap(const std::string &modPath,
                                            const std::string &mapName,
                                            const DXGI_FORMAT format,
                                            const bool cut) const {
-  Logger::logLine("FormatConverter::Writing terrain colourmap to ",
+  Utils::Logging::logLine("FormatConverter::Writing terrain colourmap to ",
                   modPath + mapName);
   auto &config = Env::Instance();
   const auto &climateMap = Bitmap::findBitmapByKey("climate2");
@@ -305,7 +305,7 @@ void FormatConverter::dumpTerrainColourmap(const std::string &modPath,
 
 void FormatConverter::dumpWorldNormal(const std::string &path,
                                       const bool cut) const {
-  Logger::logLine("FormatConverter::Writing normalMap to ", path);
+  Utils::Logging::logLine("FormatConverter::Writing normalMap to ", path);
   auto height = Env::Instance().height;
   auto width = Env::Instance().width;
   const auto &sobelMap = Bitmap::findBitmapByKey("sobel");

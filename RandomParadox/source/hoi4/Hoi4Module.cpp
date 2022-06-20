@@ -43,7 +43,7 @@ bool Hoi4Module::createPaths() {
 // reads config for Hearts of Iron IV
 void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
                                const std::string &username) {
-  Logger::logLine("Reading Hoi4 Config");
+  Utils::Logging::logLine("Reading Hoi4 Config");
   const auto root =
       this->readConfig(configSubFolder, username, "Hearts of Iron IV");
 

@@ -28,13 +28,15 @@ void GenericModule::createPaths(const std::string basePath) { // mod directory
 // a method to search for the original game files on the hard drive(s)
 bool GenericModule::findGame(std::string &path, const std::string game) {
   using namespace std::filesystem;
+  namespace Logging = FastWorldGen::Utils::Logging;
   std::vector<std::string> drives{"C:\\", "D:\\", "E:\\",
                                   "F:\\", "G:\\", "H:\\"};
   // first try to find hoi4 at the configured location
   if (exists(path)) {
     return true;
   } else {
-    Logger::logLine("Could not find game under configured path ", path,
+    FastWorldGen::Utils::Logging::logLine(
+        "Could not find game under configured path ", path,
                     " it doesn't exist or is malformed. Auto search will now "
                     "try to locate the game, but may not succeed. It is "
                     "recommended to correctly configure the path");
@@ -44,20 +46,20 @@ bool GenericModule::findGame(std::string &path, const std::string game) {
     if (exists(drive + "Program Files (x86)\\Steam\\steamapps\\common\\" +
                game)) {
       path = drive + "Program Files (x86)\\Steam\\steamapps\\common\\" + game;
-      Logger::logLine("Located game under ", path);
+      Logging::logLine("Located game under ", path);
       return true;
     } else if (exists(drive + "Program Files\\Steam\\steamapps\\common\\" +
                       game)) {
       path = drive + "Program Files\\Steam\\steamapps\\common\\" + game;
-      Logger::logLine("Located game under ", path);
+      Logging::logLine("Located game under ", path);
       return true;
     } else if (exists(drive + "Steam\\steamapps\\common\\" + game)) {
       path = drive + "Steam\\steamapps\\common\\" + game;
-      Logger::logLine("Located game under ", path);
+      Logging::logLine("Located game under ", path);
       return true;
     }
   }
-  Logger::logLine("Could not find the game anywhere. Make sure the path to ",
+  Logging::logLine("Could not find the game anywhere. Make sure the path to ",
                   game, " is configured correctly in the config files");
   return false;
 }
@@ -69,12 +71,13 @@ GenericModule::readConfig(const std::string configSubFolder,
                           const std::string gameName) {
   // Short alias for this namespace
   namespace pt = boost::property_tree;
+  namespace Logging = FastWorldGen::Utils::Logging;
   // Create a root
   pt::ptree root;
   std::ifstream f(configSubFolder + gameName + "Module.json");
   std::stringstream buffer;
   if (!f.good()) {
-    Logger::logLine("Config could not be loaded");
+    Logging::logLine("Config could not be loaded");
   }
   buffer << f.rdbuf();
   try {

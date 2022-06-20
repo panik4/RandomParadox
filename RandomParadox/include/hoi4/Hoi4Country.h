@@ -7,7 +7,6 @@
 #include <vector>
 
 namespace Scenario::Hoi4 {
-
 class Hoi4Country : public Scenario::PdoxCountry {
 public:
   enum class doctrineType {
@@ -21,8 +20,7 @@ public:
     defensive
   };
   Hoi4Country();
-  Hoi4Country(Scenario::PdoxCountry &country,
-              std::vector<Region> &gameRegions);
+  Hoi4Country(Scenario::PdoxCountry &country, std::vector<Scenario::Region> &gameRegions);
   ~Hoi4Country();
   std::string fullName;
   std::string gfxCulture;
@@ -37,7 +35,7 @@ public:
   std::vector<int> units;
   std::vector<int> unitCount;
   std::array<int, 4> parties;
-  std::vector<Hoi4Region> hoi4Regions;
+  std::vector<Region> hoi4Regions;
   std::vector<std::vector<NationalFocus>> foci;
 };
 } // namespace Scenario::Hoi4
