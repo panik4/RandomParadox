@@ -3,7 +3,7 @@
 #include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Module.h"
 #include <filesystem>
-using namespace FastWorldGen;
+using namespace Fwg;
 void dumpInfo(std::string error, std::string configSubFolder) {
   std::string dump = "";
   std::string path = configSubFolder;

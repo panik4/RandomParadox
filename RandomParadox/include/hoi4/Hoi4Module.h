@@ -19,7 +19,7 @@ class Hoi4Module : GenericModule {
                      const std::string &username);
 
 public:
-  Hoi4Module(FastWorldGen::FastWorldGenerator &fastWorldGen,
+  Hoi4Module(Fwg::FastWorldGenerator &fastWorldGen,
              const std::string &configSubFolder, const std::string &username);
   ~Hoi4Module();
   // member functions

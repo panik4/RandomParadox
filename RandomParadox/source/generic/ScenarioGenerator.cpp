@@ -1,13 +1,14 @@
 #include "generic/ScenarioGenerator.h"
-namespace Logging = FastWorldGen::Utils::Logging;
+namespace Logging = Fwg::Utils::Logging;
 namespace Scenario {
+    using namespace Fwg::Gfx;
 Generator::Generator(Fwg::FastWorldGenerator &fwg) : fwg(fwg) {
   gamePaths["hoi4"] = "D:\\Steam\\steamapps\\common\\Hearts of Iron IV\\";
 
-  Graphics::Flag::readColourGroups();
-  Graphics::Flag::readFlagTypes();
-  Graphics::Flag::readFlagTemplates();
-  Graphics::Flag::readSymbolTemplates();
+  Gfx::Flag::readColourGroups();
+  Gfx::Flag::readFlagTypes();
+  Gfx::Flag::readFlagTemplates();
+  Gfx::Flag::readSymbolTemplates();
 }
 
 Generator::~Generator() {}
@@ -15,7 +16,7 @@ Generator::~Generator() {}
 void Generator::loadRequiredResources(std::string gamePath) {
   bitmaps["provinces"] = ResourceLoading::loadProvinceMap(gamePath);
   bitmaps["heightmap"] = ResourceLoading::loadHeightMap(gamePath);
-  Fwg::Bitmap::bufferBitmap("provinces", bitmaps["provinces"]);
+  Fwg::Gfx::Bitmap::bufferBitmap("provinces", bitmaps["provinces"]);
 }
 
 void Generator::hoi4Preparations(bool useDefaultStates,
@@ -23,14 +24,15 @@ void Generator::hoi4Preparations(bool useDefaultStates,
   loadRequiredResources(gamePaths["hoi4"]);
   auto heightMap = bitmaps["heightmap"].get24BitRepresentation();
   auto &config = Fwg::Env::Instance();
-  Fwg::Bitmap::bufferBitmap("heightmap", heightMap);
+  Fwg::Gfx::Bitmap::bufferBitmap("heightmap", heightMap);
   config.width = bitmaps["heightmap"].bInfoHeader.biWidth;
   config.height = bitmaps["heightmap"].bInfoHeader.biHeight;
   config.bitmapSize = config.width * config.height;
   config.seaLevel = 94; // hardcoded for hoi4
   config.mapsPath = "Maps//";
 
-  Fwg::Bitmap terrainBMP = Fwg::Bitmap(config.width, config.height, 24);
+  Fwg::Gfx::Bitmap terrainBMP =
+      Fwg::Gfx::Bitmap(config.width, config.height, 24);
   Fwg::TerrainGenerator tG;
 
   std::map<int, Fwg::Province *> provinces;
@@ -70,23 +72,23 @@ void Generator::hoi4Preparations(bool useDefaultStates,
       prov->position.calcWeightedCenter(prov->pixels);
   } else {
     config.calcParameters();
-    Fwg::Bitmap riverMap(config.width, config.height, 24);
-    Fwg::Bitmap humidityBMP(config.width, config.height, 24);
-    Fwg::Bitmap climateMap(config.width, config.height, 24);
+    Bitmap riverMap(config.width, config.height, 24);
+    Bitmap humidityBMP(config.width, config.height, 24);
+    Bitmap climateMap(config.width, config.height, 24);
     tG.createTerrain(terrainBMP, heightMap);
     Fwg::ClimateGenerator climateGenerator;
     climateGenerator.humidityMap(fwg.provinceGenerator.provinces, heightMap,
                                  humidityBMP, riverMap, config.seaLevel);
-    Fwg::Bitmap::SaveBMPToFile(humidityBMP, config.mapsPath + "humidity.bmp");
+    Bitmap::SaveBMPToFile(humidityBMP, config.mapsPath + "humidity.bmp");
     climateGenerator.climateMap(climateMap, humidityBMP, heightMap,
                                 config.seaLevel);
-    Fwg::Bitmap::SaveBMPToFile(climateMap, config.mapsPath + "climate.bmp");
+    Bitmap::SaveBMPToFile(climateMap, config.mapsPath + "climate.bmp");
 
-    Fwg::Bitmap::SaveBMPToFile(terrainBMP, config.mapsPath + "terrain.bmp");
-    Fwg::Bitmap provinceMap(config.width, config.height, 24);
+    Bitmap::SaveBMPToFile(terrainBMP, config.mapsPath + "terrain.bmp");
+    Bitmap provinceMap(config.width, config.height, 24);
     fwg.provinceGenerator.generateProvinces(terrainBMP, provinceMap, riverMap,
                                             tG.landBodies);
-    Fwg::Bitmap::SaveBMPToFile(provinceMap,
+    Bitmap::SaveBMPToFile(provinceMap,
                                (config.mapsPath + ("provinces.bmp")).c_str());
     bitmaps["provinces"] = provinceMap;
     fwg.provinceGenerator.createProvinceMap();
@@ -100,7 +102,7 @@ void Generator::hoi4Preparations(bool useDefaultStates,
     // ("adjacency.csv")).c_str(), provinceGenerator.provinces);
     // genericParser.writeDefinition((config.debugMapsPath +
     // ("definition.csv")).c_str(), provinceGenerator.provinces);
-    using namespace Fwg::Visualize::Provinces;
+    using namespace Fwg::Gfx::Provinces;
     neighboursMap(provinceMap, fwg.provinceGenerator.provinces);
     coastsMap(provinceMap, fwg.provinceGenerator.provinces);
     bordersMap(provinceMap, fwg.provinceGenerator.provinces);
@@ -133,7 +135,7 @@ void Generator::hoi4Preparations(bool useDefaultStates,
   const auto &provinceMap = bitmaps["provinces"];
   fwg.provinceGenerator.sortRegions();
   fwg.provinceGenerator.evaluateRegionNeighbours();
-  using namespace Fwg::Visualize::Provinces;
+  using namespace Fwg::Gfx::Provinces;
   bordersMap(provinceMap, fwg.provinceGenerator.provinces);
   classificationMap(provinceMap, fwg.provinceGenerator.provinces);
 }
@@ -190,8 +192,8 @@ void Generator::mapRegions() {
 void Generator::generatePopulations() {
   Logging::logLine("Generating Population");
   auto &config = Fwg::Env::Instance();
-  const auto &popMap = Fwg::Bitmap::findBitmapByKey("population");
-  const auto &cityMap = Fwg::Bitmap::findBitmapByKey("cities");
+  const auto &popMap = Bitmap::findBitmapByKey("population");
+  const auto &cityMap = Bitmap::findBitmapByKey("cities");
   for (auto &c : countries)
     for (auto &gR : c.second.ownedRegions)
       for (auto &gProv : gameRegions[gR].gameProvinces) {
@@ -218,7 +220,7 @@ void Generator::generateDevelopment() {
   // .....
   Logging::logLine("Generating State Development");
   auto &config = Fwg::Env::Instance();
-  const auto &cityBMP = Fwg::Bitmap::findBitmapByKey("cities");
+  const auto &cityBMP = Bitmap::findBitmapByKey("cities");
   for (auto &c : countries)
     for (auto &gR : c.second.ownedRegions)
       for (auto &gameProv : gameRegions[gR].gameProvinces) {
@@ -238,8 +240,8 @@ void Generator::generateDevelopment() {
 void Generator::mapTerrain() {
   auto &config = Fwg::Env::Instance();
   const auto &namedColours = config.namedColours;
-  const auto &climateMap = Fwg::Bitmap::findBitmapByKey("climate");
-  Fwg::Bitmap typeMap(climateMap.bInfoHeader.biWidth,
+  const auto &climateMap = Bitmap::findBitmapByKey("climate");
+  Bitmap typeMap(climateMap.bInfoHeader.biWidth,
                       climateMap.bInfoHeader.biHeight, 24);
   Logging::logLine("Mapping Terrain");
   std::vector<std::string> targetTypes{"plains",   "forest", "marsh", "hills",
@@ -300,7 +302,7 @@ void Generator::mapTerrain() {
             typeMap.setColourAtIndex(pix, Fwg::Colour{255, 0, 0});
         }
       }
-  Fwg::Bitmap::SaveBMPToFile(typeMap, "Maps/typeMap.bmp");
+  Bitmap::SaveBMPToFile(typeMap, "Maps/typeMap.bmp");
 }
 
 Region &Generator::findStartRegion() {
@@ -332,9 +334,9 @@ void Generator::generateCountries(int numCountries) {
   for (int i = 0; i < numCountries; i++) {
     auto name{nG.generateName()};
     PdoxCountry pdoxC(nG.generateTag(name, tags), i, name,
-                      nG.generateAdjective(name), Graphics::Flag(82, 52));
+                      nG.generateAdjective(name), Gfx::Flag(82, 52));
     // randomly set development of countries
-    pdoxC.developmentFactor = FastWorldGen::RandNum::getRandomDouble(0.1, 1.0);
+    pdoxC.developmentFactor = Fwg::RandNum::getRandomDouble(0.1, 1.0);
     countries.emplace(pdoxC.tag, pdoxC);
   }
   for (auto &pdoxCountry : countries) {
@@ -365,14 +367,14 @@ void Generator::evaluateNeighbours() {
 void Generator::dumpDebugCountrymap(std::string path) {
   Logging::logLine("Mapping Continents");
   auto &config = Fwg::Env::Instance();
-  Fwg::Bitmap countryBMP(config.width, config.height, 24);
+  Bitmap countryBMP(config.width, config.height, 24);
   for (const auto &country : countries)
     for (const auto &region : country.second.ownedRegions)
       for (const auto &prov : gameRegions[region].provinces)
         for (const auto &pix : prov->pixels)
           countryBMP.setColourAtIndex(pix, country.second.colour);
 
-  Fwg::Bitmap::bufferBitmap("countries", countryBMP);
-  Fwg::Bitmap::SaveBMPToFile(countryBMP, (path).c_str());
+  Bitmap::bufferBitmap("countries", countryBMP);
+  Bitmap::SaveBMPToFile(countryBMP, (path).c_str());
 }
 } // namespace Scenario
