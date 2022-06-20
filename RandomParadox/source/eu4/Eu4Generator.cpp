@@ -3,7 +3,7 @@ namespace Scenario::Eu4 {
 using namespace FastWorldGen;
 Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
 void Generator::generateRegions(std::vector<Region> &regions) {
-  Logger::logLine("HOI4: Dividing world into strategic regions");
+  Utils::Logging::logLine("HOI4: Dividing world into strategic regions");
   std::set<int> assignedIdeas;
   for (auto &region : regions) {
     if (assignedIdeas.find(region.ID) == assignedIdeas.end()) {

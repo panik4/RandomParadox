@@ -30,7 +30,7 @@ bool Module::createPaths() { // prepare folder structure
 
 void Module::readEu4Config(const std::string &configSubFolder,
                            const std::string &username) {
-  Logger::logLine("Reading Eu4 Config");
+  Utils::Logging::logLine("Reading Eu4 Config");
   const auto root =
       this->readConfig(configSubFolder, username, "Europa Universalis IV");
 
