@@ -2,7 +2,7 @@
 
 namespace Scenario::Gfx {
 using namespace Fwg;
-std::map<std::string, std::vector<Colour>> Flag::colourGroups;
+std::map<std::string, std::vector<Fwg::Gfx::Colour>> Flag::colourGroups;
 std::vector<std::vector<std::vector<int>>> Flag::flagTypes(7);
 std::vector<std::vector<std::vector<std::string>>> Flag::flagTypeColours(7);
 std::vector<std::vector<uint8_t>> Flag::flagTemplates;
@@ -17,14 +17,14 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
   image = flagTemplates[randomIndex];
   const auto &flagInfo = flagMetadata[randomIndex];
   // get the template and map all colours to indices
-  std::map<Colour, std::vector<int>> colourMapping;
+  std::map<Fwg::Gfx::Colour, std::vector<int>> colourMapping;
   for (auto i = 0; i < image.size(); i += 4) {
-    Colour temp(image[i], image[i + 1], image[i + 2]);
+    Fwg::Gfx::Colour temp(image[i], image[i + 1], image[i + 2]);
     colourMapping[temp].push_back(i);
   }
   // determine replacements for the colours in the template.
   // pool of colours is taken from colour groups defined in metadata files
-  std::vector<Colour> replacementColours;
+  std::vector<Fwg::Gfx::Colour> replacementColours;
   for (auto &colGroup : flagInfo.flagColourGroups) {
     const auto &colour = Utils::selectRandom(colourGroups[colGroup]);
     replacementColours.push_back(colour);
@@ -58,7 +58,7 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
   // get the template and map all colours to indices
   colourMapping.clear();
   for (auto i = 0; i < symbol.size(); i += 4) {
-    Colour temp(symbol[i], symbol[i + 1], symbol[i + 2]);
+    Fwg::Gfx::Colour temp(symbol[i], symbol[i + 1], symbol[i + 2]);
     // only if alpha is greater 0
     if (symbol[i + 3] > 0)
       colourMapping[temp].push_back(i);
@@ -85,7 +85,7 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
 
 Flag::~Flag() {}
 
-void Flag::setPixel(const Colour colour, const int x, const int y) {
+void Flag::setPixel(const Fwg::Gfx::Colour colour, const int x, const int y) {
   if (Utils::inRange(0, width * height * 4 + 3, (x * width + y) * 4 + 3)) {
     for (auto i = 0; i < 3; i++)
       image[(x * width + y) * 4 + i] = colour.getBGR()[i];
@@ -93,7 +93,7 @@ void Flag::setPixel(const Colour colour, const int x, const int y) {
   }
 }
 
-void Flag::setPixel(const Colour colour, const int index) {
+void Flag::setPixel(const Fwg::Gfx::Colour colour, const int index) {
   if (Utils::inRange(0, width * height * 4 + 3, index)) {
     for (auto i = 0; i < 3; i++)
       image[index + i] = colour.getBGR()[i];
@@ -143,7 +143,7 @@ void Flag::readColourGroups() {
     auto tokens = PU::getTokens(line, ';');
     for (auto i = 1; i < tokens.size(); i++) {
       const auto nums = PU::getNumbers(tokens[i], ',', std::set<int>{});
-      Colour c{(unsigned char)nums[0], (unsigned char)nums[1],
+      Fwg::Gfx::Colour c{(unsigned char)nums[0], (unsigned char)nums[1],
                (unsigned char)nums[2]};
       colourGroups[tokens[0]].push_back(c);
     }

@@ -72,7 +72,7 @@ void Hoi4Module::genHoi(bool cut) {
     // start with the generic stuff in the Scenario Generator
     hoi4Gen.mapRegions();
     hoi4Gen.mapContinents();
-    hoi4Gen.generateCountries(numCountries);
+    hoi4Gen.generateCountries(numCountries, gamePath);
     hoi4Gen.evaluateNeighbours();
     hoi4Gen.generateWorld();
     hoi4Gen.dumpDebugCountrymap(Env::Instance().mapsPath + "countries.bmp");
