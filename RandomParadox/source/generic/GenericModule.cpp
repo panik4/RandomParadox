@@ -1,6 +1,6 @@
 #include "generic/GenericModule.h"
 namespace Scenario {
-void GenericModule::createPaths(const std::string basePath) { // mod directory
+void GenericModule::createPaths(const std::string& basePath) { // mod directory
   using namespace std::filesystem;
   create_directory(basePath);
   // map
@@ -26,7 +26,7 @@ void GenericModule::createPaths(const std::string basePath) { // mod directory
   create_directory(basePath + "\\common\\country_tags\\");
 }
 // a method to search for the original game files on the hard drive(s)
-bool GenericModule::findGame(std::string &path, const std::string game) {
+bool GenericModule::findGame(std::string &path, const std::string& game) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
   std::vector<std::string> drives{"C:\\", "D:\\", "E:\\",
@@ -66,9 +66,9 @@ bool GenericModule::findGame(std::string &path, const std::string game) {
 
 // reads config for Hearts of Iron IV
 const boost::property_tree::ptree
-GenericModule::readConfig(const std::string configSubFolder,
-                          const std::string username,
-                          const std::string gameName) {
+GenericModule::readConfig(const std::string& configSubFolder,
+                          const std::string& username,
+                          const std::string& gameName) {
   // Short alias for this namespace
   namespace pt = boost::property_tree;
   namespace Logging = Fwg::Utils::Logging;

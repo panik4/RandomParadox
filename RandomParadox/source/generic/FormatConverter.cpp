@@ -3,7 +3,7 @@ namespace Scenario::Gfx {
 using namespace Textures;
 using namespace Fwg;
 using namespace Fwg::Gfx;
-const std::map<std::string, std::map<Colour, int>> FormatConverter::colourMaps{
+const std::map<std::string, std::map<Gfx::Colour, int>> FormatConverter::colourMaps{
     {"terrainHoi4",
      {{Env::Instance().namedColours["grassland"], 0},
       {Env::Instance().namedColours["ice"], 19},
