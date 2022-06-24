@@ -1,19 +1,19 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include "PdoxCountry.h"
 #include "Flag.h"
-#include "PdoxContinent.h"
 #include "GameProvince.h"
 #include "GameRegion.h"
 #include "NameGenerator.h"
+#include "PdoxContinent.h"
+#include "PdoxCountry.h"
 #include "ResourceLoading.h"
 #include <map>
 namespace Scenario {
 class Generator {
   // containers
   std::vector<Fwg::Region> baseRegions;
-  std::map<std::string, Fwg::Gfx::Bitmap> bitmaps;
-  std::map<std::string, std::string> gamePaths;
+  std::map<std::string, Fwg::Gfx::Bitmap> bitmaps; /*
+   std::map<std::string, std::string> gamePaths;*/
 
 public:
   // vars - used for every game
@@ -32,11 +32,9 @@ public:
   ~Generator();
   /* member functions*/
   // print a map showing all countries for debug purposes
-  void dumpDebugCountrymap(std::string path);
+  void dumpDebugCountrymap(const std::string &path);
   // specific preparations. Used by each game, BUT to create game scenario
-  void loadRequiredResources(std::string gamePath);
-  // game specific preparations. Only used for specific games
-  void hoi4Preparations(bool useDefaultStates, bool useDefaultProvinces);
+  void loadRequiredResources(const std::string &gamePath);
   // generic preparations. However, if desired, there are necessary preparations
   // for every game such as reading in the existing worldmap, states, regions,
   // provinces etc
@@ -54,7 +52,7 @@ public:
   // GameRegions are used for every single game,
   Region &findStartRegion();
   // and countries are always created the same way
-  void generateCountries(int numCountries);
+  void generateCountries(int numCountries, const std::string &gamePath);
   // see which country neighbours which
   void evaluateNeighbours();
 };

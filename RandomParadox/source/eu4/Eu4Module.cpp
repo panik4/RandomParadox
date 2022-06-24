@@ -50,7 +50,7 @@ void Module::genEu4(bool cut) {
     // start with the generic stuff in the Scenario Generator
     eu4Gen.mapRegions();
     eu4Gen.mapContinents();
-    eu4Gen.generateCountries(numCountries);
+    eu4Gen.generateCountries(numCountries, gamePath);
     eu4Gen.evaluateNeighbours();
     eu4Gen.generateWorld();
     eu4Gen.dumpDebugCountrymap(Env::Instance().mapsPath + "countries.bmp");

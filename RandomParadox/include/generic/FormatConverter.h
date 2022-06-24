@@ -9,7 +9,7 @@ namespace Scenario::Gfx {
 class FormatConverter {
   // map of maps of colours, defines which FastWorldGen colour
   // should be mapped to which game compatible colour
-  const static std::map<std::string, std::map<Fwg::Colour, int>>
+  const static std::map<std::string, std::map<Fwg::Gfx::Colour, int>>
       colourMaps;
   std::map<std::string, std::vector<unsigned char>> colourTables;
   std::string gamePath;
