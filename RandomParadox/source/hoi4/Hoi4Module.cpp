@@ -51,6 +51,10 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   if (!findGame(gamePath, "Hearts of Iron IV")) {
     throw(std::exception("Could not locate the game. Exiting"));
   }
+  // now try to locate game files
+  if (!findModFolders()) {
+    throw(std::exception("Could not locate the mod folders. Exiting"));
+  }
   // default values taken from base game
   hoi4Gen.resources = {
       {"aluminium", {root.get<double>("hoi4.aluminiumFactor"), 1169.0, 0.3}},
@@ -75,7 +79,7 @@ void Hoi4Module::genHoi(bool cut) {
     hoi4Gen.generateCountries(numCountries, gamePath);
     hoi4Gen.evaluateNeighbours();
     hoi4Gen.generateWorld();
-    hoi4Gen.dumpDebugCountrymap(Env::Instance().mapsPath + "countries.bmp");
+    Fwg::Gfx::Bitmap countryMap = hoi4Gen.dumpDebugCountrymap(Env::Instance().mapsPath + "countries.bmp");
 
     // now generate hoi4 specific stuff
     hoi4Gen.generateCountrySpecifics();
@@ -84,7 +88,7 @@ void Hoi4Module::genHoi(bool cut) {
     hoi4Gen.generateStrategicRegions();
     hoi4Gen.generateWeather();
     hoi4Gen.evaluateCountries();
-    hoi4Gen.generateLogistics();
+    hoi4Gen.generateLogistics(countryMap);
     NationalFocus::buildMaps();
     hoi4Gen.evaluateCountryGoals();
     hoi4Gen.generateCountryUnits();

@@ -73,10 +73,9 @@ public:
   // generate weather per strategic region, from baseprovinces
   void generateWeather();
   // supply hubs and railroads
-  void generateLogistics();
+  void generateLogistics(Fwg::Gfx::Bitmap countries);
   // calculate how strong each country is
   void evaluateCountries();
-
   bool unitFulfillsRequirements(std::vector<std::string> unitRequirements,
                                 Hoi4Country &country);
   // determine unit composition, templates
