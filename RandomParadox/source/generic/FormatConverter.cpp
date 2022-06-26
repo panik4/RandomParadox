@@ -97,7 +97,8 @@ Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
   return cutBase;
 }
 
-void FormatConverter::dump8BitHeightmap(const Bitmap &heightMap, const std::string &path,
+void FormatConverter::dump8BitHeightmap(const Bitmap &heightMap,
+                                        const std::string &path,
                                         const std::string &colourMapKey) const {
   Utils::Logging::logLine("FormatConverter::Copying heightmap to ", path);
   Bitmap hoi4Heightmap(Env::Instance().width, Env::Instance().height, 8);
@@ -165,7 +166,9 @@ void FormatConverter::dump8BitRivers(const Bitmap &riversIn,
   Bmp::save(rivers, path);
 }
 
-void FormatConverter::dump8BitTrees(const Bitmap& climate, const Bitmap& treesIn, const std::string &path,
+void FormatConverter::dump8BitTrees(const Bitmap &climate,
+                                    const Bitmap &treesIn,
+                                    const std::string &path,
                                     const std::string &colourMapKey,
                                     const bool cut) const {
   Utils::Logging::logLine("FormatConverter::Writing trees to ", path);
@@ -193,7 +196,8 @@ void FormatConverter::dump8BitTrees(const Bitmap& climate, const Bitmap& treesIn
   Bmp::save(trees, path);
 }
 
-void FormatConverter::dumpDDSFiles(const Bitmap &riverMap, const Bitmap &heightMap,
+void FormatConverter::dumpDDSFiles(const Bitmap &riverMap,
+                                   const Bitmap &heightMap,
                                    const std::string &path, const bool cut,
                                    const int maxFactor) const {
   Utils::Logging::logLine("FormatConverter::Writing DDS files to ", path);
@@ -320,23 +324,23 @@ FormatConverter::FormatConverter(const std::string &gamePath,
                                  const std::string &gameTag)
     : gamePath{gamePath}, gameTag{gameTag} {
   std::string terrainsourceString = (gamePath + "\\map\\terrain.bmp");
-  Bitmap terrain = Bmp::load8Bit(terrainsourceString.c_str(), "terrain");
+  Bitmap terrain = Bmp::load8Bit(terrainsourceString, "terrain");
   colourTables["terrain" + gameTag] = terrain.colourtable;
 
   std::string citySource = (gamePath + "\\map\\terrain.bmp");
-  Bitmap cities = Bmp::load8Bit(citySource.c_str(), "cities");
+  Bitmap cities = Bmp::load8Bit(citySource, "cities");
   colourTables["cities" + gameTag] = cities.colourtable;
 
   std::string riverSource = (gamePath + "\\map\\rivers.bmp");
-  Bitmap rivers = Bmp::load8Bit(riverSource.c_str(), "rivers");
+  Bitmap rivers = Bmp::load8Bit(riverSource, "rivers");
   colourTables["rivers" + gameTag] = rivers.colourtable;
 
   std::string treeSource = (gamePath + "\\map\\trees.bmp");
-  Bitmap trees = Bmp::load8Bit(treeSource.c_str(), "trees");
+  Bitmap trees = Bmp::load8Bit(treeSource, "trees");
   colourTables["trees" + gameTag] = trees.colourtable;
 
   std::string heightmapSource = (gamePath + "\\map\\heightmap.bmp");
-  Bitmap heightmap = Bmp::load8Bit(heightmapSource.c_str(), "heightmap");
+  Bitmap heightmap = Bmp::load8Bit(heightmapSource, "heightmap");
   colourTables["heightmap" + gameTag] = heightmap.colourtable;
 }
 

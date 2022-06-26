@@ -26,8 +26,10 @@ std::vector<std::string> loadForbiddenTags(const std::string &gamePath) {
     auto tag = line.substr(0, 3);
     tags.push_back(tag);
   }
-  lines = ParserUtils::getLines(gamePath +
-                                "\\common\\country_tags\\01_countries.txt");
+  if (gamePath.find("Europa Universalis") == std::string::npos) {
+    lines = ParserUtils::getLines(gamePath +
+                                  "\\common\\country_tags\\01_countries.txt");
+  }
   for (const auto &line : lines) {
     auto tag = line.substr(0, 3);
     tags.push_back(tag);
