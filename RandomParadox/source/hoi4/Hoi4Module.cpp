@@ -119,7 +119,7 @@ void Hoi4Module::genHoi(bool cut) {
 
     using namespace Parsing::Writing;
     compatibilityHistory(gameModPath + "\\history\\countries\\", gamePath,
-                         hoi4Gen.fwg.provinceGenerator.regions);
+                         hoi4Gen.fwg.areas.regions);
     historyCountries(gameModPath + "\\history\\countries\\",
                      hoi4Gen.hoi4Countries);
     historyUnits(gameModPath + "\\history\\units\\", hoi4Gen.hoi4Countries);
@@ -129,25 +129,21 @@ void Hoi4Module::genHoi(bool cut) {
                     gamePath + "\\common\\countries\\colors.txt",
                     hoi4Gen.hoi4Countries);
     adj(gameModPath + "\\map\\adjacencies.csv");
-    airports(gameModPath + "\\map\\airports.txt",
-             hoi4Gen.fwg.provinceGenerator.regions);
-    buildings(gameModPath + "\\map\\buildings.txt",
-              hoi4Gen.fwg.provinceGenerator.regions);
+    airports(gameModPath + "\\map\\airports.txt", hoi4Gen.fwg.areas.regions);
+    buildings(gameModPath + "\\map\\buildings.txt", hoi4Gen.fwg.areas.regions);
     continents(gameModPath + "\\map\\continents.txt",
-               hoi4Gen.fwg.provinceGenerator.continents);
+               hoi4Gen.fwg.areas.continents);
     definition(gameModPath + "\\map\\definition.csv", hoi4Gen.gameProvinces);
     unitStacks(gameModPath + "\\map\\unitstacks.txt",
-               hoi4Gen.fwg.provinceGenerator.provinces);
+               hoi4Gen.fwg.areas.provinces);
     rocketSites(gameModPath + "\\map\\rocketsites.txt",
-                hoi4Gen.fwg.provinceGenerator.regions);
+                hoi4Gen.fwg.areas.regions);
     strategicRegions(gameModPath + "\\map\\strategicregions",
-                     hoi4Gen.fwg.provinceGenerator.regions,
-                     hoi4Gen.strategicRegions);
+                     hoi4Gen.fwg.areas.regions, hoi4Gen.strategicRegions);
     states(gameModPath + "\\history\\states", hoi4Gen.hoi4Countries);
     flags(gameModPath + "\\gfx\\flags\\", hoi4Gen.hoi4Countries);
     weatherPositions(gameModPath + "\\map\\weatherpositions.txt",
-                     hoi4Gen.fwg.provinceGenerator.regions,
-                     hoi4Gen.strategicRegions);
+                     hoi4Gen.fwg.areas.regions, hoi4Gen.strategicRegions);
     adjacencyRules(gameModPath + "\\map\\adjacency_rules.txt");
     supply(gameModPath + "\\map\\", hoi4Gen.supplyNodeConnections);
     stateNames(gameModPath + "\\localisation\\english\\",
@@ -166,7 +162,7 @@ void Hoi4Module::genHoi(bool cut) {
     // just copy over provinces.bmp, already in a compatible format
     Fwg::Gfx::Bitmap::SaveBMPToFile(
         Fwg::Gfx::Bitmap::findBitmapByKey("provinces"),
-                          (gameModPath + ("\\map\\provinces.bmp")).c_str());
+        (gameModPath + ("\\map\\provinces.bmp")).c_str());
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";

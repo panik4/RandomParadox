@@ -25,7 +25,7 @@ void Generator::generateWorld() {
 
 void Generator::mapContinents() {
   Logging::logLine("Mapping Continents");
-  for (const auto &continent : fwg.provinceGenerator.continents) {
+  for (const auto &continent : fwg.areas.continents) {
     // we copy the fwg continents by choice, to leave them untouched
     pdoxContinents.push_back(PdoxContinent(continent));
   }
@@ -33,7 +33,7 @@ void Generator::mapContinents() {
 
 void Generator::mapRegions() {
   Logging::logLine("Mapping Regions");
-  for (auto &region : fwg.provinceGenerator.regions) {
+  for (auto &region : fwg.areas.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
               [](const Fwg::Province *a, const Fwg::Province *b) {
                 return (*a < *b);
@@ -58,9 +58,9 @@ void Generator::mapRegions() {
     gameRegions.push_back(gR);
   }
   // check if we have the same amount of gameProvinces as FastWorldGen provinces
-  if (gameProvinces.size() != fwg.provinceGenerator.provinces.size())
+  if (gameProvinces.size() != fwg.areas.provinces.size())
     throw(std::exception("Fatal: Lost provinces, terminating"));
-  if (gameRegions.size() != fwg.provinceGenerator.regions.size())
+  if (gameRegions.size() != fwg.areas.regions.size())
     throw(std::exception("Fatal: Lost regions, terminating"));
   // sort by gameprovince ID
   std::sort(gameProvinces.begin(), gameProvinces.end());
