@@ -4,7 +4,7 @@ using namespace Fwg;
 using namespace Fwg::Gfx;
 Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
 void Generator::generateRegions(std::vector<Region> &regions) {
-  Utils::Logging::logLine("HOI4: Dividing world into strategic regions");
+  Utils::Logging::logLine("Eu4: Dividing world into strategic regions");
   std::set<int> assignedIdeas;
   for (auto &region : regions) {
     if (assignedIdeas.find(region.ID) == assignedIdeas.end()) {
