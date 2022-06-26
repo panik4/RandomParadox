@@ -32,7 +32,7 @@ public:
   ~Generator();
   /* member functions*/
   // print a map showing all countries for debug purposes
-  void dumpDebugCountrymap(const std::string &path);
+  Fwg::Gfx::Bitmap dumpDebugCountrymap(const std::string &path);
   // specific preparations. Used by each game, BUT to create game scenario
   void loadRequiredResources(const std::string &gamePath);
   // generic preparations. However, if desired, there are necessary preparations
