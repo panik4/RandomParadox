@@ -40,8 +40,8 @@ void Generator::generateRegions(std::vector<Region> &regions) {
       }
     }
   }
-  Bitmap::bufferBitmap("eu4regions", eu4RegionBmp);
-  Bitmap::SaveBMPToFile(eu4RegionBmp, "Maps\\eu4Regions.bmp");
+  Bmp::bufferBitmap("eu4regions", eu4RegionBmp);
+  Bmp::save(eu4RegionBmp, "Maps\\eu4Regions.bmp");
 }
 
 } // namespace Scenario::Eu4

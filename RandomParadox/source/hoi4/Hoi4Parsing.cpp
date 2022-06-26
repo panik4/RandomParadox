@@ -36,9 +36,8 @@ void airports(const std::string &path,
 
 // places building positions
 void buildings(const std::string &path,
-               const std::vector<Fwg::Region> &regions) {
+               const std::vector<Fwg::Region> &regions, const Fwg::Gfx::Bitmap& heightMap) {
   Logging::logLine("HOI4 Parser: Map: Constructing Factories");
-  const auto &heightmap = Fwg::Gfx::Bitmap::findBitmapByKey("heightmap");
   std::vector<std::string> buildingTypes{
       "arms_factory",    "industrial_complex", "air_base",
       "bunker",          "coastal_bunker",     "dockyard",
@@ -60,13 +59,13 @@ void buildings(const std::string &path,
       auto widthPos = pix % Env::Instance().width;
       auto heightPos = pix / Env::Instance().width;
       content.append(
-          getBuildingLine("supply_node", region, coastal, heightmap));
+          getBuildingLine("supply_node", region, coastal, heightMap));
     }
 
     for (const auto &type : buildingTypes) {
       if (type == "arms_factory" || type == "industrial_complex")
         for (int i = 0; i < 6; i++)
-          content.append(getBuildingLine(type, region, false, heightmap));
+          content.append(getBuildingLine(type, region, false, heightMap));
       else if (type == "bunker") {
         for (const auto &prov : region.provinces) {
           if (!prov->isLake && !prov->sea) {
@@ -77,8 +76,7 @@ void buildings(const std::string &path,
                 std::to_string(region.ID + 1),
                 type,
                 std::to_string(widthPos),
-                std::to_string(
-                    (double)heightmap.getColourAtIndex(pix).getRed() / 10.0),
+                std::to_string((double)heightMap[pix].getRed() / 10.0),
                 std::to_string(heightPos),
                 std::to_string(0.5),
                 "0"};
@@ -87,7 +85,7 @@ void buildings(const std::string &path,
         }
       } else if (type == "anti_air_building")
         for (int i = 0; i < 3; i++)
-          content.append(getBuildingLine(type, region, false, heightmap));
+          content.append(getBuildingLine(type, region, false, heightMap));
       else if (type == "coastal_bunker" || type == "naval_base") {
         for (const auto &prov : region.provinces) {
           if (prov->coastal) {
@@ -107,8 +105,7 @@ void buildings(const std::string &path,
                 std::to_string(region.ID + 1),
                 type,
                 std::to_string(widthPos),
-                std::to_string(
-                    (double)heightmap.getColourAtIndex(pix).getRed() / 10.0),
+                std::to_string((double)heightMap[pix].getRed() / 10.0),
                 std::to_string(heightPos),
                 std::to_string(0.5),
                 std::to_string(ID + 1)};
@@ -116,9 +113,9 @@ void buildings(const std::string &path,
           }
         }
       } else if (type == "dockyard" || type == "floating_harbor")
-        content.append(getBuildingLine(type, region, coastal, heightmap));
+        content.append(getBuildingLine(type, region, coastal, heightMap));
       else
-        content.append(getBuildingLine(type, region, false, heightmap));
+        content.append(getBuildingLine(type, region, false, heightMap));
     }
   }
   pU::writeFile(path, content);
@@ -209,14 +206,13 @@ void rocketSites(const std::string &path,
 }
 
 void unitStacks(const std::string &path,
-                const std::vector<Province *> provinces) {
+                const std::vector<Province *> provinces, const Fwg::Gfx::Bitmap& heightMap) {
   Logging::logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
   // 1;0;3359.00;9.50;1166.00;0.00;0.08
   // provID, neighbour?, xPos, zPos yPos, rotation(3=north,
   // 0=south, 1.5=east,4,5=west), ?? provID, xPos, ~10, yPos, ~0, 0,5 for each
   // neighbour add move state in the direction of the neighbour. 0 might be
   // stand still
-  const auto &heightmap = Fwg::Gfx::Bitmap::findBitmapByKey("heightmap");
   std::string content{""};
   for (const auto &prov : provinces) {
     int position = 0;
@@ -227,7 +223,7 @@ void unitStacks(const std::string &path,
         std::to_string(prov->ID + 1),
         std::to_string(position),
         std::to_string(widthPos),
-        std::to_string((double)heightmap.getColourAtIndex(pix).getRed() / 10.0),
+        std::to_string((double)heightMap[pix].getRed() / 10.0),
         std::to_string(heightPos),
         std::to_string(0.0),
         "0.0"};
@@ -244,7 +240,7 @@ void unitStacks(const std::string &path,
           std::to_string(prov->ID + 1),
           std::to_string(position),
           std::to_string(widthPos),
-          std::to_string((double)heightmap.getColourAtIndex(pix).getRed() /
+          std::to_string((double)heightMap[pix].getRed() /
                          10.0),
           std::to_string(heightPos),
           std::to_string(angle),
@@ -356,7 +352,7 @@ void strategicRegions(const std::string &path,
 }
 
 void supply(const std::string &path,
-            const std::vector<std::vector<int>> supplyNodeConnections) {
+            const std::vector<std::vector<int>>& supplyNodeConnections) {
   std::string supplyNodes = "";
   std::string railways = "";
   std::set<int> nodes;
@@ -918,7 +914,8 @@ void copyDescriptorFile(const std::string &sourcePath,
   pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
 }
 std::string getBuildingLine(const std::string &type, const Fwg::Region &region,
-                            const bool coastal, const Fwg::Gfx::Bitmap &heightmap) {
+                            const bool coastal,
+                            const Fwg::Gfx::Bitmap &heightmap) {
   auto prov = Utils::selectRandom(region.provinces);
   auto pix = 0;
   if (coastal) {
@@ -936,7 +933,7 @@ std::string getBuildingLine(const std::string &type, const Fwg::Region &region,
       std::to_string(region.ID + 1),
       type,
       std::to_string(widthPos),
-      std::to_string((double)heightmap.getColourAtIndex(pix).getRed() / 10.0),
+      std::to_string((double)heightmap[pix].getRed() / 10.0),
       std::to_string(heightPos),
       std::to_string((float)-1.57),
       "0"};

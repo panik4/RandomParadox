@@ -207,8 +207,8 @@ void Generator::generateStrategicRegions() {
       }
     }
   }
-  Bitmap::bufferBitmap("strat", stratRegionBMP);
-  Bitmap::SaveBMPToFile(stratRegionBMP, "Maps\\stratRegions.bmp");
+  Bmp::bufferBitmap("strat", stratRegionBMP);
+  Bmp::save(stratRegionBMP, "Maps\\stratRegions.bmp");
 }
 
 void Generator::generateWeather() {
@@ -273,7 +273,7 @@ void Generator::generateWeather() {
 void Generator::generateLogistics() {
   Utils::Logging::logLine("HOI4: Building rail networks");
   auto width = Env::Instance().width;
-  Bitmap logistics = Bitmap::findBitmapByKey("countries");
+  Bitmap logistics = Bmp::findBitmapByKey("countries");
   for (auto &country : hoi4Countries) {
     // GameProvince ID, distance
     std::map<double, int> supplyHubs;
@@ -437,14 +437,14 @@ void Generator::generateLogistics() {
     for (int i = 0; i < connection.size(); i++) {
       for (auto pix : gameProvinces[connection[i]].baseProvince->pixels) {
         // don't overwrite capitals and supply nodes
-        if (logistics.getColourAtIndex(pix) == Colour{255, 255, 0} ||
-            logistics.getColourAtIndex(pix) == Colour{0, 255, 0})
+        if (logistics[pix] == Colour{255, 255, 0} ||
+            logistics[pix] == Colour{0, 255, 0})
           continue;
         logistics.setColourAtIndex(pix, {255, 255, 255});
       }
     }
   }
-  Bitmap::SaveBMPToFile(logistics, "Maps//logistics.bmp");
+  Bmp::save(logistics, "Maps//logistics.bmp");
 }
 
 void Generator::evaluateCountries() {

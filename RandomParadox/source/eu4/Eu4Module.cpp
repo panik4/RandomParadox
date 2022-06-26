@@ -65,35 +65,38 @@ void Module::genEu4(bool cut) {
     // generate map files. Format must be converted and colours mapped to eu4
     // compatible colours
     Gfx::FormatConverter formatConverter(gamePath, "Eu4");
-    formatConverter.dump8BitTerrain(gameModPath + "\\map\\terrain.bmp",
+    formatConverter.dump8BitTerrain(eu4Gen.fwg.climateMap,
+                                    gameModPath + "\\map\\terrain.bmp",
                                     "terrain", cut);
-    formatConverter.dump8BitRivers(gameModPath + "\\map\\rivers.bmp", "rivers",
-                                   cut);
-    formatConverter.dump8BitTrees(gameModPath + "\\map\\trees.bmp", "trees",
+    formatConverter.dump8BitRivers(
+        eu4Gen.fwg.riverMap, gameModPath + "\\map\\rivers.bmp", "rivers", cut);
+    formatConverter.dump8BitTrees(eu4Gen.fwg.climateMap, eu4Gen.fwg.treeMap,
+                                  gameModPath + "\\map\\trees.bmp", "trees",
                                   false);
-    formatConverter.dump8BitHeightmap(gameModPath + "\\map\\heightmap.bmp",
+    formatConverter.dump8BitHeightmap(eu4Gen.fwg.heightMap,
+                                      gameModPath + "\\map\\heightmap.bmp",
                                       "heightmap");
-    formatConverter.dumpTerrainColourmap(gameModPath,
-                                         "\\map\\terrain\\colormap_spring.dds",
-                                         DXGI_FORMAT_B8G8R8A8_UNORM, cut);
-    formatConverter.dumpTerrainColourmap(gameModPath,
-                                         "\\map\\terrain\\colormap_summer.dds",
-                                         DXGI_FORMAT_B8G8R8A8_UNORM, cut);
-    formatConverter.dumpTerrainColourmap(gameModPath,
-                                         "\\map\\terrain\\colormap_autumn.dds",
-                                         DXGI_FORMAT_B8G8R8A8_UNORM, cut);
-    formatConverter.dumpTerrainColourmap(gameModPath,
-                                         "\\map\\terrain\\colormap_winter.dds",
-                                         DXGI_FORMAT_B8G8R8A8_UNORM, cut);
-    formatConverter.dumpDDSFiles(gameModPath + "\\map\\terrain\\colormap_water",
+    formatConverter.dumpTerrainColourmap(
+        eu4Gen.fwg.climateMap, eu4Gen.fwg.cityMap, gameModPath,
+        "\\map\\terrain\\colormap_spring.dds", DXGI_FORMAT_B8G8R8A8_UNORM, cut);
+    formatConverter.dumpTerrainColourmap(
+        eu4Gen.fwg.climateMap, eu4Gen.fwg.cityMap, gameModPath,
+        "\\map\\terrain\\colormap_summer.dds", DXGI_FORMAT_B8G8R8A8_UNORM, cut);
+    formatConverter.dumpTerrainColourmap(
+        eu4Gen.fwg.climateMap, eu4Gen.fwg.cityMap, gameModPath,
+        "\\map\\terrain\\colormap_autumn.dds", DXGI_FORMAT_B8G8R8A8_UNORM, cut);
+    formatConverter.dumpTerrainColourmap(
+        eu4Gen.fwg.climateMap, eu4Gen.fwg.cityMap, gameModPath,
+        "\\map\\terrain\\colormap_winter.dds", DXGI_FORMAT_B8G8R8A8_UNORM, cut);
+    formatConverter.dumpDDSFiles(eu4Gen.fwg.riverMap, eu4Gen.fwg.heightMap,
+                                 gameModPath + "\\map\\terrain\\colormap_water",
                                  cut, 2);
-    formatConverter.dumpWorldNormal(gameModPath + "\\map\\world_normal.bmp",
-                                    cut);
+    formatConverter.dumpWorldNormal(
+        eu4Gen.fwg.sobelMap, gameModPath + "\\map\\world_normal.bmp", cut);
 
     using namespace Fwg::Gfx;
     // just copy over provinces.bmp, already in a compatible format
-    Bitmap::SaveBMPToFile(Bitmap::findBitmapByKey("provinces"),
-                          (gameModPath + ("\\map\\provinces.bmp")).c_str());
+    Bmp::save(eu4Gen.fwg.provinceMap, gameModPath + "\\map\\provinces.bmp");
     {
       using namespace Parsing;
       // now do text

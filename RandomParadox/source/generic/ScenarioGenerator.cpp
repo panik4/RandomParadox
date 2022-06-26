@@ -14,7 +14,6 @@ Generator::~Generator() {}
 void Generator::loadRequiredResources(const std::string &gamePath) {
   bitmaps["provinces"] = ResourceLoading::loadProvinceMap(gamePath);
   bitmaps["heightmap"] = ResourceLoading::loadHeightMap(gamePath);
-  Fwg::Gfx::Bitmap::bufferBitmap("provinces", bitmaps["provinces"]);
 }
 
 void Generator::generateWorld() {
@@ -69,21 +68,20 @@ void Generator::mapRegions() {
 void Generator::generatePopulations() {
   Logging::logLine("Generating Population");
   auto &config = Fwg::Env::Instance();
-  const auto &popMap = Bitmap::findBitmapByKey("population");
-  const auto &cityMap = Bitmap::findBitmapByKey("cities");
+  const auto &popMap = fwg.populationMap;
+  const auto &cityMap = fwg.cityMap;
   for (auto &c : countries)
     for (auto &gR : c.second.ownedRegions)
       for (auto &gProv : gameRegions[gR].gameProvinces) {
         // calculate the population factor
         gProv.popFactor =
-            0.1 + popMap.getColourAtIndex(
-                      gProv.baseProvince->position.weightedCenter) /
-                      config.namedColours["population"];
+            0.1 + popMap[gProv.baseProvince->position.weightedCenter] /
+                      config.colours["population"];
         int cityPixels = 0;
         // calculate share of province that is a city
         for (auto pix : gProv.baseProvince->pixels)
-          if (cityMap.getColourAtIndex(pix).isShadeOf(
-                  config.namedColours["cities"]))
+          if (cityMap[pix].isShadeOf(
+                  config.colours["cities"]))
             cityPixels++;
         gProv.cityShare =
             (double)cityPixels / gProv.baseProvince->pixels.size();
@@ -97,16 +95,15 @@ void Generator::generateDevelopment() {
   // .....
   Logging::logLine("Generating State Development");
   auto &config = Fwg::Env::Instance();
-  const auto &cityBMP = Bitmap::findBitmapByKey("cities");
+  const auto &cityMap = fwg.cityMap;
   for (auto &c : countries)
     for (auto &gR : c.second.ownedRegions)
       for (auto &gameProv : gameRegions[gR].gameProvinces) {
         auto cityDensity = 0.0;
         // calculate development with density of city and population factor
         if (gameProv.baseProvince->cityPixels.size())
-          cityDensity =
-              cityBMP.getColourAtIndex(gameProv.baseProvince->cityPixels[0]) /
-              config.namedColours["cities"];
+          cityDensity = cityMap[gameProv.baseProvince->cityPixels[0]] /
+              config.colours["cities"];
         gameProv.devFactor =
             std::clamp(0.2 + 0.5 * gameProv.popFactor +
                            1.0 * gameProv.cityShare * cityDensity,
@@ -116,8 +113,8 @@ void Generator::generateDevelopment() {
 
 void Generator::mapTerrain() {
   auto &config = Fwg::Env::Instance();
-  const auto &namedColours = config.namedColours;
-  const auto &climateMap = Bitmap::findBitmapByKey("climate");
+  const auto &colours = config.colours;
+  const auto &climateMap = fwg.climateMap;
   Bitmap typeMap(climateMap.bInfoHeader.biWidth,
                  climateMap.bInfoHeader.biHeight, 24);
   Logging::logLine("Mapping Terrain");
@@ -129,10 +126,10 @@ void Generator::mapTerrain() {
       for (auto &gameProv : gameRegions[gameRegion].gameProvinces) {
         std::map<Fwg::Gfx::Colour, int> colourPrevalence;
         for (auto &pix : gameProv.baseProvince->pixels) {
-          if (colourPrevalence[climateMap.getColourAtIndex(pix)])
-            colourPrevalence[climateMap.getColourAtIndex(pix)]++;
+          if (colourPrevalence[climateMap[pix]])
+            colourPrevalence[climateMap[pix]]++;
           else
-            colourPrevalence[climateMap.getColourAtIndex(pix)] = 1;
+            colourPrevalence[climateMap[pix]] = 1;
         }
         // find the most prevalent colour in province, which sets the terrain
         // type
@@ -143,43 +140,43 @@ void Generator::mapTerrain() {
               return p1.second < p2.second;
             });
         // now check which it is and set the terrain type
-        if (pr->first == namedColours.at("jungle"))
+        if (pr->first == colours.at("jungle"))
           gameProv.terrainType = "jungle";
-        else if (pr->first == namedColours.at("forest"))
+        else if (pr->first == colours.at("forest"))
           gameProv.terrainType = "forest";
-        else if (pr->first == namedColours.at("hills"))
+        else if (pr->first == colours.at("hills"))
           gameProv.terrainType = "hills";
-        else if (pr->first == namedColours.at("mountains") ||
-                 pr->first == namedColours.at("peaks"))
+        else if (pr->first == colours.at("mountains") ||
+                 pr->first == colours.at("peaks"))
           gameProv.terrainType = "mountain";
-        else if (pr->first == namedColours.at("grassland") ||
-                 pr->first == namedColours.at("savannah"))
+        else if (pr->first == colours.at("grassland") ||
+                 pr->first == colours.at("savannah"))
           gameProv.terrainType = "plains";
-        else if (pr->first == namedColours.at("desert"))
+        else if (pr->first == colours.at("desert"))
           gameProv.terrainType = "desert";
         else
           gameProv.terrainType = "plains";
         gameProvinces[gameProv.ID].terrainType = gameProv.terrainType;
         for (auto pix : gameProv.baseProvince->pixels) {
-          if (pr->first == namedColours.at("jungle"))
+          if (pr->first == colours.at("jungle"))
             typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 0});
-          else if (pr->first == namedColours.at("forest"))
+          else if (pr->first == colours.at("forest"))
             typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 0});
-          else if (pr->first == namedColours.at("hills"))
+          else if (pr->first == colours.at("hills"))
             typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{128, 128, 128});
-          else if (pr->first == namedColours.at("mountains") ||
-                   pr->first == namedColours.at("peaks"))
+          else if (pr->first == colours.at("mountains") ||
+                   pr->first == colours.at("peaks"))
             typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
-          else if (pr->first == namedColours.at("grassland") ||
-                   pr->first == namedColours.at("savannah"))
+          else if (pr->first == colours.at("grassland") ||
+                   pr->first == colours.at("savannah"))
             typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
-          else if (pr->first == namedColours.at("desert"))
+          else if (pr->first == colours.at("desert"))
             typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 255});
           else
             typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 0, 0});
         }
       }
-  Bitmap::SaveBMPToFile(typeMap, "Maps/typeMap.bmp");
+  Bmp::save(typeMap, "Maps/typeMap.bmp");
 }
 
 Region &Generator::findStartRegion() {
@@ -251,7 +248,6 @@ void Generator::dumpDebugCountrymap(const std::string &path) {
         for (const auto &pix : prov->pixels)
           countryBMP.setColourAtIndex(pix, country.second.colour);
 
-  Bitmap::bufferBitmap("countries", countryBMP);
-  Bitmap::SaveBMPToFile(countryBMP, (path).c_str());
+  Bmp::save(countryBMP, (path).c_str());
 }
 } // namespace Scenario
