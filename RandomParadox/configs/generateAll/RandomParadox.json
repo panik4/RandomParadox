@@ -3,7 +3,7 @@
 	{
 		"writeMaps": true,
 		"genhoi4": true,
-		"geneu4": true,
+		"geneu4": false,
 		"inputheightmap": false,
 		"heightmapPath": "inputs/heightmap24.bmp",
 		"latitudeLow" : 0.00,

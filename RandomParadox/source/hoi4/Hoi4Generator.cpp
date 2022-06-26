@@ -270,10 +270,9 @@ void Generator::generateWeather() {
   }
 }
 
-void Generator::generateLogistics() {
+void Generator::generateLogistics(Bitmap logistics) {
   Utils::Logging::logLine("HOI4: Building rail networks");
   auto width = Env::Instance().width;
-  Bitmap logistics = Bmp::findBitmapByKey("countries");
   for (auto &country : hoi4Countries) {
     // GameProvince ID, distance
     std::map<double, int> supplyHubs;

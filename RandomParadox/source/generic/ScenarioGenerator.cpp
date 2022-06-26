@@ -238,7 +238,7 @@ void Generator::evaluateNeighbours() {
           c.second.neighbours.insert(gameRegions[neighbourRegion].owner);
 }
 
-void Generator::dumpDebugCountrymap(const std::string &path) {
+Bitmap Generator::dumpDebugCountrymap(const std::string &path) {
   Logging::logLine("Mapping Continents");
   auto &config = Fwg::Env::Instance();
   Bitmap countryBMP(config.width, config.height, 24);
@@ -249,5 +249,6 @@ void Generator::dumpDebugCountrymap(const std::string &path) {
           countryBMP.setColourAtIndex(pix, country.second.colour);
 
   Bmp::save(countryBMP, (path).c_str());
+  return countryBMP;
 }
 } // namespace Scenario

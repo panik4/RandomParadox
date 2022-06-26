@@ -15,13 +15,13 @@ protected:
   std::string gameModPath;
   std::string gameModsDirectory;
   const boost::property_tree::ptree
-  readConfig(const std::string& configSubFolder, const std::string& username,
-             const std::string& gameName);
-
-public:
-  static void createPaths(const std::string& basePath);
+  readConfig(const std::string &configSubFolder, const std::string &username,
+             const std::string &gameName);
+  void createPaths(const std::string &basePath);
   // try to locate hoi4 at configured path, if not found, try other
   // standard locations
-  static bool findGame(std::string &path, const std::string& game);
+  bool findGame(std::string &path, const std::string &game);
+  // check if configured mod directories are correct
+  bool findModFolders();
 };
 } // namespace Scenario
