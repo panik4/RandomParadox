@@ -3,11 +3,11 @@ using namespace Fwg;
 using namespace Fwg::Gfx;
 namespace ResourceLoading {
 Bitmap loadProvinceMap(const std::string &gamePath) {
-  return Bitmap::Load24bitBMP(gamePath + "\\map\\provinces.bmp", "provinces");
+  return Bmp::load24Bit(gamePath + "\\map\\provinces.bmp", "provinces");
 }
 
 Bitmap loadHeightMap(const std::string &gamePath) {
-  return Bitmap::Load8bitBMP(gamePath + "\\map\\heightmap.bmp", "heightmap");
+  return Bmp::load8Bit(gamePath + "\\map\\heightmap.bmp", "heightmap");
 }
 
 std::vector<std::string> loadStates(const std::string &gamePath) {

@@ -23,22 +23,29 @@ public:
   Fwg::Gfx::Bitmap cutBaseMap(const std::string &path,
                                   const double factor = 1.0,
                                   const int bit = 8) const;
-  void dump8BitHeightmap(const std::string &path,
+  void dump8BitHeightmap(const Fwg::Gfx::Bitmap &heightMap, const std::string &path,
                          const std::string &colourMapKey) const;
-  void dump8BitTerrain(const std::string &path, const std::string &colourMapKey,
+  void dump8BitTerrain(const Fwg::Gfx::Bitmap &climateIn, const std::string &path,
+                       const std::string &colourMapKey,
                        const bool cut = false) const;
-  void dump8BitCities(const std::string &path, const std::string &colourMapKey,
+  void dump8BitCities(const Fwg::Gfx::Bitmap &climateIn, const std::string &path,
+                      const std::string &colourMapKey,
                       const bool cut = false) const;
-  void dump8BitRivers(const std::string &path, const std::string &colourMapKey,
+  void dump8BitRivers(const Fwg::Gfx::Bitmap &riversIn, const std::string &path,
+                      const std::string &colourMapKey,
                       const bool cut = false) const;
-  void dump8BitTrees(const std::string &path, const std::string &colourMapKey,
+  void dump8BitTrees(const Fwg::Gfx::Bitmap &climate, const Fwg::Gfx::Bitmap &treesIn,
+                     const std::string &path, const std::string &colourMapKey,
                      const bool cut = false) const;
-  void dumpDDSFiles(const std::string &path, const bool cut = false,
+  void dumpDDSFiles(const Fwg::Gfx::Bitmap &riverMap, const Fwg::Gfx::Bitmap &heightMap,
+                    const std::string &path, const bool cut = false,
                     const int maxFactor = 2) const;
-  void dumpTerrainColourmap(const std::string &modPath,
+  void dumpTerrainColourmap(const Fwg::Gfx::Bitmap &climateMap, const Fwg::Gfx::Bitmap &cityMap,
+                            const std::string &modPath,
                             const std::string &mapName,
                             const DXGI_FORMAT format,
                             const bool cut = false) const;
-  void dumpWorldNormal(const std::string &path, const bool cut) const;
+  void dumpWorldNormal(const Fwg::Gfx::Bitmap &sobelMap, const std::string &path,
+                       const bool cut) const;
 };
 } // namespace Scenario::Gfx

@@ -14,8 +14,8 @@ namespace Writing {
 void adj(const std::string &path);
 void adjacencyRules(const std::string &path);
 void airports(const std::string &path, const std::vector<Fwg::Region> &regions);
-void buildings(const std::string &path,
-               const std::vector<Fwg::Region> &regions);
+void buildings(const std::string &path, const std::vector<Fwg::Region> &regions,
+               const Fwg::Gfx::Bitmap &heightMap);
 void continents(const std::string &path,
                 const std::vector<Fwg::Continent> &continents);
 void definition(const std::string &path,
@@ -26,9 +26,10 @@ void strategicRegions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
                       const std::vector<strategicRegion> &strategicRegions);
 void supply(const std::string &path,
-            const std::vector<std::vector<int>> supplyNodeConnections);
+            const std::vector<std::vector<int>>& supplyNodeConnections);
 void unitStacks(const std::string &path,
-                const std::vector<Fwg::Province *> provinces);
+                const std::vector<Fwg::Province *> provinces,
+                const Fwg::Gfx::Bitmap &heightMap);
 void weatherPositions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
                       const std::vector<strategicRegion> &strategicRegions);

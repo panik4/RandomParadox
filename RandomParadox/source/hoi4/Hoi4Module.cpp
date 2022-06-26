@@ -99,23 +99,29 @@ void Hoi4Module::genHoi(bool cut) {
     // generate map files. Format must be converted and colours mapped to hoi4
     // compatible colours
     Gfx::FormatConverter formatConverter(gamePath, "Hoi4");
-    formatConverter.dump8BitTerrain(gameModPath + "\\map\\terrain.bmp",
+    formatConverter.dump8BitTerrain(hoi4Gen.fwg.climateMap,
+                                    gameModPath + "\\map\\terrain.bmp",
                                     "terrain", cut);
-    formatConverter.dump8BitCities(gameModPath + "\\map\\cities.bmp", "cities",
+    formatConverter.dump8BitCities(hoi4Gen.fwg.climateMap,
+                                   gameModPath + "\\map\\cities.bmp", "cities",
                                    cut);
-    formatConverter.dump8BitRivers(gameModPath + "\\map\\rivers.bmp", "rivers",
-                                   cut);
-    formatConverter.dump8BitTrees(gameModPath + "\\map\\trees.bmp", "trees",
+    formatConverter.dump8BitRivers(
+        hoi4Gen.fwg.riverMap, gameModPath + "\\map\\rivers.bmp", "rivers", cut);
+    formatConverter.dump8BitTrees(hoi4Gen.fwg.climateMap, hoi4Gen.fwg.treeMap,
+                                  gameModPath + "\\map\\trees.bmp", "trees",
                                   false);
-    formatConverter.dump8BitHeightmap(gameModPath + "\\map\\heightmap.bmp",
+    formatConverter.dump8BitHeightmap(hoi4Gen.fwg.heightMap,
+                                      gameModPath + "\\map\\heightmap.bmp",
                                       "heightmap");
     formatConverter.dumpTerrainColourmap(
-        gameModPath, "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds",
+        hoi4Gen.fwg.climateMap, hoi4Gen.fwg.cityMap, gameModPath,
+        "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds",
         DXGI_FORMAT_B8G8R8A8_UNORM, cut);
     formatConverter.dumpDDSFiles(
+        hoi4Gen.fwg.riverMap, hoi4Gen.fwg.heightMap,
         gameModPath + "\\map\\terrain\\colormap_water_", cut, 8);
-    formatConverter.dumpWorldNormal(gameModPath + "\\map\\world_normal.bmp",
-                                    cut);
+    formatConverter.dumpWorldNormal(
+        hoi4Gen.fwg.sobelMap, gameModPath + "\\map\\world_normal.bmp", cut);
 
     using namespace Parsing::Writing;
     compatibilityHistory(gameModPath + "\\history\\countries\\", gamePath,
@@ -130,12 +136,13 @@ void Hoi4Module::genHoi(bool cut) {
                     hoi4Gen.hoi4Countries);
     adj(gameModPath + "\\map\\adjacencies.csv");
     airports(gameModPath + "\\map\\airports.txt", hoi4Gen.fwg.areas.regions);
-    buildings(gameModPath + "\\map\\buildings.txt", hoi4Gen.fwg.areas.regions);
+    buildings(gameModPath + "\\map\\buildings.txt", hoi4Gen.fwg.areas.regions,
+              hoi4Gen.fwg.heightMap);
     continents(gameModPath + "\\map\\continents.txt",
                hoi4Gen.fwg.areas.continents);
     definition(gameModPath + "\\map\\definition.csv", hoi4Gen.gameProvinces);
     unitStacks(gameModPath + "\\map\\unitstacks.txt",
-               hoi4Gen.fwg.areas.provinces);
+               hoi4Gen.fwg.areas.provinces, hoi4Gen.fwg.heightMap);
     rocketSites(gameModPath + "\\map\\rocketsites.txt",
                 hoi4Gen.fwg.areas.regions);
     strategicRegions(gameModPath + "\\map\\strategicregions",
@@ -160,9 +167,8 @@ void Hoi4Module::genHoi(bool cut) {
                                 gameModsDirectory, modName);
 
     // just copy over provinces.bmp, already in a compatible format
-    Fwg::Gfx::Bitmap::SaveBMPToFile(
-        Fwg::Gfx::Bitmap::findBitmapByKey("provinces"),
-        (gameModPath + ("\\map\\provinces.bmp")).c_str());
+    Fwg::Gfx::Bmp::save(hoi4Gen.fwg.provinceMap ,
+                        (gameModPath + ("\\map\\provinces.bmp")).c_str());
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";
