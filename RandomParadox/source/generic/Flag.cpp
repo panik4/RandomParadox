@@ -48,8 +48,6 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
   int newSize = 52 * flagInfo.reductionFactor;
   symbol = Flag::resize(newSize, newSize, symbol, 52, 52);
 
-  // check if we want to replace the colour
-  auto replaceColour = symbolInfo.replaceColour;
   replacementColours.clear();
   for (const auto &colGroup : flagInfo.symbolColourGroups) {
     const auto &colour = colourGroups[colGroup][RandNum::randNum() %

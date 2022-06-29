@@ -40,6 +40,10 @@ std::ostream &operator<<(std::ostream &os, const NationalFocus &focus) {
     action = " tries to ally ";
     break;
   }
+  case NationalFocus::FocusType::generic: {
+    action = " generic ";
+    break;
+  }
   }
   os << focus.sourceTag << action << focus.destTag << std::endl;
   os << "Alternatives: " << focus.xorFoci.size()

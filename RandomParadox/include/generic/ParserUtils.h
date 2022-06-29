@@ -23,11 +23,6 @@ std::vector<int> getNumberBlock(std::string content, std::string key);
 
 std::string replaceOccurences(std::string &content, std::string key,
                               std::string value);
-// returns the line from a delimiter after a key to the end of the line
-// helpful when the delimiter isn't always in the same format behind the key
-// e.g. key=value and key =value
-std::string getLineValue(const std::string &content, std::string key,
-                         std::string delimiter);
 // replace complete line from beginning of key to linebreak with value
 void replaceLine(std::string &content, std::string key, std::string value);
 // find the closing bracket of a block. Handles opening brackets correctly
