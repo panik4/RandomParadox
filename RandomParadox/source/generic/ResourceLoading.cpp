@@ -1,7 +1,7 @@
 #include "generic/ResourceLoading.h"
 using namespace Fwg;
 using namespace Fwg::Gfx;
-namespace ResourceLoading {
+namespace Scenario::ResourceLoading {
 Bitmap loadProvinceMap(const std::string &gamePath) {
   return Bmp::load24Bit(gamePath + "\\map\\provinces.bmp", "provinces");
 }

@@ -2,6 +2,7 @@
 #include "hoi4/NationalFocus.h"
 using namespace Fwg;
 namespace Logging = Fwg::Utils::Logging;
+namespace pU = Scenario::ParserUtils;
 namespace Scenario::Hoi4::Parsing {
 namespace Writing {
 void adj(const std::string &path) {
@@ -35,8 +36,8 @@ void airports(const std::string &path,
 }
 
 // places building positions
-void buildings(const std::string &path,
-               const std::vector<Fwg::Region> &regions, const Fwg::Gfx::Bitmap& heightMap) {
+void buildings(const std::string &path, const std::vector<Fwg::Region> &regions,
+               const Fwg::Gfx::Bitmap &heightMap) {
   Logging::logLine("HOI4 Parser: Map: Constructing Factories");
   std::vector<std::string> buildingTypes{
       "arms_factory",    "industrial_complex", "air_base",
@@ -206,7 +207,8 @@ void rocketSites(const std::string &path,
 }
 
 void unitStacks(const std::string &path,
-                const std::vector<Province *> provinces, const Fwg::Gfx::Bitmap& heightMap) {
+                const std::vector<Province *> provinces,
+                const Fwg::Gfx::Bitmap &heightMap) {
   Logging::logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
   // 1;0;3359.00;9.50;1166.00;0.00;0.08
   // provID, neighbour?, xPos, zPos yPos, rotation(3=north,
@@ -240,8 +242,7 @@ void unitStacks(const std::string &path,
           std::to_string(prov->ID + 1),
           std::to_string(position),
           std::to_string(widthPos),
-          std::to_string((double)heightMap[pix].getRed() /
-                         10.0),
+          std::to_string((double)heightMap[pix].getRed() / 10.0),
           std::to_string(heightPos),
           std::to_string(angle),
           "0.0"};
@@ -352,7 +353,7 @@ void strategicRegions(const std::string &path,
 }
 
 void supply(const std::string &path,
-            const std::vector<std::vector<int>>& supplyNodeConnections) {
+            const std::vector<std::vector<int>> &supplyNodeConnections) {
   std::string supplyNodes = "";
   std::string railways = "";
   std::set<int> nodes;
@@ -652,17 +653,17 @@ void commonCountryTags(const std::string &path, const hoiMap &countries) {
   pU::writeFile(path, content);
 }
 
-void countryNames(const std::string &path, const hoiMap &countries) {
+void countryNames(const std::string &path, const hoiMap &countries,
+                  const NameGeneration::NameData &nData) {
   Logging::logLine("HOI4 Parser: Localisation: Writing Country Names");
-  NameGenerator nG;
   std::string content = "l_english:\n";
   std::vector<std::string> ideologies{"fascism", "communism", "neutrality",
                                       "democratic"};
 
   for (const auto &c : countries) {
     for (const auto &ideology : ideologies) {
-      auto ideologyName =
-          nG.modifyWithIdeology(ideology, c.second.name, c.second.adjective);
+      auto ideologyName = NameGeneration::modifyWithIdeology(
+          ideology, c.second.name, c.second.adjective, nData);
       content +=
           " " + c.first + "_" + ideology + ":0 \"" + ideologyName + "\"\n";
       content +=
@@ -700,7 +701,8 @@ void strategicRegionNames(
   pU::writeFile(path + "\\strategic_region_names_l_english.yml", content, true);
 }
 
-void foci(const std::string &path, const hoiMap &countries) {
+void foci(const std::string &path, const hoiMap &countries,
+          const NameGeneration::NameData &nData) {
   Logging::logLine("HOI4 Parser: History: Demanding Danzig");
   const auto focusTypes = ParserUtils::getLines(
       "resources\\hoi4\\ai\\national_focus\\baseFiles\\foci.txt");
@@ -756,8 +758,8 @@ void foci(const std::string &path, const hoiMap &countries) {
                                        countryFocus.destTag);
         // need a faction name
         if (tempContent.find("templateFactionname") != std::string::npos) {
-          auto facName = NameGenerator::generateFactionName(
-              c.second.rulingParty, c.second.name, c.second.adjective);
+          auto facName = NameGeneration::generateFactionName(
+              c.second.rulingParty, c.second.name, c.second.adjective, nData);
           ParserUtils::replaceOccurences(tempContent, "templateFactionname",
                                          facName);
         }

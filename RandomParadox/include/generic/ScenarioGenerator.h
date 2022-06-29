@@ -17,7 +17,7 @@ class Generator {
 
 public:
   // vars - used for every game
-  NameGenerator nG;
+  NameGeneration::NameData nData;
   Fwg::FastWorldGenerator fwg;
   int numCountries;
   // containers - used for every game

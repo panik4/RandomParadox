@@ -6,6 +6,8 @@ Module::Module(FastWorldGenerator &fastWorldGen,
                const std::string &configSubFolder, const std::string &username)
     : eu4Gen{fastWorldGen} {
   readEu4Config(configSubFolder, username);
+
+  eu4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
 }
 
 Module::~Module() {}
