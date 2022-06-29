@@ -18,7 +18,6 @@ struct SymbolInfo {
 
 class Flag {
   // keep code shorter
-  using PU = ParserUtils;
   // static cause we only want to read them from file once
   static std::map<std::string, std::vector<Fwg::Gfx::Colour>> colourGroups;
   static std::vector<std::vector<std::vector<int>>> flagTypes;

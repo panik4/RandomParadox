@@ -2,7 +2,9 @@
 using namespace Fwg;
 using namespace Fwg::Gfx;
 namespace Scenario::Hoi4 {
-Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
+Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {
+  nData = NameGeneration::prepare("resources\\names");
+}
 
 Generator::~Generator() {}
 
@@ -164,8 +166,8 @@ void Generator::generateCountrySpecifics() {
     else
       hC.allowElections = 0;
     // now get the full name of the country
-    hC.fullName = NameGenerator::modifyWithIdeology(
-        hC.rulingParty, country.second.name, country.second.adjective);
+    hC.fullName = NameGeneration::modifyWithIdeology(
+        hC.rulingParty, country.second.name, country.second.adjective, nData);
     hoi4Countries.insert({hC.tag, hC});
   }
 }
@@ -189,7 +191,7 @@ void Generator::generateStrategicRegions() {
           assignedIdeas.insert(neighbour);
         }
       }
-      sR.name = NameGenerator::generateName();
+      sR.name = NameGeneration::generateName(nData);
       strategicRegions.push_back(sR);
     }
   }

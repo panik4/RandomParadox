@@ -7,7 +7,6 @@
 #include "hoi4/Hoi4Generator.h"
 #include <array>
 namespace Scenario::Hoi4::Parsing {
-using pU = ParserUtils;
 using hoiMap = std::map<std::string, Hoi4::Hoi4Country>;
 
 namespace Writing {
@@ -40,7 +39,8 @@ void flags(const std::string &path, const hoiMap &countries);
 void states(const std::string &path, const hoiMap &countries);
 void historyCountries(const std::string &path, const hoiMap &countries);
 void historyUnits(const std::string &path, const hoiMap &countries);
-void foci(const std::string &path, const hoiMap &countries);
+void foci(const std::string &path, const hoiMap &countries,
+          const NameGeneration::NameData &nData);
 
 // common
 void commonBookmarks(
@@ -51,7 +51,8 @@ void commonCountries(const std::string &path, const std::string &hoiPath,
 void commonCountryTags(const std::string &path, const hoiMap &countries);
 
 // localisation
-void countryNames(const std::string &path, const hoiMap &countries);
+void countryNames(const std::string &path, const hoiMap &countries,
+                  const NameGeneration::NameData &nData);
 void stateNames(const std::string &path, const hoiMap &countries);
 void strategicRegionNames(const std::string &path,
                           const std::vector<strategicRegion> &strategicRegions);

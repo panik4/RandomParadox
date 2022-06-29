@@ -2,6 +2,7 @@
 
 namespace Scenario::Gfx {
 using namespace Fwg;
+namespace PU = Scenario::ParserUtils;
 std::map<std::string, std::vector<Fwg::Gfx::Colour>> Flag::colourGroups;
 std::vector<std::vector<std::vector<int>>> Flag::flagTypes(7);
 std::vector<std::vector<std::vector<std::string>>> Flag::flagTypeColours(7);

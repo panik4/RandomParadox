@@ -6,6 +6,7 @@ Hoi4Module::Hoi4Module(FastWorldGenerator &fastWorldGen,
                        const std::string &username)
     : hoi4Gen{fastWorldGen} {
   readHoiConfig(configSubFolder, username);
+  hoi4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
 }
 
 Hoi4Module::~Hoi4Module() {}
@@ -160,10 +161,10 @@ void Hoi4Module::genHoi(bool cut) {
     stateNames(gameModPath + "\\localisation\\english\\",
                hoi4Gen.hoi4Countries);
     countryNames(gameModPath + "\\localisation\\english\\",
-                 hoi4Gen.hoi4Countries);
+                 hoi4Gen.hoi4Countries, hoi4Gen.nData);
     strategicRegionNames(gameModPath + "\\localisation\\english\\",
                          hoi4Gen.strategicRegions);
-    foci(gameModPath + "\\common\\national_focus\\", hoi4Gen.hoi4Countries);
+    foci(gameModPath + "\\common\\national_focus\\", hoi4Gen.hoi4Countries, hoi4Gen.nData);
     commonBookmarks(gameModPath + "\\common\\bookmarks\\",
                     hoi4Gen.hoi4Countries, hoi4Gen.strengthScores);
 

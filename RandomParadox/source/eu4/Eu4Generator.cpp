@@ -2,7 +2,8 @@
 namespace Scenario::Eu4 {
 using namespace Fwg;
 using namespace Fwg::Gfx;
-Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
+Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {
+}
 void Generator::generateRegions(std::vector<Region> &regions) {
   Utils::Logging::logLine("Eu4: Dividing world into strategic regions");
   std::set<int> assignedIdeas;
@@ -22,7 +23,7 @@ void Generator::generateRegions(std::vector<Region> &regions) {
           assignedIdeas.insert(neighbour);
         }
       }
-      euR.name = NameGenerator::generateName();
+      euR.name = NameGeneration::generateName(nData);
       eu4regions.push_back(euR);
     }
   }

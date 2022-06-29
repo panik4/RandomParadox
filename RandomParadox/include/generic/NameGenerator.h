@@ -1,35 +1,44 @@
 #pragma once
+#pragma once
 #include "ParserUtils.h"
+#include "ResourceLoading.h"
 #include <map>
 #include <string>
 #include <vector>
 namespace Scenario {
-class NameGenerator {
-  using PU = ParserUtils;
+namespace NameGeneration {
+struct NameData {
   // containers
-  static std::vector<std::string> nameRules;
-  static std::map<std::string, std::vector<std::string>> groups;
-  static std::map<std::string, std::vector<std::string>> ideologyNames;
-  static std::map<std::string, std::vector<std::string>> factionNames;
-
-public:
-  // member functions
-  static std::string generateName();
-  static std::string generateAdjective(const std::string &name);
-  static std::string generateTag(const std::string name,
-                                 std::set<std::string> &tags);
-  static std::string generateFactionName(const std::string &ideology,
-                                         const std::string name,
-                                         const std::string adjective);
-  static std::string getRandomMapElement(
-      const std::string key,
-      const std::map<std::string, std::vector<std::string>> map);
-  static std::string getToken(const std::vector<std::string> &rule);
-  static std::string modifyWithIdeology(const std::string &ideology,
-                                        const std::string name,
-                                        const std::string adjective);
-  static void readMap(const std::string path,
-                      std::map<std::string, std::vector<std::string>> &map);
-  static void prepare();
+  std::set<std::string> tags;
+  std::vector<std::string> nameRules;
+  std::map<std::string, std::vector<std::string>> groups;
+  std::map<std::string, std::vector<std::string>> ideologyNames;
+  std::map<std::string, std::vector<std::string>> factionNames;
 };
+// member functions
+std::string generateName(const NameData &nameData);
+std::string generateAdjective(const std::string &name,
+                              const NameData &nameData);
+std::string generateTag(const std::string name, 
+                        NameData &nameData);
+std::string generateFactionName(const std::string &ideology,
+                                const std::string name,
+                                const std::string adjective,
+                                const NameData &nameData);
+std::string modifyWithIdeology(const std::string &ideology,
+                               const std::string name,
+                               const std::string adjective,
+                               const NameData &nameData);
+NameData prepare(const std::string &path, const std::string &gamePath = "");
+namespace Detail {
+
+std::string getToken(const std::vector<std::string> &rule,
+                     const NameData &nameData);
+void readMap(const std::string path,
+             std::map<std::string, std::vector<std::string>> &map);
+std::string
+getRandomMapElement(const std::string key,
+                    const std::map<std::string, std::vector<std::string>> map);
+}
+}; // namespace NameGeneration
 } // namespace Scenario
