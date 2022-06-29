@@ -8,7 +8,7 @@ void dumpInfo(std::string error, std::string configSubFolder) {
   std::string dump = "";
   std::string path = configSubFolder;
   for (const auto &entry : std::filesystem::directory_iterator(path)) {
-    dump += ParserUtils::readFile(entry.path().string());
+    dump += Scenario::ParserUtils::readFile(entry.path().string());
   }
   dump += std::to_string(Env::Instance().seed);
   dump += "\n";
@@ -18,7 +18,7 @@ void dumpInfo(std::string error, std::string configSubFolder) {
   }
   dump += error;
   dump += Utils::Logging::logInstance.getFullLog();
-  ParserUtils::writeFile("runDump.txt", dump);
+  Scenario::ParserUtils::writeFile("runDump.txt", dump);
 }
 
 int main() {
@@ -122,7 +122,6 @@ int main() {
     config.writeMaps = false;
   }
   try {
-    Scenario::NameGenerator::prepare();
     if (genHoi4Scenario) {
       FastWorldGenerator fwg(configSubFolder);
       // now start the generation of the scenario with the generated map files

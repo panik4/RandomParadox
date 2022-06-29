@@ -4,7 +4,6 @@
 #include <generic/GameRegion.h>
 
 namespace Scenario::Eu4::Parsing {
-using pU = ParserUtils;
 std::string loadVanillaFile(const std::string &path,
                             const std::vector<std::string> &&filters);
 void writeAdj(const std::string &path,

@@ -41,7 +41,7 @@ void Generator::mapRegions() {
     for (auto &baseRegion : gR.neighbours)
       gR.neighbours.push_back(baseRegion);
     // generate random name for region
-    gR.name = nG.generateName();
+    gR.name = NameGeneration::generateName(nData);
     // now create gameprovinces from FastWorldGen provinces
     for (auto &province : gR.provinces) {
       GameProvince gP(province);
@@ -49,7 +49,7 @@ void Generator::mapRegions() {
       for (auto &baseProvinceNeighbour : gP.baseProvince->neighbours)
         gP.neighbours.push_back(baseProvinceNeighbour);
       // give name to province
-      gP.name = nG.generateName();
+      gP.name = NameGeneration::generateName(nData);
       gR.gameProvinces.push_back(gP);
       gameProvinces.push_back(gP);
     }
@@ -201,14 +201,12 @@ void Generator::generateCountries(int numCountries,
   Logging::logLine("Generating Countries");
   // load tags from hoi4 that are used by the base game
   // do not use those to avoid conflicts
-  const auto forbiddenTags = ResourceLoading::loadForbiddenTags(gamePath);
-  for (const auto &tag : forbiddenTags)
-    tags.insert(tag);
 
   for (int i = 0; i < numCountries; i++) {
-    auto name{nG.generateName()};
-    PdoxCountry pdoxC(nG.generateTag(name, tags), i, name,
-                      nG.generateAdjective(name), Gfx::Flag(82, 52));
+    auto name { NameGeneration::generateName(nData)};
+    PdoxCountry pdoxC(NameGeneration::generateTag(name, nData), i, name,
+                      NameGeneration::generateAdjective(name, nData),
+                      Gfx::Flag(82, 52));
     // randomly set development of countries
     pdoxC.developmentFactor = Fwg::RandNum::getRandomDouble(0.1, 1.0);
     countries.emplace(pdoxC.tag, pdoxC);
