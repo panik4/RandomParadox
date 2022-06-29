@@ -10,7 +10,7 @@ void writeFile(const std::string &path, std::string content, bool utf8) {
         Fwg::Utils::varsToString("Didn't manage to write to file ", path)
             .c_str());
   if (utf8) {
-    const std::array<unsigned char, 3> bom[] = {0xEF, 0xBB, 0xBF};
+    const std::array<unsigned char, 3> bom[]{0xEF, 0xBB, 0xBF};
     file.write((char *)bom, sizeof(bom));
   }
   file << content;

@@ -57,8 +57,6 @@ void buildings(const std::string &path, const std::vector<Fwg::Region> &regions,
         coastal = true;
       // add supply node buildings for each province
       auto pix = Utils::selectRandom(prov->pixels);
-      auto widthPos = pix % Env::Instance().width;
-      auto heightPos = pix / Env::Instance().width;
       content.append(
           getBuildingLine("supply_node", region, coastal, heightMap));
     }
@@ -808,7 +806,7 @@ void foci(const std::string &path, const hoiMap &countries,
         std::vector<std::vector<int>> preRequisiteBlocks;
         if (andBlocks.size() > 1) {
           int counter = 0;
-          for (auto aBlock : andBlocks) {
+          for (const auto &aBlock : andBlocks) {
             if (aBlock.size()) {
               preRequisiteBlocks.push_back(std::vector<int>{});
               preRequisiteBlocks[counter++].push_back(aBlock[0]);
@@ -822,7 +820,7 @@ void foci(const std::string &path, const hoiMap &countries,
         } else {
           // no and cases, so just list all potential predecessors
           preString += "prerequisite = {";
-          for (const auto elem : usedF) {
+          for (const auto& elem : usedF) {
             std::string preName =
                 Utils::varsToString(c.first, focusChain[0].chainID, ".", elem);
             preString += " focus = " + preName + " ";
