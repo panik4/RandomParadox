@@ -4,7 +4,7 @@ PdoxCountry::PdoxCountry() : ID{-1} {}
 
 PdoxCountry::PdoxCountry(std::string tag, int ID, std::string name,
                          std::string adjective, Gfx::Flag flag)
-    : tag{tag}, ID{ID}, name{name}, adjective{adjective}, flag{flag} {
+    : ID{ID}, tag{tag}, name{name}, adjective{adjective}, flag{flag} {
   colour = {static_cast<unsigned char>(Fwg::RandNum::randNum() % 255),
             static_cast<unsigned char>(Fwg::RandNum::randNum() % 255),
             static_cast<unsigned char>(Fwg::RandNum::randNum() % 255)};

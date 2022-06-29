@@ -45,7 +45,6 @@ void Generator::generateStateSpecifics(const int regionAmount) {
     for (auto &hoi4Region : c.second.hoi4Regions) {
       // count the number of land states for resource generation
       landStates++;
-      int totalPop = 0;
       double totalStateArea = 0;
       double totalDevFactor = 0;
       double totalPopFactor = 0;
@@ -86,19 +85,16 @@ void Generator::generateStateSpecifics(const int regionAmount) {
           totalPopFactor * (targetWorldIndustry / (double)(regionAmount)));
       double dockChance = 0.25;
       double civChance = 0.5;
-      double milChance = 0.25;
       // distribute it to military, civilian and naval factories
       if (!totalCoastal) {
         dockChance = 0.0;
         civChance = 0.6;
-        milChance = 0.4;
       }
       while (--stateIndustry >= 0) {
         auto choice = RandNum::getRandomDouble(0.0, 1.0);
         if (choice < dockChance) {
           hoi4Region.dockyards++;
-        } else if (Utils::inRange(dockChance, dockChance + civChance,
-                                    choice)) {
+        } else if (Utils::inRange(dockChance, dockChance + civChance, choice)) {
           hoi4Region.civilianFactories++;
 
         } else {
@@ -287,10 +283,9 @@ void Generator::generateLogistics(Bitmap logistics) {
     std::map<int, GameProvince> supplyHubProvinces;
     std::map<int, bool> navalBases;
     std::set<int> gProvIDs;
-    bool connectedNavalBase = false;
     for (auto &region : country.second.hoi4Regions) {
-      if (region.stateCategory > 6 &&
-              region.ID != country.second.capitalRegionID
+      if ((region.stateCategory > 6 &&
+           region.ID != country.second.capitalRegionID)
           // if we're nearing the end of our region std::vector, and don't have
           // more than 25% of our regions as supply bases generate supply bases
           // for the last two regions
@@ -315,7 +310,7 @@ void Generator::generateLogistics(Bitmap logistics) {
         navalBases[y.ID] = y.baseProvince->coastal;
         // get the distance between this supply hub and the capital
         auto distance = Utils::getDistance(capitalPosition,
-                                             y.baseProvince->position, width);
+                                           y.baseProvince->position, width);
         // save the distance under the province ID
         supplyHubs[distance] = y.ID;
         // save the distance
@@ -399,11 +394,6 @@ void Generator::generateLogistics(Bitmap logistics) {
           passthroughProvinceIDs.push_back(closestID);
           // now save source
           sourceNodeID = passthroughProvinceIDs.back();
-          if (passthroughProvinceIDs.back() == supplyHubs[distance]) {
-            if (navalBases.at(supplyHubs[distance])) {
-              connectedNavalBase = true;
-            }
-          }
         }
         // if we can't end this rail line, wrap up. Rails shouldn't be longer
         // than 200 provinces anyway
@@ -454,7 +444,6 @@ void Generator::evaluateCountries() {
   for (auto &c : hoi4Countries) {
     auto totalIndustry = 0.0;
     auto totalPop = 0.0;
-    auto maxIndustryID = 0;
     auto maxIndustryLevel = 0;
     for (auto &ownedRegion : c.second.hoi4Regions) {
       auto regionIndustry = ownedRegion.civilianFactories +
@@ -514,8 +503,6 @@ void Generator::generateCountryUnits() {
     // major nation? more mechanized share
     auto majorFactor = c.second.relativeScore;
     auto bullyFactor = 0.05 * c.second.bully / 5.0;
-    auto marinesFactor = 0.0;
-    auto mountaineersFactor = 0.0;
     if (c.second.rank == "major") {
       bullyFactor += 0.5;
     } else if (c.second.rank == "regional") {
@@ -734,17 +721,18 @@ bool Generator::targetFulfillsRequirements(
   }
   value = ParserUtils::getBracketBlockContent(targetRequirements, "ideology");
   if (value != "" && value != "any") {
-    if (value == "same")
+    if (value == "same") {
+      if (target.rulingParty != source.rulingParty) {
+        return false;
+      }
+    } else if (value == "not") {
+      if (target.rulingParty == source.rulingParty)
+        return false;
+    } else {
+      // for any other value, must be specific ideology
       if (target.rulingParty != source.rulingParty)
         return false;
-      else if (value == "not") {
-        if (target.rulingParty == source.rulingParty)
-          return false;
-      } else {
-        // for any other value, must be specific ideology
-        if (target.rulingParty != source.rulingParty)
-          return false;
-      }
+    }
   }
   value = ParserUtils::getBracketBlockContent(targetRequirements, "location");
   if (value != "" && value != "any") {
@@ -756,16 +744,16 @@ bool Generator::targetFulfillsRequirements(
       auto maxDistance =
           sqrt(Env::Instance().width * Env::Instance().height) * 0.2;
       if (Utils::getDistance(gameRegions[source.capitalRegionID].position,
-                               gameRegions[target.capitalRegionID].position,
-                               Env::Instance().width) > maxDistance)
+                             gameRegions[target.capitalRegionID].position,
+                             Env::Instance().width) > maxDistance)
         return false;
     }
     if (value == "far") {
       auto minDistance =
           sqrt(Env::Instance().width * Env::Instance().height) * 0.2;
       if (Utils::getDistance(gameRegions[source.capitalRegionID].position,
-                               gameRegions[target.capitalRegionID].position,
-                               Env::Instance().width) < minDistance)
+                             gameRegions[target.capitalRegionID].position,
+                             Env::Instance().width) < minDistance)
         return false;
     }
   }
@@ -841,7 +829,7 @@ void Generator::evaluateCountryGoals() {
               (chainTokens[4].find(source.rulingParty) != std::string::npos ||
                chainTokens[4] == "any")) {
             if (stepFulfillsRequirements(chainTokens[2], stepTargets)) {
-              auto targetRequirements = chainTokens[6];
+              const auto& targetRequirements = chainTokens[6];
               // if there are no target requirements, only the country itself is
               // a target
               if (!targetRequirements.size())
@@ -915,8 +903,8 @@ void Generator::printStatistics() {
   for (auto &scores : strengthScores) {
     for (auto &entry : scores.second) {
       Utils::Logging::logLine("Strength: ", scores.first, " ",
-                      hoi4Countries.at(entry).fullName, " ",
-                      hoi4Countries.at(entry).rulingParty, "");
+                              hoi4Countries.at(entry).fullName, " ",
+                              hoi4Countries.at(entry).rulingParty, "");
     }
   }
 }
