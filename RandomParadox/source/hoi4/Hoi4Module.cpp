@@ -119,7 +119,7 @@ void Hoi4Module::genHoi(bool cut) {
                                       gameModPath + "\\map\\heightmap.bmp",
                                       "heightmap");
     formatConverter.dumpTerrainColourmap(
-        hoi4Gen.fwg.climateMap, hoi4Gen.fwg.cityMap, gameModPath,
+        hoi4Gen.fwg.summerMap, hoi4Gen.fwg.cityMap, gameModPath,
         "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds",
         DXGI_FORMAT_B8G8R8A8_UNORM, cut);
     formatConverter.dumpDDSFiles(
