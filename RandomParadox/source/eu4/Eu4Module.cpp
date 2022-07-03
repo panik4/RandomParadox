@@ -79,16 +79,16 @@ void Module::genEu4(bool cut) {
                                       gameModPath + "\\map\\heightmap.bmp",
                                       "heightmap");
     formatConverter.dumpTerrainColourmap(
-        eu4Gen.fwg.climateMap, eu4Gen.fwg.cityMap, gameModPath,
+        eu4Gen.fwg.springMap, eu4Gen.fwg.cityMap, gameModPath,
         "\\map\\terrain\\colormap_spring.dds", DXGI_FORMAT_B8G8R8A8_UNORM, cut);
     formatConverter.dumpTerrainColourmap(
-        eu4Gen.fwg.climateMap, eu4Gen.fwg.cityMap, gameModPath,
+        eu4Gen.fwg.summerMap, eu4Gen.fwg.cityMap, gameModPath,
         "\\map\\terrain\\colormap_summer.dds", DXGI_FORMAT_B8G8R8A8_UNORM, cut);
     formatConverter.dumpTerrainColourmap(
-        eu4Gen.fwg.climateMap, eu4Gen.fwg.cityMap, gameModPath,
+        eu4Gen.fwg.autumnMap, eu4Gen.fwg.cityMap, gameModPath,
         "\\map\\terrain\\colormap_autumn.dds", DXGI_FORMAT_B8G8R8A8_UNORM, cut);
     formatConverter.dumpTerrainColourmap(
-        eu4Gen.fwg.climateMap, eu4Gen.fwg.cityMap, gameModPath,
+        eu4Gen.fwg.winterMap, eu4Gen.fwg.cityMap, gameModPath,
         "\\map\\terrain\\colormap_winter.dds", DXGI_FORMAT_B8G8R8A8_UNORM, cut);
     formatConverter.dumpDDSFiles(eu4Gen.fwg.riverMap, eu4Gen.fwg.heightMap,
                                  gameModPath + "\\map\\terrain\\colormap_water",

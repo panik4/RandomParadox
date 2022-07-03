@@ -358,22 +358,24 @@ void writeLoc(const std::string &path, const std::string &gamePath,
     pU::writeFile(path + "areas_regions_" + locKey + ".yml", content, false);
   }
   for (const auto &locKey : locKeys) {
+    std::string content = locKey + ":\n"; /*
     std::string content = pU::readFile(
-        gamePath + "\\localisation\\prov_names_adj_" + locKey + ".yml");
+        gamePath + "\\localisation\\prov_names_adj_" + locKey + ".yml");*/
     for (const auto &province : provinces)
       content += " PROV_ADJ" + std::to_string(province.ID + 1) + ":0 \"" +
                  "PROV_ADJ" + std::to_string(province.ID + 1) + "\"\n";
 
-    pU::writeFile(path + "prov_names_adj_" + locKey + ".yml", content, false);
+    pU::writeFile(path + "prov_names_adj_" + locKey + ".yml", content, true);
   }
   for (const auto &locKey : locKeys) {
-    std::string content = pU::readFile(
-        gamePath + "\\localisation\\prov_names_" + locKey + ".yml");
+    std::string content = locKey + ":\n";
+    //pU::readFile(
+     //   gamePath + "\\localisation\\prov_names_" + locKey + ".yml");
     for (const auto &province : provinces)
       content += " PROV" + std::to_string(province.ID + 1) + ":0 \"" + "PROV" +
                  std::to_string(province.ID + 1) + "\"\n";
 
-    pU::writeFile(path + "prov_names_" + locKey + ".yml", content, false);
+    pU::writeFile(path + "prov_names_" + locKey + ".yml", content, true);
   }
 }
 } // namespace Scenario::Eu4::Parsing

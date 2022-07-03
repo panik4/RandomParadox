@@ -146,6 +146,8 @@ int main() {
       // already
       FastWorldGenerator fwg(configSubFolder);
       config.seaLevel = 95;
+     // config.seaProvFactor *= 0.5;
+      //config.landProvFactor *= 0.4;
       // now run the world generation
       fwg.generateWorld();
       // create eu4module and have it run the scenario generation
