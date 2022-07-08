@@ -5,7 +5,7 @@
 		"interactiveMode" : false,
 		"loadMaps" : false,
 		"writeMaps" : true,
-		"seed" : 1
+		"seed" : 0
 	},
 	"paths":
 	{
@@ -39,7 +39,7 @@
 	"map": 
 	{
         "height" : 1024,
-		"width" : 1024,
+		"width" : 2816,
 		"landPercentage" : 34,
 		"seaLevel" : 93,
 		"accuracy": 100,
@@ -141,7 +141,7 @@
 		},
 		"provinces" : {
 			"auto" : false,
-			"landProvinceFactor" : 3,
+			"landProvinceFactor" : 1,
 			"seaProvinceFactor" : 1,
 			"minProvPerRegion" : 3,
 			"minProvSize" : 10,

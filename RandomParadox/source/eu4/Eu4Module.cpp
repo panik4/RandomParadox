@@ -20,6 +20,7 @@ bool Module::createPaths() { // prepare folder structure
     create_directory(gameModPath + "\\history\\provinces\\");
     create_directory(gameModPath + "\\common\\colonial_regions\\");
     create_directory(gameModPath + "\\common\\trade_companies\\");
+    create_directory(gameModPath + "\\common\\trade_nodes\\");
     return true;
   } catch (std::exception e) {
     std::string error = "Configured paths seem to be messed up, check Europa "

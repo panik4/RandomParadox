@@ -7,12 +7,16 @@ std::string loadVanillaFile(const std::string &path,
   std::string content{""};
   auto lines = pU::getLines(path);
   for (auto &line : lines) {
-    for (auto &filter : filters) {
-      if (line.find(filter) != std::string::npos) {
-        content.append(line + "\n");
-        // fulfilled one of the filters, break
-        break;
+    if (filters.size()) {
+      for (auto &filter : filters) {
+        if (line.find(filter) != std::string::npos) {
+          content.append(line + "\n");
+          // fulfilled one of the filters, break
+          break;
+        }
       }
+    } else {
+      content.append(line + "\n");
     }
   }
   return content;
@@ -142,6 +146,13 @@ void writeColonialRegions(const std::string &path, const std::string &gamePath,
   std::string content = loadVanillaFile(
       gamePath + "\\common\\colonial_regions\\00_colonial_regions.txt",
       {"{", "}", "=", "_"});
+  int baseCompatProv = 1;
+  while (pU::replaceOccurence(content, "provinces = {",
+                              "provinces = \n\t{\n\t\t " +
+                                  std::to_string(baseCompatProv++)))
+    ;
+
+  // ParserUtils::replaceLines(content, "owns =", "");
   pU::writeFile(path, content);
 }
 
@@ -294,7 +305,7 @@ void writeTradeCompanies(const std::string &path, const std::string &gamePath,
                          const std::vector<GameProvince> &provinces) {
   std::string content = loadVanillaFile(
       gamePath + "\\common\\trade_companies\\00_trade_companies.txt",
-      {"{", "}", "=", "_"});
+      {"{", "}", "="});
   pU::writeFile(path, content);
 }
 
@@ -369,8 +380,8 @@ void writeLoc(const std::string &path, const std::string &gamePath,
   }
   for (const auto &locKey : locKeys) {
     std::string content = locKey + ":\n";
-    //pU::readFile(
-     //   gamePath + "\\localisation\\prov_names_" + locKey + ".yml");
+    // pU::readFile(
+    //    gamePath + "\\localisation\\prov_names_" + locKey + ".yml");
     for (const auto &province : provinces)
       content += " PROV" + std::to_string(province.ID + 1) + ":0 \"" + "PROV" +
                  std::to_string(province.ID + 1) + "\"\n";

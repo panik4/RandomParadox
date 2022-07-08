@@ -26,10 +26,14 @@ bool Hoi4Module::createPaths() {
     // history
     create_directory(gameModPath + "\\history\\units\\");
     create_directory(gameModPath + "\\history\\states\\");
+    create_directory(gameModPath + "\\history\\countries\\");
     // localisation
     create_directory(gameModPath + "\\localisation\\english\\");
     // common
     create_directory(gameModPath + "\\common\\national_focus\\");
+    create_directory(gameModPath + "\\common\\countries\\");
+    create_directory(gameModPath + "\\common\\bookmarks\\");
+    create_directory(gameModPath + "\\common\\country_tags\\");
     return true;
   } catch (std::exception e) {
     std::string error =

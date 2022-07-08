@@ -121,24 +121,31 @@ std::vector<int> getNumberBlock(std::string content, std::string key) {
   return getNumbers(bracketBlock, ' ', std::set<int>{});
 }
 
-std::string replaceOccurences(std::string &content, std::string key,
-                              std::string value) {
-  size_t pos = 0;
-  do {
-    pos = content.find(key);
-    if (pos != std::string::npos)
-      content.replace(pos, key.length(), value);
-  } while (pos != std::string::npos);
+bool replaceOccurence(std::string &content, const std::string &key,
+                      const std::string &value) {
+  size_t pos = content.find(key);
+  if (pos != std::string::npos)
+    content.replace(pos, key.length(), value);
+  return pos != std::string::npos;
+}
+
+std::string replaceOccurences(std::string &content, const std::string &key,
+                              const std::string &value) {
+  while (replaceOccurence(content, key, value)) {
+  }
   return content;
 };
 // replace complete line from beginning of key to linebreak with value
-void replaceLine(std::string &content, std::string key, std::string value) {
+void replaceLines(std::string &content, const std::string &key,
+                  const std::string &value) {
   size_t pos = 0;
-  pos = content.find(key);
-  if (pos != std::string::npos) {
-    const auto lineEnd = content.find("\n", pos);
-    content.replace(pos, lineEnd - pos, value);
-  }
+  do {
+    pos = content.find(key);
+    if (pos != std::string::npos) {
+      const auto lineEnd = content.find("\n", pos);
+      content.replace(pos, lineEnd - pos, value);
+    }
+  } while (pos != std::string::npos);
 };
 // find the closing bracket of a block. Handles opening brackets correctly
 // as long as every opening bracket has an opening bracket
@@ -214,7 +221,7 @@ void removeSurroundingBracketBlock(std::string &content,
     content.erase(pos, blockEnd - pos);
   }
 };
-void removeSurroundingBracketBlockFromLineBreak(std::string &content,
+bool removeSurroundingBracketBlockFromLineBreak(std::string &content,
                                                 const std::string key) {
   auto pos = content.find(key);
   if (pos != std::string::npos) {
@@ -222,6 +229,8 @@ void removeSurroundingBracketBlockFromLineBreak(std::string &content,
     pos = content.rfind("\n", pos);
     auto blockEnd = findClosingBracket(content, pos);
     content.erase(pos, blockEnd - pos + 1);
+    return true;
   }
+  return false;
 };
 }; // namespace Scenario::ParserUtils
