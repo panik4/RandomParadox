@@ -516,7 +516,7 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
           ParserUtils::getBracketBlockContent(requirements, "templateName");
       IDMap[ID] = value;
       // remove requirements line
-      ParserUtils::replaceLine(divisionTemplates, "requirements", "");
+      ParserUtils::replaceLines(divisionTemplates, "requirements", "");
     }
     ParserUtils::replaceOccurences(unitFile, "templateTemplateBlock",
                                    divisionTemplates);
@@ -877,7 +877,7 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
       pU::removeSurroundingBracketBlockFromLineBreak(content,
                                                      "start_resistance = yes");
     }
-    pU::replaceLine(content, "capital =", "capital = " + std::to_string(1));
+    pU::replaceLines(content, "capital =", "capital = " + std::to_string(1));
     pU::writeFile(path + filename, content);
   }
 }

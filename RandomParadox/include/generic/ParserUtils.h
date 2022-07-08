@@ -21,10 +21,14 @@ std::vector<int> getNumbers(const std::string &content, const char delimiter,
                             const std::set<int> tokensToConvert = {});
 std::vector<int> getNumberBlock(std::string content, std::string key);
 
-std::string replaceOccurences(std::string &content, std::string key,
-                              std::string value);
+bool replaceOccurence(std::string &content, const std::string &key,
+                             const std::string &value);
+
+std::string replaceOccurences(std::string &content, const std::string &key,
+                              const std::string &value);
 // replace complete line from beginning of key to linebreak with value
-void replaceLine(std::string &content, std::string key, std::string value);
+void replaceLines(std::string &content, const std::string &key,
+                  const std::string &value);
 // find the closing bracket of a block. Handles opening brackets correctly
 // as long as every opening bracket has an opening bracket
 size_t findClosingBracket(const std::string &content, size_t startPos);
@@ -41,6 +45,6 @@ void removeBracketBlockFromBracket(std::string &content, const std::string key);
 bool removeBracketBlockFromKey(std::string &content, const std::string key);
 
 void removeSurroundingBracketBlock(std::string &content, const std::string key);
-void removeSurroundingBracketBlockFromLineBreak(std::string &content,
+bool removeSurroundingBracketBlockFromLineBreak(std::string &content,
                                                 const std::string key);
 }; // namespace Scenario::ParserUtils

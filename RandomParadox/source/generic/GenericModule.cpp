@@ -16,14 +16,10 @@ void GenericModule::createPaths(const std::string &basePath) { // mod directory
   create_directory(basePath + "\\gfx\\flags\\");
   // history
   create_directory(basePath + "\\history\\");
-  create_directory(basePath + "\\history\\countries\\");
   // localisation
   create_directory(basePath + "\\localisation\\");
   // common
   create_directory(basePath + "\\common\\");
-  create_directory(basePath + "\\common\\countries\\");
-  create_directory(basePath + "\\common\\bookmarks\\");
-  create_directory(basePath + "\\common\\country_tags\\");
 }
 // a method to search for the original game files on the hard drive(s)
 bool GenericModule::findGame(std::string &path, const std::string &game) {
