@@ -16,13 +16,14 @@ class Hoi4Module : GenericModule {
   bool createPaths();
   // read the config specific to hoi4
   void readHoiConfig(const std::string &configSubFolder,
-                     const std::string &username);
+                     const std::string &username,
+                     const boost::property_tree::ptree &rpdConf);
 
 public:
-  Hoi4Module(Fwg::FastWorldGenerator &fastWorldGen,
+  Hoi4Module(const boost::property_tree::ptree &rpdConf,
              const std::string &configSubFolder, const std::string &username);
   ~Hoi4Module();
   // member functions
-  void genHoi(bool cut);
+  void genHoi();
 };
 } // namespace Scenario::Hoi4

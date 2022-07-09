@@ -4,7 +4,7 @@
 #include "hoi4/Hoi4Module.h"
 #include <filesystem>
 using namespace Fwg;
-void dumpInfo(std::string error, std::string configSubFolder) {
+void dumpInfo(const std::string &error, const std::string &configSubFolder) {
   std::string dump = "";
   std::string path = configSubFolder;
   for (const auto &entry : std::filesystem::directory_iterator(path)) {
@@ -26,7 +26,7 @@ int main() {
   // Short alias for this namespace
   namespace pt = boost::property_tree;
   // Create a root
-  pt::ptree root1;
+  pt::ptree metaConf;
   try {
     // Read the basic settings
     std::ifstream f("MetaConf.json");
@@ -35,10 +35,11 @@ int main() {
       Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
 
-    pt::read_json(buffer, root1);
+    pt::read_json(buffer, metaConf);
   } catch (std::exception e) {
     Utils::Logging::logLine("Incorrect config \"MetaConf.json\"");
-    Utils::Logging::logLine("You can try fixing it yourself. Error is: ", e.what());
+    Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
+                            e.what());
     Utils::Logging::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or search for \"json validator\"");
@@ -46,23 +47,24 @@ int main() {
     system("pause");
     return -1;
   }
-  std::string username = root1.get<std::string>("config.username");
+  std::string username = metaConf.get<std::string>("config.username");
   std::string configSubFolder =
-      root1.get<std::string>("config.configSubFolder");
-  // Create a root
-  pt::ptree root;
+      metaConf.get<std::string>("config.configSubFolder");
+  // Create a ptree
+  pt::ptree rpdConf;
   try {
     // Read the basic settings
-    std::ifstream f(configSubFolder + "RandomParadox.json");
+    std::ifstream f("configs//RandomParadox.json");
     std::stringstream buffer;
     if (!f.good())
       Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
 
-    pt::read_json(buffer, root);
+    pt::read_json(buffer, rpdConf);
   } catch (std::exception e) {
     Utils::Logging::logLine("Incorrect config \"RandomParadox.json\"");
-    Utils::Logging::logLine("You can try fixing it yourself. Error is: ", e.what());
+    Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
+                            e.what());
     Utils::Logging::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or search for \"json validator\"");
@@ -71,31 +73,18 @@ int main() {
     return -1;
   }
 
-  bool writeMaps, genHoi4Scenario, useGlobalExistingHeightmap, genEu4Scenario;
-  std::string globalHeightMapPath;
-  double latLow, latHigh;
-  bool cut;
+  bool writeMaps, genHoi4Scenario, genEu4Scenario;
   try {
     // if debug is enabled in the config, a directory subtree containing
     // visualisation of many maps will be created
-    writeMaps = root.get<bool>("randomScenario.writeMaps");
+    writeMaps = rpdConf.get<bool>("randomScenario.writeMaps");
     // generate hoi4 scenario or not
-    genHoi4Scenario = root.get<bool>("randomScenario.genhoi4");
-    genEu4Scenario = root.get<bool>("randomScenario.geneu4");
-    // use the same input heightmap for every scenario/map generation
-    useGlobalExistingHeightmap =
-        root.get<bool>("randomScenario.inputheightmap");
-    // get the path
-    globalHeightMapPath = root.get<std::string>("randomScenario.heightmapPath");
-    // read the configured latitude range. 0.0 = 90 degrees south, 2.0 = 90
-    // degrees north
-    latLow = root.get<double>("randomScenario.latitudeLow");
-    latHigh = root.get<double>("randomScenario.latitudeHigh");
-    cut = root.get<bool>("randomScenario.cut");
+    genHoi4Scenario = rpdConf.get<bool>("randomScenario.genhoi4");
+    genEu4Scenario = rpdConf.get<bool>("randomScenario.geneu4");
   } catch (std::exception e) {
     Utils::Logging::logLine("Error reading boost::property_tree");
-    Utils::Logging::logLine("Did you rename a field in the json file?. Error is: ",
-                    e.what());
+    Utils::Logging::logLine(
+        "Did you rename a field in the json file?. Error is: ", e.what());
     dumpInfo(e.what(), configSubFolder);
     system("pause");
     return -1;
@@ -107,7 +96,8 @@ int main() {
     config.getConfig(configSubFolder + "FastWorldGenerator.json");
   } catch (std::exception e) {
     Utils::Logging::logLine("Incorrect config \"FastWorldGenerator.json\"");
-    Utils::Logging::logLine("You can try fixing it yourself. Error is: ", e.what());
+    Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
+                            e.what());
     Utils::Logging::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or \"search for json validator\"");
@@ -123,36 +113,26 @@ int main() {
   }
   try {
     if (genHoi4Scenario) {
-      FastWorldGenerator fwg(configSubFolder);
-      // now start the generation of the scenario with the generated map files
-      // if we configured to use an existing heightmap
-      if (useGlobalExistingHeightmap) {
-        // overwrite settings of fastworldgen
-        config.heightmapIn = globalHeightMapPath;
-        config.loadHeight = true;
-        config.latLow = latLow;
-        config.latHigh = latHigh;
-      }
-      // check if config settings are fine
-      config.sanityCheck();
-      // now run the world generation
-      fwg.generateWorld();
       // generate hoi4 scenario
-      Scenario::Hoi4::Hoi4Module hoi4Mod(fwg, configSubFolder, username);
-      hoi4Mod.genHoi(cut);
+      Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username);
+      hoi4Mod.genHoi();
+      dumpInfo("", configSubFolder);
+      system("pause");
     }
     if (genEu4Scenario) {
       // need to run fwg with different settings from hoi4, even if it ran there
       // already
       FastWorldGenerator fwg(configSubFolder);
       config.seaLevel = 95;
-     // config.seaProvFactor *= 0.5;
-      //config.landProvFactor *= 0.4;
+      config.seaProvFactor *= 0.5;
+      config.landProvFactor *= 0.4;
       // now run the world generation
       fwg.generateWorld();
       // create eu4module and have it run the scenario generation
-      Scenario::Eu4::Module eu4(fwg, configSubFolder, username);
-      eu4.genEu4(cut);
+      Scenario::Eu4::Module eu4(rpdConf, configSubFolder, username);
+      eu4.genEu4();
+      dumpInfo("", configSubFolder);
+      system("pause");
     }
   } catch (std::exception e) {
     Utils::Logging::logLine(e.what());
@@ -161,7 +141,5 @@ int main() {
     return -1;
   }
   Utils::Logging::logLine("Done with the generation");
-  dumpInfo("", configSubFolder);
-  system("pause");
   return 0;
 }

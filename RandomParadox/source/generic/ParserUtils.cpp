@@ -136,16 +136,20 @@ std::string replaceOccurences(std::string &content, const std::string &key,
   return content;
 };
 // replace complete line from beginning of key to linebreak with value
+bool replaceLine(std::string &content, const std::string &key,
+                 const std::string &value) {
+  size_t pos = content.find(key);
+  if (pos != std::string::npos) {
+    const auto lineEnd = content.find("\n", pos);
+    content.replace(pos, lineEnd - pos, value);
+  }
+  return pos != std::string::npos;
+};
+// replace complete line from beginning of key to linebreak with value
 void replaceLines(std::string &content, const std::string &key,
                   const std::string &value) {
-  size_t pos = 0;
-  do {
-    pos = content.find(key);
-    if (pos != std::string::npos) {
-      const auto lineEnd = content.find("\n", pos);
-      content.replace(pos, lineEnd - pos, value);
-    }
-  } while (pos != std::string::npos);
+  while (replaceLine(content, key, value)) {
+  }
 };
 // find the closing bracket of a block. Handles opening brackets correctly
 // as long as every opening bracket has an opening bracket

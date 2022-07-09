@@ -60,6 +60,7 @@ public:
 
   // member functions
   // constructors/destructors
+  Generator();
   Generator(Fwg::FastWorldGenerator &fwg);
   ~Generator();
   // give resources to states

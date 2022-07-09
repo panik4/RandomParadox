@@ -2,6 +2,7 @@
 namespace Logging = Fwg::Utils::Logging;
 namespace Scenario {
 using namespace Fwg::Gfx;
+Generator::Generator() {}
 Generator::Generator(Fwg::FastWorldGenerator &fwg) : fwg(fwg) {
   Gfx::Flag::readColourGroups();
   Gfx::Flag::readFlagTypes();

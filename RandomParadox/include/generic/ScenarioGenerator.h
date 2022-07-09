@@ -16,6 +16,7 @@ class Generator {
    std::map<std::string, std::string> gamePaths;*/
 
 public:
+  Generator();
   // vars - used for every game
   NameGeneration::NameData nData;
   Fwg::FastWorldGenerator fwg;

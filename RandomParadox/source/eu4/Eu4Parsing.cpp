@@ -306,6 +306,11 @@ void writeTradeCompanies(const std::string &path, const std::string &gamePath,
   std::string content = loadVanillaFile(
       gamePath + "\\common\\trade_companies\\00_trade_companies.txt",
       {"{", "}", "="});
+  int baseCompatProv = 1;
+  while (pU::replaceOccurence(content, "provinces = {",
+                              "provinces = \n\t{\n\t\t " +
+                                  std::to_string(baseCompatProv++))) {
+  };
   pU::writeFile(path, content);
 }
 
