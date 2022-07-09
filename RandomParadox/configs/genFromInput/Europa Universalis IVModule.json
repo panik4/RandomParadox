@@ -1,13 +1,17 @@
 {
-	"randomScenario": 
+	"fastworldgen":
 	{
-		"writeMaps": true,
-		"genhoi4": false,
-		"geneu4": true,
-		"inputheightmap": false,
+		"inputheightmap": true,
 		"heightmapPath": "inputs/heightmap24.bmp",
 		"latitudeLow" : 0.00,
 		"latitudeHigh" : 2.00,
 		"cut" : "false"
+	},
+	"eu4":
+	{
+	},
+	"scenario":
+	{
+		"numCountries" : 50
 	}
 }

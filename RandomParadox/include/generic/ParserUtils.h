@@ -22,10 +22,12 @@ std::vector<int> getNumbers(const std::string &content, const char delimiter,
 std::vector<int> getNumberBlock(std::string content, std::string key);
 
 bool replaceOccurence(std::string &content, const std::string &key,
-                             const std::string &value);
+                      const std::string &value);
 
 std::string replaceOccurences(std::string &content, const std::string &key,
                               const std::string &value);
+bool replaceLine(std::string &content, const std::string &key,
+                 const std::string &value);
 // replace complete line from beginning of key to linebreak with value
 void replaceLines(std::string &content, const std::string &key,
                   const std::string &value);

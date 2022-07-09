@@ -1,11 +1,15 @@
 #include "hoi4/Hoi4Module.h"
 using namespace Fwg;
 namespace Scenario::Hoi4 {
-Hoi4Module::Hoi4Module(FastWorldGenerator &fastWorldGen,
+Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
                        const std::string &configSubFolder,
-                       const std::string &username)
-    : hoi4Gen{fastWorldGen} {
-  readHoiConfig(configSubFolder, username);
+                       const std::string &username) {
+
+  readHoiConfig(configSubFolder, username, gamesConf);
+  FastWorldGenerator fwg(configSubFolder);
+  // now run the world generation
+  fwg.generateWorld();
+  hoi4Gen = {fwg};
   hoi4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
 }
 
@@ -47,10 +51,10 @@ bool Hoi4Module::createPaths() {
 
 // reads config for Hearts of Iron IV
 void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
-                               const std::string &username) {
+                               const std::string &username,
+                               const boost::property_tree::ptree &rpdConf) {
   Utils::Logging::logLine("Reading Hoi4 Config");
-  const auto root =
-      this->readConfig(configSubFolder, username, "Hearts of Iron IV");
+  this->configurePaths(username, "Hearts of Iron IV", rpdConf);
 
   // now try to locate game files
   if (!findGame(gamePath, "Hearts of Iron IV")) {
@@ -60,21 +64,59 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   if (!findModFolders()) {
     throw(std::exception("Could not locate the mod folders. Exiting"));
   }
+
+  auto &config = Env::Instance();
+  namespace pt = boost::property_tree;
+  pt::ptree hoi4Conf;
+  try {
+    // Read the basic settings
+    std::ifstream f(configSubFolder + "//Hearts of Iron IVModule.json");
+    std::stringstream buffer;
+    if (!f.good())
+      Utils::Logging::logLine("Config could not be loaded");
+    buffer << f.rdbuf();
+
+    pt::read_json(buffer, hoi4Conf);
+  } catch (std::exception e) {
+    Utils::Logging::logLine("Incorrect config \"RandomParadox.json\"");
+    Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
+                            e.what());
+    Utils::Logging::logLine(
+        "Otherwise try running it through a json validator, e.g. "
+        "\"https://jsonlint.com/\" or search for \"json validator\"");
+    system("pause");
+  }
+  //  passed to generic ScenarioGenerator
+  numCountries = hoi4Conf.get<int>("scenario.numCountries");
   // default values taken from base game
   hoi4Gen.resources = {
-      {"aluminium", {root.get<double>("hoi4.aluminiumFactor"), 1169.0, 0.3}},
-      {"chromium", {root.get<double>("hoi4.chromiumFactor"), 1250.0, 0.2}},
-      {"oil", {root.get<double>("hoi4.oilFactor"), 1220.0, 0.1}},
-      {"rubber", {root.get<double>("hoi4.rubberFactor"), 1029.0, 0.1}},
-      {"steel", {root.get<double>("hoi4.steelFactor"), 2562.0, 0.5}},
-      {"tungsten", {root.get<double>("hoi4.tungstenFactor"), 1188.0, 0.2}}};
+      {"aluminium",
+       {hoi4Conf.get<double>("hoi4.aluminiumFactor"), 1169.0, 0.3}},
+      {"chromium", {hoi4Conf.get<double>("hoi4.chromiumFactor"), 1250.0, 0.2}},
+      {"oil", {hoi4Conf.get<double>("hoi4.oilFactor"), 1220.0, 0.1}},
+      {"rubber", {hoi4Conf.get<double>("hoi4.rubberFactor"), 1029.0, 0.1}},
+      {"steel", {hoi4Conf.get<double>("hoi4.steelFactor"), 2562.0, 0.5}},
+      {"tungsten", {hoi4Conf.get<double>("hoi4.tungstenFactor"), 1188.0, 0.2}}};
   hoi4Gen.worldPopulationFactor =
-      root.get<double>("scenario.worldPopulationFactor");
-  hoi4Gen.industryFactor = root.get<double>("scenario.industryFactor");
-  hoi4Gen.resourceFactor = root.get<double>("hoi4.resourceFactor");
+      hoi4Conf.get<double>("scenario.worldPopulationFactor");
+  hoi4Gen.industryFactor = hoi4Conf.get<double>("scenario.industryFactor");
+  hoi4Gen.resourceFactor = hoi4Conf.get<double>("hoi4.resourceFactor");
+
+  // if we configured to use an existing heightmap
+  if (hoi4Conf.get<bool>("fastworldgen.inputheightmap")) {
+    // overwrite settings of fastworldgen
+    config.heightmapIn =
+        hoi4Conf.get<std::string>("fastworldgen.heightmapPath");
+    config.loadHeight = true;
+    config.latLow = hoi4Conf.get<double>("fastworldgen.latitudeLow");
+    config.latHigh = hoi4Conf.get<double>("fastworldgen.latitudeHigh");
+  }
+  cut = hoi4Conf.get<bool>("fastworldgen.cut");
+  // check if config settings are fine
+  config.sanityCheck();
 }
 
-void Hoi4Module::genHoi(bool cut) {
+void Hoi4Module::genHoi() {
   if (!createPaths())
     return;
   try {
@@ -84,7 +126,8 @@ void Hoi4Module::genHoi(bool cut) {
     hoi4Gen.generateCountries(numCountries, gamePath);
     hoi4Gen.evaluateNeighbours();
     hoi4Gen.generateWorld();
-    Fwg::Gfx::Bitmap countryMap = hoi4Gen.dumpDebugCountrymap(Env::Instance().mapsPath + "countries.bmp");
+    Fwg::Gfx::Bitmap countryMap =
+        hoi4Gen.dumpDebugCountrymap(Env::Instance().mapsPath + "countries.bmp");
 
     // now generate hoi4 specific stuff
     hoi4Gen.generateCountrySpecifics();
@@ -168,7 +211,8 @@ void Hoi4Module::genHoi(bool cut) {
                  hoi4Gen.hoi4Countries, hoi4Gen.nData);
     strategicRegionNames(gameModPath + "\\localisation\\english\\",
                          hoi4Gen.strategicRegions);
-    foci(gameModPath + "\\common\\national_focus\\", hoi4Gen.hoi4Countries, hoi4Gen.nData);
+    foci(gameModPath + "\\common\\national_focus\\", hoi4Gen.hoi4Countries,
+         hoi4Gen.nData);
     commonBookmarks(gameModPath + "\\common\\bookmarks\\",
                     hoi4Gen.hoi4Countries, hoi4Gen.strengthScores);
 
@@ -176,7 +220,7 @@ void Hoi4Module::genHoi(bool cut) {
                                 gameModsDirectory, modName);
 
     // just copy over provinces.bmp, already in a compatible format
-    Fwg::Gfx::Bmp::save(hoi4Gen.fwg.provinceMap ,
+    Fwg::Gfx::Bmp::save(hoi4Gen.fwg.provinceMap,
                         (gameModPath + ("\\map\\provinces.bmp")).c_str());
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";

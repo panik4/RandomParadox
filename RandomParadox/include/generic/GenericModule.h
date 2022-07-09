@@ -10,13 +10,13 @@ class GenericModule {
 
 protected:
   int numCountries;
+  bool cut;
   std::string modName;
   std::string gamePath;
   std::string gameModPath;
   std::string gameModsDirectory;
-  const boost::property_tree::ptree
-  readConfig(const std::string &configSubFolder, const std::string &username,
-             const std::string &gameName);
+  void configurePaths(const std::string &username, const std::string &gameName,
+                  const boost::property_tree::ptree &gamesConf);
   void createPaths(const std::string &basePath);
   // try to locate hoi4 at configured path, if not found, try other
   // standard locations
