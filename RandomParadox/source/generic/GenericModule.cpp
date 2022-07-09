@@ -90,44 +90,16 @@ bool GenericModule::findModFolders() {
 }
 
 // reads config for Hearts of Iron IV
-const boost::property_tree::ptree
-GenericModule::readConfig(const std::string &configSubFolder,
-                          const std::string &username,
-                          const std::string &gameName) {
+void GenericModule::configurePaths(
+    const std::string &username, const std::string &gameName,
+    const boost::property_tree::ptree &gamesConf) {
   // Short alias for this namespace
-  namespace pt = boost::property_tree;
-  namespace Logging = Fwg::Utils::Logging;
-  // Create a root
-  pt::ptree root;
-  std::ifstream f(configSubFolder + gameName + "Module.json");
-  std::stringstream buffer;
-  if (!f.good()) {
-    Logging::logLine("Config could not be loaded");
-  }
-  buffer << f.rdbuf();
-  try {
-    pt::read_json(buffer, root);
-  } catch (std::exception e) {
-    std::string error =
-        "Incorrect config " + configSubFolder + gameName + " Module.json\n";
-    error += "You can try fixing it yourself. Error is: \n";
-    error += e.what();
-    error += "\n";
-    error += "Otherwise try running it through a json validator, e.g. "
-             "\"https://jsonlint.com/\" or search for \"json validator\"\n";
-    throw(std::exception(error.c_str()));
-  }
   // now read the paths
-  modName = root.get<std::string>("module.modName");
-  gamePath = root.get<std::string>("module.gamePath");
-  gameModPath = root.get<std::string>("module.modPath") + modName;
+  modName = gamesConf.get<std::string>(gameName + ".modName");
+  gamePath = gamesConf.get<std::string>(gameName + ".gamePath");
+  gameModPath = gamesConf.get<std::string>(gameName + ".modPath") + modName;
   ParserUtils::replaceOccurences(gameModPath, "<username>", username);
-  gameModsDirectory = root.get<std::string>("module.modsDirectory");
+  gameModsDirectory = gamesConf.get<std::string>(gameName + ".modsDirectory");
   ParserUtils::replaceOccurences(gameModsDirectory, "<username>", username);
-  // passed to generic ScenarioGenerator
-  numCountries = root.get<int>("scenario.numCountries");
-
-  // return tree to specific module
-  return root;
 }
 } // namespace Scenario

@@ -27,7 +27,7 @@
 		"maxX" : 5224,
 		"minY" : 448,
 		"maxY" : 856,
-		"scale" : true,
+		"scale" : false,
 		"scaleX" : 5632,
 		"scaleY" : 2048,
 		"keepRatio" : false

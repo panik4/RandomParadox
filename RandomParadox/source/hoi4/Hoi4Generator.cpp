@@ -2,6 +2,7 @@
 using namespace Fwg;
 using namespace Fwg::Gfx;
 namespace Scenario::Hoi4 {
+Generator::Generator() {}
 Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {
   nData = NameGeneration::prepare("resources\\names");
 }
@@ -829,7 +830,7 @@ void Generator::evaluateCountryGoals() {
               (chainTokens[4].find(source.rulingParty) != std::string::npos ||
                chainTokens[4] == "any")) {
             if (stepFulfillsRequirements(chainTokens[2], stepTargets)) {
-              const auto& targetRequirements = chainTokens[6];
+              const auto &targetRequirements = chainTokens[6];
               // if there are no target requirements, only the country itself is
               // a target
               if (!targetRequirements.size())

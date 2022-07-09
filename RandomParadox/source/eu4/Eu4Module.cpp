@@ -2,11 +2,14 @@
 using namespace Fwg;
 
 namespace Scenario::Eu4 {
-Module::Module(FastWorldGenerator &fastWorldGen,
-               const std::string &configSubFolder, const std::string &username)
-    : eu4Gen{fastWorldGen} {
-  readEu4Config(configSubFolder, username);
-
+Module::Module(const boost::property_tree::ptree &gamesConf,
+               const std::string &configSubFolder,
+               const std::string &username) {
+  readEu4Config(configSubFolder, username, gamesConf);
+  FastWorldGenerator fwg(configSubFolder);
+  // now run the world generation
+  fwg.generateWorld();
+  eu4Gen = {fwg};
   eu4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
 }
 
@@ -17,7 +20,9 @@ bool Module::createPaths() { // prepare folder structure
     using namespace std::filesystem;
     // generic cleanup and path creation
     GenericModule::createPaths(gameModPath);
+    create_directory(gameModPath + "\\history\\diplomacy\\");
     create_directory(gameModPath + "\\history\\provinces\\");
+    create_directory(gameModPath + "\\history\\wars\\");
     create_directory(gameModPath + "\\common\\colonial_regions\\");
     create_directory(gameModPath + "\\common\\trade_companies\\");
     create_directory(gameModPath + "\\common\\trade_nodes\\");
@@ -33,19 +38,57 @@ bool Module::createPaths() { // prepare folder structure
 }
 
 void Module::readEu4Config(const std::string &configSubFolder,
-                           const std::string &username) {
+                           const std::string &username,
+                           const boost::property_tree::ptree &rpdConf) {
   Utils::Logging::logLine("Reading Eu4 Config");
-  const auto root =
-      this->readConfig(configSubFolder, username, "Europa Universalis IV");
+  this->configurePaths(username, "Europa Universalis IV", rpdConf);
 
   // now try to locate game files
   if (!findGame(gamePath, "Europa Universalis IV")) {
     throw(std::exception("Could not locate the game. Exiting"));
   }
-  // default values taken from base game
+  // now try to locate game files
+  if (!findModFolders()) {
+    throw(std::exception("Could not locate the mod folders. Exiting"));
+  }
+  auto &config = Env::Instance();
+  namespace pt = boost::property_tree;
+  pt::ptree eu4Conf;
+  try {
+    // Read the basic settings
+    std::ifstream f(configSubFolder + "//Europa Universalis IVModule.json");
+    std::stringstream buffer;
+    if (!f.good())
+      Utils::Logging::logLine("Config could not be loaded");
+    buffer << f.rdbuf();
+
+    pt::read_json(buffer, eu4Conf);
+  } catch (std::exception e) {
+    Utils::Logging::logLine(
+        "Incorrect config \"Europa Universalis IVModule.json\"");
+    Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
+                            e.what());
+    Utils::Logging::logLine(
+        "Otherwise try running it through a json validator, e.g. "
+        "\"https://jsonlint.com/\" or search for \"json validator\"");
+    system("pause");
+  }
+  //  passed to generic ScenarioGenerator
+  numCountries = eu4Conf.get<int>("scenario.numCountries");
+  // if we configured to use an existing heightmap
+  if (eu4Conf.get<bool>("fastworldgen.inputheightmap")) {
+    // overwrite settings of fastworldgen
+    config.heightmapIn = eu4Conf.get<std::string>("fastworldgen.heightmapPath");
+    config.loadHeight = true;
+    config.latLow = eu4Conf.get<double>("fastworldgen.latitudeLow");
+    config.latHigh = eu4Conf.get<double>("fastworldgen.latitudeHigh");
+  }
+  cut = eu4Conf.get<bool>("fastworldgen.cut");
+  // check if config settings are fine
+  config.sanityCheck();
 }
 
-void Module::genEu4(bool cut) {
+void Module::genEu4() {
   if (!createPaths())
     return;
 

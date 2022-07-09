@@ -2,6 +2,6 @@
 	"config": 
 	{
 		"username": "username",
-		"configSubFolder": "configs//generateAll//"
+		"configSubFolder": "configs//cutFromBase//"
 	}
 }

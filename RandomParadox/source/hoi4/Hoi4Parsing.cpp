@@ -516,7 +516,7 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
           ParserUtils::getBracketBlockContent(requirements, "templateName");
       IDMap[ID] = value;
       // remove requirements line
-      ParserUtils::replaceLines(divisionTemplates, "requirements", "");
+      ParserUtils::replaceLine(divisionTemplates, "requirements", "");
     }
     ParserUtils::replaceOccurences(unitFile, "templateTemplateBlock",
                                    divisionTemplates);
@@ -820,7 +820,7 @@ void foci(const std::string &path, const hoiMap &countries,
         } else {
           // no and cases, so just list all potential predecessors
           preString += "prerequisite = {";
-          for (const auto& elem : usedF) {
+          for (const auto &elem : usedF) {
             std::string preName =
                 Utils::varsToString(c.first, focusChain[0].chainID, ".", elem);
             preString += " focus = " + preName + " ";
@@ -877,7 +877,7 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
       pU::removeSurroundingBracketBlockFromLineBreak(content,
                                                      "start_resistance = yes");
     }
-    pU::replaceLines(content, "capital =", "capital = " + std::to_string(1));
+    pU::replaceLine(content, "capital =", "capital = " + std::to_string(1));
     pU::writeFile(path + filename, content);
   }
 }

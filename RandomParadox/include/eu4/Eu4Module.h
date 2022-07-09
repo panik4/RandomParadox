@@ -12,13 +12,14 @@ class Module : GenericModule {
   bool createPaths();
   // read the config options specific to eu4
   void readEu4Config(const std::string &configSubFolder,
-                     const std::string &username);
+                     const std::string &username,
+                     const boost::property_tree::ptree &gamesConf);
 
 public:
-  Module(Fwg::FastWorldGenerator &fastWorldGen, const std::string &configSubFolder,
-         const std::string &username);
+  Module(const boost::property_tree::ptree &rpdConf,
+         const std::string &configSubFolder, const std::string &username);
   ~Module();
   // member functions
-  void genEu4(bool cut);
+  void genEu4();
 };
 } // namespace Scenario::Eu4
