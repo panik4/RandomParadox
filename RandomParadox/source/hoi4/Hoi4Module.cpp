@@ -5,8 +5,9 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
                        const std::string &configSubFolder,
                        const std::string &username) {
 
-  readHoiConfig(configSubFolder, username, gamesConf);
   FastWorldGenerator fwg(configSubFolder);
+  // read hoi configs and potentially overwrite settings for fwg
+  readHoiConfig(configSubFolder, username, gamesConf);
   // now run the world generation
   fwg.generateWorld();
   hoi4Gen = {fwg};
@@ -86,8 +87,6 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
         "\"https://jsonlint.com/\" or search for \"json validator\"");
     system("pause");
   }
-  //  passed to generic ScenarioGenerator
-  numCountries = hoi4Conf.get<int>("scenario.numCountries");
   // default values taken from base game
   hoi4Gen.resources = {
       {"aluminium",
@@ -102,16 +101,12 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   hoi4Gen.industryFactor = hoi4Conf.get<double>("scenario.industryFactor");
   hoi4Gen.resourceFactor = hoi4Conf.get<double>("hoi4.resourceFactor");
 
-  // if we configured to use an existing heightmap
-  if (hoi4Conf.get<bool>("fastworldgen.inputheightmap")) {
-    // overwrite settings of fastworldgen
-    config.heightmapIn =
-        hoi4Conf.get<std::string>("fastworldgen.heightmapPath");
-    config.loadHeight = true;
-    config.latLow = hoi4Conf.get<double>("fastworldgen.latitudeLow");
-    config.latHigh = hoi4Conf.get<double>("fastworldgen.latitudeHigh");
-  }
-  cut = hoi4Conf.get<bool>("fastworldgen.cut");
+  //  passed to generic ScenarioGenerator
+  numCountries = hoi4Conf.get<int>("scenario.numCountries");
+  config.loadMapsPath = hoi4Conf.get<std::string>("fastworldgen.loadMapsPath");
+  config.heightmapIn = config.loadMapsPath +
+                       hoi4Conf.get<std::string>("fastworldgen.heightMapName");
+  cut = config.cut;
   // check if config settings are fine
   config.sanityCheck();
 }

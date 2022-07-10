@@ -84,7 +84,7 @@ namespace PdoxTest
 		{
 			using namespace Scenario::ParserUtils;
 			std::string content = { "key1 = {1234 5678}\n key2 = {1234 5678}" };
-			replaceLine(content, "key", "valueLine");
+			replaceLines(content, "key", "valueLine");
 			Assert::AreEqual(content, { "valueLine\n key2 = {1234 5678}" });
 		}
 		TEST_METHOD(FindBracketInString)

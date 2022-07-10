@@ -24,6 +24,9 @@ packages.config*
 
 pdoxMod
 helpFiles
+mapInputs
+eu4Inputs
+hoi4Inputs
 # Visual Studio 2015 cache directory
 /.vs/
 
