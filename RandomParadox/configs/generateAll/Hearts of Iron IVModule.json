@@ -1,11 +1,8 @@
 {
 	"fastworldgen":
 	{
-		"inputheightmap": false,
-		"heightmapPath": "",
-		"latitudeLow" : 0.00,
-		"latitudeHigh" : 2.00,
-		"cut" : "false"
+		"loadMapsPath": "",
+		"heightMapName": ""
 	},
 	"hoi4":
 	{

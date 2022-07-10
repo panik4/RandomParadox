@@ -1,11 +1,8 @@
 {
 	"fastworldgen":
 	{
-		"inputheightmap": true,
-		"heightmapPath": "inputs/heightmap24.bmp",
-		"latitudeLow" : 0.00,
-		"latitudeHigh" : 2.00,
-		"cut" : "false"
+		"loadMapsPath": "mapInputs//",
+		"heightMapName": "middleEarth.bmp"
 	},
 	"hoi4":
 	{

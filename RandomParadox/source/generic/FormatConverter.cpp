@@ -85,11 +85,12 @@ const std::map<std::string, std::map<Gfx::Colour, int>>
 Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
                                    const int bit) const {
   auto &conf = Env::Instance();
-  std::string sourceMap{gamePath + path};
+  std::string sourceMap{conf.loadMapsPath + path};
+  Fwg::Utils::Logging::logLine("CUTTING mode: Cutting Map from ", sourceMap);
   Bitmap baseMap =
       bit == 24 ? Bmp::load24Bit(sourceMap, "") : Bmp::load8Bit(sourceMap, "");
   auto cutBase = Bmp::cut(baseMap, conf.minX * factor, conf.maxX * factor,
-                           conf.minY * factor, conf.maxY * factor, factor);
+                          conf.minY * factor, conf.maxY * factor, factor);
   if (conf.scale) {
     cutBase = Bmp::scale(cutBase, conf.scaleX * factor, conf.scaleY * factor,
                          conf.keepRatio);
@@ -126,7 +127,7 @@ void FormatConverter::dump8BitTerrain(const Bitmap &climateIn,
           colourMaps.at(colourMapKey + gameTag).at(climateIn[i]);
     }
   } else {
-    hoi4terrain = cutBaseMap("\\map\\terrain.bmp");
+    hoi4terrain = cutBaseMap("\\terrain.bmp");
   }
   Bmp::save(hoi4terrain, path);
 }
@@ -143,7 +144,7 @@ void FormatConverter::dump8BitCities(const Bitmap &climateIn,
       cities.bit8Buffer[i] =
           climateIn[i] == Env::Instance().colours["sea"] ? 15 : 1;
   } else {
-    cities = cutBaseMap("\\map\\cities.bmp");
+    cities = cutBaseMap("\\cities.bmp");
   }
   Bmp::save(cities, path);
 }
@@ -161,7 +162,7 @@ void FormatConverter::dump8BitRivers(const Bitmap &riversIn,
       rivers.bit8Buffer[i] =
           colourMaps.at(colourMapKey + gameTag).at(riversIn[i]);
   } else {
-    rivers = cutBaseMap("\\map\\rivers.bmp");
+    rivers = cutBaseMap("\\rivers.bmp");
   }
   Bmp::save(rivers, path);
 }
@@ -191,7 +192,7 @@ void FormatConverter::dump8BitTrees(const Bitmap &climate,
       }
     }
   } else {
-    trees = cutBaseMap("\\map\\trees.bmp", (1.0 / factor));
+    trees = cutBaseMap("\\trees.bmp", (1.0 / factor));
   }
   Bmp::save(trees, path);
 }
@@ -314,8 +315,9 @@ void FormatConverter::dumpWorldNormal(const Bitmap &sobelMap,
         normalMap.setColourAtIndex(i * normalMap.bInfoHeader.biWidth + w,
                                    sobelMap[factor * i * width + factor * w]);
   } else {
-    normalMap =
-        cutBaseMap("\\map\\world_normal.bmp", (1.0 / (double)factor), 24);
+    normalMap = cutBaseMap("\\world_normal.bmp", (1.0 / (double)factor), 24);
+    for (auto i = 0; i < 5; i++)
+      normalMap.imageData = Bmp::filter(normalMap);
   }
   Bmp::save(normalMap, (path).c_str());
 }
