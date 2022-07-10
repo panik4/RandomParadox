@@ -3,22 +3,23 @@
 	{
 		"debugLevel": 0,
 		"interactiveMode" : false,
-		"loadMaps" : false,
+		"loadMaps" : true,
 		"writeMaps" : true,
 		"seed" : 0
 	},
 	"paths":
 	{
 		"mapsPath": "Maps//",
-		"loadMapsPath" : "Maps//"
+		"loadMapsPath" : ""
 	},
 	"loadMaps":
 	{
-		"heightMap" : false,
+		"heightMap" : true,
 		"terrainMap" : false,
 		"humidityMap" : false,
 		"habitabilityMap" : false,
-		"provinceMap" : false
+		"provinceMap" : false,
+		"modifyHeight": true
 	},
 	"cut":
 	{
@@ -30,7 +31,8 @@
 		"scale" : false,
 		"scaleX" : 1024,
 		"scaleY" : 1024,
-		"keepRatio" : false
+		"keepRatio" : false,
+		"scaleFilterRuns": 5
 	},
 	"interactiveMode":
 	{
@@ -40,7 +42,7 @@
 	{
         "height" : 2048,
 		"width" : 5632,
-		"landPercentage" : 34,
+		"landPercentage" : 65,
 		"seaLevel" : 93,
 		"accuracy": 100,
 		"rivers" : 
@@ -140,7 +142,7 @@
 			}
 		},
 		"provinces" : {
-			"auto" : false,
+			"auto" : true,
 			"landProvinceFactor" : 1,
 			"seaProvinceFactor" : 1,
 			"minProvPerRegion" : 3,
@@ -150,8 +152,8 @@
 		"humidity" : {
 			"coastalEffectRange" : -1,
 			"windEffectRange" : -1,
-			"latitudeLow" : 0.0,
-			"latitudeHigh" : 2.0
+			"latitudeLow" : 1.3,
+			"latitudeHigh" : 1.8
 		},
 		"weather":
 		{

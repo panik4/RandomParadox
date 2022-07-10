@@ -120,14 +120,6 @@ int main() {
       system("pause");
     }
     if (genEu4Scenario) {
-      // need to run fwg with different settings from hoi4, even if it ran there
-      // already
-      FastWorldGenerator fwg(configSubFolder);
-      config.seaLevel = 95;
-      config.seaProvFactor *= 0.5;
-      config.landProvFactor *= 0.4;
-      // now run the world generation
-      fwg.generateWorld();
       // create eu4module and have it run the scenario generation
       Scenario::Eu4::Module eu4(rpdConf, configSubFolder, username);
       eu4.genEu4();

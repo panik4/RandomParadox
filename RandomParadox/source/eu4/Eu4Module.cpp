@@ -5,8 +5,9 @@ namespace Scenario::Eu4 {
 Module::Module(const boost::property_tree::ptree &gamesConf,
                const std::string &configSubFolder,
                const std::string &username) {
-  readEu4Config(configSubFolder, username, gamesConf);
   FastWorldGenerator fwg(configSubFolder);
+  // read eu4 configs and potentially overwrite settings for fwg
+  readEu4Config(configSubFolder, username, gamesConf);
   // now run the world generation
   fwg.generateWorld();
   eu4Gen = {fwg};
@@ -75,15 +76,13 @@ void Module::readEu4Config(const std::string &configSubFolder,
   }
   //  passed to generic ScenarioGenerator
   numCountries = eu4Conf.get<int>("scenario.numCountries");
-  // if we configured to use an existing heightmap
-  if (eu4Conf.get<bool>("fastworldgen.inputheightmap")) {
-    // overwrite settings of fastworldgen
-    config.heightmapIn = eu4Conf.get<std::string>("fastworldgen.heightmapPath");
-    config.loadHeight = true;
-    config.latLow = eu4Conf.get<double>("fastworldgen.latitudeLow");
-    config.latHigh = eu4Conf.get<double>("fastworldgen.latitudeHigh");
-  }
-  cut = eu4Conf.get<bool>("fastworldgen.cut");
+  config.seaLevel = 95;
+  config.seaProvFactor *= 0.5;
+  config.landProvFactor *= 0.4;
+  config.loadMapsPath = eu4Conf.get<std::string>("fastworldgen.loadMapsPath");
+  config.heightmapIn = config.loadMapsPath +
+                       eu4Conf.get<std::string>("fastworldgen.heightMapName");
+  cut = config.cut;
   // check if config settings are fine
   config.sanityCheck();
 }
