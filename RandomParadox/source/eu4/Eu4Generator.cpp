@@ -31,9 +31,9 @@ void Generator::generateRegions(std::vector<Region> &regions) {
   }
   Bitmap eu4RegionBmp(Env::Instance().width, Env::Instance().height, 24);
   for (auto &strat : eu4regions) {
-    Colour c{static_cast<unsigned char>(RandNum::randNum() % 255),
-             static_cast<unsigned char>(RandNum::randNum() % 255),
-             static_cast<unsigned char>(RandNum::randNum() % 255)};
+    Colour c{static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255),
+        static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255),
+        static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255)};
     for (auto &area : strat.areaIDs) {
       c.setBlue(regions[area].sea ? 255 : 0);
       for (auto &prov : regions[area].gameProvinces) {
