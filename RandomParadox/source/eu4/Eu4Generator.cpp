@@ -29,7 +29,7 @@ void Generator::generateRegions(std::vector<Region> &regions) {
       eu4regions.push_back(euR);
     }
   }
-  Bitmap eu4RegionBmp(Env::Instance().width, Env::Instance().height, 24);
+  Bitmap eu4RegionBmp(Cfg::Values().width, Cfg::Values().height, 24);
   for (auto &strat : eu4regions) {
     Colour c{static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255),
         static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255),
