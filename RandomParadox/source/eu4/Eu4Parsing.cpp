@@ -186,9 +186,9 @@ void writeDefaultMap(const std::string &path,
   Utils::Logging::logLine("EU4 Parser: Map: Writing default map");
   auto content = pU::readFile("resources\\eu4\\map\\default.map");
   pU::replaceOccurences(content, "templateWidth",
-                        std::to_string(Env::Instance().width));
+                        std::to_string(Cfg::Values().width));
   pU::replaceOccurences(content, "templateHeight",
-                        std::to_string(Env::Instance().height));
+                        std::to_string(Cfg::Values().height));
   pU::replaceOccurences(content, "templateProvinces",
                         std::to_string(provinces.size() + 1));
   std::string seaStarts{""};

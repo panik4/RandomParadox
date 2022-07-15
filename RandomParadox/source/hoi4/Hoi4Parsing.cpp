@@ -69,8 +69,8 @@ void buildings(const std::string &path, const std::vector<Fwg::Region> &regions,
         for (const auto &prov : region.provinces) {
           if (!prov->isLake && !prov->sea) {
             auto pix = Utils::selectRandom(prov->pixels);
-            auto widthPos = pix % Env::Instance().width;
-            auto heightPos = pix / Env::Instance().width;
+            auto widthPos = pix % Cfg::Values().width;
+            auto heightPos = pix / Cfg::Values().width;
             std::vector<std::string> arguments{
                 std::to_string(region.ID + 1),
                 type,
@@ -96,10 +96,10 @@ void buildings(const std::string &path, const std::vector<Fwg::Region> &regions,
                 if (neighbour->sea)
                   for (const auto &provPix : neighbour->pixels)
                     if (Utils::getDistance(provPix, pix,
-                                           Env::Instance().width) < 2.0)
+                                           Cfg::Values().width) < 2.0)
                       ID = neighbour->ID;
-            auto widthPos = pix % Env::Instance().width;
-            auto heightPos = pix / Env::Instance().width;
+            auto widthPos = pix % Cfg::Values().width;
+            auto heightPos = pix / Cfg::Values().width;
             std::vector<std::string> arguments{
                 std::to_string(region.ID + 1),
                 type,
@@ -217,8 +217,8 @@ void unitStacks(const std::string &path,
   for (const auto &prov : provinces) {
     int position = 0;
     auto pix = Utils::selectRandom(prov->pixels);
-    auto widthPos = pix % Env::Instance().width;
-    auto heightPos = pix / Env::Instance().width;
+    auto widthPos = pix % Cfg::Values().width;
+    auto heightPos = pix / Cfg::Values().width;
     std::vector<std::string> arguments{
         std::to_string(prov->ID + 1),
         std::to_string(position),
@@ -232,10 +232,10 @@ void unitStacks(const std::string &path,
       position++;
       double angle;
       auto nextPos = prov->getPositionBetweenProvinces(
-          *neighbour, Env::Instance().width, angle);
+          *neighbour, Cfg::Values().width, angle);
       angle += 1.57;
-      auto widthPos = nextPos % Env::Instance().width;
-      auto heightPos = nextPos / Env::Instance().width;
+      auto widthPos = nextPos % Cfg::Values().width;
+      auto heightPos = nextPos / Cfg::Values().width;
       std::vector<std::string> arguments{
           std::to_string(prov->ID + 1),
           std::to_string(position),
@@ -263,8 +263,8 @@ void weatherPositions(const std::string &path,
     const auto &region = Utils::selectRandom(strategicRegions[i].gameRegionIDs);
     const auto prov = Utils::selectRandom(regions[region].provinces);
     const auto pix = Utils::selectRandom(prov->pixels);
-    auto widthPos = pix % Env::Instance().width;
-    auto heightPos = pix / Env::Instance().width;
+    auto widthPos = pix % Cfg::Values().width;
+    auto heightPos = pix / Cfg::Values().width;
     std::vector<std::string> arguments{
         std::to_string(i + 1), std::to_string(widthPos), std::to_string(9.90),
         std::to_string(heightPos), "small"};
@@ -927,8 +927,8 @@ std::string getBuildingLine(const std::string &type, const Fwg::Region &region,
       prov = Utils::selectRandom(region.provinces);
     pix = Utils::selectRandom(prov->pixels);
   }
-  auto widthPos = pix % Env::Instance().width;
-  auto heightPos = pix / Env::Instance().width;
+  auto widthPos = pix % Cfg::Values().width;
+  auto heightPos = pix / Cfg::Values().width;
   std::vector<std::string> arguments{
       std::to_string(region.ID + 1),
       type,

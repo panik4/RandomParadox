@@ -52,7 +52,7 @@ void Module::readEu4Config(const std::string &configSubFolder,
   if (!findModFolders()) {
     throw(std::exception("Could not locate the mod folders. Exiting"));
   }
-  auto &config = Env::Instance();
+  auto &config = Cfg::Values();
   namespace pt = boost::property_tree;
   pt::ptree eu4Conf;
   try {
@@ -98,7 +98,7 @@ void Module::genEu4() {
     eu4Gen.generateCountries(numCountries, gamePath);
     eu4Gen.evaluateNeighbours();
     eu4Gen.generateWorld();
-    eu4Gen.dumpDebugCountrymap(Env::Instance().mapsPath + "countries.bmp");
+    eu4Gen.dumpDebugCountrymap(Cfg::Values().mapsPath + "countries.bmp");
     eu4Gen.generateRegions(eu4Gen.gameRegions);
   } catch (std::exception e) {
     std::string error = "Error while generating the Eu4 Module.\n";

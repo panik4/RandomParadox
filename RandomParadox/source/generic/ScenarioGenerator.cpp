@@ -68,7 +68,7 @@ void Generator::mapRegions() {
 
 void Generator::generatePopulations() {
   Logging::logLine("Generating Population");
-  auto &config = Fwg::Env::Instance();
+  auto &config = Fwg::Cfg::Values();
   const auto &popMap = fwg.populationMap;
   const auto &cityMap = fwg.cityMap;
   for (auto &c : countries)
@@ -95,7 +95,7 @@ void Generator::generateDevelopment() {
   // terrain type?
   // .....
   Logging::logLine("Generating State Development");
-  auto &config = Fwg::Env::Instance();
+  auto &config = Fwg::Cfg::Values();
   const auto &cityMap = fwg.cityMap;
   for (auto &c : countries)
     for (auto &gR : c.second.ownedRegions)
@@ -113,7 +113,7 @@ void Generator::generateDevelopment() {
 }
 
 void Generator::mapTerrain() {
-  auto &config = Fwg::Env::Instance();
+  auto &config = Fwg::Cfg::Values();
   const auto &colours = config.colours;
   const auto &climateMap = fwg.climateMap;
   Bitmap typeMap(climateMap.bInfoHeader.biWidth,
@@ -197,7 +197,7 @@ Region &Generator::findStartRegion() {
 // TODO: rulesets, e.g. naming schemes? tags? country size?
 void Generator::generateCountries(int numCountries,
                                   const std::string &gamePath) {
-  auto &config = Fwg::Env::Instance();
+  auto &config = Fwg::Cfg::Values();
   this->numCountries = numCountries;
   Logging::logLine("Generating Countries");
   // load tags from hoi4 that are used by the base game
@@ -239,7 +239,7 @@ void Generator::evaluateNeighbours() {
 
 Bitmap Generator::dumpDebugCountrymap(const std::string &path) {
   Logging::logLine("Mapping Continents");
-  auto &config = Fwg::Env::Instance();
+  auto &config = Fwg::Cfg::Values();
   Bitmap countryBMP(config.width, config.height, 24);
   for (const auto &country : countries)
     for (const auto &region : country.second.ownedRegions)

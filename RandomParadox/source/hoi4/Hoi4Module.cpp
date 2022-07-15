@@ -66,7 +66,7 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
     throw(std::exception("Could not locate the mod folders. Exiting"));
   }
 
-  auto &config = Env::Instance();
+  auto &config = Cfg::Values();
   namespace pt = boost::property_tree;
   pt::ptree hoi4Conf;
   try {
@@ -122,7 +122,7 @@ void Hoi4Module::genHoi() {
     hoi4Gen.evaluateNeighbours();
     hoi4Gen.generateWorld();
     Fwg::Gfx::Bitmap countryMap =
-        hoi4Gen.dumpDebugCountrymap(Env::Instance().mapsPath + "countries.bmp");
+        hoi4Gen.dumpDebugCountrymap(Cfg::Values().mapsPath + "countries.bmp");
 
     // now generate hoi4 specific stuff
     hoi4Gen.generateCountrySpecifics();

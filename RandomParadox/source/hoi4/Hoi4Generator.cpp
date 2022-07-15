@@ -38,7 +38,7 @@ void Generator::generateStateResources() {
 
 void Generator::generateStateSpecifics(const int regionAmount) {
   Utils::Logging::logLine("HOI4: Planning the economy");
-  auto &config = Env::Instance();
+  auto &config = Cfg::Values();
   // calculate the target industry amount
   auto targetWorldIndustry = 1248 * sizeFactor * industryFactor;
   Utils::Logging::logLine(config.landPercentage);
@@ -111,7 +111,7 @@ void Generator::generateStateSpecifics(const int regionAmount) {
 
 void Generator::generateCountrySpecifics() {
   Utils::Logging::logLine("HOI4: Choosing uniforms and electing Tyrants");
-  sizeFactor = sqrt((double)(Env::Instance().width * Env::Instance().height) /
+  sizeFactor = sqrt((double)(Cfg::Values().width * Cfg::Values().height) /
                     (double)(5632 * 2048));
   // graphical culture pairs:
   // { graphical_culture = type }
@@ -192,7 +192,7 @@ void Generator::generateStrategicRegions() {
       strategicRegions.push_back(sR);
     }
   }
-  Bitmap stratRegionBMP(Env::Instance().width, Env::Instance().height, 24);
+  Bitmap stratRegionBMP(Cfg::Values().width, Cfg::Values().height, 24);
   for (auto &strat : strategicRegions) {
     Colour c{static_cast<unsigned char>(RandNum::getRandom(255)),
              static_cast<unsigned char>(RandNum::getRandom(255)),
@@ -230,14 +230,14 @@ void Generator::generateWeather() {
         strat.weatherMonths.push_back(
             {averageDeviation, averageTemperature, averagePrecipitation});
         // temperature low, 3
-        strat.weatherMonths[i].push_back(Env::Instance().baseTemperature +
+        strat.weatherMonths[i].push_back(Cfg::Values().baseTemperature +
                                          averageTemperature *
-                                             Env::Instance().temperatureRange);
+                                             Cfg::Values().temperatureRange);
         // tempHigh, 4
         strat.weatherMonths[i].push_back(
-            Env::Instance().baseTemperature +
-            averageTemperature * Env::Instance().temperatureRange +
-            averageDeviation * Env::Instance().deviationFactor);
+            Cfg::Values().baseTemperature +
+            averageTemperature * Cfg::Values().temperatureRange +
+            averageDeviation * Cfg::Values().deviationFactor);
         // light_rain chance: cold and humid -> high, 5
         strat.weatherMonths[i].push_back((1.0 - averageTemperature) *
                                          averagePrecipitation);
@@ -271,7 +271,7 @@ void Generator::generateWeather() {
 
 void Generator::generateLogistics(Bitmap logistics) {
   Utils::Logging::logLine("HOI4: Building rail networks");
-  auto width = Env::Instance().width;
+  auto width = Cfg::Values().width;
   for (auto &country : hoi4Countries) {
     // GameProvince ID, distance
     std::map<double, int> supplyHubs;
@@ -743,18 +743,18 @@ bool Generator::targetFulfillsRequirements(
     }
     if (value == "near") {
       auto maxDistance =
-          sqrt(Env::Instance().width * Env::Instance().height) * 0.2;
+          sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
       if (Utils::getDistance(gameRegions[source.capitalRegionID].position,
                              gameRegions[target.capitalRegionID].position,
-                             Env::Instance().width) > maxDistance)
+                             Cfg::Values().width) > maxDistance)
         return false;
     }
     if (value == "far") {
       auto minDistance =
-          sqrt(Env::Instance().width * Env::Instance().height) * 0.2;
+          sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
       if (Utils::getDistance(gameRegions[source.capitalRegionID].position,
                              gameRegions[target.capitalRegionID].position,
-                             Env::Instance().width) < minDistance)
+                             Cfg::Values().width) < minDistance)
         return false;
     }
   }

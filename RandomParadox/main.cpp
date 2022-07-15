@@ -10,9 +10,9 @@ void dumpInfo(const std::string &error, const std::string &configSubFolder) {
   for (const auto &entry : std::filesystem::directory_iterator(path)) {
     dump += Scenario::ParserUtils::readFile(entry.path().string());
   }
-  dump += std::to_string(Env::Instance().seed);
+  dump += std::to_string(Cfg::Values().seed);
   dump += "\n";
-  for (auto layerSeed : Env::Instance().seeds) {
+  for (auto layerSeed : Cfg::Values().seeds) {
     dump += std::to_string(layerSeed);
     dump += "\n";
   }
@@ -90,7 +90,7 @@ int main() {
     return -1;
   }
 
-  auto &config = Env::Instance();
+  auto &config = Cfg::Values();
   // check if we can read the config
   try {
     config.getConfig(configSubFolder + "FastWorldGenerator.json");
