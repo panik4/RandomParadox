@@ -14,7 +14,7 @@ Flag::Flag() {}
 
 Flag::Flag(const int width, const int height) : width(width), height(height) {
   image = std::vector<unsigned char>(width * height * 4, 0);
-  auto randomIndex = RandNum::randNum() % flagTemplates.size();
+  auto randomIndex = RandNum::getRandom(flagTemplates.size());
   image = flagTemplates[randomIndex];
   const auto &flagInfo = flagMetadata[randomIndex];
   // get the template and map all colours to indices
@@ -40,7 +40,7 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
     colIndex++;
   }
   // now load symbol templates
-  randomIndex = RandNum::randNum() % symbolTemplates.size();
+  randomIndex = RandNum::getRandom(symbolTemplates.size());
   auto symbol{symbolTemplates[randomIndex]};
   auto symbolInfo{symbolMetadata[randomIndex]};
 
@@ -50,8 +50,9 @@ Flag::Flag(const int width, const int height) : width(width), height(height) {
 
   replacementColours.clear();
   for (const auto &colGroup : flagInfo.symbolColourGroups) {
-    const auto &colour = colourGroups[colGroup][RandNum::randNum() %
-                                                colourGroups[colGroup].size()];
+    const auto &colour =
+        colourGroups[colGroup]
+                    [RandNum::getRandom(colourGroups[colGroup].size())];
     replacementColours.push_back(colour);
   }
   // get the template and map all colours to indices
@@ -143,7 +144,7 @@ void Flag::readColourGroups() {
     for (auto i = 1; i < tokens.size(); i++) {
       const auto nums = PU::getNumbers(tokens[i], ',', std::set<int>{});
       Fwg::Gfx::Colour c{(unsigned char)nums[0], (unsigned char)nums[1],
-               (unsigned char)nums[2]};
+                         (unsigned char)nums[2]};
       colourGroups[tokens[0]].push_back(c);
     }
   }

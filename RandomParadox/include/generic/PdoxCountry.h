@@ -2,6 +2,7 @@
 #include "FastWorldGenerator.h"
 #include "generic/Flag.h"
 #include "generic/GameRegion.h"
+#include "RandNum/RandNum.h"
 #include <string>
 #include <vector>
 namespace Scenario {

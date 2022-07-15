@@ -209,7 +209,7 @@ void Generator::generateCountries(int numCountries,
                       NameGeneration::generateAdjective(name, nData),
                       Gfx::Flag(82, 52));
     // randomly set development of countries
-    pdoxC.developmentFactor = Fwg::RandNum::getRandomDouble(0.1, 1.0);
+    pdoxC.developmentFactor = RandNum::getRandom(0.1, 1.0);
     countries.emplace(pdoxC.tag, pdoxC);
   }
   for (auto &pdoxCountry : countries) {
