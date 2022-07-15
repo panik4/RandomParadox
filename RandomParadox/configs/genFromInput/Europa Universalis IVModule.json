@@ -2,7 +2,7 @@
 	"fastworldgen":
 	{
 		"loadMapsPath": "mapInputs//",
-		"heightMapName": "middleEarth.bmp"
+		"heightMapName": "europe.bmp"
 	},
 	"eu4":
 	{

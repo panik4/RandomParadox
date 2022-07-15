@@ -7,6 +7,7 @@
 #include "PdoxContinent.h"
 #include "PdoxCountry.h"
 #include "ResourceLoading.h"
+#include "RandNum/RandNum.h"
 #include <map>
 namespace Scenario {
 class Generator {

@@ -77,8 +77,8 @@ void Module::readEu4Config(const std::string &configSubFolder,
   //  passed to generic ScenarioGenerator
   numCountries = eu4Conf.get<int>("scenario.numCountries");
   config.seaLevel = 95;
-  config.seaProvFactor *= 0.5;
-  config.landProvFactor *= 0.4;
+  config.seaProvFactor *= 0.7;
+  config.landProvFactor *= 0.7;
   config.loadMapsPath = eu4Conf.get<std::string>("fastworldgen.loadMapsPath");
   config.heightmapIn = config.loadMapsPath +
                        eu4Conf.get<std::string>("fastworldgen.heightMapName");

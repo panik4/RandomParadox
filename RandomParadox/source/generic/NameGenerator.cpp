@@ -4,7 +4,7 @@ namespace Scenario {
 namespace NameGeneration {
 std::string generateName(const NameData &nameData) {
   auto selectedRule{
-      nameData.nameRules[Fwg::RandNum::randNum() % nameData.nameRules.size()]};
+      nameData.nameRules[RandNum::getRandom((size_t)0, nameData.nameRules.size())]};
   auto selectedRuleNum{ParserUtils::getTokens(selectedRule, ';')};
   std::string name{Detail::getToken(selectedRuleNum, nameData)};
   std::transform(name.begin(), name.begin() + 1, name.begin(), ::toupper);
