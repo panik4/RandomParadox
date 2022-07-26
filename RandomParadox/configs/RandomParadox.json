@@ -2,6 +2,7 @@
 	"randomScenario": 
 	{
 		"writeMaps": true,
+		"mapCountries": true,
 		"genhoi4": true,
 		"geneu4": false
 	},
@@ -18,6 +19,6 @@
 		"gamePath" : "D://Steam//steamapps//common//Hearts of Iron IV",
 		"modPath" : "C://Users//<username>//Documents//Paradox Interactive//Hearts of Iron IV//mod//",
 		"modsDirectory" : "C://Users//<username>//Documents//Paradox Interactive//Hearts of Iron IV//mod//",
-		"inputMaps": "hoi4Inputs//"
+		"mappingPath": "hoi4Inputs//"
 	}
 }

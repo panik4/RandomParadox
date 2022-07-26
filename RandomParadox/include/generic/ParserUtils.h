@@ -13,6 +13,8 @@ std::vector<std::string> getLines(const std::string &path);
 std::vector<std::vector<std::string>> getLinesByID(const std::string &path);
 std::string csvFormat(const std::vector<std::string> arguments, char delimiter,
                       bool trailing);
+std::string getValue(const std::string& content, const std::string& key);
+
 void removeCharacter(std::string &content, char character);
 std::vector<std::string> getTokens(const std::string &content,
                                    const char delimiter);

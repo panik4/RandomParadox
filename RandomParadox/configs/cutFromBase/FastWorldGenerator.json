@@ -45,6 +45,7 @@
 		"landPercentage" : 34,
 		"seaLevel" : 93,
 		"accuracy": 100,
+		"sobelFactor": 1,
 		"rivers" : 
 		{
 			"numRivers" : 100

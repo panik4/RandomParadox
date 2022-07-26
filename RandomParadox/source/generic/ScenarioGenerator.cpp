@@ -62,6 +62,11 @@ void Generator::mapRegions() {
     throw(std::exception("Fatal: Lost provinces, terminating"));
   if (gameRegions.size() != fwg.areas.regions.size())
     throw(std::exception("Fatal: Lost regions, terminating"));
+  for (const auto &gameRegion : gameRegions) {
+    if (gameRegion.ID > gameRegions.size()) {
+      throw(std::exception("Fatal: Invalid region IDs, terminating"));
+    }
+  }
   // sort by gameprovince ID
   std::sort(gameProvinces.begin(), gameProvinces.end());
 }

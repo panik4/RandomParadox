@@ -2,7 +2,7 @@
 	"fastworldgen":
 	{
 		"loadMapsPath": "mapInputs//",
-		"heightMapName": "europe.bmp"
+		"heightMapName": "europe_island.bmp"
 	},
 	"eu4":
 	{
