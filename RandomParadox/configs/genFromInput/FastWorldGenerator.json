@@ -19,8 +19,8 @@
 		"humidityMap" : false,
 		"habitabilityMap" : false,
 		"provinceMap" : false,
-		"modifyHeight": true,
-		"heightAdjustments": 2
+		"modifyHeight": false,
+		"heightAdjustments": 0
 	},
 	"cut":
 	{
@@ -46,6 +46,7 @@
 		"landPercentage" : -1,
 		"seaLevel" : 93,
 		"accuracy": 100,
+		"sobelFactor": 2,
 		"rivers" : 
 		{
 			"numRivers" : 100
@@ -153,7 +154,7 @@
 		"humidity" : {
 			"coastalEffectRange" : -1,
 			"windEffectRange" : -1,
-			"latitudeLow" : 1.2,
+			"latitudeLow" : 0.4,
 			"latitudeHigh" : 1.8
 		},
 		"weather":

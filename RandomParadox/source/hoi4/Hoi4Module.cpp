@@ -3,13 +3,15 @@ using namespace Fwg;
 namespace Scenario::Hoi4 {
 Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
                        const std::string &configSubFolder,
-                       const std::string &username) {
+                       const std::string &username, const bool mapCountries) {
 
   FastWorldGenerator fwg(configSubFolder);
   // read hoi configs and potentially overwrite settings for fwg
   readHoiConfig(configSubFolder, username, gamesConf);
-  // now run the world generation
-  fwg.generateWorld();
+  if (!mapCountries) {
+    // now run the world generation
+    fwg.generateWorld();
+  }
   hoi4Gen = {fwg};
   hoi4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
 }
@@ -39,6 +41,8 @@ bool Hoi4Module::createPaths() {
     create_directory(gameModPath + "\\common\\countries\\");
     create_directory(gameModPath + "\\common\\bookmarks\\");
     create_directory(gameModPath + "\\common\\country_tags\\");
+    //
+    create_directory(gameModPath + "\\tutorial\\");
     return true;
   } catch (std::exception e) {
     std::string error =
@@ -143,6 +147,7 @@ void Hoi4Module::genHoi() {
   }
   // now start writing game files
   try {
+
     // generate map files. Format must be converted and colours mapped to hoi4
     // compatible colours
     Gfx::FormatConverter formatConverter(gamePath, "Hoi4");
@@ -210,6 +215,7 @@ void Hoi4Module::genHoi() {
          hoi4Gen.nData);
     commonBookmarks(gameModPath + "\\common\\bookmarks\\",
                     hoi4Gen.hoi4Countries, hoi4Gen.strengthScores);
+    tutorials(gameModPath + "\\tutorial\\tutorial.txt");
 
     Parsing::copyDescriptorFile("resources\\hoi4\\descriptor.mod", gameModPath,
                                 gameModsDirectory, modName);
@@ -226,5 +232,16 @@ void Hoi4Module::genHoi() {
   // now if everything worked, print info about world and pause for user to
   // see
   hoi4Gen.printStatistics();
+}
+void Hoi4Module::mapCountries() {
+  if (!createPaths())
+    return;
+  // Scenario::Hoi4MapPainting::readColourMapping();
+  auto provinces = Scenario::Hoi4MapPainting::readProvinceMap(mappingPath);
+
+  auto states = Scenario::Hoi4MapPainting::readStates(mappingPath);
+
+  Scenario::Hoi4MapPainting::output(states, provinces, mappingPath,
+                                    gameModPath);
 }
 } // namespace Scenario::Hoi4

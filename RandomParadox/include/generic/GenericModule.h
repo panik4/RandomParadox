@@ -15,6 +15,7 @@ protected:
   std::string gamePath;
   std::string gameModPath;
   std::string gameModsDirectory;
+  std::string mappingPath;
   void configurePaths(const std::string &username, const std::string &gameName,
                   const boost::property_tree::ptree &gamesConf);
   void createPaths(const std::string &basePath);

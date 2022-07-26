@@ -95,8 +95,8 @@ void buildings(const std::string &path, const std::vector<Fwg::Region> &regions,
               for (const auto &neighbour : prov->neighbours)
                 if (neighbour->sea)
                   for (const auto &provPix : neighbour->pixels)
-                    if (Utils::getDistance(provPix, pix,
-                                           Cfg::Values().width) < 2.0)
+                    if (Utils::getDistance(provPix, pix, Cfg::Values().width) <
+                        2.0)
                       ID = neighbour->ID;
             auto widthPos = pix % Cfg::Values().width;
             auto heightPos = pix / Cfg::Values().width;
@@ -697,6 +697,10 @@ void strategicRegionNames(
                                    strategicRegions[i].name, "\"\n");
   }
   pU::writeFile(path + "\\strategic_region_names_l_english.yml", content, true);
+}
+
+void tutorials(const std::string &path) {
+  pU::writeFile(path, "tutorial = { }");
 }
 
 void foci(const std::string &path, const hoiMap &countries,

@@ -3,9 +3,9 @@
 	{
 		"debugLevel": 0,
 		"interactiveMode" : false,
-		"loadMaps" : false,
+		"loadMaps" : true,
 		"writeMaps" : true,
-		"seed" : 3
+		"seed" : 0
 	},
 	"paths":
 	{
@@ -14,12 +14,13 @@
 	},
 	"loadMaps":
 	{
-		"heightMap" : false,
-		"terrainMap" : false,
-		"humidityMap" : false,
-		"habitabilityMap" : false,
-		"provinceMap" : false,
-		"modifyHeight": false
+		"heightMap" : true,
+		"terrainMap" : true,
+		"humidityMap" : true,
+		"habitabilityMap" : true,
+		"provinceMap" : true,
+		"modifyHeight": true,
+		"heightAdjustments": 0
 	},
 	"cut":
 	{
@@ -40,12 +41,12 @@
 	},
 	"map": 
 	{
-        "height" : 512,
-		"width" : 512,
-		"landPercentage" : 34,
+        "height" : 2048,
+		"width" : 5632,
+		"landPercentage" : -1,
 		"seaLevel" : 93,
 		"accuracy": 100,
-		"sobelFactor": 2,
+		"sobelFactor": 1,
 		"rivers" : 
 		{
 			"numRivers" : 100
@@ -153,8 +154,8 @@
 		"humidity" : {
 			"coastalEffectRange" : -1,
 			"windEffectRange" : -1,
-			"latitudeLow" : 0.0,
-			"latitudeHigh" : 2.0
+			"latitudeLow" : 0.4,
+			"latitudeHigh" : 1.8
 		},
 		"weather":
 		{
