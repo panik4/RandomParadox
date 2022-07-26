@@ -56,8 +56,8 @@ void countryNames(const std::string &path, const hoiMap &countries,
 void stateNames(const std::string &path, const hoiMap &countries);
 void strategicRegionNames(const std::string &path,
                           const std::vector<strategicRegion> &strategicRegions);
-
-// copy base game countries and remove certain lines to reduce crashes
+void tutorials(const std::string &path);
+    // copy base game countries and remove certain lines to reduce crashes
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
                           const std::vector<Fwg::Region> &regions);
 

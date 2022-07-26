@@ -22,7 +22,6 @@ void dumpInfo(const std::string &error, const std::string &configSubFolder) {
 }
 
 int main() {
-
   // Short alias for this namespace
   namespace pt = boost::property_tree;
   // Create a root
@@ -73,11 +72,12 @@ int main() {
     return -1;
   }
 
-  bool writeMaps, genHoi4Scenario, genEu4Scenario;
+  bool writeMaps, mapCountries, genHoi4Scenario, genEu4Scenario;
   try {
     // if debug is enabled in the config, a directory subtree containing
     // visualisation of many maps will be created
     writeMaps = rpdConf.get<bool>("randomScenario.writeMaps");
+    mapCountries = rpdConf.get<bool>("randomScenario.mapCountries");
     // generate hoi4 scenario or not
     genHoi4Scenario = rpdConf.get<bool>("randomScenario.genhoi4");
     genEu4Scenario = rpdConf.get<bool>("randomScenario.geneu4");
@@ -93,7 +93,7 @@ int main() {
   auto &config = Cfg::Values();
   // check if we can read the config
   try {
-    config.getConfig(configSubFolder + "FastWorldGenerator.json");
+    config.readConfig(configSubFolder + "FastWorldGenerator.json");
   } catch (std::exception e) {
     Utils::Logging::logLine("Incorrect config \"FastWorldGenerator.json\"");
     Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
@@ -111,11 +111,15 @@ int main() {
   if (!writeMaps) {
     config.writeMaps = false;
   }
-  try {
+ // try {
     if (genHoi4Scenario) {
       // generate hoi4 scenario
-      Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username);
-      hoi4Mod.genHoi();
+      Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username, mapCountries);
+      if (!mapCountries) {
+        hoi4Mod.genHoi();
+      } else {
+        hoi4Mod.mapCountries();
+      }
       dumpInfo("", configSubFolder);
       system("pause");
     }
@@ -126,12 +130,12 @@ int main() {
       dumpInfo("", configSubFolder);
       system("pause");
     }
-  } catch (std::exception e) {
-    Utils::Logging::logLine(e.what());
-    dumpInfo(e.what(), configSubFolder);
-    system("pause");
-    return -1;
-  }
+  //} catch (std::exception e) {
+  //  Utils::Logging::logLine(e.what());
+  //  dumpInfo(e.what(), configSubFolder);
+  //  system("pause");
+  //  return -1;
+  //}
   Utils::Logging::logLine("Done with the generation");
   return 0;
 }

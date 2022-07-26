@@ -97,6 +97,7 @@ void GenericModule::configurePaths(
   // now read the paths
   modName = gamesConf.get<std::string>(gameName + ".modName");
   gamePath = gamesConf.get<std::string>(gameName + ".gamePath");
+  mappingPath = gamesConf.get<std::string>(gameName + ".mappingPath");
   gameModPath = gamesConf.get<std::string>(gameName + ".modPath") + modName;
   ParserUtils::replaceOccurences(gameModPath, "<username>", username);
   gameModsDirectory = gamesConf.get<std::string>(gameName + ".modsDirectory");

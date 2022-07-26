@@ -80,6 +80,17 @@ std::string csvFormat(const std::vector<std::string> arguments, char delimiter,
   }
   retString.append("\n");
   return retString;
+}
+std::string getValue(const std::string &content, const std::string &key) {
+  const auto pos = content.find(key);
+  if (pos != std::string::npos) {
+    const auto equalsPos = content.find("=", pos) + 1;
+    const auto endPos = content.find("\n", equalsPos);
+    auto value = content.substr(equalsPos, endPos - equalsPos);
+    removeCharacter(value, ' ');
+    return value;
+  }
+  return "";
 };
 void removeCharacter(std::string &content, char character) {
   content.erase(std::remove(content.begin(), content.end(), character),
@@ -111,7 +122,7 @@ std::vector<int> getNumbers(const std::string &content, const char delimiter,
   return numbers;
 };
 std::vector<int> getNumberBlock(std::string content, std::string key) {
-  auto bracketBlock = getBracketBlock(content, key);
+  auto bracketBlock = getBracketBlockContent(content, key);
   removeCharacter(bracketBlock, '{');
   removeCharacter(bracketBlock, '\n');
   removeCharacter(bracketBlock, '\t');
