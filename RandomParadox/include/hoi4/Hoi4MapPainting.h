@@ -1,21 +1,15 @@
 #pragma once
-#include <iostream>
+#include "generic/ParserUtils.h"
 #include "utils/Bitmap.h"
-#include "Hoi4Parsing.h"
+#include <iostream>
 namespace Scenario::Hoi4MapPainting {
 
-// all maps
+namespace Detail {
 Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path);
-
-// default map
 std::vector<std::vector<int>> readStates(const std::string &path);
-
 std::vector<Fwg::Province> readProvinceMap(const std::string &path);
+} // namespace Detail
 
-void output(std::vector<std::vector<int>> states,
-            std::vector<Fwg::Province> provinces, const std::string &inPath,
-            const std::string &outputPath);
-
-// custom map
-
+void output(const std::string &inPath, const std::string &outputPath,
+            bool multiCore);
 }; // namespace Scenario::Hoi4MapPainting

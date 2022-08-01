@@ -49,6 +49,6 @@ void removeBracketBlockFromBracket(std::string &content, const std::string key);
 bool removeBracketBlockFromKey(std::string &content, const std::string key);
 
 void removeSurroundingBracketBlock(std::string &content, const std::string key);
-bool removeSurroundingBracketBlockFromLineBreak(std::string &content,
+std::string removeSurroundingBracketBlockFromLineBreak(std::string &content,
                                                 const std::string key);
 }; // namespace Scenario::ParserUtils
