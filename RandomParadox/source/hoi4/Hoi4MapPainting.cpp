@@ -2,20 +2,66 @@
 
 namespace Scenario::Hoi4MapPainting {
 
+namespace Detail {
+
 // reads a text file containing colour->tag relations
 // reads a bmp containing colours
 Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
   using namespace Scenario::ParserUtils;
   Fwg::Utils::ColourTMap<std::string> colourMap;
-  auto mappings = getLines(path + "map/colourMapping.txt");
-  for (const auto &line : mappings) {
-    auto tokens = getTokens(line, ';');
-    Fwg::Gfx::Colour colour = {
-        static_cast<unsigned char>(std::stoi(tokens[0])),
-        static_cast<unsigned char>(std::stoi(tokens[1])),
-        static_cast<unsigned char>(std::stoi(tokens[2]))};
-    colourMap.setValue(colour, tokens[3]);
-  }
+  auto mappings = readFile(path + "//common/countries/colors.txt");
+  std::string countryColour;
+  do {
+    countryColour =
+        removeSurroundingBracketBlockFromLineBreak(mappings, "color = ");
+    if (countryColour.size()) {
+      auto tag = countryColour.substr(1, 3);
+      auto colourString = getValue(countryColour, "color_ui");
+      auto hsv = getBracketBlockContent(colourString, "hsv");
+      std::vector<int> rgb(3);
+      if (colourString.find("rgb") != std::string::npos) {
+        rgb = getNumberBlock(colourString, "rgb");
+      } else if (hsv.size()) {
+        auto hsvd = getTokens(hsv, ' ');
+        for (int i = 0; i < hsvd.size(); i++) {
+          if (!hsvd[i].size())
+            hsvd.erase(hsvd.begin() + i);
+        }
+
+        std::vector<double> hsvv;
+        hsvv.push_back(std::stod(hsvd[0]) * 360.0);
+        hsvv.push_back(std::stod(hsvd[1]));
+        hsvv.push_back(std::stod(hsvd[2]));
+        auto C = hsvv[2] * hsvv[1];
+        // C × (1 - |(H / 60°) mod 2 - 1|)
+        auto X = C * (1.0 - abs(std::fmod((hsvv[0] / 60), 2.0) - 1.0));
+        auto m = hsvv[2] - C;
+        //  ((R'+m)×255, (G'+m)×255, (B'+m)×255)
+        rgb[0] = static_cast<int>((C + m) * 255.0) % 255;
+        rgb[1] = static_cast<int>((X + m) * 255.0) % 255;
+        rgb[2] = static_cast<int>((0.0 + m) * 255.0) % 255;
+
+        if (hsvv[0] < 60) {
+        } else if (hsvv[0] < 120) {
+          std::swap(rgb[1], rgb[0]);
+        } else if (hsvv[0] < 180) {
+          std::swap(rgb[2], rgb[0]);
+          std::swap(rgb[2], rgb[1]);
+        } else if (hsvv[0] < 240) {
+          std::swap(rgb[2], rgb[0]);
+        } else if (hsvv[0] < 300) {
+          std::swap(rgb[0], rgb[1]);
+          std::swap(rgb[1], rgb[2]);
+        } else {
+          std::swap(rgb[1], rgb[2]);
+        }
+      }
+      colourMap.setValue({static_cast<unsigned char>(rgb[0]),
+                          static_cast<unsigned char>(rgb[1]),
+                          static_cast<unsigned char>(rgb[2])},
+                         tag);
+    }
+  } while (countryColour.size());
   return colourMap;
 }
 // states are where tags are written down, expressing ownership of the map
@@ -26,7 +72,6 @@ std::vector<std::vector<int>> readStates(const std::string &path) {
   auto states = readFilesInDirectory(path + "/history/states");
 
   for (auto &state : states) {
-    // auto provString = getBracketBlockContent(state, "provinces = {");
     std::vector<int> provIDs = getNumberBlock(state, "provinces");
     regions.push_back(provIDs);
   }
@@ -59,12 +104,13 @@ std::vector<Fwg::Province> readProvinceMap(const std::string &path) {
   return retProvs;
 }
 
-void Hoi4MapPainting::output(std::vector<std::vector<int>> states,
-                             std::vector<Fwg::Province> provinces,
-                             const std::string &inPath,
-                             const std::string &outputPath) {
+} // namespace Detail
+void output(const std::string &inPath, const std::string &outputPath,
+            bool multiCore) {
 
-  auto colourMap = readColourMapping(inPath);
+  auto provinces = Detail::readProvinceMap(inPath);
+  auto states = Detail::readStates(inPath);
+  auto colourMap = Detail::readColourMapping(inPath);
   auto provMap =
       Fwg::Gfx::Bmp::load24Bit(inPath + "map/provinces.bmp", "provinces");
   auto countryMap =
@@ -74,16 +120,14 @@ void Hoi4MapPainting::output(std::vector<std::vector<int>> states,
   auto stateFiles = readFilesInDirectory(inPath + "/history/states");
 
   std::map<int, std::string> ownership;
-  int ID = 0;
-
+  auto ID = 0;
   for (const auto &state : states) {
     std::map<std::string, int> potentialOwners;
-    for (auto &provID : state) {
-      for (auto &pixel : provinces[provID].pixels) {
-        auto col = countryMap[pixel];
+    for (const auto provID : state) {
+      for (const auto pixel : provinces[provID].pixels) {
+        const auto &col = countryMap[pixel];
         if (colourMap.find(col)) {
-          auto tag = colourMap[col];
-          potentialOwners[tag]++;
+          potentialOwners[colourMap[col]]++;
         }
       }
     }
@@ -95,11 +139,24 @@ void Hoi4MapPainting::output(std::vector<std::vector<int>> states,
                          });
     auto stateString = stateFiles[ID++];
     auto fileID = getValue(stateString, "id");
-    if (pr!=std::end(potentialOwners)) {
-      std::cout << pr->first << std::endl;
-      std::cout << pr->second << std::endl;
-      replaceLine(stateString, "owner =", "owner = " + pr->first);
-      replaceLine(stateString, "owner=", "owner = " + pr->first);
+    removeCharacter(fileID, ' ');
+
+    std::string cores{""};
+    if (multiCore) {
+      // if multicore, give every candidate a core
+      for (const auto &potentialOwner : potentialOwners) {
+        cores.append("\n\t\tadd_core_of = " + potentialOwner.first + "\n");
+      }
+    }
+
+    if (pr != std::end(potentialOwners)) {
+      // first remove all cores
+      while (replaceLine(stateString, "add_core_of=", "") ||
+             replaceLine(stateString, "add_core_of =", "")) {
+      };
+      // now set owner and add cores
+      replaceLine(stateString, "owner=", "owner = " + pr->first + cores);
+      replaceLine(stateString, "owner =", "owner = " + pr->first + cores);
     }
     writeFile(outputPath + "//history//states//" + fileID + ".txt",
               stateString);

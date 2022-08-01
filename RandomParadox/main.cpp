@@ -72,7 +72,7 @@ int main() {
     return -1;
   }
 
-  bool writeMaps, mapCountries, genHoi4Scenario, genEu4Scenario;
+  bool writeMaps, mapCountries, genHoi4Scenario, genEu4Scenario, multiCore;
   try {
     // if debug is enabled in the config, a directory subtree containing
     // visualisation of many maps will be created
@@ -81,6 +81,7 @@ int main() {
     // generate hoi4 scenario or not
     genHoi4Scenario = rpdConf.get<bool>("randomScenario.genhoi4");
     genEu4Scenario = rpdConf.get<bool>("randomScenario.geneu4");
+    multiCore = rpdConf.get<bool>("MappingTool.multiCore");
   } catch (std::exception e) {
     Utils::Logging::logLine("Error reading boost::property_tree");
     Utils::Logging::logLine(
@@ -111,14 +112,14 @@ int main() {
   if (!writeMaps) {
     config.writeMaps = false;
   }
- // try {
+ try {
     if (genHoi4Scenario) {
       // generate hoi4 scenario
       Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username, mapCountries);
       if (!mapCountries) {
         hoi4Mod.genHoi();
       } else {
-        hoi4Mod.mapCountries();
+        hoi4Mod.mapCountries(multiCore);
       }
       dumpInfo("", configSubFolder);
       system("pause");
@@ -130,12 +131,12 @@ int main() {
       dumpInfo("", configSubFolder);
       system("pause");
     }
-  //} catch (std::exception e) {
-  //  Utils::Logging::logLine(e.what());
-  //  dumpInfo(e.what(), configSubFolder);
-  //  system("pause");
-  //  return -1;
-  //}
+  } catch (std::exception e) {
+    Utils::Logging::logLine(e.what());
+    dumpInfo(e.what(), configSubFolder);
+    system("pause");
+    return -1;
+  }
   Utils::Logging::logLine("Done with the generation");
   return 0;
 }

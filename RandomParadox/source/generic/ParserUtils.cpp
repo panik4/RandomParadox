@@ -87,7 +87,6 @@ std::string getValue(const std::string &content, const std::string &key) {
     const auto equalsPos = content.find("=", pos) + 1;
     const auto endPos = content.find("\n", equalsPos);
     auto value = content.substr(equalsPos, endPos - equalsPos);
-    removeCharacter(value, ' ');
     return value;
   }
   return "";
@@ -101,8 +100,10 @@ std::vector<std::string> getTokens(const std::string &content,
   std::vector<std::string> tokens{};
   std::stringstream sstream(content);
   std::string token;
-  while (std::getline(sstream, token, delimiter))
+  while (std::getline(sstream, token, delimiter)) {
+    //if (token.size())
     tokens.push_back(token);
+  }
   return tokens;
 };
 
@@ -236,16 +237,17 @@ void removeSurroundingBracketBlock(std::string &content,
     content.erase(pos, blockEnd - pos);
   }
 };
-bool removeSurroundingBracketBlockFromLineBreak(std::string &content,
+std::string removeSurroundingBracketBlockFromLineBreak(std::string &content,
                                                 const std::string key) {
   auto pos = content.find(key);
   if (pos != std::string::npos) {
     pos = content.rfind("{", pos);
     pos = content.rfind("\n", pos);
     auto blockEnd = findClosingBracket(content, pos);
+    auto retString = content.substr(pos, blockEnd - pos + 1);
     content.erase(pos, blockEnd - pos + 1);
-    return true;
+    return retString;
   }
-  return false;
+  return "";
 };
 }; // namespace Scenario::ParserUtils

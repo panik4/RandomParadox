@@ -233,15 +233,26 @@ void Hoi4Module::genHoi() {
   // see
   hoi4Gen.printStatistics();
 }
-void Hoi4Module::mapCountries() {
-  if (!createPaths())
-    return;
-  // Scenario::Hoi4MapPainting::readColourMapping();
-  auto provinces = Scenario::Hoi4MapPainting::readProvinceMap(mappingPath);
+void Hoi4Module::mapCountries(bool multiCore) {
+  // prepare folder structure
+    using namespace std::filesystem;
+  try {
+    remove_all(gameModPath);
+    create_directory(gameModPath);
+    // history
+    create_directory(gameModPath + "\\history\\");
+    // gfx
+    create_directory(gameModPath + "\\history\\states\\");
+  } catch (std::exception e) {
+    std::string error =
+        "Configured paths seem to be messed up, check Hoi4Module.json\n";
+    error += "You can try fixing it yourself. Error is:\n ";
+    error += e.what();
+    throw(std::exception(error.c_str()));
+  }
+  Scenario::Hoi4MapPainting::output(mappingPath, gameModPath, multiCore);
 
-  auto states = Scenario::Hoi4MapPainting::readStates(mappingPath);
-
-  Scenario::Hoi4MapPainting::output(states, provinces, mappingPath,
-                                    gameModPath);
+  Parsing::copyDescriptorFile("resources\\hoi4\\descriptor-mapping.mod",
+                              gameModPath, gameModsDirectory, modName);
 }
 } // namespace Scenario::Hoi4

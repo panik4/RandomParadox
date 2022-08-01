@@ -6,6 +6,9 @@
 		"genhoi4": true,
 		"geneu4": false
 	},
+	"MappingTool":{
+		"multiCore": true
+	},
 	"Europa Universalis IV": 
 	{
 		"modName" : "eu4Mod1",
