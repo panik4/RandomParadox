@@ -72,7 +72,8 @@ int main() {
     return -1;
   }
 
-  bool writeMaps, mapCountries, genHoi4Scenario, genEu4Scenario, multiCore;
+  bool writeMaps, mapCountries, genHoi4Scenario, genEu4Scenario, multiCore, stateExport;
+  std::string mapName;
   try {
     // if debug is enabled in the config, a directory subtree containing
     // visualisation of many maps will be created
@@ -82,6 +83,8 @@ int main() {
     genHoi4Scenario = rpdConf.get<bool>("randomScenario.genhoi4");
     genEu4Scenario = rpdConf.get<bool>("randomScenario.geneu4");
     multiCore = rpdConf.get<bool>("MappingTool.multiCore");
+    stateExport = rpdConf.get<bool>("MappingTool.stateExport");
+    mapName = rpdConf.get<std::string>("MappingTool.mapName");
   } catch (std::exception e) {
     Utils::Logging::logLine("Error reading boost::property_tree");
     Utils::Logging::logLine(
@@ -119,7 +122,7 @@ int main() {
       if (!mapCountries) {
         hoi4Mod.genHoi();
       } else {
-        hoi4Mod.mapCountries(multiCore);
+        hoi4Mod.mapCountries(multiCore, stateExport, mapName);
       }
       dumpInfo("", configSubFolder);
       system("pause");

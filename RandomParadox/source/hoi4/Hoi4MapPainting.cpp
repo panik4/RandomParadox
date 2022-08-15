@@ -66,14 +66,18 @@ Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
 }
 // states are where tags are written down, expressing ownership of the map
 // read them in from path, map province IDs against states
-std::vector<std::vector<int>> readStates(const std::string &path) {
+std::vector<Region> readStates(const std::string &path) {
   using namespace Scenario::ParserUtils;
-  std::vector<std::vector<int>> regions;
+  std::vector<Region> regions;
   auto states = readFilesInDirectory(path + "/history/states");
 
   for (auto &state : states) {
-    std::vector<int> provIDs = getNumberBlock(state, "provinces");
-    regions.push_back(provIDs);
+    Region reg;
+    auto tag = getValue(state, "owner");
+    removeCharacter(tag, ' ');
+    reg.owner = tag;
+    reg.provinceIDs = getNumberBlock(state, "provinces");
+    regions.push_back(reg);
   }
   return regions;
 }
@@ -104,28 +108,114 @@ std::vector<Fwg::Province> readProvinceMap(const std::string &path) {
   return retProvs;
 }
 
+void countryBitmap(const std::string &mapPath,
+                   const std::vector<Fwg::Province> &provinces,
+                   const std::vector<Region> &states,
+                   const Fwg::Gfx::Bitmap &provinceMap,
+                   const Fwg::Utils::ColourTMap<std::string> &colourMap) {
+  Fwg::Gfx::Bitmap countries(provinceMap.bInfoHeader.biWidth,
+                             provinceMap.bInfoHeader.biHeight, 24);
+  std::set<int> stateBorders;
+  for (const auto &state : states) {
+    std::set<int> statePixels;
+    auto col = colourMap.valueSearch(state.owner);
+    for (const auto provID : state.provinceIDs) {
+      for (const auto pixel : provinces[provID].pixels) {
+        countries.imageData[pixel] = col;
+      }
+    }
+    // we only have a tag, which is the value of our map. We now need to find
+    // the value in the map to get the correspondig colour
+  }
+  Fwg::Gfx::Bmp::save(countries, mapPath);
+}
+
+void stateBitmap(const std::string &mapPath, Fwg::Gfx::Bitmap countries,
+                 const std::vector<Fwg::Province> &provinces,
+                 const std::vector<Region> &states) {
+
+  std::set<int> stateBorders;
+  for (const auto &state : states) {
+    std::set<int> statePixels;
+    for (const auto provID : state.provinceIDs) {
+      std::copy(provinces[provID].pixels.begin(),
+                provinces[provID].pixels.end(),
+                std::inserter(statePixels, statePixels.end()));
+    }
+    for (const auto pixel : statePixels) {
+      std::array<int, 4> newPixels = {pixel + 1, pixel - 1,
+                                      pixel + countries.bInfoHeader.biWidth,
+                                      pixel - countries.bInfoHeader.biWidth};
+      for (const auto newPix : newPixels) {
+        if (statePixels.find(newPix) == statePixels.end()) {
+          stateBorders.insert(pixel);
+        }
+      }
+    }
+  }
+  for (const auto borderPix : stateBorders) {
+    countries.imageData[borderPix] = Fwg::Gfx::Colour{254, 253, 255};
+  }
+  Fwg::Gfx::Bmp::save(countries, mapPath);
+}
 } // namespace Detail
 void output(const std::string &inPath, const std::string &outputPath,
-            bool multiCore) {
-
+            bool multiCore, bool exportMap, const std::string &inputMap) {
   auto provinces = Detail::readProvinceMap(inPath);
   auto states = Detail::readStates(inPath);
   auto colourMap = Detail::readColourMapping(inPath);
+  std::string suffix = ".bmp";
+  std::string countryMapPath = inPath + "map/" + inputMap + suffix;
+  std::string countryRegionsMapPath =
+      inPath + "map/" + inputMap + "-regions" + suffix;
   auto provMap =
       Fwg::Gfx::Bmp::load24Bit(inPath + "map/provinces.bmp", "provinces");
-  auto countryMap =
-      Fwg::Gfx::Bmp::load24Bit(inPath + "map/countries.bmp", "countries");
+  Fwg::Gfx::Bitmap ownerMap;
+  if (!std::filesystem::exists(countryMapPath)) {
+    Fwg::Utils::Logging::logLine(
+        "WARNING: No input Map exists in your input folder. If this is on "
+        "purpose, a map will be generated automatically from the given files. "
+        "Otherwise exit this program and configure it correctly");
+    system("pause");
+    Detail::countryBitmap(countryMapPath, provinces, states, provMap,
+                          colourMap);
+  }
+  ownerMap = Fwg::Gfx::Bmp::load24Bit(countryMapPath, "countries");
+
   using namespace Scenario::ParserUtils;
   std::vector<std::vector<int>> regions;
   auto stateFiles = readFilesInDirectory(inPath + "/history/states");
+
+  if (exportMap) {
+    if (std::filesystem::exists(countryRegionsMapPath)) {
+      Fwg::Utils::Logging::logLine(
+          "WARNING: File ", countryRegionsMapPath,
+          " will be generated from input countries map again and overwritten. "
+          "Make sure you want that. If not, set stateExport to false. Press "
+          "any button if you do want to continue, otherwise close the "
+          "program.");
+      system("pause");
+    }
+    if (colourMap.find(Fwg::Gfx::Colour{254, 253, 255}))
+      Fwg::Utils::Logging::logLine(
+          "Warning: One of your countries has the colour of the borders this "
+          "tool generates.");
+
+    Detail::stateBitmap(countryRegionsMapPath, ownerMap, provinces, states);
+    Fwg::Utils::Logging::logLine(
+        "Exported statebitmap as configured. You must now change the mapName "
+        "to countries-regions.bmp, set stateExport to false and re-run.");
+    ownerMap = Fwg::Gfx::Bmp::load24Bit(countryRegionsMapPath, "countries");
+    return;
+  }
 
   std::map<int, std::string> ownership;
   auto ID = 0;
   for (const auto &state : states) {
     std::map<std::string, int> potentialOwners;
-    for (const auto provID : state) {
+    for (const auto provID : state.provinceIDs) {
       for (const auto pixel : provinces[provID].pixels) {
-        const auto &col = countryMap[pixel];
+        const auto &col = ownerMap[pixel];
         if (colourMap.find(col)) {
           potentialOwners[colourMap[col]]++;
         }

@@ -7,7 +7,11 @@
 		"geneu4": false
 	},
 	"MappingTool":{
-		"multiCore": true
+		"exportCountries": true,
+		"stateExport": true,
+		"multiCore": true,
+		"mapName": "countries",
+		"inputFolder": "inputs/hoi4Inputs"
 	},
 	"Europa Universalis IV": 
 	{
@@ -22,6 +26,6 @@
 		"gamePath" : "D://Steam//steamapps//common//Hearts of Iron IV",
 		"modPath" : "C://Users//<username>//Documents//Paradox Interactive//Hearts of Iron IV//mod//",
 		"modsDirectory" : "C://Users//<username>//Documents//Paradox Interactive//Hearts of Iron IV//mod//",
-		"mappingPath": "hoi4Inputs//"
+		"mappingPath": "inputs//customMod//"
 	}
 }
