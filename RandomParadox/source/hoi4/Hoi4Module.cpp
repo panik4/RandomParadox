@@ -233,9 +233,10 @@ void Hoi4Module::genHoi() {
   // see
   hoi4Gen.printStatistics();
 }
-void Hoi4Module::mapCountries(bool multiCore) {
+void Hoi4Module::mapCountries(bool multiCore, bool stateExport,
+                              const std::string &inputMap) {
   // prepare folder structure
-    using namespace std::filesystem;
+  using namespace std::filesystem;
   try {
     remove_all(gameModPath);
     create_directory(gameModPath);
@@ -250,7 +251,8 @@ void Hoi4Module::mapCountries(bool multiCore) {
     error += e.what();
     throw(std::exception(error.c_str()));
   }
-  Scenario::Hoi4MapPainting::output(mappingPath, gameModPath, multiCore);
+  Scenario::Hoi4MapPainting::output(mappingPath, gameModPath, multiCore,
+                                    stateExport, inputMap);
 
   Parsing::copyDescriptorFile("resources\\hoi4\\descriptor-mapping.mod",
                               gameModPath, gameModsDirectory, modName);
