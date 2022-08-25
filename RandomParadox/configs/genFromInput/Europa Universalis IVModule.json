@@ -1,8 +1,8 @@
 {
 	"fastworldgen":
 	{
-		"loadMapsPath": "mapInputs//",
-		"heightMapName": "europe_island.bmp"
+		"loadMapsPath": "inputs//mapInputs//",
+		"heightMapName": "heightmap_small_normalDimensions.bmp"
 	},
 	"eu4":
 	{
