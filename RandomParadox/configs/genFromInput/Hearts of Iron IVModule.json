@@ -1,8 +1,8 @@
 {
 	"fastworldgen":
 	{
-		"loadMapsPath": "hoi4Inputs//map//",
-		"heightMapName": "heightmap-normal.bmp"
+		"loadMapsPath": "inputs//mapInputs//",
+		"heightMapName": "heightmap_small_normalDimensions2.bmp"
 	},
 	"hoi4":
 	{
