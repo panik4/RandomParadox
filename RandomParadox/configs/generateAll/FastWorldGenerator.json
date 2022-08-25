@@ -5,7 +5,7 @@
 		"interactiveMode" : false,
 		"loadMaps" : false,
 		"writeMaps" : true,
-		"seed" : 0
+		"seed" : 1
 	},
 	"paths":
 	{
@@ -40,8 +40,8 @@
 	},
 	"map": 
 	{
-        "height" : 1024,
-		"width" : 2816,
+        "height" : 512,
+		"width" : 1200,
 		"landPercentage" : 34,
 		"seaLevel" : 93,
 		"accuracy": 100,

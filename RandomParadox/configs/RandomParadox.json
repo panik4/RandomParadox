@@ -2,7 +2,7 @@
 	"randomScenario": 
 	{
 		"writeMaps": true,
-		"mapCountries": true,
+		"mapCountries": false,
 		"genhoi4": true,
 		"geneu4": false
 	},
