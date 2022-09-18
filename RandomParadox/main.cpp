@@ -118,11 +118,14 @@ int main() {
  try {
     if (genHoi4Scenario) {
       // generate hoi4 scenario
-      Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username, mapCountries);
-      if (!mapCountries) {
-        hoi4Mod.genHoi();
-      } else {
+      Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username, mapCountries | true);
+      if (mapCountries) {
         hoi4Mod.mapCountries(multiCore, stateExport, mapName);
+      } else if (true) {
+        hoi4Mod.mapEdit();
+      }
+      else {
+        hoi4Mod.genHoi();
       }
       dumpInfo("", configSubFolder);
       system("pause");

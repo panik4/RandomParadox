@@ -5,7 +5,7 @@
 		"interactiveMode" : false,
 		"loadMaps" : false,
 		"writeMaps" : true,
-		"seed" : 1
+		"seed" : 0
 	},
 	"paths":
 	{
@@ -20,6 +20,10 @@
 		"habitabilityMap" : false,
 		"provinceMap" : false,
 		"modifyHeight": false
+	},
+	"edit":
+	{
+		"heightmap" : true
 	},
 	"cut":
 	{
@@ -41,7 +45,7 @@
 	"map": 
 	{
         "height" : 512,
-		"width" : 1200,
+		"width" : 2048,
 		"landPercentage" : 34,
 		"seaLevel" : 93,
 		"accuracy": 100,

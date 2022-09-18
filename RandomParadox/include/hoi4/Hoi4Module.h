@@ -28,5 +28,6 @@ public:
   // member functions
   void genHoi();
   void mapCountries(bool multiCore, bool stateExport, const std::string& inputMap);
+  void mapEdit();
 };
 } // namespace Scenario::Hoi4

@@ -253,4 +253,87 @@ void output(const std::string &inPath, const std::string &outputPath,
   }
 }
 
+std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
+  auto list = ParserUtils::getLinesByID(path);
+  return list;
+}
+
+void Hoi4MapPainting::provinceEditing(const std::string &inPath,
+                                      const std::string &outputPath,
+                                      const std::string &mapName) {
+  auto provMap =
+      Fwg::Gfx::Bmp::load24Bit(inPath + "map//" + mapName, "provinces");
+  auto heightMap = Fwg::Gfx::Bmp::load24Bit(
+      inPath + "map//" + "heightmap" + ".bmp", "heightmap");
+  using namespace Fwg::Areas;
+  AreaData areaDefaultData;
+
+  auto list = readDefinitions(inPath + "map//definition.csv");
+
+  // now map definitions to read in IDs?????
+  for (auto line : list) {
+    if (line.size()) {
+      auto tokens = ParserUtils::getTokens(line[0], ';');
+      auto ID = std::stoi(tokens[0]);
+      if (ID == 0)
+        continue;
+      auto r = static_cast<unsigned char>(std::stoi(tokens[1]));
+      auto g = static_cast<unsigned char>(std::stoi(tokens[2]));
+      auto b = static_cast<unsigned char>(std::stoi(tokens[3]));
+      Fwg::Province *p = new Fwg::Province();
+      p->ID = ID;
+      p->colour = {r, g, b};
+      areaDefaultData.provinceColourMap.setValue(p->colour, p);
+      areaDefaultData.provinces.push_back(p);
+    }
+  }
+
+  Fwg::Areas::Provinces::readProvinceBMP(provMap, heightMap,
+                                         areaDefaultData.provinces,
+                                         areaDefaultData.provinceColourMap);
+
+  AreaData areaNewData;
+  for (auto &prov : areaDefaultData.provinces) {
+    Fwg::Province *newProv = new Fwg::Province();
+    *newProv = *prov;
+    newProv->pixels.clear();
+    newProv->coastalPixels.clear();
+    newProv->borderPixels.clear();
+    newProv->cityPixels.clear();
+    areaNewData.provinceColourMap.setValue(newProv->colour, newProv);
+    areaNewData.provinces.push_back(newProv);
+  }
+
+  auto &config = Fwg::Cfg::Values();
+  config.mapsToEdit.insert("provinceMap");
+  Fwg::Gfx::Bmp::edit<Fwg::Gfx::Colour>("provinces.bmp", provMap, "provinceMap",
+                                        config.mapsPath, config.mapsToEdit,
+                                        config.editor);
+
+  Fwg::Areas::Provinces::readProvinceBMP(
+      provMap, heightMap, areaNewData.provinces, areaNewData.provinceColourMap);
+
+  // now compare both maps and see which province was deleted
+
+  std::map<int, int> IDTransformations;
+  for (auto i = 0; i < areaDefaultData.provinces.size(); i++) {
+    IDTransformations[i] = 0;
+  }
+  std::vector<int> changedIDs;
+
+  for (auto i = 0; i < areaDefaultData.provinces.size(); i++) {
+    if (areaDefaultData.provinces[i]->pixels.size() !=
+        areaNewData.provinces[i]->pixels.size()) {
+      // we have SOME change
+      changedIDs.push_back(i);
+      // the province was removed
+      if (!areaNewData.provinces[i]->pixels.size()) {
+        // every succeeding province has their ID modified by -1
+        for (auto x = i; x < areaDefaultData.provinces.size(); x++)
+          IDTransformations.at(x)--;
+      }
+    }
+  }
+}
+
 } // namespace Scenario::Hoi4MapPainting

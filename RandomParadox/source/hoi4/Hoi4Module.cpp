@@ -147,7 +147,6 @@ void Hoi4Module::genHoi() {
   }
   // now start writing game files
   try {
-
     // generate map files. Format must be converted and colours mapped to hoi4
     // compatible colours
     Gfx::FormatConverter formatConverter(gamePath, "Hoi4");
@@ -216,7 +215,6 @@ void Hoi4Module::genHoi() {
     commonBookmarks(gameModPath + "\\common\\bookmarks\\",
                     hoi4Gen.hoi4Countries, hoi4Gen.strengthScores);
     tutorials(gameModPath + "\\tutorial\\tutorial.txt");
-
     Parsing::copyDescriptorFile("resources\\hoi4\\descriptor.mod", gameModPath,
                                 gameModsDirectory, modName);
 
@@ -256,5 +254,18 @@ void Hoi4Module::mapCountries(bool multiCore, bool stateExport,
 
   Parsing::copyDescriptorFile("resources\\hoi4\\descriptor-mapping.mod",
                               gameModPath, gameModsDirectory, modName);
+}
+void Hoi4Module::mapEdit() {
+  /* generate world from input heightmap
+  * compare differences between heightmaps for edit mask
+  *  merge all maps with mask, so rest stays the same
+  * for province map, take notice which provinces are getting removed
+  * replace province IDs by replaced provinces. Recalculate positions for these provinces
+  * add these provinces to empty states
+   *
+   */
+
+  Scenario::Hoi4MapPainting::provinceEditing(mappingPath, gameModPath, "provinces.bmp");
+
 }
 } // namespace Scenario::Hoi4
