@@ -2,7 +2,6 @@
 	"module": 
 	{
 		"debugLevel": 0,
-		"interactiveMode" : false,
 		"loadMaps" : true,
 		"writeMaps" : true,
 		"seed" : 0
@@ -22,6 +21,15 @@
 		"modifyHeight": false,
 		"heightAdjustments": 0
 	},
+	"edit":
+	{
+		"editor" : "mspaint.exe",
+		"heightmap" : false,
+		"oceanHeatMap" : false,
+		"riverMap" : false,
+		"humidityMap" : false,
+		"habitabilityMap" : true
+	},
 	"cut":
 	{
 		"cut" : false,
@@ -34,10 +42,6 @@
 		"scaleY" : 1024,
 		"keepRatio" : false,
 		"scaleFilterRuns": 5
-	},
-	"interactiveMode":
-	{
-		"habitabilityMap": false
 	},
 	"map": 
 	{
