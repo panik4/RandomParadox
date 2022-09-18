@@ -19,4 +19,8 @@ void stateBitmap(const std::string &inPath, Fwg::Gfx::Bitmap countries,
 } // namespace Detail
 void output(const std::string &inPath, const std::string &outputPath,
             bool multiCore, bool exportMap, const std::string &inputMap);
+
+void provinceEditing(const std::string &inPath, const std::string &outputPath,
+                     const std::string &mapName);
+
 }; // namespace Scenario::Hoi4MapPainting
