@@ -72,13 +72,14 @@ int main() {
     return -1;
   }
 
-  bool writeMaps, mapCountries, genHoi4Scenario, genEu4Scenario, multiCore, stateExport;
+  bool writeMaps, editMode, genHoi4Scenario, genEu4Scenario, multiCore,
+      stateExport;
   std::string mapName;
   try {
     // if debug is enabled in the config, a directory subtree containing
     // visualisation of many maps will be created
     writeMaps = rpdConf.get<bool>("randomScenario.writeMaps");
-    mapCountries = rpdConf.get<bool>("randomScenario.mapCountries");
+    editMode = rpdConf.get<bool>("randomScenario.editMode");
     // generate hoi4 scenario or not
     genHoi4Scenario = rpdConf.get<bool>("randomScenario.genhoi4");
     genEu4Scenario = rpdConf.get<bool>("randomScenario.geneu4");
@@ -118,12 +119,15 @@ int main() {
  try {
     if (genHoi4Scenario) {
       // generate hoi4 scenario
-      Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username, mapCountries | true);
-      if (mapCountries) {
-        hoi4Mod.mapCountries(multiCore, stateExport, mapName);
-      } else if (true) {
+      Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username, editMode);
+      if (editMode) {
         hoi4Mod.mapEdit();
       }
+      //if (mapCountries) {
+      //  hoi4Mod.mapCountries(multiCore, stateExport, mapName);
+      //} else if (true) {
+      //  hoi4Mod.mapEdit();
+      //}
       else {
         hoi4Mod.genHoi();
       }

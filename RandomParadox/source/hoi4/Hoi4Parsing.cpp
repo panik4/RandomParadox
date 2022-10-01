@@ -888,6 +888,146 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
 
 } // namespace Writing
 
+namespace Reading {
+// reads a text file containing colour->tag relations
+// reads a bmp containing colours
+Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
+  using namespace Scenario::ParserUtils;
+  Fwg::Utils::ColourTMap<std::string> colourMap;
+  auto mappings = readFile(path + "//common/countries/colors.txt");
+  std::string countryColour;
+  do {
+    countryColour =
+        removeSurroundingBracketBlockFromLineBreak(mappings, "color = ");
+    if (countryColour.size()) {
+      auto tag = countryColour.substr(1, 3);
+      auto colourString = getValue(countryColour, "color_ui");
+      auto hsv = getBracketBlockContent(colourString, "hsv");
+      std::vector<int> rgb(3);
+      if (colourString.find("rgb") != std::string::npos) {
+        rgb = getNumberBlock(colourString, "rgb");
+      } else if (hsv.size()) {
+        auto hsvd = getTokens(hsv, ' ');
+        for (int i = 0; i < hsvd.size(); i++) {
+          if (!hsvd[i].size())
+            hsvd.erase(hsvd.begin() + i);
+        }
+
+        std::vector<double> hsvv;
+        hsvv.push_back(std::stod(hsvd[0]) * 360.0);
+        hsvv.push_back(std::stod(hsvd[1]));
+        hsvv.push_back(std::stod(hsvd[2]));
+        auto C = hsvv[2] * hsvv[1];
+        // C × (1 - |(H / 60°) mod 2 - 1|)
+        auto X = C * (1.0 - abs(std::fmod((hsvv[0] / 60), 2.0) - 1.0));
+        auto m = hsvv[2] - C;
+        //  ((R'+m)×255, (G'+m)×255, (B'+m)×255)
+        rgb[0] = static_cast<int>((C + m) * 255.0) % 255;
+        rgb[1] = static_cast<int>((X + m) * 255.0) % 255;
+        rgb[2] = static_cast<int>((0.0 + m) * 255.0) % 255;
+
+        if (hsvv[0] < 60) {
+        } else if (hsvv[0] < 120) {
+          std::swap(rgb[1], rgb[0]);
+        } else if (hsvv[0] < 180) {
+          std::swap(rgb[2], rgb[0]);
+          std::swap(rgb[2], rgb[1]);
+        } else if (hsvv[0] < 240) {
+          std::swap(rgb[2], rgb[0]);
+        } else if (hsvv[0] < 300) {
+          std::swap(rgb[0], rgb[1]);
+          std::swap(rgb[1], rgb[2]);
+        } else {
+          std::swap(rgb[1], rgb[2]);
+        }
+      }
+      colourMap.setValue({static_cast<unsigned char>(rgb[0]),
+                          static_cast<unsigned char>(rgb[1]),
+                          static_cast<unsigned char>(rgb[2])},
+                         tag);
+    }
+  } while (countryColour.size());
+  return colourMap;
+}
+// states are where tags are written down, expressing ownership of the map
+// read them in from path, map province IDs against states
+void readStates(const std::string &path, Fwg::Areas::AreaData &areaData) {
+  using namespace Scenario::ParserUtils;
+  // std::vector<Scenario::Region> regions;
+  auto states = readFilesInDirectory(path + "/history/states");
+
+  for (auto &state : states) {
+    Scenario::Region reg;
+    auto tag = getValue(state, "owner");
+    reg.ID = std::stoi(getValue(state, "id"))-1;
+    removeCharacter(tag, ' ');
+    reg.owner = tag;
+    auto readIDs = getNumberBlock(state, "provinces");
+    for (auto id : readIDs)
+      reg.provinces.push_back(areaData.provinces[id - 1]);
+    areaData.regions.push_back(reg);
+    std::sort(areaData.regions.begin(), areaData.regions.end());
+  }
+}
+// get the bmp file info and extract the respective IDs from definition.csv
+std::vector<Fwg::Province> readProvinceMap(const std::string &path) {
+  using namespace Scenario::ParserUtils;
+  auto provMap =
+      Fwg::Gfx::Bmp::load24Bit(path + "map/provinces.bmp", "provinces");
+  auto definition = getLines(path + "map/definition.csv");
+  Fwg::Utils::ColourTMap<Fwg::Province> provinces;
+  for (const auto &line : definition) {
+    auto nums = getNumbers(line, ';', {0, 1, 2, 3});
+    provinces.setValue({static_cast<unsigned char>(nums[1]),
+                        static_cast<unsigned char>(nums[2]),
+                        static_cast<unsigned char>(nums[3])},
+                       {nums[0],
+                        {static_cast<unsigned char>(nums[1]),
+                         static_cast<unsigned char>(nums[2]),
+                         static_cast<unsigned char>(nums[3])},
+                        false});
+  }
+  std::vector<Fwg::Province> retProvs(definition.size());
+  for (auto i = 0; i < provMap.imageData.size(); i++) {
+    const auto colour = provMap[i];
+    provinces[colour].pixels.push_back(i);
+    retProvs[provinces[colour].ID].pixels.push_back(i);
+  }
+  return retProvs;
+}
+std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
+  auto list = ParserUtils::getLinesByID(path);
+  return list;
+}
+void readProvinces(const std::string &inPath, const std::string &mapName,
+                   Fwg::Areas::AreaData &areaData) {
+  auto provMap =
+      Fwg::Gfx::Bmp::load24Bit(inPath + "map//" + mapName, "provinces");
+  auto heightMap = Fwg::Gfx::Bmp::load24Bit(
+      inPath + "map//" + "heightmap" + ".bmp", "heightmap");
+  auto list = readDefinitions(inPath + "map//definition.csv");
+  // now map definitions to read in IDs
+  for (auto line : list) {
+    if (line.size()) {
+      auto tokens = ParserUtils::getTokens(line[0], ';');
+      auto ID = std::stoi(tokens[0]);
+      if (ID == 0)
+        continue;
+      auto r = static_cast<unsigned char>(std::stoi(tokens[1]));
+      auto g = static_cast<unsigned char>(std::stoi(tokens[2]));
+      auto b = static_cast<unsigned char>(std::stoi(tokens[3]));
+      Fwg::Province *p = new Fwg::Province();
+      p->ID = ID;
+      p->colour = {r, g, b};
+      areaData.provinceColourMap.setValue(p->colour, p);
+      areaData.provinces.push_back(p);
+    }
+  }
+  Fwg::Areas::Provinces::readProvinceBMP(provMap, heightMap, areaData.provinces,
+                                         areaData.provinceColourMap);
+}
+} // namespace Reading
+
 std::vector<std::string> readTypeMap() {
   return ParserUtils::getLines(
       "resources\\hoi4\\ai\\national_focus\\baseFiles\\foci.txt");

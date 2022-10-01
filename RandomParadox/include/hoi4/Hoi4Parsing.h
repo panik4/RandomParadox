@@ -25,7 +25,7 @@ void strategicRegions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
                       const std::vector<strategicRegion> &strategicRegions);
 void supply(const std::string &path,
-            const std::vector<std::vector<int>>& supplyNodeConnections);
+            const std::vector<std::vector<int>> &supplyNodeConnections);
 void unitStacks(const std::string &path,
                 const std::vector<Fwg::Province *> provinces,
                 const Fwg::Gfx::Bitmap &heightMap);
@@ -57,14 +57,35 @@ void stateNames(const std::string &path, const hoiMap &countries);
 void strategicRegionNames(const std::string &path,
                           const std::vector<strategicRegion> &strategicRegions);
 void tutorials(const std::string &path);
-    // copy base game countries and remove certain lines to reduce crashes
+// copy base game countries and remove certain lines to reduce crashes
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
                           const std::vector<Fwg::Region> &regions);
 
 } // namespace Writing
 
+namespace Reading {
+Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path);
+void readStates(const std::string &path, Fwg::Areas::AreaData &areaData);
+
+std::vector<Fwg::Province> readProvinceMap(const std::string &path);
+void readAirports(const std::string &path, Fwg::Areas::AreaData &areaData);
+
+void readAdj(const std::string &path, Fwg::Areas::AreaData &areaData);
+void readBuildings(const std::string &path, Fwg::Areas::AreaData &areaData);
+std::vector<std::vector<std::string>> readDefinitions(const std::string &path);
+void readProvinces(const std::string &inPath, const std::string &mapName,
+                   Fwg::Areas::AreaData &areaData);
+void readRailways(const std::string &path, Fwg::Areas::AreaData &areaData);
+void readRocketSites(const std::string &path, Fwg::Areas::AreaData &areaData);
+void readSupplyNodes(const std::string &path, Fwg::Areas::AreaData &areaData);
+void readUnitStacks(const std::string &path, Fwg::Areas::AreaData &areaData);
+void readWeatherPositions(const std::string &path,
+                          Fwg::Areas::AreaData &areaData);
+} // namespace Reading
+
 std::string getBuildingLine(const std::string &type, const Fwg::Region &region,
-                            const bool coastal, const Fwg::Gfx::Bitmap &heightmap);
+                            const bool coastal,
+                            const Fwg::Gfx::Bitmap &heightmap);
 // history - National Focus
 std::vector<std::string> readTypeMap();
 std::map<std::string, std::string> readRewardMap(const std::string &path);
