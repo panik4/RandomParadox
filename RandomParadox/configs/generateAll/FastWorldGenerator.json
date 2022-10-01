@@ -2,7 +2,6 @@
 	"module": 
 	{
 		"debugLevel": 0,
-		"interactiveMode" : false,
 		"loadMaps" : false,
 		"writeMaps" : true,
 		"seed" : 0
@@ -19,11 +18,17 @@
 		"humidityMap" : false,
 		"habitabilityMap" : false,
 		"provinceMap" : false,
-		"modifyHeight": false
+		"modifyHeight": false,
+		"heightAdjustments": 0
 	},
 	"edit":
 	{
-		"heightmap" : true
+		"editor" : "mspaint.exe",
+		"heightmap" : false,
+		"oceanHeatMap" : false,
+		"riverMap" : false,
+		"humidityMap" : false,
+		"habitabilityMap" : false
 	},
 	"cut":
 	{
@@ -38,14 +43,10 @@
 		"keepRatio" : false,
 		"scaleFilterRuns": 5
 	},
-	"interactiveMode":
-	{
-		"habitabilityMap": false
-	},
 	"map": 
 	{
         "height" : 512,
-		"width" : 2048,
+		"width" : 512,
 		"landPercentage" : 34,
 		"seaLevel" : 93,
 		"accuracy": 100,
