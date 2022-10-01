@@ -384,33 +384,33 @@ void states(const std::string &path, const hoiMap &countries) {
       "large_town", "city",         "large_city", "metropolis", "megalopolis"};
   for (const auto &country : countries) {
     for (const auto &region : country.second.hoi4Regions) {
-      if (region.sea)
+      if (region->sea)
         continue;
       std::string provString{""};
-      for (const auto &prov : region.provinces) {
+      for (const auto &prov : region->provinces) {
         provString.append(std::to_string(prov->ID + 1));
         provString.append(" ");
       }
       auto content{templateContent};
       pU::replaceOccurences(content, "templateID",
-                            std::to_string(region.ID + 1));
+                            std::to_string(region->ID + 1));
       pU::replaceOccurences(content, "template_provinces", provString);
       pU::replaceOccurences(content, "templateOwner", country.first);
       pU::replaceOccurences(
           content, "templateInfrastructure",
-          std::to_string(1 + (int)(region.development * 4.0)));
+          std::to_string(1 + (int)(region->development * 4.0)));
       pU::replaceOccurences(content, "templateAirbase", std::to_string(0));
       pU::replaceOccurences(content, "templateCivilianFactory",
-                            std::to_string((int)region.civilianFactories));
+                            std::to_string((int)region->civilianFactories));
       pU::replaceOccurences(content, "templateArmsFactory",
-                            std::to_string((int)region.armsFactories));
+                            std::to_string((int)region->armsFactories));
 
       pU::replaceOccurences(content, "templatePopulation",
-                            std::to_string((int)region.population));
+                            std::to_string((int)region->population));
       pU::replaceOccurences(content, "templateStateCategory",
-                            stateCategories[(int)region.stateCategory]);
+                            stateCategories[(int)region->stateCategory]);
       std::string navalBaseContent = "";
-      for (const auto &gameProv : region.gameProvinces) {
+      for (const auto &gameProv : region->gameProvinces) {
         if (gameProv.attributeDoubles.at("naval_bases") > 0) {
           navalBaseContent +=
               std::to_string(gameProv.ID + 1) + " = {\n\t\t\t\tnaval_base = " +
@@ -419,9 +419,9 @@ void states(const std::string &path, const hoiMap &countries) {
         }
       }
       pU::replaceOccurences(content, "templateNavalBases", navalBaseContent);
-      if (region.dockyards > 0)
+      if (region->dockyards > 0)
         pU::replaceOccurences(content, "templateDockyards",
-                              std::to_string((int)region.dockyards));
+                              std::to_string((int)region->dockyards));
       else
         pU::replaceOccurences(content, "dockyard = templateDockyards", "");
 
@@ -430,9 +430,9 @@ void states(const std::string &path, const hoiMap &countries) {
                "aluminium", "chromium", "oil", "rubber", "steel", "tungsten"}) {
         pU::replaceOccurences(
             content, "template" + resource,
-            std::to_string((int)region.resources.at(resource)));
+            std::to_string((int)region->resources.at(resource)));
       }
-      pU::writeFile(path + "\\" + std::to_string(region.ID + 1) + ".txt",
+      pU::writeFile(path + "\\" + std::to_string(region->ID + 1) + ".txt",
                     content);
     }
   }
@@ -461,7 +461,7 @@ void historyCountries(const std::string &path, const hoiMap &countries) {
     auto countryText{content};
     auto capitalID = 1;
     if (country.second.hoi4Regions.size())
-      capitalID = (Utils::selectRandom(country.second.hoi4Regions)).ID + 1;
+      capitalID = (Utils::selectRandom(country.second.hoi4Regions))->ID + 1;
     pU::replaceOccurences(countryText, "templateCapital",
                           std::to_string(capitalID));
     pU::replaceOccurences(countryText, "templateTag", country.first);
@@ -536,7 +536,7 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
         // now deploy the unit in a random province
         ParserUtils::replaceOccurences(
             tempUnit, "templateLocation",
-            std::to_string(country.second.hoi4Regions[0].gameProvinces[0].ID +
+            std::to_string(country.second.hoi4Regions[0]->gameProvinces[0].ID +
                            1));
         totalUnits += tempUnit;
       }
@@ -681,8 +681,8 @@ void stateNames(const std::string &path, const hoiMap &countries) {
 
   for (const auto &c : countries) {
     for (const auto &region : c.second.hoi4Regions)
-      content += " STATE_" + std::to_string(region.ID + 1) + ":0 \"" +
-                 region.name + "\"\n";
+      content += " STATE_" + std::to_string(region->ID + 1) + ":0 \"" +
+                 region->name + "\"\n";
   }
   pU::writeFile(path + "state_names_l_english.yml", content, true);
 }
@@ -995,6 +995,7 @@ std::vector<Fwg::Province> readProvinceMap(const std::string &path) {
   }
   return retProvs;
 }
+void readAirports(const std::string &path, Fwg::Areas::AreaData &areaData) {}
 std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
   auto list = ParserUtils::getLinesByID(path);
   return list;
