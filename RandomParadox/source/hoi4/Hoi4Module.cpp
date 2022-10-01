@@ -3,15 +3,19 @@ using namespace Fwg;
 namespace Scenario::Hoi4 {
 Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
                        const std::string &configSubFolder,
-                       const std::string &username, const bool mapCountries) {
+                       const std::string &username, const bool editMode) {
 
   FastWorldGenerator fwg(configSubFolder);
   // read hoi configs and potentially overwrite settings for fwg
   readHoiConfig(configSubFolder, username, gamesConf);
-  if (!mapCountries) {
+  if (!editMode) {
     // now run the world generation
     fwg.generateWorld();
+  } else {
+    // start loading mod/game files
+    mapEdit();
   }
+
   hoi4Gen = {fwg};
   hoi4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
 }
@@ -255,17 +259,23 @@ void Hoi4Module::mapCountries(bool multiCore, bool stateExport,
   Parsing::copyDescriptorFile("resources\\hoi4\\descriptor-mapping.mod",
                               gameModPath, gameModsDirectory, modName);
 }
+void Hoi4Module::readHoi() {
+  // read in game or mod files
+  Hoi4::Parsing::Reading::readProvinces(gamePath, "provinces.bmp",
+                                        hoi4Gen.fwg.areas);
+  Hoi4::Parsing::Reading::readStates(gamePath, hoi4Gen.fwg.areas);
+}
 void Hoi4Module::mapEdit() {
   /* generate world from input heightmap
-  * compare differences between heightmaps for edit mask
-  *  merge all maps with mask, so rest stays the same
-  * for province map, take notice which provinces are getting removed
-  * replace province IDs by replaced provinces. Recalculate positions for these provinces
-  * add these provinces to empty states
+   * compare differences between heightmaps for edit mask
+   *  merge all maps with mask, so rest stays the same
+   * for province map, take notice which provinces are getting removed
+   * replace province IDs by replaced provinces. Recalculate positions for these
+   * provinces add these provinces to empty states
    *
    */
-
-  Scenario::Hoi4MapPainting::provinceEditing(mappingPath, gameModPath, "provinces.bmp");
-
+  readHoi();
+  //Scenario::Hoi4MapPainting::provinceEditing(mappingPath, gameModPath,
+  //                                           "provinces.bmp");
 }
 } // namespace Scenario::Hoi4

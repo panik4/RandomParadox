@@ -23,10 +23,11 @@ class Hoi4Module : GenericModule {
 public:
   Hoi4Module(const boost::property_tree::ptree &rpdConf,
              const std::string &configSubFolder, const std::string &username,
-             const bool mapCountries);
+             const bool editMode);
   ~Hoi4Module();
   // member functions
   void genHoi();
+  void readHoi();
   void mapCountries(bool multiCore, bool stateExport, const std::string& inputMap);
   void mapEdit();
 };
