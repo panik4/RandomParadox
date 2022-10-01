@@ -15,7 +15,7 @@ void Generator::generateStateResources() {
     for (auto &hoi4Region : c.second.hoi4Regions) {
       for (const auto &resource : resources) {
         auto chance = resource.second[2];
-        if (RandNum::getRandom(100)< chance * 100.0) {
+        if (RandNum::getRandom(100) < chance * 100.0) {
           // calc total of this resource
           auto totalOfResource = resource.second[1] * resource.second[0];
           // more per selected state if the chance is lower
@@ -23,12 +23,12 @@ void Generator::generateStateResources() {
               (totalOfResource / (double)landStates) * (1.0 / chance);
           // range 1 to (2 times average - 1)
           double value =
-              1.0 + (RandNum::getRandom((int)ceil((2.0 * averagePerState)) -
-                                               1.0));
+              1.0 +
+              (RandNum::getRandom((int)ceil((2.0 * averagePerState)) - 1.0));
           // increase by industry factor
           value *= industryFactor;
           value *= sizeFactor;
-          hoi4Region.resources[resource.first] = (int)value;
+          hoi4Region->resources[resource.first] = (int)value;
           totalResources[resource.first] += (int)value;
         }
       }
@@ -49,34 +49,33 @@ void Generator::generateStateSpecifics(const int regionAmount) {
       double totalStateArea = 0;
       double totalDevFactor = 0;
       double totalPopFactor = 0;
-      for (const auto &gameProv : hoi4Region.gameProvinces) {
+      for (const auto &gameProv : hoi4Region->gameProvinces) {
         totalDevFactor +=
-            gameProv.devFactor / (double)hoi4Region.gameProvinces.size();
+            gameProv.devFactor / (double)hoi4Region->gameProvinces.size();
         totalPopFactor +=
-            gameProv.popFactor / (double)hoi4Region.gameProvinces.size();
+            gameProv.popFactor / (double)hoi4Region->gameProvinces.size();
         totalStateArea += gameProv.baseProvince->pixels.size();
       }
       // state level is calculated from population and development
-      hoi4Region.stateCategory =
+      hoi4Region->stateCategory =
           std::clamp((int)(totalPopFactor * 5.0 + totalDevFactor * 6.0), 0, 9);
       // one province region? Must be an island state
-      if (hoi4Region.gameProvinces.size() == 1) {
-        hoi4Region.stateCategory = 1;
+      if (hoi4Region->gameProvinces.size() == 1) {
+        hoi4Region->stateCategory = 1;
       }
-      hoi4Region.development = totalDevFactor;
-      hoi4Region.population = totalStateArea * 1250.0 * totalPopFactor *
+      hoi4Region->development = totalDevFactor;
+      hoi4Region->population = totalStateArea * 1250.0 * totalPopFactor *
                               worldPopulationFactor * (1.0 / sizeFactor);
-      worldPop += (long long)hoi4Region.population;
+      worldPop += (long long)hoi4Region->population;
       // count the total coastal provinces of this region
       auto totalCoastal = 0;
-      for (auto &gameProv : hoi4Region.gameProvinces) {
+      for (auto &gameProv : hoi4Region->gameProvinces) {
         if (gameProv.baseProvince->coastal) {
           totalCoastal++;
           // only create a naval base, if a coastal supply hub was determined in
           // this province
           if (gameProv.attributeDoubles["naval_bases"] == 1)
-            gameProv.attributeDoubles["naval_bases"] =
-                RandNum::getRandom(1, 5);
+            gameProv.attributeDoubles["naval_bases"] = RandNum::getRandom(1, 5);
         } else {
           gameProv.attributeDoubles["naval_bases"] = 0;
         }
@@ -94,17 +93,17 @@ void Generator::generateStateSpecifics(const int regionAmount) {
       while (--stateIndustry >= 0) {
         auto choice = RandNum::getRandom(0.0, 1.0);
         if (choice < dockChance) {
-          hoi4Region.dockyards++;
+          hoi4Region->dockyards++;
         } else if (Utils::inRange(dockChance, dockChance + civChance, choice)) {
-          hoi4Region.civilianFactories++;
+          hoi4Region->civilianFactories++;
 
         } else {
-          hoi4Region.armsFactories++;
+          hoi4Region->armsFactories++;
         }
       }
-      militaryIndustry += (int)hoi4Region.armsFactories;
-      civilianIndustry += (int)hoi4Region.civilianFactories;
-      navalIndustry += (int)hoi4Region.dockyards;
+      militaryIndustry += (int)hoi4Region->armsFactories;
+      civilianIndustry += (int)hoi4Region->civilianFactories;
+      navalIndustry += (int)hoi4Region->dockyards;
     }
   }
 }
@@ -132,6 +131,10 @@ void Generator::generateCountrySpecifics() {
     // construct a hoi4country with country from ScenarioGenerator.
     // We want a copy here
     Hoi4Country hC(country.second, gameRegions);
+    // save the pointers to states not only in countries
+    for (const auto &hoi4State : hC.hoi4Regions) {
+      hoi4States.push_back(hoi4State);
+    }
 
     // select a random country ideology
     hC.gfxCulture = Utils::selectRandom(gfxCultures);
@@ -153,8 +156,7 @@ void Generator::generateCountrySpecifics() {
       hC.parties[i] = (int)popularities[i] + offset;
     }
     // assign a ruling party
-    hC.rulingParty =
-        ideologies[RandNum::getRandom(0, (int)ideologies.size())];
+    hC.rulingParty = ideologies[RandNum::getRandom(0, (int)ideologies.size())];
     // allow or forbid elections
     if (hC.rulingParty == "democratic")
       hC.allowElections = 1;
@@ -285,19 +287,19 @@ void Generator::generateLogistics(Bitmap logistics) {
     std::map<int, bool> navalBases;
     std::set<int> gProvIDs;
     for (auto &region : country.second.hoi4Regions) {
-      if ((region.stateCategory > 6 &&
-           region.ID != country.second.capitalRegionID)
+      if ((region->stateCategory > 6 &&
+           region->ID != country.second.capitalRegionID)
           // if we're nearing the end of our region std::vector, and don't have
           // more than 25% of our regions as supply bases generate supply bases
           // for the last two regions
           || (country.second.hoi4Regions.size() > 2 &&
-              (region.ID == (country.second.hoi4Regions.end() - 2)->ID) &&
+           (region->ID == (* (country.second.hoi4Regions.end() - 2))->ID) &&
               supplyHubProvinces.size() <
                   (country.second.hoi4Regions.size() / 4))) {
         // select a random gameprovince of the state
 
-        auto y{Utils::selectRandom(region.gameProvinces)};
-        for (auto &prov : region.gameProvinces) {
+        auto y{Utils::selectRandom(region->gameProvinces)};
+        for (auto &prov : region->gameProvinces) {
           if (prov.baseProvince->coastal) {
             // if this is a coastal region, the supply hub is a naval base as
             // well
@@ -317,7 +319,7 @@ void Generator::generateLogistics(Bitmap logistics) {
         // save the distance
         distances.push_back(distance); // save distances to ensure ordering
       }
-      for (auto &gProv : region.gameProvinces) {
+      for (auto &gProv : region->gameProvinces) {
         gProvIDs.insert(gProv.ID);
       }
     }
@@ -447,13 +449,13 @@ void Generator::evaluateCountries() {
     auto totalPop = 0.0;
     auto maxIndustryLevel = 0;
     for (auto &ownedRegion : c.second.hoi4Regions) {
-      auto regionIndustry = ownedRegion.civilianFactories +
-                            ownedRegion.dockyards + ownedRegion.armsFactories;
+      auto regionIndustry = ownedRegion->civilianFactories +
+                            ownedRegion->dockyards + ownedRegion->armsFactories;
       // always make the most industrious region the capital
       if (regionIndustry > maxIndustryLevel)
-        c.second.capitalRegionID = ownedRegion.ID;
+        c.second.capitalRegionID = ownedRegion->ID;
       totalIndustry += regionIndustry;
-      totalPop += (int)ownedRegion.population;
+      totalPop += (int)ownedRegion->population;
     }
     strengthScores[(int)(totalIndustry + totalPop / 1'000'000.0)].push_back(
         c.first);
@@ -742,16 +744,14 @@ bool Generator::targetFulfillsRequirements(
         return false;
     }
     if (value == "near") {
-      auto maxDistance =
-          sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
+      auto maxDistance = sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
       if (Utils::getDistance(gameRegions[source.capitalRegionID].position,
                              gameRegions[target.capitalRegionID].position,
                              Cfg::Values().width) > maxDistance)
         return false;
     }
     if (value == "far") {
-      auto minDistance =
-          sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
+      auto minDistance = sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
       if (Utils::getDistance(gameRegions[source.capitalRegionID].position,
                              gameRegions[target.capitalRegionID].position,
                              Cfg::Values().width) < minDistance)
