@@ -10,9 +10,7 @@ struct Region {
   std::vector<int> provinceIDs;
 };
 namespace Detail {
-Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path);
-std::vector<Region> readStates(const std::string &path);
-std::vector<Fwg::Province> readProvinceMap(const std::string &path);
+
 void stateBitmap(const std::string &inPath, Fwg::Gfx::Bitmap countries,
                  const std::vector<Fwg::Province> &provinces,
                  const std::vector<Region> &states);

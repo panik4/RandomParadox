@@ -56,7 +56,7 @@ std::vector<std::string> getLines(const std::string &path) {
 };
 
 std::vector<std::vector<std::string>> getLinesByID(const std::string &path) {
-  std::vector<std::vector<std::string>> sortedLines(10000);
+  std::vector<std::vector<std::string>> sortedLines(100000);
   std::string line;
   std::stringstream file{readFile(path)};
   while (getline(file, line)) {
