@@ -11,12 +11,13 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   if (!editMode) {
     // now run the world generation
     fwg.generateWorld();
-  } else {
-    // start loading mod/game files
-    mapEdit();
   }
 
   hoi4Gen = {fwg};
+  if (editMode) {
+    // start loading mod/game files
+    readHoi();
+  }
   hoi4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
 }
 
@@ -62,7 +63,7 @@ bool Hoi4Module::createPaths() {
 void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
                                const std::string &username,
                                const boost::property_tree::ptree &rpdConf) {
- Fwg::Utils::Logging::logLine("Reading Hoi4 Config");
+  Fwg::Utils::Logging::logLine("Reading Hoi4 Config");
   this->configurePaths(username, "Hearts of Iron IV", rpdConf);
 
   // now try to locate game files
@@ -82,15 +83,15 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
     std::ifstream f(configSubFolder + "//Hearts of Iron IVModule.json");
     std::stringstream buffer;
     if (!f.good())
-     Fwg::Utils::Logging::logLine("Config could not be loaded");
+      Fwg::Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
 
     pt::read_json(buffer, hoi4Conf);
   } catch (std::exception e) {
-   Fwg::Utils::Logging::logLine("Incorrect config \"RandomParadox.json\"");
-   Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
-                            e.what());
-   Fwg::Utils::Logging::logLine(
+    Fwg::Utils::Logging::logLine("Incorrect config \"RandomParadox.json\"");
+    Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
+                                 e.what());
+    Fwg::Utils::Logging::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or search for \"json validator\"");
     system("pause");
@@ -124,9 +125,11 @@ void Hoi4Module::genHoi() {
     return;
   try {
     // start with the generic stuff in the Scenario Generator
+    hoi4Gen.mapProvinces();
     hoi4Gen.mapRegions();
     hoi4Gen.mapContinents();
     hoi4Gen.generateCountries(numCountries, gamePath);
+    hoi4Gen.initializeCountries();
     hoi4Gen.evaluateNeighbours();
     hoi4Gen.generateWorld();
     Fwg::Gfx::Bitmap countryMap =
@@ -263,7 +266,39 @@ void Hoi4Module::readHoi() {
   // read in game or mod files
   Hoi4::Parsing::Reading::readProvinces(gamePath, "provinces.bmp",
                                         hoi4Gen.fwg.areas);
-  Hoi4::Parsing::Reading::readStates(gamePath, hoi4Gen.fwg.areas);
+  Hoi4::Parsing::Reading::readStates(gamePath, hoi4Gen);
+  // hoi4Gen.mapRegions();
+
+  for (auto &region : hoi4Gen.fwg.areas.regions) {
+    std::sort(region.provinces.begin(), region.provinces.end(),
+              [](const Fwg::Province *a, const Fwg::Province *b) {
+                return (*a < *b);
+              });
+    auto gR = std::make_shared<Region>(region);
+    for (auto &baseRegion : gR->neighbours)
+      gR->neighbours.push_back(baseRegion);
+    // now create gameprovinces from FastWorldGen provinces
+    for (auto &province : gR->provinces) {
+      auto gP = std::make_shared<GameProvince>(province);
+      // also copy neighbours
+      for (auto &baseProvinceNeighbour : gP->baseProvince->neighbours)
+        gP->neighbours.push_back(baseProvinceNeighbour);
+      gR->gameProvinces.push_back(gP);
+      hoi4Gen.gameProvinces.push_back(gP);
+    }
+    // save game region
+    hoi4Gen.gameRegions.push_back(gR);
+  }
+  // sort by gameprovince ID
+  std::sort(hoi4Gen.gameRegions.begin(), hoi4Gen.gameRegions.end());
+  // sort by gameprovince ID
+  std::sort(hoi4Gen.gameProvinces.begin(), hoi4Gen.gameProvinces.end());
+
+  hoi4Gen.initializeCountries();
+
+  // now initialize hoi4 states from the regions
+
+  Hoi4::Parsing::Reading::readAirports(gamePath, hoi4Gen.hoi4States);
 }
 void Hoi4Module::mapEdit() {
   /* generate world from input heightmap
@@ -274,8 +309,48 @@ void Hoi4Module::mapEdit() {
    * provinces add these provinces to empty states
    *
    */
-  readHoi();
-  //Scenario::Hoi4MapPainting::provinceEditing(mappingPath, gameModPath,
-  //                                           "provinces.bmp");
+
+  // in case we want to edit provinces
+  if (true) {
+
+    // first edit province.bmp, and update some relevant files
+    Scenario::Hoi4MapPainting::ProvinceEditing::provinceEditing(
+        mappingPath, gameModPath, "provinces.bmp", hoi4Gen);
+
+    // finalize edits
+    // get the new internal representation of the game state into mod files
+
+    // update states according to previously generated (and potentially edited)
+    // state map will automatically correct province assignment
+    /* Must edit
+     *   - airfields
+     *   - rocketsites
+     *   - buildings.txt
+     *   - supply_nodes.txt
+     *   - weatherpositions
+     *
+     *
+     *
+     */
+
+    /* UPDATE references to province IDs
+     *  Map files:
+     *   - unitstacks.txt
+     *   - definition.csv
+     *   - strategic regions
+     *
+     * History files:
+     *   -
+     *
+     *
+     * Common files:
+     *   - events
+     *   - decisions
+     *   - ...?
+     *
+     *
+     *
+     */
+  }
 }
 } // namespace Scenario::Hoi4

@@ -19,7 +19,7 @@ void buildings(const std::string &path,
 void continents(const std::string &path,
                 const std::vector<Fwg::Continent> &continents);
 void definition(const std::string &path,
-                const std::vector<GameProvince> &provinces);
+                const std::vector<std::shared_ptr<GameProvince>> &provinces);
 void rocketSites(const std::string &path,
                  const std::vector<Fwg::Region> &regions);
 void strategicRegions(const std::string &path,
@@ -66,10 +66,11 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
 
 namespace Reading {
 Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path);
-void readStates(const std::string &path, Fwg::Areas::AreaData &areaData);
+void readStates(const std::string &path, Generator hoi4Gen);
 
 std::vector<Fwg::Province> readProvinceMap(const std::string &path);
-void readAirports(const std::string &path, Fwg::Areas::AreaData &areaData);
+void readAirports(const std::string &path,
+                  std::vector<std::shared_ptr<Region>> &regions);
 
 void readAdj(const std::string &path, Fwg::Areas::AreaData &areaData);
 void readBuildings(const std::string &path, Fwg::Areas::AreaData &areaData);
@@ -84,9 +85,6 @@ void readWeatherPositions(const std::string &path,
                           Fwg::Areas::AreaData &areaData);
 } // namespace Reading
 
-std::string getBuildingLine(const std::string &type, const Fwg::Region &region,
-                            const bool coastal,
-                            const Fwg::Gfx::Bitmap &heightmap);
 // history - National Focus
 std::vector<std::string> readTypeMap();
 std::map<std::string, std::string> readRewardMap(const std::string &path);

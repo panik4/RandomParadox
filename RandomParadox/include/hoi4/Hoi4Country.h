@@ -20,7 +20,7 @@ public:
     defensive
   };
   Hoi4Country();
-  Hoi4Country(Scenario::PdoxCountry &country, std::vector<Scenario::Region> &gameRegions);
+  Hoi4Country(Scenario::PdoxCountry &country, std::vector<std::shared_ptr<Scenario::Region>> &gameRegions);
   ~Hoi4Country();
   std::string fullName;
   std::string gfxCulture;

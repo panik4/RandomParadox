@@ -72,7 +72,7 @@ void continents(const std::string &path,
 }
 
 void definition(const std::string &path,
-                const std::vector<GameProvince> &provinces) {
+                const std::vector<std::shared_ptr<GameProvince>> &provinces) {
   Logging::logLine("HOI4 Parser: Map: Defining Provinces");
   // province id; r value; g value; b value; province type (land/sea/lake);
   // coastal (true/false); terrain (plains/hills/urban/etc. Defined for land or
@@ -85,34 +85,34 @@ void definition(const std::string &path,
   // Bitmap typeMap(512, 512, 24);
   std::string content{"0;0;0;0;land;false;unknown;0\n"};
   for (const auto &prov : provinces) {
-    auto seaType = prov.baseProvince->sea ? "sea" : "land";
-    auto coastal = prov.baseProvince->coastal ? "true" : "false";
-    if (prov.baseProvince->sea) {
-      for (auto prov2 : prov.baseProvince->neighbours) {
+    auto seaType = prov->baseProvince->sea ? "sea" : "land";
+    auto coastal = prov->baseProvince->coastal ? "true" : "false";
+    if (prov->baseProvince->sea) {
+      for (auto prov2 : prov->baseProvince->neighbours) {
         if (!prov2->sea)
           coastal = "true";
       }
     }
     std::string terraintype;
-    if (prov.baseProvince->sea)
+    if (prov->baseProvince->sea)
       terraintype = "ocean";
     else
-      terraintype = prov.terrainType;
-    if (prov.baseProvince->isLake) {
+      terraintype = prov->terrainType;
+    if (prov->baseProvince->isLake) {
       terraintype = "lakes";
       seaType = "lake";
     }
     std::vector<std::string> arguments{
-        std::to_string(prov.baseProvince->ID + 1),
-        std::to_string(prov.baseProvince->colour.getRed()),
-        std::to_string(prov.baseProvince->colour.getGreen()),
-        std::to_string(prov.baseProvince->colour.getBlue()),
+        std::to_string(prov->baseProvince->ID + 1),
+        std::to_string(prov->baseProvince->colour.getRed()),
+        std::to_string(prov->baseProvince->colour.getGreen()),
+        std::to_string(prov->baseProvince->colour.getBlue()),
         seaType,
         coastal,
         terraintype,
-        std::to_string(prov.baseProvince->sea || prov.baseProvince->isLake
+        std::to_string(prov->baseProvince->sea || prov->baseProvince->isLake
                            ? 0
-                           : prov.baseProvince->continentID +
+                           : prov->baseProvince->continentID +
                                  1) // 0 is for sea, no continent
     };
     content.append(pU::csvFormat(arguments, ';', false));
@@ -350,10 +350,11 @@ void states(const std::string &path, const hoiMap &countries) {
                             stateCategories[(int)region->stateCategory]);
       std::string navalBaseContent = "";
       for (const auto &gameProv : region->gameProvinces) {
-        if (gameProv.attributeDoubles.at("naval_bases") > 0) {
+        if (gameProv->attributeDoubles.at("naval_bases") > 0) {
           navalBaseContent +=
-              std::to_string(gameProv.ID + 1) + " = {\n\t\t\t\tnaval_base = " +
-              std::to_string((int)gameProv.attributeDoubles.at("naval_bases")) +
+              std::to_string(gameProv->ID + 1) + " = {\n\t\t\t\tnaval_base = " +
+              std::to_string(
+                  (int)gameProv->attributeDoubles.at("naval_bases")) +
               "\n\t\t\t}\n\t\t\t";
         }
       }
@@ -476,7 +477,7 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
         // now deploy the unit in a random province
         ParserUtils::replaceOccurences(
             tempUnit, "templateLocation",
-            std::to_string(country.second.hoi4Regions[0]->gameProvinces[0].ID +
+            std::to_string(country.second.hoi4Regions[0]->gameProvinces[0]->ID +
                            1));
         totalUnits += tempUnit;
       }
@@ -891,22 +892,31 @@ Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
 }
 // states are where tags are written down, expressing ownership of the map
 // read them in from path, map province IDs against states
-void readStates(const std::string &path, Fwg::Areas::AreaData &areaData) {
+void readStates(const std::string &path, Generator hoi4Gen) {
   using namespace Scenario::ParserUtils;
   // std::vector<Scenario::Region> regions;
   auto states = readFilesInDirectory(path + "/history/states");
 
   for (auto &state : states) {
-    Scenario::Region reg;
+    auto reg = std::shared_ptr<Scenario::Region>();
     auto tag = getValue(state, "owner");
-    reg.ID = std::stoi(getValue(state, "id")) - 1;
+    reg->ID = std::stoi(getValue(state, "id")) - 1;
     removeCharacter(tag, ' ');
-    reg.owner = tag;
+    reg->owner = tag;
     auto readIDs = getNumberBlock(state, "provinces");
     for (auto id : readIDs)
-      reg.provinces.push_back(areaData.provinces[id - 1]);
-    areaData.regions.push_back(reg);
-    std::sort(areaData.regions.begin(), areaData.regions.end());
+      reg->provinces.push_back(hoi4Gen.provinces[id - 1]);
+    hoi4Gen.gameRegions.push_back(reg);
+    std::sort(hoi4Gen.gameRegions.begin(), hoi4Gen.gameRegions.end());
+  }
+
+  for (auto &region : hoi4Gen.gameRegions) {
+    if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end()) {
+      hoi4Gen.countries.at(region->owner).ownedRegions.push_back(region->ID);
+    } else {
+      PdoxCountry c;
+      c.ownedRegions.push_back(region->ID);
+    }
   }
 }
 // get the bmp file info and extract the respective IDs from definition.csv
@@ -935,7 +945,20 @@ std::vector<Fwg::Province> readProvinceMap(const std::string &path) {
   }
   return retProvs;
 }
-void readAirports(const std::string &path, Fwg::Areas::AreaData &areaData) {}
+void readAirports(const std::string &path,
+                  std::vector<std::shared_ptr<Region>> &regions) {
+  auto list = ParserUtils::getLines(path + "//map//airports.txt");
+  for (const auto &entry : list) {
+    auto tokens = ParserUtils::getTokens(entry, '=');
+    if (tokens.size() == 2) {
+      auto ID = std::stoi(tokens[0]);
+      ParserUtils::removeSpecials(tokens[1]);
+      auto provID = std::stoi(tokens[1]);
+      regions[ID - 1]->airport = provID;
+    }
+  }
+}
+
 std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
   auto list = ParserUtils::getLinesByID(path);
   return list;
@@ -997,32 +1020,6 @@ void copyDescriptorFile(const std::string &sourcePath,
   pU::replaceOccurences(modText, "templatePath",
                         Fwg::Utils::varsToString("path=\"", destPath, "\""));
   pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
-}
-std::string getBuildingLine(const std::string &type, const Fwg::Region &region,
-                            const bool coastal,
-                            const Fwg::Gfx::Bitmap &heightmap) {
-  auto prov = Fwg::Utils::selectRandom(region.provinces);
-  auto pix = 0;
-  if (coastal) {
-    while (!prov->coastal)
-      prov = Fwg::Utils::selectRandom(region.provinces);
-    pix = Fwg::Utils::selectRandom(prov->coastalPixels);
-  } else {
-    while (prov->isLake)
-      prov = Fwg::Utils::selectRandom(region.provinces);
-    pix = Fwg::Utils::selectRandom(prov->pixels);
-  }
-  auto widthPos = pix % Cfg::Values().width;
-  auto heightPos = pix / Cfg::Values().width;
-  std::vector<std::string> arguments{
-      std::to_string(region.ID + 1),
-      type,
-      std::to_string(widthPos),
-      std::to_string((double)heightmap[pix].getRed() / 10.0),
-      std::to_string(heightPos),
-      std::to_string((float)-1.57),
-      "0"};
-  return pU::csvFormat(arguments, ';', false);
 }
 
 } // namespace Scenario::Hoi4::Parsing

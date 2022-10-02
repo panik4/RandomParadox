@@ -93,6 +93,7 @@ void Module::genEu4() {
 
   try {
     // start with the generic stuff in the Scenario Generator
+    eu4Gen.mapProvinces();
     eu4Gen.mapRegions();
     eu4Gen.mapContinents();
     eu4Gen.generateCountries(numCountries, gamePath);

@@ -28,7 +28,6 @@ void countryBitmap(const std::string &mapPath,
 void stateBitmap(const std::string &mapPath, Fwg::Gfx::Bitmap countries,
                  const std::vector<Fwg::Province> &provinces,
                  const std::vector<Region> &states) {
-
   std::set<int> stateBorders;
   for (const auto &state : states) {
     std::set<int> statePixels;
@@ -231,40 +230,15 @@ bool isProvinceID(std::string &content, const std::string &delimiterLeft,
 }
 
 void provinceEditing(const std::string &inPath, const std::string &outputPath,
-                     const std::string &mapName) {
+                     const std::string &mapName, const Generator &hoi4Gen) {
   auto provMap =
       Fwg::Gfx::Bmp::load24Bit(inPath + "map//" + mapName, "provinces");
   auto heightMap = Fwg::Gfx::Bmp::load24Bit(
       inPath + "map//" + "heightmap" + ".bmp", "heightmap");
   using namespace Fwg::Areas;
-  AreaData areaDefaultData;
-
-  auto list = readDefinitions(inPath + "map//definition.csv");
-
-  // now map definitions to read in IDs
-  for (auto line : list) {
-    if (line.size()) {
-      auto tokens = ParserUtils::getTokens(line[0], ';');
-      auto ID = std::stoi(tokens[0]);
-      if (ID == 0)
-        continue;
-      auto r = static_cast<unsigned char>(std::stoi(tokens[1]));
-      auto g = static_cast<unsigned char>(std::stoi(tokens[2]));
-      auto b = static_cast<unsigned char>(std::stoi(tokens[3]));
-      Fwg::Province *p = new Fwg::Province();
-      p->ID = ID;
-      p->colour = {r, g, b};
-      areaDefaultData.provinceColourMap.setValue(p->colour, p);
-      areaDefaultData.provinces.push_back(p);
-    }
-  }
-
-  Fwg::Areas::Provinces::readProvinceBMP(provMap, heightMap,
-                                         areaDefaultData.provinces,
-                                         areaDefaultData.provinceColourMap);
-
+  // now read in enw file and compare data
   AreaData areaNewData;
-  for (auto &prov : areaDefaultData.provinces) {
+  for (auto &prov : hoi4Gen.fwg.areas.provinces) {
     Fwg::Province *newProv = new Fwg::Province();
     *newProv = *prov;
     newProv->pixels.clear();
@@ -287,14 +261,14 @@ void provinceEditing(const std::string &inPath, const std::string &outputPath,
   // now compare both maps and see which province was deleted
 
   std::map<int, int> IDTransformations;
-  for (auto i = 0; i < areaDefaultData.provinces.size() + 1; i++) {
+  for (auto i = 0; i < hoi4Gen.fwg.areas.provinces.size() + 1; i++) {
     IDTransformations[i] = 0;
   }
   std::set<int> changedIDs;
   std::set<int> deletedIDs;
 
-  for (auto i = 0; i < areaDefaultData.provinces.size(); i++) {
-    if (areaDefaultData.provinces[i]->pixels.size() !=
+  for (auto i = 0; i < hoi4Gen.fwg.areas.provinces.size(); i++) {
+    if (hoi4Gen.fwg.areas.provinces[i]->pixels.size() !=
         areaNewData.provinces[i]->pixels.size()) {
       // we have SOME change
       changedIDs.insert(i);
@@ -302,7 +276,7 @@ void provinceEditing(const std::string &inPath, const std::string &outputPath,
       if (!areaNewData.provinces[i]->pixels.size()) {
         deletedIDs.insert(i);
         // every succeeding province has their ID modified by -1
-        for (auto x = i; x < areaDefaultData.provinces.size(); x++)
+        for (auto x = i; x < hoi4Gen.fwg.areas.provinces.size(); x++)
           IDTransformations.at(x)--;
       }
     }

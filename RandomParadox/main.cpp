@@ -123,11 +123,6 @@ int main() {
       if (editMode) {
         hoi4Mod.mapEdit();
       }
-      //if (mapCountries) {
-      //  hoi4Mod.mapCountries(multiCore, stateExport, mapName);
-      //} else if (true) {
-      //  hoi4Mod.mapEdit();
-      //}
       else {
         hoi4Mod.genHoi();
       }

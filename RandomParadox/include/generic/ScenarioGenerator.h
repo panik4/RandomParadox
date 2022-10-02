@@ -25,8 +25,8 @@ public:
   // containers - used for every game
   std::vector<Fwg::Province *> provinces;
   std::vector<PdoxContinent> pdoxContinents;
-  std::vector<Region> gameRegions;
-  std::vector<GameProvince> gameProvinces;
+  std::vector<std::shared_ptr<Region>> gameRegions;
+  std::vector<std::shared_ptr<GameProvince>> gameProvinces;
   std::set<std::string> tags;
   std::map<std::string, PdoxCountry> countries;
   // constructors/destructors
@@ -45,6 +45,8 @@ public:
   void mapContinents();
   // map base regions to generic paradox compatible game regions
   void mapRegions();
+  // map base provinces to generic game regions
+  void mapProvinces();
   // calculating populations in states
   void generatePopulations();
   // determine development from habitability, population density and randomness
@@ -52,7 +54,7 @@ public:
   // mapping terrain types of FastWorldGen to paradox compatible terrains
   void mapTerrain();
   // GameRegions are used for every single game,
-  Region &findStartRegion();
+  std::shared_ptr<Region> &findStartRegion();
   // and countries are always created the same way
   void generateCountries(int numCountries, const std::string &gamePath);
   // see which country neighbours which

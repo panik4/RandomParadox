@@ -1,8 +1,8 @@
 #pragma once
 #include "FastWorldGenerator.h"
+#include "RandNum/RandNum.h"
 #include "generic/Flag.h"
 #include "generic/GameRegion.h"
-#include "RandNum/RandNum.h"
 #include <string>
 #include <vector>
 namespace Scenario {
@@ -26,11 +26,13 @@ public:
   std::vector<int> ownedRegions;
   std::set<std::string> neighbours;
   // member functions
-  void addRegion(Region &region, std::vector<Region> &gameRegions,
-                 std::vector<GameProvince> &gameProvinces);
-  void assignRegions(int maxRegions, std::vector<Region> &gameRegions,
-                     Region &startRegion,
-                     std::vector<GameProvince> &gameProvinces);
+  void assignRegions(int maxRegions,
+                     std::vector<std::shared_ptr<Region>> &gameRegions,
+                     std::shared_ptr<Region> startRegion,
+                     std::vector<std::shared_ptr<GameProvince>> &gameProvinces);
+  void addRegion(std::shared_ptr<Region> region,
+                 std::vector<std::shared_ptr<Region>> &gameRegions,
+                 std::vector<std::shared_ptr<GameProvince>> &gameProvinces);
   // operators
   bool operator<(const PdoxCountry &right) const { return ID < right.ID; };
 };
