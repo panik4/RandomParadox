@@ -45,20 +45,9 @@ void Generator::mapRegions() {
     gR->name = NameGeneration::generateName(nData);
     for (auto &province : gR->provinces) {
       gR->gameProvinces.push_back(gameProvinces[province->ID]);
-
-      ////  GameProvince gP(province);
-      ////  // also copy neighbours
-      ////  for (auto &baseProvinceNeighbour : gP.baseProvince->neighbours)
-      ////    gP.neighbours.push_back(baseProvinceNeighbour);
-      ////  // give name to province
-      ////  gP.name = NameGeneration::generateName(nData);
-      ////  gR.gameProvinces.push_back(gP);
-      ////  gameProvinces.push_back(gP);
     }
     // save game region
     gameRegions.push_back(gR);
-    if (gR->sea)
-      std::cout << "Sea";
   }
   // check if we have the same amount of gameProvinces as FastWorldGen provinces
   if (gameProvinces.size() != fwg.areas.provinces.size())
@@ -87,7 +76,8 @@ void Generator::mapProvinces() {
     gameProvinces.push_back(gP);
   }
   // sort by gameprovince ID
-  std::sort(gameProvinces.begin(), gameProvinces.end());
+  std::sort(gameProvinces.begin(), gameProvinces.end(),
+            [](auto l, auto r) { return *l < *r; });
 }
 
 void Generator::generatePopulations() {
