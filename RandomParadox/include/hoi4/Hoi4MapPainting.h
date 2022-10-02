@@ -1,4 +1,5 @@
 #pragma once
+#include "Hoi4Generator.h"
 #include "generic/ParserUtils.h"
 #include "utils/Bitmap.h"
 #include "utils/Logging.h"
@@ -17,8 +18,9 @@ void stateBitmap(const std::string &inPath, Fwg::Gfx::Bitmap countries,
 } // namespace Detail
 void output(const std::string &inPath, const std::string &outputPath,
             bool multiCore, bool exportMap, const std::string &inputMap);
-
+namespace ProvinceEditing {
 void provinceEditing(const std::string &inPath, const std::string &outputPath,
-                     const std::string &mapName);
+                     const std::string &mapName, const Generator &hoi4Gen);
+}
 
 }; // namespace Scenario::Hoi4MapPainting

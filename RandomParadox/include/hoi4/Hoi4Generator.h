@@ -64,6 +64,10 @@ public:
   Generator();
   Generator(Fwg::FastWorldGenerator &fwg);
   ~Generator();
+  // initialize states
+  void initializeStates();
+  // initialize states
+  void initializeCountries();
   // give resources to states
   void generateStateResources();
   // industry, development, population, state category
@@ -96,7 +100,6 @@ public:
   bool targetFulfillsRequirements(
       const std::string &targetRequirements, const Hoi4Country &source,
       const Hoi4Country &target,
-      const std::vector<Scenario::Region> &gameRegions,
       const std::vector<std::set<std::string>> &levelTargets, const int level);
   // evaluate the focus chains for each country
   void evaluateCountryGoals();

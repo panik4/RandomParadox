@@ -94,6 +94,13 @@ std::string getValue(const std::string &content, const std::string &key) {
 void removeCharacter(std::string &content, char character) {
   content.erase(std::remove(content.begin(), content.end(), character),
                 content.end());
+}
+void removeSpecials(std::string &content){
+  removeCharacter(content, '{');
+  removeCharacter(content, '\n');
+  removeCharacter(content, '\t');
+  removeCharacter(content, '=');
+  removeCharacter(content, '}');
 };
 std::vector<std::string> getTokens(const std::string &content,
                                    const char delimiter) {

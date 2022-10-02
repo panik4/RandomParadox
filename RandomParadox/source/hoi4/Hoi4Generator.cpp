@@ -9,6 +9,21 @@ Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {
 
 Generator::~Generator() {}
 
+void Generator::initializeStates() {}
+
+void Generator::initializeCountries() {
+  for (auto &country : countries) {
+    // construct a hoi4country with country from ScenarioGenerator.
+    // We want a copy here
+    Hoi4Country hC(country.second, gameRegions);
+    // save the pointers to states not only in countries
+    for (const auto &hoi4State : hC.hoi4Regions) {
+      hoi4States.push_back(hoi4State);
+    }
+    hoi4Countries.insert({hC.tag, hC});
+  }
+}
+
 void Generator::generateStateResources() {
   Fwg::Utils::Logging::logLine("HOI4: Digging for resources");
   for (auto &c : hoi4Countries) {
@@ -51,10 +66,10 @@ void Generator::generateStateSpecifics(const int regionAmount) {
       double totalPopFactor = 0;
       for (const auto &gameProv : hoi4Region->gameProvinces) {
         totalDevFactor +=
-            gameProv.devFactor / (double)hoi4Region->gameProvinces.size();
+            gameProv->devFactor / (double)hoi4Region->gameProvinces.size();
         totalPopFactor +=
-            gameProv.popFactor / (double)hoi4Region->gameProvinces.size();
-        totalStateArea += gameProv.baseProvince->pixels.size();
+            gameProv->popFactor / (double)hoi4Region->gameProvinces.size();
+        totalStateArea += gameProv->baseProvince->pixels.size();
       }
       // state level is calculated from population and development
       hoi4Region->stateCategory =
@@ -65,19 +80,19 @@ void Generator::generateStateSpecifics(const int regionAmount) {
       }
       hoi4Region->development = totalDevFactor;
       hoi4Region->population = totalStateArea * 1250.0 * totalPopFactor *
-                              worldPopulationFactor * (1.0 / sizeFactor);
+                               worldPopulationFactor * (1.0 / sizeFactor);
       worldPop += (long long)hoi4Region->population;
       // count the total coastal provinces of this region
       auto totalCoastal = 0;
       for (auto &gameProv : hoi4Region->gameProvinces) {
-        if (gameProv.baseProvince->coastal) {
+        if (gameProv->baseProvince->coastal) {
           totalCoastal++;
           // only create a naval base, if a coastal supply hub was determined in
           // this province
-          if (gameProv.attributeDoubles["naval_bases"] == 1)
-            gameProv.attributeDoubles["naval_bases"] = RandNum::getRandom(1, 5);
+          if (gameProv->attributeDoubles["naval_bases"] == 1)
+            gameProv->attributeDoubles["naval_bases"] = RandNum::getRandom(1, 5);
         } else {
-          gameProv.attributeDoubles["naval_bases"] = 0;
+          gameProv->attributeDoubles["naval_bases"] = 0;
         }
       }
       // calculate total industry in this state
@@ -94,7 +109,8 @@ void Generator::generateStateSpecifics(const int regionAmount) {
         auto choice = RandNum::getRandom(0.0, 1.0);
         if (choice < dockChance) {
           hoi4Region->dockyards++;
-        } else if (Fwg::Utils::inRange(dockChance, dockChance + civChance, choice)) {
+        } else if (Fwg::Utils::inRange(dockChance, dockChance + civChance,
+                                       choice)) {
           hoi4Region->civilianFactories++;
 
         } else {
@@ -108,7 +124,6 @@ void Generator::generateStateSpecifics(const int regionAmount) {
       hoi4Region->calculateBuildingPositions(fwg.heightMap);
     }
   }
-
 }
 
 void Generator::generateCountrySpecifics() {
@@ -130,17 +145,10 @@ void Generator::generateCountrySpecifics() {
       "southamerican",    "commonwealth",     "asian"};
   std::vector<std::string> ideologies{"fascism", "democratic", "communism",
                                       "neutrality"};
-  for (auto &country : countries) {
-    // construct a hoi4country with country from ScenarioGenerator.
-    // We want a copy here
-    Hoi4Country hC(country.second, gameRegions);
-    // save the pointers to states not only in countries
-    for (const auto &hoi4State : hC.hoi4Regions) {
-      hoi4States.push_back(hoi4State);
-    }
-
+  for (auto &country : hoi4Countries) {
+    initializeCountries();
     // select a random country ideology
-    hC.gfxCulture = Fwg::Utils::selectRandom(gfxCultures);
+    country.second.gfxCulture = Fwg::Utils::selectRandom(gfxCultures);
     std::vector<double> popularities{};
     double totalPop = 0;
     for (int i = 0; i < 4; i++) {
@@ -156,21 +164,22 @@ void Generator::generateCountrySpecifics() {
       if (i == 3 && sumPop < 100) {
         offset = 100 - sumPop;
       }
-      hC.parties[i] = (int)popularities[i] + offset;
+      country.second.parties[i] = (int)popularities[i] + offset;
     }
     // assign a ruling party
-    hC.rulingParty = ideologies[RandNum::getRandom(0, (int)ideologies.size())];
+    country.second.rulingParty =
+        ideologies[RandNum::getRandom(0, (int)ideologies.size())];
     // allow or forbid elections
-    if (hC.rulingParty == "democratic")
-      hC.allowElections = 1;
-    else if (hC.rulingParty == "neutrality")
-      hC.allowElections = RandNum::getRandom(0, 1);
+    if (country.second.rulingParty == "democratic")
+      country.second.allowElections = 1;
+    else if (country.second.rulingParty == "neutrality")
+      country.second.allowElections = RandNum::getRandom(0, 1);
     else
-      hC.allowElections = 0;
+      country.second.allowElections = 0;
     // now get the full name of the country
-    hC.fullName = NameGeneration::modifyWithIdeology(
-        hC.rulingParty, country.second.name, country.second.adjective, nData);
-    hoi4Countries.insert({hC.tag, hC});
+    country.second.fullName = NameGeneration::modifyWithIdeology(
+        country.second.rulingParty, country.second.name,
+        country.second.adjective, nData);
   }
 }
 
@@ -178,16 +187,16 @@ void Generator::generateStrategicRegions() {
   Fwg::Utils::Logging::logLine("HOI4: Dividing world into strategic regions");
   std::set<int> assignedIdeas;
   for (auto &region : gameRegions) {
-    if (assignedIdeas.find(region.ID) == assignedIdeas.end()) {
+    if (assignedIdeas.find(region->ID) == assignedIdeas.end()) {
       strategicRegion sR;
       // std::set<int>stratRegion;
-      sR.gameRegionIDs.insert(region.ID);
-      assignedIdeas.insert(region.ID);
-      for (auto &neighbour : region.neighbours) {
+      sR.gameRegionIDs.insert(region->ID);
+      assignedIdeas.insert(region->ID);
+      for (auto &neighbour : region->neighbours) {
         // should be equal in sea/land
         if (neighbour > gameRegions.size())
           continue;
-        if (gameRegions[neighbour].sea == region.sea &&
+        if (gameRegions[neighbour]->sea == region->sea &&
             assignedIdeas.find(neighbour) == assignedIdeas.end()) {
           sR.gameRegionIDs.insert(neighbour);
           assignedIdeas.insert(neighbour);
@@ -203,9 +212,9 @@ void Generator::generateStrategicRegions() {
              static_cast<unsigned char>(RandNum::getRandom(255)),
              static_cast<unsigned char>(RandNum::getRandom(255))};
     for (auto &reg : strat.gameRegionIDs) {
-      c.setBlue(gameRegions[reg].sea ? 255 : 0);
-      for (auto &prov : gameRegions[reg].gameProvinces) {
-        for (auto &pix : prov.baseProvince->pixels) {
+      c.setBlue(gameRegions[reg]->sea ? 255 : 0);
+      for (auto &prov : gameRegions[reg]->gameProvinces) {
+        for (auto &pix : prov->baseProvince->pixels) {
           stratRegionBMP.setColourAtIndex(pix, c);
         }
       }
@@ -222,12 +231,12 @@ void Generator::generateWeather() {
         double averageTemperature = 0.0;
         double averageDeviation = 0.0;
         double averagePrecipitation = 0.0;
-        for (auto &prov : gameRegions[reg].gameProvinces) {
-          averageDeviation += prov.baseProvince->weatherMonths[i][0];
-          averageTemperature += prov.baseProvince->weatherMonths[i][1];
-          averagePrecipitation += prov.baseProvince->weatherMonths[i][2];
+        for (auto &prov : gameRegions[reg]->gameProvinces) {
+          averageDeviation += prov->baseProvince->weatherMonths[i][0];
+          averageTemperature += prov->baseProvince->weatherMonths[i][1];
+          averagePrecipitation += prov->baseProvince->weatherMonths[i][2];
         }
-        double divisor = (int)gameRegions[reg].gameProvinces.size();
+        double divisor = (int)gameRegions[reg]->gameProvinces.size();
         averageDeviation /= divisor;
         averageTemperature /= divisor;
         averagePrecipitation /= divisor;
@@ -281,12 +290,13 @@ void Generator::generateLogistics(Bitmap logistics) {
     // GameProvince ID, distance
     std::map<double, int> supplyHubs;
     // add capital
-    auto capitalPosition = gameRegions[country.second.capitalRegionID].position;
+    auto capitalPosition =
+        gameRegions[country.second.capitalRegionID]->position;
     auto &capitalProvince = Fwg::Utils::selectRandom(
-        gameRegions[country.second.capitalRegionID].gameProvinces);
+        gameRegions[country.second.capitalRegionID]->gameProvinces);
     std::vector<double> distances;
     // region ID, provinceID
-    std::map<int, GameProvince> supplyHubProvinces;
+    std::map<int, std::shared_ptr<GameProvince>> supplyHubProvinces;
     std::map<int, bool> navalBases;
     std::set<int> gProvIDs;
     for (auto &region : country.second.hoi4Regions) {
@@ -296,47 +306,47 @@ void Generator::generateLogistics(Bitmap logistics) {
           // more than 25% of our regions as supply bases generate supply bases
           // for the last two regions
           || (country.second.hoi4Regions.size() > 2 &&
-           (region->ID == (* (country.second.hoi4Regions.end() - 2))->ID) &&
+              (region->ID == (*(country.second.hoi4Regions.end() - 2))->ID) &&
               supplyHubProvinces.size() <
                   (country.second.hoi4Regions.size() / 4))) {
         // select a random gameprovince of the state
 
         auto y{Fwg::Utils::selectRandom(region->gameProvinces)};
         for (auto &prov : region->gameProvinces) {
-          if (prov.baseProvince->coastal) {
+          if (prov->baseProvince->coastal) {
             // if this is a coastal region, the supply hub is a naval base as
             // well
             y = prov;
-            prov.attributeDoubles["naval_bases"] = 1;
+            prov->attributeDoubles["naval_bases"] = 1;
             break;
           }
         }
         // save the province under the provinces ID
-        supplyHubProvinces[y.ID] = y;
-        navalBases[y.ID] = y.baseProvince->coastal;
+        supplyHubProvinces[y->ID] = y;
+        navalBases[y->ID] = y->baseProvince->coastal;
         // get the distance between this supply hub and the capital
-        auto distance = Fwg::Utils::getDistance(capitalPosition,
-                                           y.baseProvince->position, width);
+        auto distance = Fwg::Utils::getDistance(
+            capitalPosition, y->baseProvince->position, width);
         // save the distance under the province ID
-        supplyHubs[distance] = y.ID;
+        supplyHubs[distance] = y->ID;
         // save the distance
         distances.push_back(distance); // save distances to ensure ordering
       }
       for (auto &gProv : region->gameProvinces) {
-        gProvIDs.insert(gProv.ID);
+        gProvIDs.insert(gProv->ID);
       }
     }
     std::sort(distances.begin(), distances.end());
     for (const auto distance : distances) {
       std::vector<int> passthroughProvinceIDs;
       int attempts = 0;
-      auto sourceNodeID = capitalProvince.ID;
+      auto sourceNodeID = capitalProvince->ID;
       supplyNodeConnections.push_back({sourceNodeID});
       do {
         attempts++;
         // the region we want to connect to the source
         auto destNodeID = supplyHubs[distance];
-        if (sourceNodeID == capitalProvince.ID) {
+        if (sourceNodeID == capitalProvince->ID) {
           // we are at the start of the search
           // distance to capital
           auto tempDistance = distance;
@@ -347,11 +357,11 @@ void Generator::generateLogistics(Bitmap logistics) {
               // now find distance2, the distance between us and the other
               // already assigned supply hubs
               auto dist3 = Fwg::Utils::getDistance(
-                  gameProvinces[supplyHubs[distance2]].baseProvince->position,
-                  gameProvinces[supplyHubs[distance]].baseProvince->position,
+                  gameProvinces[supplyHubs[distance2]]->baseProvince->position,
+                  gameProvinces[supplyHubs[distance]]->baseProvince->position,
                   width);
               if (dist3 < tempDistance) {
-                sourceNodeID = gameProvinces[supplyHubs[distance2]].ID;
+                sourceNodeID = gameProvinces[supplyHubs[distance2]]->ID;
                 tempDistance = dist3;
               }
             }
@@ -363,19 +373,19 @@ void Generator::generateLogistics(Bitmap logistics) {
           sourceNodeID = passthroughProvinceIDs.back();
         }
         // break if this is another landmass. We can't reach it anyway
-        if (gameProvinces[sourceNodeID].baseProvince->landMassID !=
-            gameProvinces[destNodeID].baseProvince->landMassID)
+        if (gameProvinces[sourceNodeID]->baseProvince->landMassID !=
+            gameProvinces[destNodeID]->baseProvince->landMassID)
           break;
         ;
         // the origins position
         auto sourceNodePosition =
-            gameProvinces[sourceNodeID].baseProvince->position;
+            gameProvinces[sourceNodeID]->baseProvince->position;
         // save the distance in a temp variable
         double tempMinDistance = width;
         auto closestID = INT_MAX;
         // now check every sourceNode neighbour for distance to destinationNode
         for (auto &neighbourGProvince :
-             gameProvinces[sourceNodeID].neighbours) {
+             gameProvinces[sourceNodeID]->neighbours) {
           // check if this belongs to us
           if (gProvIDs.find(neighbourGProvince.ID) == gProvIDs.end())
             continue;
@@ -388,7 +398,7 @@ void Generator::generateLogistics(Bitmap logistics) {
             continue;
           // the distance to the sources neighbours
           auto nodeDistance = Fwg::Utils::getDistance(
-              gameProvinces[destNodeID].baseProvince->position,
+              gameProvinces[destNodeID]->baseProvince->position,
               neighbourGProvince.baseProvince->position, width);
           if (nodeDistance < tempMinDistance) {
             tempMinDistance = nodeDistance;
@@ -421,18 +431,18 @@ void Generator::generateLogistics(Bitmap logistics) {
         supplyNodeConnections.back().push_back(passState);
       }
     }
-    for (auto &pix : capitalProvince.baseProvince->pixels) {
+    for (auto &pix : capitalProvince->baseProvince->pixels) {
       logistics.setColourAtIndex(pix, {255, 255, 0});
     }
     for (auto &supplyHubProvince : supplyHubProvinces) {
-      for (auto &pix : supplyHubProvince.second.baseProvince->pixels) {
+      for (auto &pix : supplyHubProvince.second->baseProvince->pixels) {
         logistics.setColourAtIndex(pix, {0, 255, 0});
       }
     }
   }
   for (auto &connection : supplyNodeConnections) {
     for (int i = 0; i < connection.size(); i++) {
-      for (auto pix : gameProvinces[connection[i]].baseProvince->pixels) {
+      for (auto pix : gameProvinces[connection[i]]->baseProvince->pixels) {
         // don't overwrite capitals and supply nodes
         if (logistics[pix] == Colour{255, 255, 0} ||
             logistics[pix] == Colour{0, 255, 0})
@@ -716,7 +726,7 @@ bool Generator::stepFulfillsRequirements(
  * requirement isn't fulfilled, else returns true*/
 bool Generator::targetFulfillsRequirements(
     const std::string &targetRequirements, const Hoi4Country &source,
-    const Hoi4Country &target, const std::vector<Scenario::Region> &gameRegions,
+    const Hoi4Country &target, 
     const std::vector<std::set<std::string>> &levelTargets, const int level) {
   // now check if the country fulfills the target requirements
   // need to check rank, first get the desired value
@@ -748,16 +758,16 @@ bool Generator::targetFulfillsRequirements(
     }
     if (value == "near") {
       auto maxDistance = sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
-      if (Fwg::Utils::getDistance(gameRegions[source.capitalRegionID].position,
-                             gameRegions[target.capitalRegionID].position,
-                             Cfg::Values().width) > maxDistance)
+      if (Fwg::Utils::getDistance(gameRegions[source.capitalRegionID]->position,
+                                  gameRegions[target.capitalRegionID]->position,
+                                  Cfg::Values().width) > maxDistance)
         return false;
     }
     if (value == "far") {
       auto minDistance = sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
-      if (Fwg::Utils::getDistance(gameRegions[source.capitalRegionID].position,
-                             gameRegions[target.capitalRegionID].position,
-                             Cfg::Values().width) < minDistance)
+      if (Fwg::Utils::getDistance(gameRegions[source.capitalRegionID]->position,
+                                  gameRegions[target.capitalRegionID]->position,
+                                  Cfg::Values().width) < minDistance)
         return false;
     }
   }
@@ -845,7 +855,7 @@ void Generator::evaluateCountryGoals() {
                   if (targetFulfillsRequirements(
                           targetRequirements,
                           hoi4Countries[sourceCountry.first],
-                          destCountry.second, gameRegions, levelTargets,
+                          destCountry.second, levelTargets,
                           level)) {
                     stepTargets[chainStep].insert(destCountry.second);
                     // save that we targeted this country on this level already.
@@ -907,8 +917,8 @@ void Generator::printStatistics() {
   for (auto &scores : strengthScores) {
     for (auto &entry : scores.second) {
       Fwg::Utils::Logging::logLine("Strength: ", scores.first, " ",
-                              hoi4Countries.at(entry).fullName, " ",
-                              hoi4Countries.at(entry).rulingParty, "");
+                                   hoi4Countries.at(entry).fullName, " ",
+                                   hoi4Countries.at(entry).rulingParty, "");
     }
   }
 }

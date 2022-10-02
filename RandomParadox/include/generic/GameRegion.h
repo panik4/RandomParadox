@@ -12,7 +12,7 @@ public:
   std::string name;
   bool assigned;
   // containers
-  std::vector<GameProvince> gameProvinces;
+  std::vector<std::shared_ptr<GameProvince>> gameProvinces;
   std::vector<double> temperatureRange;
   std::vector<double> dateRange;
   double snowChance, lightRainChance, heavyRainChance, blizzardChance,
