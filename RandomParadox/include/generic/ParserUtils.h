@@ -16,6 +16,8 @@ std::string csvFormat(const std::vector<std::string> arguments, char delimiter,
 std::string getValue(const std::string& content, const std::string& key);
 
 void removeCharacter(std::string &content, char character);
+void removeSpecials(std::string &content);
+
 std::vector<std::string> getTokens(const std::string &content,
                                    const char delimiter);
 
