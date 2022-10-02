@@ -2,7 +2,7 @@
 	"randomScenario": 
 	{
 		"writeMaps": true,
-		"editMode": false,
+		"editMode": true,
 		"genhoi4": true,
 		"geneu4": false
 	},

@@ -95,7 +95,7 @@ void removeCharacter(std::string &content, char character) {
   content.erase(std::remove(content.begin(), content.end(), character),
                 content.end());
 }
-void removeSpecials(std::string &content){
+void removeSpecials(std::string &content) {
   removeCharacter(content, '{');
   removeCharacter(content, '\n');
   removeCharacter(content, '\t');
@@ -108,7 +108,7 @@ std::vector<std::string> getTokens(const std::string &content,
   std::stringstream sstream(content);
   std::string token;
   while (std::getline(sstream, token, delimiter)) {
-    //if (token.size())
+    // if (token.size())
     tokens.push_back(token);
   }
   return tokens;
@@ -245,9 +245,10 @@ void removeSurroundingBracketBlock(std::string &content,
   }
 };
 std::string removeSurroundingBracketBlockFromLineBreak(std::string &content,
-                                                const std::string key) {
+                                                       const std::string key) {
   auto pos = content.find(key);
   if (pos != std::string::npos) {
+    auto pos2 = content.rfind("}", pos);
     pos = content.rfind("{", pos);
     pos = content.rfind("\n", pos);
     auto blockEnd = findClosingBracket(content, pos);
