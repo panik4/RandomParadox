@@ -36,85 +36,22 @@ void airports(const std::string &path,
 }
 
 // places building positions
-void buildings(const std::string &path, const std::vector<Fwg::Region> &regions,
+void buildings(const std::string &path,
+               const std::vector<std::shared_ptr<Region>> &regions,
                const Fwg::Gfx::Bitmap &heightMap) {
   Logging::logLine("HOI4 Parser: Map: Constructing Factories");
-  std::vector<std::string> buildingTypes{
-      "arms_factory",    "industrial_complex", "air_base",
-      "bunker",          "coastal_bunker",     "dockyard",
-      "naval_base",      "anti_air_building",  "synthetic_refinery",
-      "nuclear_reactor", "rocket_site",        "radar_station",
-      "fuel_silo",       "floating_harbor"};
   std::string content;
-  // stateId; type; pixelX, rotation??, pixelY, rotation??, 0??}
-  // 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
   for (const auto &region : regions) {
-    if (region.sea)
-      continue;
-    bool coastal = false;
-    for (const auto &prov : region.provinces) {
-      if (prov->coastal)
-        coastal = true;
-      // add supply node buildings for each province
-      auto pix = Utils::selectRandom(prov->pixels);
-      content.append(
-          getBuildingLine("supply_node", region, coastal, heightMap));
-    }
-
-    for (const auto &type : buildingTypes) {
-      if (type == "arms_factory" || type == "industrial_complex")
-        for (int i = 0; i < 6; i++)
-          content.append(getBuildingLine(type, region, false, heightMap));
-      else if (type == "bunker") {
-        for (const auto &prov : region.provinces) {
-          if (!prov->isLake && !prov->sea) {
-            auto pix = Utils::selectRandom(prov->pixels);
-            auto widthPos = pix % Cfg::Values().width;
-            auto heightPos = pix / Cfg::Values().width;
-            std::vector<std::string> arguments{
-                std::to_string(region.ID + 1),
-                type,
-                std::to_string(widthPos),
-                std::to_string((double)heightMap[pix].getRed() / 10.0),
-                std::to_string(heightPos),
-                std::to_string(0.5),
-                "0"};
-            content.append(pU::csvFormat(arguments, ';', false));
-          }
-        }
-      } else if (type == "anti_air_building")
-        for (int i = 0; i < 3; i++)
-          content.append(getBuildingLine(type, region, false, heightMap));
-      else if (type == "coastal_bunker" || type == "naval_base") {
-        for (const auto &prov : region.provinces) {
-          if (prov->coastal) {
-            auto pix = Utils::selectRandom(prov->coastalPixels);
-            int ID = 0;
-            if (type == "naval_base")
-              // find the ocean province this coastal building is next to
-              for (const auto &neighbour : prov->neighbours)
-                if (neighbour->sea)
-                  for (const auto &provPix : neighbour->pixels)
-                    if (Utils::getDistance(provPix, pix, Cfg::Values().width) <
-                        2.0)
-                      ID = neighbour->ID;
-            auto widthPos = pix % Cfg::Values().width;
-            auto heightPos = pix / Cfg::Values().width;
-            std::vector<std::string> arguments{
-                std::to_string(region.ID + 1),
-                type,
-                std::to_string(widthPos),
-                std::to_string((double)heightMap[pix].getRed() / 10.0),
-                std::to_string(heightPos),
-                std::to_string(0.5),
-                std::to_string(ID + 1)};
-            content.append(pU::csvFormat(arguments, ';', false));
-          }
-        }
-      } else if (type == "dockyard" || type == "floating_harbor")
-        content.append(getBuildingLine(type, region, coastal, heightMap));
-      else
-        content.append(getBuildingLine(type, region, false, heightMap));
+    for (const auto &building : region->buildings) {
+      std::vector<std::string> arguments{
+          std::to_string(region->ID + 1),
+          building.name,
+          std::to_string(building.position.x),
+          std::to_string(building.position.y),
+          std::to_string(building.position.z),
+          std::to_string(building.position.rotation),
+          std::to_string(building.relativeID ? building.relativeID + 1 : 0)};
+      content.append(pU::csvFormat(arguments, ';', false));
     }
   }
   pU::writeFile(path, content);
@@ -216,7 +153,7 @@ void unitStacks(const std::string &path,
   std::string content{""};
   for (const auto &prov : provinces) {
     int position = 0;
-    auto pix = Utils::selectRandom(prov->pixels);
+    auto pix = Fwg::Utils::selectRandom(prov->pixels);
     auto widthPos = pix % Cfg::Values().width;
     auto heightPos = pix / Cfg::Values().width;
     std::vector<std::string> arguments{
@@ -260,9 +197,10 @@ void weatherPositions(const std::string &path,
   // 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
 
   for (auto i = 0; i < strategicRegions.size(); i++) {
-    const auto &region = Utils::selectRandom(strategicRegions[i].gameRegionIDs);
-    const auto prov = Utils::selectRandom(regions[region].provinces);
-    const auto pix = Utils::selectRandom(prov->pixels);
+    const auto &region =
+        Fwg::Utils::selectRandom(strategicRegions[i].gameRegionIDs);
+    const auto prov = Fwg::Utils::selectRandom(regions[region].provinces);
+    const auto pix = Fwg::Utils::selectRandom(prov->pixels);
     auto widthPos = pix % Cfg::Values().width;
     auto heightPos = pix / Cfg::Values().width;
     std::vector<std::string> arguments{
@@ -346,7 +284,8 @@ void strategicRegions(const std::string &path,
     }
     pU::replaceOccurences(content, templateWeather, weather);
     pU::replaceOccurences(content, "template_provinces", provString);
-    pU::writeFile(Utils::varsToString(path, "\\", (i + 1), ".txt"), content);
+    pU::writeFile(Fwg::Utils::varsToString(path, "\\", (i + 1), ".txt"),
+                  content);
   }
 }
 
@@ -461,7 +400,8 @@ void historyCountries(const std::string &path, const hoiMap &countries) {
     auto countryText{content};
     auto capitalID = 1;
     if (country.second.hoi4Regions.size())
-      capitalID = (Utils::selectRandom(country.second.hoi4Regions))->ID + 1;
+      capitalID =
+          (Fwg::Utils::selectRandom(country.second.hoi4Regions))->ID + 1;
     pU::replaceOccurences(countryText, "templateCapital",
                           std::to_string(capitalID));
     pU::replaceOccurences(countryText, "templateTag", country.first);
@@ -629,7 +569,7 @@ void commonCountries(const std::string &path, const std::string &hoiPath,
     auto tempPath = path + country.second.name + ".txt";
     auto countryText{content};
     auto colourString = pU::replaceOccurences(
-        Utils::varsToString(country.second.colour), ";", " ");
+        Fwg::Utils::varsToString(country.second.colour), ";", " ");
     pU::replaceOccurences(countryText, "templateCulture",
                           country.second.gfxCulture);
     pU::replaceOccurences(countryText, "templateColour", colourString);
@@ -693,8 +633,8 @@ void strategicRegionNames(
   Logging::logLine("HOI4 Parser: Map: Naming the Regions");
   std::string content = "l_english:\n";
   for (auto i = 0; i < strategicRegions.size(); i++) {
-    content += Utils::varsToString(" STRATEGICREGION_", i, ":0 \"",
-                                   strategicRegions[i].name, "\"\n");
+    content += Fwg::Utils::varsToString(" STRATEGICREGION_", i, ":0 \"",
+                                        strategicRegions[i].name, "\"\n");
   }
   pU::writeFile(path + "\\strategic_region_names_l_english.yml", content, true);
 }
@@ -815,7 +755,7 @@ void foci(const std::string &path, const hoiMap &countries,
               preRequisiteBlocks.push_back(std::vector<int>{});
               preRequisiteBlocks[counter++].push_back(aBlock[0]);
             }
-            std::string preName = Utils::varsToString(
+            std::string preName = Fwg::Utils::varsToString(
                 c.first, focusChain[0].chainID, ".", aBlock[0]);
 
             preString += "prerequisite = {";
@@ -825,8 +765,8 @@ void foci(const std::string &path, const hoiMap &countries,
           // no and cases, so just list all potential predecessors
           preString += "prerequisite = {";
           for (const auto &elem : usedF) {
-            std::string preName =
-                Utils::varsToString(c.first, focusChain[0].chainID, ".", elem);
+            std::string preName = Fwg::Utils::varsToString(
+                c.first, focusChain[0].chainID, ".", elem);
             preString += " focus = " + preName + " ";
           }
           preString += "}\n";
@@ -848,7 +788,7 @@ void foci(const std::string &path, const hoiMap &countries,
           for (const auto &foc : focusChain) {
             if (foc.stepID == exclusive) {
               // derive the name of the preceding focus
-              std::string preName = Utils::varsToString(
+              std::string preName = Fwg::Utils::varsToString(
                   c.first, focusChain[0].chainID, ".", exclusive);
               preString += " focus = " + preName;
             }
@@ -959,7 +899,7 @@ void readStates(const std::string &path, Fwg::Areas::AreaData &areaData) {
   for (auto &state : states) {
     Scenario::Region reg;
     auto tag = getValue(state, "owner");
-    reg.ID = std::stoi(getValue(state, "id"))-1;
+    reg.ID = std::stoi(getValue(state, "id")) - 1;
     removeCharacter(tag, ' ');
     reg.owner = tag;
     auto readIDs = getNumberBlock(state, "provinces");
@@ -1055,22 +995,22 @@ void copyDescriptorFile(const std::string &sourcePath,
   pU::replaceOccurences(descriptorText, "templatePath", "");
   pU::writeFile(destPath + "//descriptor.mod", descriptorText);
   pU::replaceOccurences(modText, "templatePath",
-                        Utils::varsToString("path=\"", destPath, "\""));
+                        Fwg::Utils::varsToString("path=\"", destPath, "\""));
   pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
 }
 std::string getBuildingLine(const std::string &type, const Fwg::Region &region,
                             const bool coastal,
                             const Fwg::Gfx::Bitmap &heightmap) {
-  auto prov = Utils::selectRandom(region.provinces);
+  auto prov = Fwg::Utils::selectRandom(region.provinces);
   auto pix = 0;
   if (coastal) {
     while (!prov->coastal)
-      prov = Utils::selectRandom(region.provinces);
-    pix = Utils::selectRandom(prov->coastalPixels);
+      prov = Fwg::Utils::selectRandom(region.provinces);
+    pix = Fwg::Utils::selectRandom(prov->coastalPixels);
   } else {
     while (prov->isLake)
-      prov = Utils::selectRandom(region.provinces);
-    pix = Utils::selectRandom(prov->pixels);
+      prov = Fwg::Utils::selectRandom(region.provinces);
+    pix = Fwg::Utils::selectRandom(prov->pixels);
   }
   auto widthPos = pix % Cfg::Values().width;
   auto heightPos = pix / Cfg::Values().width;

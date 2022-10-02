@@ -10,7 +10,7 @@ Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {
 Generator::~Generator() {}
 
 void Generator::generateStateResources() {
-  Utils::Logging::logLine("HOI4: Digging for resources");
+  Fwg::Utils::Logging::logLine("HOI4: Digging for resources");
   for (auto &c : hoi4Countries) {
     for (auto &hoi4Region : c.second.hoi4Regions) {
       for (const auto &resource : resources) {
@@ -37,11 +37,11 @@ void Generator::generateStateResources() {
 }
 
 void Generator::generateStateSpecifics(const int regionAmount) {
-  Utils::Logging::logLine("HOI4: Planning the economy");
+  Fwg::Utils::Logging::logLine("HOI4: Planning the economy");
   auto &config = Cfg::Values();
   // calculate the target industry amount
   auto targetWorldIndustry = 1248 * sizeFactor * industryFactor;
-  Utils::Logging::logLine(config.landPercentage);
+  Fwg::Utils::Logging::logLine(config.landPercentage);
   for (auto &c : hoi4Countries) {
     for (auto &hoi4Region : c.second.hoi4Regions) {
       // count the number of land states for resource generation
@@ -94,7 +94,7 @@ void Generator::generateStateSpecifics(const int regionAmount) {
         auto choice = RandNum::getRandom(0.0, 1.0);
         if (choice < dockChance) {
           hoi4Region->dockyards++;
-        } else if (Utils::inRange(dockChance, dockChance + civChance, choice)) {
+        } else if (Fwg::Utils::inRange(dockChance, dockChance + civChance, choice)) {
           hoi4Region->civilianFactories++;
 
         } else {
@@ -104,12 +104,15 @@ void Generator::generateStateSpecifics(const int regionAmount) {
       militaryIndustry += (int)hoi4Region->armsFactories;
       civilianIndustry += (int)hoi4Region->civilianFactories;
       navalIndustry += (int)hoi4Region->dockyards;
+      // get potential building positions
+      hoi4Region->calculateBuildingPositions(fwg.heightMap);
     }
   }
+
 }
 
 void Generator::generateCountrySpecifics() {
-  Utils::Logging::logLine("HOI4: Choosing uniforms and electing Tyrants");
+  Fwg::Utils::Logging::logLine("HOI4: Choosing uniforms and electing Tyrants");
   sizeFactor = sqrt((double)(Cfg::Values().width * Cfg::Values().height) /
                     (double)(5632 * 2048));
   // graphical culture pairs:
@@ -137,7 +140,7 @@ void Generator::generateCountrySpecifics() {
     }
 
     // select a random country ideology
-    hC.gfxCulture = Utils::selectRandom(gfxCultures);
+    hC.gfxCulture = Fwg::Utils::selectRandom(gfxCultures);
     std::vector<double> popularities{};
     double totalPop = 0;
     for (int i = 0; i < 4; i++) {
@@ -172,7 +175,7 @@ void Generator::generateCountrySpecifics() {
 }
 
 void Generator::generateStrategicRegions() {
-  Utils::Logging::logLine("HOI4: Dividing world into strategic regions");
+  Fwg::Utils::Logging::logLine("HOI4: Dividing world into strategic regions");
   std::set<int> assignedIdeas;
   for (auto &region : gameRegions) {
     if (assignedIdeas.find(region.ID) == assignedIdeas.end()) {
@@ -272,14 +275,14 @@ void Generator::generateWeather() {
 }
 
 void Generator::generateLogistics(Bitmap logistics) {
-  Utils::Logging::logLine("HOI4: Building rail networks");
+  Fwg::Utils::Logging::logLine("HOI4: Building rail networks");
   auto width = Cfg::Values().width;
   for (auto &country : hoi4Countries) {
     // GameProvince ID, distance
     std::map<double, int> supplyHubs;
     // add capital
     auto capitalPosition = gameRegions[country.second.capitalRegionID].position;
-    auto &capitalProvince = Utils::selectRandom(
+    auto &capitalProvince = Fwg::Utils::selectRandom(
         gameRegions[country.second.capitalRegionID].gameProvinces);
     std::vector<double> distances;
     // region ID, provinceID
@@ -298,7 +301,7 @@ void Generator::generateLogistics(Bitmap logistics) {
                   (country.second.hoi4Regions.size() / 4))) {
         // select a random gameprovince of the state
 
-        auto y{Utils::selectRandom(region->gameProvinces)};
+        auto y{Fwg::Utils::selectRandom(region->gameProvinces)};
         for (auto &prov : region->gameProvinces) {
           if (prov.baseProvince->coastal) {
             // if this is a coastal region, the supply hub is a naval base as
@@ -312,7 +315,7 @@ void Generator::generateLogistics(Bitmap logistics) {
         supplyHubProvinces[y.ID] = y;
         navalBases[y.ID] = y.baseProvince->coastal;
         // get the distance between this supply hub and the capital
-        auto distance = Utils::getDistance(capitalPosition,
+        auto distance = Fwg::Utils::getDistance(capitalPosition,
                                            y.baseProvince->position, width);
         // save the distance under the province ID
         supplyHubs[distance] = y.ID;
@@ -343,7 +346,7 @@ void Generator::generateLogistics(Bitmap logistics) {
               // distance is the distance between us and the capital
               // now find distance2, the distance between us and the other
               // already assigned supply hubs
-              auto dist3 = Utils::getDistance(
+              auto dist3 = Fwg::Utils::getDistance(
                   gameProvinces[supplyHubs[distance2]].baseProvince->position,
                   gameProvinces[supplyHubs[distance]].baseProvince->position,
                   width);
@@ -384,7 +387,7 @@ void Generator::generateLogistics(Bitmap logistics) {
           if (cont)
             continue;
           // the distance to the sources neighbours
-          auto nodeDistance = Utils::getDistance(
+          auto nodeDistance = Fwg::Utils::getDistance(
               gameProvinces[destNodeID].baseProvince->position,
               neighbourGProvince.baseProvince->position, width);
           if (nodeDistance < tempMinDistance) {
@@ -442,7 +445,7 @@ void Generator::generateLogistics(Bitmap logistics) {
 }
 
 void Generator::evaluateCountries() {
-  Utils::Logging::logLine("HOI4: Evaluating Country Strength");
+  Fwg::Utils::Logging::logLine("HOI4: Evaluating Country Strength");
   double maxScore = 0.0;
   for (auto &c : hoi4Countries) {
     auto totalIndustry = 0.0;
@@ -491,7 +494,7 @@ void Generator::evaluateCountries() {
 }
 
 void Generator::generateCountryUnits() {
-  Utils::Logging::logLine("HOI4: Generating Country Unit Files");
+  Fwg::Utils::Logging::logLine("HOI4: Generating Country Unit Files");
   // read in different compositions
   auto unitTemplateFile =
       ParserUtils::readFile("resources\\hoi4\\history\\divisionTemplates.txt");
@@ -553,7 +556,7 @@ void Generator::generateCountryUnits() {
     auto totalUnits = c.second.strengthScore / 5;
     while (totalUnits-- > 0) {
       // now randomly add units
-      auto unit = Utils::selectRandom(c.second.units);
+      auto unit = Fwg::Utils::selectRandom(c.second.units);
       c.second.unitCount[unit]++;
     }
   }
@@ -620,7 +623,7 @@ void Generator::buildFocusTree(Hoi4Country &source) {
   int curY = 1;
   int maxX = 1;
   if (source.tag == "DIA")
-    Utils::Logging::logLine("AA");
+    Fwg::Utils::Logging::logLine("AA");
   for (auto &focusChain : source.foci) {
     curY = 1;
     std::set<int> fociIDs;
@@ -745,14 +748,14 @@ bool Generator::targetFulfillsRequirements(
     }
     if (value == "near") {
       auto maxDistance = sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
-      if (Utils::getDistance(gameRegions[source.capitalRegionID].position,
+      if (Fwg::Utils::getDistance(gameRegions[source.capitalRegionID].position,
                              gameRegions[target.capitalRegionID].position,
                              Cfg::Values().width) > maxDistance)
         return false;
     }
     if (value == "far") {
       auto minDistance = sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
-      if (Utils::getDistance(gameRegions[source.capitalRegionID].position,
+      if (Fwg::Utils::getDistance(gameRegions[source.capitalRegionID].position,
                              gameRegions[target.capitalRegionID].position,
                              Cfg::Values().width) < minDistance)
         return false;
@@ -793,7 +796,7 @@ bool Generator::targetFulfillsRequirements(
 }
 
 void Generator::evaluateCountryGoals() {
-  Utils::Logging::logLine("HOI4: Generating Country Goals");
+  Fwg::Utils::Logging::logLine("HOI4: Generating Country Goals");
   std::vector<int> defDate{1, 1, 1936};
   std::vector<std::vector<std::vector<std::string>>> chains;
 
@@ -819,7 +822,7 @@ void Generator::evaluateCountryGoals() {
         std::vector<std::set<std::string>> levelTargets(chain.size());
         int chainID = 0;
         for (const auto &chainFocus : chain) {
-          Utils::Logging::logLineLevel(9, chainFocus);
+          Fwg::Utils::Logging::logLineLevel(9, chainFocus);
           // evaluate every single focus of that chain
           const auto chainTokens = ParserUtils::getTokens(chainFocus, ';');
           const int chainStep = stoi(chainTokens[1]);
@@ -858,7 +861,7 @@ void Generator::evaluateCountryGoals() {
         // now build the chain from the options
         // for every step of the chain, choose a target
         if (stepTargets.size()) {
-          Utils::Logging::logLineLevel(5, "Building focus");
+          Fwg::Utils::Logging::logLineLevel(5, "Building focus");
           std::map<int, NationalFocus> fulfilledSteps;
           int stepIndex = -1;
           std::vector<NationalFocus> chainFoci;
@@ -868,13 +871,13 @@ void Generator::evaluateCountryGoals() {
             if (!targets.size())
               continue;
             // select random target
-            const auto &target = Utils::selectRandom(targets);
+            const auto &target = Fwg::Utils::selectRandom(targets);
             auto focus{buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'),
                                   hoi4Countries.at(sourceCountry.first),
                                   target)};
             focus.stepID = stepIndex;
             focus.chainID = chainID;
-            Utils::Logging::logLineLevel(1, focus);
+            Fwg::Utils::Logging::logLineLevel(1, focus);
             if (focus.fType == NationalFocus::FocusType::attack) {
               // country aims to bully
               sourceCountry.second.bully++;
@@ -891,19 +894,19 @@ void Generator::evaluateCountryGoals() {
 }
 
 void Generator::printStatistics() {
-  Utils::Logging::logLine("Total Industry: ", totalWorldIndustry);
-  Utils::Logging::logLine("Military Industry: ", militaryIndustry);
-  Utils::Logging::logLine("Civilian Industry: ", civilianIndustry);
-  Utils::Logging::logLine("Naval Industry: ", navalIndustry);
+  Fwg::Utils::Logging::logLine("Total Industry: ", totalWorldIndustry);
+  Fwg::Utils::Logging::logLine("Military Industry: ", militaryIndustry);
+  Fwg::Utils::Logging::logLine("Civilian Industry: ", civilianIndustry);
+  Fwg::Utils::Logging::logLine("Naval Industry: ", navalIndustry);
   for (auto &res : totalResources) {
-    Utils::Logging::logLine(res.first, " ", res.second);
+    Fwg::Utils::Logging::logLine(res.first, " ", res.second);
   }
 
-  Utils::Logging::logLine("World Population: ", worldPop);
+  Fwg::Utils::Logging::logLine("World Population: ", worldPop);
 
   for (auto &scores : strengthScores) {
     for (auto &entry : scores.second) {
-      Utils::Logging::logLine("Strength: ", scores.first, " ",
+      Fwg::Utils::Logging::logLine("Strength: ", scores.first, " ",
                               hoi4Countries.at(entry).fullName, " ",
                               hoi4Countries.at(entry).rulingParty, "");
     }

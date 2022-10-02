@@ -62,7 +62,7 @@ bool Hoi4Module::createPaths() {
 void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
                                const std::string &username,
                                const boost::property_tree::ptree &rpdConf) {
-  Utils::Logging::logLine("Reading Hoi4 Config");
+ Fwg::Utils::Logging::logLine("Reading Hoi4 Config");
   this->configurePaths(username, "Hearts of Iron IV", rpdConf);
 
   // now try to locate game files
@@ -82,15 +82,15 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
     std::ifstream f(configSubFolder + "//Hearts of Iron IVModule.json");
     std::stringstream buffer;
     if (!f.good())
-      Utils::Logging::logLine("Config could not be loaded");
+     Fwg::Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
 
     pt::read_json(buffer, hoi4Conf);
   } catch (std::exception e) {
-    Utils::Logging::logLine("Incorrect config \"RandomParadox.json\"");
-    Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
+   Fwg::Utils::Logging::logLine("Incorrect config \"RandomParadox.json\"");
+   Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                             e.what());
-    Utils::Logging::logLine(
+   Fwg::Utils::Logging::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or search for \"json validator\"");
     system("pause");
@@ -191,7 +191,7 @@ void Hoi4Module::genHoi() {
                     hoi4Gen.hoi4Countries);
     adj(gameModPath + "\\map\\adjacencies.csv");
     airports(gameModPath + "\\map\\airports.txt", hoi4Gen.fwg.areas.regions);
-    buildings(gameModPath + "\\map\\buildings.txt", hoi4Gen.fwg.areas.regions,
+    buildings(gameModPath + "\\map\\buildings.txt", hoi4Gen.hoi4States,
               hoi4Gen.fwg.heightMap);
     continents(gameModPath + "\\map\\continents.txt",
                hoi4Gen.fwg.areas.continents);
