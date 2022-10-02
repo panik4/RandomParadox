@@ -16,6 +16,7 @@ void Generator::initializeCountries() {
     // construct a hoi4country with country from ScenarioGenerator.
     // We want a copy here
     Hoi4Country hC(country.second, gameRegions);
+    std::cout << hC.tag << std::endl;
     // save the pointers to states not only in countries
     for (const auto &hoi4State : hC.hoi4Regions) {
       hoi4States.push_back(hoi4State);

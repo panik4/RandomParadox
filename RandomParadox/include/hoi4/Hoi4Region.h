@@ -21,7 +21,8 @@ public:
   int population;
   int stateCategory;
   int stratID;
-  int airport, rocketsite;
+  int airport, rocketsite, supplyNode;
+  Scenario::Utils::WeatherPosition weatherPosition;
   // Containers
   std::vector<Scenario::Utils::Building> buildings;
   std::map<std::string, int> resources;

@@ -34,7 +34,7 @@ Scenario::Utils::Building getBuilding(const std::string &type,
   auto widthPos = pix % Fwg::Cfg::Values().width;
   auto heightPos = pix / Fwg::Cfg::Values().width;
   building.name = type;
-  building.position = Scenario::Utils::Position{
+  building.position = Scenario::Utils::Coordinate{
       widthPos, heightPos, (double)heightmap[pix].getRed() / 10.0, -1.57};
   building.relativeID = relativeID;
   return building;

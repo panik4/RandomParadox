@@ -66,23 +66,26 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
 
 namespace Reading {
 Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path);
-void readStates(const std::string &path, Generator hoi4Gen);
+void readStates(const std::string &path, Generator &hoi4Gen);
 
 std::vector<Fwg::Province> readProvinceMap(const std::string &path);
 void readAirports(const std::string &path,
                   std::vector<std::shared_ptr<Region>> &regions);
 
 void readAdj(const std::string &path, Fwg::Areas::AreaData &areaData);
-void readBuildings(const std::string &path, Fwg::Areas::AreaData &areaData);
+void readBuildings(const std::string &path,
+                   std::vector<std::shared_ptr<Region>> &regions);
 std::vector<std::vector<std::string>> readDefinitions(const std::string &path);
 void readProvinces(const std::string &inPath, const std::string &mapName,
                    Fwg::Areas::AreaData &areaData);
 void readRailways(const std::string &path, Fwg::Areas::AreaData &areaData);
-void readRocketSites(const std::string &path, Fwg::Areas::AreaData &areaData);
-void readSupplyNodes(const std::string &path, Fwg::Areas::AreaData &areaData);
+void readRocketSites(const std::string &path,
+                  std::vector<std::shared_ptr<Region>> &regions);
+void readSupplyNodes(const std::string &path,
+                     std::vector<std::shared_ptr<Region>> &regions);
 void readUnitStacks(const std::string &path, Fwg::Areas::AreaData &areaData);
 void readWeatherPositions(const std::string &path,
-                          Fwg::Areas::AreaData &areaData);
+                          std::vector<std::shared_ptr<Region>> &regions);
 } // namespace Reading
 
 // history - National Focus

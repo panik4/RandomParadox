@@ -839,8 +839,8 @@ Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
   std::string countryColour;
   do {
     countryColour =
-        removeSurroundingBracketBlockFromLineBreak(mappings, "color = ");
-    if (countryColour.size()) {
+        removeSurroundingBracketBlockFromLineBreak(mappings, "color");
+    if (countryColour.size()>10) {
       auto tag = countryColour.substr(1, 3);
       auto colourString = getValue(countryColour, "color_ui");
       auto hsv = getBracketBlockContent(colourString, "hsv");
@@ -882,40 +882,46 @@ Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
           std::swap(rgb[1], rgb[2]);
         }
       }
-      colourMap.setValue({static_cast<unsigned char>(rgb[0]),
-                          static_cast<unsigned char>(rgb[1]),
-                          static_cast<unsigned char>(rgb[2])},
-                         tag);
+      Fwg::Gfx::Colour colour{std::vector<int>{rgb[2], rgb[1], rgb[0]}};
+      while (colourMap.find(colour)) {
+        // duplicate country colour
+        colour++;
+      }
+      colourMap.setValue(colour, tag);
     }
   } while (countryColour.size());
   return colourMap;
 }
 // states are where tags are written down, expressing ownership of the map
 // read them in from path, map province IDs against states
-void readStates(const std::string &path, Generator hoi4Gen) {
+void readStates(const std::string &path, Generator &hoi4Gen) {
   using namespace Scenario::ParserUtils;
   // std::vector<Scenario::Region> regions;
   auto states = readFilesInDirectory(path + "/history/states");
 
   for (auto &state : states) {
-    auto reg = std::shared_ptr<Scenario::Region>();
+    Scenario::Region r;
+    auto reg = std::make_shared<Scenario::Region>(r);
     auto tag = getValue(state, "owner");
     reg->ID = std::stoi(getValue(state, "id")) - 1;
     removeCharacter(tag, ' ');
     reg->owner = tag;
     auto readIDs = getNumberBlock(state, "provinces");
     for (auto id : readIDs)
-      reg->provinces.push_back(hoi4Gen.provinces[id - 1]);
+      reg->gameProvinces.push_back(hoi4Gen.gameProvinces[id - 1]);
     hoi4Gen.gameRegions.push_back(reg);
-    std::sort(hoi4Gen.gameRegions.begin(), hoi4Gen.gameRegions.end());
   }
 
+  std::sort(hoi4Gen.gameRegions.begin(), hoi4Gen.gameRegions.end(),
+            [](auto l, auto r) { return *l < *r; });
   for (auto &region : hoi4Gen.gameRegions) {
     if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end()) {
       hoi4Gen.countries.at(region->owner).ownedRegions.push_back(region->ID);
     } else {
       PdoxCountry c;
+      c.tag = region->owner;
       c.ownedRegions.push_back(region->ID);
+      hoi4Gen.countries.insert({c.tag, c});
     }
   }
 }
@@ -947,6 +953,7 @@ std::vector<Fwg::Province> readProvinceMap(const std::string &path) {
 }
 void readAirports(const std::string &path,
                   std::vector<std::shared_ptr<Region>> &regions) {
+  Logging::logLine("HOI4 Parser: Map: Watching Planes");
   auto list = ParserUtils::getLines(path + "//map//airports.txt");
   for (const auto &entry : list) {
     auto tokens = ParserUtils::getTokens(entry, '=');
@@ -954,8 +961,22 @@ void readAirports(const std::string &path,
       auto ID = std::stoi(tokens[0]);
       ParserUtils::removeSpecials(tokens[1]);
       auto provID = std::stoi(tokens[1]);
-      regions[ID - 1]->airport = provID;
+      regions[ID - 1]->airport = provID - 1;
     }
+  }
+}
+
+void readBuildings(const std::string &path,
+                   std::vector<std::shared_ptr<Region>> &regions) {
+  Logging::logLine("HOI4 Parser: Map: Observing Infrastructure");
+  auto content = pU::getLines(path + "//map//buildings.txt");
+  for (const auto &line : content) {
+    Scenario::Utils::Building building;
+    auto tokens = ParserUtils::getTokens(line, ';');
+    building.name = tokens[1];
+    building.relativeID = std::stoi(tokens[6]);
+    building.position = Scenario::Utils::strToPos(tokens, {2, 3, 4, 5});
+    regions[std::stoi(tokens[0]) - 1]->buildings.push_back(building);
   }
 }
 
@@ -965,6 +986,7 @@ std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
 }
 void readProvinces(const std::string &inPath, const std::string &mapName,
                    Fwg::Areas::AreaData &areaData) {
+  Logging::logLine("HOI4 Parser: Map: Studying the land");
   auto provMap =
       Fwg::Gfx::Bmp::load24Bit(inPath + "map//" + mapName, "provinces");
   auto heightMap = Fwg::Gfx::Bmp::load24Bit(
@@ -974,7 +996,7 @@ void readProvinces(const std::string &inPath, const std::string &mapName,
   for (auto line : list) {
     if (line.size()) {
       auto tokens = ParserUtils::getTokens(line[0], ';');
-      auto ID = std::stoi(tokens[0]);
+      auto ID = std::stoi(tokens[0]) - 1;
       if (ID == 0)
         continue;
       auto r = static_cast<unsigned char>(std::stoi(tokens[1]));
@@ -989,6 +1011,46 @@ void readProvinces(const std::string &inPath, const std::string &mapName,
   }
   Fwg::Areas::Provinces::readProvinceBMP(provMap, heightMap, areaData.provinces,
                                          areaData.provinceColourMap);
+}
+void readRocketSites(const std::string &path,
+                     std::vector<std::shared_ptr<Region>> &regions) {
+  Logging::logLine("HOI4 Parser: Map: Scanning for rockets");
+  auto list = ParserUtils::getLines(path + "//map//rocketsites.txt");
+  for (const auto &entry : list) {
+    auto tokens = ParserUtils::getTokens(entry, '=');
+    if (tokens.size() == 2) {
+      auto ID = std::stoi(tokens[0]);
+      ParserUtils::removeSpecials(tokens[1]);
+      auto provID = std::stoi(tokens[1]);
+      regions[ID - 1]->rocketsite = provID - 1;
+    }
+  }
+}
+void readSupplyNodes(const std::string &path,
+                     std::vector<std::shared_ptr<Region>> &regions) {
+  Logging::logLine("HOI4 Parser: Map: Stealing from logistics hub");
+  auto list = ParserUtils::getLines(path + "//map//supply_nodes.txt");
+  for (const auto &entry : list) {
+    auto tokens = ParserUtils::getTokens(entry, '=');
+    if (tokens.size() == 2) {
+      auto ID = std::stoi(tokens[0]);
+      ParserUtils::removeSpecials(tokens[1]);
+      auto provID = std::stoi(tokens[1]);
+      regions[ID - 1]->supplyNode = provID - 1;
+    }
+  }
+}
+void readWeatherPositions(const std::string &path,
+                          std::vector<std::shared_ptr<Region>> &regions) {
+  Logging::logLine("HOI4 Parser: Map: Observing the Weather");
+  auto content = pU::getLines(path + "//map//weatherpositions.txt");
+  for (const auto &line : content) {
+    Scenario::Utils::WeatherPosition weather;
+    auto tokens = ParserUtils::getTokens(line, ';');
+    weather.position = Scenario::Utils::strToPos(tokens, {1, 2, 3, 3});
+    weather.effectSize = tokens[4];
+    regions[std::stoi(tokens[0]) - 1]->weatherPosition = weather;
+  }
 }
 } // namespace Reading
 
