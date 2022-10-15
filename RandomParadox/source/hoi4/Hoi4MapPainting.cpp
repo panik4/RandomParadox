@@ -2,73 +2,52 @@
 
 namespace Scenario::Hoi4::MapPainting {
 
-namespace Detail {
-void stateBitmap(const std::string &mapPath, Fwg::Gfx::Bitmap countries,
-                 const std::vector<Fwg::Province> &provinces,
-                 const std::vector<Region> &states) {
-  // std::set<int> stateBorders;
-  // for (const auto &state : states) {
-  //   std::set<int> statePixels;
-  //   for (const auto provID : state.provinceIDs) {
-  //     std::copy(provinces[provID].pixels.begin(),
-  //               provinces[provID].pixels.end(),
-  //               std::inserter(statePixels, statePixels.end()));
-  //   }
-  //   for (const auto pixel : statePixels) {
-  //     std::array<int, 4> newPixels = {pixel + 1, pixel - 1,
-  //                                     pixel + countries.bInfoHeader.biWidth,
-  //                                     pixel - countries.bInfoHeader.biWidth};
-  //     for (const auto newPix : newPixels) {
-  //       if (statePixels.find(newPix) == statePixels.end()) {
-  //         stateBorders.insert(pixel);
-  //       }
-  //     }
-  //   }
-  // }
-  // for (const auto borderPix : stateBorders) {
-  //   countries.imageData[borderPix] = Fwg::Gfx::Colour{254, 253, 255};
-  // }
-  // Fwg::Gfx::Bmp::save(countries, mapPath);
-}
-} // namespace Detail
 namespace Countries {
 namespace Detail {
 void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInCountryMap,
                   ChangeHolder &changes) {
+
+  Fwg::Utils::Logging::logLine("Tracking changes to countries");
   for (auto &country : hoi4Gen.hoi4Countries) {
     country.second.hoi4Regions.clear();
     country.second.ownedRegions.clear();
   }
-
   std::map<int, std::string> ownership;
   auto ID = 0;
+  // for every already existing state
   for (const auto &state : hoi4Gen.hoi4States) {
+    // save previous owner
     std::string previousOwner = state->owner;
     std::map<std::string, int> potentialOwners;
+    // iterate over currently owned provinces
     for (const auto province : state->gameProvinces) {
+      // and their pixels
       for (const auto pixel : province->baseProvince->pixels) {
+        // and determine who owns it in the edited image
         const auto &col = readInCountryMap[pixel];
         if (hoi4Gen.colourMap.find(col)) {
           potentialOwners[hoi4Gen.colourMap[col]]++;
         }
       }
     }
+    // now determine new owner
     using pair_type = decltype(potentialOwners)::value_type;
     auto likeliestOwner =
         std::max_element(std::begin(potentialOwners), std::end(potentialOwners),
                          [](const pair_type &p1, const pair_type &p2) {
                            return p1.second < p2.second;
                          });
-
     auto &newOwner = hoi4Gen.hoi4Countries.at(likeliestOwner->first);
+    // give the new owner a region
     newOwner.hoi4Regions.push_back(state);
+    // track the change if the owner changed
     if (newOwner.tag != previousOwner) {
-
       Fwg::Utils::Logging::logLine("State ", state->ID, " changed owner from ",
                                    previousOwner, " to ", newOwner.tag);
-      changes.countryTagMapping.insert({previousOwner, newOwner.tag});
+      changes.ownerChanges.insert({state, {previousOwner, newOwner.tag}});
     }
   }
+  // track the change if the state was deleted
   for (auto &country : hoi4Gen.hoi4Countries) {
     if (country.second.hoi4Regions.size() == 0) {
       changes.deletedCountries.insert(country.second.tag);
@@ -77,14 +56,18 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInCountryMap,
 }
 
 Fwg::Gfx::Bitmap createCountryBitmap(const Generator &hoi4Gen) {
+  Fwg::Utils::Logging::logLine("Creating Country Map from game files");
   const auto &provinceMap = hoi4Gen.fwg.provinceMap;
   Fwg::Gfx::Bitmap countries(provinceMap.bInfoHeader.biWidth,
                              provinceMap.bInfoHeader.biHeight, 24);
   std::set<int> stateBorders;
+  // for every country
   for (const auto &country : hoi4Gen.hoi4Countries) {
+    // and its states
     for (const auto &state : country.second.hoi4Regions) {
       std::set<int> statePixels;
       auto col = country.second.colour;
+      // check all provinces and paint the map at their locations
       for (const auto &prov : state->gameProvinces) {
         for (const auto pixel : prov->baseProvince->pixels) {
           if (pixel >= 0 && pixel < Fwg::Cfg::Values().bitmapSize) {
@@ -93,6 +76,7 @@ Fwg::Gfx::Bitmap createCountryBitmap(const Generator &hoi4Gen) {
           }
         }
       }
+      // now save the borders of states
       for (const auto pixel : statePixels) {
         std::array<int, 4> newPixels = {pixel + 1, pixel - 1,
                                         pixel + countries.bInfoHeader.biWidth,
@@ -105,6 +89,7 @@ Fwg::Gfx::Bitmap createCountryBitmap(const Generator &hoi4Gen) {
       }
     }
   }
+  // and write the borders of states into the image
   for (const auto borderPix : stateBorders) {
     countries.imageData[borderPix] = Fwg::Gfx::Colour{254, 253, 255};
   }
@@ -115,9 +100,7 @@ Fwg::Gfx::Bitmap createCountryBitmap(const Generator &hoi4Gen) {
 void edit(const std::string &inPath, const std::string &outputPath,
           const std::string &mapName, Generator &hoi4Gen,
           ChangeHolder &changes) {
-
-  // auto colourMap =
-  // Scenario::Hoi4::Parsing::Reading::readColourMapping(inPath);
+  Fwg::Utils::Logging::logLine("Editing Countries");
   auto countryMap = Detail::createCountryBitmap(hoi4Gen);
 
   auto &config = Fwg::Cfg::Values();
@@ -125,7 +108,6 @@ void edit(const std::string &inPath, const std::string &outputPath,
   Fwg::Gfx::Bmp::edit<Fwg::Gfx::Colour>("countries.bmp", countryMap,
                                         "countryMap", config.mapsPath,
                                         config.mapsToEdit, config.editor);
-  Detail::trackChanges(hoi4Gen, countryMap, changes);
 
   // we now have a changed country bitmap, which allows us to track the done
   // changes it makes sense to overlay the new map over the new state of
@@ -133,100 +115,113 @@ void edit(const std::string &inPath, const std::string &outputPath,
 
   // determine which states are now in different hands, and who should have
   // them, and cores...
-
-  // auto provinces = Detail::readProvinceMap(inPath);
-  // auto states = Detail::readStates(inPath);
-  // auto colourMap = Detail::readColourMapping(inPath);
-  // std::string suffix = ".bmp";
-  // std::string countryMapPath = inPath + "map/" + inputMap + suffix;
-  // std::string countryRegionsMapPath =
-  //     inPath + "map/" + inputMap + "-regions" + suffix;
-  // auto provMap =
-  //     Fwg::Gfx::Bmp::load24Bit(inPath + "map/provinces.bmp", "provinces");
-  // Fwg::Gfx::Bitmap ownerMap;
-  // if (!std::filesystem::exists(countryMapPath)) {
-  //   Fwg::Utils::Logging::logLine(
-  //       "WARNING: No input Map exists in your input folder. If this is on "
-  //       "purpose, a map will be generated automatically from the given files.
-  //       " "Otherwise exit this program and configure it correctly");
-  //   system("pause");
-  //   Detail::countryBitmap(countryMapPath, provinces, states, provMap,
-  //                         colourMap);
-  // }
-  // ownerMap = Fwg::Gfx::Bmp::load24Bit(countryMapPath, "countries");
-
-  // using namespace Scenario::ParserUtils;
-  // std::vector<std::vector<int>> regions;
-  // auto stateFiles = readFilesInDirectory(inPath + "/history/states");
-
-  // if (exportMap) {
-  //   if (std::filesystem::exists(countryRegionsMapPath)) {
-  //     Fwg::Utils::Logging::logLine(
-  //         "WARNING: File ", countryRegionsMapPath,
-  //         " will be generated from input countries map again and overwritten.
-  //         " "Make sure you want that. If not, set stateExport to false. Press
-  //         " "any button if you do want to continue, otherwise close the "
-  //         "program.");
-  //     system("pause");
-  //   }
-  //   if (colourMap.find(Fwg::Gfx::Colour{254, 253, 255}))
-  //     Fwg::Utils::Logging::logLine(
-  //         "Warning: One of your countries has the colour of the borders this
-  //         " "tool generates.");
-
-  //  Detail::stateBitmap(countryRegionsMapPath, ownerMap, provinces, states);
-  //  Fwg::Utils::Logging::logLine(
-  //      "Exported statebitmap as configured. You must now change the mapName "
-  //      "to countries-regions.bmp, set stateExport to false and re-run.");
-  //  ownerMap = Fwg::Gfx::Bmp::load24Bit(countryRegionsMapPath, "countries");
-  //  return;
-  //}
-
-  // std::map<int, std::string> ownership;
-  // auto ID = 0;
-  // for (const auto &state : states) {
-  //   std::map<std::string, int> potentialOwners;
-  //   for (const auto provID : state.provinceIDs) {
-  //     for (const auto pixel : provinces[provID].pixels) {
-  //       const auto &col = ownerMap[pixel];
-  //       if (colourMap.find(col)) {
-  //         potentialOwners[colourMap[col]]++;
-  //       }
-  //     }
-  //   }
-  //   using pair_type = decltype(potentialOwners)::value_type;
-  //   auto pr =
-  //       std::max_element(std::begin(potentialOwners),
-  //       std::end(potentialOwners),
-  //                        [](const pair_type &p1, const pair_type &p2) {
-  //                          return p1.second < p2.second;
-  //                        });
-  //   auto stateString = stateFiles[ID++];
-  //   auto fileID = getValue(stateString, "id");
-  //   removeCharacter(fileID, ' ');
-
-  //  std::string cores{""};
-  //  if (multiCore) {
-  //    // if multicore, give every candidate a core
-  //    for (const auto &potentialOwner : potentialOwners) {
-  //      cores.append("\n\t\tadd_core_of = " + potentialOwner.first + "\n");
-  //    }
-  //  }
-
-  //  if (pr != std::end(potentialOwners)) {
-  //    // first remove all cores
-  //    while (replaceLine(stateString, "add_core_of=", "") ||
-  //           replaceLine(stateString, "add_core_of =", "")) {
-  //    };
-  //    // now set owner and add cores
-  //    replaceLine(stateString, "owner=", "owner = " + pr->first + cores);
-  //    replaceLine(stateString, "owner =", "owner = " + pr->first + cores);
-  //  }
-  //  writeFile(outputPath + "//history//states//" + fileID + ".txt",
-  //            stateString);
-  //}
+  Detail::trackChanges(hoi4Gen, countryMap, changes);
 }
 } // namespace Countries
+
+namespace States {
+namespace Detail {
+void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInStateMap,
+                  ChangeHolder &changes) {
+  Fwg::Utils::Logging::logLine("Tracking changes to states");
+  for (auto &state : hoi4Gen.hoi4States) {
+    state->gameProvinces.clear();
+  }
+  std::map<int, std::string> ownership;
+  for (auto &gameProvince : hoi4Gen.gameProvinces) {
+    if (gameProvince->baseProvince->sea)
+      continue;
+    auto prevRegion = hoi4Gen.hoi4States[gameProvince->baseProvince->regionID];
+    std::map<int, int> potentialOwners;
+    for (auto pixel : gameProvince->baseProvince->pixels) {
+      // and determine which state owns it in the edited image
+      const auto &col = readInStateMap[pixel];
+
+      if (hoi4Gen.stateColours.find(col)) {
+        auto owner = hoi4Gen.stateColours[col];
+        potentialOwners[owner->ID]++;
+      } else {
+        // std::cout << "Create new state" << std::endl;
+      }
+    }
+    // now determine new owner
+    if (potentialOwners.size()) {
+      using pair_type = decltype(potentialOwners)::value_type;
+      auto likeliestOwner = std::max_element(
+          std::begin(potentialOwners), std::end(potentialOwners),
+          [](const pair_type &p1, const pair_type &p2) {
+            return p1.second < p2.second;
+          });
+      auto &newOwner = hoi4Gen.hoi4States.at(likeliestOwner->first);
+      // give the new owner a region
+      newOwner->gameProvinces.push_back(gameProvince);
+      // track the change if the owner changed
+      if (newOwner != prevRegion) {
+        Fwg::Utils::Logging::logLine("Province ", gameProvince->ID,
+                                     " changed region from ", prevRegion->ID,
+                                     " to ", newOwner->ID);
+        changes.stateChanges.insert({gameProvince, {prevRegion, newOwner}});
+      }
+    }
+    prevRegion->gameProvinces.push_back(gameProvince);
+  }
+  Fwg::Utils::Logging::logLine("Done tracking changes to states");
+}
+
+Fwg::Gfx::Bitmap createStateBitmap(const Generator &hoi4Gen) {
+  Fwg::Utils::Logging::logLine("Creating State Image from game files");
+  const auto &provinceMap = hoi4Gen.fwg.provinceMap;
+  Fwg::Gfx::Bitmap states(provinceMap.bInfoHeader.biWidth,
+                          provinceMap.bInfoHeader.biHeight, 24);
+  std::set<int> stateBorders;
+  std::set<int> provinceBorders;
+
+  for (const auto &state : hoi4Gen.hoi4States) {
+    std::set<int> statePixels;
+    for (const auto province : state->gameProvinces) {
+      std::copy(province->baseProvince->pixels.begin(),
+                province->baseProvince->pixels.end(),
+                std::inserter(statePixels, statePixels.end()));
+      std::copy(province->baseProvince->borderPixels.begin(),
+                province->baseProvince->borderPixels.end(),
+                std::inserter(provinceBorders, provinceBorders.end()));
+    }
+    for (const auto pixel : statePixels) {
+      states.imageData[pixel] = state->colour;
+      std::array<int, 4> newPixels = {pixel + 1, pixel - 1,
+                                      pixel + states.bInfoHeader.biWidth,
+                                      pixel - states.bInfoHeader.biWidth};
+      for (const auto newPix : newPixels) {
+        if (statePixels.find(newPix) == statePixels.end()) {
+          stateBorders.insert(pixel);
+        }
+      }
+    }
+  }
+  for (const auto borderPix : stateBorders) {
+    states.imageData[borderPix] = Fwg::Gfx::Colour{254, 253, 255};
+  }
+  for (const auto borderPix : provinceBorders) {
+    states.imageData[borderPix] = Fwg::Gfx::Colour{128, 253, 255};
+  }
+  return states;
+}
+} // namespace Detail
+
+void edit(const std::string &inPath, const std::string &outputPath,
+          const std::string &mapName, Generator &hoi4Gen,
+          ChangeHolder &changes) {
+  Fwg::Utils::Logging::logLine("Editing States");
+  auto &config = Fwg::Cfg::Values();
+  auto stateMap = Detail::createStateBitmap(hoi4Gen);
+  // edit and save in editedMaps directory
+  Fwg::Gfx::Bmp::edit<Fwg::Gfx::Colour>("states.bmp", stateMap, "stateMap",
+                                        config.mapsPath, config.mapsToEdit,
+                                        config.editor);
+  Detail::trackChanges(hoi4Gen, stateMap, changes);
+}
+
+} // namespace States
 
 namespace Provinces {
 std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
@@ -311,6 +306,7 @@ bool isProvinceID(std::string &content, const std::string &delimiterLeft,
 void edit(const std::string &inPath, const std::string &outputPath,
           const std::string &mapName, Generator &hoi4Gen,
           ChangeHolder &changes) {
+  Fwg::Utils::Logging::logLine("Editing Provinces");
   auto provMap =
       Fwg::Gfx::Bmp::load24Bit(inPath + "map//" + mapName, "provinces");
   auto heightMap = Fwg::Gfx::Bmp::load24Bit(
