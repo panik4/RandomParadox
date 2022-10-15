@@ -12,6 +12,8 @@ Generator::~Generator() {}
 void Generator::initializeStates() {}
 
 void Generator::initializeCountries() {
+
+
   for (auto &country : countries) {
     // construct a hoi4country with country from ScenarioGenerator.
     // We want a copy here
