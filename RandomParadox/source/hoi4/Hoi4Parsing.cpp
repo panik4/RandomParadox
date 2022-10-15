@@ -839,8 +839,8 @@ Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
   std::string countryColour;
   do {
     countryColour =
-        removeSurroundingBracketBlockFromLineBreak(mappings, "color");
-    if (countryColour.size()>10) {
+        removeSurroundingBracketBlockFromLineBreak(mappings, "color =");
+    if (countryColour.size() > 10) {
       auto tag = countryColour.substr(1, 3);
       auto colourString = getValue(countryColour, "color_ui");
       auto hsv = getBracketBlockContent(colourString, "hsv");
@@ -978,6 +978,29 @@ void readBuildings(const std::string &path,
     building.position = Scenario::Utils::strToPos(tokens, {2, 3, 4, 5});
     regions[std::stoi(tokens[0]) - 1]->buildings.push_back(building);
   }
+}
+
+std::vector<std::shared_ptr<Hoi4Country>>
+readCountries(const std::string &path) {
+  std::vector<std::shared_ptr<Hoi4Country>> countries;
+  auto countryList =
+      ParserUtils::getLines(path + "//common//country_tags//00_countries.txt");
+  auto bList =
+      ParserUtils::getLines(path + "//common//country_tags//01_countries.txt");
+  countryList.insert(countryList.end(), bList.begin(), bList.end());
+  for (auto &line : countryList) {
+    if (line.size() > 3) {
+
+      auto tag = line.substr(0, 3);
+      auto name = ParserUtils::getValue(line, "=");
+      Hoi4Country hc;
+      hc.tag = tag;
+      hc.name = name;
+
+    }
+  }
+
+  return countries;
 }
 
 std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {

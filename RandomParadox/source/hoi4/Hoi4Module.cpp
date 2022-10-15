@@ -269,18 +269,31 @@ void Hoi4Module::readHoi() {
   hoi4Gen.mapProvinces();
   // get the states from files to initialize gameRegions
   Hoi4::Parsing::Reading::readStates(gamePath, hoi4Gen);
+  // read the colour codes from the game/mod files
+  hoi4Gen.colourMap = Hoi4::Parsing::Reading::readColourMapping(gamePath);
   // now initialize hoi4 states from the gameRegions
-  hoi4Gen.initializeCountries();
 
-  //std::sort(hoi4Gen.gameRegions.begin(), hoi4Gen.gameRegions.end(),
-  //          [](auto l, auto r) { return *l < *r; });
+  for (auto& c : hoi4Gen.countries) {
+    auto fCol = hoi4Gen.colourMap.valueSearch(c.first);
+    if (fCol != Fwg::Gfx::Colour{0, 0, 0}) {
+      c.second.colour = fCol;
+    } else {
+      do {
+        // generate random colour as long as we have a duplicate
+        c.second.colour = Fwg::Gfx::Colour(RandNum::getRandom(1, 254),
+                                           RandNum::getRandom(1, 254),
+                                           RandNum::getRandom(1, 254));
+      } while (hoi4Gen.colourMap.find(c.second.colour));
+      hoi4Gen.colourMap.setValue(c.second.colour, c.first);
+    }
+  }
+  hoi4Gen.initializeCountries();
   // read in further state details from map files
   Hoi4::Parsing::Reading::readAirports(gamePath, hoi4Gen.hoi4States);
   Hoi4::Parsing::Reading::readRocketSites(gamePath, hoi4Gen.hoi4States);
   Hoi4::Parsing::Reading::readBuildings(gamePath, hoi4Gen.hoi4States);
   Hoi4::Parsing::Reading::readSupplyNodes(gamePath, hoi4Gen.hoi4States);
   Hoi4::Parsing::Reading::readWeatherPositions(gamePath, hoi4Gen.hoi4States);
-  //Hoi4::Parsing::Reading::readColourMapping(gamePath);
 }
 void Hoi4Module::mapEdit() {
   /* generate world from input heightmap

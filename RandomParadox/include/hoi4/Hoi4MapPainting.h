@@ -15,6 +15,10 @@ struct ChangeHolder {
   std::set<int> deletedStates;
   std::set<int> changedStates;
   std::map<int, int> stateIdMapping;
+
+  std::set<std::string> deletedCountries;
+  std::set<std::string> changedCountries;
+  std::map<std::string, std::string> countryTagMapping;
 };
 
 namespace Detail {
@@ -25,7 +29,7 @@ void stateBitmap(const std::string &inPath, Fwg::Gfx::Bitmap countries,
 } // namespace Detail
 namespace Countries {
 void edit(const std::string &inPath, const std::string &outputPath,
-          const std::string &mapName, const Generator &hoi4Gen,
+          const std::string &mapName, Generator &hoi4Gen,
           ChangeHolder &changes);
 
 }
