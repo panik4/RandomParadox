@@ -18,7 +18,6 @@ Scenario::Utils::Building getBuilding(const std::string &type,
                                       const bool coastal,
                                       const Fwg::Gfx::Bitmap &heightmap,
                                       int relativeID = 0) {
-
   auto prov = Fwg::Utils::selectRandom(region.provinces);
   auto pix = 0;
   Scenario::Utils::Building building;
@@ -55,19 +54,16 @@ void Region::calculateBuildingPositions(const Fwg::Gfx::Bitmap &heightmap) {
       for (auto i = 0; i < 6; i++) {
         buildings.push_back(getBuilding(type, *this, false, heightmap));
       }
-    }
-    else if (type == "bunker") {
+    } else if (type == "bunker") {
       for (const auto &prov : provinces) {
         if (!prov->isLake && !prov->sea) {
           buildings.push_back(getBuilding(type, *this, false, heightmap));
         }
       }
-    }
-    else if (type == "anti_air_building") {
+    } else if (type == "anti_air_building") {
       for (auto i = 0; i < 3; i++)
         buildings.push_back(getBuilding(type, *this, false, heightmap));
-    }
-    else if (type == "coastal_bunker" || type == "naval_base") {
+    } else if (type == "coastal_bunker" || type == "naval_base") {
       for (const auto &prov : provinces) {
         if (prov->coastal) {
           auto pix = Fwg::Utils::selectRandom(prov->coastalPixels);
@@ -84,8 +80,7 @@ void Region::calculateBuildingPositions(const Fwg::Gfx::Bitmap &heightmap) {
           buildings.push_back(getBuilding(type, *this, false, heightmap, ID));
         }
       }
-    }
-    else if (type == "dockyard" || type == "floating_harbor") {
+    } else if (type == "dockyard" || type == "floating_harbor") {
       buildings.push_back(getBuilding(type, *this, coastal, heightmap));
     } else {
       buildings.push_back(getBuilding(type, *this, false, heightmap));

@@ -10,7 +10,7 @@ public:
   double popFactor;
   double devFactor;
   double cityShare;
-  const Fwg::Province *baseProvince;
+  Fwg::Province *baseProvince;
   // containers
   std::vector<GameProvince> neighbours;
   std::map<std::string, double> attributeDoubles;

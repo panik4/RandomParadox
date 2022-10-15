@@ -896,8 +896,9 @@ Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
 // read them in from path, map province IDs against states
 void readStates(const std::string &path, Generator &hoi4Gen) {
   using namespace Scenario::ParserUtils;
-  // std::vector<Scenario::Region> regions;
   auto states = readFilesInDirectory(path + "/history/states");
+
+  auto &stateColours = hoi4Gen.stateColours;
 
   for (auto &state : states) {
     Scenario::Region r;
@@ -907,9 +908,19 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
     removeCharacter(tag, ' ');
     reg->owner = tag;
     auto readIDs = getNumberBlock(state, "provinces");
-    for (auto id : readIDs)
+    for (auto id : readIDs) {
       reg->gameProvinces.push_back(hoi4Gen.gameProvinces[id - 1]);
+      hoi4Gen.gameProvinces[id - 1]->baseProvince->regionID = reg->ID;
+    }
+
+    Fwg::Gfx::Colour colour;
+    // pick a random, but unique colour
+    do {
+      colour.randomize();
+    } while (stateColours.find(colour));
+    reg->colour = colour;
     hoi4Gen.gameRegions.push_back(reg);
+    hoi4Gen.stateColours.setValue(reg->colour, reg);
   }
 
   std::sort(hoi4Gen.gameRegions.begin(), hoi4Gen.gameRegions.end(),
@@ -996,7 +1007,6 @@ readCountries(const std::string &path) {
       Hoi4Country hc;
       hc.tag = tag;
       hc.name = name;
-
     }
   }
 

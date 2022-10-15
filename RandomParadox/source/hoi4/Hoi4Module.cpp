@@ -241,8 +241,8 @@ void Hoi4Module::genHoi() {
 void Hoi4Module::mapCountries(bool multiCore, bool stateExport,
                               const std::string &inputMap) {
   // prepare folder structure
-  //using namespace std::filesystem;
-  //try {
+  // using namespace std::filesystem;
+  // try {
   //  remove_all(gameModPath);
   //  create_directory(gameModPath);
   //  // history
@@ -257,9 +257,8 @@ void Hoi4Module::mapCountries(bool multiCore, bool stateExport,
   //  throw(std::exception(error.c_str()));
   //}
 
-
-  //Parsing::copyDescriptorFile("resources\\hoi4\\descriptor-mapping.mod",
-  //                            gameModPath, gameModsDirectory, modName);
+  // Parsing::copyDescriptorFile("resources\\hoi4\\descriptor-mapping.mod",
+  //                             gameModPath, gameModsDirectory, modName);
 }
 void Hoi4Module::readHoi() {
   // read in game or mod files
@@ -273,7 +272,7 @@ void Hoi4Module::readHoi() {
   hoi4Gen.colourMap = Hoi4::Parsing::Reading::readColourMapping(gamePath);
   // now initialize hoi4 states from the gameRegions
 
-  for (auto& c : hoi4Gen.countries) {
+  for (auto &c : hoi4Gen.countries) {
     auto fCol = hoi4Gen.colourMap.valueSearch(c.first);
     if (fCol != Fwg::Gfx::Colour{0, 0, 0}) {
       c.second.colour = fCol;
@@ -311,17 +310,19 @@ void Hoi4Module::mapEdit() {
     // first edit province.bmp, and update some relevant files
 
     auto &config = Fwg::Cfg::Values();
-   // config.mapsToEdit.insert("provinceMap");
-    config.mapsToEdit.insert("countryMap");
+    // config.mapsToEdit.insert("provinceMap");
+    config.mapsToEdit.insert("stateMap");
+    // config.mapsToEdit.insert("countryMap");
     Scenario::Hoi4::MapPainting::Provinces::edit(
         mappingPath, gameModPath, "provinces.bmp", hoi4Gen, changes);
+    Scenario::Hoi4::MapPainting::States::edit(
+        mappingPath, gameModPath, "states.bmp", hoi4Gen, changes);
     Scenario::Hoi4::MapPainting::Countries::edit(
         mappingPath, gameModPath, "countries.bmp", hoi4Gen, changes);
 
-
-
-      //Scenario::Hoi4MapPainting::States::edit(mappingPath, gameModPath, multiCore,
-      //                                      stateExport, inputMap);
+    // Scenario::Hoi4MapPainting::States::edit(mappingPath, gameModPath,
+    // multiCore,
+    //                                       stateExport, inputMap);
     // finalize edits
     // get the new internal representation of the game state into mod files
 
