@@ -24,6 +24,7 @@ public:
   // containers - used for every game
   std::vector<Fwg::Province *> provinces;
   std::vector<PdoxContinent> pdoxContinents;
+  Fwg::Utils::ColourTMap<std::shared_ptr<Region>> stateColours;
   std::vector<std::shared_ptr<Region>> gameRegions;
   std::vector<std::shared_ptr<GameProvince>> gameProvinces;
   std::set<std::string> tags;
