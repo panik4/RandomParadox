@@ -899,6 +899,8 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
   auto states = readFilesInDirectory(path + "/history/states");
 
   auto &stateColours = hoi4Gen.stateColours;
+  hoi4Gen.gameRegions.clear();
+  stateColours.clear();
 
   for (auto &state : states) {
     Scenario::Region r;
@@ -1018,7 +1020,9 @@ std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
   return list;
 }
 void readProvinces(const std::string &inPath, const std::string &mapName,
-                   Fwg::Areas::AreaData &areaData) {
+                   Fwg::Areas::AreaData &areaData,
+                   const std::map<std::string, Fwg::Province::TerrainType>
+                       stringToTerrainType) {
   Logging::logLine("HOI4 Parser: Map: Studying the land");
   auto provMap =
       Fwg::Gfx::Bmp::load24Bit(inPath + "map//" + mapName, "provinces");
@@ -1026,11 +1030,11 @@ void readProvinces(const std::string &inPath, const std::string &mapName,
       inPath + "map//" + "heightmap" + ".bmp", "heightmap");
   auto list = readDefinitions(inPath + "map//definition.csv");
   // now map definitions to read in IDs
-  for (auto line : list) {
+  for (auto& line : list) {
     if (line.size()) {
       auto tokens = ParserUtils::getTokens(line[0], ';');
       auto ID = std::stoi(tokens[0]) - 1;
-      if (ID == 0)
+      if (ID == -1)
         continue;
       auto r = static_cast<unsigned char>(std::stoi(tokens[1]));
       auto g = static_cast<unsigned char>(std::stoi(tokens[2]));
@@ -1038,6 +1042,13 @@ void readProvinces(const std::string &inPath, const std::string &mapName,
       Fwg::Province *p = new Fwg::Province();
       p->ID = ID;
       p->colour = {r, g, b};
+      p->isLake = tokens[4] == "lake";
+      if (p->isLake) {
+        p->coastal = false;
+        p->sea = false;
+      }
+      p->terrainType = stringToTerrainType.at(tokens[6]);
+      p->continentID = stoi(tokens[7]) - 1;
       areaData.provinceColourMap.setValue(p->colour, p);
       areaData.provinces.push_back(p);
     }

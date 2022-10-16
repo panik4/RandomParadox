@@ -13,12 +13,11 @@ void Generator::initializeStates() {}
 
 void Generator::initializeCountries() {
 
-
+  hoi4States.clear();
   for (auto &country : countries) {
     // construct a hoi4country with country from ScenarioGenerator.
     // We want a copy here
     Hoi4Country hC(country.second, gameRegions);
-    std::cout << hC.tag << std::endl;
     // save the pointers to states not only in countries
     for (const auto &hoi4State : hC.hoi4Regions) {
       hoi4States.push_back(hoi4State);
@@ -93,7 +92,8 @@ void Generator::generateStateSpecifics(const int regionAmount) {
           // only create a naval base, if a coastal supply hub was determined in
           // this province
           if (gameProv->attributeDoubles["naval_bases"] == 1)
-            gameProv->attributeDoubles["naval_bases"] = RandNum::getRandom(1, 5);
+            gameProv->attributeDoubles["naval_bases"] =
+                RandNum::getRandom(1, 5);
         } else {
           gameProv->attributeDoubles["naval_bases"] = 0;
         }
@@ -729,7 +729,7 @@ bool Generator::stepFulfillsRequirements(
  * requirement isn't fulfilled, else returns true*/
 bool Generator::targetFulfillsRequirements(
     const std::string &targetRequirements, const Hoi4Country &source,
-    const Hoi4Country &target, 
+    const Hoi4Country &target,
     const std::vector<std::set<std::string>> &levelTargets, const int level) {
   // now check if the country fulfills the target requirements
   // need to check rank, first get the desired value
@@ -858,8 +858,7 @@ void Generator::evaluateCountryGoals() {
                   if (targetFulfillsRequirements(
                           targetRequirements,
                           hoi4Countries[sourceCountry.first],
-                          destCountry.second, levelTargets,
-                          level)) {
+                          destCountry.second, levelTargets, level)) {
                     stepTargets[chainStep].insert(destCountry.second);
                     // save that we targeted this country on this level already.
                     // Next steps on same level should not consider this tag
