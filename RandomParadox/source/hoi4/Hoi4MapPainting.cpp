@@ -129,7 +129,8 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInStateMap,
   }
   std::map<int, std::string> ownership;
   for (auto &gameProvince : hoi4Gen.gameProvinces) {
-    if (gameProvince->baseProvince->sea)
+    if (gameProvince->baseProvince->sea ||
+        gameProvince->baseProvince->regionID > hoi4Gen.hoi4States.size())
       continue;
     auto prevRegion = hoi4Gen.hoi4States[gameProvince->baseProvince->regionID];
     std::map<int, int> potentialOwners;
@@ -220,10 +221,53 @@ void edit(const std::string &inPath, const std::string &outputPath,
                                         config.editor);
   Detail::trackChanges(hoi4Gen, stateMap, changes);
 }
-
 } // namespace States
 
 namespace Provinces {
+
+namespace Detail {
+void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInProvMap,
+                  ChangeHolder &changes, Fwg::Gfx::Bitmap &heightMap,
+                  Fwg::Areas::AreaData& areaNewData) {
+  Fwg::Areas::Provinces::readProvinceBMP(readInProvMap, heightMap,
+                                         areaNewData.provinces,
+                                         areaNewData.provinceColourMap);
+  // now compare both maps and see which province was deleted
+  for (auto i = 0; i < hoi4Gen.fwg.areas.provinces.size() + 1; i++) {
+    changes.provIdMapping[i] = 0;
+  }
+
+  // now check for new provinces
+  for (auto i = hoi4Gen.fwg.areas.provinces.size() + 1;
+       i < areaNewData.provinces.size() + 1; i++) {
+    Fwg::Utils::Logging::logLine("Added new province with ID: ", i);
+    changes.newProvs.insert(i);
+  }
+
+  // track changes in IDs
+  for (auto i = 0; i < hoi4Gen.fwg.areas.provinces.size(); i++) {
+    if (hoi4Gen.fwg.areas.provinces[i]->pixels.size() !=
+        areaNewData.provinces[i]->pixels.size()) {
+      // we have SOME change
+      changes.changedProvs.insert(i);
+      // the province was removed
+      if (!areaNewData.provinces[i]->pixels.size()) {
+        changes.deletedProvs.insert(i);
+        // every succeeding province has their ID modified by -1
+        for (auto x = i; x < hoi4Gen.fwg.areas.provinces.size(); x++)
+          changes.provIdMapping.at(x)--;
+      }
+    }
+  }
+  // now set new IDs
+
+
+
+
+  
+  // overwrite areas
+  hoi4Gen.fwg.areas = areaNewData;
+}
 std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
   auto list = ParserUtils::getLinesByID(path);
   return list;
@@ -303,6 +347,7 @@ bool isProvinceID(std::string &content, const std::string &delimiterLeft,
   }
 }
 
+} // namespace Detail
 void edit(const std::string &inPath, const std::string &outputPath,
           const std::string &mapName, Generator &hoi4Gen,
           ChangeHolder &changes) {
@@ -329,40 +374,15 @@ void edit(const std::string &inPath, const std::string &outputPath,
   Fwg::Gfx::Bmp::edit<Fwg::Gfx::Colour>("provinces.bmp", provMap, "provinceMap",
                                         config.mapsPath, config.mapsToEdit,
                                         config.editor);
-
-  Fwg::Areas::Provinces::readProvinceBMP(
-      provMap, heightMap, areaNewData.provinces, areaNewData.provinceColourMap);
+  hoi4Gen.fwg.provinceMap = provMap;
   // save edited map into mod folder
   Fwg::Gfx::Bmp::save(provMap, outputPath + "map//" + mapName);
-  hoi4Gen.fwg.provinceMap = provMap;
+  Detail::trackChanges(hoi4Gen, provMap, changes, heightMap, areaNewData);
 
-  // now compare both maps and see which province was deleted
-  for (auto i = 0; i < hoi4Gen.fwg.areas.provinces.size() + 1; i++) {
-    changes.provIdMapping[i] = 0;
-  }
-
-  for (auto i = 0; i < hoi4Gen.fwg.areas.provinces.size(); i++) {
-    if (hoi4Gen.fwg.areas.provinces[i]->pixels.size() !=
-        areaNewData.provinces[i]->pixels.size()) {
-      // we have SOME change
-      changes.changedProvs.insert(i);
-      // the province was removed
-      if (!areaNewData.provinces[i]->pixels.size()) {
-        changes.deletedProvs.insert(i);
-        // every succeeding province has their ID modified by -1
-        for (auto x = i; x < hoi4Gen.fwg.areas.provinces.size(); x++)
-          changes.provIdMapping.at(x)--;
-      }
-    }
-  }
   // provinces are referenced: history: units, states
   // map: definition.csv, airports, adjacencies, railways, rocketsites, supply
   // nodes, unit_stacks need a rule set for every file type
 
-  // start with reading in files, and checking for certain rules:
-  std::vector<std::string> mapFilesToEdit = {
-      std::string("//map//airports.txt"),
-      std::string("//map//rocketsites.txt")};
   // for (const auto &edit : mapFilesToEdit) {
   //   std::string out{""};
   //   auto fileContent = ParserUtils::getLines(inPath + edit);
