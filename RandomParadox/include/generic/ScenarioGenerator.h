@@ -6,8 +6,8 @@
 #include "NameGenerator.h"
 #include "PdoxContinent.h"
 #include "PdoxCountry.h"
-#include "ResourceLoading.h"
 #include "RandNum/RandNum.h"
+#include "ResourceLoading.h"
 #include <map>
 namespace Scenario {
 class Generator {
@@ -22,6 +22,32 @@ public:
   Fwg::FastWorldGenerator fwg;
   int numCountries;
   // containers - used for every game
+
+  std::map<std::string, Fwg::Province::TerrainType> stringToTerrainType =
+      {{"plains", Fwg::Province::TerrainType::grassland},
+       {"forest", Fwg::Province::TerrainType::forest},
+       {"ocean", Fwg::Province::TerrainType::ocean},
+       {"mountain", Fwg::Province::TerrainType::mountains},
+       {"marsh", Fwg::Province::TerrainType::marsh},
+       {"hills", Fwg::Province::TerrainType::hills},
+       {"jungle", Fwg::Province::TerrainType::jungle},
+       {"desert", Fwg::Province::TerrainType::desert},
+       {"urban", Fwg::Province::TerrainType::urban},
+       {"lakes", Fwg::Province::TerrainType::lake}};
+  std::map<Fwg::Province::TerrainType, std::string> terrainTypeToString =
+      {{Fwg::Province::TerrainType::grassland, "plains"},
+       {Fwg::Province::TerrainType::savannah, "plains"},
+       {Fwg::Province::TerrainType::peaks, "mountain"},
+       {Fwg::Province::TerrainType::marsh, "marsh"},
+       {Fwg::Province::TerrainType::forest, "forest"},
+       {Fwg::Province::TerrainType::ocean, "ocean"},
+       {Fwg::Province::TerrainType::mountains, "mountain"},
+       {Fwg::Province::TerrainType::hills, "hills"},
+       {Fwg::Province::TerrainType::jungle, "jungle"},
+       {Fwg::Province::TerrainType::desert, "desert"},
+       {Fwg::Province::TerrainType::urban, "urban"},
+       {Fwg::Province::TerrainType::lake, "lakes"}};
+
   std::vector<Fwg::Province *> provinces;
   std::vector<PdoxContinent> pdoxContinents;
   Fwg::Utils::ColourTMap<std::shared_ptr<Region>> stateColours;
@@ -60,5 +86,5 @@ public:
   void generateCountries(int numCountries, const std::string &gamePath);
   // see which country neighbours which
   void evaluateNeighbours();
-};
+}; // namespace Scenario
 } // namespace Scenario

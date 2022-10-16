@@ -65,7 +65,23 @@ void Generator::mapRegions() {
 }
 
 void Generator::mapProvinces() {
+  gameProvinces.clear();
   for (auto &prov : fwg.areas.provinces) {
+    // edit coastal status: lakes are not coasts!
+    if (prov->coastal && prov->isLake)
+      prov->coastal = false;
+    // if it is a land province, check that a neighbour is an ocean, otherwise
+    // this isn't coastal in this scenario definition
+    else if (prov->coastal) {
+      bool foundTrueCoast = false;
+      for (auto &neighbour : prov->neighbours) {
+        if (neighbour->sea) {
+          foundTrueCoast = true;
+        }
+      }
+      prov->coastal = foundTrueCoast;
+    }
+
     // now create gameprovinces from FastWorldGen provinces
     auto gP = std::make_shared<GameProvince>(prov);
     // also copy neighbours
@@ -126,69 +142,34 @@ void Generator::generateDevelopment() {
 }
 
 void Generator::mapTerrain() {
-  auto &config = Fwg::Cfg::Values();
-  const auto &colours = config.colours;
   const auto &climateMap = fwg.climateMap;
   Bitmap typeMap(climateMap.bInfoHeader.biWidth,
                  climateMap.bInfoHeader.biHeight, 24);
   Logging::logLine("Mapping Terrain");
-  std::vector<std::string> targetTypes{"plains",   "forest", "marsh", "hills",
-                                       "mountain", "desert", "urban", "jungle"};
-
   for (auto &c : countries)
     for (auto &gameRegion : c.second.ownedRegions)
       for (auto &gameProv : gameRegions[gameRegion]->gameProvinces) {
-        std::map<Fwg::Gfx::Colour, int> colourPrevalence;
-        for (auto &pix : gameProv->baseProvince->pixels) {
-          if (colourPrevalence[climateMap[pix]])
-            colourPrevalence[climateMap[pix]]++;
-          else
-            colourPrevalence[climateMap[pix]] = 1;
-        }
-        // find the most prevalent colour in province, which sets the terrain
-        // type
-        using pair_type = decltype(colourPrevalence)::value_type;
-        auto pr = std::max_element(
-            std::begin(colourPrevalence), std::end(colourPrevalence),
-            [](const pair_type &p1, const pair_type &p2) {
-              return p1.second < p2.second;
-            });
-        // now check which it is and set the terrain type
-        if (pr->first == colours.at("jungle"))
-          gameProv->terrainType = "jungle";
-        else if (pr->first == colours.at("forest"))
-          gameProv->terrainType = "forest";
-        else if (pr->first == colours.at("hills"))
-          gameProv->terrainType = "hills";
-        else if (pr->first == colours.at("mountains") ||
-                 pr->first == colours.at("peaks"))
-          gameProv->terrainType = "mountain";
-        else if (pr->first == colours.at("grassland") ||
-                 pr->first == colours.at("savannah"))
-          gameProv->terrainType = "plains";
-        else if (pr->first == colours.at("desert"))
-          gameProv->terrainType = "desert";
-        else
-          gameProv->terrainType = "plains";
-        gameProvinces[gameProv->ID]->terrainType = gameProv->terrainType;
-        for (auto pix : gameProv->baseProvince->pixels) {
-          if (pr->first == colours.at("jungle"))
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 0});
-          else if (pr->first == colours.at("forest"))
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 0});
-          else if (pr->first == colours.at("hills"))
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{128, 128, 128});
-          else if (pr->first == colours.at("mountains") ||
-                   pr->first == colours.at("peaks"))
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
-          else if (pr->first == colours.at("grassland") ||
-                   pr->first == colours.at("savannah"))
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
-          else if (pr->first == colours.at("desert"))
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 255});
-          else
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 0, 0});
-        }
+        gameProv->terrainType =
+            terrainTypeToString.at(gameProv->baseProvince->terrainType);
+
+        // for (auto pix : gameProv->baseProvince->pixels) {
+        //   if (pr->first == colours.at("jungle"))
+        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 0});
+        //   else if (pr->first == colours.at("forest"))
+        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 0});
+        //   else if (pr->first == colours.at("hills"))
+        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{128, 128, 128});
+        //   else if (pr->first == colours.at("mountains") ||
+        //            pr->first == colours.at("peaks"))
+        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
+        //   else if (pr->first == colours.at("grassland") ||
+        //            pr->first == colours.at("savannah"))
+        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
+        //   else if (pr->first == colours.at("desert"))
+        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 255});
+        //   else
+        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 0, 0});
+        // }
       }
   Bmp::save(typeMap, "Maps/typeMap.bmp");
 }

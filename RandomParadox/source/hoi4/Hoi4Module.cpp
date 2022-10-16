@@ -263,7 +263,8 @@ void Hoi4Module::mapCountries(bool multiCore, bool stateExport,
 void Hoi4Module::readHoi() {
   // read in game or mod files
   Hoi4::Parsing::Reading::readProvinces(gamePath, "provinces.bmp",
-                                        hoi4Gen.fwg.areas);
+                                        hoi4Gen.fwg.areas,
+                                        hoi4Gen.stringToTerrainType);
   // get the provinces into GameProvinces
   hoi4Gen.mapProvinces();
   // get the states from files to initialize gameRegions
@@ -271,7 +272,7 @@ void Hoi4Module::readHoi() {
   // read the colour codes from the game/mod files
   hoi4Gen.colourMap = Hoi4::Parsing::Reading::readColourMapping(gamePath);
   // now initialize hoi4 states from the gameRegions
-
+  hoi4Gen.mapTerrain();
   for (auto &c : hoi4Gen.countries) {
     auto fCol = hoi4Gen.colourMap.valueSearch(c.first);
     if (fCol != Fwg::Gfx::Colour{0, 0, 0}) {
@@ -295,6 +296,26 @@ void Hoi4Module::readHoi() {
   Hoi4::Parsing::Reading::readWeatherPositions(gamePath, hoi4Gen.hoi4States);
 }
 void Hoi4Module::mapEdit() {
+  // prepare folder structure
+  using namespace std::filesystem;
+  try {
+    remove_all(gameModPath);
+    create_directory(gameModPath);
+    // history
+    create_directory(gameModPath + "\\history\\");
+    create_directory(gameModPath + "\\history\\states\\");
+    // map
+    create_directory(gameModPath + "\\map\\");
+    // common
+    create_directory(gameModPath + "\\common\\");
+  } catch (std::exception e) {
+    std::string error =
+        "Configured paths seem to be messed up, check Hoi4Module.json\n";
+    error += "You can try fixing it yourself. Error is:\n ";
+    error += e.what();
+    throw(std::exception(error.c_str()));
+  }
+
   /* generate world from input heightmap
    * compare differences between heightmaps for edit mask
    *  merge all maps with mask, so rest stays the same
@@ -310,21 +331,27 @@ void Hoi4Module::mapEdit() {
     // first edit province.bmp, and update some relevant files
 
     auto &config = Fwg::Cfg::Values();
-    // config.mapsToEdit.insert("provinceMap");
+    config.mapsToEdit.insert("provinceMap");
     config.mapsToEdit.insert("stateMap");
-    // config.mapsToEdit.insert("countryMap");
+    config.mapsToEdit.insert("countryMap");
     Scenario::Hoi4::MapPainting::Provinces::edit(
         mappingPath, gameModPath, "provinces.bmp", hoi4Gen, changes);
-    Scenario::Hoi4::MapPainting::States::edit(
-        mappingPath, gameModPath, "states.bmp", hoi4Gen, changes);
+    // map them again
+    hoi4Gen.mapProvinces();
+    // get the states from files to initialize gameRegions
+    Hoi4::Parsing::Reading::readStates(gamePath, hoi4Gen);
+    hoi4Gen.initializeCountries();
+    Scenario::Hoi4::MapPainting::States::edit(mappingPath, gameModPath,
+                                              "states.bmp", hoi4Gen, changes);
     Scenario::Hoi4::MapPainting::Countries::edit(
         mappingPath, gameModPath, "countries.bmp", hoi4Gen, changes);
 
-    // Scenario::Hoi4MapPainting::States::edit(mappingPath, gameModPath,
-    // multiCore,
-    //                                       stateExport, inputMap);
     // finalize edits
     // get the new internal representation of the game state into mod files
+
+    // update province related files
+    Hoi4::Parsing::Writing::definition(gameModPath + "\\map\\definition.csv",
+                                       hoi4Gen.gameProvinces);
 
     // update states according to previously generated (and potentially edited)
     // state map will automatically correct province assignment

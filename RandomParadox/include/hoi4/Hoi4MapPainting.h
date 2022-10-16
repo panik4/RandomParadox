@@ -11,6 +11,7 @@ namespace Scenario::Hoi4::MapPainting {
 struct ChangeHolder {
   std::set<int> deletedProvs;
   std::set<int> changedProvs;
+  std::set<int> newProvs;
   // transformations of province IDs in case of deletions
   std::map<int, int> provIdMapping;
 

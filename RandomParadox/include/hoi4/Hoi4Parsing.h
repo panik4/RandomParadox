@@ -75,13 +75,16 @@ void readAirports(const std::string &path,
 void readAdj(const std::string &path, Fwg::Areas::AreaData &areaData);
 void readBuildings(const std::string &path,
                    std::vector<std::shared_ptr<Region>> &regions);
-std::vector<std::shared_ptr<Hoi4Country>> readCountries(const std::string &path);
+std::vector<std::shared_ptr<Hoi4Country>>
+readCountries(const std::string &path);
 std::vector<std::vector<std::string>> readDefinitions(const std::string &path);
 void readProvinces(const std::string &inPath, const std::string &mapName,
-                   Fwg::Areas::AreaData &areaData);
+                   Fwg::Areas::AreaData &areaData,
+                   const std::map<std::string, Fwg::Province::TerrainType>
+                       stringToTerrainType);
 void readRailways(const std::string &path, Fwg::Areas::AreaData &areaData);
 void readRocketSites(const std::string &path,
-                  std::vector<std::shared_ptr<Region>> &regions);
+                     std::vector<std::shared_ptr<Region>> &regions);
 void readSupplyNodes(const std::string &path,
                      std::vector<std::shared_ptr<Region>> &regions);
 void readUnitStacks(const std::string &path, Fwg::Areas::AreaData &areaData);
