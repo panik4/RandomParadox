@@ -900,6 +900,7 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
 
   auto &stateColours = hoi4Gen.stateColours;
   hoi4Gen.gameRegions.clear();
+  hoi4Gen.countries.clear();
   stateColours.clear();
 
   for (auto &state : states) {
@@ -909,7 +910,7 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
     reg->ID = std::stoi(getValue(state, "id")) - 1;
     removeCharacter(tag, ' ');
     reg->owner = tag;
-    auto readIDs = getNumberBlock(state, "provinces");
+    auto readIDs = getNumberBlockMultiDelim(state, "provinces");
     for (auto id : readIDs) {
       reg->gameProvinces.push_back(hoi4Gen.gameProvinces[id - 1]);
       hoi4Gen.gameProvinces[id - 1]->baseProvince->regionID = reg->ID;
@@ -1030,7 +1031,7 @@ void readProvinces(const std::string &inPath, const std::string &mapName,
       inPath + "map//" + "heightmap" + ".bmp", "heightmap");
   auto list = readDefinitions(inPath + "map//definition.csv");
   // now map definitions to read in IDs
-  for (auto& line : list) {
+  for (auto &line : list) {
     if (line.size()) {
       auto tokens = ParserUtils::getTokens(line[0], ';');
       auto ID = std::stoi(tokens[0]) - 1;

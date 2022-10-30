@@ -65,6 +65,9 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
 } // namespace Writing
 
 namespace Reading {
+
+struct ChangeHolder;
+
 Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path);
 void readStates(const std::string &path, Generator &hoi4Gen);
 
