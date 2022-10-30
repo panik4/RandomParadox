@@ -14,6 +14,7 @@ void Generator::initializeStates() {}
 void Generator::initializeCountries() {
 
   hoi4States.clear();
+  hoi4Countries.clear();
   for (auto &country : countries) {
     // construct a hoi4country with country from ScenarioGenerator.
     // We want a copy here
@@ -24,6 +25,8 @@ void Generator::initializeCountries() {
     }
     hoi4Countries.insert({hC.tag, hC});
   }
+  std::sort(hoi4States.begin(), hoi4States.end(),
+            [](auto l, auto r) { return *l < *r; });
 }
 
 void Generator::generateStateResources() {

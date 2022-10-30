@@ -13,7 +13,7 @@ std::vector<std::string> getLines(const std::string &path);
 std::vector<std::vector<std::string>> getLinesByID(const std::string &path);
 std::string csvFormat(const std::vector<std::string> arguments, char delimiter,
                       bool trailing);
-std::string getValue(const std::string& content, const std::string& key);
+std::string getValue(const std::string &content, const std::string &key);
 
 void removeCharacter(std::string &content, char character);
 void removeSpecials(std::string &content);
@@ -23,8 +23,11 @@ std::vector<std::string> getTokens(const std::string &content,
 
 std::vector<int> getNumbers(const std::string &content, const char delimiter,
                             const std::set<int> tokensToConvert = {});
+std::vector<int> getNumbersMultiDelim(const std::string &content,
+                                      const char delimiter,
+                                      const std::set<int> tokensToConvert = {});
 std::vector<int> getNumberBlock(std::string content, std::string key);
-
+std::vector<int> getNumberBlockMultiDelim(std::string content, std::string key);
 bool replaceOccurence(std::string &content, const std::string &key,
                       const std::string &value);
 
@@ -52,5 +55,5 @@ bool removeBracketBlockFromKey(std::string &content, const std::string key);
 
 void removeSurroundingBracketBlock(std::string &content, const std::string key);
 std::string removeSurroundingBracketBlockFromLineBreak(std::string &content,
-                                                const std::string key);
+                                                       const std::string key);
 }; // namespace Scenario::ParserUtils

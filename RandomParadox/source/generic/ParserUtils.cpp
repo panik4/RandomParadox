@@ -129,6 +129,17 @@ std::vector<int> getNumbers(const std::string &content, const char delimiter,
   }
   return numbers;
 };
+
+std::vector<int> getNumbersMultiDelim(const std::string &content, const char delimiter,
+                            const std::set<int> tokensToConvert) {
+  std::vector<std::string> delims { "\t"};
+  auto cCopy = content;
+  for (auto character : delims) {
+    replaceOccurences(cCopy, character, " ");
+  }
+  return getNumbers(cCopy, delimiter, tokensToConvert);
+};
+
 std::vector<int> getNumberBlock(std::string content, std::string key) {
   auto bracketBlock = getBracketBlockContent(content, key);
   removeCharacter(bracketBlock, '{');
@@ -139,6 +150,17 @@ std::vector<int> getNumberBlock(std::string content, std::string key) {
   replaceOccurences(bracketBlock, key, "");
   return getNumbers(bracketBlock, ' ', std::set<int>{});
 }
+
+std::vector<int> getNumberBlockMultiDelim(std::string content,
+                                          std::string key) {
+  auto bracketBlock = getBracketBlockContent(content, key);
+  removeCharacter(bracketBlock, '{');
+  removeCharacter(bracketBlock, '\n');
+  removeCharacter(bracketBlock, '=');
+  removeCharacter(bracketBlock, '}');
+  replaceOccurences(bracketBlock, key, "");
+  return getNumbersMultiDelim(bracketBlock, ' ', std::set<int>{});
+};
 
 bool replaceOccurence(std::string &content, const std::string &key,
                       const std::string &value) {
