@@ -19,13 +19,13 @@ struct ChangeHolder {
   std::set<int> changedStates;
   std::map<int, int> stateIdMapping;
   // tracks old and new state a province is assigned to
-  std::map<std::shared_ptr<GameProvince>, std::vector<std::shared_ptr<Region>>>
+  std::map<std::shared_ptr<GameProvince>, std::vector<std::shared_ptr<Scenario::Region>>>
       stateChanges;
 
   std::set<std::string> deletedCountries;
   std::set<std::string> changedCountries;
   // tracks old and new owner of a state
-  std::map<std::shared_ptr<Region>, std::array<std::string, 2>>
+  std::map<std::shared_ptr<Scenario::Region>, std::array<std::string, 2>>
       ownerChanges;
 };
 
