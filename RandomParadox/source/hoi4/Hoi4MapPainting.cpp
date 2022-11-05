@@ -109,6 +109,18 @@ Fwg::Gfx::Bitmap createCountryBitmap(const Generator &hoi4Gen) {
 }
 
 } // namespace Detail
+void updateCountries(Generator &hoi4Gen, ChangeHolder &changes) {
+  for (auto &countryEntry : hoi4Gen.hoi4Countries) {
+    auto &country = countryEntry.second;
+    for (auto stID = 0; stID < country.hoi4Regions.size(); stID++) {
+      if (changes.deletedStates.find(country.hoi4Regions[stID]->ID) !=
+          changes.deletedStates.end()) {
+        // the state was deleted, so remove it from here as well
+      }
+    }
+  }
+}
+
 void edit(const std::string &inPath, const std::string &outputPath,
           const std::string &mapName, Generator &hoi4Gen,
           ChangeHolder &changes) {
@@ -169,6 +181,9 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInStateMap,
 
       // track the change if the owner changed
       if (newOwnerState != prevOwnerState) {
+        // both involved states were changed
+        changes.changedStates.insert(newOwnerState->ID);
+        changes.changedStates.insert(prevOwnerState->ID);
         // give the new owner a region
         newOwnerState->gameProvinces.push_back(gameProvince);
         Fwg::Utils::Logging::logLine(
@@ -188,6 +203,37 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInStateMap,
       }
     }
     // prevOwnerState->gameProvinces.push_back(gameProvince);
+  }
+  for (auto i = 0; i < hoi4Gen.gameRegions.size(); i++) {
+    changes.stateIdMapping[i] = 0;
+  }
+  // track changes in IDs
+  for (auto i = 0; i < hoi4Gen.gameRegions.size(); i++) {
+    if (!hoi4Gen.gameRegions[i]->gameProvinces.size()) {
+      // remove this state from the country as well
+      auto &c = hoi4Gen.countries.at(hoi4Gen.gameRegions[i]->owner);
+      c.ownedRegions.erase(std::find(c.ownedRegions.begin(),
+                                     c.ownedRegions.end(),
+                                     hoi4Gen.gameRegions[i]->ID));
+      // remove it from game regions as well
+      hoi4Gen.gameRegions.erase(hoi4Gen.gameRegions.begin() + i);
+      //  state was removed
+      changes.deletedStates.insert(i);
+      // every succeeding state has their ID modified by -1
+      for (auto x = i + 1; x < changes.stateIdMapping.size(); x++)
+        changes.stateIdMapping.at(x)--;
+      i--;
+    }
+  }
+  for (auto i = 0; i < hoi4Gen.gameRegions.size(); i++) {
+    hoi4Gen.gameRegions[i]->ID = i;
+  }
+  // now update all countries by changing the IDs they own according to the
+  // stateIdMapping
+  for (auto &c : hoi4Gen.countries) {
+    for (auto &state : c.second.ownedRegions) {
+      state += changes.stateIdMapping.at(state);
+    }
   }
   Fwg::Utils::Logging::logLine("Done tracking changes to states");
 }
@@ -231,6 +277,74 @@ Fwg::Gfx::Bitmap createStateBitmap(const Generator &hoi4Gen) {
   return states;
 }
 } // namespace Detail
+
+void updateStates(Generator &hoi4Gen, ChangeHolder &changes) {
+  auto oldGPs = hoi4Gen.gameProvinces;
+  auto oldGRs = hoi4Gen.gameRegions;
+  // now for every state, check if province changes apply
+  for (auto st = 0; st < hoi4Gen.gameRegions.size(); st++) {
+    auto &state = hoi4Gen.gameRegions[st];
+    // for every province
+    for (auto i = 0; i < state->gameProvinces.size(); i++) {
+      auto newId = state->gameProvinces[i]->ID +
+                   changes.provIdMapping.at(state->gameProvinces[i]->ID);
+      if (changes.deletedProvs.find(state->gameProvinces[i]->ID) !=
+          changes.deletedProvs.end()) {
+        Fwg::Utils::Logging::logLine("Deleted province from state ", state->ID,
+                                     " with ID: ", state->gameProvinces[i]->ID);
+
+        // remove province from state, as it was deleted
+        state->gameProvinces.erase(state->gameProvinces.begin() + i);
+        i--;
+      }
+    }
+    for (auto i = 0; i < state->gameProvinces.size(); i++) {
+      //// check if a province was changed
+      //// therefore reset it to the read in one
+      //// get the current ID of the province and check, what the new one must
+      //// be
+      auto oldID = state->gameProvinces[i]->ID;
+      auto newId =
+          state->gameProvinces[i]->ID + changes.provIdMapping.at(oldID);
+      // then take overwrite the province we have with the read in one
+      state->gameProvinces[i] = hoi4Gen.gameProvinces[newId];
+      // that means, that region ID for old and new province should be the
+      // same, as the state ownership has not changed
+      if (state->gameProvinces[i]->baseProvince->regionID != state->ID) {
+        std::cout << state->gameProvinces[i]->baseProvince->ID << std::endl;
+        auto oldState = oldGRs[st];
+        std::cout << "Old State Provinces " << std::endl;
+        std::cout << "NewID: " << newId << std::endl;
+        std::cout << "OldID: " << oldID << std::endl;
+        std::cout << "Province Region ID: "
+                  << state->gameProvinces[i]->baseProvince->regionID
+                  << std::endl;
+        std::cout << "State ID: " << state->ID << std::endl;
+        std::cout << "H?" << std::endl;
+      }
+    }
+  }
+
+  bool stillUnassigned = false;
+  do {
+    stillUnassigned = false;
+    for (auto newProvID : changes.newProvs) {
+      newProvID -= changes.deletedProvs.size();
+      auto &newProv = hoi4Gen.gameProvinces[newProvID];
+      if (newProv->baseProvince->regionID == 1000000 &&
+          !newProv->baseProvince->sea) {
+        stillUnassigned = true;
+        for (auto &neigbour : newProv->neighbours) {
+          if (neigbour.baseProvince->regionID != 1000000) {
+            hoi4Gen.gameRegions[neigbour.baseProvince->regionID]
+                ->gameProvinces.push_back(newProv);
+            newProv->baseProvince->regionID = neigbour.baseProvince->regionID;
+          }
+        }
+      }
+    }
+  } while (stillUnassigned);
+}
 
 void edit(const std::string &inPath, const std::string &outputPath,
           const std::string &mapName, Generator &hoi4Gen,

@@ -19,7 +19,8 @@ struct ChangeHolder {
   std::set<int> changedStates;
   std::map<int, int> stateIdMapping;
   // tracks old and new state a province is assigned to
-  std::map<std::shared_ptr<GameProvince>, std::vector<std::shared_ptr<Scenario::Region>>>
+  std::map<std::shared_ptr<GameProvince>,
+           std::vector<std::shared_ptr<Scenario::Region>>>
       stateChanges;
 
   std::set<std::string> deletedCountries;
@@ -29,7 +30,9 @@ struct ChangeHolder {
       ownerChanges;
 };
 
-namespace Detail {} // namespace Detail
+namespace Detail {
+
+} // namespace Detail
 namespace Countries {
 void edit(const std::string &inPath, const std::string &outputPath,
           const std::string &mapName, Generator &hoi4Gen,
@@ -38,7 +41,7 @@ void edit(const std::string &inPath, const std::string &outputPath,
 }
 
 namespace States {
-
+void updateStates(Generator &hoi4Gen, ChangeHolder &changes);
 void edit(const std::string &inPath, const std::string &outputPath,
           const std::string &mapName, Generator &hoi4Gen,
           ChangeHolder &changes);
