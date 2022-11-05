@@ -335,78 +335,12 @@ void Hoi4Module::mapEdit() {
     config.mapsToEdit.insert("stateMap");
     config.mapsToEdit.insert("countryMap");
 
-    auto oldGPs = hoi4Gen.gameProvinces;
-    auto oldGRs = hoi4Gen.gameRegions;
     Scenario::Hoi4::MapPainting::Provinces::edit(
         mappingPath, gameModPath, "provinces.bmp", hoi4Gen, changes);
     // map them again
     hoi4Gen.mapProvinces();
 
-    // now for every state, check if province changes apply
-    for (auto st = 0; st < hoi4Gen.gameRegions.size(); st++) {
-      auto &state = hoi4Gen.gameRegions[st];
-      // for every province
-      for (auto i = 0; i < state->gameProvinces.size(); i++) {
-        auto newId = state->gameProvinces[i]->ID +
-                     changes.provIdMapping.at(state->gameProvinces[i]->ID);
-        if (changes.deletedProvs.find(state->gameProvinces[i]->ID) !=
-            changes.deletedProvs.end()) {
-          Fwg::Utils::Logging::logLine(
-              "Deleted province from state ", state->ID,
-              " with ID: ", state->gameProvinces[i]->ID);
-
-          // remove province from state, as it was deleted
-          state->gameProvinces.erase(state->gameProvinces.begin() + i);
-          i--;
-        }
-      }
-      for (auto i = 0; i < state->gameProvinces.size(); i++) {
-        //// check if a province was changed
-        //// therefore reset it to the read in one
-        //// get the current ID of the province and check, what the new one must
-        //// be
-        auto oldID = state->gameProvinces[i]->ID;
-        auto newId =
-            state->gameProvinces[i]->ID + changes.provIdMapping.at(oldID);
-        // then take overwrite the province we have with the read in one
-        state->gameProvinces[i] = hoi4Gen.gameProvinces[newId];
-        // that means, that region ID for old and new province should be the
-        // same, as the state ownership has not changed
-        if (state->gameProvinces[i]->baseProvince->regionID != state->ID) {
-          std::cout << state->gameProvinces[i]->baseProvince->ID << std::endl;
-          auto oldState = oldGRs[st];
-          std::cout << "Old State Provinces " << std::endl;
-          std::cout << "NewID: " << newId << std::endl;
-          std::cout << "OldID: " << oldID << std::endl;
-          std::cout << "Province Region ID: "
-                    << state->gameProvinces[i]->baseProvince->regionID
-                    << std::endl;
-          std::cout << "State ID: " << state->ID << std::endl;
-          std::cout << "H?" << std::endl;
-        }
-      }
-    }
-
-    bool stillUnassigned = false;
-    do {
-      stillUnassigned = false;
-      for (auto newProvID : changes.newProvs) {
-        std::cout << newProvID << std::endl;
-        newProvID -= changes.deletedProvs.size();
-        auto &newProv = hoi4Gen.gameProvinces[newProvID];
-        if (newProv->baseProvince->regionID == 1000000 &&
-            !newProv->baseProvince->sea) {
-          stillUnassigned = true;
-          for (auto &neigbour : newProv->neighbours) {
-            if (neigbour.baseProvince->regionID != 1000000) {
-              hoi4Gen.gameRegions[neigbour.baseProvince->regionID]
-                  ->gameProvinces.push_back(newProv);
-              newProv->baseProvince->regionID = neigbour.baseProvince->regionID;
-            }
-          }
-        }
-      }
-    } while (stillUnassigned);
+    Scenario::Hoi4::MapPainting::States::updateStates(hoi4Gen, changes);
 
     // get the states from files to initialize gameRegions
     // Hoi4::Parsing::Reading::readStates(gamePath, hoi4Gen);
