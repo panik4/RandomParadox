@@ -1,6 +1,7 @@
 #pragma once
 #include "Hoi4Generator.h"
 #include "Hoi4Parsing.h"
+#include "generic/Editor.h"
 #include "generic/ParserUtils.h"
 #include "utils/Bitmap.h"
 #include "utils/Logging.h"
@@ -30,30 +31,27 @@ struct ChangeHolder {
       ownerChanges;
 };
 
-namespace Detail {
-
-} // namespace Detail
+namespace Detail {} // namespace Detail
 namespace Countries {
 void edit(const std::string &inPath, const std::string &outputPath,
           const std::string &mapName, Generator &hoi4Gen,
+          Fwg::Gfx::Bitmap &provinceMap,
           ChangeHolder &changes);
-
 }
 
 namespace States {
 void updateStates(Generator &hoi4Gen, ChangeHolder &changes);
 void edit(const std::string &inPath, const std::string &outputPath,
           const std::string &mapName, Generator &hoi4Gen,
-          ChangeHolder &changes);
-// void stateBitmap(const std::string &inPath, Fwg::Gfx::Bitmap countries,
-//                  const std::vector<Fwg::Province> &provinces,
-//                  const std::vector<Region> &states);
+          const Fwg::Gfx::Bitmap &provinceMap, ChangeHolder &changes);
 } // namespace States
 
 namespace Provinces {
 void edit(const std::string &inPath, const std::string &outputPath,
-          const std::string &mapName, Generator &hoi4Gen,
-          ChangeHolder &changes);
+          Fwg::Gfx::Bitmap &provMap, Generator &hoi4Gen, ChangeHolder &changes);
 }
+
+void runMapEditor(Generator &hoi4Gen, const std::string &mappingPath,
+                  const std::string &gameModPath);
 
 }; // namespace Scenario::Hoi4::MapPainting

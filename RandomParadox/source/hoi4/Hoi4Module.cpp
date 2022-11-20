@@ -262,15 +262,15 @@ void Hoi4Module::mapCountries(bool multiCore, bool stateExport,
 }
 void Hoi4Module::readHoi() {
   // read in game or mod files
-  Hoi4::Parsing::Reading::readProvinces(gamePath, "provinces.bmp",
+  Hoi4::Parsing::Reading::readProvinces(mappingPath, "provinces.bmp",
                                         hoi4Gen.fwg.areas,
                                         hoi4Gen.stringToTerrainType);
   // get the provinces into GameProvinces
   hoi4Gen.mapProvinces();
   // get the states from files to initialize gameRegions
-  Hoi4::Parsing::Reading::readStates(gamePath, hoi4Gen);
+  Hoi4::Parsing::Reading::readStates(mappingPath, hoi4Gen);
   // read the colour codes from the game/mod files
-  hoi4Gen.colourMap = Hoi4::Parsing::Reading::readColourMapping(gamePath);
+  hoi4Gen.colourMap = Hoi4::Parsing::Reading::readColourMapping(mappingPath);
   // now initialize hoi4 states from the gameRegions
   hoi4Gen.mapTerrain();
   for (auto &c : hoi4Gen.countries) {
@@ -289,11 +289,11 @@ void Hoi4Module::readHoi() {
   }
   hoi4Gen.initializeCountries();
   // read in further state details from map files
-  Hoi4::Parsing::Reading::readAirports(gamePath, hoi4Gen.hoi4States);
-  Hoi4::Parsing::Reading::readRocketSites(gamePath, hoi4Gen.hoi4States);
-  Hoi4::Parsing::Reading::readBuildings(gamePath, hoi4Gen.hoi4States);
-  Hoi4::Parsing::Reading::readSupplyNodes(gamePath, hoi4Gen.hoi4States);
-  Hoi4::Parsing::Reading::readWeatherPositions(gamePath, hoi4Gen.hoi4States);
+  Hoi4::Parsing::Reading::readAirports(mappingPath, hoi4Gen.hoi4States);
+  Hoi4::Parsing::Reading::readRocketSites(mappingPath, hoi4Gen.hoi4States);
+  Hoi4::Parsing::Reading::readBuildings(mappingPath, hoi4Gen.hoi4States);
+  Hoi4::Parsing::Reading::readSupplyNodes(mappingPath, hoi4Gen.hoi4States);
+  Hoi4::Parsing::Reading::readWeatherPositions(mappingPath, hoi4Gen.hoi4States);
 }
 void Hoi4Module::mapEdit() {
   // prepare folder structure
@@ -316,83 +316,10 @@ void Hoi4Module::mapEdit() {
     throw(std::exception(error.c_str()));
   }
 
-  /* generate world from input heightmap
-   * compare differences between heightmaps for edit mask
-   *  merge all maps with mask, so rest stays the same
-   * for province map, take notice which provinces are getting removed
-   * replace province IDs by replaced provinces. Recalculate positions for these
-   * provinces add these provinces to empty states
-   *
-   */
-  Scenario::Hoi4::MapPainting::ChangeHolder changes;
-
-  // in case we want to edit provinces
-  if (true) {
-    // first edit province.bmp, and update some relevant files
-
-    auto &config = Fwg::Cfg::Values();
-    config.mapsToEdit.insert("provinceMap");
-    config.mapsToEdit.insert("stateMap");
-    config.mapsToEdit.insert("countryMap");
-
-    Scenario::Hoi4::MapPainting::Provinces::edit(
-        mappingPath, gameModPath, "provinces.bmp", hoi4Gen, changes);
-    // map them again
-    hoi4Gen.mapProvinces();
-
-    Scenario::Hoi4::MapPainting::States::updateStates(hoi4Gen, changes);
-
-    // get the states from files to initialize gameRegions
-    // Hoi4::Parsing::Reading::readStates(gamePath, hoi4Gen);
-    hoi4Gen.initializeCountries();
-    Scenario::Hoi4::MapPainting::States::edit(mappingPath, gameModPath,
-                                              "states.bmp", hoi4Gen, changes);
 
 
-    hoi4Gen.initializeCountries();
 
+  Scenario::Hoi4::MapPainting::runMapEditor(hoi4Gen, mappingPath, gameModPath);
 
-    Scenario::Hoi4::MapPainting::Countries::edit(
-        mappingPath, gameModPath, "countries.bmp", hoi4Gen, changes);
-
-    // finalize edits
-    // get the new internal representation of the game state into mod files
-
-    // update province related files
-    Hoi4::Parsing::Writing::definition(gameModPath + "\\map\\definition.csv",
-                                       hoi4Gen.gameProvinces);
-
-    // update states according to previously generated (and potentially edited)
-    // state map will automatically correct province assignment
-    /* Must edit
-     *   - airfields
-     *   - rocketsites
-     *   - buildings.txt
-     *   - supply_nodes.txt
-     *   - weatherpositions
-     *
-     *
-     *
-     */
-
-    /* UPDATE references to province IDs
-     *  Map files:
-     *   - unitstacks.txt
-     *   - definition.csv
-     *   - strategic regions
-     *
-     * History files:
-     *   -
-     *
-     *
-     * Common files:
-     *   - events
-     *   - decisions
-     *   - ...?
-     *
-     *
-     *
-     */
-  }
 }
 } // namespace Scenario::Hoi4
