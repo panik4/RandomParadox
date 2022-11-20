@@ -973,9 +973,12 @@ void readAirports(const std::string &path,
     auto tokens = ParserUtils::getTokens(entry, '=');
     if (tokens.size() == 2) {
       auto ID = std::stoi(tokens[0]);
-      ParserUtils::removeSpecials(tokens[1]);
-      auto provID = std::stoi(tokens[1]);
-      regions[ID - 1]->airport = provID - 1;
+      // ignore all entries if the region doesn't exist
+      if (ID < regions.size() + 1) {
+        ParserUtils::removeSpecials(tokens[1]);
+        auto provID = std::stoi(tokens[1]);
+        regions[ID - 1]->airport = provID - 1;
+      }
     }
   }
 }
@@ -987,10 +990,15 @@ void readBuildings(const std::string &path,
   for (const auto &line : content) {
     Scenario::Utils::Building building;
     auto tokens = ParserUtils::getTokens(line, ';');
-    building.name = tokens[1];
-    building.relativeID = std::stoi(tokens[6]);
-    building.position = Scenario::Utils::strToPos(tokens, {2, 3, 4, 5});
-    regions[std::stoi(tokens[0]) - 1]->buildings.push_back(building);
+    auto stateID = std::stoi(tokens[0]) - 1;
+
+        
+      if (stateID < regions.size()) {
+      building.name = tokens[1];
+      building.relativeID = std::stoi(tokens[6]);
+      building.position = Scenario::Utils::strToPos(tokens, {2, 3, 4, 5});
+      regions[stateID]->buildings.push_back(building);
+    }
   }
 }
 
@@ -1004,7 +1012,6 @@ readCountries(const std::string &path) {
   countryList.insert(countryList.end(), bList.begin(), bList.end());
   for (auto &line : countryList) {
     if (line.size() > 3) {
-
       auto tag = line.substr(0, 3);
       auto name = ParserUtils::getValue(line, "=");
       Hoi4Country hc;
@@ -1065,9 +1072,11 @@ void readRocketSites(const std::string &path,
     auto tokens = ParserUtils::getTokens(entry, '=');
     if (tokens.size() == 2) {
       auto ID = std::stoi(tokens[0]);
-      ParserUtils::removeSpecials(tokens[1]);
-      auto provID = std::stoi(tokens[1]);
-      regions[ID - 1]->rocketsite = provID - 1;
+      if (ID < regions.size() + 1) {
+        ParserUtils::removeSpecials(tokens[1]);
+        auto provID = std::stoi(tokens[1]);
+        regions[ID - 1]->rocketsite = provID - 1;
+      }
     }
   }
 }
@@ -1079,9 +1088,11 @@ void readSupplyNodes(const std::string &path,
     auto tokens = ParserUtils::getTokens(entry, '=');
     if (tokens.size() == 2) {
       auto ID = std::stoi(tokens[0]);
-      ParserUtils::removeSpecials(tokens[1]);
-      auto provID = std::stoi(tokens[1]);
-      regions[ID - 1]->supplyNode = provID - 1;
+      if (ID < regions.size() + 1) {
+        ParserUtils::removeSpecials(tokens[1]);
+        auto provID = std::stoi(tokens[1]);
+        regions[ID - 1]->supplyNode = provID - 1;
+      }
     }
   }
 }
@@ -1094,7 +1105,9 @@ void readWeatherPositions(const std::string &path,
     auto tokens = ParserUtils::getTokens(line, ';');
     weather.position = Scenario::Utils::strToPos(tokens, {1, 2, 3, 3});
     weather.effectSize = tokens[4];
-    regions[std::stoi(tokens[0]) - 1]->weatherPosition = weather;
+    auto stateID = std::stoi(tokens[0]) - 1;
+    if (stateID < regions.size())
+      regions[stateID]->weatherPosition = weather;
   }
 }
 } // namespace Reading

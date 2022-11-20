@@ -146,13 +146,13 @@ void Generator::generateCountrySpecifics() {
   // {southamerican_gfx, southamerican_2d}
   // {commonwealth_gfx, commonwealth_2d}
   // {asian_gfx, asian_2d}
-  std::vector<std::string> gfxCultures{
+  const std::vector<std::string> gfxCultures{
       "western_european", "eastern_european", "middle_eastern", "african",
       "southamerican",    "commonwealth",     "asian"};
-  std::vector<std::string> ideologies{"fascism", "democratic", "communism",
-                                      "neutrality"};
+  const std::vector<std::string> ideologies{"fascism", "democratic",
+                                            "communism", "neutrality"};
+  initializeCountries();
   for (auto &country : hoi4Countries) {
-    initializeCountries();
     // select a random country ideology
     country.second.gfxCulture = Fwg::Utils::selectRandom(gfxCultures);
     std::vector<double> popularities{};
