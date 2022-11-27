@@ -1,8 +1,8 @@
 {
 	"fastworldgen":
 	{
-		"loadMapsPath": "D://Steam//steamapps//common//Hearts of Iron IV//map//",
-		"heightMapName": "heightmap.bmp"
+		"loadMapsPath": "",
+		"heightMapName": ""
 	},
 	"hoi4":
 	{
