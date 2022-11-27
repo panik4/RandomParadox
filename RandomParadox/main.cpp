@@ -116,7 +116,7 @@ int main() {
   if (!writeMaps) {
     config.writeMaps = false;
   }
- try {
+ /*try {*/
     if (genHoi4Scenario) {
       // generate hoi4 scenario
       Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username, editMode);
@@ -136,12 +136,12 @@ int main() {
       dumpInfo("", configSubFolder);
       system("pause");
     }
-  } catch (std::exception e) {
-    Utils::Logging::logLine(e.what());
-    dumpInfo(e.what(), configSubFolder);
-    system("pause");
-    return -1;
-  }
+  //} catch (std::exception e) {
+  //  Utils::Logging::logLine(e.what());
+  //  dumpInfo(e.what(), configSubFolder);
+  //  system("pause");
+  //  return -1;
+  //}
   Utils::Logging::logLine("Done with the generation");
   return 0;
 }

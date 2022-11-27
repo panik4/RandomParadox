@@ -2,7 +2,6 @@
 	"module": 
 	{
 		"debugLevel": 0,
-		"interactiveMode" : false,
 		"loadMaps" : true,
 		"writeMaps" : true,
 		"seed" : 0
@@ -15,28 +14,34 @@
 	"loadMaps":
 	{
 		"heightMap" : true,
-		"terrainMap" : false,
+		"terrainMap" : true,
 		"humidityMap" : false,
 		"habitabilityMap" : false,
-		"provinceMap" : false,
-		"modifyHeight": false
+		"provinceMap" : true,
+		"modifyHeight": false,
+		"heightAdjustments": 0
+	},
+	"edit":
+	{
+		"editor" : "mspaint.exe",
+		"heightmap" : false,
+		"oceanHeatMap" : false,
+		"riverMap" : false,
+		"humidityMap" : false,
+		"habitabilityMap" : false
 	},
 	"cut":
 	{
 		"cut" : true,
-		"minX" : 4200,
-		"maxX" : 5224,
-		"minY" : 448,
-		"maxY" : 856,
-		"scale" : true,
+		"minX" : 3800,
+		"maxX" : 4312,
+		"minY" : 686,
+		"maxY" : 1198,
+		"scale" : false,
 		"scaleX" : 5632,
 		"scaleY" : 2048,
 		"keepRatio" : false,
 		"scaleFilterRuns": 5
-	},
-	"interactiveMode":
-	{
-		"habitabilityMap": false
 	},
 	"map": 
 	{
@@ -153,8 +158,8 @@
 		"humidity" : {
 			"coastalEffectRange" : -1,
 			"windEffectRange" : -1,
-			"latitudeLow" : 0.33,
-			"latitudeHigh" : 1.16
+			"latitudeLow" : 1.0,
+			"latitudeHigh" : 1.32
 		},
 		"weather":
 		{

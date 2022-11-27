@@ -445,11 +445,7 @@ std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
   return list;
 }
 
-bool isInt(const std::string &s) {
-  return !s.empty() && std::find_if(s.begin(), s.end(), [](unsigned char c) {
-                         return !std::isdigit(c);
-                       }) == s.end();
-}
+
 
 bool isProvinceID(std::string &content, const std::string &delimiterLeft,
                   const std::string &delimiterRight, const int startPos,
@@ -469,7 +465,7 @@ bool isProvinceID(std::string &content, const std::string &delimiterLeft,
     std::string replacementString{""};
     auto tokens = ParserUtils::getTokens(substr, ' ');
     for (auto &token : tokens) {
-      if (isInt(token)) {
+      if (Fwg::Utils::isInt(token)) {
         auto repVal = std::stoi(token);
         if (deletedIDs.find(repVal) == deletedIDs.end()) {
           // modification mode
