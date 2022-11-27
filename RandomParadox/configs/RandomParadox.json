@@ -4,7 +4,8 @@
 		"writeMaps": true,
 		"editMode": false,
 		"genhoi4": true,
-		"geneu4": false
+		"geneu4": false,
+		"genvic3": false
 	},
 	"MappingTool":{
 		"exportCountries": true,
@@ -28,6 +29,15 @@
 		"modPath" : "C://Users//<username>//Documents//Paradox Interactive//Hearts of Iron IV//mod//",
 		"modsDirectory" : "C://Users//<username>//Documents//Paradox Interactive//Hearts of Iron IV//mod//",
 		"mappingPath": "inputs//Hearts of Iron IV//",
+		"checkDiff": true
+	},
+	"Victoria 3": 
+	{
+		"modName" : "vic3Mod1",
+		"gamePath" : "D://Steam//steamapps//common//Victoria 3//",
+		"modPath" : "C://Users//<username>//Documents//Paradox Interactive//Victoria 3//mod//",
+		"modsDirectory" : "C://Users//<username>//Documents//Paradox Interactive//Victoria 3//mod//",
+		"mappingPath": "inputs//Victoria 3//",
 		"checkDiff": true
 	}
 }

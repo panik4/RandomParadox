@@ -823,6 +823,22 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
                                                      "start_resistance = yes");
     }
     pU::replaceLine(content, "capital =", "capital = " + std::to_string(1));
+
+    // remove tokens that crash the mod, as in country history states are
+    // referenced by IDs. If there is no state with such an ID in game, the game
+    // crashes otherwise
+    auto lines = pU::getTokens(content, '\n');
+    for (auto &line : lines) {
+      auto tokens = pU::getTokens(line, '=');
+      if (tokens.size()) {
+        pU::removeCharacter(tokens[0], ' ');
+        if (Fwg::Utils::isInt(tokens[0])) {
+          auto tokenRemove = tokens[0];
+          pU::removeBracketBlockFromKey(content, tokenRemove);
+        }
+      }
+    }
+
     pU::writeFile(path + filename, content);
   }
 }
@@ -992,8 +1008,7 @@ void readBuildings(const std::string &path,
     auto tokens = ParserUtils::getTokens(line, ';');
     auto stateID = std::stoi(tokens[0]) - 1;
 
-        
-      if (stateID < regions.size()) {
+    if (stateID < regions.size()) {
       building.name = tokens[1];
       building.relativeID = std::stoi(tokens[6]);
       building.position = Scenario::Utils::strToPos(tokens, {2, 3, 4, 5});

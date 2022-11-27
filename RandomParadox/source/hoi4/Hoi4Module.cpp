@@ -123,7 +123,7 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
 void Hoi4Module::genHoi() {
   if (!createPaths())
     return;
-  try {
+ // try {
     // start with the generic stuff in the Scenario Generator
     hoi4Gen.mapProvinces();
     hoi4Gen.mapRegions();
@@ -146,12 +146,12 @@ void Hoi4Module::genHoi() {
     NationalFocus::buildMaps();
     hoi4Gen.evaluateCountryGoals();
     hoi4Gen.generateCountryUnits();
-  } catch (std::exception e) {
-    std::string error = "Error while generating the Hoi4 Module.\n";
-    error += "Error is: \n";
-    error += e.what();
-    throw(std::exception(error.c_str()));
-  }
+  //} catch (std::exception e) {
+  //  std::string error = "Error while generating the Hoi4 Module.\n";
+  //  error += "Error is: \n";
+  //  error += e.what();
+  //  throw(std::exception(error.c_str()));
+  //}
   // now start writing game files
   try {
     // generate map files. Format must be converted and colours mapped to hoi4
