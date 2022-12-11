@@ -2,6 +2,7 @@
 #include "eu4/Eu4Module.h"
 #include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Module.h"
+#include "vic3/Vic3Module.h"
 #include <filesystem>
 using namespace Fwg;
 void dumpInfo(const std::string &error, const std::string &configSubFolder) {
@@ -72,7 +73,8 @@ int main() {
     return -1;
   }
 
-  bool writeMaps, editMode, genHoi4Scenario, genEu4Scenario, multiCore,
+  bool writeMaps, editMode, genHoi4Scenario, genEu4Scenario,
+      genVic3Scenario, multiCore,
       stateExport;
   std::string mapName;
   try {
@@ -83,6 +85,7 @@ int main() {
     // generate hoi4 scenario or not
     genHoi4Scenario = rpdConf.get<bool>("randomScenario.genhoi4");
     genEu4Scenario = rpdConf.get<bool>("randomScenario.geneu4");
+    genVic3Scenario = rpdConf.get<bool>("randomScenario.genvic3");
     multiCore = rpdConf.get<bool>("MappingTool.multiCore");
     stateExport = rpdConf.get<bool>("MappingTool.stateExport");
     mapName = rpdConf.get<std::string>("MappingTool.mapName");
@@ -133,6 +136,13 @@ int main() {
       // create eu4module and have it run the scenario generation
       Scenario::Eu4::Module eu4(rpdConf, configSubFolder, username);
       eu4.genEu4();
+      dumpInfo("", configSubFolder);
+      system("pause");
+    }
+    if (genVic3Scenario) {
+      // create vic3module and have it run the scenario generation
+      Scenario::Vic3::Module vic3(rpdConf, configSubFolder, username);
+      vic3.genVic3();
       dumpInfo("", configSubFolder);
       system("pause");
     }
