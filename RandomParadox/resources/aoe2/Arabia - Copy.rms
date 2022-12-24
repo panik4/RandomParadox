@@ -1,0 +1,137 @@
+
+/* Black Forest 2021 */
+
+/* PH SEASONS */
+
+start_random
+percent_chance 20 #define PH_SPRING
+percent_chance 20 #define PH_ALPINE
+percent_chance 10 #define PH_TROPHICALSOUTH
+percent_chance 10 #define PH_TROPHICALEAST
+percent_chance 10 #define PH_AUTUMN
+percent_chance 30 #define PH_FROZEN
+end_random
+#include_drs random_map.def
+#define WMASK_NOSEASONS
+#include_drs F_WaterMasking.inc
+<OBJECTS_GENERATION>
+
+#define GNR_NORMALTC
+#define GNR_STARTVILLS
+#define GNR_CLASSICSCOUT
+#define GNR_REGICIDECLASSIC 
+
+#const HERDABLE_A 594
+#const HERDABLE_B 594
+
+#define GNR_GIVEHERD_A
+#define GNR_GIVEHERD_B
+
+#define GNR_HERD4CLASSIC_A
+#define GNR_HERD22CLASSIC_B
+#define GNR_HERDBDIST_CL
+
+#const HUNTABLE 65
+
+#define GNR_GIVEHUNT
+#define GNR_HUNT6MODERN
+
+#const LURABLE_A 1301
+#const LURABLE_B 1301
+
+#define GNR_GIVELURES
+#define GNR_CLASSICLURES
+
+#define GNR_STARTINGGOLD
+#define GNR_STARTINGSTONE
+#define GNR_STARTGOLD66M
+#define GNR_STARTSTONE44M
+#define GNR_STARTGS_3WBLOCK
+
+#define GNR_FARGMODERN_GIVE
+#define GNR_FARSMODERN_GIVE
+#define GNR_FARG_AVOID20PL
+#define GNR_FARS_AVOID20PL
+#define GNR_FARS_GENEROUS
+#define GNR_FARG_GENEROUS
+
+/* ****************************************************** */
+<PLAYER_SETUP>
+  random_placement 
+	ai_info_map_type BLACK_FOREST 0 0 0
+
+#include_drs thebr_setup.inc
+
+
+/* ****************************************************** */
+
+<LAND_GENERATION>
+base_terrain DESERT
+enable_waves 0 
+
+
+create_player_lands 
+{
+  terrain_type				LAYER_A
+if LUDIKRIS_MAP
+  land_percent                     5
+  base_size                        5
+else
+  land_percent                     5
+  base_size                        5
+endif
+  other_zone_avoidance_distance    6
+}
+
+TOKEN_CREATE_LAND
+
+
+/* ****************************************************** */
+<TERRAIN_GENERATION>
+
+#include_drs F_ColorCorrection.inc
+
+
+
+
+
+
+/* ****************************************************** */
+<OBJECTS_GENERATION>
+
+#define GNR_NORMALTC
+#define GNR_STARTVILLS
+#define GNR_CLASSICSCOUT
+
+#define GNR_GIVERELICS
+
+
+#include_drs GeneratingObjects.inc
+
+/* ****************************************************** */
+
+<ELEVATION_GENERATION>
+
+create_elevation        4
+{
+
+}
+
+<ELEVATION_GENERATION>
+create_elevation        7
+{
+
+}
+
+/* ****************************************************** */
+<CONNECTION_GENERATION>
+create_connect_all_players_land 
+{
+
+}
+
+create_connect_teams_lands
+{
+
+}
+
