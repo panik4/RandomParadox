@@ -1,4 +1,5 @@
 #include "FastWorldGenerator.h"
+#include "aoe2DE/Aoe2DEModule.h"
 #include "eu4/Eu4Module.h"
 #include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Module.h"
@@ -73,9 +74,8 @@ int main() {
     return -1;
   }
 
-  bool writeMaps, editMode, genHoi4Scenario, genEu4Scenario,
-      genVic3Scenario, multiCore,
-      stateExport;
+  bool writeMaps, editMode, genHoi4Scenario, genEu4Scenario, genVic3Scenario,
+      multiCore, stateExport;
   std::string mapName;
   try {
     // if debug is enabled in the config, a directory subtree containing
@@ -119,33 +119,39 @@ int main() {
   if (!writeMaps) {
     config.writeMaps = false;
   }
- /*try {*/
-    if (genHoi4Scenario) {
-      // generate hoi4 scenario
-      Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username, editMode);
-      if (editMode) {
-        hoi4Mod.mapEdit();
-      }
-      else {
-        hoi4Mod.genHoi();
-      }
-      dumpInfo("", configSubFolder);
-      system("pause");
+  if (true) {
+    Scenario::Aoe2::Module aoe2Mod(rpdConf, configSubFolder, username);
+    aoe2Mod.genAoe2();
+    system("pause");
+    return 0;
+  }
+  /*try {*/
+  if (genHoi4Scenario) {
+    // generate hoi4 scenario
+    Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username,
+                                       editMode);
+    if (editMode) {
+      hoi4Mod.mapEdit();
+    } else {
+      hoi4Mod.genHoi();
     }
-    if (genEu4Scenario) {
-      // create eu4module and have it run the scenario generation
-      Scenario::Eu4::Module eu4(rpdConf, configSubFolder, username);
-      eu4.genEu4();
-      dumpInfo("", configSubFolder);
-      system("pause");
-    }
-    if (genVic3Scenario) {
-      // create vic3module and have it run the scenario generation
-      Scenario::Vic3::Module vic3(rpdConf, configSubFolder, username);
-      vic3.genVic3();
-      dumpInfo("", configSubFolder);
-      system("pause");
-    }
+    dumpInfo("", configSubFolder);
+    system("pause");
+  }
+  if (genEu4Scenario) {
+    // create eu4module and have it run the scenario generation
+    Scenario::Eu4::Module eu4(rpdConf, configSubFolder, username);
+    eu4.genEu4();
+    dumpInfo("", configSubFolder);
+    system("pause");
+  }
+  if (genVic3Scenario) {
+    // create vic3module and have it run the scenario generation
+    Scenario::Vic3::Module vic3(rpdConf, configSubFolder, username);
+    vic3.genVic3();
+    dumpInfo("", configSubFolder);
+    system("pause");
+  }
   //} catch (std::exception e) {
   //  Utils::Logging::logLine(e.what());
   //  dumpInfo(e.what(), configSubFolder);
