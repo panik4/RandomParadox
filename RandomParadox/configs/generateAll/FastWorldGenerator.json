@@ -45,9 +45,9 @@
 	},
 	"map": 
 	{
-        "height" : 256,
-		"width" : 256,
-		"landPercentage" : 34,
+        "height" : 100,
+		"width" : 100,
+		"landPercentage" : 69,
 		"seaLevel" : 93,
 		"accuracy": 100,
 		"sobelFactor": 2,
@@ -57,8 +57,8 @@
 		},
 		"trees" : 
 		{
-			"forestDensity" : 0.9,
-			"jungleDensity" : 0.9,
+			"forestDensity" : 0.7,
+			"jungleDensity" : 0.7,
 			"savannahDensity" : 0.6,
 			"grasslandDensity" : 0.7,
 			"tundraDensity" : 0.4
