@@ -13,14 +13,51 @@ Region::Region(const Scenario::Region &gameRegion)
 
 Region::~Region() {}
 
+Scenario::Utils::Building
+getBuilding(const std::string &type, const Fwg::Province &prov,
+            const bool coastal, const Fwg::Gfx::Bitmap &heightmap,
+            const Fwg::Gfx::Bitmap &typeMap, int relativeID = 0) {
+  auto pix = 0;
+  auto &cfg = Fwg::Cfg::Values();
+  Scenario::Utils::Building building;
+  bool done = false;
+  if (coastal) {
+    while (!done) {
+      done = true;
+      pix = Fwg::Utils::selectRandom(prov.coastalPixels);
+      std::vector<int> neighbourPix = {pix - 1, pix + 1,
+                                       pix + Fwg::Cfg::Values().width,
+                                       pix - Fwg::Cfg::Values().width};
+      for (auto nPix : neighbourPix) {
+        if (Fwg::Utils::inRange(0, (int)heightmap.bInfoHeader.biSizeImage,
+                                nPix))
+          if (typeMap[nPix] == cfg.colours.at("lake")) {
+            std::cout << "????";
+            done = false;
+          }
+      }
+    }
+  } else {
+    pix = Fwg::Utils::selectRandom(prov.pixels);
+  }
+  auto widthPos = pix % Fwg::Cfg::Values().width;
+  auto heightPos = pix / Fwg::Cfg::Values().width;
+
+  building.name = type;
+  building.position = Scenario::Utils::Coordinate{
+      widthPos, heightPos, (double)heightmap[pix].getRed() / 10.0, -1.57};
+  building.relativeID = relativeID;
+  return building;
+}
+
 Scenario::Utils::Building getBuilding(const std::string &type,
                                       const Fwg::Region &region,
                                       const bool coastal,
                                       const Fwg::Gfx::Bitmap &heightmap,
                                       int relativeID = 0) {
-  auto prov = Fwg::Utils::selectRandom(region.provinces);
   auto pix = 0;
   Scenario::Utils::Building building;
+  auto prov = Fwg::Utils::selectRandom(region.provinces);
   if (coastal) {
     while (!prov->coastal)
       prov = Fwg::Utils::selectRandom(region.provinces);
@@ -39,7 +76,8 @@ Scenario::Utils::Building getBuilding(const std::string &type,
   return building;
 }
 
-void Region::calculateBuildingPositions(const Fwg::Gfx::Bitmap &heightmap) {
+void Region::calculateBuildingPositions(const Fwg::Gfx::Bitmap &heightmap,
+                                        const Fwg::Gfx::Bitmap &typeMap) {
   if (this->sea)
     return;
   bool coastal = false;
@@ -71,17 +109,22 @@ void Region::calculateBuildingPositions(const Fwg::Gfx::Bitmap &heightmap) {
           if (type == "naval_base") {
             // find the ocean province this coastal building is next to
             for (const auto &neighbour : prov->neighbours)
-              if (neighbour->sea)
+              if (neighbour->sea && !neighbour->isLake)
                 for (const auto &provPix : neighbour->pixels)
                   if (Fwg::Utils::getDistance(provPix, pix,
                                               Fwg::Cfg::Values().width) < 2.0)
                     ID = neighbour->ID;
           }
-          buildings.push_back(getBuilding(type, *this, false, heightmap, ID));
+          buildings.push_back(
+              getBuilding(type, *prov, true, heightmap, typeMap, ID));
         }
       }
-    } else if (type == "dockyard" || type == "floating_harbor") {
-      buildings.push_back(getBuilding(type, *this, coastal, heightmap));
+    } else if (coastal && (type == "dockyard" || type == "floating_harbor")) {
+      auto prov = Fwg::Utils::selectRandom(provinces);
+      while (!prov->coastal)
+        prov = Fwg::Utils::selectRandom(provinces);
+      buildings.push_back(
+          getBuilding(type, *prov, coastal, heightmap, typeMap));
     } else {
       buildings.push_back(getBuilding(type, *this, false, heightmap));
     }

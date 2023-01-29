@@ -28,7 +28,7 @@
 		"oceanHeatMap" : false,
 		"riverMap" : false,
 		"humidityMap" : false,
-		"habitabilityMap" : true
+		"habitabilityMap" : false
 	},
 	"cut":
 	{
@@ -45,9 +45,9 @@
 	},
 	"map": 
 	{
-        "height" : 2048,
-		"width" : 5632,
-		"landPercentage" : -1,
+        "height" : 1024,
+		"width" : 2816,
+		"landPercentage" : 40,
 		"seaLevel" : 93,
 		"accuracy": 100,
 		"sobelFactor": 2,
@@ -57,8 +57,8 @@
 		},
 		"trees" : 
 		{
-			"forestDensity" : 0.9,
-			"jungleDensity" : 0.9,
+			"forestDensity" : 0.7,
+			"jungleDensity" : 0.7,
 			"savannahDensity" : 0.6,
 			"grasslandDensity" : 0.7,
 			"tundraDensity" : 0.4

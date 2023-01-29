@@ -127,7 +127,7 @@ void Generator::generateStateSpecifics(const int regionAmount) {
       civilianIndustry += (int)hoi4Region->civilianFactories;
       navalIndustry += (int)hoi4Region->dockyards;
       // get potential building positions
-      hoi4Region->calculateBuildingPositions(fwg.heightMap);
+      hoi4Region->calculateBuildingPositions(fwg.heightMap, typeMap);
     }
   }
 }

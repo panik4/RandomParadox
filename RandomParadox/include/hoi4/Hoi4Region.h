@@ -32,6 +32,7 @@ public:
   ~Region();
 
   // member functions
-  void calculateBuildingPositions(const Fwg::Gfx::Bitmap &heightmap);
+  void calculateBuildingPositions(const Fwg::Gfx::Bitmap &heightmap,
+                                  const Fwg::Gfx::Bitmap &typeMap);
 };
 } // namespace Scenario::Hoi4

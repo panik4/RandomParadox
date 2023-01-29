@@ -18,7 +18,7 @@ void Generator::loadRequiredResources(const std::string &gamePath) {
 }
 
 void Generator::generateWorld() {
-  mapTerrain();
+  typeMap = mapTerrain();
   generatePopulations();
   generateDevelopment();
 }
@@ -141,37 +141,43 @@ void Generator::generateDevelopment() {
       }
 }
 
-void Generator::mapTerrain() {
+Fwg::Gfx::Bitmap Generator::mapTerrain() {
   const auto &climateMap = fwg.climateMap;
   Bitmap typeMap(climateMap.bInfoHeader.biWidth,
                  climateMap.bInfoHeader.biHeight, 24);
   Logging::logLine("Mapping Terrain");
+  auto &colours = Fwg::Cfg::Values().colours;
   for (auto &c : countries)
     for (auto &gameRegion : c.second.ownedRegions)
       for (auto &gameProv : gameRegions[gameRegion]->gameProvinces) {
         gameProv->terrainType =
             terrainTypeToString.at(gameProv->baseProvince->terrainType);
-
-        // for (auto pix : gameProv->baseProvince->pixels) {
-        //   if (pr->first == colours.at("jungle"))
-        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 0});
-        //   else if (pr->first == colours.at("forest"))
-        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 0});
-        //   else if (pr->first == colours.at("hills"))
-        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{128, 128, 128});
-        //   else if (pr->first == colours.at("mountains") ||
-        //            pr->first == colours.at("peaks"))
-        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
-        //   else if (pr->first == colours.at("grassland") ||
-        //            pr->first == colours.at("savannah"))
-        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
-        //   else if (pr->first == colours.at("desert"))
-        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 255});
-        //   else
-        //     typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 0, 0});
-        // }
+        auto tType = gameProv->terrainType;
+        for (auto pix : gameProv->baseProvince->pixels) {
+          if (tType == "jungle")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 0});
+          else if (tType == "forest")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 0});
+          else if (tType == "hills")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{128, 128, 128});
+          else if (tType == "grassland")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
+          else if (tType == "savannah")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
+          else if (tType == "desert")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 255});
+          else if (tType == "mountain")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
+          else if (tType == "peaks")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
+          else if (tType == "lakes")
+            typeMap.setColourAtIndex(pix, colours.at("lake"));
+          else
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 0, 0});
+        }
       }
   Bmp::save(typeMap, "Maps/typeMap.bmp");
+  return typeMap;
 }
 
 std::shared_ptr<Region> &Generator::findStartRegion() {
