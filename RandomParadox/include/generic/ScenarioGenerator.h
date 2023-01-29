@@ -15,6 +15,9 @@ class Generator {
   std::vector<Fwg::Region> baseRegions;
   std::map<std::string, Fwg::Gfx::Bitmap> bitmaps;
 
+protected:
+  Fwg::Gfx::Bitmap typeMap;
+
 public:
   Generator();
   // vars - used for every game
@@ -23,30 +26,30 @@ public:
   int numCountries;
   // containers - used for every game
 
-  std::map<std::string, Fwg::Province::TerrainType> stringToTerrainType =
-      {{"plains", Fwg::Province::TerrainType::grassland},
-       {"forest", Fwg::Province::TerrainType::forest},
-       {"ocean", Fwg::Province::TerrainType::ocean},
-       {"mountain", Fwg::Province::TerrainType::mountains},
-       {"marsh", Fwg::Province::TerrainType::marsh},
-       {"hills", Fwg::Province::TerrainType::hills},
-       {"jungle", Fwg::Province::TerrainType::jungle},
-       {"desert", Fwg::Province::TerrainType::desert},
-       {"urban", Fwg::Province::TerrainType::urban},
-       {"lakes", Fwg::Province::TerrainType::lake}};
-  std::map<Fwg::Province::TerrainType, std::string> terrainTypeToString =
-      {{Fwg::Province::TerrainType::grassland, "plains"},
-       {Fwg::Province::TerrainType::savannah, "plains"},
-       {Fwg::Province::TerrainType::peaks, "mountain"},
-       {Fwg::Province::TerrainType::marsh, "marsh"},
-       {Fwg::Province::TerrainType::forest, "forest"},
-       {Fwg::Province::TerrainType::ocean, "ocean"},
-       {Fwg::Province::TerrainType::mountains, "mountain"},
-       {Fwg::Province::TerrainType::hills, "hills"},
-       {Fwg::Province::TerrainType::jungle, "jungle"},
-       {Fwg::Province::TerrainType::desert, "desert"},
-       {Fwg::Province::TerrainType::urban, "urban"},
-       {Fwg::Province::TerrainType::lake, "lakes"}};
+  std::map<std::string, Fwg::Province::TerrainType> stringToTerrainType = {
+      {"plains", Fwg::Province::TerrainType::grassland},
+      {"forest", Fwg::Province::TerrainType::forest},
+      {"ocean", Fwg::Province::TerrainType::ocean},
+      {"mountain", Fwg::Province::TerrainType::mountains},
+      {"marsh", Fwg::Province::TerrainType::marsh},
+      {"hills", Fwg::Province::TerrainType::hills},
+      {"jungle", Fwg::Province::TerrainType::jungle},
+      {"desert", Fwg::Province::TerrainType::desert},
+      {"urban", Fwg::Province::TerrainType::urban},
+      {"lakes", Fwg::Province::TerrainType::lake}};
+  std::map<Fwg::Province::TerrainType, std::string> terrainTypeToString = {
+      {Fwg::Province::TerrainType::grassland, "plains"},
+      {Fwg::Province::TerrainType::savannah, "plains"},
+      {Fwg::Province::TerrainType::peaks, "mountain"},
+      {Fwg::Province::TerrainType::marsh, "marsh"},
+      {Fwg::Province::TerrainType::forest, "forest"},
+      {Fwg::Province::TerrainType::ocean, "ocean"},
+      {Fwg::Province::TerrainType::mountains, "mountain"},
+      {Fwg::Province::TerrainType::hills, "hills"},
+      {Fwg::Province::TerrainType::jungle, "jungle"},
+      {Fwg::Province::TerrainType::desert, "desert"},
+      {Fwg::Province::TerrainType::urban, "urban"},
+      {Fwg::Province::TerrainType::lake, "lakes"}};
 
   std::vector<Fwg::Province *> provinces;
   std::vector<PdoxContinent> pdoxContinents;
@@ -79,7 +82,7 @@ public:
   // determine development from habitability, population density and randomness
   void generateDevelopment();
   // mapping terrain types of FastWorldGen to paradox compatible terrains
-  void mapTerrain();
+  Fwg::Gfx::Bitmap mapTerrain();
   // GameRegions are used for every single game,
   std::shared_ptr<Region> &findStartRegion();
   // and countries are always created the same way
