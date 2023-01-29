@@ -1,7 +1,6 @@
 #pragma once
 #include "Hoi4Generator.h"
 #include "Hoi4Parsing.h"
-#include "generic/Editor.h"
 #include "generic/ParserUtils.h"
 #include "utils/Bitmap.h"
 #include "utils/Logging.h"
