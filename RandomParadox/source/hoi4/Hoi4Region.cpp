@@ -21,20 +21,40 @@ getBuilding(const std::string &type, const Fwg::Province &prov,
   auto &cfg = Fwg::Cfg::Values();
   Scenario::Utils::Building building;
   bool done = false;
+  int coastalAttempts = 0;
   if (coastal) {
     while (!done) {
       done = true;
+      coastalAttempts++;
       pix = Fwg::Utils::selectRandom(prov.coastalPixels);
       std::vector<int> neighbourPix = {pix - 1, pix + 1,
                                        pix + Fwg::Cfg::Values().width,
                                        pix - Fwg::Cfg::Values().width};
       for (auto nPix : neighbourPix) {
-        if (Fwg::Utils::inRange(0, (int)heightmap.bInfoHeader.biSizeImage,
-                                nPix))
+        if (nPix > 0 && nPix < typeMap.imageData.size())
           if (typeMap[nPix] == cfg.colours.at("lake")) {
-            std::cout << "????";
             done = false;
           }
+        // we can't find a perfect coast
+        if (coastalAttempts > 50) {
+          // iterate through all coastal pixels
+          for (auto cPix : prov.coastalPixels) {
+            // get neighbours
+            neighbourPix = {cPix - 1, cPix + 1, cPix + Fwg::Cfg::Values().width,
+                            cPix - Fwg::Cfg::Values().width};
+            // check every neighbour for contact to ocean
+            for (auto nPix : neighbourPix) {
+              // if in range of image
+              if (nPix >= 0 && nPix < typeMap.imageData.size())
+                // if it is sea
+                if (typeMap[nPix] == cfg.colours.at("sea")) {
+                  pix = nPix;
+                  done = true;
+
+                }
+            }
+          }
+        }
       }
     }
   } else {

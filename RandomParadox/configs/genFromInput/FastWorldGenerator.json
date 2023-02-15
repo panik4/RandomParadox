@@ -48,7 +48,7 @@
         "height" : 1024,
 		"width" : 2816,
 		"landPercentage" : 40,
-		"seaLevel" : 93,
+		"seaLevel" : 100,
 		"accuracy": 100,
 		"sobelFactor": 2,
 		"rivers" : 

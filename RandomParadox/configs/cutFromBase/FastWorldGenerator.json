@@ -14,10 +14,10 @@
 	"loadMaps":
 	{
 		"heightMap" : true,
-		"terrainMap" : true,
+		"terrainMap" : false,
 		"humidityMap" : false,
 		"habitabilityMap" : false,
-		"provinceMap" : true,
+		"provinceMap" : false,
 		"modifyHeight": false,
 		"heightAdjustments": 0
 	},
@@ -33,13 +33,13 @@
 	"cut":
 	{
 		"cut" : true,
-		"minX" : 3800,
-		"maxX" : 4312,
-		"minY" : 686,
-		"maxY" : 1198,
-		"scale" : false,
-		"scaleX" : 5632,
-		"scaleY" : 2048,
+		"minX" : 0,
+		"maxX" : 5632,
+		"minY" : 0,
+		"maxY" : 2048,
+		"scale" : true,
+		"scaleX" : 2816,
+		"scaleY" : 1024,
 		"keepRatio" : false,
 		"scaleFilterRuns": 5
 	},
@@ -48,7 +48,7 @@
         "height" : 512,
 		"width" : 512,
 		"landPercentage" : 34,
-		"seaLevel" : 93,
+		"seaLevel" : 96,
 		"accuracy": 100,
 		"sobelFactor": 1,
 		"rivers" : 
@@ -158,8 +158,8 @@
 		"humidity" : {
 			"coastalEffectRange" : -1,
 			"windEffectRange" : -1,
-			"latitudeLow" : 1.0,
-			"latitudeHigh" : 1.32
+			"latitudeLow" : 0.6,
+			"latitudeHigh" : 1.8
 		},
 		"weather":
 		{

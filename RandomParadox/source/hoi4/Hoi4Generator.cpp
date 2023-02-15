@@ -102,7 +102,8 @@ void Generator::generateStateSpecifics(const int regionAmount) {
         }
       }
       // calculate total industry in this state
-      auto stateIndustry = round(
+      auto stateIndustry =
+          round(0.5 +
           totalPopFactor * (targetWorldIndustry / (double)(regionAmount)));
       double dockChance = 0.25;
       double civChance = 0.5;

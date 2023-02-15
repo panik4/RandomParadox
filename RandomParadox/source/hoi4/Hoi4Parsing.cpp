@@ -1076,8 +1076,9 @@ void readProvinces(const std::string &inPath, const std::string &mapName,
       areaData.provinces.push_back(p);
     }
   }
+  // call it with special idsort bool to make sure we sort by ID only this time
   Fwg::Areas::Provinces::readProvinceBMP(provMap, heightMap, areaData.provinces,
-                                         areaData.provinceColourMap);
+                                         areaData.provinceColourMap, true);
 }
 void readRocketSites(const std::string &path,
                      std::vector<std::shared_ptr<Region>> &regions) {
