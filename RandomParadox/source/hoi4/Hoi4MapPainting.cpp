@@ -81,7 +81,7 @@ Fwg::Gfx::Bitmap createCountryBitmap(const Generator &hoi4Gen,
       // check all provinces and paint the map at their locations
       for (const auto &prov : state->gameProvinces) {
         for (const auto pixel : prov->baseProvince->pixels) {
-          if (pixel >= 0 && pixel < Fwg::Cfg::Values().bitmapSize) {
+          if (pixel >= 0 && pixel < provinceMap.size()) {
             statePixels.insert(pixel);
             countries.imageData[pixel] = col;
           }
@@ -195,7 +195,7 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInStateMap,
             prevOwnerState->gameProvinces.erase(
                 prevOwnerState->gameProvinces.begin() + pI);
             pI--;
-            std::cout << "Deleting province from state: " << prevOwnerState->ID
+            std::cout << "State Track Changes: Deleting province from state: " << prevOwnerState->ID
                       << std::endl;
           }
         }
@@ -311,7 +311,7 @@ void updateStates(Generator &hoi4Gen, ChangeHolder &changes) {
     for (auto i = 0; i < state->gameProvinces.size(); i++) {
       if (changes.deletedProvs.find(state->gameProvinces[i]->ID) !=
           changes.deletedProvs.end()) {
-        Fwg::Utils::Logging::logLine("Deleted province from state ", state->ID,
+        Fwg::Utils::Logging::logLine("State::Update States: Deleted province from state ", state->ID,
                                      " with ID: ", state->gameProvinces[i]->ID);
 
         // remove province from state, as it was deleted
@@ -393,7 +393,7 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInProvMap,
                   Fwg::Areas::AreaData &areaNewData) {
   Fwg::Areas::Provinces::readProvinceBMP(readInProvMap, heightMap,
                                          areaNewData.provinces,
-                                         areaNewData.provinceColourMap);
+                                         areaNewData.provinceColourMap, true);
 
   for (auto &reg : areaNewData.regions)
     reg.provinces.clear();
@@ -620,21 +620,14 @@ void runMapEditor(Generator &hoi4Gen, const std::string &mappingPath,
           mappingPath, gameModPath, provinceMap, hoi4Gen, changes);
       // map them again
       hoi4Gen.mapProvinces();
-
       Scenario::Hoi4::MapPainting::States::updateStates(hoi4Gen, changes);
       break;
     }
     case 2: {
-      // map them again
-      hoi4Gen.mapProvinces();
-      Scenario::Hoi4::MapPainting::States::updateStates(hoi4Gen, changes);
-      // get the states from files to initialize gameRegions
-      // Hoi4::Parsing::Reading::readStates(gamePath, hoi4Gen);
       hoi4Gen.initializeCountries();
       Scenario::Hoi4::MapPainting::States::edit(mappingPath, gameModPath,
                                                 "states.bmp", hoi4Gen,
                                                 provinceMap, changes);
-
       break;
     }
     case 3: {

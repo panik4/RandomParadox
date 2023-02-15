@@ -145,35 +145,39 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
   const auto &climateMap = fwg.climateMap;
   Bitmap typeMap(climateMap.bInfoHeader.biWidth,
                  climateMap.bInfoHeader.biHeight, 24);
-  Logging::logLine("Mapping Terrain");
   auto &colours = Fwg::Cfg::Values().colours;
+  typeMap.fill(colours.at("sea"));
+  Logging::logLine("Mapping Terrain");
   for (auto &c : countries)
     for (auto &gameRegion : c.second.ownedRegions)
       for (auto &gameProv : gameRegions[gameRegion]->gameProvinces) {
         gameProv->terrainType =
             terrainTypeToString.at(gameProv->baseProvince->terrainType);
-        auto tType = gameProv->terrainType;
-        for (auto pix : gameProv->baseProvince->pixels) {
-          if (tType == "jungle")
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 0});
-          else if (tType == "forest")
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 0});
-          else if (tType == "hills")
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{128, 128, 128});
-          else if (tType == "grassland")
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
-          else if (tType == "savannah")
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
-          else if (tType == "desert")
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 255});
-          else if (tType == "mountain")
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
-          else if (tType == "peaks")
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
-          else if (tType == "lakes")
-            typeMap.setColourAtIndex(pix, colours.at("lake"));
-          else
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 0, 0});
+
+        if (climateMap.imageData.size()) {
+          auto tType = gameProv->terrainType;
+          for (auto pix : gameProv->baseProvince->pixels) {
+            if (tType == "jungle")
+              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 0});
+            else if (tType == "forest")
+              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 0});
+            else if (tType == "hills")
+              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{128, 128, 128});
+            else if (tType == "grassland")
+              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
+            else if (tType == "savannah")
+              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
+            else if (tType == "desert")
+              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 255});
+            else if (tType == "mountain")
+              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
+            else if (tType == "peaks")
+              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
+            else if (tType == "lakes")
+              typeMap.setColourAtIndex(pix, colours.at("lake"));
+            else
+              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 0, 0});
+          }
         }
       }
   Bmp::save(typeMap, "Maps/typeMap.bmp");

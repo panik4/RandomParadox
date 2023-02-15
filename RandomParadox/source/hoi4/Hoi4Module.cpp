@@ -14,11 +14,11 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   }
 
   hoi4Gen = {fwg};
+  hoi4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
   if (editMode) {
     // start loading mod/game files
     readHoi();
   }
-  hoi4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
 }
 
 Hoi4Module::~Hoi4Module() {}
