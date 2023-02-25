@@ -12,7 +12,7 @@ void writeDDS(const int width, const int height,
 }
 
 void writeTGA(const int width, const int height,
-              std::vector<uint8_t> &pixelData, const std::string &path) {
+              std::vector<uint8_t> pixelData, const std::string &path) {
   auto wPath{std::wstring(path.begin(), path.end())};
   Image image(width, height, DXGI_FORMAT_B8G8R8A8_UNORM,
               sizeof(uint8_t) * width * 4, sizeof(uint8_t) * width * height,

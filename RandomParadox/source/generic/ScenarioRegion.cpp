@@ -1,8 +1,8 @@
 #include "generic/ScenarioRegion.h"
 namespace Scenario {
-Region::Region() {}
+Scenario::Region::Region() {}
 
-Scenario::Region::Region(const FastWorldGen::Region &baseRegion)
-    : FastWorldGen::Region(baseRegion), assigned(false) {}
+Scenario::Region::Region(const Fwg::Region &baseRegion)
+    : Fwg::Region(baseRegion), assigned(false) {}
 
 } // namespace Scenario

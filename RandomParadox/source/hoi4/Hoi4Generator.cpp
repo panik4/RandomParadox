@@ -332,7 +332,7 @@ void Generator::generateLogistics(Bitmap logistics) {
         supplyHubProvinces[y->ID] = y;
         navalBases[y->ID] = y->baseProvince->coastal;
         // get the distance between this supply hub and the capital
-        auto distance = Fwg::Utils::getDistance(
+        auto distance = Fwg::getPositionDistance(
             capitalPosition, y->baseProvince->position, width);
         // save the distance under the province ID
         supplyHubs[distance] = y->ID;
@@ -363,7 +363,7 @@ void Generator::generateLogistics(Bitmap logistics) {
               // distance is the distance between us and the capital
               // now find distance2, the distance between us and the other
               // already assigned supply hubs
-              auto dist3 = Fwg::Utils::getDistance(
+              auto dist3 = Fwg::getPositionDistance(
                   gameProvinces[supplyHubs[distance2]]->baseProvince->position,
                   gameProvinces[supplyHubs[distance]]->baseProvince->position,
                   width);
@@ -404,7 +404,7 @@ void Generator::generateLogistics(Bitmap logistics) {
           if (cont)
             continue;
           // the distance to the sources neighbours
-          auto nodeDistance = Fwg::Utils::getDistance(
+          auto nodeDistance = Fwg::getPositionDistance(
               gameProvinces[destNodeID]->baseProvince->position,
               neighbourGProvince.baseProvince->position, width);
           if (nodeDistance < tempMinDistance) {
@@ -603,14 +603,14 @@ NationalFocus Generator::buildFocus(const std::vector<std::string> chainStep,
   auto ands = ParserUtils::getNumbers(
       ParserUtils::getBracketBlockContent(chainStep[7], "and"), ',',
       std::set<int>());
-  for (const auto &and : ands)
-    nF.andFoci.push_back(and);
+  for (const auto &anddd : ands)
+    nF.andFoci.push_back(anddd);
   // and "or" foci
   auto ors = ParserUtils::getNumbers(
       ParserUtils::getBracketBlockContent(chainStep[7], "or"), ',',
       std::set<int>());
-  for (const auto & or : ors)
-    nF.orFoci.push_back(or);
+  for (const auto &orrr : ors)
+    nF.orFoci.push_back(orrr);
   // add completion reward keys
   auto available = ParserUtils::getTokens(
       ParserUtils::getBracketBlockContent(chainStep[9], "available"), '+');
@@ -765,14 +765,16 @@ bool Generator::targetFulfillsRequirements(
     }
     if (value == "near") {
       auto maxDistance = sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
-      if (Fwg::Utils::getDistance(gameRegions[source.capitalRegionID]->position,
+      if (Fwg::getPositionDistance(
+              gameRegions[source.capitalRegionID]->position,
                                   gameRegions[target.capitalRegionID]->position,
                                   Cfg::Values().width) > maxDistance)
         return false;
     }
     if (value == "far") {
       auto minDistance = sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
-      if (Fwg::Utils::getDistance(gameRegions[source.capitalRegionID]->position,
+      if (Fwg::getPositionDistance(
+              gameRegions[source.capitalRegionID]->position,
                                   gameRegions[target.capitalRegionID]->position,
                                   Cfg::Values().width) < minDistance)
         return false;
