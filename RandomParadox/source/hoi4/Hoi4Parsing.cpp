@@ -569,8 +569,8 @@ void commonCountries(const std::string &path, const std::string &hoiPath,
   for (const auto &country : countries) {
     auto tempPath = path + country.second.name + ".txt";
     auto countryText{content};
-    auto colourString = pU::replaceOccurences(
-        Fwg::Utils::varsToString(country.second.colour), ";", " ");
+    auto col = Fwg::Utils::varsToString(country.second.colour);
+    auto colourString = pU::replaceOccurences(col, ";", " ");
     pU::replaceOccurences(countryText, "templateCulture",
                           country.second.gfxCulture);
     pU::replaceOccurences(countryText, "templateColour", colourString);

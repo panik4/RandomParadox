@@ -1,10 +1,10 @@
 {
 	"module": 
 	{
-		"debugLevel": 0,
+		"debugLevel": 9,
 		"loadMaps" : false,
 		"writeMaps" : true,
-		"seed" : 0
+		"seed" : 1676823451
 	},
 	"paths":
 	{
@@ -53,7 +53,7 @@
 		"sobelFactor": 2,
 		"rivers" : 
 		{
-			"numRivers" : 100
+			"numRivers" : 300
 		},
 		"trees" : 
 		{
@@ -71,13 +71,14 @@
 		},
 		"heightmap" : {
 			"complexHeight" : true,
-			"layerAmount" : 6,
+			"layerAmount" : 8,
 			"overallFrequencyModifier" : 0.7,
 			"layers" :
 			{
 				"0" :
 				{
 					"type" : 2,
+					"landLayer" : false,
 					"fractalFrequency" : 1.2,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
@@ -92,6 +93,7 @@
 				"1" :
 				{
 					"type" : 2,
+					"landLayer" : false,
 					"fractalFrequency" : 0.7,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
@@ -106,6 +108,7 @@
 				"2" :
 				{
 					"type" : 8,
+					"landLayer" : false,
 					"fractalFrequency" : 2,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
@@ -120,6 +123,7 @@
 				"3" :
 				{
 					"type" : 8,
+					"landLayer" : false,
 					"fractalFrequency" : 4,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
@@ -134,6 +138,7 @@
 				"4" :
 				{
 					"type" : 8,
+					"landLayer" : false,
 					"fractalFrequency" : 8,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
@@ -148,13 +153,44 @@
 				"5" :
 				{
 					"type" : 2,
+					"landLayer" : false,
 					"fractalFrequency" : 8,
+					"fractalOctaves" : 11,
+					"fractalGain" : 0.6,
+					"seed" : 0,
+					"widthEdge" : 10,
+					"heightEdge" : 0,
+					"weight" : 0.5,
+					"maxHeight" : 30,
+					"minHeight" : 0,
+					"tanFactor": 0.0
+				},
+				"6" :
+				{
+					"type" : 2,
+					"landLayer" : true,
+					"fractalFrequency" : 8,
+					"fractalOctaves" : 11,
+					"fractalGain" : 0.6,
+					"seed" : 0,
+					"widthEdge" : 10,
+					"heightEdge" : 0,
+					"weight" : 0.5,
+					"maxHeight" : 40,
+					"minHeight" : 0,
+					"tanFactor": 0.0
+				},
+				"7" :
+				{
+					"type" : 8,
+					"landLayer" : true,
+					"fractalFrequency" : 2,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 0.2,
+					"weight" : 0.5,
 					"maxHeight" : 255,
 					"minHeight" : 0,
 					"tanFactor": 0.22
