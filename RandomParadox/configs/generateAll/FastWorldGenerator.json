@@ -45,8 +45,8 @@
 	},
 	"map": 
 	{
-        "height" : 512,
-		"width" : 1408,
+        "height" : 1024,
+		"width" : 2816,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -65,13 +65,13 @@
 		},
 		"mountains" :
 		{
-			"peakFactor" : 0.7,
-			"mountainFactor" : 0.5,
-			"hillFactor" : 0.3
+			"peakFactor" : 0.9,
+			"mountainFactor" : 0.7,
+			"hillFactor" : 0.5
 		},
 		"heightmap" : {
 			"complexHeight" : true,
-			"layerAmount" : 8,
+			"layerAmount" : 10,
 			"overallFrequencyModifier" : 0.7,
 			"layers" :
 			{
@@ -138,7 +138,7 @@
 				"4" :
 				{
 					"type" : 8,
-					"landLayer" : false,
+					"landLayer" : true,
 					"fractalFrequency" : 8,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
@@ -148,7 +148,7 @@
 					"weight" : 0.2,
 					"maxHeight" : 255,
 					"minHeight" : 0,
-					"tanFactor": 0.22
+					"tanFactor": 0.21
 				},
 				"5" :
 				{
@@ -168,15 +168,15 @@
 				"6" :
 				{
 					"type" : 2,
-					"landLayer" : true,
-					"fractalFrequency" : 8,
+					"landLayer" : false,
+					"fractalFrequency" : 12,
 					"fractalOctaves" : 11,
-					"fractalGain" : 0.6,
+					"fractalGain" : 0.4,
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 0.5,
-					"maxHeight" : 40,
+					"maxHeight" : 100,
 					"minHeight" : 0,
 					"tanFactor": 0.0
 				},
@@ -184,7 +184,7 @@
 				{
 					"type" : 8,
 					"landLayer" : true,
-					"fractalFrequency" : 2,
+					"fractalFrequency" : 4,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
 					"seed" : 0,
@@ -194,6 +194,36 @@
 					"maxHeight" : 255,
 					"minHeight" : 0,
 					"tanFactor": 0.22
+				},
+				"8" :
+				{
+					"type" : 8,
+					"landLayer" : true,
+					"fractalFrequency" : 4,
+					"fractalOctaves" : 11,
+					"fractalGain" : 0.4,
+					"seed" : 0,
+					"widthEdge" : 10,
+					"heightEdge" : 0,
+					"weight" : 0.5,
+					"maxHeight" : 255,
+					"minHeight" : 0,
+					"tanFactor": 0.21
+				},
+				"9" :
+				{
+					"type" : 8,
+					"landLayer" : true,
+					"fractalFrequency" : 4,
+					"fractalOctaves" : 11,
+					"fractalGain" : 0.5,
+					"seed" : 0,
+					"widthEdge" : 10,
+					"heightEdge" : 0,
+					"weight" : 0.5,
+					"maxHeight" : 10,
+					"minHeight" : 0,
+					"tanFactor": 0.0
 				}
 			}
 		},
@@ -209,7 +239,8 @@
 			"coastalEffectRange" : -1,
 			"windEffectRange" : -1,
 			"latitudeLow" : 0.4,
-			"latitudeHigh" : 1.8
+			"latitudeHigh" : 1.8,
+			"riverHumidityFactor" : 0.2
 		},
 		"weather":
 		{
