@@ -4,7 +4,7 @@
 		"debugLevel": 9,
 		"loadMaps" : false,
 		"writeMaps" : true,
-		"seed" : 1676823451
+		"seed" : 999
 	},
 	"paths":
 	{
@@ -45,8 +45,8 @@
 	},
 	"map": 
 	{
-        "height" : 1024,
-		"width" : 2816,
+        "height" : 512,
+		"width" : 1024,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -72,7 +72,7 @@
 		"heightmap" : {
 			"complexHeight" : true,
 			"layerAmount" : 10,
-			"overallFrequencyModifier" : 0.7,
+			"overallFrequencyModifier" : 0.9,
 			"layers" :
 			{
 				"0" :
@@ -130,8 +130,8 @@
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 0.5,
-					"maxHeight" : 255,
+					"weight" : 1.0,
+					"maxHeight" : 100,
 					"minHeight" : 0,
 					"tanFactor": 0.21
 				},
@@ -145,8 +145,8 @@
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 0.2,
-					"maxHeight" : 255,
+					"weight" : 0.8,
+					"maxHeight" : 50,
 					"minHeight" : 0,
 					"tanFactor": 0.21
 				},
@@ -169,14 +169,14 @@
 				{
 					"type" : 2,
 					"landLayer" : false,
-					"fractalFrequency" : 12,
+					"fractalFrequency" : 24,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 0.5,
-					"maxHeight" : 100,
+					"weight" : 1.0,
+					"maxHeight" : 20,
 					"minHeight" : 0,
 					"tanFactor": 0.0
 				},
@@ -205,8 +205,8 @@
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 0.5,
-					"maxHeight" : 255,
+					"weight" : 0.8,
+					"maxHeight" : 150,
 					"minHeight" : 0,
 					"tanFactor": 0.21
 				},
@@ -238,9 +238,10 @@
 		"humidity" : {
 			"coastalEffectRange" : -1,
 			"windEffectRange" : -1,
-			"latitudeLow" : 0.4,
-			"latitudeHigh" : 1.8,
-			"riverHumidityFactor" : 0.2
+			"latitudeLow" : 0.3,
+			"latitudeHigh" : 1.7,
+			"riverHumidityFactor" : 0.2,
+			"riverEffectRangeFactor" : 1.0
 		},
 		"weather":
 		{
