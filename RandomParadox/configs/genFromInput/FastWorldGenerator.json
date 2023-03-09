@@ -48,7 +48,7 @@
         "height" : 1024,
 		"width" : 2816,
 		"landPercentage" : 40,
-		"seaLevel" : 100,
+		"seaLevel" : 93,
 		"accuracy": 100,
 		"sobelFactor": 2,
 		"rivers" : 
@@ -71,80 +71,10 @@
 		},
 		"heightmap" : {
 			"complexHeight" : true,
-			"layerAmount" : 5,
+			"layerAmount" : 0,
 			"overallFrequencyModifier" : 0.7,
 			"layers" :
 			{
-				"0" :
-				{
-					"type" : 2,
-					"fractalFrequency" : 1.2,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.4,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 0.5,
-					"maxHeight" : 200,
-					"minHeight" : 0,
-					"tanFactor": 0.0
-				},
-				"1" :
-				{
-					"type" : 2,
-					"fractalFrequency" : 0.7,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.4,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 0.5,
-					"maxHeight" : 100,
-					"minHeight" : 0,
-					"tanFactor": 0.0
-				},
-				"2" :
-				{
-					"type" : 8,
-					"fractalFrequency" : 2,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.4,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 0.5,
-					"maxHeight" : 255,
-					"minHeight" : 0,
-					"tanFactor": 0.22
-				},
-				"3" :
-				{
-					"type" : 8,
-					"fractalFrequency" : 4,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.4,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 0.5,
-					"maxHeight" : 255,
-					"minHeight" : 0,
-					"tanFactor": 0.21
-				},
-				"4" :
-				{
-					"type" : 8,
-					"fractalFrequency" : 8,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.4,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 0.2,
-					"maxHeight" : 255,
-					"minHeight" : 0,
-					"tanFactor": 0.22
-				}
 			}
 		},
 		"provinces" : {
@@ -159,7 +89,9 @@
 			"coastalEffectRange" : -1,
 			"windEffectRange" : -1,
 			"latitudeLow" : 0.4,
-			"latitudeHigh" : 1.8
+			"latitudeHigh" : 1.8,
+			"riverHumidityFactor" : 0.2,
+			"riverEffectRangeFactor" : 1.0
 		},
 		"weather":
 		{
