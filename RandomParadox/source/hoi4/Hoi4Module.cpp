@@ -123,7 +123,7 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
 void Hoi4Module::genHoi() {
   if (!createPaths())
     return;
- // try {
+  try {
     // start with the generic stuff in the Scenario Generator
     hoi4Gen.mapProvinces();
     hoi4Gen.mapRegions();
@@ -146,12 +146,12 @@ void Hoi4Module::genHoi() {
     NationalFocus::buildMaps();
     hoi4Gen.evaluateCountryGoals();
     hoi4Gen.generateCountryUnits();
-  //} catch (std::exception e) {
-  //  std::string error = "Error while generating the Hoi4 Module.\n";
-  //  error += "Error is: \n";
-  //  error += e.what();
-  //  throw(std::exception(error.c_str()));
-  //}
+  } catch (std::exception e) {
+    std::string error = "Error while generating the Hoi4 Module.\n";
+    error += "Error is: \n";
+    error += e.what();
+    throw(std::exception(error.c_str()));
+  }
   // now start writing game files
   try {
     // generate map files. Format must be converted and colours mapped to hoi4
@@ -164,23 +164,26 @@ void Hoi4Module::genHoi() {
                                    gameModPath + "\\map\\cities.bmp", "cities",
                                    cut);
     formatConverter.dump8BitRivers(
-        hoi4Gen.fwg.riverMap, gameModPath + "\\map\\rivers.bmp", "rivers", cut);
+        hoi4Gen.fwg.riverMap, gameModPath + "\\map\\rivers", "rivers", cut);
     formatConverter.dump8BitTrees(hoi4Gen.fwg.climateMap, hoi4Gen.fwg.treeMap,
                                   gameModPath + "\\map\\trees.bmp", "trees",
                                   false);
     formatConverter.dump8BitHeightmap(hoi4Gen.fwg.heightMap,
-                                      gameModPath + "\\map\\heightmap.bmp",
+                                      gameModPath + "\\map\\heightmap",
                                       "heightmap");
     formatConverter.dumpTerrainColourmap(
         hoi4Gen.fwg.summerMap, hoi4Gen.fwg.cityMap, gameModPath,
         "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds",
-        DXGI_FORMAT_B8G8R8A8_UNORM, cut);
+        DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
     formatConverter.dumpDDSFiles(
         hoi4Gen.fwg.riverMap, hoi4Gen.fwg.heightMap,
         gameModPath + "\\map\\terrain\\colormap_water_", cut, 8);
     formatConverter.dumpWorldNormal(
         hoi4Gen.fwg.sobelMap, gameModPath + "\\map\\world_normal.bmp", cut);
 
+    // just copy over provinces.bmp, already in a compatible format
+    Fwg::Gfx::Bmp::save(hoi4Gen.fwg.provinceMap,
+                        (gameModPath + ("\\map\\provinces.bmp")).c_str());
     using namespace Parsing::Writing;
     compatibilityHistory(gameModPath + "\\history\\countries\\", gamePath,
                          hoi4Gen.fwg.areas.regions);
@@ -224,10 +227,6 @@ void Hoi4Module::genHoi() {
     tutorials(gameModPath + "\\tutorial\\tutorial.txt");
     Parsing::copyDescriptorFile("resources\\hoi4\\descriptor.mod", gameModPath,
                                 gameModsDirectory, modName);
-
-    // just copy over provinces.bmp, already in a compatible format
-    Fwg::Gfx::Bmp::save(hoi4Gen.fwg.provinceMap,
-                        (gameModPath + ("\\map\\provinces.bmp")).c_str());
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";
@@ -316,10 +315,6 @@ void Hoi4Module::mapEdit() {
     throw(std::exception(error.c_str()));
   }
 
-
-
-
   Scenario::Hoi4::MapPainting::runMapEditor(hoi4Gen, mappingPath, gameModPath);
-
 }
 } // namespace Scenario::Hoi4

@@ -3,6 +3,22 @@ namespace Scenario::Gfx {
 using namespace Textures;
 using namespace Fwg;
 using namespace Fwg::Gfx;
+
+const std::map<std::string, std::map<Gfx::Colour, Gfx::Colour>>
+    FormatConverter::colourMaps2{
+        {"terrainVic3",
+         {{Cfg::Values().colours["grassland"], Fwg::Gfx::Colour(30, 31, 23)},
+          {Cfg::Values().colours["ice"], Fwg::Gfx::Colour(21, 12, 255)},
+          {Cfg::Values().colours["tundra"], Fwg::Gfx::Colour(28, 24, 29)},
+          {Cfg::Values().colours["forest"], Fwg::Gfx::Colour(13, 21, 14)},
+          {Cfg::Values().colours["jungle"], Fwg::Gfx::Colour(32, 31, 23)},
+          {Cfg::Values().colours["savannah"], Fwg::Gfx::Colour(26, 25, 24)},
+          {Cfg::Values().colours["desert"], Fwg::Gfx::Colour(2, 4, 255)},
+          {Cfg::Values().colours["peaks"], Fwg::Gfx::Colour(15, 24, 255)},
+          {Cfg::Values().colours["mountains"], Fwg::Gfx::Colour(24, 15, 22)},
+          {Cfg::Values().colours["hills"], Fwg::Gfx::Colour(24, 22, 15)},
+          {Cfg::Values().colours["sea"], Fwg::Gfx::Colour(13, 7, 255)}}}};
+
 const std::map<std::string, std::map<Gfx::Colour, int>>
     FormatConverter::colourMaps{
         {"terrainHoi4",
@@ -31,6 +47,33 @@ const std::map<std::string, std::map<Gfx::Colour, int>>
           {Cfg::Values().colours["riverStartTributary"], 3},
           {Cfg::Values().colours["riverEnd"], 1}}},
         {"treesHoi4",
+         {{Cfg::Values().colours["grassland"], 0},
+          {Cfg::Values().colours["ice"], 0},
+          {Cfg::Values().colours["tundra"], 0},
+          {Cfg::Values().colours["forest"], 6},
+          {Cfg::Values().colours["jungle"], 28},
+          {Cfg::Values().colours["savannah"], 0},
+          {Cfg::Values().colours["desert"], 0},
+          {Cfg::Values().colours["peaks"], 0},
+          {Cfg::Values().colours["mountains"], 0},
+          {Cfg::Values().colours["hills"], 0},
+          {Cfg::Values().colours["empty"], 0},
+          {Cfg::Values().colours["sea"], 0}}},
+
+        {"riversVic3",
+         {{Cfg::Values().colours["land"], 255},
+          {Cfg::Values().colours["river"], 3},
+          {Cfg::Values().colours["river"] * 0.9, 3},
+          {Cfg::Values().colours["river"] * 0.8, 6},
+          {Cfg::Values().colours["river"] * 0.7, 6},
+          {Cfg::Values().colours["river"] * 0.6, 10},
+          {Cfg::Values().colours["river"] * 0.5, 11},
+          {Cfg::Values().colours["river"] * 0.4, 11},
+          {Cfg::Values().colours["sea"], 122},
+          {Cfg::Values().colours["riverStart"], 0},
+          {Cfg::Values().colours["riverStartTributary"], 3},
+          {Cfg::Values().colours["riverEnd"], 1}}},
+        {"treesVic3",
          {{Cfg::Values().colours["grassland"], 0},
           {Cfg::Values().colours["ice"], 0},
           {Cfg::Values().colours["tundra"], 0},
@@ -102,12 +145,66 @@ void FormatConverter::dump8BitHeightmap(const Bitmap &heightMap,
                                         const std::string &path,
                                         const std::string &colourMapKey) const {
   Utils::Logging::logLine("FormatConverter::Copying heightmap to ", path);
-  Bitmap hoi4Heightmap(Cfg::Values().width, Cfg::Values().height, 8);
-  hoi4Heightmap.colourtable = colourTables.at(colourMapKey + gameTag);
-  // now map from 24 bit climate map
-  for (int i = 0; i < Cfg::Values().bitmapSize; i++)
-    hoi4Heightmap.bit8Buffer[i] = heightMap[i].getRed();
-  Bmp::save(hoi4Heightmap, path);
+  if (gameTag == "Vic3") {
+    // need to scale to default vic3 map sizes, due to their compression
+    auto scaledMap = Bmp::scale(heightMap, 16384, 7232, false);
+    Png::save(scaledMap, path + ".png");
+  } else {
+    Bitmap outputMap(Cfg::Values().width, Cfg::Values().height, 8);
+    outputMap.colourtable = colourTables.at(colourMapKey + gameTag);
+    // now map from 24 bit climate map
+    for (int i = 0; i < Cfg::Values().bitmapSize; i++)
+      outputMap.bit8Buffer[i] = heightMap[i].getRed();
+
+    Bmp::save(outputMap, path + ".bmp");
+  }
+}
+
+void FormatConverter::dumpPackedHeightmap(
+    const Bitmap &heightMap, const std::string &path,
+    const std::string &colourMapKey) const {
+  Utils::Logging::logLine("FormatConverter::Copying heightmap to ", path);
+  if (gameTag == "Vic3") {
+    auto basePackedHeightMap = Bmp::scale(heightMap, 16384, 7232, false);
+    Fwg::Gfx::Bitmap packedHeightMap(8320, 14695, 24);
+    int tilecount = 0;
+    for (auto tilex = 0; tilex < 256; tilex++) {
+
+      for (auto tiley = 0; tiley < 113; tiley++) {
+        // Fwg::Gfx::Bitmap tileMap(64, 64, 8);
+        auto tileData = Fwg::Utils::cutBuffer(
+            basePackedHeightMap.imageData, 16384, 7232, tilex * 64,
+            (tilex + 1) * 64, tiley * 64, (tiley + 1) * 64, 1);
+
+        Fwg::Gfx::Bitmap tileMap(64, 64, 24, tileData);
+        auto tileMap2 = Bmp::scale(tileMap, 65, 65, false);
+        // Png::save(tileMap2, path + std::to_string(tilecount++) + ".png");
+
+        for (auto x = 0; x < tileMap2.size(); x++) {
+          auto baseIndex =
+              tilex * 65 + (((tiley * 2 + tilex / 128) * 65) + x / 65) * 8320;
+          // std::cout << baseIndex << std::endl;
+          // auto newIndex = x + (tiley * 65) + tilex * 65 * 8320;
+          //  std::cout << newIndex <<std::endl;
+          try {
+
+            packedHeightMap.imageData[baseIndex + x % 65] = tileMap2[x];
+          } catch (std::exception e) {
+            // std::cout << newIndex << std::endl;
+          }
+        }
+      }
+    }
+
+    Png::save(packedHeightMap, path + ".png");
+  } else {
+
+    Bitmap packedHeightMap(Cfg::Values().width, Cfg::Values().height, 8);
+    packedHeightMap.colourtable = colourTables.at(colourMapKey + gameTag);
+    // now map from 24 bit climate map
+    for (int i = 0; i < Cfg::Values().bitmapSize; i++)
+      packedHeightMap.bit8Buffer[i] = heightMap[i].getRed();
+  }
 }
 
 void FormatConverter::dump8BitTerrain(const Bitmap &climateIn,
@@ -154,6 +251,7 @@ void FormatConverter::dump8BitRivers(const Bitmap &riversIn,
                                      const std::string &colourMapKey,
                                      const bool cut) const {
   Utils::Logging::logLine("FormatConverter::Writing rivers to ", path);
+
   Bitmap rivers(Cfg::Values().width, Cfg::Values().height, 8);
   rivers.colourtable = colourTables.at(colourMapKey + gameTag);
 
@@ -164,7 +262,12 @@ void FormatConverter::dump8BitRivers(const Bitmap &riversIn,
   } else {
     rivers = cutBaseMap("\\rivers.bmp");
   }
-  Bmp::save(rivers, path);
+  if (gameTag == "Vic3") {
+    auto scaledMap = Bmp::scale(rivers, 8192, 3616, false);
+    Png::save(scaledMap, path + ".png");
+  } else {
+    Bmp::save(rivers, path + ".bmp");
+  }
 }
 
 void FormatConverter::dump8BitTrees(const Bitmap &climate,
@@ -241,18 +344,16 @@ void FormatConverter::dumpDDSFiles(const Bitmap &riverMap,
   }
 }
 
-void FormatConverter::dumpTerrainColourmap(const Bitmap &climateMap,
-                                           const Bitmap &cityMap,
-                                           const std::string &modPath,
-                                           const std::string &mapName,
-                                           const DXGI_FORMAT format,
-                                           const bool cut) const {
+void FormatConverter::dumpTerrainColourmap(
+    const Bitmap &climateMap, const Bitmap &cityMap, const std::string &modPath,
+    const std::string &mapName, const DXGI_FORMAT format, int scaleFactor,
+    const bool cut) const {
   Utils::Logging::logLine("FormatConverter::Writing terrain colourmap to ",
                           modPath + mapName);
   auto &config = Cfg::Values();
-  const auto &height = config.height;
-  const auto &width = config.width;
-  int factor = 2; // map dimensions are halved
+  const auto &height = climateMap.bInfoHeader.biHeight;
+  const auto &width = climateMap.bInfoHeader.biWidth;
+  int factor = scaleFactor;
   auto imageWidth = width / factor;
   auto imageHeight = height / factor;
 
@@ -268,7 +369,7 @@ void FormatConverter::dumpTerrainColourmap(const Bitmap &climateMap,
         pixels[imageIndex] = c.getBlue();
         pixels[imageIndex + 1] = c.getGreen();
         pixels[imageIndex + 2] = c.getRed();
-        if (gameTag == "Eu4") {
+        if (gameTag == "Eu4" || gameTag == "Vic3") {
           pixels[imageIndex + 3] = 255;
         } else
           pixels[imageIndex + 3] =
@@ -322,26 +423,131 @@ void FormatConverter::dumpWorldNormal(const Bitmap &sobelMap,
   Bmp::save(normalMap, (path).c_str());
 }
 
+void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
+                                     const Fwg::Gfx::Bitmap &treesIn,
+                                     const Fwg::Gfx::Bitmap &heightMap,
+                                     const std::string &path) {
+
+  auto &config = Cfg::Values();
+  // need to scale to default vic3 map sizes, due to their compression
+  auto scaledMap = Bmp::scale(heightMap, 8192, 3616, false);
+  const auto &height = scaledMap.bInfoHeader.biHeight;
+  const auto &width = scaledMap.bInfoHeader.biWidth;
+  int factor = 1;
+  auto imageWidth = width / factor;
+  auto imageHeight = height / factor;
+
+  std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
+  for (auto h = 0; h < imageHeight; h++) {
+    for (auto w = 0; w < imageWidth; w++) {
+      auto colourmapIndex = factor * h * width + factor * w;
+      const auto &c = scaledMap[colourmapIndex];
+      int val = 0;
+      if (c.getBlue() > config.seaLevel)
+        val = 255;
+      auto imageIndex =
+          imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
+      imageIndex *= 4;
+      pixels[imageIndex] = val;
+      pixels[imageIndex + 1] = val;
+      pixels[imageIndex + 2] = val;
+      pixels[imageIndex + 3] = 255;
+    }
+  }
+  writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
+           path + "\\textures\\land_mask.dds");
+
+  scaledMap = Bmp::scale(climateMap, 8192, 3616, false);
+  dumpTerrainColourmap(scaledMap, scaledMap, path, "\\textures\\colormap.dds",
+                       DXGI_FORMAT_B8G8R8A8_UNORM, 1, false);
+
+  Utils::Logging::logLine("FormatConverter::Writing DDS files to ", path);
+  using namespace DirectX;
+
+  scaledMap = Bmp::scale(heightMap, 4096, 1808, false);
+  imageWidth = scaledMap.bInfoHeader.biWidth;
+  imageHeight = scaledMap.bInfoHeader.biHeight;
+  for (auto h = 0; h < imageHeight; h++) {
+    for (auto w = 0; w < imageWidth; w++) {
+      auto referenceIndex = h * width + w;
+      double depth = (double)scaledMap[referenceIndex].getBlue() /
+                     (double)Cfg::Values().seaLevel;
+      auto imageIndex =
+          imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
+      imageIndex *= 4;
+      if (depth < 1.0) {
+        pixels[imageIndex] = 49 * depth;
+        pixels[imageIndex + 1] = 24 * depth;
+        pixels[imageIndex + 2] = 16 * depth;
+        pixels[imageIndex + 3] = 255;
+      } else {
+
+        pixels[imageIndex] = 100;
+        pixels[imageIndex + 1] = 100;
+        pixels[imageIndex + 2] = 50;
+        pixels[imageIndex + 3] = 255;
+      }
+    }
+    writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
+             path + "\\water\\watercolor_rgb_waterspec_a.dds");
+  }
+}
+
+void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
+                                     const std::string &path) {
+
+  auto copy = Fwg::Gfx::Bmp::scale(climateMap, 8192, 3616, false);
+
+  auto &config = Cfg::Values();
+  const auto &height = copy.bInfoHeader.biHeight;
+  const auto &width = copy.bInfoHeader.biWidth;
+  int factor = 1;
+  auto imageWidth = width / factor;
+  auto imageHeight = height / factor;
+
+  std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
+  for (auto h = 0; h < imageHeight; h++) {
+    for (auto w = 0; w < imageWidth; w++) {
+      auto colourmapIndex = factor * h * width + factor * w;
+      const auto &c = colourMaps2.at("terrainVic3").at(colourmapIndex);
+      auto imageIndex =
+          imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
+      imageIndex *= 4;
+      pixels[imageIndex] = c.getBlue();
+      pixels[imageIndex + 1] = c.getGreen();
+      pixels[imageIndex + 2] = c.getRed();
+      pixels[imageIndex + 3] = 255;
+    }
+  }
+
+  Textures::writeTGA(8192, 3616, pixels,
+                     path + "\\terrain\\detail_index.tga");
+}
+
 FormatConverter::FormatConverter(const std::string &gamePath,
                                  const std::string &gameTag)
     : gamePath{gamePath}, gameTag{gameTag} {
-  std::string terrainsourceString = (gamePath + "\\map\\terrain.bmp");
+  std::string mapFolderName = "\\map";
+  if (gameTag == "Vic3")
+    mapFolderName.append("_data");
+  std::string terrainsourceString =
+      (gamePath + mapFolderName + "\\terrain.bmp");
   Bitmap terrain = Bmp::load8Bit(terrainsourceString, "terrain");
   colourTables["terrain" + gameTag] = terrain.colourtable;
 
-  std::string citySource = (gamePath + "\\map\\terrain.bmp");
+  std::string citySource = (gamePath + mapFolderName + "\\terrain.bmp");
   Bitmap cities = Bmp::load8Bit(citySource, "cities");
   colourTables["cities" + gameTag] = cities.colourtable;
 
-  std::string riverSource = (gamePath + "\\map\\rivers.bmp");
+  std::string riverSource = (gamePath + mapFolderName + "\\rivers.bmp");
   Bitmap rivers = Bmp::load8Bit(riverSource, "rivers");
   colourTables["rivers" + gameTag] = rivers.colourtable;
 
-  std::string treeSource = (gamePath + "\\map\\trees.bmp");
+  std::string treeSource = (gamePath + mapFolderName + "\\trees.bmp");
   Bitmap trees = Bmp::load8Bit(treeSource, "trees");
   colourTables["trees" + gameTag] = trees.colourtable;
 
-  std::string heightmapSource = (gamePath + "\\map\\heightmap.bmp");
+  std::string heightmapSource = (gamePath + mapFolderName + "\\heightmap.bmp");
   Bitmap heightmap = Bmp::load8Bit(heightmapSource, "heightmap");
   colourTables["heightmap" + gameTag] = heightmap.colourtable;
 }

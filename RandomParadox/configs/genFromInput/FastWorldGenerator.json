@@ -73,6 +73,7 @@
 			"complexHeight" : true,
 			"layerAmount" : 0,
 			"overallFrequencyModifier" : 0.7,
+			"removeChunkThreshold": 8,
 			"layers" :
 			{
 			}
@@ -86,12 +87,11 @@
 			"provinceDensityByHabitability" : 30
 		},
 		"humidity" : {
-			"coastalEffectRange" : -1,
-			"windEffectRange" : -1,
 			"latitudeLow" : 0.4,
 			"latitudeHigh" : 1.8,
 			"riverHumidityFactor" : 0.2,
-			"riverEffectRangeFactor" : 1.0
+			"riverEffectRangeFactor" : 1.0,
+			"baseHumidity": 0.7
 		},
 		"weather":
 		{

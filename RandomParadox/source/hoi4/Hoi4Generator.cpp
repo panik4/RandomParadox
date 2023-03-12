@@ -103,8 +103,8 @@ void Generator::generateStateSpecifics(const int regionAmount) {
       }
       // calculate total industry in this state
       auto stateIndustry =
-          round(0.5 +
-          totalPopFactor * (targetWorldIndustry / (double)(regionAmount)));
+          round(0.5 + totalPopFactor *
+                          (targetWorldIndustry / (double)(regionAmount)));
       double dockChance = 0.25;
       double civChance = 0.5;
       // distribute it to military, civilian and naval factories
@@ -767,16 +767,16 @@ bool Generator::targetFulfillsRequirements(
       auto maxDistance = sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
       if (Fwg::getPositionDistance(
               gameRegions[source.capitalRegionID]->position,
-                                  gameRegions[target.capitalRegionID]->position,
-                                  Cfg::Values().width) > maxDistance)
+              gameRegions[target.capitalRegionID]->position,
+              Cfg::Values().width) > maxDistance)
         return false;
     }
     if (value == "far") {
       auto minDistance = sqrt(Cfg::Values().width * Cfg::Values().height) * 0.2;
       if (Fwg::getPositionDistance(
               gameRegions[source.capitalRegionID]->position,
-                                  gameRegions[target.capitalRegionID]->position,
-                                  Cfg::Values().width) < minDistance)
+              gameRegions[target.capitalRegionID]->position,
+              Cfg::Values().width) < minDistance)
         return false;
     }
   }

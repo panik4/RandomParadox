@@ -11,9 +11,9 @@ void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
   std::set<int> assignedIdeas;
   for (auto &region : regions) {
     if (assignedIdeas.find(region->ID) == assignedIdeas.end()) {
-      Vic3Region euR;
+      Vic3Region vicR;
       // std::set<int>stratRegion;
-      euR.areaIDs.insert(region->ID);
+      vicR.areaIDs.insert(region->ID);
       assignedIdeas.insert(region->ID);
       for (auto &neighbour : region->neighbours) {
         // should be equal in sea/land
@@ -21,12 +21,12 @@ void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
           continue;
         if (regions[neighbour]->sea == region->sea &&
             assignedIdeas.find(neighbour) == assignedIdeas.end()) {
-          euR.areaIDs.insert(neighbour);
+          vicR.areaIDs.insert(neighbour);
           assignedIdeas.insert(neighbour);
         }
       }
-      euR.name = NameGeneration::generateName(nData);
-      vic3regions.push_back(euR);
+      vicR.name = NameGeneration::generateName(nData);
+      vic3regions.push_back(vicR);
     }
   }
   Bitmap vic3RegionBmp(Cfg::Values().width, Cfg::Values().height, 24);

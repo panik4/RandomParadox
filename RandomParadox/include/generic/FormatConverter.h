@@ -11,6 +11,9 @@ class FormatConverter {
   // should be mapped to which game compatible colour
   const static std::map<std::string, std::map<Fwg::Gfx::Colour, int>>
       colourMaps;
+  const static std::map<std::string,
+                        std::map<Fwg::Gfx::Colour, Fwg::Gfx::Colour>>
+      colourMaps2;
   std::map<std::string, std::vector<unsigned char>> colourTables;
   std::string gamePath;
   std::string gameTag;
@@ -24,6 +27,9 @@ public:
                                   const double factor = 1.0,
                                   const int bit = 8) const;
   void dump8BitHeightmap(const Fwg::Gfx::Bitmap &heightMap, const std::string &path,
+                         const std::string &colourMapKey) const;
+  void dumpPackedHeightmap(const Fwg::Gfx::Bitmap &heightMap,
+                         const std::string &path,
                          const std::string &colourMapKey) const;
   void dump8BitTerrain(const Fwg::Gfx::Bitmap &climateIn, const std::string &path,
                        const std::string &colourMapKey,
@@ -44,8 +50,17 @@ public:
                             const std::string &modPath,
                             const std::string &mapName,
                             const DXGI_FORMAT format,
+                            int scaleFactor,
                             const bool cut = false) const;
   void dumpWorldNormal(const Fwg::Gfx::Bitmap &sobelMap, const std::string &path,
                        const bool cut) const;
+
+  void Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
+                      const Fwg::Gfx::Bitmap &treesIn,
+                      const Fwg::Gfx::Bitmap &heightMap,
+                      const std::string &path);
+  void detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
+                      const std::string &path);
+
 };
 } // namespace Scenario::Gfx
