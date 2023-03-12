@@ -22,5 +22,6 @@ public:
   // operators
   bool operator==(const GameProvince &right) const { return ID == right.ID; };
   bool operator<(const GameProvince &right) const { return ID < right.ID; };
+  std::string toHexString();
 };
 } // namespace Scenario

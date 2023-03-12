@@ -21,20 +21,25 @@ bool Module::createPaths() { // prepare folder structure
     using namespace std::filesystem;
     create_directory(gameModPath);
     // generic cleanup and path creation
-    gameModPath += "\\game\\";
     std::cout << gameModPath << std::endl;
     remove_all(gameModPath + "\\map_data\\");
     remove_all(gameModPath + "\\common\\");
     remove_all(gameModPath + "\\localization\\");
     create_directory(gameModPath);
+    create_directory(gameModPath + "\\.metadata\\");
     create_directory(gameModPath + "\\map_data\\");
     create_directory(gameModPath + "\\map_data\\state_regions\\");
     create_directory(gameModPath + "\\common\\");
+    create_directory(gameModPath + "\\gfx\\");
+    create_directory(gameModPath + "\\gfx\\map");
+    create_directory(gameModPath + "\\gfx\\map\\terrain");
+    create_directory(gameModPath + "\\gfx\\map\\textures");
+    create_directory(gameModPath + "\\gfx\\map\\water");
     create_directory(gameModPath + "\\localization\\");
     return true;
   } catch (std::exception e) {
-    std::string error = "Configured paths seem to be messed up, check Europa "
-                        "Universalis IVModule.json\n";
+    std::string error = "Configured paths seem to be messed up, check Victoria "
+                        "IIIModule.json\n";
     error += "You can try fixing it yourself. Error is:\n ";
     error += e.what();
     throw(std::exception(error.c_str()));
@@ -43,8 +48,8 @@ bool Module::createPaths() { // prepare folder structure
 }
 
 void Module::readVic3Config(const std::string &configSubFolder,
-                           const std::string &username,
-                           const boost::property_tree::ptree &rpdConf) {
+                            const std::string &username,
+                            const boost::property_tree::ptree &rpdConf) {
   Utils::Logging::logLine("Reading Vic 3 Config");
   this->configurePaths(username, "Victoria 3", rpdConf);
 
@@ -58,7 +63,7 @@ void Module::readVic3Config(const std::string &configSubFolder,
   }
   auto &config = Cfg::Values();
   namespace pt = boost::property_tree;
-  pt::ptree eu4Conf;
+  pt::ptree vic3Conf;
   try {
     // Read the basic settings
     std::ifstream f(configSubFolder + "//Victoria3Module.json");
@@ -67,7 +72,7 @@ void Module::readVic3Config(const std::string &configSubFolder,
       Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
 
-    pt::read_json(buffer, eu4Conf);
+    pt::read_json(buffer, vic3Conf);
   } catch (std::exception e) {
     Utils::Logging::logLine(
         "Incorrect config \"Europa Universalis IVModule.json\"");
@@ -79,13 +84,14 @@ void Module::readVic3Config(const std::string &configSubFolder,
     system("pause");
   }
   //  passed to generic ScenarioGenerator
-  numCountries = eu4Conf.get<int>("scenario.numCountries");
-  config.seaLevel = 95;
-  config.seaProvFactor *= 0.7;
+  numCountries = vic3Conf.get<int>("scenario.numCountries");
+  config.seaLevel = 14;
+  config.numRivers = 0;
+  config.seaProvFactor *= 0.3;
   config.landProvFactor *= 0.7;
-  config.loadMapsPath = eu4Conf.get<std::string>("fastworldgen.loadMapsPath");
+  config.loadMapsPath = vic3Conf.get<std::string>("fastworldgen.loadMapsPath");
   config.heightmapIn = config.loadMapsPath +
-                       eu4Conf.get<std::string>("fastworldgen.heightMapName");
+                       vic3Conf.get<std::string>("fastworldgen.heightMapName");
   cut = config.cut;
   // check if config settings are fine
   config.sanityCheck();
@@ -111,27 +117,47 @@ void Module::genVic3() {
     error += e.what();
     throw(std::exception(error.c_str()));
   }
-  try {
-    // generate map files. Format must be converted and colours mapped to eu4
-    // compatible colours
-    Gfx::FormatConverter formatConverter(gamePath, "Vic3");
+  // try {
+  //  generate map files. Format must be converted and colours mapped to vic3
+  //  compatible colours
+  Gfx::FormatConverter formatConverter(gamePath, "Vic3");
+  formatConverter.Vic3ColourMaps(vic3Gen.fwg.climateMap, vic3Gen.fwg.treeMap,
+                                 vic3Gen.fwg.heightMap,
+                                 gameModPath + "\\gfx\\map\\");
+  formatConverter.dump8BitRivers(
+      vic3Gen.fwg.riverMap, gameModPath + "\\map_data\\rivers", "rivers", cut);
 
+  formatConverter.dumpPackedHeightmap(
+      vic3Gen.fwg.heightMap, gameModPath + "\\map_data\\packed_heightmap",
+      "heightmap");
+  // also dump uncompressed packed heightmap
+  formatConverter.dump8BitHeightmap(vic3Gen.fwg.heightMap,
+                                    gameModPath + "\\map_data\\heightmap",
+                                    "heightmap");
+  formatConverter.detailIndexMap(vic3Gen.fwg.climateMap,
+                                 gameModPath + "\\gfx\\map\\");
+  using namespace Fwg::Gfx;
+  // just copy over provinces.bmp as a .png, already in a compatible format
+  auto scaledMap = Bmp::scale(vic3Gen.fwg.provinceMap, 8192, 3616, false);
+  Png::save(scaledMap, gameModPath + "\\map_data\\provinces.png");
 
-    using namespace Fwg::Gfx;
-    // just copy over provinces.bmp, already in a compatible format
-    Bmp::save(vic3Gen.fwg.provinceMap, gameModPath + "\\map\\provinces.bmp");
-    {
-      using namespace Parsing;
-      // now do text
+  using namespace Parsing::Writing;
+  adj(gameModPath + "\\map_data\\adjacencies.csv");
+  defaultMap(gameModPath + "\\map_data\\default.map", vic3Gen.gameProvinces);
+  provinceTerrains(gameModPath + "\\map_data\\province_terrains.txt",
+                   vic3Gen.gameProvinces);
+  heightmap(gameModPath + "\\map_data\\heightmap.heightmap",
+            vic3Gen.fwg.heightMap);
+  stateFiles(gameModPath + "\\map_data\\state_regions\\00_regions.txt",
+             vic3Gen.gameRegions);
+  writeMetadata(gameModPath + "\\.metadata\\metadata.json");
 
-    }
-
-  } catch (std::exception e) {
-    std::string error = "Error while dumping and writing files.\n";
-    error += "Error is: \n";
-    error += e.what();
-    throw(std::exception(error.c_str()));
-  }
+  /* } catch (std::exception e) {
+     std::string error = "Error while dumping and writing files.\n";
+     error += "Error is: \n";
+     error += e.what();
+     throw(std::exception(error.c_str()));
+   }*/
 }
 
-} // namespace Scenario::Eu4
+} // namespace Scenario::Vic3

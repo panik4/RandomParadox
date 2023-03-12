@@ -54,6 +54,7 @@ getBuilding(const std::string &type, const Fwg::Province &prov,
                 }
             }
           }
+          std::cout << "Couldnt find coast" << std::endl;
         }
       }
     }

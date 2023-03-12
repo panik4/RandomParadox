@@ -3,9 +3,9 @@
 	{
 		"writeMaps": true,
 		"editMode": false,
-		"genhoi4": true,
+		"genhoi4": false,
 		"geneu4": false,
-		"genvic3": false
+		"genvic3": true
 	},
 	"MappingTool":{
 		"exportCountries": true,

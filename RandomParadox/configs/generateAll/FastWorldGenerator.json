@@ -46,7 +46,7 @@
 	"map": 
 	{
         "height" : 512,
-		"width" : 1024,
+		"width" : 512,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -73,6 +73,7 @@
 			"complexHeight" : true,
 			"layerAmount" : 10,
 			"overallFrequencyModifier" : 0.9,
+			"removeChunkThreshold": 8,
 			"layers" :
 			{
 				"0" :
@@ -236,12 +237,11 @@
 			"provinceDensityByHabitability" : 30
 		},
 		"humidity" : {
-			"coastalEffectRange" : -1,
-			"windEffectRange" : -1,
 			"latitudeLow" : 0.3,
 			"latitudeHigh" : 1.7,
 			"riverHumidityFactor" : 0.2,
-			"riverEffectRangeFactor" : 1.0
+			"riverEffectRangeFactor" : 1.0,
+			"baseHumidity": 0.7
 		},
 		"weather":
 		{

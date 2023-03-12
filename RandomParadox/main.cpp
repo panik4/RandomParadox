@@ -125,7 +125,7 @@ int main() {
     system("pause");
     return 0;
   }*/
-  try {
+  //try {
   if (genHoi4Scenario) {
     // generate hoi4 scenario
     Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username,
@@ -152,12 +152,12 @@ int main() {
     dumpInfo("", configSubFolder);
     system("pause");
   }
-  } catch (std::exception e) {
-    Utils::Logging::logLine(e.what());
-    dumpInfo(e.what(), configSubFolder);
-    system("pause");
-    return -1;
-  }
+  //} catch (std::exception e) {
+  //  Utils::Logging::logLine(e.what());
+  //  dumpInfo(e.what(), configSubFolder);
+  //  system("pause");
+  //  return -1;
+  //}
   Utils::Logging::logLine("Done with the generation");
   return 0;
 }
