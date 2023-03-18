@@ -5,7 +5,12 @@ using namespace Fwg::Gfx;
 
 Generator::Generator() {}
 
-Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
+Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {
+  this->terrainTypeToString.at(Fwg::Province::TerrainType::marsh) = "wetlands";
+  this->terrainTypeToString.at(Fwg::Province::TerrainType::savannah) = "savanna";
+  this->terrainTypeToString.at(Fwg::Province::TerrainType::tundra) = "snow";
+  this->terrainTypeToString.at(Fwg::Province::TerrainType::arctic) = "snow";
+}
 void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
   Utils::Logging::logLine("Vic3: Dividing world into strategic regions");
   std::set<int> assignedIdeas;

@@ -461,7 +461,7 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
   dumpTerrainColourmap(scaledMap, scaledMap, path, "\\textures\\colormap.dds",
                        DXGI_FORMAT_B8G8R8A8_UNORM, 1, false);
 
-  Utils::Logging::logLine("FormatConverter::Writing DDS files to ", path);
+  Utils::Logging::logLine("FormatConverter::Writing watercolor_rgb_waterspec_a to ", path);
   using namespace DirectX;
 
   scaledMap = Bmp::scale(heightMap, 4096, 1808, false);
@@ -488,9 +488,9 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
         pixels[imageIndex + 3] = 255;
       }
     }
-    writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
-             path + "\\water\\watercolor_rgb_waterspec_a.dds");
   }
+  writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
+           path + "\\water\\watercolor_rgb_waterspec_a.dds");
 }
 
 void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
@@ -509,7 +509,7 @@ void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
   for (auto h = 0; h < imageHeight; h++) {
     for (auto w = 0; w < imageWidth; w++) {
       auto colourmapIndex = factor * h * width + factor * w;
-      const auto &c = colourMaps2.at("terrainVic3").at(colourmapIndex);
+      const auto &c = colourMaps2.at("terrainVic3").at(copy[colourmapIndex]);
       auto imageIndex =
           imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
       imageIndex *= 4;

@@ -107,7 +107,16 @@ void provinceTerrains(
   for (const auto &province : provinces) {
     content.append(province->toHexString());
     content.append("=\"");
-    content.append("plains");
+    std::string terraintype;
+    if (province->baseProvince->sea)
+      terraintype = "ocean";
+    else
+      terraintype = province->terrainType;
+    if (province->baseProvince->isLake) {
+      terraintype = "lakes";
+    }
+
+    content.append(terraintype);
     content.append("\"\n");
   }
   pU::writeFile(path, content);
@@ -116,6 +125,57 @@ void writeMetadata(const std::string &path) {
   const auto templateFile = pU::readFile("resources\\vic3\\metadata.json");
 
   pU::writeFile(path, templateFile);
+}
+void strategicRegions(const std::string &path,
+                      const std::vector<strategicRegion> &strategicRegions,
+                      const std::vector<std::shared_ptr<Region>> &regions) {
+
+  const auto templateFile =
+      pU::readFile("resources\\vic3\\common\\strategic_regions\\template.txt");
+  std::string file = "";
+  for (const auto &region : strategicRegions) {
+    auto content = templateFile;
+    std::string states{""};
+    std::string capital;
+    bool capitalSelected = false;
+    for (auto stateID : region.gameRegionIDs) {
+      const auto &state = regions[stateID];
+      states.append(" STATE_" + state->name);
+      if (!capitalSelected) {
+        capitalSelected = true;
+        capital = state->gameProvinces[0]->toHexString();
+      }
+    }
+    pU::replaceOccurences(content, "template_name", region.name);
+    pU::replaceOccurences(content, "template_states", states);
+    pU::replaceOccurences(content, "template_capital", capital);
+
+    file.append(content);
+  }
+  pU::writeFile(path, file);
+}
+void stateHistory(const std::string &path,
+                  const std::vector<std::shared_ptr<Region>> &regions) {
+  auto file = pU::readFile("resources\\vic3\\common\\history\\states.txt");
+  std::string stateContent = "";
+  const auto stateTemplate =
+      pU::readFile("resources\\vic3\\common\\history\\stateTemplate.txt");
+  for (const auto &region : regions) {
+    auto content = stateTemplate;
+    pU::replaceOccurences(content, "templateName", region->name);
+    pU::replaceOccurences(content, "templateCountry", "USA" /*TODOregion->owner*/);
+    std::string provinceString{""};
+    for (auto prov : region->gameProvinces) {
+      provinceString.append("\"" + prov->toHexString() + "\" ");
+    }
+    pU::replaceOccurences(content, "templateProvinces", provinceString);
+
+    pU::replaceOccurences(content, "templateCulture", "dixie");
+    stateContent.append(content);
+  }
+  pU::replaceOccurences(file, "templateStateData", stateContent);
+
+  pU::writeFile(path, file, true);
 }
 } // namespace Writing
 

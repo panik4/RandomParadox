@@ -9,14 +9,6 @@
 #include <set>
 
 namespace Scenario::Hoi4 {
-struct strategicRegion {
-  std::set<int> gameRegionIDs;
-  // weather: month{averageTemp, standard deviation, average precipitation,
-  // tempLow, tempHigh, tempNightly, snowChance, lightRainChance,
-  // heavyRainChance, blizzardChance,mudChance, sandstormChance}
-  std::vector<std::vector<double>> weatherMonths;
-  std::string name;
-};
 
 class Generator : public Scenario::Generator {
   // vars
@@ -57,7 +49,6 @@ public:
   std::vector<std::vector<int>> supplyNodeConnections;
   // container holding the resource configurations
   std::map<std::string, std::vector<double>> resources;
-  std::vector<strategicRegion> strategicRegions;
 
   // member functions
   // constructors/destructors
@@ -74,8 +65,6 @@ public:
   void generateStateSpecifics(const int regionAmount);
   // politics: ideology, strength, major
   void generateCountrySpecifics();
-  // build strategic regions from gameregions
-  void generateStrategicRegions();
   // generate weather per strategic region, from baseprovinces
   void generateWeather();
   // supply hubs and railroads

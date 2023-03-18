@@ -10,6 +10,16 @@
 #include "ResourceLoading.h"
 #include <map>
 namespace Scenario {
+struct strategicRegion {
+  std::set<int> gameRegionIDs;
+  // weather: month{averageTemp, standard deviation, average precipitation,
+  // tempLow, tempHigh, tempNightly, snowChance, lightRainChance,
+  // heavyRainChance, blizzardChance,mudChance, sandstormChance}
+  std::vector<std::vector<double>> weatherMonths;
+  std::string name;
+};
+
+
 class Generator {
   // containers
   std::vector<Fwg::Region> baseRegions;
@@ -48,6 +58,8 @@ public:
       {Fwg::Province::TerrainType::hills, "hills"},
       {Fwg::Province::TerrainType::jungle, "jungle"},
       {Fwg::Province::TerrainType::desert, "desert"},
+      {Fwg::Province::TerrainType::arctic, "ice"},
+      {Fwg::Province::TerrainType::tundra, "tundra"},
       {Fwg::Province::TerrainType::urban, "urban"},
       {Fwg::Province::TerrainType::lake, "lakes"}};
 
@@ -59,6 +71,7 @@ public:
   std::set<std::string> tags;
   Fwg::Utils::ColourTMap<std::string> colourMap;
   std::map<std::string, PdoxCountry> countries;
+  std::vector<strategicRegion> strategicRegions;
   // constructors/destructors
   Generator(Fwg::FastWorldGenerator &fwg);
   ~Generator();
@@ -75,6 +88,8 @@ public:
   void mapContinents();
   // map base regions to generic paradox compatible game regions
   void mapRegions();
+  // build strategic regions from gameregions
+  void generateStrategicRegions();
   // map base provinces to generic game regions
   void mapProvinces();
   // calculating populations in states
