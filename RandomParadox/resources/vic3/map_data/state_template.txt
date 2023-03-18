@@ -1,0 +1,18 @@
+STATE_template_name = {
+    id = template_id
+    subsistence_building = "building_subsistence_pastures"
+    provinces = { template_provinces }
+    city = "template_city"
+    port = "template_port"
+    farm = "template_farm"
+    mine = "template_mine"
+    wood = "template_wood"
+    arable_land = 30
+    arable_resources = { "bg_rye_farms" "bg_livestock_ranches" }
+    capped_resources = {
+        bg_iron_mining = 36
+        bg_lead_mining = 18
+        bg_logging = 23
+    }
+    template_naval_exit
+}

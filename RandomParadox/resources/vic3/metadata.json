@@ -1,0 +1,32 @@
+{
+"name" : "Random Victoria",
+"id" : "",
+"version" : "",
+"supported_game_version" : "",
+"short_description" : "",
+"tags" : [],
+"relationships" : [],
+"game_custom_data" : {
+        "replace_paths" : [
+                "map_data/state_regions",
+                "common/history/countries",
+                "common/history/population",
+                "common/history/characters",
+                "common/history/buildings",
+                "common/history/diplomacy",
+                "common/history/diplomatic_plays",
+                "common/history/pops",
+                "common/history/states",
+                "common/history/interests",
+                "common/history/production_methods",
+                "common/history/ai",
+                "common/history/trade_routes",
+                "common/country_formation",
+                "common/country_creation",
+                "common/character_templates",
+                "common/dynamic_country_map_colors",
+                "common/dynamic_country_names/"
+        ],
+    "multiplayer_synchronized" : true
+}
+}

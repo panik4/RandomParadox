@@ -190,47 +190,6 @@ void Generator::generateCountrySpecifics() {
   }
 }
 
-void Generator::generateStrategicRegions() {
-  Fwg::Utils::Logging::logLine("HOI4: Dividing world into strategic regions");
-  std::set<int> assignedIdeas;
-  for (auto &region : gameRegions) {
-    if (assignedIdeas.find(region->ID) == assignedIdeas.end()) {
-      strategicRegion sR;
-      // std::set<int>stratRegion;
-      sR.gameRegionIDs.insert(region->ID);
-      assignedIdeas.insert(region->ID);
-      for (auto &neighbour : region->neighbours) {
-        // should be equal in sea/land
-        if (neighbour > gameRegions.size())
-          continue;
-        if (gameRegions[neighbour]->sea == region->sea &&
-            assignedIdeas.find(neighbour) == assignedIdeas.end()) {
-          sR.gameRegionIDs.insert(neighbour);
-          assignedIdeas.insert(neighbour);
-        }
-      }
-      sR.name = NameGeneration::generateName(nData);
-      strategicRegions.push_back(sR);
-    }
-  }
-  Bitmap stratRegionBMP(Cfg::Values().width, Cfg::Values().height, 24);
-  for (auto &strat : strategicRegions) {
-    Colour c{static_cast<unsigned char>(RandNum::getRandom(255)),
-             static_cast<unsigned char>(RandNum::getRandom(255)),
-             static_cast<unsigned char>(RandNum::getRandom(255))};
-    for (auto &reg : strat.gameRegionIDs) {
-      c.setBlue(gameRegions[reg]->sea ? 255 : 0);
-      for (auto &prov : gameRegions[reg]->gameProvinces) {
-        for (auto &pix : prov->baseProvince->pixels) {
-          stratRegionBMP.setColourAtIndex(pix, c);
-        }
-      }
-    }
-  }
-  Bmp::bufferBitmap("strat", stratRegionBMP);
-  Bmp::save(stratRegionBMP, "Maps\\stratRegions.bmp");
-}
-
 void Generator::generateWeather() {
   for (auto &strat : strategicRegions) {
     for (auto &reg : strat.gameRegionIDs) {

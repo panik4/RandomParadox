@@ -1,0 +1,6 @@
+region_template_name = {
+	graphical_culture = "arabic"
+	capital_province = template_capital
+	map_color = { 0.5 0 0 }
+	states = { template_states }
+}

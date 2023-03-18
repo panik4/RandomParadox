@@ -16,6 +16,14 @@ void provinceTerrains(
     const std::string &path,
     const std::vector<std::shared_ptr<GameProvince>> &provinces);
 void writeMetadata(const std::string &path);
+
+void strategicRegions(const std::string &path,
+                      const std::vector<strategicRegion> &strategicRegions,
+                      const std::vector<std::shared_ptr<Region>> &regions);
+
+void stateHistory(const std::string &path,
+                  const std::vector<std::shared_ptr<Region>> &regions);
+
 } // namespace Writing
 
 namespace Reading {}
