@@ -58,6 +58,7 @@ public:
   void Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
                       const Fwg::Gfx::Bitmap &treesIn,
                       const Fwg::Gfx::Bitmap &heightMap,
+                      const Fwg::Gfx::Bitmap &humidityMap,
                       const std::string &path);
   void detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
                       const std::string &path);

@@ -8,6 +8,8 @@
 #include "PdoxCountry.h"
 #include "RandNum/RandNum.h"
 #include "ResourceLoading.h"
+#include "Religion.h"
+#include "Culture.h"
 #include <map>
 namespace Scenario {
 struct strategicRegion {
@@ -72,6 +74,8 @@ public:
   Fwg::Utils::ColourTMap<std::string> colourMap;
   std::map<std::string, PdoxCountry> countries;
   std::vector<strategicRegion> strategicRegions;
+  std::vector<std::shared_ptr<Religion>> religions;
+  std::vector<std::shared_ptr<Culture>> cultures;
   // constructors/destructors
   Generator(Fwg::FastWorldGenerator &fwg);
   ~Generator();
@@ -92,8 +96,12 @@ public:
   void generateStrategicRegions();
   // map base provinces to generic game regions
   void mapProvinces();
-  // calculating populations in states
+  // calculating amount of population in states
   void generatePopulations();
+
+  void generateReligions();
+  void generateCultures();
+
   // determine development from habitability, population density and randomness
   void generateDevelopment();
   // mapping terrain types of FastWorldGen to paradox compatible terrains

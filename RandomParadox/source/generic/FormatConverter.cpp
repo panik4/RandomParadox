@@ -164,16 +164,29 @@ void FormatConverter::dumpPackedHeightmap(
     const Bitmap &heightMap, const std::string &path,
     const std::string &colourMapKey) const {
   Utils::Logging::logLine("FormatConverter::Copying heightmap to ", path);
+  // int mapX = 16384;
+  // int mapY = 7232;
+  // int packedX = 8320;
+  // int packedY = 14695;
+  // int xTiles = 256;
+  // int yTiles = 113;
+  int mapX = 16384;
+  int mapY = 7232;
+  int packedX = 8320;
+  int packedY = 14695;
+  int xTiles = 256;
+  int yTiles = 113;
   if (gameTag == "Vic3") {
-    auto basePackedHeightMap = Bmp::scale(heightMap, 16384, 7232, false);
-    Fwg::Gfx::Bitmap packedHeightMap(8320, 14695, 24);
+    auto basePackedHeightMap = Bmp::scale(heightMap, mapX, mapY, false);
+    auto debugPackedHeightMap =
+        Bmp::scale(heightMap, packedX * 2, packedY / 2 + 1, false);
+    Fwg::Gfx::Bitmap packedHeightMap(packedX, packedY, 24);
     int tilecount = 0;
-    for (auto tilex = 0; tilex < 256; tilex++) {
-
-      for (auto tiley = 0; tiley < 113; tiley++) {
+    for (auto tilex = 0; tilex < xTiles; tilex++) {
+      for (auto tiley = 0; tiley < yTiles; tiley++) {
         // Fwg::Gfx::Bitmap tileMap(64, 64, 8);
         auto tileData = Fwg::Utils::cutBuffer(
-            basePackedHeightMap.imageData, 16384, 7232, tilex * 64,
+            basePackedHeightMap.imageData, mapX, mapY, tilex * 64,
             (tilex + 1) * 64, tiley * 64, (tiley + 1) * 64, 1);
 
         Fwg::Gfx::Bitmap tileMap(64, 64, 24, tileData);
@@ -182,12 +195,10 @@ void FormatConverter::dumpPackedHeightmap(
 
         for (auto x = 0; x < tileMap2.size(); x++) {
           auto baseIndex =
-              tilex * 65 + (((tiley * 2 + tilex / 128) * 65) + x / 65) * 8320;
-          // std::cout << baseIndex << std::endl;
-          // auto newIndex = x + (tiley * 65) + tilex * 65 * 8320;
-          //  std::cout << newIndex <<std::endl;
+              tilex * 65 +
+              ((((tiley * 2 + tilex / 128) * 65) + x / 65) - tilex / 128) *
+                  packedX;
           try {
-
             packedHeightMap.imageData[baseIndex + x % 65] = tileMap2[x];
           } catch (std::exception e) {
             // std::cout << newIndex << std::endl;
@@ -197,13 +208,23 @@ void FormatConverter::dumpPackedHeightmap(
     }
 
     Png::save(packedHeightMap, path + ".png");
+    for (int i = 0; i < packedHeightMap.imageData.size(); i++) {
+      auto refIndex = i;
+      if (i % (packedX * 2) > packedX) {
+        refIndex = 0; //        8320 * 65;
+      }
+      if (refIndex < packedHeightMap.size())
+        debugPackedHeightMap.imageData[i] = packedHeightMap[refIndex];
+    }
+    Png::save(debugPackedHeightMap, path + "_debug.png");
   } else {
 
     Bitmap packedHeightMap(Cfg::Values().width, Cfg::Values().height, 8);
     packedHeightMap.colourtable = colourTables.at(colourMapKey + gameTag);
     // now map from 24 bit climate map
-    for (int i = 0; i < Cfg::Values().bitmapSize; i++)
+    for (int i = 0; i < Cfg::Values().bitmapSize; i++) {
       packedHeightMap.bit8Buffer[i] = heightMap[i].getRed();
+    }
   }
 }
 
@@ -426,6 +447,7 @@ void FormatConverter::dumpWorldNormal(const Bitmap &sobelMap,
 void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
                                      const Fwg::Gfx::Bitmap &treesIn,
                                      const Fwg::Gfx::Bitmap &heightMap,
+                                     const Fwg::Gfx::Bitmap &humidityMap,
                                      const std::string &path) {
 
   auto &config = Cfg::Values();
@@ -457,11 +479,37 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
   writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
            path + "\\textures\\land_mask.dds");
 
+  // flatmap
+  for (auto h = 0; h < imageHeight; h++) {
+    for (auto w = 0; w < imageWidth; w++) {
+      auto colourmapIndex = factor * h * width + factor * w;
+      const auto &c = scaledMap[colourmapIndex];
+      int val = 0;
+      Fwg::Gfx::Colour col;
+      if (c.getBlue() > config.seaLevel) {
+        col = {150, 150, 150};
+      } else {
+        col = {172, 179, 185};
+      }
+      auto imageIndex =
+          imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
+      imageIndex *= 4;
+      pixels[imageIndex] = col.getRed();
+      pixels[imageIndex + 1] = col.getGreen();
+      pixels[imageIndex + 2] = col.getBlue();
+      pixels[imageIndex + 3] = 255;
+    }
+  }
+  writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
+           path + "\\textures\\flatmap.dds");
+
+  // terrain colour map
   scaledMap = Bmp::scale(climateMap, 8192, 3616, false);
   dumpTerrainColourmap(scaledMap, scaledMap, path, "\\textures\\colormap.dds",
                        DXGI_FORMAT_B8G8R8A8_UNORM, 1, false);
 
-  Utils::Logging::logLine("FormatConverter::Writing watercolor_rgb_waterspec_a to ", path);
+  Utils::Logging::logLine(
+      "FormatConverter::Writing watercolor_rgb_waterspec_a to ", path);
   using namespace DirectX;
 
   scaledMap = Bmp::scale(heightMap, 4096, 1808, false);
@@ -491,6 +539,39 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
   }
   writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
            path + "\\water\\watercolor_rgb_waterspec_a.dds");
+
+  // colormap_tree.dds
+  scaledMap = Bmp::scale(humidityMap, 1024, 512, false);
+  auto scaledHeight = Bmp::scale(heightMap, 1024, 512, false);
+  imageWidth = scaledMap.bInfoHeader.biWidth;
+  imageHeight = scaledMap.bInfoHeader.biHeight;
+  Fwg::Gfx::Colour baseColour = {40, 140, 120};
+  Fwg::Gfx::Colour baseColour2 = {40, 100, 110};
+  for (auto h = 0; h < imageHeight; h++) {
+    for (auto w = 0; w < imageWidth; w++) {
+      auto referenceIndex = h * width + w;
+      double humidity = (double)scaledMap[referenceIndex].getBlue() / 255.0;
+      auto imageIndex =
+          imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
+      imageIndex *= 4;
+      auto c = scaledMap[referenceIndex];
+      Fwg::Gfx::Colour col =
+          baseColour * humidity + baseColour2 * (1.0 - humidity);
+      if (scaledHeight[referenceIndex].getBlue() <
+          (double)Cfg::Values().seaLevel) {
+        col = {74, 131, 129};
+      }
+
+      pixels[imageIndex] = col.getRed();
+      pixels[imageIndex + 1] = col.getGreen();
+      pixels[imageIndex + 2] = col.getBlue();
+      pixels[imageIndex + 3] = 255;
+    }
+  }
+  writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
+           path + "\\textures\\colormap_tree.dds");
+  writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
+           path + "\\textures\\windmap_tree.dds");
 }
 
 void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
@@ -520,8 +601,7 @@ void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
     }
   }
 
-  Textures::writeTGA(8192, 3616, pixels,
-                     path + "\\terrain\\detail_index.tga");
+  Textures::writeTGA(8192, 3616, pixels, path + "\\terrain\\detail_index.tga");
 }
 
 FormatConverter::FormatConverter(const std::string &gamePath,

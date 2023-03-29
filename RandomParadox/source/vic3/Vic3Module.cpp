@@ -31,8 +31,13 @@ bool Module::createPaths() { // prepare folder structure
     create_directory(gameModPath + "\\map_data\\state_regions\\");
     create_directory(gameModPath + "\\common\\");
     create_directory(gameModPath + "\\common\\strategic_regions");
+    create_directory(gameModPath + "\\common\\cultures");
+    create_directory(gameModPath + "\\common\\religions");
+    create_directory(gameModPath + "\\common\\country_definitions");
     create_directory(gameModPath + "\\common\\history");
     create_directory(gameModPath + "\\common\\history\\states");
+    create_directory(gameModPath + "\\common\\history\\pops");
+    create_directory(gameModPath + "\\common\\history\\countries");
     create_directory(gameModPath + "\\gfx\\");
     create_directory(gameModPath + "\\gfx\\map");
     create_directory(gameModPath + "\\gfx\\map\\terrain");
@@ -89,7 +94,7 @@ void Module::readVic3Config(const std::string &configSubFolder,
   }
   //  passed to generic ScenarioGenerator
   numCountries = vic3Conf.get<int>("scenario.numCountries");
-  config.seaLevel = 17;
+  config.seaLevel = 18;
   config.numRivers = 0;
   config.seaProvFactor *= 0.3;
   config.landProvFactor *= 0.7;
@@ -132,7 +137,7 @@ void Module::genVic3() {
   if (true) {
 
     formatConverter.Vic3ColourMaps(vic3Gen.fwg.climateMap, vic3Gen.fwg.treeMap,
-                                   vic3Gen.fwg.heightMap,
+                                   vic3Gen.fwg.heightMap, vic3Gen.fwg.humidityMap,
                                    gameModPath + "\\gfx\\map\\");
     formatConverter.dump8BitRivers(vic3Gen.fwg.riverMap,
                                    gameModPath + "\\map_data\\rivers", "rivers",
@@ -169,12 +174,22 @@ void Module::genVic3() {
   stateFiles(gameModPath + "\\map_data\\state_regions\\00_regions.txt",
              vic3Gen.gameRegions);
   writeMetadata(gameModPath + "\\.metadata\\metadata.json");
-   strategicRegions(
+  strategicRegions(
       gameModPath +
           "\\common\\strategic_regions\\randVic_strategic_regions.txt",
       vic3Gen.strategicRegions, vic3Gen.gameRegions);
+  cultureCommon(gameModPath + "\\common\\cultures\\01_additional_cultures.txt",
+                vic3Gen.cultures);
+  religionCommon(gameModPath + "\\common\\religions\\religions.txt",
+                 vic3Gen.religions);
+  countryCommon(gameModPath + "\\common\\country_definitions\\02_custom.txt",
+                vic3Gen.countries, vic3Gen.gameRegions);
   stateHistory(gameModPath + "\\common\\history\\states\\00_states.txt",
                vic3Gen.gameRegions);
+  popsHistory(gameModPath + "\\common\\history\\pops\\00_world.txt",
+              vic3Gen.gameRegions);
+  countryHistory(gameModPath + "\\common\\history\\countries",
+                vic3Gen.countries);
   /* } catch (std::exception e) {
      std::string error = "Error while dumping and writing files.\n";
      error += "Error is: \n";

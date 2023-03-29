@@ -154,6 +154,104 @@ void strategicRegions(const std::string &path,
   }
   pU::writeFile(path, file);
 }
+void cultureCommon(const std::string &path,
+                   const std::vector<std::shared_ptr<Culture>> &cultures) {
+
+  const auto culturesTemplate =
+      pU::readFile("resources\\vic3\\common\\cultureTemplate.txt");
+  std::string cultureFile{""};
+  for (const auto &culture : cultures) {
+    auto cultString = culturesTemplate;
+
+    pU::replaceOccurences(cultString, "templateCulture", culture->name);
+    std::string colour = Fwg::Utils::varsToString(
+        (int)culture->colour.getRed(), " ", (int)culture->colour.getGreen(),
+        " ", (int)culture->colour.getBlue());
+    pU::replaceOccurences(cultString, "templateColour", colour);
+    pU::replaceOccurences(cultString, "templateReligion",
+                          culture->primaryReligion->name);
+    cultureFile.append(cultString);
+  }
+
+  pU::writeFile(path, cultureFile, true);
+}
+void religionCommon(const std::string &path,
+                    const std::vector<std::shared_ptr<Religion>> &religions) {
+
+  const auto religionTemplate =
+      pU::readFile("resources\\vic3\\common\\singleReligionTemplate.txt");
+  auto religionFile =
+      pU::readFile("resources\\vic3\\common\\religionTemplate.txt");
+  for (const auto &religion : religions) {
+    auto relString = religionTemplate;
+
+    pU::replaceOccurences(relString, "templateReligion", religion->name);
+    religionFile.append(relString);
+  }
+  pU::writeFile(path, religionFile, false);
+}
+void countryCommon(const std::string &path,
+                   const std::map<std::string, PdoxCountry> &countries,
+                   const std::vector<std::shared_ptr<Region>> &regions) {
+  const auto countryTemplate =
+      pU::readFile("resources\\vic3\\common\\countryDefinitionTemplate.txt");
+  std::string countryDefinition{""};
+  for (const auto &country : countries) {
+    auto cString = countryTemplate;
+
+    pU::replaceOccurences(cString, "templateTag", country.second.tag);
+    std::string colour =
+        Fwg::Utils::varsToString((int)country.second.colour.getRed(), " ",
+                                 (int)country.second.colour.getGreen(), " ",
+                                 (int)country.second.colour.getBlue());
+    pU::replaceOccurences(cString, "templateColour", colour);
+    auto capitalRegion = regions[country.second.capitalRegionID];
+    pU::replaceOccurences(cString, "templateCapital", capitalRegion->name);
+
+    using pair_type = decltype(capitalRegion->cultures)::value_type;
+    auto pr = std::max_element(std::begin(capitalRegion->cultures),
+                               std::end(capitalRegion->cultures),
+                               [](const pair_type &p1, const pair_type &p2) {
+                                 return p1.second < p2.second;
+                               });
+
+    pU::replaceOccurences(cString, "templateCultures", pr->first->name);
+    countryDefinition.append(cString);
+  }
+  pU::writeFile(path, countryDefinition, false);
+}
+void popsHistory(const std::string &path,
+                 const std::vector<std::shared_ptr<Region>> &regions) {
+  auto popsFile =
+      pU::readFile("resources\\vic3\\common\\history\\popsTemplate.txt");
+  // std::string statePops = "";
+  const auto popsSingleTemplate =
+      pU::readFile("resources\\vic3\\common\\history\\popsSingleTemplate.txt");
+  const auto popsStateTemplate =
+      pU::readFile("resources\\vic3\\common\\history\\popsStateTemplate.txt");
+  std::string listOfStates{""};
+  for (const auto &region : regions) {
+    auto statePops = popsStateTemplate;
+    pU::replaceOccurences(statePops, "templateName", region->name);
+    // TODO: real country
+    pU::replaceOccurences(statePops, "templateTag", region->owner);
+
+    std::string listOfPops{""};
+    for (auto &culture : region->cultures) {
+      std::string pop = popsSingleTemplate;
+      pU::replaceOccurences(pop, "templateCulture", culture.first->name);
+      pU::replaceOccurences(pop, "templatePopSize",
+                            std::to_string((int)(culture.second * 10000.0)));
+      listOfPops.append(pop);
+    }
+
+    pU::replaceOccurences(statePops, "templatePopList", listOfPops);
+    listOfStates.append(statePops);
+  }
+  pU::replaceOccurences(popsFile, "templatePopsData", listOfStates);
+
+  pU::writeFile(path, popsFile, true);
+}
 void stateHistory(const std::string &path,
                   const std::vector<std::shared_ptr<Region>> &regions) {
   auto file = pU::readFile("resources\\vic3\\common\\history\\states.txt");
@@ -163,7 +261,7 @@ void stateHistory(const std::string &path,
   for (const auto &region : regions) {
     auto content = stateTemplate;
     pU::replaceOccurences(content, "templateName", region->name);
-    pU::replaceOccurences(content, "templateCountry", "USA" /*TODOregion->owner*/);
+    pU::replaceOccurences(content, "templateCountry", region->owner);
     std::string provinceString{""};
     for (auto prov : region->gameProvinces) {
       provinceString.append("\"" + prov->toHexString() + "\" ");
@@ -176,6 +274,19 @@ void stateHistory(const std::string &path,
   pU::replaceOccurences(file, "templateStateData", stateContent);
 
   pU::writeFile(path, file, true);
+}
+void countryHistory(const std::string &path,
+                    const std::map<std::string, PdoxCountry> &countries) {
+  const auto countryTemplate =
+      pU::readFile("resources\\vic3\\common\\countryHistoryTemplate.txt");
+  for (const auto &country : countries) {
+    auto cString = countryTemplate;
+
+    pU::replaceOccurences(cString, "templateTag", country.second.tag);
+    std::string filename =
+        country.second.tag + " - " + country.second.name + ".txt";
+    pU::writeFile(path + "\\" + filename, cString, false);
+  }
 }
 } // namespace Writing
 

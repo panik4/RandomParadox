@@ -1,0 +1,4 @@
+			create_pop = {
+				culture = templateCulture
+				size = templatePopSize
+			}

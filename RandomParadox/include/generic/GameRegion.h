@@ -11,14 +11,22 @@ public:
   std::string owner;
   std::string name;
   bool assigned;
+  double snowChance, lightRainChance, heavyRainChance, blizzardChance,
+      mudChance, sandStormChance;
   // containers
   std::vector<std::shared_ptr<GameProvince>> gameProvinces;
   std::vector<double> temperatureRange;
   std::vector<double> dateRange;
-  double snowChance, lightRainChance, heavyRainChance, blizzardChance,
-      mudChance, sandStormChance;
+  std::map<std::shared_ptr<Scenario::Religion>, double> religions;
+  std::map<std::shared_ptr<Scenario::Culture>, double> cultures;
+
   Region();
   Region(const Fwg::Region &baseRegion);
   ~Region();
+
+  // member functions
+  // average given culture and religion shares of all provinces
+  // TODO: calc distinct values for religion and culture mixes
+  void sumPopulations();
 };
 } // namespace Scenario
