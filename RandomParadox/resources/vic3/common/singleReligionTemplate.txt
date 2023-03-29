@@ -1,0 +1,7 @@
+templateReligion = {
+	texture = "gfx/interface/icons/religion_icons/sikh.dds"
+	traits = {
+		eastern
+	}
+	color = { 1 1 0.1 }
+}

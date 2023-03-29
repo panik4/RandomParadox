@@ -1,0 +1,91 @@
+templateCulture={
+	color= rgb{ templateColour }
+	religion = templateReligion
+	traits = {  }
+	
+	male_common_first_names={
+		Abraham Abel Arthur
+		Brynmor
+		Christopher Charles Clement Caradoc
+		David Daniel
+		Edward Evan Erasmus Enoch Ebenezer Elizer Elijah
+		Francis
+		Griffith Gwilym Gomer Goronwy Garrod
+		Henry Hugh Howell
+		Ivor
+		John Josiah
+		Lewis
+		Morris Moses Michael Marmaduke Mordecai Martyn
+		Owen
+		Robert Roger Ronald Rowland Rowley
+		Shadrach Samuel
+		Thomas Theophilus 
+		William Watkin Walter
+	}
+	female_common_first_names = {
+		Anne Amy Alice Angharad Augusta
+		Caroline Catharine Constance
+		Dilys Deborah Daisy Dorothy
+		Eliza Eluned Elen Emily Ethel Elizabeth Elinor Eva
+		Flora Fanny
+		Gwenllian
+		Hester Hilda
+		Isabella
+		Jane Jemima
+		Louisa Lucy
+		Mary Martha Margaret Matilda
+		Olive
+		Rhoda Rachel
+		Sarah Selina
+		Theresa
+	}
+	common_last_names={
+		Allen Abadam Ace Alden
+		Burton Bevan Barrett Bufton Berry Bowen Breese Blackwell Bailey Brigstocke Bellis
+		Chamberlain Crawshay Cory
+		Davies Davis Davey Dillwyn Derfel Dodd Downman Day
+		Evans Edwards Ellis Eyton
+		Forster Franklyn
+		Gronow Griffiths Gifford Glynne Gwynne Gummow Glandwr Guest Gibbins Gruffydd
+		Hughes Harris Howell Hutchings Hall Herbert Hann Horler Haberson Hannan
+		Insole Ince
+		Jones Jenkins
+		Lewis Llwyd Lloyd Llewelyn Lang
+		Morgan Maddox
+		Nicholl Nevill
+		Owen
+		Price Parry Penson Prichard Pryse Pugh Petts Philips Prothero Pegge
+		Rees Richards Rowlands Rushbrook Rankin Rhys Rolls
+		Smith Skinner Saunders Squire Seager Seward
+		Thomas Trainer Tablot
+		Vaughan Vachell
+		Williams Wright Waring West Wells Welch Wightwick
+	}
+
+	noble_last_names = {
+		Coffin Cowell-Stepney Cornwallis-West
+		Green-Price
+		Hanbury-Tracy Humphreys-Owen
+		Jones-Parry
+		Lloyd-Mostyn Llewellyn-Jones
+		Ormsby-Gore
+		Price-Gwynne
+		Talbot
+		Williams-Wynn Wynn
+	}
+	
+	male_regal_first_names = {
+		# populate with names here
+	}
+	female_regal_first_names = {
+		# populate with names here
+	}
+	regal_last_names = {
+		# populate with names here
+	}
+	
+	ethnicities = {
+		1 = caucasian
+	}
+	graphics = european
+}

@@ -1,0 +1,10 @@
+templateTag = {
+	color = { templateColour }
+	
+	country_type = recognized
+
+	tier = empire
+	
+	cultures = { templateCultures }
+	capital = STATE_templateCapital
+}

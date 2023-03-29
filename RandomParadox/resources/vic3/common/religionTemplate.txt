@@ -1,0 +1,127 @@
+# If you add religions, and use those tags, do not change them without changing everywhere they are used.
+
+catholic = {
+	texture = "gfx/interface/icons/religion_icons/catholic.dds"
+	traits = {
+		christian
+	}
+	color = { 0.8 0.6 0.4 }
+}
+
+protestant = {
+	texture = "gfx/interface/icons/religion_icons/protestant.dds"
+	traits = {
+		christian
+	}
+	color = { 0.2 0.3 0.55 }
+}
+
+orthodox = {
+	texture = "gfx/interface/icons/religion_icons/orthodox.dds"
+	traits = {
+		christian
+	}
+	color = { 0.62 0.64 0.6 }
+}
+
+oriental_orthodox = {
+	texture = "gfx/interface/icons/religion_icons/coptic.dds"
+	traits = {
+		christian
+	}
+	color = { 0.1 0.5 0.6 }
+}
+
+sunni = {
+	texture = "gfx/interface/icons/religion_icons/sunni.dds"
+	traits = {
+		muslim
+	}
+	color = { 0.1 0.5 0.3 }
+	
+	taboos = {
+		liquor wine
+	} 
+}
+
+shiite = {
+	texture = "gfx/interface/icons/religion_icons/shiite.dds"
+	traits = {
+		muslim
+	}
+	color = { 0.4 0.7 0.3 }
+	
+	taboos = {
+		liquor wine
+	}
+}
+
+jewish = {
+	texture = "gfx/interface/icons/religion_icons/jewish.dds"
+	traits = {
+		jewish
+	}
+	color = { 0.5 0.5 0.2 }
+}	
+
+mahayana = {
+	texture = "gfx/interface/icons/religion_icons/mahayana.dds"
+	traits = {
+		buddhist
+		eastern
+	}
+	color = { 0.7 0.35 0.1 }
+}
+
+gelugpa = {
+	texture = "gfx/interface/icons/religion_icons/gelugpa.dds"
+	traits = {
+		buddhist
+		eastern
+	}
+	color = { 0.1 0.4 0.9 }
+}
+
+theravada = {
+	texture = "gfx/interface/icons/religion_icons/theravada.dds"
+	traits = {
+		buddhist
+		eastern
+	}
+	color = { 0.7 0.4 0.6 }
+}
+
+hindu = {
+	texture = "gfx/interface/icons/religion_icons/hindu.dds"
+	traits = {
+		eastern
+	}
+	color = { 0.7 0.4 0.3 }
+	taboos = {
+		meat
+	}
+}
+
+shinto = {
+	texture = "gfx/interface/icons/religion_icons/shinto.dds"
+	traits = {
+		eastern
+	}
+	color = { 0.4 0.1 0.2 }
+}
+
+sikh = {
+	texture = "gfx/interface/icons/religion_icons/sikh.dds"
+	traits = {
+		eastern
+	}
+	color = { 1 1 0.1 }
+}
+
+animist = {
+	texture = "gfx/interface/icons/religion_icons/animist.dds"
+	traits = {
+		animist
+	}
+	color = { 0.6 0.3 0.2 }
+}

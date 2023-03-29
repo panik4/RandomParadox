@@ -1,0 +1,3 @@
+POPS = {
+	templatePopsData
+}

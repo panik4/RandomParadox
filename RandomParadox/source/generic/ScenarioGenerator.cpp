@@ -21,6 +21,11 @@ void Generator::generateWorld() {
   typeMap = mapTerrain();
   generatePopulations();
   generateDevelopment();
+  generateReligions();
+  generateCultures();
+  for (auto &region : gameRegions) {
+    region->sumPopulations();
+  }
 }
 
 void Generator::mapContinents() {
@@ -118,6 +123,92 @@ void Generator::generatePopulations() {
       }
 }
 
+void Generator::generateReligions() {
+  auto &config = Fwg::Cfg::Values();
+  Bitmap religionMap(config.width, config.height, 24);
+  for (int i = 0; i < 8; i++) {
+    Religion r;
+    r.name = NameGeneration::generateName(this->nData);
+    do {
+      r.centerOfReligion = Fwg::Utils::selectRandom(gameProvinces)->ID;
+    } while (!gameProvinces[r.centerOfReligion]->baseProvince->isLand());
+    r.colour.randomize();
+    religions.push_back(std::make_shared<Religion>(r));
+  }
+
+  for (auto &gameProvince : gameProvinces) {
+    if (!gameProvince->baseProvince->isLand())
+      continue;
+    auto closestReligion = 0;
+    auto distance = 100000000.0;
+    for (auto x = 0; x < religions.size(); x++) {
+      auto &religion = religions[x];
+      auto religionCenter = gameProvinces[religion->centerOfReligion];
+      auto nDistance = Fwg::getPositionDistance(
+          religionCenter->baseProvince->position,
+          gameProvince->baseProvince->position, config.width);
+      if (Fwg::Utils::switchIfComparator(nDistance, distance, std::less())) {
+        closestReligion = x;
+      }
+    }
+    // add only the main religion at this time
+    gameProvince->religions[religions[closestReligion]] = 1.0;
+    for (auto pix : gameProvince->baseProvince->pixels) {
+      religionMap.setColourAtIndex(pix, religions[closestReligion]->colour);
+    }
+  }
+  Png::save(religionMap, "Maps/world/religions.png");
+}
+
+void Generator::generateCultures() {
+  auto &config = Fwg::Cfg::Values();
+  Bitmap cultureMap(config.width, config.height, 24);
+  for (int i = 0; i < 200; i++) {
+    Culture r;
+    r.name = NameGeneration::generateName(this->nData);
+    do {
+      r.centerOfCulture = Fwg::Utils::selectRandom(gameProvinces)->ID;
+    } while (!gameProvinces[r.centerOfCulture]->baseProvince->isLand());
+    auto presentReligions = gameProvinces[r.centerOfCulture]->religions;
+
+    using pair_type = decltype(presentReligions)::value_type;
+
+    auto pr = std::max_element(std::begin(presentReligions),
+                               std::end(presentReligions),
+                               [](const pair_type &p1, const pair_type &p2) {
+                                 return p1.second < p2.second;
+                               });
+
+    r.primaryReligion = pr->first;
+
+    r.colour.randomize();
+    cultures.push_back(std::make_shared<Culture>(r));
+  }
+
+  for (auto &gameProvince : gameProvinces) {
+    if (gameProvince->baseProvince->sea || gameProvince->baseProvince->isLake)
+      continue;
+    auto closestCulture = 0;
+    auto distance = 100000000.0;
+    for (auto x = 0; x < cultures.size(); x++) {
+      auto &culture = cultures[x];
+      auto cultureCenter = gameProvinces[culture->centerOfCulture];
+      auto nDistance = Fwg::getPositionDistance(
+          cultureCenter->baseProvince->position,
+          gameProvince->baseProvince->position, config.width);
+      if (Fwg::Utils::switchIfComparator(nDistance, distance, std::less())) {
+        closestCulture = x;
+      }
+    }
+    // add only the main culture at this time
+    gameProvince->cultures[cultures[closestCulture]] = 1.0;
+    for (auto pix : gameProvince->baseProvince->pixels) {
+      cultureMap.setColourAtIndex(pix, cultures[closestCulture]->colour);
+    }
+  }
+  Png::save(cultureMap, "Maps/world/cultures.png");
+}
+
 void Generator::generateDevelopment() {
   // high pop-> high development
   // high city share->high dev
@@ -125,6 +216,7 @@ void Generator::generateDevelopment() {
   // .....
   Logging::logLine("Generating State Development");
   auto &config = Fwg::Cfg::Values();
+  Bitmap development(config.width, config.height, 24);
   const auto &cityMap = fwg.cityMap;
   for (auto &c : countries)
     for (auto &gR : c.second.ownedRegions)
@@ -138,7 +230,12 @@ void Generator::generateDevelopment() {
             std::clamp(0.2 + 0.5 * gameProv->popFactor +
                            1.0 * gameProv->cityShare * cityDensity,
                        0.0, 1.0);
+
+        for (auto pix : gameProv->baseProvince->pixels) {
+          development.setColourAtIndex(pix, gameProv->devFactor * 255.0);
+        }
       }
+  Png::save(development, "Maps/world/development.png");
 }
 
 Fwg::Gfx::Bitmap Generator::mapTerrain() {
@@ -180,7 +277,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
           }
         }
       }
-  Bmp::save(typeMap, "Maps/typeMap.bmp");
+  Png::save(typeMap, "Maps/typeMap.png");
   return typeMap;
 }
 
@@ -233,7 +330,6 @@ void Generator::generateCountries(int numCountries,
   }
 }
 
-
 void Generator::generateStrategicRegions() {
   Fwg::Utils::Logging::logLine(
       "Scenario: Dividing world into strategic regions");
@@ -276,7 +372,6 @@ void Generator::generateStrategicRegions() {
   Bmp::bufferBitmap("strat", stratRegionBMP);
   Bmp::save(stratRegionBMP, "Maps\\stratRegions.bmp");
 }
-
 
 void Generator::evaluateNeighbours() {
   Logging::logLine("Evaluating Country Neighbours");
