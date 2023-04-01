@@ -4,7 +4,7 @@
 		"debugLevel": 9,
 		"loadMaps" : false,
 		"writeMaps" : true,
-		"seed" : 999
+		"seed" : 1680337328
 	},
 	"paths":
 	{
@@ -45,7 +45,7 @@
 	},
 	"map": 
 	{
-        "height" : 512,
+        "height" : 256,
 		"width" : 512,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
@@ -234,7 +234,7 @@
 			"seaProvinceFactor" : 1,
 			"minProvPerRegion" : 8,
 			"minProvSize" : 10,
-			"provinceDensityByHabitability" : 30
+			"provinceDensityByHabitability" : 1000.0
 		},
 		"humidity" : {
 			"latitudeLow" : 0.3,

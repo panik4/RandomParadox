@@ -119,12 +119,6 @@ int main() {
   if (!writeMaps) {
     config.writeMaps = false;
   }
-  /* if (true) {
-    Scenario::Aoe2::Module aoe2Mod(rpdConf, configSubFolder, username);
-    aoe2Mod.genAoe2();
-    system("pause");
-    return 0;
-  }*/
   //try {
   if (genHoi4Scenario) {
     // generate hoi4 scenario

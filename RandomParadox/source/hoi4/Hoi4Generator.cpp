@@ -50,6 +50,7 @@ void Generator::generateStateResources() {
           value *= sizeFactor;
           hoi4Region->resources[resource.first] = (int)value;
           totalResources[resource.first] += (int)value;
+          std::cout << value << std::endl;
         }
       }
     }
