@@ -14,6 +14,7 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   }
 
   hoi4Gen = {fwg};
+  readHoiConfig(configSubFolder, username, gamesConf);
   hoi4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
   if (editMode) {
     // start loading mod/game files
