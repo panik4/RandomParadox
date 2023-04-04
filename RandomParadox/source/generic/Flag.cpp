@@ -106,8 +106,8 @@ std::vector<unsigned char> Flag::getFlag() const { return image; }
 std::vector<uint8_t> Flag::resize(const int width, const int height) const {
   auto resized = std::vector<unsigned char>(width * height * 4, 0);
   const auto factor = this->width / width;
-  for (int h = 0; h < height; h++) {
-    for (int w = 0; w < width; w++) {
+  for (auto h = 0; h < height; h++) {
+    for (auto w = 0; w < width; w++) {
       auto colourmapIndex = factor * h * this->width + factor * w;
       colourmapIndex *= 4;
       resized[(h * width + w) * 4] = image[colourmapIndex];
@@ -117,6 +117,21 @@ std::vector<uint8_t> Flag::resize(const int width, const int height) const {
     }
   }
   return resized;
+}
+
+void Flag::flip() {
+  for (auto i = 0; i < height/2; i++) {
+    for (auto w = 0; w < width; w++) {
+      auto abseIndex = 4 * (i * width + w);
+      auto otherIndex = image.size() - abseIndex - 4 * (width - w) + 4*w;
+      for (int x = 0; x < 4; x++) {
+
+        auto temp = image[abseIndex + x];
+        image[abseIndex + x] = image[otherIndex + x];
+        image[otherIndex + x] = temp;
+      }
+    }
+  }
 }
 
 std::vector<uint8_t> Flag::resize(const int width, const int height,

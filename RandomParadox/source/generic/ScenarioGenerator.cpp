@@ -324,7 +324,6 @@ void Generator::generateCountries(int numCountries,
     if (!gameRegion->sea && !gameRegion->assigned) {
       auto gR = Fwg::Utils::getNearestAssignedLand(gameRegions, gameRegion,
                                                    config.width, config.height);
-      std::cout << gR->owner << std::endl;
       countries.at(gR->owner).addRegion(gameRegion, gameRegions, gameProvinces);
     }
   }

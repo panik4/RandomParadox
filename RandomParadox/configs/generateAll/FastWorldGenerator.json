@@ -1,10 +1,10 @@
 {
 	"module": 
 	{
-		"debugLevel": 9,
+		"debugLevel": 0,
 		"loadMaps" : false,
 		"writeMaps" : true,
-		"seed" : 1680337328
+		"seed" : 0
 	},
 	"paths":
 	{
@@ -45,8 +45,8 @@
 	},
 	"map": 
 	{
-        "height" : 256,
-		"width" : 512,
+        "height" : 1024,
+		"width" : 2816,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -57,10 +57,10 @@
 		},
 		"trees" : 
 		{
-			"forestDensity" : 0.7,
-			"jungleDensity" : 0.7,
+			"forestDensity" : 0.8,
+			"jungleDensity" : 0.9,
 			"savannahDensity" : 0.6,
-			"grasslandDensity" : 0.7,
+			"grasslandDensity" : 0.8,
 			"tundraDensity" : 0.4
 		},
 		"mountains" :
@@ -229,12 +229,12 @@
 			}
 		},
 		"provinces" : {
-			"auto" : true,
-			"landProvinceFactor" : 1,
+			"auto" : false,
+			"landProvinceFactor" : 3,
 			"seaProvinceFactor" : 1,
 			"minProvPerRegion" : 8,
 			"minProvSize" : 10,
-			"provinceDensityByHabitability" : 1000.0
+			"provinceDensityByHabitability" : 1.0
 		},
 		"humidity" : {
 			"latitudeLow" : 0.3,

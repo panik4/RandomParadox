@@ -195,8 +195,8 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInStateMap,
             prevOwnerState->gameProvinces.erase(
                 prevOwnerState->gameProvinces.begin() + pI);
             pI--;
-            std::cout << "State Track Changes: Deleting province from state: " << prevOwnerState->ID
-                      << std::endl;
+            std::cout << "State Track Changes: Deleting province from state: "
+                      << prevOwnerState->ID << std::endl;
           }
         }
       }
@@ -311,8 +311,9 @@ void updateStates(Generator &hoi4Gen, ChangeHolder &changes) {
     for (auto i = 0; i < state->gameProvinces.size(); i++) {
       if (changes.deletedProvs.find(state->gameProvinces[i]->ID) !=
           changes.deletedProvs.end()) {
-        Fwg::Utils::Logging::logLine("State::Update States: Deleted province from state ", state->ID,
-                                     " with ID: ", state->gameProvinces[i]->ID);
+        Fwg::Utils::Logging::logLine(
+            "State::Update States: Deleted province from state ", state->ID,
+            " with ID: ", state->gameProvinces[i]->ID);
 
         // remove province from state, as it was deleted
         state->gameProvinces.erase(state->gameProvinces.begin() + i);
@@ -344,7 +345,6 @@ void updateStates(Generator &hoi4Gen, ChangeHolder &changes) {
                     << state->gameProvinces[i]->baseProvince->regionID
                     << std::endl;
           std::cout << "State ID: " << state->ID << std::endl;
-          std::cout << "H?" << std::endl;
         }*/
       }
     }
@@ -444,8 +444,6 @@ std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
   auto list = ParserUtils::getLinesByID(path);
   return list;
 }
-
-
 
 bool isProvinceID(std::string &content, const std::string &delimiterLeft,
                   const std::string &delimiterRight, const int startPos,

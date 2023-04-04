@@ -239,8 +239,6 @@ void FormatConverter::dump8BitTerrain(const Bitmap &climateIn,
   if (!cut) {
     // now map from 24 bit climate map
     for (int i = 0; i < conf.bitmapSize; i++) {
-
-      // std::cout << colourMapKey + gameTag << std::endl;
       hoi4terrain.bit8Buffer[i] =
           colourMaps.at(colourMapKey + gameTag).at(climateIn[i]);
     }
