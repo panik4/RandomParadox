@@ -44,6 +44,7 @@ public:
   std::vector<unsigned char> getFlag() const;
   // methods - utils
   std::vector<unsigned char> resize(const int width, const int height) const;
+  void flip();
   static std::vector<unsigned char>
   resize(const int width, const int height,
          const std::vector<unsigned char> tImage, const int inWidth,
@@ -53,5 +54,6 @@ public:
   static void readFlagTypes();
   static void readFlagTemplates();
   static void readSymbolTemplates();
+  
 };
 } // namespace Scenario::Gfx

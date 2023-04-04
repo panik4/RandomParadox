@@ -8,6 +8,7 @@ PdoxCountry::PdoxCountry(std::string tag, int ID, std::string name,
   colour = {static_cast<unsigned char>(RandNum::getRandom(0, 255)),
             static_cast<unsigned char>(RandNum::getRandom(0, 255)),
             static_cast<unsigned char>(RandNum::getRandom(0, 255))};
+  this->flag.flip();
 }
 
 PdoxCountry::~PdoxCountry() {}

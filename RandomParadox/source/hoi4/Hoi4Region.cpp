@@ -50,11 +50,9 @@ getBuilding(const std::string &type, const Fwg::Province &prov,
                 if (typeMap[nPix] == cfg.colours.at("sea")) {
                   pix = nPix;
                   done = true;
-
                 }
             }
           }
-          std::cout << "Couldnt find coast" << std::endl;
         }
       }
     }

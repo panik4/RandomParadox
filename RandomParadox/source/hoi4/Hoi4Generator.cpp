@@ -50,7 +50,6 @@ void Generator::generateStateResources() {
           value *= sizeFactor;
           hoi4Region->resources[resource.first] = (int)value;
           totalResources[resource.first] += (int)value;
-          std::cout << value << std::endl;
         }
       }
     }
@@ -785,7 +784,6 @@ void Generator::evaluateCountryGoals() {
       "resources\\hoi4\\ai\\national_focus\\chains\\regional_chains.txt"));
   chains.push_back(ParserUtils::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\army_chains.txt"));
-  auto typeCounter = 0;
   for (auto &sourceCountry : hoi4Countries) {
     const auto &source = hoi4Countries[sourceCountry.first];
     sourceCountry.second.bully = 0;

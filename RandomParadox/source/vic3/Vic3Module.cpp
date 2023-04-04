@@ -21,7 +21,6 @@ bool Module::createPaths() { // prepare folder structure
     using namespace std::filesystem;
     create_directory(gameModPath);
     // generic cleanup and path creation
-    std::cout << gameModPath << std::endl;
     // remove_all(gameModPath + "\\map_data\\");
     remove_all(gameModPath + "\\common\\");
     remove_all(gameModPath + "\\localization\\");
@@ -136,9 +135,9 @@ void Module::genVic3() {
   Gfx::FormatConverter formatConverter(gamePath, "Vic3");
   if (true) {
 
-    formatConverter.Vic3ColourMaps(vic3Gen.fwg.climateMap, vic3Gen.fwg.treeMap,
-                                   vic3Gen.fwg.heightMap, vic3Gen.fwg.humidityMap,
-                                   gameModPath + "\\gfx\\map\\");
+    formatConverter.Vic3ColourMaps(
+        vic3Gen.fwg.climateMap, vic3Gen.fwg.treeMap, vic3Gen.fwg.heightMap,
+        vic3Gen.fwg.humidityMap, gameModPath + "\\gfx\\map\\");
     formatConverter.dump8BitRivers(vic3Gen.fwg.riverMap,
                                    gameModPath + "\\map_data\\rivers", "rivers",
                                    cut);
@@ -189,7 +188,7 @@ void Module::genVic3() {
   popsHistory(gameModPath + "\\common\\history\\pops\\00_world.txt",
               vic3Gen.gameRegions);
   countryHistory(gameModPath + "\\common\\history\\countries",
-                vic3Gen.countries);
+                 vic3Gen.countries);
   /* } catch (std::exception e) {
      std::string error = "Error while dumping and writing files.\n";
      error += "Error is: \n";
