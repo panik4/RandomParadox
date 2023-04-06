@@ -5,9 +5,11 @@ using namespace Fwg::Gfx;
 
 Generator::Generator() {}
 
-Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {
+Generator::Generator(const std::string &configSubFolder)
+    : Scenario::Generator(configSubFolder) {
   this->terrainTypeToString.at(Fwg::Province::TerrainType::marsh) = "wetlands";
-  this->terrainTypeToString.at(Fwg::Province::TerrainType::savannah) = "savanna";
+  this->terrainTypeToString.at(Fwg::Province::TerrainType::savannah) =
+      "savanna";
   this->terrainTypeToString.at(Fwg::Province::TerrainType::tundra) = "snow";
   this->terrainTypeToString.at(Fwg::Province::TerrainType::arctic) = "snow";
 }

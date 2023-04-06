@@ -33,13 +33,13 @@
 	"cut":
 	{
 		"cut" : true,
-		"minX" : 0,
-		"maxX" : 5632,
-		"minY" : 0,
-		"maxY" : 2048,
+		"minX" : 4200,
+		"maxX" : 5224,
+		"minY" : 448,
+		"maxY" : 856,
 		"scale" : true,
-		"scaleX" : 2816,
-		"scaleY" : 1024,
+		"scaleX" : 5632,
+		"scaleY" : 2048,
 		"keepRatio" : false,
 		"scaleFilterRuns": 5
 	},
@@ -84,12 +84,14 @@
 			"seaProvinceFactor" : 1,
 			"minProvPerRegion" : 3,
 			"minProvSize" : 10,
-			"provinceDensityByHabitability" : 30
+			"provinceDensityByHabitability" : 30,
+			"maxProvAmount" : 20000
 		},
 		"humidity" : {
 			"latitudeLow" : 0.6,
 			"latitudeHigh" : 1.8,
 			"riverHumidityFactor" : 0.2,
+			"riverEffectRangeFactor" : 1.0,
 			"baseHumidity": 0.7
 		},
 		"weather":

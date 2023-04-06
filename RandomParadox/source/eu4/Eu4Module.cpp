@@ -5,12 +5,11 @@ namespace Scenario::Eu4 {
 Module::Module(const boost::property_tree::ptree &gamesConf,
                const std::string &configSubFolder,
                const std::string &username) {
-  FastWorldGenerator fwg(configSubFolder);
+  eu4Gen = Eu4::Generator(configSubFolder);
   // read eu4 configs and potentially overwrite settings for fwg
   readEu4Config(configSubFolder, username, gamesConf);
   // now run the world generation
-  fwg.generateWorld();
-  eu4Gen = {fwg};
+  eu4Gen.generateWorld();
   eu4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
 }
 
@@ -111,42 +110,40 @@ void Module::genEu4() {
     // generate map files. Format must be converted and colours mapped to eu4
     // compatible colours
     Gfx::FormatConverter formatConverter(gamePath, "Eu4");
-    formatConverter.dump8BitTerrain(eu4Gen.fwg.climateMap,
-                                    gameModPath + "\\map\\terrain.bmp",
-                                    "terrain", cut);
+    formatConverter.dump8BitTerrain(
+        eu4Gen.climateMap, gameModPath + "\\map\\terrain.bmp", "terrain", cut);
     formatConverter.dump8BitRivers(
-        eu4Gen.fwg.riverMap, gameModPath + "\\map\\rivers.bmp", "rivers", cut);
-    formatConverter.dump8BitTrees(eu4Gen.fwg.climateMap, eu4Gen.fwg.treeMap,
+        eu4Gen.riverMap, gameModPath + "\\map\\rivers.bmp", "rivers", cut);
+    formatConverter.dump8BitTrees(eu4Gen.climateMap, eu4Gen.treeMap,
                                   gameModPath + "\\map\\trees.bmp", "trees",
                                   false);
-    formatConverter.dump8BitHeightmap(eu4Gen.fwg.heightMap,
-                                      gameModPath + "\\map\\heightmap.bmp",
-                                      "heightmap");
-    formatConverter.dumpTerrainColourmap(eu4Gen.fwg.springMap,
-                                         eu4Gen.fwg.cityMap, gameModPath,
+    formatConverter.dump8BitHeightmap(
+        eu4Gen.heightMap, gameModPath + "\\map\\heightmap.bmp", "heightmap");
+    formatConverter.dumpTerrainColourmap(eu4Gen.springMap, eu4Gen.cityMap,
+                                         gameModPath,
                                          "\\map\\terrain\\colormap_spring.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
-    formatConverter.dumpTerrainColourmap(eu4Gen.fwg.summerMap,
-                                         eu4Gen.fwg.cityMap, gameModPath,
+    formatConverter.dumpTerrainColourmap(eu4Gen.summerMap, eu4Gen.cityMap,
+                                         gameModPath,
                                          "\\map\\terrain\\colormap_summer.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
-    formatConverter.dumpTerrainColourmap(eu4Gen.fwg.autumnMap,
-                                         eu4Gen.fwg.cityMap, gameModPath,
+    formatConverter.dumpTerrainColourmap(eu4Gen.autumnMap, eu4Gen.cityMap,
+                                         gameModPath,
                                          "\\map\\terrain\\colormap_autumn.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
-    formatConverter.dumpTerrainColourmap(eu4Gen.fwg.winterMap,
-                                         eu4Gen.fwg.cityMap, gameModPath,
+    formatConverter.dumpTerrainColourmap(eu4Gen.winterMap, eu4Gen.cityMap,
+                                         gameModPath,
                                          "\\map\\terrain\\colormap_winter.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
-    formatConverter.dumpDDSFiles(eu4Gen.fwg.riverMap, eu4Gen.fwg.heightMap,
+    formatConverter.dumpDDSFiles(eu4Gen.riverMap, eu4Gen.heightMap,
                                  gameModPath + "\\map\\terrain\\colormap_water",
                                  cut, 2);
     formatConverter.dumpWorldNormal(
-        eu4Gen.fwg.sobelMap, gameModPath + "\\map\\world_normal.bmp", cut);
+        eu4Gen.sobelMap, gameModPath + "\\map\\world_normal.bmp", cut);
 
     using namespace Fwg::Gfx;
     // just copy over provinces.bmp, already in a compatible format
-    Bmp::save(eu4Gen.fwg.provinceMap, gameModPath + "\\map\\provinces.bmp");
+    Bmp::save(eu4Gen.provinceMap, gameModPath + "\\map\\provinces.bmp");
     {
       using namespace Parsing;
       // now do text

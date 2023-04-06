@@ -399,19 +399,19 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInProvMap,
     reg.provinces.clear();
 
   // now compare both maps and see which province was deleted
-  for (auto i = 0; i < hoi4Gen.fwg.areas.provinces.size() + 1; i++) {
+  for (auto i = 0; i < hoi4Gen.areas.provinces.size() + 1; i++) {
     changes.provIdMapping[i] = 0;
   }
 
   // now check for new provinces
-  for (auto i = hoi4Gen.fwg.areas.provinces.size();
+  for (auto i = hoi4Gen.areas.provinces.size();
        i < areaNewData.provinces.size(); i++) {
     Fwg::Utils::Logging::logLine("Added new province with ID: ", i);
     changes.newProvs.insert(i);
   }
   // track changes in IDs
-  for (auto i = 0; i < hoi4Gen.fwg.areas.provinces.size(); i++) {
-    if (hoi4Gen.fwg.areas.provinces[i]->pixels.size() !=
+  for (auto i = 0; i < hoi4Gen.areas.provinces.size(); i++) {
+    if (hoi4Gen.areas.provinces[i]->pixels.size() !=
         areaNewData.provinces[i]->pixels.size()) {
       //  we have SOME change and the province still exists
       changes.changedProvs.insert(i);
@@ -423,7 +423,7 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInProvMap,
         // set it to nullptr
         areaNewData.provinces[i] = nullptr;
         // every succeeding province has their ID modified by -1
-        for (auto x = i + 1; x < hoi4Gen.fwg.areas.provinces.size(); x++)
+        for (auto x = i + 1; x < hoi4Gen.areas.provinces.size(); x++)
           changes.provIdMapping.at(x)--;
       }
     }
@@ -438,7 +438,7 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInProvMap,
     }
   }
   // overwrite areas
-  hoi4Gen.fwg.areas = areaNewData;
+  hoi4Gen.areas = areaNewData;
 }
 std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
   auto list = ParserUtils::getLinesByID(path);
@@ -523,7 +523,7 @@ void edit(const std::string &inPath, const std::string &outputPath,
   using namespace Fwg::Areas;
   // now read in new file and compare data
   AreaData areaNewData;
-  for (auto &prov : hoi4Gen.fwg.areas.provinces) {
+  for (auto &prov : hoi4Gen.areas.provinces) {
     Fwg::Province *newProv = new Fwg::Province();
     *newProv = *prov;
     newProv->pixels.clear();
@@ -538,7 +538,7 @@ void edit(const std::string &inPath, const std::string &outputPath,
   Fwg::Gfx::Bmp::edit<Fwg::Gfx::Colour>("provinces.bmp", provMap, "provinceMap",
                                         config.mapsPath, config.mapsToEdit,
                                         config.editor);
-  hoi4Gen.fwg.provinceMap = provMap;
+  hoi4Gen.provinceMap = provMap;
   // save edited map into mod folder
   Fwg::Gfx::Bmp::save(provMap, outputPath + "map//provinces.bmp");
   Detail::trackChanges(hoi4Gen, provMap, changes, heightMap, areaNewData);

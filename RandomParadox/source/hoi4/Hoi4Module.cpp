@@ -5,15 +5,17 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
                        const std::string &configSubFolder,
                        const std::string &username, const bool editMode) {
 
-  FastWorldGenerator fwg(configSubFolder);
+  //FastWorldGenerator fwg(configSubFolder);
+  hoi4Gen = Scenario::Hoi4::Generator(configSubFolder);
   // read hoi configs and potentially overwrite settings for fwg
   readHoiConfig(configSubFolder, username, gamesConf);
   if (!editMode) {
     // now run the world generation
-    fwg.generateWorld();
+    hoi4Gen.generateWorld();
   }
 
-  hoi4Gen = {fwg};
+  //hoi4Gen = {fwg};
+  //hoi4Gen.generateWorld();
   readHoiConfig(configSubFolder, username, gamesConf);
   hoi4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
   if (editMode) {
@@ -132,7 +134,7 @@ void Hoi4Module::genHoi() {
     hoi4Gen.generateCountries(numCountries, gamePath);
     hoi4Gen.initializeCountries();
     hoi4Gen.evaluateNeighbours();
-    hoi4Gen.generateWorld();
+    hoi4Gen.generateWorldCivilizations();
     Fwg::Gfx::Bitmap countryMap =
         hoi4Gen.dumpDebugCountrymap(Cfg::Values().mapsPath + "countries.bmp");
 
@@ -158,36 +160,36 @@ void Hoi4Module::genHoi() {
     // generate map files. Format must be converted and colours mapped to hoi4
     // compatible colours
     Gfx::FormatConverter formatConverter(gamePath, "Hoi4");
-    formatConverter.dump8BitTerrain(hoi4Gen.fwg.climateMap,
+    formatConverter.dump8BitTerrain(hoi4Gen.climateMap,
                                     gameModPath + "\\map\\terrain.bmp",
                                     "terrain", cut);
-    formatConverter.dump8BitCities(hoi4Gen.fwg.climateMap,
+    formatConverter.dump8BitCities(hoi4Gen.climateMap,
                                    gameModPath + "\\map\\cities.bmp", "cities",
                                    cut);
     formatConverter.dump8BitRivers(
-        hoi4Gen.fwg.riverMap, gameModPath + "\\map\\rivers", "rivers", cut);
-    formatConverter.dump8BitTrees(hoi4Gen.fwg.climateMap, hoi4Gen.fwg.treeMap,
+        hoi4Gen.riverMap, gameModPath + "\\map\\rivers", "rivers", cut);
+    formatConverter.dump8BitTrees(hoi4Gen.climateMap, hoi4Gen.treeMap,
                                   gameModPath + "\\map\\trees.bmp", "trees",
                                   false);
-    formatConverter.dump8BitHeightmap(hoi4Gen.fwg.heightMap,
+    formatConverter.dump8BitHeightmap(hoi4Gen.heightMap,
                                       gameModPath + "\\map\\heightmap",
                                       "heightmap");
     formatConverter.dumpTerrainColourmap(
-        hoi4Gen.fwg.summerMap, hoi4Gen.fwg.cityMap, gameModPath,
+        hoi4Gen.summerMap, hoi4Gen.cityMap, gameModPath,
         "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds",
         DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
     formatConverter.dumpDDSFiles(
-        hoi4Gen.fwg.riverMap, hoi4Gen.fwg.heightMap,
+        hoi4Gen.riverMap, hoi4Gen.heightMap,
         gameModPath + "\\map\\terrain\\colormap_water_", cut, 8);
     formatConverter.dumpWorldNormal(
-        hoi4Gen.fwg.sobelMap, gameModPath + "\\map\\world_normal.bmp", cut);
+        hoi4Gen.sobelMap, gameModPath + "\\map\\world_normal.bmp", cut);
 
     // just copy over provinces.bmp, already in a compatible format
-    Fwg::Gfx::Bmp::save(hoi4Gen.fwg.provinceMap,
+    Fwg::Gfx::Bmp::save(hoi4Gen.provinceMap,
                         (gameModPath + ("\\map\\provinces.bmp")).c_str());
     using namespace Parsing::Writing;
     compatibilityHistory(gameModPath + "\\history\\countries\\", gamePath,
-                         hoi4Gen.fwg.areas.regions);
+                         hoi4Gen.areas.regions);
     historyCountries(gameModPath + "\\history\\countries\\",
                      hoi4Gen.hoi4Countries);
     historyUnits(gameModPath + "\\history\\units\\", hoi4Gen.hoi4Countries);
@@ -197,22 +199,22 @@ void Hoi4Module::genHoi() {
                     gamePath + "\\common\\countries\\colors.txt",
                     hoi4Gen.hoi4Countries);
     adj(gameModPath + "\\map\\adjacencies.csv");
-    airports(gameModPath + "\\map\\airports.txt", hoi4Gen.fwg.areas.regions);
+    airports(gameModPath + "\\map\\airports.txt", hoi4Gen.areas.regions);
     buildings(gameModPath + "\\map\\buildings.txt", hoi4Gen.hoi4States,
-              hoi4Gen.fwg.heightMap);
+              hoi4Gen.heightMap);
     continents(gameModPath + "\\map\\continents.txt",
-               hoi4Gen.fwg.areas.continents);
+               hoi4Gen.areas.continents);
     definition(gameModPath + "\\map\\definition.csv", hoi4Gen.gameProvinces);
     unitStacks(gameModPath + "\\map\\unitstacks.txt",
-               hoi4Gen.fwg.areas.provinces, hoi4Gen.fwg.heightMap);
+               hoi4Gen.areas.provinces, hoi4Gen.heightMap);
     rocketSites(gameModPath + "\\map\\rocketsites.txt",
-                hoi4Gen.fwg.areas.regions);
+                hoi4Gen.areas.regions);
     strategicRegions(gameModPath + "\\map\\strategicregions",
-                     hoi4Gen.fwg.areas.regions, hoi4Gen.strategicRegions);
+                     hoi4Gen.areas.regions, hoi4Gen.strategicRegions);
     states(gameModPath + "\\history\\states", hoi4Gen.hoi4Countries);
     flags(gameModPath + "\\gfx\\flags\\", hoi4Gen.hoi4Countries);
     weatherPositions(gameModPath + "\\map\\weatherpositions.txt",
-                     hoi4Gen.fwg.areas.regions, hoi4Gen.strategicRegions);
+                     hoi4Gen.areas.regions, hoi4Gen.strategicRegions);
     adjacencyRules(gameModPath + "\\map\\adjacency_rules.txt");
     supply(gameModPath + "\\map\\", hoi4Gen.supplyNodeConnections);
     stateNames(gameModPath + "\\localisation\\english\\",
@@ -263,7 +265,7 @@ void Hoi4Module::mapCountries(bool multiCore, bool stateExport,
 void Hoi4Module::readHoi() {
   // read in game or mod files
   Hoi4::Parsing::Reading::readProvinces(mappingPath, "provinces.bmp",
-                                        hoi4Gen.fwg.areas,
+                                        hoi4Gen.areas,
                                         hoi4Gen.stringToTerrainType);
   // get the provinces into GameProvinces
   hoi4Gen.mapProvinces();

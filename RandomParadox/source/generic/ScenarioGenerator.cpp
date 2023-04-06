@@ -3,7 +3,9 @@ namespace Logging = Fwg::Utils::Logging;
 namespace Scenario {
 using namespace Fwg::Gfx;
 Generator::Generator() {}
-Generator::Generator(Fwg::FastWorldGenerator &fwg) : fwg(fwg) {
+
+Generator::Generator(const std::string &configSubFolder)
+    : FastWorldGenerator(configSubFolder) {
   Gfx::Flag::readColourGroups();
   Gfx::Flag::readFlagTypes();
   Gfx::Flag::readFlagTemplates();
@@ -17,7 +19,7 @@ void Generator::loadRequiredResources(const std::string &gamePath) {
   bitmaps["heightmap"] = ResourceLoading::loadHeightMap(gamePath);
 }
 
-void Generator::generateWorld() {
+void Generator::generateWorldCivilizations() {
   typeMap = mapTerrain();
   generatePopulations();
   generateDevelopment();
@@ -30,7 +32,7 @@ void Generator::generateWorld() {
 
 void Generator::mapContinents() {
   Logging::logLine("Mapping Continents");
-  for (const auto &continent : fwg.areas.continents) {
+  for (const auto &continent : this->areas.continents) {
     // we copy the fwg continents by choice, to leave them untouched
     pdoxContinents.push_back(PdoxContinent(continent));
   }
@@ -38,7 +40,7 @@ void Generator::mapContinents() {
 
 void Generator::mapRegions() {
   Logging::logLine("Mapping Regions");
-  for (auto &region : fwg.areas.regions) {
+  for (auto &region : this->areas.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
               [](const Fwg::Province *a, const Fwg::Province *b) {
                 return (*a < *b);
@@ -55,9 +57,9 @@ void Generator::mapRegions() {
     gameRegions.push_back(gR);
   }
   // check if we have the same amount of gameProvinces as FastWorldGen provinces
-  if (gameProvinces.size() != fwg.areas.provinces.size())
+  if (gameProvinces.size() != this->areas.provinces.size())
     throw(std::exception("Fatal: Lost provinces, terminating"));
-  if (gameRegions.size() != fwg.areas.regions.size())
+  if (gameRegions.size() != this->areas.regions.size())
     throw(std::exception("Fatal: Lost regions, terminating"));
   for (const auto &gameRegion : gameRegions) {
     if (gameRegion->ID > gameRegions.size()) {
@@ -71,7 +73,7 @@ void Generator::mapRegions() {
 
 void Generator::mapProvinces() {
   gameProvinces.clear();
-  for (auto &prov : fwg.areas.provinces) {
+  for (auto &prov : this->areas.provinces) {
     // edit coastal status: lakes are not coasts!
     if (prov->coastal && prov->isLake)
       prov->coastal = false;
@@ -104,8 +106,8 @@ void Generator::mapProvinces() {
 void Generator::generatePopulations() {
   Logging::logLine("Generating Population");
   auto &config = Fwg::Cfg::Values();
-  const auto &popMap = fwg.populationMap;
-  const auto &cityMap = fwg.cityMap;
+  const auto &popMap = this->populationMap;
+  const auto &cityMap = this->cityMap;
   for (auto &c : countries)
     for (auto &gR : c.second.ownedRegions)
       for (auto &gProv : gameRegions[gR]->gameProvinces) {
@@ -217,7 +219,7 @@ void Generator::generateDevelopment() {
   Logging::logLine("Generating State Development");
   auto &config = Fwg::Cfg::Values();
   Bitmap development(config.width, config.height, 24);
-  const auto &cityMap = fwg.cityMap;
+  const auto &cityMap = this->cityMap;
   for (auto &c : countries)
     for (auto &gR : c.second.ownedRegions)
       for (auto &gameProv : gameRegions[gR]->gameProvinces) {
@@ -239,7 +241,7 @@ void Generator::generateDevelopment() {
 }
 
 Fwg::Gfx::Bitmap Generator::mapTerrain() {
-  const auto &climateMap = fwg.climateMap;
+  const auto &climateMap = this->climateMap;
   Bitmap typeMap(climateMap.bInfoHeader.biWidth,
                  climateMap.bInfoHeader.biHeight, 24);
   auto &colours = Fwg::Cfg::Values().colours;
