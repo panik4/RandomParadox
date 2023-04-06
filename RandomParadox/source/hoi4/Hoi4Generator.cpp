@@ -3,7 +3,9 @@ using namespace Fwg;
 using namespace Fwg::Gfx;
 namespace Scenario::Hoi4 {
 Generator::Generator() {}
-Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {
+
+Generator::Generator(const std::string &configSubFolder)
+    : Scenario::Generator(configSubFolder) {
   nData = NameGeneration::prepare("resources\\names");
 }
 
@@ -128,7 +130,7 @@ void Generator::generateStateSpecifics(const int regionAmount) {
       civilianIndustry += (int)hoi4Region->civilianFactories;
       navalIndustry += (int)hoi4Region->dockyards;
       // get potential building positions
-      hoi4Region->calculateBuildingPositions(fwg.heightMap, typeMap);
+      hoi4Region->calculateBuildingPositions(this->heightMap, typeMap);
     }
   }
 }
@@ -219,21 +221,21 @@ void Generator::generateWeather() {
             averageTemperature * Cfg::Values().temperatureRange +
             averageDeviation * Cfg::Values().deviationFactor);
         // light_rain chance: cold and humid -> high, 5
-        strat.weatherMonths[i].push_back((1.0 - averageTemperature) *
+        strat.weatherMonths[i].push_back(0.7 * (1.0 - averageTemperature) *
                                          averagePrecipitation);
         // heavy rain chance: warm and humid -> high, 6
-        strat.weatherMonths[i].push_back(averageTemperature *
+        strat.weatherMonths[i].push_back(0.7 * averageTemperature *
                                          averagePrecipitation);
         // mud chance, 7
         strat.weatherMonths[i].push_back(
-            0.5 * (2 * strat.weatherMonths[i][6] + strat.weatherMonths[i][5]));
+            0.3 * (2.0 * strat.weatherMonths[i][6] + strat.weatherMonths[i][5]));
         // blizzard chance, 8
         strat.weatherMonths[i].push_back(
             std::clamp(0.2 - averageTemperature, 0.0, 0.2) *
             averagePrecipitation);
         // sandstorm chance, 9
         strat.weatherMonths[i].push_back(
-            std::clamp(averageTemperature - 0.8, 0.0, 0.2) *
+            std::clamp((averageTemperature - 0.8) * 0.5 , 0.0, 0.1) *
             std::clamp(0.2 - averagePrecipitation, 0.0, 0.2));
         // snow chance, 10
         strat.weatherMonths[i].push_back(

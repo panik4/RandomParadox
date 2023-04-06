@@ -1,4 +1,5 @@
 #pragma once
+#include "Culture.h"
 #include "FastWorldGenerator.h"
 #include "Flag.h"
 #include "GameProvince.h"
@@ -7,9 +8,8 @@
 #include "PdoxContinent.h"
 #include "PdoxCountry.h"
 #include "RandNum/RandNum.h"
-#include "ResourceLoading.h"
 #include "Religion.h"
-#include "Culture.h"
+#include "ResourceLoading.h"
 #include <map>
 namespace Scenario {
 struct strategicRegion {
@@ -21,8 +21,7 @@ struct strategicRegion {
   std::string name;
 };
 
-
-class Generator {
+class Generator : public Fwg::FastWorldGenerator {
   // containers
   std::vector<Fwg::Region> baseRegions;
   std::map<std::string, Fwg::Gfx::Bitmap> bitmaps;
@@ -32,9 +31,10 @@ protected:
 
 public:
   Generator();
+  Generator(const std::string &configSubFolder);
   // vars - used for every game
   NameGeneration::NameData nData;
-  Fwg::FastWorldGenerator fwg;
+  // Fwg::FastWorldGenerator fwg;
   int numCountries;
   // containers - used for every game
 
@@ -87,7 +87,7 @@ public:
   // generic preparations. However, if desired, there are necessary preparations
   // for every game such as reading in the existing worldmap, states, regions,
   // provinces etc
-  void generateWorld();
+  void generateWorldCivilizations();
   // map base continents to generic paradox compatible game continents
   void mapContinents();
   // map base regions to generic paradox compatible game regions

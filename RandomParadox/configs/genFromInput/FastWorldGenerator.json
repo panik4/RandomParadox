@@ -84,7 +84,8 @@
 			"seaProvinceFactor" : 1,
 			"minProvPerRegion" : 3,
 			"minProvSize" : 10,
-			"provinceDensityByHabitability" : 30
+			"provinceDensityByHabitability" : 30,
+			"maxProvAmount" : 20000
 		},
 		"humidity" : {
 			"latitudeLow" : 0.4,

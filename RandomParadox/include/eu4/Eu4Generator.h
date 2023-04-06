@@ -13,7 +13,7 @@ class Generator : public Scenario::Generator {
 
 public:
   Generator();
-  Generator(Fwg::FastWorldGenerator &fwg);
+  Generator(const std::string &configSubFolder);
   void generateRegions(std::vector<std::shared_ptr<Region>> &regions);
   std::vector<eu4Region> getEu4Regions() { return eu4regions; };
 };

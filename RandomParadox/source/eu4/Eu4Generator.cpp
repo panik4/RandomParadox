@@ -5,7 +5,9 @@ using namespace Fwg::Gfx;
 
 Generator::Generator() {}
 
-Generator::Generator(FastWorldGenerator &fwg) : Scenario::Generator(fwg) {}
+Generator::Generator(const std::string &configSubFolder)
+    : Scenario::Generator(configSubFolder) {}
+
 void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
   Utils::Logging::logLine("Eu4: Dividing world into strategic regions");
   std::set<int> assignedIdeas;
@@ -31,7 +33,8 @@ void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
   }
   Bitmap eu4RegionBmp(Cfg::Values().width, Cfg::Values().height, 24);
   for (auto &strat : eu4regions) {
-    Colour c{static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255),
+    Colour c{
+        static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255),
         static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255),
         static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255)};
     for (auto &area : strat.areaIDs) {

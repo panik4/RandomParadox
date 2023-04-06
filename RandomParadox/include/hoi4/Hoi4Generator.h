@@ -53,7 +53,7 @@ public:
   // member functions
   // constructors/destructors
   Generator();
-  Generator(Fwg::FastWorldGenerator &fwg);
+  Generator(const std::string &configSubFolder);
   ~Generator();
   // initialize states
   void initializeStates();

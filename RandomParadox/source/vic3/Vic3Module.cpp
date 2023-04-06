@@ -5,12 +5,11 @@ namespace Scenario::Vic3 {
 Module::Module(const boost::property_tree::ptree &gamesConf,
                const std::string &configSubFolder,
                const std::string &username) {
-  FastWorldGenerator fwg(configSubFolder);
+  vic3Gen = Vic3::Generator(configSubFolder);
   // read eu4 configs and potentially overwrite settings for fwg
   readVic3Config(configSubFolder, username, gamesConf);
   // now run the world generation
-  fwg.generateWorld();
-  vic3Gen = {fwg};
+  vic3Gen.generateWorld();
   vic3Gen.nData = NameGeneration::prepare("resources\\names", gamePath + "");
 }
 
@@ -135,25 +134,23 @@ void Module::genVic3() {
   Gfx::FormatConverter formatConverter(gamePath, "Vic3");
   if (true) {
 
-    formatConverter.Vic3ColourMaps(
-        vic3Gen.fwg.climateMap, vic3Gen.fwg.treeMap, vic3Gen.fwg.heightMap,
-        vic3Gen.fwg.humidityMap, gameModPath + "\\gfx\\map\\");
-    formatConverter.dump8BitRivers(vic3Gen.fwg.riverMap,
-                                   gameModPath + "\\map_data\\rivers", "rivers",
-                                   cut);
+    formatConverter.Vic3ColourMaps(vic3Gen.climateMap, vic3Gen.treeMap,
+                                   vic3Gen.heightMap, vic3Gen.humidityMap,
+                                   gameModPath + "\\gfx\\map\\");
+    formatConverter.dump8BitRivers(
+        vic3Gen.riverMap, gameModPath + "\\map_data\\rivers", "rivers", cut);
 
     formatConverter.dumpPackedHeightmap(
-        vic3Gen.fwg.heightMap, gameModPath + "\\map_data\\packed_heightmap",
+        vic3Gen.heightMap, gameModPath + "\\map_data\\packed_heightmap",
         "heightmap");
     // also dump uncompressed packed heightmap
-    formatConverter.dump8BitHeightmap(vic3Gen.fwg.heightMap,
-                                      gameModPath + "\\map_data\\heightmap",
-                                      "heightmap");
-    formatConverter.detailIndexMap(vic3Gen.fwg.climateMap,
+    formatConverter.dump8BitHeightmap(
+        vic3Gen.heightMap, gameModPath + "\\map_data\\heightmap", "heightmap");
+    formatConverter.detailIndexMap(vic3Gen.climateMap,
                                    gameModPath + "\\gfx\\map\\");
     using namespace Fwg::Gfx;
     // just copy over provinces.bmp as a .png, already in a compatible format
-    auto scaledMap = Bmp::scale(vic3Gen.fwg.provinceMap, 8192, 3616, false);
+    auto scaledMap = Bmp::scale(vic3Gen.provinceMap, 8192, 3616, false);
     Png::save(scaledMap, gameModPath + "\\map_data\\provinces.png");
 
     // copy indirection_heightmap.png from resources
@@ -168,8 +165,7 @@ void Module::genVic3() {
   defaultMap(gameModPath + "\\map_data\\default.map", vic3Gen.gameProvinces);
   provinceTerrains(gameModPath + "\\map_data\\province_terrains.txt",
                    vic3Gen.gameProvinces);
-  heightmap(gameModPath + "\\map_data\\heightmap.heightmap",
-            vic3Gen.fwg.heightMap);
+  heightmap(gameModPath + "\\map_data\\heightmap.heightmap", vic3Gen.heightMap);
   stateFiles(gameModPath + "\\map_data\\state_regions\\00_regions.txt",
              vic3Gen.gameRegions);
   writeMetadata(gameModPath + "\\.metadata\\metadata.json");

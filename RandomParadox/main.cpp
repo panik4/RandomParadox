@@ -119,39 +119,39 @@ int main() {
   if (!writeMaps) {
     config.writeMaps = false;
   }
-  //try {
-  if (genHoi4Scenario) {
-    // generate hoi4 scenario
-    Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username,
-                                       editMode);
-    if (editMode) {
-      hoi4Mod.mapEdit();
-    } else {
-      hoi4Mod.genHoi();
+  try {
+    if (genHoi4Scenario) {
+      // generate hoi4 scenario
+      Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username,
+                                         editMode);
+      if (editMode) {
+        hoi4Mod.mapEdit();
+      } else {
+        hoi4Mod.genHoi();
+      }
+      dumpInfo("", configSubFolder);
+      system("pause");
     }
-    dumpInfo("", configSubFolder);
+    if (genEu4Scenario) {
+      // create eu4module and have it run the scenario generation
+      Scenario::Eu4::Module eu4(rpdConf, configSubFolder, username);
+      eu4.genEu4();
+      dumpInfo("", configSubFolder);
+      system("pause");
+    }
+    if (genVic3Scenario) {
+      // create vic3module and have it run the scenario generation
+      Scenario::Vic3::Module vic3(rpdConf, configSubFolder, username);
+      vic3.genVic3();
+      dumpInfo("", configSubFolder);
+      system("pause");
+    }
+  } catch (std::exception e) {
+    Utils::Logging::logLine(e.what());
+    dumpInfo(e.what(), configSubFolder);
     system("pause");
+    return -1;
   }
-  if (genEu4Scenario) {
-    // create eu4module and have it run the scenario generation
-    Scenario::Eu4::Module eu4(rpdConf, configSubFolder, username);
-    eu4.genEu4();
-    dumpInfo("", configSubFolder);
-    system("pause");
-  }
-  if (genVic3Scenario) {
-    // create vic3module and have it run the scenario generation
-    Scenario::Vic3::Module vic3(rpdConf, configSubFolder, username);
-    vic3.genVic3();
-    dumpInfo("", configSubFolder);
-    system("pause");
-  }
-  //} catch (std::exception e) {
-  //  Utils::Logging::logLine(e.what());
-  //  dumpInfo(e.what(), configSubFolder);
-  //  system("pause");
-  //  return -1;
-  //}
   Utils::Logging::logLine("Done with the generation");
   return 0;
 }
