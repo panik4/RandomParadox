@@ -4,8 +4,6 @@ namespace Scenario::Hoi4 {
 Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
                        const std::string &configSubFolder,
                        const std::string &username, const bool editMode) {
-
-  //FastWorldGenerator fwg(configSubFolder);
   hoi4Gen = Scenario::Hoi4::Generator(configSubFolder);
   // read hoi configs and potentially overwrite settings for fwg
   readHoiConfig(configSubFolder, username, gamesConf);
@@ -14,8 +12,6 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
     hoi4Gen.generateWorld();
   }
 
-  //hoi4Gen = {fwg};
-  //hoi4Gen.generateWorld();
   readHoiConfig(configSubFolder, username, gamesConf);
   hoi4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
   if (editMode) {
@@ -147,7 +143,7 @@ void Hoi4Module::genHoi() {
     hoi4Gen.evaluateCountries();
     hoi4Gen.generateLogistics(countryMap);
     NationalFocus::buildMaps();
-    hoi4Gen.evaluateCountryGoals();
+    hoi4Gen.generateFocusTrees();
     hoi4Gen.generateCountryUnits();
   } catch (std::exception e) {
     std::string error = "Error while generating the Hoi4 Module.\n";
