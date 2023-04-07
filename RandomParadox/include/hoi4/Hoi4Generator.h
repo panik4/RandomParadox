@@ -5,6 +5,7 @@
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4Region.h"
 #include "hoi4/NationalFocus.h"
+#include "hoi4/Hoi4FocusGen.h"
 #include <array>
 #include <set>
 
@@ -75,23 +76,9 @@ public:
                                 Hoi4Country &country);
   // determine unit composition, templates
   void generateCountryUnits();
-  // build a focus from the chain
-  NationalFocus buildFocus(const std::vector<std::string> chainStep,
-                           const Hoi4Country &source,
-                           const Hoi4Country &target);
-  // make a tree out of all focus chains and single foci
-  void buildFocusTree(Hoi4Country &source);
-  // check if a national focus fulfills requirements
-  bool stepFulfillsRequirements(
-      const std::string stepRequirements,
-      const std::vector<std::set<Hoi4Country>> &stepTargets);
-  // check if a national focus fulfills requirements
-  bool targetFulfillsRequirements(
-      const std::string &targetRequirements, const Hoi4Country &source,
-      const Hoi4Country &target,
-      const std::vector<std::set<std::string>> &levelTargets, const int level);
-  // evaluate the focus chains for each country
-  void evaluateCountryGoals();
+
+  void generateFocusTrees();
+
   // see which countries are in need of unification
   void evaluateBrotherlyWars();
   // see which country needs to see some action
