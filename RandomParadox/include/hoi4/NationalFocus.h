@@ -18,13 +18,14 @@ public:
   enum class FocusType { attack, ally, generic };
   // constructors/destructors
   NationalFocus();
-  NationalFocus(FocusType fType, bool defaultV, const std::string& source,
-                const std::string &dest, const std::vector<int>& date);
+  NationalFocus(FocusType fType, bool defaultV, const std::string &source,
+                const std::string &dest, const std::vector<int> &date);
   ~NationalFocus();
   // member variables
   int ID;
   int stepID;
   int chainID;
+  int level;
   // define FocusType;
   FocusType fType;
   std::string sourceTag;
@@ -53,5 +54,17 @@ public:
   // operators
   friend std::ostream &operator<<(std::ostream &os, const NationalFocus &focus);
   bool operator==(const NationalFocus &right) const { return ID == right.ID; }
+};
+
+struct FocusBranch {
+  int attachedTo = -1;
+  int attachPoint = -1;
+  int ID;
+  std::vector<int> requiredPreceding;
+  std::vector<int> optionalPreceding;
+  std::vector<NationalFocus> foci;
+  const NationalFocus &operator[](int index) const;
+
+  size_t size();
 };
 } // namespace Scenario::Hoi4

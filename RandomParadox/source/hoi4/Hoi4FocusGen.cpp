@@ -52,24 +52,128 @@ NationalFocus FocusGen::buildFocus(const std::vector<std::string> chainStep,
   for (const auto &rewardKey : rewards) {
     nF.completionRewards.push_back(rewardKey);
   }
+  // save the level for later evaluation
+  auto level = std::stoi(chainStep[12]);
+  nF.level = level;
   return nF;
 }
 
+void mergeFocusBranches(Hoi4Country &source) {
+
+  // The National Foci we can attach this chain to
+  std::vector<int> attacheableTo;
+  for (auto &currentBranch : source.focusBranches) {
+    bool requirementsFulfilled = true;
+    // try to find a preceding branch
+    std::cout << currentBranch.ID << std::endl;
+    // std::cout << currentBranch.requiredPreceding.size() << std::endl;
+    for (auto &reqBranch : currentBranch.requiredPreceding) {
+      bool found = false;
+
+      for (int i = 0; i < source.focusBranches.size(); i++) {
+        if (source.focusBranches[i].ID == reqBranch) {
+          found = true;
+          attacheableTo.push_back(i);
+        }
+      }
+      if (!found)
+        requirementsFulfilled = false;
+    }
+    // we couldn't find all of the required branches, invalidate the branch
+    // completely!
+    if (!requirementsFulfilled) {
+      currentBranch.ID = -1;
+      currentBranch.foci.clear();
+      continue;
+    }
+    // gather additional optional branches to attach to, this can also happen if
+    // NO required branch is used
+    // std::cout << currentBranch.optionalPreceding.size() << std::endl;
+    for (auto &optBranch : currentBranch.optionalPreceding) {
+      for (auto i = 0; i < source.focusBranches.size(); i++) {
+        if (source.focusBranches[i].ID == optBranch) {
+          std::cout << "Potential attachment" << std::endl;
+          attacheableTo.push_back(i);
+        }
+      }
+    }
+
+    // now, where do we attach?
+    // nothing to attach to, just go back, this branch will be placed
+    // automatically on the lowest level
+    if (!attacheableTo.size())
+      continue;
+
+    // randomly attach to one of the branches
+    auto &branchToAttachTo =
+        source.focusBranches[Fwg::Utils::selectRandom(attacheableTo)];
+    // take the last focus level of the branch, so we can use these as
+    // predecessors, however, we need to focus on the ORIGINALLY last foci, as
+    // we might've already attached another branch
+    std::vector<NationalFocus> lastFocusLevel;
+    int maxLevel = branchToAttachTo[branchToAttachTo.attachPoint].level;
+    for (int f = branchToAttachTo.size() - 1; f >= 0; f--) {
+      if (branchToAttachTo.foci[f].level == maxLevel) {
+        lastFocusLevel.push_back(branchToAttachTo[f]);
+      }
+    }
+    auto origBranchSize = branchToAttachTo.size();
+    for (auto &focus : currentBranch.foci) {
+      // modify the focus and copy it to other branch, that we attach to
+      // update the ID in the chain, so the order is correct
+      focus.stepID += origBranchSize;
+      focus.level += maxLevel + 1;
+      // now we need to change the predecessor, it must be attached to the
+      // attachpoint focus, therefore we take the ID of the attach point as a
+      // predecessor.
+      if (!focus.precedingFoci.size()) {
+        // we have no predecessor as this is the first focus of the branch
+        // therefore, we set the predecessor to the last of the previous branch
+        // now find additional ones, as the previous focus might be in and "and"
+        // or
+        // "or" relation to other foci. In case of and, we need to set BOTH as
+        // predecessors, with none skippable, in the case of OR we need to set
+        // both as skippable as well
+        for (auto &prevFocus : lastFocusLevel) {
+          focus.precedingFoci.push_back(prevFocus.stepID);
+          // focus.precedingFoci.push_back(prevFocus.stepID);
+        }
+      } else {
+        for (auto &previousPredecessor : focus.precedingFoci) {
+          // +1 due to starting stepID count from 0
+          previousPredecessor += branchToAttachTo.attachPoint + 1;
+        }
+      }
+      branchToAttachTo.foci.push_back(focus);
+    }
+
+    currentBranch.foci.clear();
+    currentBranch.ID = -1;
+  }
+}
+
 void FocusGen::buildFocusTree(Hoi4Country &source) {
+  mergeFocusBranches(source);
   // std::array<std::array<int, 100>, 100> occupiedPositions;
   // start left. Chains go down, new chains go right
   int curX = 1;
   int curY = 1;
   int maxX = 1;
-  if (source.tag == "DIA")
-    Fwg::Utils::Logging::logLine("AA");
-  for (auto &focusChain : source.foci) {
+  // try sorting it, because otherwise the ordering of the tree is weird.
+  // Either reorder by level, or change stepIDs to match the levels. But then,
+  // we also have to reorder the references to stepIDs
+  // TODO: sorting algo
+  std::sort(source.focusBranches.begin(), source.focusBranches.end(),
+            source.focusBranches.begin(), )
+
+  for (auto &focusBranch : source.focusBranches) {
     curY = 1;
     std::set<int> fociIDs;
     std::array<std::set<int>, 100> levels;
     int index = 0;
     int width = 0;
-    for (auto &focus : focusChain) {
+
+    for (auto &focus : focusBranch.foci) {
       // if this focus is already on this level, just continue
       if (levels[index].find(focus.stepID) != levels[index].end())
         continue;
@@ -88,16 +192,16 @@ void FocusGen::buildFocusTree(Hoi4Country &source) {
       }
       // now check for every newly added focus, if that also has and or or foci
       for (auto chainStepID : levels[index]) {
-        if (chainStepID < focusChain.size()) {
-          for (auto stepID : focusChain[chainStepID].xorFoci) {
+        if (chainStepID < focusBranch.size()) {
+          for (auto stepID : focusBranch[chainStepID].xorFoci) {
             levels[index].insert(stepID);
             fociIDs.insert(stepID);
           }
-          for (auto stepID : focusChain[chainStepID].andFoci) {
+          for (auto stepID : focusBranch[chainStepID].andFoci) {
             levels[index].insert(stepID);
             fociIDs.insert(stepID);
           }
-          for (auto stepID : focusChain[chainStepID].orFoci) {
+          for (auto stepID : focusBranch[chainStepID].orFoci) {
             levels[index].insert(stepID);
             fociIDs.insert(stepID);
           }
@@ -116,7 +220,7 @@ void FocusGen::buildFocusTree(Hoi4Country &source) {
     for (const auto &level : levels) {
       curX = baseX;
       for (const auto &entry : level) {
-        focusChain.at(index++).position = {curX += 2, curY};
+        focusBranch.foci.at(index++).position = {curX += 2, curY};
       }
       if (curX > maxX) {
         maxX = curX;
@@ -157,7 +261,7 @@ bool FocusGen::targetFulfillsRequirements(
     const std::string &targetRequirements, const Hoi4Country &source,
     const Hoi4Country &target,
     const std::vector<std::set<std::string>> &levelTargets,
-    const std::vector<std::shared_ptr<Scenario::Region>>& gameRegions,
+    const std::vector<std::shared_ptr<Scenario::Region>> &gameRegions,
     const int level) {
   const auto &cfg = Fwg::Cfg::Values();
   // now check if the country fulfills the target requirements
@@ -240,18 +344,22 @@ bool FocusGen::targetFulfillsRequirements(
 }
 
 void FocusGen::evaluateCountryGoals(
-    std::map<std::string, Hoi4Country>& hoi4Countries,
-    const std::vector<std::shared_ptr<Scenario::Region>>& gameRegions) {
+    std::map<std::string, Hoi4Country> &hoi4Countries,
+    const std::vector<std::shared_ptr<Scenario::Region>> &gameRegions) {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Goals");
   std::vector<int> defDate{1, 1, 1936};
+
   std::vector<std::vector<std::vector<std::string>>> chains;
 
-  chains.push_back(ParserUtils::getLinesByID(
+  /* chains.push_back(ParserUtils::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\major_chains.txt"));
   chains.push_back(ParserUtils::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\regional_chains.txt"));
+  */
   chains.push_back(ParserUtils::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\army_chains.txt"));
+  auto branchRules = (ParserUtils::getLinesByID(
+      "resources\\hoi4\\ai\\national_focus\\chains\\chain_rules.txt"));
   for (auto &sourceCountry : hoi4Countries) {
     const auto &source = hoi4Countries[sourceCountry.first];
     sourceCountry.second.bully = 0;
@@ -261,6 +369,7 @@ void FocusGen::evaluateCountryGoals(
         // evaluate whole chain (chain defined by ID)
         if (!chain.size())
           continue;
+
         // we need to save options for every chain step
         std::vector<std::set<Hoi4Country>> stepTargets;
         stepTargets.resize(100);
@@ -329,7 +438,31 @@ void FocusGen::evaluateCountryGoals(
             }
             chainFoci.push_back(focus);
           }
-          sourceCountry.second.foci.push_back(chainFoci);
+          FocusBranch branch;
+          branch.foci = chainFoci;
+          branch.ID = chainID;
+          // std::cout << branch.ID << std::endl;
+
+          auto branchRule = branchRules[branch.ID];
+          if (branchRule.size()) {
+            const auto branchTokens =
+                ParserUtils::getTokens(branchRule[0], ';');
+            auto branchPredecessors =
+                ParserUtils::getTokens(branchTokens[1], ',');
+            auto optionalPredecessors =
+                ParserUtils::getTokens(branchTokens[2], ',');
+            for (auto &branchPredecessor : branchPredecessors) {
+              branch.requiredPreceding.push_back(std::stoi(branchPredecessor));
+            }
+          }
+
+          if (branch.foci.size()) {
+
+            // used later to determine predecessor if branches are merged
+            branch.attachPoint = branch.foci.back().stepID;
+            sourceCountry.second.focusBranches.push_back(branch);
+          } else {
+          }
         }
       }
     }
@@ -338,4 +471,4 @@ void FocusGen::evaluateCountryGoals(
   }
 }
 
-} // namespace Scenario::Hoi4
+} // namespace Scenario::Hoi4::FocusGen

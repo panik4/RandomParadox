@@ -1,0 +1,4 @@
+#chain ID;predecessors;optional-predecessors
+1;0;;
+1001;1000;;
+1002;1000;;
