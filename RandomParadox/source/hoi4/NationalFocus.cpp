@@ -50,4 +50,7 @@ std::ostream &operator<<(std::ostream &os, const NationalFocus &focus) {
      << "; Preceding Foci: " << focus.precedingFoci.size();
   return os;
 }
+const NationalFocus &FocusBranch::operator[](int index) const { return foci[index]; }
+size_t FocusBranch::size() { return foci.size(); }
+
 } // namespace Scenario::Hoi4

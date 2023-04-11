@@ -660,8 +660,8 @@ void foci(const std::string &path, const hoiMap &countries,
   for (const auto &c : countries) {
     std::string treeContent = baseTree;
     std::string tempContent = "";
-    for (const auto &focusChain : c.second.foci) {
-      for (const auto &countryFocus : focusChain) {
+    for (const auto &focusChain : c.second.focusBranches) {
+      for (const auto &countryFocus : focusChain.foci) {
         tempContent += focusTemplates[(size_t)countryFocus.fType];
 
         // build available from available keys
@@ -724,7 +724,7 @@ void foci(const std::string &path, const hoiMap &countries,
           // then, resolve or, and put them together
           // for every or, check if it has an and
           // if it has an and, resolve it and put in the group
-          for (const auto &foc : focusChain) {
+          for (const auto &foc : focusChain.foci) {
             // we found the prerequisite
             // iterate over and block from prerequisites
             std::vector<int> andBlock;
@@ -786,7 +786,7 @@ void foci(const std::string &path, const hoiMap &countries,
         preString.clear();
         preString += "mutually_exclusive = {";
         for (const auto &exclusive : countryFocus.xorFoci) {
-          for (const auto &foc : focusChain) {
+          for (const auto &foc : focusChain.foci) {
             if (foc.stepID == exclusive) {
               // derive the name of the preceding focus
               std::string preName = Fwg::Utils::varsToString(
