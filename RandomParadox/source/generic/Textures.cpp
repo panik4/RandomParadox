@@ -1,5 +1,6 @@
 #include "generic/Textures.h"
 
+#define HRESULT_E_NOT_SUPPORTED static_cast<HRESULT>(0x80070032L)
 using namespace DirectX;
 namespace Scenario::Gfx::Textures {
 void writeDDS(const int width, const int height,
@@ -11,8 +12,61 @@ void writeDDS(const int width, const int height,
   SaveToDDSFile(image, DDS_FLAGS_NONE, wPath.c_str());
 }
 
-void writeTGA(const int width, const int height,
-              std::vector<uint8_t> pixelData, const std::string &path) {
+void writeMipMapDDS(const int width, const int height,
+                    std::vector<uint8_t> &pixelData, const DXGI_FORMAT format,
+                    const std::string &path, bool compress) {
+  Image image(width, height, format, sizeof(uint8_t) * width * 4,
+              sizeof(uint8_t) * width * height, pixelData.data());
+  ScratchImage uncompressed;
+  uncompressed.InitializeFromImage(image);
+  ScratchImage mipChain;
+  GenerateMipMaps(uncompressed.GetImages(), 1, uncompressed.GetMetadata(),
+                  TEX_FILTER_FLAGS::TEX_FILTER_FORCE_NON_WIC, 0, mipChain);
+  auto wPath{std::wstring(path.begin(), path.end())};
+  if (compress) {
+    ScratchImage compressedImage;
+    auto hr = Compress(mipChain.GetImages(), mipChain.GetImageCount(),
+                       mipChain.GetMetadata(), DXGI_FORMAT_BC1_UNORM,
+                       TEX_COMPRESS_FLAGS::TEX_COMPRESS_DEFAULT,
+                       TEX_THRESHOLD_DEFAULT, compressedImage);
+
+    SaveToDDSFile(compressedImage.GetImages(), compressedImage.GetImageCount(),
+                  compressedImage.GetMetadata(), DDS_FLAGS::DDS_FLAGS_NONE,
+                  wPath.c_str());
+  } else {
+    SaveToDDSFile(mipChain.GetImages(), mipChain.GetImageCount(),
+                  mipChain.GetMetadata(), DDS_FLAGS::DDS_FLAGS_NONE,
+                  wPath.c_str());
+  }
+}
+
+
+
+// void writeMipMapDDS() {
+//
+//   ScratchImage landMask;
+//   TexMetadata *md = new TexMetadata();
+//
+//   LoadFromDDSFile(L"resources//land_mask.dds", DDS_FLAGS::DDS_FLAGS_NONE, md,
+//                   landMask);
+//   auto image = landMask.GetImages();
+//
+//       //HRESULT __cdecl SaveToDDSFile(
+//       //_In_reads_(nimages) const Image *images, _In_ size_t nimages,
+//       //_In_ const TexMetadata &metadata, _In_ DDS_FLAGS flags,
+//       //_In_z_ const wchar_t *szFile) noexcept;
+//   SaveToDDSFile(image, (size_t)14, *md, DDS_FLAGS::DDS_FLAGS_NONE,
+//                 L"resources//land_mask2.dds");
+//   ScratchImage mipChain;
+//   //GenerateMipMaps(image, TEX_FILTER_FLAGS::TEX_FILTER_DEFAULT, 14,
+//   mipChain);
+//
+//   //SaveToDDSFile
+//  // SaveToDDSFile(mipChain.GetImages(), DDS_FLAGS_NONE, wPath.c_str());
+// }
+
+void writeTGA(const int width, const int height, std::vector<uint8_t> pixelData,
+              const std::string &path) {
   auto wPath{std::wstring(path.begin(), path.end())};
   Image image(width, height, DXGI_FORMAT_B8G8R8A8_UNORM,
               sizeof(uint8_t) * width * 4, sizeof(uint8_t) * width * height,
@@ -57,4 +111,4 @@ std::vector<uint8_t> readDDS(const std::string &path) {
   }
   return pixelData;
 }
-} // namespace Gfx::Textures
+} // namespace Scenario::Gfx::Textures

@@ -237,14 +237,16 @@ std::string getBracketBlockContent(const std::string &content,
   return "";
 };
 // delete the bracket block from the bracket on, leaving the key
-void removeBracketBlockFromBracket(std::string &content,
+bool removeBracketBlockFromBracket(std::string &content,
                                    const std::string key) {
   const auto pos = content.find(key);
   const auto openingBracket = content.find("{", pos);
-  if (pos != std::string::npos) {
+  if (pos != std::string::npos && openingBracket != std::string::npos) {
     const auto blockEnd = findClosingBracket(content, pos);
     content.erase(openingBracket, blockEnd - openingBracket + 1);
+    return true;
   }
+  return false;
 };
 // delete the bracket block from the key on, leaving nothing
 bool removeBracketBlockFromKey(std::string &content, const std::string key) {

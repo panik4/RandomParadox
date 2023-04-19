@@ -1,0 +1,15 @@
+{
+	"fastworldgen":
+	{
+		"loadMapsPath": "inputs//mapInputs//",
+		"heightMapName": "equestria_heightmap.bmp"
+	},
+	"vic3":
+	{
+
+	},
+	"scenario":
+	{
+		"numCountries" : 30
+	}
+}

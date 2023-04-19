@@ -4,6 +4,7 @@
 #include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Module.h"
 #include "vic3/Vic3Module.h"
+#include "generic/Textures.h"
 #include <filesystem>
 using namespace Fwg;
 void dumpInfo(const std::string &error, const std::string &configSubFolder) {

@@ -1,0 +1,105 @@
+{
+	"module": 
+	{
+		"debugLevel": 0,
+		"loadMaps" : true,
+		"writeMaps" : true,
+		"seed" : 0
+	},
+	"paths":
+	{
+		"mapsPath": "Maps//",
+		"loadMapsPath" : ""
+	},
+	"loadMaps":
+	{
+		"heightMap" : true,
+		"terrainMap" : false,
+		"humidityMap" : false,
+		"habitabilityMap" : false,
+		"provinceMap" : true,
+		"modifyHeight": true,
+		"heightAdjustments": -75
+	},
+	"edit":
+	{
+		"editor" : "mspaint.exe",
+		"heightmap" : false,
+		"oceanHeatMap" : false,
+		"riverMap" : false,
+		"humidityMap" : false,
+		"habitabilityMap" : false
+	},
+	"cut":
+	{
+		"cut" : false,
+		"minX" : 1300,
+		"maxX" : 2324,
+		"minY" : 0,
+		"maxY" : 1024,
+		"scale" : false,
+		"scaleX" : 1024,
+		"scaleY" : 1024,
+		"keepRatio" : false,
+		"scaleFilterRuns": 5
+	},
+	"map": 
+	{
+        "height" : 1024,
+		"width" : 2816,
+		"landPercentage" : 40,
+		"seaLevel" : 93,
+		"accuracy": 100,
+		"sobelFactor": 2,
+		"rivers" : 
+		{
+			"numRivers" : 100
+		},
+		"trees" : 
+		{
+			"forestDensity" : 0.7,
+			"jungleDensity" : 0.7,
+			"savannahDensity" : 0.6,
+			"grasslandDensity" : 0.7,
+			"tundraDensity" : 0.4
+		},
+		"mountains" :
+		{
+			"peakFactor" : 0.9,
+			"mountainFactor" : 0.5,
+			"hillFactor" : 0.3
+		},
+		"heightmap" : {
+			"complexHeight" : true,
+			"layerAmount" : 0,
+			"overallFrequencyModifier" : 0.7,
+			"removeChunkThreshold": 8,
+			"layers" :
+			{
+			}
+		},
+		"provinces" : {
+			"auto" : true,
+			"landProvinceFactor" : 1,
+			"seaProvinceFactor" : 1,
+			"minProvPerRegion" : 20,
+			"minProvPerSeaRegion" : 1,
+			"minProvSize" : 10,
+			"provinceDensityByHabitability" : 30,
+			"maxProvAmount" : 20000
+		},
+		"humidity" : {
+			"latitudeLow" : 0.4,
+			"latitudeHigh" : 1.8,
+			"riverHumidityFactor" : 0.2,
+			"riverEffectRangeFactor" : 1.0,
+			"baseHumidity": 0.7
+		},
+		"weather":
+		{
+			"baseTemperature": -20,
+			"deviationFactor": 10,
+			"temperatureRange": 60
+		}
+    }
+}

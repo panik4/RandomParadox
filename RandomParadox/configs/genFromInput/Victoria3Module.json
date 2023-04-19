@@ -1,0 +1,15 @@
+{
+	"fastworldgen":
+	{
+		"loadMapsPath": "inputs//Hearts of Iron IV//map//",
+		"heightMapName": "heightmap.bmp"
+	},
+	"vic3":
+	{
+
+	},
+	"scenario":
+	{
+		"numCountries" : 10
+	}
+}

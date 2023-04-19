@@ -1,4 +1,5 @@
 #include "generic/ParserUtils.h"
+#include "generic/ParserUtils.h"
 #include "vic3/Vic3Generator.h"
 #include <generic/GameProvince.h>
 #include <generic/GameRegion.h>
@@ -28,12 +29,18 @@ void countryCommon(const std::string &path,
                    const std::map<std::string, PdoxCountry> &countries,
                    const std::vector<std::shared_ptr<Region>> &regions);
 void popsHistory(const std::string &path,
-                  const std::vector<std::shared_ptr<Region>> &regions);
+                 const std::vector<std::shared_ptr<Region>> &regions);
 void stateHistory(const std::string &path,
                   const std::vector<std::shared_ptr<Region>> &regions);
 void countryHistory(const std::string &path,
-                   const std::map<std::string, PdoxCountry> &countries);
+                    const std::map<std::string, PdoxCountry> &countries);
 
+void splineNetwork(const std::string &path);
+void compatRegions(const std::string &inFolder, const std::string &outPath,
+                   const std::vector<std::shared_ptr<Region>> &regions);
+
+void compatStratRegions(const std::string &inFolder, const std::string &outPath);
+void compatReleasable(const std::string &inFolder, const std::string &outPath);
 } // namespace Writing
 
 namespace Reading {}

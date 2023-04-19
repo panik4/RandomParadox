@@ -233,6 +233,7 @@
 			"landProvinceFactor" : 1,
 			"seaProvinceFactor" : 1,
 			"minProvPerRegion" : 8,
+			"minProvPerSeaRegion" : 4,
 			"minProvSize" : 10,
 			"provinceDensityByHabitability" : 1.0,
 			"maxProvAmount" : 20000
