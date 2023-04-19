@@ -1,0 +1,14 @@
+{
+	"fastworldgen":
+	{
+		"loadMapsPath": "inputs//mapInputs//",
+		"heightMapName": "heightmap_small_normalDimensions.bmp"
+	},
+	"eu4":
+	{
+	},
+	"scenario":
+	{
+		"numCountries" : 50
+	}
+}

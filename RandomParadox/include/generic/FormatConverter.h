@@ -24,36 +24,41 @@ public:
   ~FormatConverter();
   // member functions
   Fwg::Gfx::Bitmap cutBaseMap(const std::string &path,
-                                  const double factor = 1.0,
-                                  const int bit = 8) const;
-  void dump8BitHeightmap(const Fwg::Gfx::Bitmap &heightMap, const std::string &path,
+                              const double factor = 1.0,
+                              const int bit = 8) const;
+  void dump8BitHeightmap(Fwg::Gfx::Bitmap &heightMap, const std::string &path,
                          const std::string &colourMapKey) const;
+  void writeTile(int xTiles, int yTiles,
+                 const Fwg::Gfx::Bitmap &basePackedHeightMap,
+                 Fwg::Gfx::Bitmap &packedHeightMap, int mapX, int mapY,
+                 int packedX) const;
   void dumpPackedHeightmap(const Fwg::Gfx::Bitmap &heightMap,
-                         const std::string &path,
-                         const std::string &colourMapKey) const;
-  void dump8BitTerrain(const Fwg::Gfx::Bitmap &climateIn, const std::string &path,
-                       const std::string &colourMapKey,
+                           const std::string &path,
+                           const std::string &colourMapKey) const;
+  void dump8BitTerrain(const Fwg::Gfx::Bitmap &climateIn,
+                       const std::string &path, const std::string &colourMapKey,
                        const bool cut = false) const;
-  void dump8BitCities(const Fwg::Gfx::Bitmap &climateIn, const std::string &path,
-                      const std::string &colourMapKey,
+  void dump8BitCities(const Fwg::Gfx::Bitmap &climateIn,
+                      const std::string &path, const std::string &colourMapKey,
                       const bool cut = false) const;
   void dump8BitRivers(const Fwg::Gfx::Bitmap &riversIn, const std::string &path,
                       const std::string &colourMapKey,
                       const bool cut = false) const;
-  void dump8BitTrees(const Fwg::Gfx::Bitmap &climate, const Fwg::Gfx::Bitmap &treesIn,
-                     const std::string &path, const std::string &colourMapKey,
+  void dump8BitTrees(const Fwg::Gfx::Bitmap &climate,
+                     const Fwg::Gfx::Bitmap &treesIn, const std::string &path,
+                     const std::string &colourMapKey,
                      const bool cut = false) const;
-  void dumpDDSFiles(const Fwg::Gfx::Bitmap &riverMap, const Fwg::Gfx::Bitmap &heightMap,
-                    const std::string &path, const bool cut = false,
-                    const int maxFactor = 2) const;
-  void dumpTerrainColourmap(const Fwg::Gfx::Bitmap &climateMap, const Fwg::Gfx::Bitmap &cityMap,
+  void dumpDDSFiles(const Fwg::Gfx::Bitmap &riverMap,
+                    const Fwg::Gfx::Bitmap &heightMap, const std::string &path,
+                    const bool cut = false, const int maxFactor = 2) const;
+  void dumpTerrainColourmap(const Fwg::Gfx::Bitmap &climateMap,
+                            const Fwg::Gfx::Bitmap &cityMap,
                             const std::string &modPath,
                             const std::string &mapName,
-                            const DXGI_FORMAT format,
-                            int scaleFactor,
+                            const DXGI_FORMAT format, int scaleFactor,
                             const bool cut = false) const;
-  void dumpWorldNormal(const Fwg::Gfx::Bitmap &sobelMap, const std::string &path,
-                       const bool cut) const;
+  void dumpWorldNormal(const Fwg::Gfx::Bitmap &sobelMap,
+                       const std::string &path, const bool cut) const;
 
   void Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
                       const Fwg::Gfx::Bitmap &treesIn,
@@ -62,6 +67,5 @@ public:
                       const std::string &path);
   void detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
                       const std::string &path);
-
 };
 } // namespace Scenario::Gfx

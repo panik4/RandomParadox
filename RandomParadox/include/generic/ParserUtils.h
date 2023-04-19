@@ -49,7 +49,7 @@ std::string getBracketBlock(const std::string &content, const std::string key);
 std::string getBracketBlockContent(const std::string &content,
                                    const std::string key);
 // delete the bracket block from the bracket on, leaving the key
-void removeBracketBlockFromBracket(std::string &content, const std::string key);
+bool removeBracketBlockFromBracket(std::string &content, const std::string key);
 // delete the bracket block from the key on, leaving nothing
 bool removeBracketBlockFromKey(std::string &content, const std::string key);
 

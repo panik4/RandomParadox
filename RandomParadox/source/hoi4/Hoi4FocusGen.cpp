@@ -65,8 +65,6 @@ void mergeFocusBranches(Hoi4Country &source) {
   for (auto &currentBranch : source.focusBranches) {
     bool requirementsFulfilled = true;
     // try to find a preceding branch
-    std::cout << currentBranch.ID << std::endl;
-    // std::cout << currentBranch.requiredPreceding.size() << std::endl;
     for (auto &reqBranch : currentBranch.requiredPreceding) {
       bool found = false;
 
@@ -88,11 +86,9 @@ void mergeFocusBranches(Hoi4Country &source) {
     }
     // gather additional optional branches to attach to, this can also happen if
     // NO required branch is used
-    // std::cout << currentBranch.optionalPreceding.size() << std::endl;
     for (auto &optBranch : currentBranch.optionalPreceding) {
       for (auto i = 0; i < source.focusBranches.size(); i++) {
         if (source.focusBranches[i].ID == optBranch) {
-          std::cout << "Potential attachment" << std::endl;
           attacheableTo.push_back(i);
         }
       }
@@ -163,8 +159,8 @@ void FocusGen::buildFocusTree(Hoi4Country &source) {
   // Either reorder by level, or change stepIDs to match the levels. But then,
   // we also have to reorder the references to stepIDs
   // TODO: sorting algo
-  std::sort(source.focusBranches.begin(), source.focusBranches.end(),
-            source.focusBranches.begin(), )
+  //std::sort(source.focusBranches.begin(), source.focusBranches.end(),
+  //          source.focusBranches.begin(), )
 
   for (auto &focusBranch : source.focusBranches) {
     curY = 1;
@@ -351,11 +347,11 @@ void FocusGen::evaluateCountryGoals(
 
   std::vector<std::vector<std::vector<std::string>>> chains;
 
-  /* chains.push_back(ParserUtils::getLinesByID(
+  chains.push_back(ParserUtils::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\major_chains.txt"));
+  
   chains.push_back(ParserUtils::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\regional_chains.txt"));
-  */
   chains.push_back(ParserUtils::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\army_chains.txt"));
   auto branchRules = (ParserUtils::getLinesByID(
@@ -441,7 +437,6 @@ void FocusGen::evaluateCountryGoals(
           FocusBranch branch;
           branch.foci = chainFoci;
           branch.ID = chainID;
-          // std::cout << branch.ID << std::endl;
 
           auto branchRule = branchRules[branch.ID];
           if (branchRule.size()) {
