@@ -159,14 +159,13 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
                                         const std::string &colourMapKey) const {
   Utils::Logging::logLine("FormatConverter::Copying heightmap to ", path);
   if (gameTag == "Vic3") {
-
     // need to scale to default vic3 map sizes, due to their compression
     int width = heightMap.bInfoHeader.biWidth;
     int height = heightMap.bInfoHeader.biHeight;
     std::vector<uint8_t> pixels(width * height * 4, 0);
     for (auto h = 0; h < height; h++) {
       for (auto w = 0; w < width; w++) {
-        auto colourmapIndex = 1 * h * width + 1 * w;
+        auto colourmapIndex = h * width + w;
         const auto &c = heightMap[colourmapIndex];
 
         auto imageIndex = 4 * (h * width + w);
@@ -191,7 +190,7 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
                                          scaledImg.GetPixels()[i + 2]));
     }
     // save the bmp as a png
-    Png::save(scaledMap, path + ".png");
+    Png::save(scaledMap, path + ".png", false);
     // overwrite the current heightmap with the scaled one, for later packing
     heightMap = scaledMap;
   } else {
@@ -202,68 +201,6 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
       outputMap.bit8Buffer[i] = heightMap[i].getRed();
 
     Bmp::save(outputMap, path + ".bmp");
-  }
-}
-
-void FormatConverter::writeTile(int xTiles, int yTiles,
-                                const Fwg::Gfx::Bitmap &basePackedHeightMap,
-                                Fwg::Gfx::Bitmap &packedHeightMap, int mapX,
-                                int mapY, int packedX) const {
-  for (auto tilex = 0; tilex < xTiles; tilex++) {
-    for (auto tiley = 0; tiley < yTiles; tiley++) {
-      Fwg::Gfx::Bitmap tileMap(
-          64, 64, 24,
-          std::move(Fwg::Utils::cutBuffer(basePackedHeightMap.imageData, mapX, mapY,
-                                tilex * 64, (tilex + 1) * 64, tiley * 64,
-                                (tiley + 1) * 64, 1)));
-      auto tileMap2 = Bmp::scale(tileMap, 65, 65, false);
-
-      for (auto x = 0; x < tileMap2.size(); x++) {
-        auto baseIndex =
-            tilex * 65 +
-            ((((tiley * 2 + tilex / 128) * 65) + x / 65) - tilex / 128) *
-                packedX;
-        try {
-          packedHeightMap.imageData[baseIndex + x % 65] = tileMap2[x];
-        } catch (std::exception e) {
-          // std::cout << newIndex << std::endl;
-        }
-      }
-    }
-  }
-}
-
-void FormatConverter::dumpPackedHeightmap(
-    const Bitmap &heightMap, const std::string &path,
-    const std::string &colourMapKey) const {
-  Utils::Logging::logLine("FormatConverter::Packing heightmap to ", path);
-  // int mapX = 16384;
-  // int mapY = 7232;
-  // int packedX = 8320;
-  // int packedY = 14695;
-  // int xTiles = 256;
-  // int yTiles = 113;
-  int mapX = 16384;
-  int mapY = 7232;
-  int packedX = 8320;
-  int packedY = 14695;
-  int xTiles = 256;
-  int yTiles = 113;
-  if (gameTag == "Vic3") {
-    auto basePackedHeightMap = heightMap;
-    Fwg::Gfx::Bitmap packedHeightMap(packedX, packedY, 24);
-    // TODO: Threading
-    writeTile(xTiles, yTiles, basePackedHeightMap, packedHeightMap, mapX, mapY,
-              packedX);
-    Png::save(packedHeightMap, path + ".png");
-  } else {
-
-    Bitmap packedHeightMap(Cfg::Values().width, Cfg::Values().height, 8);
-    packedHeightMap.colourtable = colourTables.at(colourMapKey + gameTag);
-    // now map from 24 bit climate map
-    for (int i = 0; i < Cfg::Values().bitmapSize; i++) {
-      packedHeightMap.bit8Buffer[i] = heightMap[i].getRed();
-    }
   }
 }
 
@@ -487,6 +424,58 @@ void FormatConverter::dumpWorldNormal(const Bitmap &sobelMap,
   Bmp::save(normalMap, (path).c_str());
 }
 
+void FormatConverter::writeTile(int xTiles, int yTiles,
+                                const Fwg::Gfx::Bitmap &basePackedHeightMap,
+                                Fwg::Gfx::Bitmap &packedHeightMap, int mapX,
+                                int mapY, int packedX) const {
+  for (auto tilex = 0; tilex < xTiles; tilex++) {
+    for (auto tiley = 0; tiley < yTiles; tiley++) {
+      Fwg::Gfx::Bitmap tileMap(
+          64, 64, 24,
+          std::move(Fwg::Utils::cutBuffer(basePackedHeightMap.imageData, mapX,
+                                          mapY, tilex * 64, (tilex + 1) * 64,
+                                          tiley * 64, (tiley + 1) * 64, 1)));
+      auto tileMap2 = Bmp::scale(tileMap, 65, 65, false);
+
+      for (auto x = 0; x < tileMap2.size(); x++) {
+        auto baseIndex =
+            tilex * 65 +
+            ((((tiley * 2 + tilex / 128) * 65) + x / 65) - tilex / 128) *
+                packedX;
+        packedHeightMap.imageData[baseIndex + x % 65] = tileMap2[x];
+      }
+    }
+  }
+}
+
+void FormatConverter::dumpPackedHeightmap(
+    const Bitmap &heightMap, const std::string &path,
+    const std::string &colourMapKey) const {
+  Utils::Logging::logLine("FormatConverter::Packing heightmap to ", path);
+  int mapX = 16384;
+  int mapY = 7232;
+  int packedX = 8320;
+  int packedY = 14695;
+  int xTiles = 256;
+  int yTiles = 113;
+  if (gameTag == "Vic3") {
+    auto basePackedHeightMap = heightMap;
+    Fwg::Gfx::Bitmap packedHeightMap(packedX, packedY, 24);
+    // TODO: Threading
+    writeTile(xTiles, yTiles, basePackedHeightMap, packedHeightMap, mapX, mapY,
+              packedX);
+    Png::save(packedHeightMap, path + ".png");
+  } else {
+
+    Bitmap packedHeightMap(Cfg::Values().width, Cfg::Values().height, 8);
+    packedHeightMap.colourtable = colourTables.at(colourMapKey + gameTag);
+    // now map from 24 bit climate map
+    for (int i = 0; i < Cfg::Values().bitmapSize; i++) {
+      packedHeightMap.bit8Buffer[i] = heightMap[i].getRed();
+    }
+  }
+}
+
 void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
                                      const Fwg::Gfx::Bitmap &treesIn,
                                      const Fwg::Gfx::Bitmap &heightMap,
@@ -648,12 +637,17 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
                            path + "\\textures\\windmap_tree.dds", true);
 }
 
+void FormatConverter::dynamicMasks(const std::string &path) {
+// TODO: exclusion_mask.dds
+    //
+}
+
+
+
 void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
                                      const std::string &path) {
 
   auto copy = Fwg::Gfx::Bmp::scale(climateMap, 8192, 3616, false);
-
-  auto &config = Cfg::Values();
   const auto &height = copy.bInfoHeader.biHeight;
   const auto &width = copy.bInfoHeader.biWidth;
   int factor = 1;

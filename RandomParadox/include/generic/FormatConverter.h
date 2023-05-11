@@ -28,13 +28,6 @@ public:
                               const int bit = 8) const;
   void dump8BitHeightmap(Fwg::Gfx::Bitmap &heightMap, const std::string &path,
                          const std::string &colourMapKey) const;
-  void writeTile(int xTiles, int yTiles,
-                 const Fwg::Gfx::Bitmap &basePackedHeightMap,
-                 Fwg::Gfx::Bitmap &packedHeightMap, int mapX, int mapY,
-                 int packedX) const;
-  void dumpPackedHeightmap(const Fwg::Gfx::Bitmap &heightMap,
-                           const std::string &path,
-                           const std::string &colourMapKey) const;
   void dump8BitTerrain(const Fwg::Gfx::Bitmap &climateIn,
                        const std::string &path, const std::string &colourMapKey,
                        const bool cut = false) const;
@@ -60,11 +53,19 @@ public:
   void dumpWorldNormal(const Fwg::Gfx::Bitmap &sobelMap,
                        const std::string &path, const bool cut) const;
 
+  void writeTile(int xTiles, int yTiles,
+                 const Fwg::Gfx::Bitmap &basePackedHeightMap,
+                 Fwg::Gfx::Bitmap &packedHeightMap, int mapX, int mapY,
+                 int packedX) const;
+  void dumpPackedHeightmap(const Fwg::Gfx::Bitmap &heightMap,
+                           const std::string &path,
+                           const std::string &colourMapKey) const;
   void Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
                       const Fwg::Gfx::Bitmap &treesIn,
                       const Fwg::Gfx::Bitmap &heightMap,
                       const Fwg::Gfx::Bitmap &humidityMap,
                       const std::string &path);
+  void dynamicMasks(const std::string &path);
   void detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
                       const std::string &path);
 };

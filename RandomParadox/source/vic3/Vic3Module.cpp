@@ -178,6 +178,12 @@ void Module::genVic3() {
       formatConverter.dump8BitRivers(
           vic3Gen.riverMap, gameModPath + "\\map_data\\rivers", "rivers", cut);
 
+      // overwrite the heightmap with the input heightmap, to conserve detail,
+      // which would otherwise be lost if the scaled down version had be used
+      if (vic3Gen.originalHeightMap.size() > 0) {
+        vic3Gen.heightMap = vic3Gen.originalHeightMap;
+      }
+
       // also dump uncompressed packed heightmap
       formatConverter.dump8BitHeightmap(vic3Gen.heightMap,
                                         gameModPath + "\\map_data\\heightmap",
