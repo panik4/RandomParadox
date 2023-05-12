@@ -97,7 +97,7 @@ void Module::readVic3Config(const std::string &configSubFolder,
   config.seaLevel = 18;
   config.numRivers = 0;
   config.seaProvFactor *= 0.02;
-  config.landProvFactor *= 0.5;
+  config.landProvFactor *= 1.0;
   config.loadMapsPath = vic3Conf.get<std::string>("fastworldgen.loadMapsPath");
   config.heightmapIn = config.loadMapsPath +
                        vic3Conf.get<std::string>("fastworldgen.heightMapName");
