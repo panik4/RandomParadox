@@ -1,25 +1,13 @@
 #pragma once
 #include "FastWorldGenerator.h"
+#include "utils/Parsing.h"
 #include <filesystem>
 #include <string>
 
-namespace Scenario::ParserUtils {
-
-void writeFile(const std::string &path, std::string content, bool utf8 = false);
-std::string readFile(std::string path);
-
-std::vector<std::string> readFilesInDirectory(const std::string &path);
-std::vector<std::string> getLines(const std::string &path);
-std::vector<std::vector<std::string>> getLinesByID(const std::string &path);
-std::string csvFormat(const std::vector<std::string> arguments, char delimiter,
-                      bool trailing);
-std::string getValue(const std::string &content, const std::string &key);
+namespace Fwg::Parsing::Scenario {
 
 void removeCharacter(std::string &content, char character);
 void removeSpecials(std::string &content);
-
-std::vector<std::string> getTokens(const std::string &content,
-                                   const char delimiter);
 
 std::vector<int> getNumbers(const std::string &content, const char delimiter,
                             const std::set<int> tokensToConvert = {});
@@ -56,4 +44,4 @@ bool removeBracketBlockFromKey(std::string &content, const std::string key);
 void removeSurroundingBracketBlock(std::string &content, const std::string key);
 std::string removeSurroundingBracketBlockFromLineBreak(std::string &content,
                                                        const std::string key);
-}; // namespace Scenario::ParserUtils
+}; // namespace Fwg::Parsing::Scenario

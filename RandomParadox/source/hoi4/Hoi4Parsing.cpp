@@ -2,7 +2,7 @@
 #include "hoi4/NationalFocus.h"
 using namespace Fwg;
 namespace Logging = Fwg::Utils::Logging;
-namespace pU = Scenario::ParserUtils;
+namespace pU = Fwg::Parsing;
 namespace Scenario::Hoi4::Parsing {
 namespace Writing {
 void adj(const std::string &path) {
@@ -226,7 +226,8 @@ void strategicRegions(const std::string &path,
   Logging::logLine("HOI4 Parser: Map: Drawing Strategic Regions");
   auto templateContent =
       pU::readFile("resources\\hoi4\\map\\strategic_region.txt");
-  const auto templateWeather = pU::getBracketBlock(templateContent, "period");
+  const auto templateWeather =
+      pU::Scenario::getBracketBlock(templateContent, "period");
   for (auto i = 0; i < strategicRegions.size(); i++) {
     std::string provString{""};
     for (const auto &region : strategicRegions[i].gameRegionIDs) {
@@ -236,18 +237,19 @@ void strategicRegions(const std::string &path,
       }
     }
     auto content{templateContent};
-    pU::replaceOccurences(content, "templateID", std::to_string(i + 1));
-    pU::replaceOccurences(content, "template_provinces", provString);
+    pU::Scenario::replaceOccurences(content, "templateID",
+                                    std::to_string(i + 1));
+    pU::Scenario::replaceOccurences(content, "template_provinces", provString);
 
     // weather
     std::string weather{""};
     for (auto mo = 0; mo < 12; mo++) {
       auto month{templateWeather};
-      pU::replaceOccurences(month, "templateDateRange",
-                            "0." + std::to_string(mo) + " " +
-                                std::to_string(daysInMonth[mo]) + "." +
-                                std::to_string(mo));
-      pU::replaceOccurences(
+      pU::Scenario::replaceOccurences(month, "templateDateRange",
+                                      "0." + std::to_string(mo) + " " +
+                                          std::to_string(daysInMonth[mo]) +
+                                          "." + std::to_string(mo));
+      pU::Scenario::replaceOccurences(
           month, "templateTemperatureRange",
           std::to_string(round((float)strategicRegions[i].weatherMonths[mo][3]))
                   .substr(0, 5) +
@@ -255,35 +257,35 @@ void strategicRegions(const std::string &path,
               std::to_string(
                   round((float)strategicRegions[i].weatherMonths[mo][4]))
                   .substr(0, 5));
-      pU::replaceOccurences(
+      pU::Scenario::replaceOccurences(
           month, "templateRainLightChance",
           std::to_string((float)strategicRegions[i].weatherMonths[mo][5]));
-      pU::replaceOccurences(
+      pU::Scenario::replaceOccurences(
           month, "templateRainHeavyChance",
           std::to_string((float)strategicRegions[i].weatherMonths[mo][6]));
-      pU::replaceOccurences(
+      pU::Scenario::replaceOccurences(
           month, "templateMud",
           std::to_string((float)strategicRegions[i].weatherMonths[mo][7]));
-      pU::replaceOccurences(
+      pU::Scenario::replaceOccurences(
           month, "templateBlizzard",
           std::to_string((float)strategicRegions[i].weatherMonths[mo][8]));
-      pU::replaceOccurences(
+      pU::Scenario::replaceOccurences(
           month, "templateSandStorm",
           std::to_string((float)strategicRegions[i].weatherMonths[mo][9]));
-      pU::replaceOccurences(
+      pU::Scenario::replaceOccurences(
           month, "templateSnow",
           std::to_string((float)strategicRegions[i].weatherMonths[mo][10]));
-      pU::replaceOccurences(
+      pU::Scenario::replaceOccurences(
           month, "templateNoPhenomenon",
           std::to_string((float)strategicRegions[i].weatherMonths[mo][11]));
-      // pU::replaceOccurences(month, "templateDateRange", "0." +
+      // pU::Scenario::replaceOccurences(month, "templateDateRange", "0." +
       // std::to_string(i) + " 30." + std::to_string(i));
-      // pU::replaceOccurences(month, "templateDateRange", "0." +
+      // pU::Scenario::replaceOccurences(month, "templateDateRange", "0." +
       // std::to_string(i) + " 30." + std::to_string(i));
       weather.append(month + "\n\t\t");
     }
-    pU::replaceOccurences(content, templateWeather, weather);
-    pU::replaceOccurences(content, "template_provinces", provString);
+    pU::Scenario::replaceOccurences(content, templateWeather, weather);
+    pU::Scenario::replaceOccurences(content, "template_provinces", provString);
     pU::writeFile(Fwg::Utils::varsToString(path, "\\", (i + 1), ".txt"),
                   content);
   }
@@ -311,8 +313,9 @@ void supply(const std::string &path,
   for (const auto &node : nodes) {
     supplyNodes.append("1 " + std::to_string(node + 1) + "\n");
   }
-  ParserUtils::writeFile(path + "supply_nodes.txt", supplyNodes);
-  ParserUtils::writeFile(path + "railways.txt", railways);
+
+  pU::writeFile(path + "supply_nodes.txt", supplyNodes);
+  pU::writeFile(path + "railways.txt", railways);
 }
 
 void states(const std::string &path, const hoiMap &countries) {
@@ -331,23 +334,28 @@ void states(const std::string &path, const hoiMap &countries) {
         provString.append(" ");
       }
       auto content{templateContent};
-      pU::replaceOccurences(content, "templateID",
-                            std::to_string(region->ID + 1));
-      pU::replaceOccurences(content, "template_provinces", provString);
-      pU::replaceOccurences(content, "templateOwner", country.first);
-      pU::replaceOccurences(
+      pU::Scenario::replaceOccurences(content, "templateID",
+                                      std::to_string(region->ID + 1));
+      pU::Scenario::replaceOccurences(content, "template_provinces",
+                                      provString);
+      pU::Scenario::replaceOccurences(content, "templateOwner", country.first);
+      pU::Scenario::replaceOccurences(
           content, "templateInfrastructure",
           std::to_string(1 + (int)(region->development * 4.0)));
-      pU::replaceOccurences(content, "templateAirbase", std::to_string(0));
-      pU::replaceOccurences(content, "templateCivilianFactory",
-                            std::to_string((int)region->civilianFactories));
-      pU::replaceOccurences(content, "templateArmsFactory",
-                            std::to_string((int)region->armsFactories));
+      pU::Scenario::replaceOccurences(content, "templateAirbase",
+                                      std::to_string(0));
+      pU::Scenario::replaceOccurences(
+          content, "templateCivilianFactory",
+          std::to_string((int)region->civilianFactories));
+      pU::Scenario::replaceOccurences(
+          content, "templateArmsFactory",
+          std::to_string((int)region->armsFactories));
 
-      pU::replaceOccurences(content, "templatePopulation",
-                            std::to_string((int)region->population));
-      pU::replaceOccurences(content, "templateStateCategory",
-                            stateCategories[(int)region->stateCategory]);
+      pU::Scenario::replaceOccurences(content, "templatePopulation",
+                                      std::to_string((int)region->population));
+      pU::Scenario::replaceOccurences(
+          content, "templateStateCategory",
+          stateCategories[(int)region->stateCategory]);
       std::string navalBaseContent = "";
       for (const auto &gameProv : region->gameProvinces) {
         if (gameProv->attributeDoubles.at("naval_bases") > 0) {
@@ -358,17 +366,19 @@ void states(const std::string &path, const hoiMap &countries) {
               "\n\t\t\t}\n\t\t\t";
         }
       }
-      pU::replaceOccurences(content, "templateNavalBases", navalBaseContent);
+      pU::Scenario::replaceOccurences(content, "templateNavalBases",
+                                      navalBaseContent);
       if (region->dockyards > 0)
-        pU::replaceOccurences(content, "templateDockyards",
-                              std::to_string((int)region->dockyards));
+        pU::Scenario::replaceOccurences(content, "templateDockyards",
+                                        std::to_string((int)region->dockyards));
       else
-        pU::replaceOccurences(content, "dockyard = templateDockyards", "");
+        pU::Scenario::replaceOccurences(content, "dockyard = templateDockyards",
+                                        "");
 
       // resources
       for (const auto &resource : std::vector<std::string>{
                "aluminium", "chromium", "oil", "rubber", "steel", "tungsten"}) {
-        pU::replaceOccurences(
+        pU::Scenario::replaceOccurences(
             content, "template" + resource,
             std::to_string((int)region->resources.at(resource)));
       }
@@ -403,21 +413,22 @@ void historyCountries(const std::string &path, const hoiMap &countries) {
     if (country.second.hoi4Regions.size())
       capitalID =
           (Fwg::Utils::selectRandom(country.second.hoi4Regions))->ID + 1;
-    pU::replaceOccurences(countryText, "templateCapital",
-                          std::to_string(capitalID));
-    pU::replaceOccurences(countryText, "templateTag", country.first);
-    pU::replaceOccurences(countryText, "templateParty",
-                          country.second.rulingParty);
+    pU::Scenario::replaceOccurences(countryText, "templateCapital",
+                                    std::to_string(capitalID));
+    pU::Scenario::replaceOccurences(countryText, "templateTag", country.first);
+    pU::Scenario::replaceOccurences(countryText, "templateParty",
+                                    country.second.rulingParty);
     std::string electAllowed = country.second.allowElections ? "yes" : "no";
-    pU::replaceOccurences(countryText, "templateAllowElections", electAllowed);
-    pU::replaceOccurences(countryText, "templateFasPop",
-                          std::to_string(country.second.parties[0]));
-    pU::replaceOccurences(countryText, "templateDemPop",
-                          std::to_string(country.second.parties[1]));
-    pU::replaceOccurences(countryText, "templateComPop",
-                          std::to_string(country.second.parties[2]));
-    pU::replaceOccurences(countryText, "templateNeuPop",
-                          std::to_string(country.second.parties[3]));
+    pU::Scenario::replaceOccurences(countryText, "templateAllowElections",
+                                    electAllowed);
+    pU::Scenario::replaceOccurences(countryText, "templateFasPop",
+                                    std::to_string(country.second.parties[0]));
+    pU::Scenario::replaceOccurences(countryText, "templateDemPop",
+                                    std::to_string(country.second.parties[1]));
+    pU::Scenario::replaceOccurences(countryText, "templateComPop",
+                                    std::to_string(country.second.parties[2]));
+    pU::Scenario::replaceOccurences(countryText, "templateNeuPop",
+                                    std::to_string(country.second.parties[3]));
     pU::writeFile(tempPath, countryText);
   }
 }
@@ -430,9 +441,9 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
       pU::readFile("resources\\hoi4\\history\\unit_block.txt");
 
   const auto unitTemplateFile =
-      ParserUtils::readFile("resources\\hoi4\\history\\divisionTemplates.txt");
+      pU::readFile("resources\\hoi4\\history\\divisionTemplates.txt");
   // now tokenize by : character to get single
-  const auto unitTemplates = ParserUtils::getTokens(unitTemplateFile, ':');
+  const auto unitTemplates = pU::getTokens(unitTemplateFile, ':');
   // auto IDMapFile =
   // pU::getLines("resources\\hoi4\\history\\divisionIDMapper.txt");
   std::map<int, std::string> IDMap;
@@ -451,16 +462,17 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
       divisionTemplates.append(unitTemplates[ID]);
       // we need to buffer the names of the templates for use in later unit
       // generationm
-      auto requirements = ParserUtils::getBracketBlockContent(unitTemplates[ID],
-                                                              "requirements");
-      auto value =
-          ParserUtils::getBracketBlockContent(requirements, "templateName");
+      auto requirements = Fwg::Parsing::Scenario::getBracketBlockContent(
+          unitTemplates[ID], "requirements");
+      auto value = Fwg::Parsing::Scenario::getBracketBlockContent(
+          requirements, "templateName");
       IDMap[ID] = value;
       // remove requirements line
-      ParserUtils::replaceLine(divisionTemplates, "requirements", "");
+      Fwg::Parsing::Scenario::replaceLine(divisionTemplates, "requirements",
+                                          "");
     }
-    ParserUtils::replaceOccurences(unitFile, "templateTemplateBlock",
-                                   divisionTemplates);
+    Fwg::Parsing::Scenario::replaceOccurences(unitFile, "templateTemplateBlock",
+                                              divisionTemplates);
 
     // now that we have the templates written down, we deploy units of these
     // templates under the "divisions" key in the unitFile
@@ -472,10 +484,10 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
         // copy the template unit file
         auto tempUnit{unitBlock};
         // replace division name with the generic division name
-        ParserUtils::replaceOccurences(tempUnit, "templateDivisionName",
-                                       "\"" + IDMap.at(i) + "\"");
+        Fwg::Parsing::Scenario::replaceOccurences(
+            tempUnit, "templateDivisionName", "\"" + IDMap.at(i) + "\"");
         // now deploy the unit in a random province
-        ParserUtils::replaceOccurences(
+        Fwg::Parsing::Scenario::replaceOccurences(
             tempUnit, "templateLocation",
             std::to_string(country.second.hoi4Regions[0]->gameProvinces[0]->ID +
                            1));
@@ -490,16 +502,18 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
     // x++) {
     // Logging::logLine(country.second.attributeVectors.at("units")[i]);
     // auto
-    // tempUnit{ unitBlock }; 		ParserUtils::replaceOccurences(tempUnit,
+    // tempUnit{ unitBlock };
+    // Fwg::Parsing::Scenario::replaceOccurences(tempUnit,
     //"templateDivisionName", IDMap.at(i));
     // Logging::logLine(IDMap.at(i));
-    // ParserUtils::replaceOccurences(tempUnit,
+    // Fwg::Parsing::Scenario::replaceOccurences(tempUnit,
     //"templateLocation",
     // std::to_string(country.second.ownedRegions[0].gameProvinces[0].ID + 1));
     //		totalUnits += tempUnit;
     //	}
     //}
-    ParserUtils::replaceOccurences(unitFile, "templateUnitBlock", totalUnits);
+    Fwg::Parsing::Scenario::replaceOccurences(unitFile, "templateUnitBlock",
+                                              totalUnits);
     // units
     auto tempPath = path + country.first + "_1936.txt";
     pU::writeFile(tempPath, unitFile);
@@ -519,42 +533,45 @@ void commonBookmarks(
       "resources\\hoi4\\common\\bookmarks\\the_gathering_storm.txt");
   int count = 0;
   const auto majorTemplate =
-      pU::getBracketBlock(bookmarkTemplate, "templateMajorTAG") + "\n\t\t";
+      pU::Scenario::getBracketBlock(bookmarkTemplate, "templateMajorTAG") +
+      "\n\t\t";
   const auto minorTemplate =
-      pU::getBracketBlock(bookmarkTemplate, "templateMinorTAG") + "\n\t\t";
-  pU::removeBracketBlockFromKey(bookmarkTemplate, "templateMajorTAG");
-  pU::removeBracketBlockFromBracket(bookmarkTemplate, "templateMinorTAG");
+      pU::Scenario::getBracketBlock(bookmarkTemplate, "templateMinorTAG") +
+      "\n\t\t";
+  pU::Scenario::removeBracketBlockFromKey(bookmarkTemplate, "templateMajorTAG");
+  pU::Scenario::removeBracketBlockFromBracket(bookmarkTemplate,
+                                              "templateMinorTAG");
   std::string bookmarkCountries{""};
   for (auto iter = strengthScores.rbegin(); iter != strengthScores.rend();
        ++iter) {
     if (count == 0) {
-      pU::replaceOccurences(bookmarkTemplate, "templateDefaultTAG",
-                            iter->second[0]);
+      pU::Scenario::replaceOccurences(bookmarkTemplate, "templateDefaultTAG",
+                                      iter->second[0]);
     }
     if (count < 7) {
       // major power:
       for (const auto &country : iter->second) {
         auto majorString{majorTemplate};
-        pU::replaceOccurences(majorString, "templateIdeology",
-                              countries.at(country).rulingParty);
-        bookmarkCountries.append(
-            pU::replaceOccurences(majorString, "templateMajorTAG", country));
+        pU::Scenario::replaceOccurences(majorString, "templateIdeology",
+                                        countries.at(country).rulingParty);
+        bookmarkCountries.append(pU::Scenario::replaceOccurences(
+            majorString, "templateMajorTAG", country));
         count++;
       }
     } else if (count < 14) {
       // regional power:
       for (const auto &country : iter->second) {
         auto minorString{minorTemplate};
-        pU::replaceOccurences(minorString, "templateIdeology",
-                              countries.at(country).rulingParty);
-        bookmarkCountries.append(
-            pU::replaceOccurences(minorString, "templateMinorTAG", country));
+        pU::Scenario::replaceOccurences(minorString, "templateIdeology",
+                                        countries.at(country).rulingParty);
+        bookmarkCountries.append(pU::Scenario::replaceOccurences(
+            minorString, "templateMinorTAG", country));
         count++;
       }
     }
   }
-  pU::replaceOccurences(bookmarkTemplate,
-                        "templateMinorTAG=", bookmarkCountries);
+  pU::Scenario::replaceOccurences(bookmarkTemplate,
+                                  "templateMinorTAG=", bookmarkCountries);
   pU::writeFile(path + "the_gathering_storm.txt", bookmarkTemplate);
 }
 
@@ -570,14 +587,16 @@ void commonCountries(const std::string &path, const std::string &hoiPath,
     auto tempPath = path + country.second.name + ".txt";
     auto countryText{content};
     auto col = Fwg::Utils::varsToString(country.second.colour);
-    auto colourString = pU::replaceOccurences(col, ";", " ");
-    pU::replaceOccurences(countryText, "templateCulture",
-                          country.second.gfxCulture);
-    pU::replaceOccurences(countryText, "templateColour", colourString);
+    auto colourString = pU::Scenario::replaceOccurences(col, ";", " ");
+    pU::Scenario::replaceOccurences(countryText, "templateCulture",
+                                    country.second.gfxCulture);
+    pU::Scenario::replaceOccurences(countryText, "templateColour",
+                                    colourString);
     pU::writeFile(tempPath, countryText);
     auto templateCopy{colorsTxtTemplate};
-    pU::replaceOccurences(templateCopy, "templateTag", country.first);
-    pU::replaceOccurences(templateCopy, "templateColour", colourString);
+    pU::Scenario::replaceOccurences(templateCopy, "templateTag", country.first);
+    pU::Scenario::replaceOccurences(templateCopy, "templateColour",
+                                    colourString);
     colorsTxt.append(templateCopy);
   }
   pU::writeFile(path + "colors.txt", colorsTxt);
@@ -647,15 +666,15 @@ void tutorials(const std::string &path) {
 void foci(const std::string &path, const hoiMap &countries,
           const NameGeneration::NameData &nData) {
   Logging::logLine("HOI4 Parser: History: Demanding Danzig");
-  const auto focusTypes = ParserUtils::getLines(
-      "resources\\hoi4\\ai\\national_focus\\baseFiles\\foci.txt");
-  std::string baseTree = ParserUtils::readFile(
+  const auto focusTypes =
+      pU::getLines("resources\\hoi4\\ai\\national_focus\\baseFiles\\foci.txt");
+  std::string baseTree = pU::readFile(
       "resources\\hoi4\\ai\\national_focus\\baseFiles\\focusBase.txt");
   std::vector<std::string> focusTemplates;
   for (const auto &focusType : focusTypes)
-    focusTemplates.push_back(ParserUtils::readFile(
-        "resources\\hoi4\\ai\\national_focus\\focusTypes\\" + focusType +
-        "Focus.txt"));
+    focusTemplates.push_back(
+        pU::readFile("resources\\hoi4\\ai\\national_focus\\focusTypes\\" +
+                     focusType + "Focus.txt"));
 
   for (const auto &c : countries) {
     std::string treeContent = baseTree;
@@ -682,36 +701,37 @@ void foci(const std::string &path, const hoiMap &countries,
         for (const auto &rewardKey : countryFocus.completionRewards) {
           completionReward += NationalFocus::rewardMap.at(rewardKey);
         }
-        ParserUtils::replaceOccurences(tempContent, "templateAvailable",
-                                       available);
-        ParserUtils::replaceOccurences(tempContent, "templateBypasses",
-                                       bypasses);
-        ParserUtils::replaceOccurences(tempContent, "templateCompletionRewards",
-                                       completionReward);
+        Fwg::Parsing::Scenario::replaceOccurences(
+            tempContent, "templateAvailable", available);
+        Fwg::Parsing::Scenario::replaceOccurences(tempContent,
+                                                  "templateBypasses", bypasses);
+        Fwg::Parsing::Scenario::replaceOccurences(
+            tempContent, "templateCompletionRewards", completionReward);
 
-        ParserUtils::replaceOccurences(tempContent, "templateStepID",
-                                       std::to_string(countryFocus.stepID));
-        ParserUtils::replaceOccurences(tempContent, "templateChainID",
-                                       std::to_string(countryFocus.chainID));
-        ParserUtils::replaceOccurences(tempContent, "templateSourceTag",
-                                       c.first);
-        ParserUtils::replaceOccurences(tempContent, "templateSourcename",
-                                       c.second.name);
-        ParserUtils::replaceOccurences(tempContent, "templateDestTag",
-                                       countryFocus.destTag);
+        Fwg::Parsing::Scenario::replaceOccurences(
+            tempContent, "templateStepID", std::to_string(countryFocus.stepID));
+        Fwg::Parsing::Scenario::replaceOccurences(
+            tempContent, "templateChainID",
+            std::to_string(countryFocus.chainID));
+        Fwg::Parsing::Scenario::replaceOccurences(tempContent,
+                                                  "templateSourceTag", c.first);
+        Fwg::Parsing::Scenario::replaceOccurences(
+            tempContent, "templateSourcename", c.second.name);
+        Fwg::Parsing::Scenario::replaceOccurences(
+            tempContent, "templateDestTag", countryFocus.destTag);
         // need a faction name
         if (tempContent.find("templateFactionname") != std::string::npos) {
           auto facName = NameGeneration::generateFactionName(
               c.second.rulingParty, c.second.name, c.second.adjective, nData);
-          ParserUtils::replaceOccurences(tempContent, "templateFactionname",
-                                         facName);
+          Fwg::Parsing::Scenario::replaceOccurences(
+              tempContent, "templateFactionname", facName);
         }
-        ParserUtils::replaceOccurences(tempContent, "templateDestTag",
-                                       countryFocus.destTag);
-        ParserUtils::replaceOccurences(
+        Fwg::Parsing::Scenario::replaceOccurences(
+            tempContent, "templateDestTag", countryFocus.destTag);
+        Fwg::Parsing::Scenario::replaceOccurences(
             tempContent, "templateXPosition",
             std::to_string(countryFocus.position[0]));
-        ParserUtils::replaceOccurences(
+        Fwg::Parsing::Scenario::replaceOccurences(
             tempContent, "templateYPosition",
             std::to_string(countryFocus.position[1]));
         // now collect all prerequisites
@@ -780,8 +800,8 @@ void foci(const std::string &path, const hoiMap &countries,
 
         */
 
-        ParserUtils::replaceOccurences(tempContent, "templatePrerequisite",
-                                       preString);
+        Fwg::Parsing::Scenario::replaceOccurences(
+            tempContent, "templatePrerequisite", preString);
         // now make exclusive
         preString.clear();
         preString += "mutually_exclusive = {";
@@ -796,14 +816,15 @@ void foci(const std::string &path, const hoiMap &countries,
           }
         }
         preString += " }\n\t\t";
-        ParserUtils::replaceOccurences(tempContent, "templateExclusive",
-                                       preString);
+        Fwg::Parsing::Scenario::replaceOccurences(
+            tempContent, "templateExclusive", preString);
       }
     }
-    ParserUtils::replaceOccurences(treeContent, "templateFocusTree",
-                                   tempContent);
-    ParserUtils::replaceOccurences(treeContent, "templateSourceTag", c.first);
-    ParserUtils::writeFile(path + c.second.name + ".txt", treeContent);
+    Fwg::Parsing::Scenario::replaceOccurences(treeContent, "templateFocusTree",
+                                              tempContent);
+    Fwg::Parsing::Scenario::replaceOccurences(treeContent, "templateSourceTag",
+                                              c.first);
+    pU::writeFile(path + c.second.name + ".txt", treeContent);
   }
 }
 
@@ -819,10 +840,11 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
                           pathString.back() - pathString.find_last_of("\\"));
     auto content = pU::readFile(pathString);
     while (content.find("start_resistance = yes") != std::string::npos) {
-      pU::removeSurroundingBracketBlockFromLineBreak(content,
-                                                     "start_resistance = yes");
+      pU::Scenario::removeSurroundingBracketBlockFromLineBreak(
+          content, "start_resistance = yes");
     }
-    pU::replaceLine(content, "capital =", "capital = " + std::to_string(1));
+    pU::Scenario::replaceLine(content,
+                              "capital =", "capital = " + std::to_string(1));
 
     // remove tokens that crash the mod, as in country history states are
     // referenced by IDs. If there is no state with such an ID in game, the game
@@ -831,10 +853,10 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
     for (auto &line : lines) {
       auto tokens = pU::getTokens(line, '=');
       if (tokens.size()) {
-        pU::removeCharacter(tokens[0], ' ');
+        pU::Scenario::removeCharacter(tokens[0], ' ');
         if (Fwg::Utils::isInt(tokens[0])) {
           auto tokenRemove = tokens[0];
-          pU::removeBracketBlockFromKey(content, tokenRemove);
+          pU::Scenario::removeBracketBlockFromKey(content, tokenRemove);
         }
       }
     }
@@ -849,22 +871,21 @@ namespace Reading {
 // reads a text file containing colour->tag relations
 // reads a bmp containing colours
 Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
-  using namespace Scenario::ParserUtils;
   Fwg::Utils::ColourTMap<std::string> colourMap;
-  auto mappings = readFile(path + "//common/countries/colors.txt");
+  auto mappings = pU::readFile(path + "//common/countries/colors.txt");
   std::string countryColour;
   do {
-    countryColour =
-        removeSurroundingBracketBlockFromLineBreak(mappings, "color =");
+    countryColour = pU::Scenario::removeSurroundingBracketBlockFromLineBreak(
+        mappings, "color =");
     if (countryColour.size() > 10) {
       auto tag = countryColour.substr(1, 3);
-      auto colourString = getValue(countryColour, "color_ui");
-      auto hsv = getBracketBlockContent(colourString, "hsv");
+      auto colourString = pU::getValue(countryColour, "color_ui");
+      auto hsv = pU::Scenario::getBracketBlockContent(colourString, "hsv");
       std::vector<int> rgb(3);
       if (colourString.find("rgb") != std::string::npos) {
-        rgb = getNumberBlock(colourString, "rgb");
+        rgb = pU::Scenario::getNumberBlock(colourString, "rgb");
       } else if (hsv.size()) {
-        auto hsvd = getTokens(hsv, ' ');
+        auto hsvd = pU::getTokens(hsv, ' ');
         for (int i = 0; i < hsvd.size(); i++) {
           if (!hsvd[i].size())
             hsvd.erase(hsvd.begin() + i);
@@ -911,8 +932,8 @@ Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
 // states are where tags are written down, expressing ownership of the map
 // read them in from path, map province IDs against states
 void readStates(const std::string &path, Generator &hoi4Gen) {
-  using namespace Scenario::ParserUtils;
-  auto states = readFilesInDirectory(path + "/history/states");
+  using namespace Fwg::Parsing::Scenario;
+  auto states = pU::readFilesInDirectory(path + "/history/states");
 
   auto &stateColours = hoi4Gen.stateColours;
   hoi4Gen.gameRegions.clear();
@@ -922,8 +943,8 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
   for (auto &state : states) {
     Scenario::Region r;
     auto reg = std::make_shared<Scenario::Region>(r);
-    auto tag = getValue(state, "owner");
-    reg->ID = std::stoi(getValue(state, "id")) - 1;
+    auto tag = pU::getValue(state, "owner");
+    reg->ID = std::stoi(pU::getValue(state, "id")) - 1;
     removeCharacter(tag, ' ');
     reg->owner = tag;
     auto readIDs = getNumberBlockMultiDelim(state, "provinces");
@@ -957,10 +978,10 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
 }
 // get the bmp file info and extract the respective IDs from definition.csv
 std::vector<Fwg::Province> readProvinceMap(const std::string &path) {
-  using namespace Scenario::ParserUtils;
+  using namespace Fwg::Parsing::Scenario;
   auto provMap =
       Fwg::Gfx::Bmp::load24Bit(path + "map/provinces.bmp", "provinces");
-  auto definition = getLines(path + "map/definition.csv");
+  auto definition = pU::getLines(path + "map/definition.csv");
   Fwg::Utils::ColourTMap<Fwg::Province> provinces;
   for (const auto &line : definition) {
     auto nums = getNumbers(line, ';', {0, 1, 2, 3});
@@ -984,14 +1005,14 @@ std::vector<Fwg::Province> readProvinceMap(const std::string &path) {
 void readAirports(const std::string &path,
                   std::vector<std::shared_ptr<Region>> &regions) {
   Logging::logLine("HOI4 Parser: Map: Watching Planes");
-  auto list = ParserUtils::getLines(path + "//map//airports.txt");
+  auto list = pU::getLines(path + "//map//airports.txt");
   for (const auto &entry : list) {
-    auto tokens = ParserUtils::getTokens(entry, '=');
+    auto tokens = pU::getTokens(entry, '=');
     if (tokens.size() == 2) {
       auto ID = std::stoi(tokens[0]);
       // ignore all entries if the region doesn't exist
       if (ID < regions.size() + 1) {
-        ParserUtils::removeSpecials(tokens[1]);
+        Fwg::Parsing::Scenario::removeSpecials(tokens[1]);
         auto provID = std::stoi(tokens[1]);
         regions[ID - 1]->airport = provID - 1;
       }
@@ -1005,7 +1026,7 @@ void readBuildings(const std::string &path,
   auto content = pU::getLines(path + "//map//buildings.txt");
   for (const auto &line : content) {
     Scenario::Utils::Building building;
-    auto tokens = ParserUtils::getTokens(line, ';');
+    auto tokens = pU::getTokens(line, ';');
     auto stateID = std::stoi(tokens[0]) - 1;
 
     if (stateID < regions.size()) {
@@ -1021,14 +1042,13 @@ std::vector<std::shared_ptr<Hoi4Country>>
 readCountries(const std::string &path) {
   std::vector<std::shared_ptr<Hoi4Country>> countries;
   auto countryList =
-      ParserUtils::getLines(path + "//common//country_tags//00_countries.txt");
-  auto bList =
-      ParserUtils::getLines(path + "//common//country_tags//01_countries.txt");
+      pU::getLines(path + "//common//country_tags//00_countries.txt");
+  auto bList = pU::getLines(path + "//common//country_tags//01_countries.txt");
   countryList.insert(countryList.end(), bList.begin(), bList.end());
   for (auto &line : countryList) {
     if (line.size() > 3) {
       auto tag = line.substr(0, 3);
-      auto name = ParserUtils::getValue(line, "=");
+      auto name = pU::getValue(line, "=");
       Hoi4Country hc;
       hc.tag = tag;
       hc.name = name;
@@ -1039,7 +1059,7 @@ readCountries(const std::string &path) {
 }
 
 std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
-  auto list = ParserUtils::getLinesByID(path);
+  auto list = pU::getLinesByID(path);
   return list;
 }
 void readProvinces(const std::string &inPath, const std::string &mapName,
@@ -1055,7 +1075,7 @@ void readProvinces(const std::string &inPath, const std::string &mapName,
   // now map definitions to read in IDs
   for (auto &line : list) {
     if (line.size()) {
-      auto tokens = ParserUtils::getTokens(line[0], ';');
+      auto tokens = pU::getTokens(line[0], ';');
       auto ID = std::stoi(tokens[0]) - 1;
       if (ID == -1)
         continue;
@@ -1083,13 +1103,13 @@ void readProvinces(const std::string &inPath, const std::string &mapName,
 void readRocketSites(const std::string &path,
                      std::vector<std::shared_ptr<Region>> &regions) {
   Logging::logLine("HOI4 Parser: Map: Scanning for rockets");
-  auto list = ParserUtils::getLines(path + "//map//rocketsites.txt");
+  auto list = pU::getLines(path + "//map//rocketsites.txt");
   for (const auto &entry : list) {
-    auto tokens = ParserUtils::getTokens(entry, '=');
+    auto tokens = pU::getTokens(entry, '=');
     if (tokens.size() == 2) {
       auto ID = std::stoi(tokens[0]);
       if (ID < regions.size() + 1) {
-        ParserUtils::removeSpecials(tokens[1]);
+        Fwg::Parsing::Scenario::removeSpecials(tokens[1]);
         auto provID = std::stoi(tokens[1]);
         regions[ID - 1]->rocketsite = provID - 1;
       }
@@ -1099,13 +1119,13 @@ void readRocketSites(const std::string &path,
 void readSupplyNodes(const std::string &path,
                      std::vector<std::shared_ptr<Region>> &regions) {
   Logging::logLine("HOI4 Parser: Map: Stealing from logistics hub");
-  auto list = ParserUtils::getLines(path + "//map//supply_nodes.txt");
+  auto list = pU::getLines(path + "//map//supply_nodes.txt");
   for (const auto &entry : list) {
-    auto tokens = ParserUtils::getTokens(entry, '=');
+    auto tokens = pU::getTokens(entry, '=');
     if (tokens.size() == 2) {
       auto ID = std::stoi(tokens[0]);
       if (ID < regions.size() + 1) {
-        ParserUtils::removeSpecials(tokens[1]);
+        Fwg::Parsing::Scenario::removeSpecials(tokens[1]);
         auto provID = std::stoi(tokens[1]);
         regions[ID - 1]->supplyNode = provID - 1;
       }
@@ -1118,7 +1138,7 @@ void readWeatherPositions(const std::string &path,
   auto content = pU::getLines(path + "//map//weatherpositions.txt");
   for (const auto &line : content) {
     Scenario::Utils::WeatherPosition weather;
-    auto tokens = ParserUtils::getTokens(line, ';');
+    auto tokens = pU::getTokens(line, ';');
     weather.position = Scenario::Utils::strToPos(tokens, {1, 2, 3, 3});
     weather.effectSize = tokens[4];
     auto stateID = std::stoi(tokens[0]) - 1;
@@ -1129,17 +1149,17 @@ void readWeatherPositions(const std::string &path,
 } // namespace Reading
 
 std::vector<std::string> readTypeMap() {
-  return ParserUtils::getLines(
+  return pU::getLines(
       "resources\\hoi4\\ai\\national_focus\\baseFiles\\foci.txt");
 }
 
 std::map<std::string, std::string> readRewardMap(const std::string &path) {
-  auto file = ParserUtils::readFile(path);
-  auto split = ParserUtils::getTokens(file, ';');
+  auto file = pU::readFile(path);
+  auto split = pU::getTokens(file, ';');
   std::map<std::string, std::string> rewardMap;
   for (const auto &elem : split) {
-    auto key = ParserUtils::getBracketBlockContent(elem, "key");
-    auto value = ParserUtils::getBracketBlockContent(elem, "value");
+    auto key = Fwg::Parsing::Scenario::getBracketBlockContent(elem, "key");
+    auto value = Fwg::Parsing::Scenario::getBracketBlockContent(elem, "value");
     rewardMap[key] = value;
   }
   return {rewardMap};
@@ -1149,12 +1169,13 @@ void copyDescriptorFile(const std::string &sourcePath,
                         const std::string &modsDirectory,
                         const std::string &modName) {
   auto descriptorText = pU::readFile(sourcePath);
-  pU::replaceOccurences(descriptorText, "templateName", modName);
+  pU::Scenario::replaceOccurences(descriptorText, "templateName", modName);
   auto modText{descriptorText};
-  pU::replaceOccurences(descriptorText, "templatePath", "");
+  pU::Scenario::replaceOccurences(descriptorText, "templatePath", "");
   pU::writeFile(destPath + "//descriptor.mod", descriptorText);
-  pU::replaceOccurences(modText, "templatePath",
-                        Fwg::Utils::varsToString("path=\"", destPath, "\""));
+  pU::Scenario::replaceOccurences(
+      modText, "templatePath",
+      Fwg::Utils::varsToString("path=\"", destPath, "\""));
   pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
 }
 

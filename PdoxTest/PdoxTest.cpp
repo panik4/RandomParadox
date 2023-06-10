@@ -31,7 +31,7 @@ namespace PdoxTest
 	public:
 		TEST_METHOD(FormattingInputAsCsv)
 		{
-			using namespace Scenario::ParserUtils;
+			using namespace Fwg::Parsing::Scenario;
 			auto result = csvFormat({ "a", "b", "c", "d" }, ';', false);
 			std::string abcd = "a;b;c;d\n";
 			Assert::AreEqual(result, abcd);
@@ -41,14 +41,14 @@ namespace PdoxTest
 		}
 		TEST_METHOD(RemoveCharacterFromString)
 		{
-			using namespace Scenario::ParserUtils;
+			using namespace Fwg::Parsing::Scenario;
 			auto str = std::string{ "hello world" };
 			removeCharacter(str, 'o');
 			Assert::AreEqual(str, { "hell wrld" });
 		}
 		TEST_METHOD(GetTokensFromString)
 		{
-			using namespace Scenario::ParserUtils;
+			using namespace Fwg::Parsing::Scenario;
 			auto tokens = getTokens({ "a;b;c;d;" }, ';');
 			std::vector<std::string> referenceTokens = { "a", "b", "c", "d" };
 			for (auto i = 0; i < tokens.size(); i++) {
@@ -57,7 +57,7 @@ namespace PdoxTest
 		}
 		TEST_METHOD(GetNumbersFromString)
 		{
-			using namespace Scenario::ParserUtils;
+			using namespace Fwg::Parsing::Scenario;
 			auto tokens = getNumbers({ "1;2;3;4;" }, ';');
 			std::vector<int> referenceTokens = { 1, 2, 3, 4 };
 			for (auto i = 0; i < tokens.size(); i++) {
@@ -66,7 +66,7 @@ namespace PdoxTest
 		}
 		TEST_METHOD(GetNumberBlockFromString)
 		{
-			using namespace Scenario::ParserUtils;
+			using namespace Fwg::Parsing::Scenario;
 			auto tokens = getNumberBlock({ "key = {1234 5678}" }, "key");
 			std::vector<int> referenceTokens = { 1234, 5678 };
 			for (auto i = 0; i < tokens.size(); i++) {
@@ -75,21 +75,21 @@ namespace PdoxTest
 		}
 		TEST_METHOD(ReplaceStringInString)
 		{
-			using namespace Scenario::ParserUtils;
+			using namespace Fwg::Parsing::Scenario;
 			std::string content = { "key = {1234 5678}, key = {1234 5678}" };
 			replaceOccurences(content, "key", "value");
 			Assert::AreEqual(content, { "value = {1234 5678}, value = {1234 5678}" });
 		}
 		TEST_METHOD(ReplaceLineInString)
 		{
-			using namespace Scenario::ParserUtils;
+			using namespace Fwg::Parsing::Scenario;
 			std::string content = { "key1 = {1234 5678}\n key2 = {1234 5678}" };
 			replaceLines(content, "key", "valueLine");
 			Assert::AreEqual(content, { "valueLine\n key2 = {1234 5678}" });
 		}
 		TEST_METHOD(FindBracketInString)
 		{
-			using namespace Scenario::ParserUtils;
+			using namespace Fwg::Parsing::Scenario;
 			std::string content = { "key1 = {1234 5678}\n key2 = {1234 5678}" };
 			int pos = findClosingBracket(content, 0);
 			Assert::AreEqual(pos, 17);
@@ -99,7 +99,7 @@ namespace PdoxTest
 		}
 		TEST_METHOD(GetBracketInString)
 		{
-			using namespace Scenario::ParserUtils;
+			using namespace Fwg::Parsing::Scenario;
 			auto content = getBracketBlock({ "key1 = {1234 5678}\n key2 = {1234 5678}" }, "key2");
 			Assert::AreEqual(content, { "key2 = {1234 5678}" });
 			auto empty = getBracketBlock({ "key1 = {1234 5678}\n key2 = {1234 5678}" }, "key3");
@@ -107,7 +107,7 @@ namespace PdoxTest
 		}
 		TEST_METHOD(GetBracketContentInString)
 		{
-			using namespace Scenario::ParserUtils;
+			using namespace Fwg::Parsing::Scenario;
 			auto content = getBracketBlockContent({ "key1 = {1234 5678}\n key2 = {1234 5678}" }, "key2");
 			Assert::AreEqual(content, { "1234 5678" });
 			auto empty = getBracketBlockContent({ "key1 = {1234 5678}\n key2 = {1234 5678}" }, "key3");

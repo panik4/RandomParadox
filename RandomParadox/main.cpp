@@ -11,7 +11,7 @@ void dumpInfo(const std::string &error, const std::string &configSubFolder) {
   std::string dump = "";
   std::string path = configSubFolder;
   for (const auto &entry : std::filesystem::directory_iterator(path)) {
-    dump += Scenario::ParserUtils::readFile(entry.path().string());
+    dump += Fwg::Parsing::readFile(entry.path().string());
   }
   dump += std::to_string(Cfg::Values().seed);
   dump += "\n";
@@ -21,7 +21,7 @@ void dumpInfo(const std::string &error, const std::string &configSubFolder) {
   }
   dump += error;
   dump += Utils::Logging::logInstance.getFullLog();
-  Scenario::ParserUtils::writeFile("runDump.txt", dump);
+  Fwg::Parsing::writeFile("runDump.txt", dump);
 }
 
 int main() {

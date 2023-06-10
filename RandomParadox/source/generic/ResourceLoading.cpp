@@ -11,17 +11,17 @@ Bitmap loadHeightMap(const std::string &gamePath) {
 }
 
 std::vector<std::string> loadStates(const std::string &gamePath) {
-  return ParserUtils::readFilesInDirectory(gamePath + "\\history\\states\\");
+  return Parsing::readFilesInDirectory(gamePath + "\\history\\states\\");
 }
 
 std::vector<std::string> loadDefinition(const std::string &gamePath) {
-  return ParserUtils::getLines(gamePath + "\\map\\definition.csv");
+  return Parsing::getLines(gamePath + "\\map\\definition.csv");
 }
 
 std::vector<std::string> loadForbiddenTags(const std::string &gamePath) {
   std::vector<std::string> tags;
   if (gamePath.find("Victoria") != std::string::npos) {
-    //auto lines = ParserUtils::getLines(
+    //auto lines = Parsing::Scenario::getLines(
     //    gamePath + "\\common\\country_definitions\\00_countries.txt");
     //for (const auto &line : lines) {
     //  auto tag = line.substr(0, 3);
@@ -31,14 +31,14 @@ std::vector<std::string> loadForbiddenTags(const std::string &gamePath) {
 
     if (std::filesystem::exists(gamePath +
                                 "\\common\\country_tags\\00_countries.txt")) {
-      auto lines = ParserUtils::getLines(
+      auto lines = Parsing::getLines(
           gamePath + "\\common\\country_tags\\00_countries.txt");
       for (const auto &line : lines) {
         auto tag = line.substr(0, 3);
         tags.push_back(tag);
       }
       if (gamePath.find("Europa Universalis") == std::string::npos) {
-        lines = ParserUtils::getLines(
+        lines = Parsing::getLines(
             gamePath + "\\common\\country_tags\\01_countries.txt");
       }
       for (const auto &line : lines) {

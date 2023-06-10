@@ -484,9 +484,9 @@ void Generator::generateCountryUnits() {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Unit Files");
   // read in different compositions
   auto unitTemplateFile =
-      ParserUtils::readFile("resources\\hoi4\\history\\divisionTemplates.txt");
+      Parsing::readFile("resources\\hoi4\\history\\divisionTemplates.txt");
   // now tokenize by : character to get single
-  auto unitTemplates = ParserUtils::getTokens(unitTemplateFile, ':');
+  auto unitTemplates = Fwg::Parsing::getTokens(unitTemplateFile, ':');
   for (auto &c : hoi4Countries) {
     // determine army doctrine
     // defensive vs offensive
@@ -530,8 +530,8 @@ void Generator::generateCountryUnits() {
     // now evaluate each template and add it if all requirements are fulfilled
     for (int i = 0; i < unitTemplates.size(); i++) {
       auto requirements =
-          ParserUtils::getBracketBlockContent(unitTemplates[i], "requirements");
-      auto requirementTokens = ParserUtils::getTokens(requirements, ';');
+          Parsing::Scenario::getBracketBlockContent(unitTemplates[i], "requirements");
+      auto requirementTokens = Fwg::Parsing::getTokens(requirements, ';');
       if (unitFulfillsRequirements(requirementTokens, c.second)) {
         // get the ID and save it for used divison templates
         c.second.units.push_back(i);
@@ -578,7 +578,7 @@ bool Generator::unitFulfillsRequirements(
   // now check if the country fulfills the target requirements
   for (auto &requirement : unitRequirements) {
     // need to check rank, first get the desired value
-    auto value = ParserUtils::getBracketBlockContent(requirement, "rank");
+    auto value = Parsing::Scenario::getBracketBlockContent(requirement, "rank");
     if (value != "") {
       if (value.find("any") == std::string::npos)
         continue; // fine, may target any ideology
@@ -588,12 +588,12 @@ bool Generator::unitFulfillsRequirements(
   }
   for (auto &requirement : unitRequirements) {
     // need to check rank, first get the desired value
-    auto value = ParserUtils::getBracketBlockContent(requirement, "doctrine");
+    auto value = Parsing::Scenario::getBracketBlockContent(requirement, "doctrine");
     if (value != "") {
       if (value.find("any") != std::string::npos)
         continue; // fine, may target any ideology
       // now split by +
-      auto requiredDoctrines = ParserUtils::getTokens(value, '+');
+      auto requiredDoctrines = Parsing::getTokens(value, '+');
       // for every required doctrine string
       for (const auto &requiredDoctrine : requiredDoctrines) {
         // check if country has that doctrine

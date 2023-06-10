@@ -5,7 +5,7 @@ namespace NameGeneration {
 std::string generateName(const NameData &nameData) {
   auto selectedRule{
       nameData.nameRules[RandNum::getRandom((size_t)0, nameData.nameRules.size())]};
-  auto selectedRuleNum{ParserUtils::getTokens(selectedRule, ';')};
+  auto selectedRuleNum{Fwg::Parsing::getTokens(selectedRule, ';')};
   std::string name{Detail::getToken(selectedRuleNum, nameData)};
   std::transform(name.begin(), name.begin() + 1, name.begin(), ::toupper);
   return name;
@@ -53,9 +53,10 @@ std::string modifyWithIdeology(const std::string &ideology,
                                const NameData &nameData) {
   auto stateName{Detail::getRandomMapElement(ideology, nameData.ideologyNames)};
   if (stateName.find("templateAdj") != std::string::npos)
-    ParserUtils::replaceOccurences(stateName, "templateAdj", adjective);
+    Fwg::Parsing::Scenario::replaceOccurences(stateName, "templateAdj",
+                                              adjective);
   else
-    ParserUtils::replaceOccurences(stateName, "template", name);
+    Fwg::Parsing::Scenario::replaceOccurences(stateName, "template", name);
   return stateName;
 }
 
@@ -63,7 +64,8 @@ NameData prepare(const std::string &path, const std::string &gamePath) {
   Fwg::Utils::Logging::logLine("Preparing name generation from path", path);
   NameData nameData;
   if (std::filesystem::exists(gamePath)) {
-    nameData.nameRules = ParserUtils::getLines(path + "\\name_rules.txt");
+    nameData.nameRules =
+        Fwg::Parsing::getLines(path + "\\name_rules.txt");
     Detail::readMap(path + "\\token_groups.txt", nameData.groups);
     Detail::readMap(path + "\\state_types.txt", nameData.ideologyNames);
     Detail::readMap(path + "\\faction_names.txt", nameData.factionNames);
@@ -78,9 +80,9 @@ NameData prepare(const std::string &path, const std::string &gamePath) {
 namespace Detail {
 void readMap(const std::string path,
              std::map<std::string, std::vector<std::string>> &map) {
-  auto groupLines{ParserUtils::getLines(path)};
+  auto groupLines{Fwg::Parsing::getLines(path)};
   for (const auto &line : groupLines) {
-    auto tokens = ParserUtils::getTokens(line, ';');
+    auto tokens = Fwg::Parsing::getTokens(line, ';');
     for (int i = 1; i < tokens.size(); i++)
       map[tokens[0]].push_back(tokens[i]);
   }
