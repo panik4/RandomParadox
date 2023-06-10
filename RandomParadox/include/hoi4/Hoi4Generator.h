@@ -50,6 +50,7 @@ public:
   std::vector<std::vector<int>> supplyNodeConnections;
   // container holding the resource configurations
   std::map<std::string, std::vector<double>> resources;
+  std::map<std::string, double> weatherChances;
 
   // member functions
   // constructors/destructors

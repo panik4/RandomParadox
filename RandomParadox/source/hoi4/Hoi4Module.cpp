@@ -104,6 +104,13 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
       {"rubber", {hoi4Conf.get<double>("hoi4.rubberFactor"), 1029.0, 0.1}},
       {"steel", {hoi4Conf.get<double>("hoi4.steelFactor"), 2562.0, 0.5}},
       {"tungsten", {hoi4Conf.get<double>("hoi4.tungstenFactor"), 1188.0, 0.2}}};
+  hoi4Gen.weatherChances = {
+      {"baseLightRainChance", hoi4Conf.get<double>("hoi4.baseLightRainChance")},
+      {"baseHeavyRainChance", hoi4Conf.get<double>("hoi4.baseHeavyRainChance")},
+      {"baseMudChance", hoi4Conf.get<double>("hoi4.baseMudChance")},
+      {"baseBlizzardChance", hoi4Conf.get<double>("hoi4.baseBlizzardChance")},
+      {"baseSandstormChance", hoi4Conf.get<double>("hoi4.baseSandstormChance")},
+      {"baseSnowChance", hoi4Conf.get<double>("hoi4.baseSnowChance")}};
   hoi4Gen.worldPopulationFactor =
       hoi4Conf.get<double>("scenario.worldPopulationFactor");
   hoi4Gen.industryFactor = hoi4Conf.get<double>("scenario.industryFactor");
@@ -156,20 +163,17 @@ void Hoi4Module::genHoi() {
     // generate map files. Format must be converted and colours mapped to hoi4
     // compatible colours
     Gfx::FormatConverter formatConverter(gamePath, "Hoi4");
-    formatConverter.dump8BitTerrain(hoi4Gen.climateMap,
-                                    gameModPath + "\\map\\terrain.bmp",
-                                    "terrain", cut);
-    formatConverter.dump8BitCities(hoi4Gen.climateMap,
-                                   gameModPath + "\\map\\cities.bmp", "cities",
-                                   cut);
+    formatConverter.dump8BitTerrain(
+        hoi4Gen.climateMap, gameModPath + "\\map\\terrain.bmp", "terrain", cut);
+    formatConverter.dump8BitCities(
+        hoi4Gen.climateMap, gameModPath + "\\map\\cities.bmp", "cities", cut);
     formatConverter.dump8BitRivers(
         hoi4Gen.riverMap, gameModPath + "\\map\\rivers", "rivers", cut);
     formatConverter.dump8BitTrees(hoi4Gen.climateMap, hoi4Gen.treeMap,
                                   gameModPath + "\\map\\trees.bmp", "trees",
                                   false);
-    formatConverter.dump8BitHeightmap(hoi4Gen.heightMap,
-                                      gameModPath + "\\map\\heightmap",
-                                      "heightmap");
+    formatConverter.dump8BitHeightmap(
+        hoi4Gen.heightMap, gameModPath + "\\map\\heightmap", "heightmap");
     formatConverter.dumpTerrainColourmap(
         hoi4Gen.summerMap, hoi4Gen.cityMap, gameModPath,
         "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds",
@@ -198,13 +202,11 @@ void Hoi4Module::genHoi() {
     airports(gameModPath + "\\map\\airports.txt", hoi4Gen.areas.regions);
     buildings(gameModPath + "\\map\\buildings.txt", hoi4Gen.hoi4States,
               hoi4Gen.heightMap);
-    continents(gameModPath + "\\map\\continents.txt",
-               hoi4Gen.areas.continents);
+    continents(gameModPath + "\\map\\continents.txt", hoi4Gen.areas.continents);
     definition(gameModPath + "\\map\\definition.csv", hoi4Gen.gameProvinces);
-    unitStacks(gameModPath + "\\map\\unitstacks.txt",
-               hoi4Gen.areas.provinces, hoi4Gen.heightMap);
-    rocketSites(gameModPath + "\\map\\rocketsites.txt",
-                hoi4Gen.areas.regions);
+    unitStacks(gameModPath + "\\map\\unitstacks.txt", hoi4Gen.areas.provinces,
+               hoi4Gen.heightMap);
+    rocketSites(gameModPath + "\\map\\rocketsites.txt", hoi4Gen.areas.regions);
     strategicRegions(gameModPath + "\\map\\strategicregions",
                      hoi4Gen.areas.regions, hoi4Gen.strategicRegions);
     states(gameModPath + "\\history\\states", hoi4Gen.hoi4Countries);
@@ -260,9 +262,8 @@ void Hoi4Module::mapCountries(bool multiCore, bool stateExport,
 }
 void Hoi4Module::readHoi() {
   // read in game or mod files
-  Hoi4::Parsing::Reading::readProvinces(mappingPath, "provinces.bmp",
-                                        hoi4Gen.areas,
-                                        hoi4Gen.stringToTerrainType);
+  Hoi4::Parsing::Reading::readProvinces(
+      mappingPath, "provinces.bmp", hoi4Gen.areas, hoi4Gen.stringToTerrainType);
   // get the provinces into GameProvinces
   hoi4Gen.mapProvinces();
   // get the states from files to initialize gameRegions

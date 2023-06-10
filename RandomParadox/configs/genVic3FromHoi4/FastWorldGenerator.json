@@ -17,7 +17,7 @@
 		"terrainMap" : false,
 		"humidityMap" : false,
 		"habitabilityMap" : false,
-		"provinceMap" : true,
+		"provinceMap" : false,
 		"modifyHeight": true,
 		"heightAdjustments": -75
 	},
