@@ -2,7 +2,7 @@
 
 namespace Scenario::Gfx {
 using namespace Fwg;
-namespace PU = Scenario::ParserUtils;
+namespace PU = Fwg::Parsing;
 std::map<std::string, std::vector<Fwg::Gfx::Colour>> Flag::colourGroups;
 std::vector<std::vector<std::vector<int>>> Flag::flagTypes(7);
 std::vector<std::vector<std::vector<std::string>>> Flag::flagTypeColours(7);
@@ -157,7 +157,7 @@ void Flag::readColourGroups() {
       continue;
     auto tokens = PU::getTokens(line, ';');
     for (auto i = 1; i < tokens.size(); i++) {
-      const auto nums = PU::getNumbers(tokens[i], ',', std::set<int>{});
+      const auto nums = PU::Scenario::getNumbers(tokens[i], ',', std::set<int>{});
       Fwg::Gfx::Colour c{(unsigned char)nums[0], (unsigned char)nums[1],
                          (unsigned char)nums[2]};
       colourGroups[tokens[0]].push_back(c);
@@ -179,7 +179,7 @@ void Flag::readFlagTypes() {
     flagTypeColours[flagType].push_back(std::vector<std::string>{});
     for (const auto &symbolRange : symbols) {
       const auto &rangeTokens =
-          PU::getNumbers(symbolRange, '-', std::set<int>{});
+          PU::Scenario::getNumbers(symbolRange, '-', std::set<int>{});
       for (auto x = rangeTokens[0]; x <= rangeTokens[1]; x++)
         flagTypes[flagType][flagTypeID].push_back(x);
     }

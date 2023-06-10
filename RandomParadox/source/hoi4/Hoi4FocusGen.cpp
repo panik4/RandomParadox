@@ -6,48 +6,48 @@ NationalFocus FocusGen::buildFocus(const std::vector<std::string> chainStep,
                                    const Hoi4Country &target) {
   // map the string of the chainstep to the type
   auto type = NationalFocus::typeMapping[chainStep[5]];
-  auto dateTokens = ParserUtils::getNumbers(chainStep[8], '-', std::set<int>{});
+  auto dateTokens = Fwg::Parsing::Scenario::getNumbers(chainStep[8], '-', std::set<int>{});
   NationalFocus nF(type, false, source.tag, target.tag, dateTokens);
 
-  auto predecessors = ParserUtils::getNumbers(
-      ParserUtils::getBracketBlockContent(chainStep[2], "predecessor"), ',',
+  auto predecessors = Fwg::Parsing::Scenario::getNumbers(
+      Fwg::Parsing::Scenario::getBracketBlockContent(chainStep[2], "predecessor"), ',',
       std::set<int>());
   for (const auto &predecessor : predecessors)
     nF.precedingFoci.push_back(predecessor);
 
   // now get the "xor"...
-  auto exclusives = ParserUtils::getNumbers(
-      ParserUtils::getBracketBlockContent(chainStep[7], "exclusive"), ',',
+  auto exclusives = Fwg::Parsing::Scenario::getNumbers(
+      Fwg::Parsing::Scenario::getBracketBlockContent(chainStep[7], "exclusive"), ',',
       std::set<int>());
   for (const auto &exclusive : exclusives)
     nF.xorFoci.push_back(exclusive);
   // and "and" foci
-  auto ands = ParserUtils::getNumbers(
-      ParserUtils::getBracketBlockContent(chainStep[7], "and"), ',',
+  auto ands = Fwg::Parsing::Scenario::getNumbers(
+      Fwg::Parsing::Scenario::getBracketBlockContent(chainStep[7], "and"), ',',
       std::set<int>());
   for (const auto &anddd : ands)
     nF.andFoci.push_back(anddd);
   // and "or" foci
-  auto ors = ParserUtils::getNumbers(
-      ParserUtils::getBracketBlockContent(chainStep[7], "or"), ',',
+  auto ors = Fwg::Parsing::Scenario::getNumbers(
+      Fwg::Parsing::Scenario::getBracketBlockContent(chainStep[7], "or"), ',',
       std::set<int>());
   for (const auto &orrr : ors)
     nF.orFoci.push_back(orrr);
   // add completion reward keys
-  auto available = ParserUtils::getTokens(
-      ParserUtils::getBracketBlockContent(chainStep[9], "available"), '+');
+  auto available = Fwg::Parsing::getTokens(
+      Fwg::Parsing::Scenario::getBracketBlockContent(chainStep[9], "available"), '+');
   for (const auto &availKey : available) {
     nF.available.push_back(availKey);
   }
   // add completion reward keys
-  auto bypasses = ParserUtils::getTokens(
-      ParserUtils::getBracketBlockContent(chainStep[10], "bypass"), '+');
+  auto bypasses = Fwg::Parsing::getTokens(
+      Fwg::Parsing::Scenario::getBracketBlockContent(chainStep[10], "bypass"), '+');
   for (const auto &bypassKey : bypasses) {
     nF.bypasses.push_back(bypassKey);
   }
   // add completion reward keys
-  auto rewards = ParserUtils::getTokens(
-      ParserUtils::getBracketBlockContent(chainStep[11], "completion_reward"),
+  auto rewards = Fwg::Parsing::getTokens(
+      Fwg::Parsing::Scenario::getBracketBlockContent(chainStep[11], "completion_reward"),
       '+');
   for (const auto &rewardKey : rewards) {
     nF.completionRewards.push_back(rewardKey);
@@ -233,13 +233,13 @@ bool FocusGen::stepFulfillsRequirements(
     const std::vector<std::set<Hoi4Country>> &stepTargets) {
 
   const auto predecessors =
-      ParserUtils::getBracketBlockContent(stepRequirements, "predecessor");
-  const auto v = ParserUtils::getNumbers(
-      ParserUtils::getBracketBlockContent(stepRequirements, "skippable"), ',',
+      Fwg::Parsing::Scenario::getBracketBlockContent(stepRequirements, "predecessor");
+  const auto v = Fwg::Parsing::Scenario::getNumbers(
+      Fwg::Parsing::Scenario::getBracketBlockContent(stepRequirements, "skippable"), ',',
       std::set<int>());
   std::set<int> skipNumbers(std::make_move_iterator(v.begin()),
                             std::make_move_iterator(v.end()));
-  const auto requiredPredecessors = ParserUtils::getTokens(predecessors, ',');
+  const auto requiredPredecessors = Fwg::Parsing::getTokens(predecessors, ',');
   bool hasRequiredPredecessor = requiredPredecessors.size() ? false : true;
   for (const auto &predecessor : requiredPredecessors)
     if (predecessor != "") {
@@ -262,12 +262,12 @@ bool FocusGen::targetFulfillsRequirements(
   const auto &cfg = Fwg::Cfg::Values();
   // now check if the country fulfills the target requirements
   // need to check rank, first get the desired value
-  auto value = ParserUtils::getBracketBlockContent(targetRequirements, "rank");
+  auto value = Fwg::Parsing::Scenario::getBracketBlockContent(targetRequirements, "rank");
   if (value != "" && value != "any") {
     if (target.rank != value)
       return false; // targets rank is not right
   }
-  value = ParserUtils::getBracketBlockContent(targetRequirements, "ideology");
+  value = Fwg::Parsing::Scenario::getBracketBlockContent(targetRequirements, "ideology");
   if (value != "" && value != "any") {
     if (value == "same") {
       if (target.rulingParty != source.rulingParty) {
@@ -282,7 +282,7 @@ bool FocusGen::targetFulfillsRequirements(
         return false;
     }
   }
-  value = ParserUtils::getBracketBlockContent(targetRequirements, "location");
+  value = Fwg::Parsing::Scenario::getBracketBlockContent(targetRequirements, "location");
   if (value != "" && value != "any") {
     if (value == "neighbour") {
       if (source.neighbours.find(target.tag) == source.neighbours.end())
@@ -305,7 +305,7 @@ bool FocusGen::targetFulfillsRequirements(
         return false;
     }
   }
-  value = ParserUtils::getBracketBlockContent(targetRequirements, "target");
+  value = Fwg::Parsing::Scenario::getBracketBlockContent(targetRequirements, "target");
   if (value != "" && value != "any") {
     if (value == "notlevel") {
       // don't consider this country if already used on same level
@@ -347,14 +347,14 @@ void FocusGen::evaluateCountryGoals(
 
   std::vector<std::vector<std::vector<std::string>>> chains;
 
-  chains.push_back(ParserUtils::getLinesByID(
+  chains.push_back(Fwg::Parsing::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\major_chains.txt"));
   
-  chains.push_back(ParserUtils::getLinesByID(
+  chains.push_back(Fwg::Parsing::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\regional_chains.txt"));
-  chains.push_back(ParserUtils::getLinesByID(
+  chains.push_back(Fwg::Parsing::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\army_chains.txt"));
-  auto branchRules = (ParserUtils::getLinesByID(
+  auto branchRules = (Fwg::Parsing::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\chain_rules.txt"));
   for (auto &sourceCountry : hoi4Countries) {
     const auto &source = hoi4Countries[sourceCountry.first];
@@ -374,7 +374,7 @@ void FocusGen::evaluateCountryGoals(
         for (const auto &chainFocus : chain) {
           Fwg::Utils::Logging::logLineLevel(9, chainFocus);
           // evaluate every single focus of that chain
-          const auto chainTokens = ParserUtils::getTokens(chainFocus, ';');
+          const auto chainTokens = Fwg::Parsing::getTokens(chainFocus, ';');
           const int chainStep = stoi(chainTokens[1]);
           chainID = stoi(chainTokens[0]);
           const int level = stoi(chainTokens[12]);
@@ -422,7 +422,7 @@ void FocusGen::evaluateCountryGoals(
               continue;
             // select random target
             const auto &target = Fwg::Utils::selectRandom(targets);
-            auto focus{buildFocus(ParserUtils::getTokens(chain[stepIndex], ';'),
+            auto focus{buildFocus(Fwg::Parsing::getTokens(chain[stepIndex], ';'),
                                   hoi4Countries.at(sourceCountry.first),
                                   target)};
             focus.stepID = stepIndex;
@@ -441,11 +441,11 @@ void FocusGen::evaluateCountryGoals(
           auto branchRule = branchRules[branch.ID];
           if (branchRule.size()) {
             const auto branchTokens =
-                ParserUtils::getTokens(branchRule[0], ';');
+                Fwg::Parsing::getTokens(branchRule[0], ';');
             auto branchPredecessors =
-                ParserUtils::getTokens(branchTokens[1], ',');
+                Fwg::Parsing::getTokens(branchTokens[1], ',');
             auto optionalPredecessors =
-                ParserUtils::getTokens(branchTokens[2], ',');
+                Fwg::Parsing::getTokens(branchTokens[2], ',');
             for (auto &branchPredecessor : branchPredecessors) {
               branch.requiredPreceding.push_back(std::stoi(branchPredecessor));
             }

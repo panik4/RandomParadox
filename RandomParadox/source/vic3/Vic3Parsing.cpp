@@ -1,7 +1,7 @@
 #include "vic3/Vic3Parsing.h"
 using namespace Fwg;
 namespace Logging = Fwg::Utils::Logging;
-namespace pU = Scenario::ParserUtils;
+namespace pU = Fwg::Parsing;
 namespace Scenario::Vic3::Parsing {
 namespace Writing {
 void adj(const std::string &path) {
@@ -35,17 +35,19 @@ void defaultMap(const std::string &path,
       }
     }
   }
-  pU::replaceOccurences(content, "TEMPLATE_SEA_STARTS", seaStarts);
-  pU::replaceOccurences(content, "TEMPLATE_LAKES", lakes);
+  pU::Scenario::replaceOccurences(content, "TEMPLATE_SEA_STARTS", seaStarts);
+  pU::Scenario::replaceOccurences(content, "TEMPLATE_LAKES", lakes);
   pU::writeFile(path, content);
 }
 
 void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap) {
   auto content = pU::readFile("resources\\vic3\\map_data\\heightmap.heightmap");
   Logging::logLine("VIC3 Parser: Map: heightmap.heightmap");
-  pU::replaceOccurences(content, "template_map_x",
+  pU::Scenario::replaceOccurences(
+      content, "template_map_x",
                         std::to_string(heightMap.bInfoHeader.biWidth));
-  pU::replaceOccurences(content, "template_map_y",
+  pU::Scenario::replaceOccurences(
+      content, "template_map_y",
                         std::to_string(heightMap.bInfoHeader.biHeight));
   pU::writeFile(path, content);
 }
@@ -57,48 +59,49 @@ void stateFiles(const std::string &path,
   std::string file = "";
   for (const auto &region : regions) {
     auto content = templateFile;
-    pU::replaceOccurences(content, "template_name", region->name);
-    pU::replaceOccurences(content, "template_id",
+    pU::Scenario::replaceOccurences(content, "template_name", region->name);
+    pU::Scenario::replaceOccurences(content, "template_id",
                           std::to_string(region->ID + 1));
     std::string provinceString{""};
     for (auto prov : region->gameProvinces) {
       provinceString.append("\"" + prov->toHexString() + "\" ");
     }
-    pU::replaceOccurences(content, "template_provinces", provinceString);
+    pU::Scenario::replaceOccurences(content, "template_provinces",
+                                    provinceString);
 
     int counter = 0;
-    pU::replaceOccurences(
+    pU::Scenario::replaceOccurences(
         content, "template_city",
         region
             ->gameProvinces[std::clamp(counter++, 0,
                                        (int)region->provinces.size() - 1)]
             ->toHexString());
-    pU::replaceOccurences(
+    pU::Scenario::replaceOccurences(
         content, "template_port",
         region
             ->gameProvinces[std::clamp(counter++, 0,
                                        (int)region->provinces.size() - 1)]
             ->toHexString());
-    pU::replaceOccurences(
+    pU::Scenario::replaceOccurences(
         content, "template_farm",
         region
             ->gameProvinces[std::clamp(counter++, 0,
                                        (int)region->provinces.size() - 1)]
             ->toHexString());
-    pU::replaceOccurences(
+    pU::Scenario::replaceOccurences(
         content, "template_mine",
         region
             ->gameProvinces[std::clamp(counter++, 0,
                                        (int)region->provinces.size() - 1)]
             ->toHexString());
-    pU::replaceOccurences(
+    pU::Scenario::replaceOccurences(
         content, "template_wood",
         region
             ->gameProvinces[std::clamp(counter++, 0,
                                        (int)region->provinces.size() - 1)]
             ->toHexString());
     // TODO removed for now
-    pU::replaceOccurences(content, "template_naval_exit", "");
+    pU::Scenario::replaceOccurences(content, "template_naval_exit", "");
     file.append(content);
   }
   pU::writeFile(path, file, true);
@@ -151,9 +154,9 @@ void strategicRegions(const std::string &path,
         capital = state->gameProvinces[0]->toHexString();
       }
     }
-    pU::replaceOccurences(content, "template_name", region.name);
-    pU::replaceOccurences(content, "template_states", states);
-    pU::replaceOccurences(content, "template_capital", capital);
+    pU::Scenario::replaceOccurences(content, "template_name", region.name);
+    pU::Scenario::replaceOccurences(content, "template_states", states);
+    pU::Scenario::replaceOccurences(content, "template_capital", capital);
 
     file.append(content);
   }
@@ -168,12 +171,12 @@ void cultureCommon(const std::string &path,
   for (const auto &culture : cultures) {
     auto cultString = culturesTemplate;
 
-    pU::replaceOccurences(cultString, "templateCulture", culture->name);
+    pU::Scenario::replaceOccurences(cultString, "templateCulture", culture->name);
     std::string colour = Fwg::Utils::varsToString(
         (int)culture->colour.getRed(), " ", (int)culture->colour.getGreen(),
         " ", (int)culture->colour.getBlue());
-    pU::replaceOccurences(cultString, "templateColour", colour);
-    pU::replaceOccurences(cultString, "templateReligion",
+    pU::Scenario::replaceOccurences(cultString, "templateColour", colour);
+    pU::Scenario::replaceOccurences(cultString, "templateReligion",
                           culture->primaryReligion->name);
     cultureFile.append(cultString);
   }
@@ -190,7 +193,7 @@ void religionCommon(const std::string &path,
   for (const auto &religion : religions) {
     auto relString = religionTemplate;
 
-    pU::replaceOccurences(relString, "templateReligion", religion->name);
+    pU::Scenario::replaceOccurences(relString, "templateReligion", religion->name);
     religionFile.append(relString);
   }
   pU::writeFile(path, religionFile, true);
@@ -204,14 +207,14 @@ void countryCommon(const std::string &path,
   for (const auto &country : countries) {
     auto cString = countryTemplate;
 
-    pU::replaceOccurences(cString, "templateTag", country.second.tag);
+    pU::Scenario::replaceOccurences(cString, "templateTag", country.second.tag);
     std::string colour =
         Fwg::Utils::varsToString((int)country.second.colour.getRed(), " ",
                                  (int)country.second.colour.getGreen(), " ",
                                  (int)country.second.colour.getBlue());
-    pU::replaceOccurences(cString, "templateColour", colour);
+    pU::Scenario::replaceOccurences(cString, "templateColour", colour);
     auto capitalRegion = regions[country.second.capitalRegionID];
-    pU::replaceOccurences(cString, "templateCapital", capitalRegion->name);
+    pU::Scenario::replaceOccurences(cString, "templateCapital", capitalRegion->name);
 
     using pair_type = decltype(capitalRegion->cultures)::value_type;
     auto pr = std::max_element(std::begin(capitalRegion->cultures),
@@ -220,7 +223,7 @@ void countryCommon(const std::string &path,
                                  return p1.second < p2.second;
                                });
 
-    pU::replaceOccurences(cString, "templateCultures", pr->first->name);
+    pU::Scenario::replaceOccurences(cString, "templateCultures", pr->first->name);
     countryDefinition.append(cString);
   }
   pU::writeFile(path, countryDefinition, true);
@@ -239,23 +242,23 @@ void popsHistory(const std::string &path,
     if (region->sea)
       continue;
     auto statePops = popsStateTemplate;
-    pU::replaceOccurences(statePops, "templateName", region->name);
+    pU::Scenario::replaceOccurences(statePops, "templateName", region->name);
     // TODO: real country
-    pU::replaceOccurences(statePops, "templateTag", region->owner);
+    pU::Scenario::replaceOccurences(statePops, "templateTag", region->owner);
 
     std::string listOfPops{""};
     for (auto &culture : region->cultures) {
       std::string pop = popsSingleTemplate;
-      pU::replaceOccurences(pop, "templateCulture", culture.first->name);
-      pU::replaceOccurences(pop, "templatePopSize",
+      pU::Scenario::replaceOccurences(pop, "templateCulture", culture.first->name);
+      pU::Scenario::replaceOccurences(pop, "templatePopSize",
                             std::to_string((int)(culture.second * 10000.0)));
       listOfPops.append(pop);
     }
 
-    pU::replaceOccurences(statePops, "templatePopList", listOfPops);
+    pU::Scenario::replaceOccurences(statePops, "templatePopList", listOfPops);
     listOfStates.append(statePops);
   }
-  pU::replaceOccurences(popsFile, "templatePopsData", listOfStates);
+  pU::Scenario::replaceOccurences(popsFile, "templatePopsData", listOfStates);
 
   pU::writeFile(path, popsFile, true);
 }
@@ -269,18 +272,18 @@ void stateHistory(const std::string &path,
     if (region->sea)
       continue;
     auto content = stateTemplate;
-    pU::replaceOccurences(content, "templateName", region->name);
-    pU::replaceOccurences(content, "templateCountry", region->owner);
+    pU::Scenario::replaceOccurences(content, "templateName", region->name);
+    pU::Scenario::replaceOccurences(content, "templateCountry", region->owner);
     std::string provinceString{""};
     for (auto prov : region->gameProvinces) {
       provinceString.append("\"" + prov->toHexString() + "\" ");
     }
-    pU::replaceOccurences(content, "templateProvinces", provinceString);
+    pU::Scenario::replaceOccurences(content, "templateProvinces", provinceString);
 
-    pU::replaceOccurences(content, "templateCulture", "dixie");
+    pU::Scenario::replaceOccurences(content, "templateCulture", "dixie");
     stateContent.append(content);
   }
-  pU::replaceOccurences(file, "templateStateData", stateContent);
+  pU::Scenario::replaceOccurences(file, "templateStateData", stateContent);
 
   pU::writeFile(path, file, true);
 }
@@ -291,14 +294,18 @@ void countryHistory(const std::string &path,
   for (const auto &country : countries) {
     auto cString = countryTemplate;
 
-    pU::replaceOccurences(cString, "templateTag", country.second.tag);
+    pU::Scenario::replaceOccurences(cString, "templateTag", country.second.tag);
     std::string filename =
         country.second.tag + " - " + country.second.name + ".txt";
     pU::writeFile(path + "\\" + filename, cString, true);
   }
 }
 void splineNetwork(const std::string &path) {
-  ParserUtils::writeFile(path + "//spline_network.splnet", "");
+  pU::writeFile(path + "//spline_network.splnet", "");
+}
+
+void compatCanals(const std::string &path) {
+  pU::writeFile(path, "", true);
 }
 
 void compatRegions(const std::string &inFolder, const std::string &outPath,
@@ -346,7 +353,7 @@ void compatStratRegions(const std::string &inFolder,
         content.append("}\n");
       }
     }
-    pU::writeFile(outPath + filename, content);
+    pU::writeFile(outPath + filename, content, true);
   }
 }
 
@@ -359,9 +366,9 @@ void compatReleasable(const std::string &inFolder, const std::string &outPath) {
         pathString.substr(pathString.find_last_of("\\") + 1,
                           pathString.back() - pathString.find_last_of("\\"));
     std::string content = pU::readFile(pathString);
-    while (pU::removeBracketBlockFromBracket(content, "provinces = {")) {
+    while (pU::Scenario::removeBracketBlockFromBracket(content, "provinces = {")) {
     }
-    pU::replaceLines(content, "\tprovinces =", "provinces = { }\n");
+    pU::Scenario::replaceLines(content, "\tprovinces =", "provinces = { }\n");
     pU::writeFile(outPath + filename, content);
   }
 }

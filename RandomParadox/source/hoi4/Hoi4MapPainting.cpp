@@ -441,7 +441,7 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInProvMap,
   hoi4Gen.areas = areaNewData;
 }
 std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
-  auto list = ParserUtils::getLinesByID(path);
+  auto list = Fwg::Parsing::getLinesByID(path);
   return list;
 }
 
@@ -461,7 +461,7 @@ bool isProvinceID(std::string &content, const std::string &delimiterLeft,
     auto substr = content.substr(leftDelim, rightDelim - leftDelim);
 
     std::string replacementString{""};
-    auto tokens = ParserUtils::getTokens(substr, ' ');
+    auto tokens = Fwg::Parsing::getTokens(substr, ' ');
     for (auto &token : tokens) {
       if (Fwg::Utils::isInt(token)) {
         auto repVal = std::stoi(token);
@@ -483,7 +483,7 @@ bool isProvinceID(std::string &content, const std::string &delimiterLeft,
     }
     // tokenize all contents between delimiters
     // should always be spaces afaik
-    // auto provIDs = ParserUtils::getNumbers(substr, ' ');
+    // auto provIDs = Parsing::Scenario::getNumbers(substr, ' ');
     // std::string replacementString{""};
     // for (auto &provID : provIDs) {
     //  auto repVal = provID;
@@ -549,40 +549,40 @@ void edit(const std::string &inPath, const std::string &outputPath,
 
   // for (const auto &edit : mapFilesToEdit) {
   //   std::string out{""};
-  //   auto fileContent = ParserUtils::getLines(inPath + edit);
+  //   auto fileContent = Parsing::Scenario::getLines(inPath + edit);
   //   for (auto &line : fileContent) {
   //     isProvinceID(line, "{", "}", 0, IDTransformations, deletedIDs);
   //   }
   //   for (auto &line : fileContent) {
   //     out.append(line + "\n");
   //   }
-  //   ParserUtils::writeFile(outputPath + edit, out);
+  //   Parsing::Scenario::writeFile(outputPath + edit, out);
   // }
   // mapFilesToEdit = {std::string("//map//definition.csv")};
   // for (const auto &edit : mapFilesToEdit) {
   //  std::string out{""};
-  //  auto fileContent = ParserUtils::getLines(inPath + edit);
+  //  auto fileContent = Parsing::Scenario::getLines(inPath + edit);
   //  for (auto &line : fileContent) {
   //    isProvinceID(line, "", ";", 0, IDTransformations, deletedIDs);
   //  }
   //  for (auto &line : fileContent) {
   //    out.append(line + "\n");
   //  }
-  //  ParserUtils::writeFile(outputPath + edit, out);
+  //  Parsing::Scenario::writeFile(outputPath + edit, out);
   //}
 
   // mapFilesToEdit = {std::string("//map//airports.txt"),
   //                   std::string("//map//rocketsites.txt")};
   // for (const auto &edit : mapFilesToEdit) {
   //   std::string out{""};
-  //   auto fileContent = ParserUtils::getLines(inPath + edit);
+  //   auto fileContent = Parsing::Scenario::getLines(inPath + edit);
   //   for (auto &line : fileContent) {
   //     isProvinceID(line, "{", "}", 0, IDTransformations);
   //   }
   //   for (auto &line : fileContent) {
   //     out.append(line + "\n");
   //   }
-  //   ParserUtils::writeFile(outputPath + edit, out);
+  //   Parsing::Scenario::writeFile(outputPath + edit, out);
 }
 } // namespace Provinces
 

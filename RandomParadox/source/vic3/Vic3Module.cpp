@@ -37,6 +37,8 @@ bool Module::createPaths() { // prepare folder structure
     create_directory(gameModPath + "\\common\\history\\pops");
     create_directory(gameModPath + "\\common\\history\\countries");
     create_directory(gameModPath + "\\common\\country_creation");
+    create_directory(gameModPath + "\\common\\decisions");
+    create_directory(gameModPath + "\\events");
     create_directory(gameModPath + "\\gfx\\");
     create_directory(gameModPath + "\\gfx\\map");
     create_directory(gameModPath + "\\gfx\\map\\terrain");
@@ -166,6 +168,8 @@ void Module::genVic3() {
     countryHistory(gameModPath + "\\common\\history\\countries",
                    vic3Gen.countries);
     splineNetwork(gameModPath + "\\gfx\\map\\spline_network\\");
+    compatCanals(gameModPath + "\\common\\decisions\\canal_decisions.txt");
+    compatCanals(gameModPath + "\\events\\canal_events.txt");
 
     //  generate map files. Format must be converted and colours mapped to vic3
     //  compatible colours

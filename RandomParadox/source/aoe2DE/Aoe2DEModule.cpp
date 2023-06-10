@@ -28,7 +28,7 @@ void Module::genAoe2() {
   const auto &conf = Fwg::Cfg::Values();
   const auto &colours = conf.colours;
   const auto &templateFile =
-      ParserUtils::readFile("resources/aoe2/base_skeleton.txt");
+      Parsing::readFile("resources/aoe2/base_skeleton.txt");
   try {
     std::string file = templateFile;
     std::string playerPos{""};
@@ -125,9 +125,9 @@ void Module::genAoe2() {
      elevation.append("number_of_clumps " + std::to_string(highEle) + "\n");
      elevation.append("}\n");
 
-    ParserUtils::replaceOccurence(file, "TOKEN_TERRAIN", terrain_generation);
-    ParserUtils::replaceOccurence(file, "TOKEN_ELEVATION", elevation);
-    ParserUtils::writeFile("mapContent", file);
+    Parsing::Scenario::replaceOccurence(file, "TOKEN_TERRAIN", terrain_generation);
+    Parsing::Scenario::replaceOccurence(file, "TOKEN_ELEVATION", elevation);
+    Parsing::writeFile("mapContent", file);
 
   } catch (std::exception e) {
   }

@@ -1,96 +1,9 @@
 #include "generic/ParserUtils.h"
 
-namespace Scenario::ParserUtils {
+namespace Fwg::Parsing::Scenario {
 
-void writeFile(const std::string &path, std::string content, bool utf8) {
-  std::ofstream file;
-  file.open(path);
-  if (!file)
-    throw std::exception(
-        Fwg::Utils::varsToString("Didn't manage to write to file ", path)
-            .c_str());
-  if (utf8) {
-    const std::array<unsigned char, 3> bom[]{0xEF, 0xBB, 0xBF};
-    file.write((char *)bom, sizeof(bom));
-  }
-  file << content;
-  file.close();
-};
-std::string readFile(std::string path) {
-  std::string content{""};
-  std::string line;
-  std::ifstream file;
-  file.open(path);
-  if (!file)
-    throw std::exception(
-        Fwg::Utils::varsToString("Didn't manage to read from file ", path)
-            .c_str());
-  while (getline(file, line)) {
-    content.append(line + "\n");
-  }
-  file.close();
-  return content;
-};
 
-std::vector<std::string> readFilesInDirectory(const std::string &path) {
-  const std::filesystem::path directory{path};
-  std::vector<std::string> fileContents;
-  for (auto const &dir_entry : std::filesystem::directory_iterator{directory}) {
-    std::stringstream pathStream{dir_entry.path().string()};
-    std::string pathString{pathStream.str()};
-    fileContents.push_back(readFile(pathString));
-  }
-  return fileContents;
-};
 
-std::vector<std::string> getLines(const std::string &path) {
-  std::vector<std::string> content;
-  std::string line;
-  std::stringstream file{readFile(path)};
-  while (getline(file, line)) {
-    if (line.front() == '#')
-      continue;
-    content.push_back(line);
-  }
-  return content;
-};
-
-std::vector<std::vector<std::string>> getLinesByID(const std::string &path) {
-  std::vector<std::vector<std::string>> sortedLines(100000);
-  std::string line;
-  std::stringstream file{readFile(path)};
-  while (getline(file, line)) {
-    if (line.size() && line.front() != '#') {
-      auto tokens = getTokens(line, ';');
-      if (tokens.size())
-        sortedLines[stoi(tokens[0])].push_back(line);
-    }
-  }
-  return sortedLines;
-};
-std::string csvFormat(const std::vector<std::string> arguments, char delimiter,
-                      bool trailing) {
-  std::vector<std::string>::const_iterator arg;
-  std::string retString("");
-  for (arg = arguments.begin(); arg != arguments.end(); arg++) {
-    retString.append(*arg);
-    if (!trailing && arguments.end() - arg == 1)
-      continue;
-    retString.append(std::string{delimiter});
-  }
-  retString.append("\n");
-  return retString;
-}
-std::string getValue(const std::string &content, const std::string &key) {
-  const auto pos = content.find(key);
-  if (pos != std::string::npos) {
-    const auto equalsPos = content.find("=", pos) + 1;
-    const auto endPos = content.find("\n", equalsPos);
-    auto value = content.substr(equalsPos, endPos - equalsPos);
-    return value;
-  }
-  return "";
-};
 void removeCharacter(std::string &content, char character) {
   content.erase(std::remove(content.begin(), content.end(), character),
                 content.end());
@@ -102,17 +15,7 @@ void removeSpecials(std::string &content) {
   removeCharacter(content, '=');
   removeCharacter(content, '}');
 };
-std::vector<std::string> getTokens(const std::string &content,
-                                   const char delimiter) {
-  std::vector<std::string> tokens{};
-  std::stringstream sstream(content);
-  std::string token;
-  while (std::getline(sstream, token, delimiter)) {
-    // if (token.size())
-    tokens.push_back(token);
-  }
-  return tokens;
-};
+
 
 std::vector<int> getNumbers(const std::string &content, const char delimiter,
                             const std::set<int> tokensToConvert) {
@@ -282,4 +185,4 @@ std::string removeSurroundingBracketBlockFromLineBreak(std::string &content,
   }
   return "";
 };
-}; // namespace Scenario::ParserUtils
+}; // namespace Fwg::Parsing::Scenario

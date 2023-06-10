@@ -36,6 +36,8 @@ void countryHistory(const std::string &path,
                     const std::map<std::string, PdoxCountry> &countries);
 
 void splineNetwork(const std::string &path);
+
+void compatCanals(const std::string &path);
 void compatRegions(const std::string &inFolder, const std::string &outPath,
                    const std::vector<std::shared_ptr<Region>> &regions);
 
