@@ -221,25 +221,34 @@ void Generator::generateWeather() {
             averageTemperature * Cfg::Values().temperatureRange +
             averageDeviation * Cfg::Values().deviationFactor);
         // light_rain chance: cold and humid -> high, 5
-        strat.weatherMonths[i].push_back(0.7 * (1.0 - averageTemperature) *
-                                         averagePrecipitation);
+        strat.weatherMonths[i].push_back(
+            this->weatherChances.at("baseLightRainChance") *
+            (1.0 - averageTemperature) * averagePrecipitation);
         // heavy rain chance: warm and humid -> high, 6
-        strat.weatherMonths[i].push_back(0.7 * averageTemperature *
-                                         averagePrecipitation);
+        strat.weatherMonths[i].push_back(
+            this->weatherChances.at("baseHeavyRainChance") *
+            averageTemperature * averagePrecipitation);
         // mud chance, 7
         strat.weatherMonths[i].push_back(
-            0.3 * (2.0 * strat.weatherMonths[i][6] + strat.weatherMonths[i][5]));
+            this->weatherChances.at("baseMudChance") *
+            (2.0 * strat.weatherMonths[i][6] + strat.weatherMonths[i][5]));
         // blizzard chance, 8
         strat.weatherMonths[i].push_back(
-            std::clamp(0.2 - averageTemperature, 0.0, 0.2) *
+            std::clamp(this->weatherChances.at("baseBlizzardChance") -
+                           averageTemperature,
+                       0.0, 0.2) *
             averagePrecipitation);
         // sandstorm chance, 9
         strat.weatherMonths[i].push_back(
-            std::clamp((averageTemperature - 0.8) * 0.5 , 0.0, 0.1) *
+            std::clamp((averageTemperature - 0.8) *
+                           this->weatherChances.at("baseSandstormChance"),
+                       0.0, 0.1) *
             std::clamp(0.2 - averagePrecipitation, 0.0, 0.2));
         // snow chance, 10
         strat.weatherMonths[i].push_back(
-            std::clamp(0.4 - averageTemperature, 0.0, 0.2) *
+            std::clamp(this->weatherChances.at("baseSnowChance") -
+                           averageTemperature,
+                       0.0, 0.2) *
             averagePrecipitation);
         // no phenomenon chance, 11
         strat.weatherMonths[i].push_back(
@@ -540,8 +549,8 @@ void Generator::generateCountryUnits() {
   }
 }
 
-void Generator::generateFocusTrees() { Hoi4::FocusGen::evaluateCountryGoals(this->hoi4Countries, this->gameRegions);
-
+void Generator::generateFocusTrees() {
+  Hoi4::FocusGen::evaluateCountryGoals(this->hoi4Countries, this->gameRegions);
 }
 
 void Generator::printStatistics() {
