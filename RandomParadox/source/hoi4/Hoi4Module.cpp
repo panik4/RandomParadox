@@ -5,11 +5,27 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
                        const std::string &configSubFolder,
                        const std::string &username, const bool editMode) {
   hoi4Gen = Scenario::Hoi4::Generator(configSubFolder);
+  const auto &config = Fwg::Cfg::Values();
+  if (config.width % 64 || config.height % 64) {
+    throw(std::exception("Invalid format, both width and height of the image "
+                         "must be multiples of 64."));
+  } else if (config.scale && (config.scaleX % 64 || config.scaleY % 64)) {
+    throw(std::exception("Invalid target dimensions for scaling mode, both "
+                         "scaleX and scaleY of the image "
+                         "must be multiples of 64."));
+  }
   // read hoi configs and potentially overwrite settings for fwg
   readHoiConfig(configSubFolder, username, gamesConf);
   if (!editMode) {
     // now run the world generation
     hoi4Gen.generateWorld();
+    // check again after generation in case of cutting, as dimension calculation
+    // is not possible before the image was loaded and width and height are
+    // known
+    if (config.width % 64 || config.height % 64) {
+      throw(std::exception("Invalid format, both width and height of the image "
+                           "must be multiples of 64."));
+    }
   }
 
   readHoiConfig(configSubFolder, username, gamesConf);

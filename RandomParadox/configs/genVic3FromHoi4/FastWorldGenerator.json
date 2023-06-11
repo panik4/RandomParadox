@@ -4,6 +4,9 @@
 		"debugLevel": 0,
 		"loadMaps" : true,
 		"writeMaps" : true,
+		"cut" : false,
+		"scale" : false,
+		"scaleFactor" : 1,
 		"seed" : 0
 	},
 	"paths":
@@ -15,7 +18,10 @@
 	{
 		"heightMap" : true,
 		"terrainMap" : false,
+		"continentMap" : false,
+		"climateMap" : false,
 		"humidityMap" : false,
+		"riverMap" : false,
 		"habitabilityMap" : false,
 		"provinceMap" : false,
 		"modifyHeight": true,
@@ -32,12 +38,10 @@
 	},
 	"cut":
 	{
-		"cut" : false,
 		"minX" : 1300,
 		"maxX" : 2324,
 		"minY" : 0,
 		"maxY" : 1024,
-		"scale" : false,
 		"scaleX" : 1024,
 		"scaleY" : 1024,
 		"keepRatio" : false,

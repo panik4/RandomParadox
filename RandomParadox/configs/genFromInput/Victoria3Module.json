@@ -1,8 +1,8 @@
 {
 	"fastworldgen":
 	{
-		"loadMapsPath": "inputs//Hearts of Iron IV//map//",
-		"heightMapName": "heightmap.bmp"
+		"loadMapsPath": "inputs//mapInputs//",
+		"heightMapName": "equestria_heightmap_small.png"
 	},
 	"vic3":
 	{
