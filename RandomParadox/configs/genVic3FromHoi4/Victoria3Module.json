@@ -2,7 +2,7 @@
 	"fastworldgen":
 	{
 		"loadMapsPath": "inputs//mapInputs//",
-		"heightMapName": "equestria_heightmap.bmp"
+		"heightMapName": "equestria_heightmap2.bmp"
 	},
 	"vic3":
 	{
