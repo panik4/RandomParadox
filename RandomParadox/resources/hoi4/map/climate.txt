@@ -1,0 +1,26 @@
+#this is a file to map the hoi4 terrain.bmp to a climate map compatible with fwg
+8,31,130,sea
+86,124,27,grassland
+0,86,6,forest
+112,74,31,hills
+206,169,99,grassland
+6,200,11,forest
+255,0,24,grassland
+134,84,30,mountains
+252,255,0,desert
+73,59,15,hills
+75,147,174,grassland
+174,0,255,mountains
+92,83,76,mountains
+255,0,240,savannah
+240,255,0,grassland
+55,90,220,sea
+255,255,255,peaks
+132,255,0,hills
+255,126,0,desert
+114,137,105,savannah
+58,131,82,hills
+255,0,127,jungle
+0,82,82,forest
+243,199,147,desert
+255,0,252,jungle
