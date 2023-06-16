@@ -1,8 +1,8 @@
-#include "generic/PdoxCountry.h"
+#include "generic/Country.h"
 namespace Scenario {
-PdoxCountry::PdoxCountry() : ID{-1} {}
+Country::Country() : ID{-1} {}
 
-PdoxCountry::PdoxCountry(std::string tag, int ID, std::string name,
+Country::Country(std::string tag, int ID, std::string name,
                          std::string adjective, Gfx::Flag flag)
     : ID{ID}, tag{tag}, name{name}, adjective{adjective}, flag{flag} {
   colour = {static_cast<unsigned char>(RandNum::getRandom(0, 255)),
@@ -11,9 +11,9 @@ PdoxCountry::PdoxCountry(std::string tag, int ID, std::string name,
   this->flag.flip();
 }
 
-PdoxCountry::~PdoxCountry() {}
+Country::~Country() {}
 
-void PdoxCountry::assignRegions(
+void Country::assignRegions(
     int maxRegions, std::vector<std::shared_ptr<Region>> &gameRegions,
     std::shared_ptr<Region> startRegion,
     std::vector <std::shared_ptr<GameProvince>> & gameProvinces) {
@@ -35,7 +35,7 @@ void PdoxCountry::assignRegions(
   }
 }
 
-void PdoxCountry::addRegion(std::shared_ptr<Region> region,
+void Country::addRegion(std::shared_ptr<Region> region,
                             std::vector<std::shared_ptr<Region>> &gameRegions,
                             std::vector < std::shared_ptr<GameProvince>> &
                                 gameProvinces) {

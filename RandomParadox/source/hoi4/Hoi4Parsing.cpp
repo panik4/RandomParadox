@@ -969,7 +969,7 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
     if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end()) {
       hoi4Gen.countries.at(region->owner).ownedRegions.push_back(region->ID);
     } else {
-      PdoxCountry c;
+      Country c;
       c.tag = region->owner;
       c.ownedRegions.push_back(region->ID);
       hoi4Gen.countries.insert({c.tag, c});

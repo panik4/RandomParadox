@@ -1,6 +1,6 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include "generic/PdoxCountry.h"
+#include "generic/Country.h"
 #include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4Region.h"

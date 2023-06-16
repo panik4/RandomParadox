@@ -5,8 +5,8 @@
 #include "GameProvince.h"
 #include "GameRegion.h"
 #include "NameGenerator.h"
-#include "PdoxContinent.h"
-#include "PdoxCountry.h"
+#include "ScenarioContinent.h"
+#include "Country.h"
 #include "RandNum/RandNum.h"
 #include "Religion.h"
 #include "ResourceLoading.h"
@@ -22,9 +22,6 @@ struct strategicRegion {
 };
 
 class Generator : public Fwg::FastWorldGenerator {
-  // containers
-  std::vector<Fwg::Region> baseRegions;
-  std::map<std::string, Fwg::Gfx::Bitmap> bitmaps;
 
 protected:
   Fwg::Gfx::Bitmap typeMap;
@@ -65,14 +62,13 @@ public:
       {Fwg::Province::TerrainType::urban, "urban"},
       {Fwg::Province::TerrainType::lake, "lakes"}};
 
-  std::vector<Fwg::Province *> provinces;
-  std::vector<PdoxContinent> pdoxContinents;
+  std::vector<ScenarioContinent> pdoxContinents;
   Fwg::Utils::ColourTMap<std::shared_ptr<Region>> stateColours;
   std::vector<std::shared_ptr<Region>> gameRegions;
   std::vector<std::shared_ptr<GameProvince>> gameProvinces;
   std::set<std::string> tags;
   Fwg::Utils::ColourTMap<std::string> colourMap;
-  std::map<std::string, PdoxCountry> countries;
+  std::map<std::string, Country> countries;
   std::vector<strategicRegion> strategicRegions;
   std::vector<std::shared_ptr<Religion>> religions;
   std::vector<std::shared_ptr<Culture>> cultures;

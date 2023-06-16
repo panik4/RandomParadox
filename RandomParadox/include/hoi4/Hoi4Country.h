@@ -1,13 +1,13 @@
 #pragma once
 #include "Hoi4Region.h"
 #include "NationalFocus.h"
-#include "generic/PdoxCountry.h"
+#include "generic/Country.h"
 #include <array>
 #include <string>
 #include <vector>
 
 namespace Scenario::Hoi4 {
-class Hoi4Country : public Scenario::PdoxCountry {
+class Hoi4Country : public Scenario::Country {
 public:
   enum class doctrineType {
     blitz,
@@ -20,7 +20,7 @@ public:
     defensive
   };
   Hoi4Country();
-  Hoi4Country(Scenario::PdoxCountry &country, std::vector<std::shared_ptr<Scenario::Region>> &gameRegions);
+  Hoi4Country(Scenario::Country &country, std::vector<std::shared_ptr<Scenario::Region>> &gameRegions);
   ~Hoi4Country();
   std::string fullName;
   std::string gfxCulture;
