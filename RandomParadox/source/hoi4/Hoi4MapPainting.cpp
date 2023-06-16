@@ -602,8 +602,8 @@ void runMapEditor(Generator &hoi4Gen, const std::string &mappingPath,
       Fwg::Gfx::Bmp::load24Bit(mappingPath + "map//provinces.bmp", "provinces");
   // in case we want to edit provinces
   while (true) {
-    Fwg::Utils::Logging::logLine(
-        "1) Edit Provinces, 2) Edit States, 3) Edit Countries");
+    Fwg::Utils::Logging::logLine("1) Edit Provinces, 2) Edit States, 3) Edit "
+                                 "Countries, 4) Generate data");
     int choice;
     std::cin >> choice;
     // first edit province.bmp, and update some relevant files
@@ -634,6 +634,20 @@ void runMapEditor(Generator &hoi4Gen, const std::string &mappingPath,
                                                    "countries.bmp", hoi4Gen,
                                                    provinceMap, changes);
       break;
+    }
+    case 4: {
+      std::filesystem::copy_file(
+          "resources//hoi4//map//climate.txt", mappingPath + "map//terrain.txt",
+          std::filesystem::copy_options::update_existing);
+      auto climateMap = Fwg::IO::Reader::readClimateImage(
+          mappingPath + "map//terrain.bmp", config);
+      // set terrain types of base fwg provinces
+      Fwg::ClimateGeneration::provinceTerrainTypes(hoi4Gen.areas.provinces,
+                                                   climateMap);
+      // get the provinces into GameProvinces
+      hoi4Gen.mapProvinces();
+      //hoi4Gen.mapTerrain();
+      Hoi4::Parsing::Writing::definition(mappingPath + "map//definition.csv", hoi4Gen.gameProvinces);
     }
     }
 

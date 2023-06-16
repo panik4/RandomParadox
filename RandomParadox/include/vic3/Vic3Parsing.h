@@ -26,14 +26,14 @@ void cultureCommon(const std::string &path,
 void religionCommon(const std::string &path,
                     const std::vector<std::shared_ptr<Religion>> &religions);
 void countryCommon(const std::string &path,
-                   const std::map<std::string, PdoxCountry> &countries,
+                   const std::map<std::string, Country> &countries,
                    const std::vector<std::shared_ptr<Region>> &regions);
 void popsHistory(const std::string &path,
                  const std::vector<std::shared_ptr<Region>> &regions);
 void stateHistory(const std::string &path,
                   const std::vector<std::shared_ptr<Region>> &regions);
 void countryHistory(const std::string &path,
-                    const std::map<std::string, PdoxCountry> &countries);
+                    const std::map<std::string, Country> &countries);
 
 void splineNetwork(const std::string &path);
 

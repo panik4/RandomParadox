@@ -15,8 +15,7 @@ Generator::Generator(const std::string &configSubFolder)
 Generator::~Generator() {}
 
 void Generator::loadRequiredResources(const std::string &gamePath) {
-  bitmaps["provinces"] = ResourceLoading::loadProvinceMap(gamePath);
-  bitmaps["heightmap"] = ResourceLoading::loadHeightMap(gamePath);
+
 }
 
 void Generator::generateWorldCivilizations() {
@@ -34,7 +33,7 @@ void Generator::mapContinents() {
   Logging::logLine("Mapping Continents");
   for (const auto &continent : this->areas.continents) {
     // we copy the fwg continents by choice, to leave them untouched
-    pdoxContinents.push_back(PdoxContinent(continent));
+    pdoxContinents.push_back(ScenarioContinent(continent));
   }
 }
 
@@ -45,16 +44,16 @@ void Generator::mapRegions() {
               [](const Fwg::Province *a, const Fwg::Province *b) {
                 return (*a < *b);
               });
-    auto gR = std::make_shared<Region>(region);
-    for (auto &baseRegion : gR->neighbours)
-      gR->neighbours.push_back(baseRegion);
+    auto gameRegion = std::make_shared<Region>(region);
+    for (auto &baseRegion : gameRegion->neighbours)
+      gameRegion->neighbours.push_back(baseRegion);
     // generate random name for region
-    gR->name = NameGeneration::generateName(nData);
-    for (auto &province : gR->provinces) {
-      gR->gameProvinces.push_back(gameProvinces[province->ID]);
+    gameRegion->name = NameGeneration::generateName(nData);
+    for (auto &province : gameRegion->provinces) {
+      gameRegion->gameProvinces.push_back(gameProvinces[province->ID]);
     }
     // save game region
-    gameRegions.push_back(gR);
+    gameRegions.push_back(gameRegion);
   }
   // check if we have the same amount of gameProvinces as FastWorldGen provinces
   if (gameProvinces.size() != this->areas.provinces.size())
@@ -247,8 +246,8 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
   auto &colours = Fwg::Cfg::Values().colours;
   typeMap.fill(colours.at("sea"));
   Logging::logLine("Mapping Terrain");
-  for (auto &c : countries)
-    for (auto &gameRegion : c.second.ownedRegions)
+  for (auto &c : countries) {
+    for (auto &gameRegion : c.second.ownedRegions) {
       for (auto &gameProv : gameRegions[gameRegion]->gameProvinces) {
         gameProv->terrainType =
             terrainTypeToString.at(gameProv->baseProvince->terrainType);
@@ -279,6 +278,8 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
           }
         }
       }
+    }
+  }
   Png::save(typeMap, "Maps/typeMap.png");
   return typeMap;
 }
@@ -308,7 +309,7 @@ void Generator::generateCountries(int numCountries,
 
   for (int i = 0; i < numCountries; i++) {
     auto name{NameGeneration::generateName(nData)};
-    PdoxCountry pdoxC(NameGeneration::generateTag(name, nData), i, name,
+    Country pdoxC(NameGeneration::generateTag(name, nData), i, name,
                       NameGeneration::generateAdjective(name, nData),
                       Gfx::Flag(82, 52));
     // randomly set development of countries

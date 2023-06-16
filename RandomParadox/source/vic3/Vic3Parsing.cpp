@@ -199,7 +199,7 @@ void religionCommon(const std::string &path,
   pU::writeFile(path, religionFile, true);
 }
 void countryCommon(const std::string &path,
-                   const std::map<std::string, PdoxCountry> &countries,
+                   const std::map<std::string, Country> &countries,
                    const std::vector<std::shared_ptr<Region>> &regions) {
   const auto countryTemplate =
       pU::readFile("resources\\vic3\\common\\countryDefinitionTemplate.txt");
@@ -288,7 +288,7 @@ void stateHistory(const std::string &path,
   pU::writeFile(path, file, true);
 }
 void countryHistory(const std::string &path,
-                    const std::map<std::string, PdoxCountry> &countries) {
+                    const std::map<std::string, Country> &countries) {
   const auto countryTemplate =
       pU::readFile("resources\\vic3\\common\\countryHistoryTemplate.txt");
   for (const auto &country : countries) {

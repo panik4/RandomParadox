@@ -277,6 +277,11 @@ void Hoi4Module::mapCountries(bool multiCore, bool stateExport,
   //                             gameModPath, gameModsDirectory, modName);
 }
 void Hoi4Module::readHoi() {
+  auto& config = Fwg::Cfg::Values();
+  hoi4Gen.provinceMap =
+      Fwg::IO::Reader::readProvinceImage(mappingPath + "map//provinces.bmp", config);
+  hoi4Gen.heightMap =
+      Fwg::IO::Reader::readGenericImage(mappingPath + "map//heightmap.bmp", config);
   // read in game or mod files
   Hoi4::Parsing::Reading::readProvinces(
       mappingPath, "provinces.bmp", hoi4Gen.areas, hoi4Gen.stringToTerrainType);
@@ -286,6 +291,11 @@ void Hoi4Module::readHoi() {
   Hoi4::Parsing::Reading::readStates(mappingPath, hoi4Gen);
   // read the colour codes from the game/mod files
   hoi4Gen.colourMap = Hoi4::Parsing::Reading::readColourMapping(mappingPath);
+  // pre initialize an empty climateMap
+  hoi4Gen.climateMap =
+      Fwg::Gfx::Bitmap(hoi4Gen.provinceMap.bInfoHeader.biWidth,
+                       hoi4Gen.provinceMap.bInfoHeader.biHeight, 24);
+
   // now initialize hoi4 states from the gameRegions
   hoi4Gen.mapTerrain();
   for (auto &c : hoi4Gen.countries) {

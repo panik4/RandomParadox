@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 namespace Scenario {
-class PdoxCountry {
+class Country {
 public:
   // member variables
   const int ID;
@@ -18,10 +18,10 @@ public:
   Gfx::Flag flag;
   Fwg::Gfx::Colour colour;
   // constructors/destructors
-  PdoxCountry();
-  PdoxCountry(std::string tag, int ID, std::string name, std::string adjective,
+  Country();
+  Country(std::string tag, int ID, std::string name, std::string adjective,
               Gfx::Flag flag);
-  ~PdoxCountry();
+  ~Country();
   // containers
   std::vector<int> ownedRegions;
   std::set<std::string> neighbours;
@@ -34,6 +34,6 @@ public:
                  std::vector<std::shared_ptr<Region>> &gameRegions,
                  std::vector<std::shared_ptr<GameProvince>> &gameProvinces);
   // operators
-  bool operator<(const PdoxCountry &right) const { return ID < right.ID; };
+  bool operator<(const Country &right) const { return ID < right.ID; };
 };
 } // namespace Scenario
