@@ -4,6 +4,7 @@
 #include "generic/ParserUtils.h"
 #include "utils/Bitmap.h"
 #include "utils/Logging.h"
+#include "generic/FormatConverter.h"
 #include <iostream>
 #include <tuple>
 namespace Scenario::Hoi4::MapPainting {
@@ -51,6 +52,6 @@ void edit(const std::string &inPath, const std::string &outputPath,
 }
 
 void runMapEditor(Generator &hoi4Gen, const std::string &mappingPath,
-                  const std::string &gameModPath);
+                  const std::string &gameModPath, Scenario::Gfx::FormatConverter& formatConverter);
 
 }; // namespace Scenario::Hoi4::MapPainting

@@ -101,6 +101,10 @@ void GenericModule::configurePaths(
   gameModPath = gamesConf.get<std::string>(gameName + ".modPath") + modName;
   Fwg::Parsing::Scenario::replaceOccurences(gameModPath, "<username>",
                                             username);
+  Fwg::Parsing::Scenario::replaceOccurences(mappingPath, "<username>",
+                                            username);
+  Fwg::Parsing::Scenario::replaceOccurences(gamePath, "<username>",
+                                            username);
   gameModsDirectory = gamesConf.get<std::string>(gameName + ".modsDirectory");
   Fwg::Parsing::Scenario::replaceOccurences(gameModsDirectory, "<username>", username);
 }

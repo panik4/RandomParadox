@@ -239,11 +239,12 @@ void Generator::generateWeather() {
                        0.0, 0.2) *
             averagePrecipitation);
         // sandstorm chance, 9
-        strat.weatherMonths[i].push_back(
+        auto snadChance =
             std::clamp((averageTemperature - 0.8) *
                            this->weatherChances.at("baseSandstormChance"),
                        0.0, 0.1) *
-            std::clamp(0.2 - averagePrecipitation, 0.0, 0.2));
+            std::clamp(0.2 - averagePrecipitation, 0.0, 0.2);
+        strat.weatherMonths[i].push_back(snadChance);
         // snow chance, 10
         strat.weatherMonths[i].push_back(
             std::clamp(this->weatherChances.at("baseSnowChance") -
@@ -529,8 +530,8 @@ void Generator::generateCountryUnits() {
 
     // now evaluate each template and add it if all requirements are fulfilled
     for (int i = 0; i < unitTemplates.size(); i++) {
-      auto requirements =
-          Parsing::Scenario::getBracketBlockContent(unitTemplates[i], "requirements");
+      auto requirements = Parsing::Scenario::getBracketBlockContent(
+          unitTemplates[i], "requirements");
       auto requirementTokens = Fwg::Parsing::getTokens(requirements, ';');
       if (unitFulfillsRequirements(requirementTokens, c.second)) {
         // get the ID and save it for used divison templates
@@ -588,7 +589,8 @@ bool Generator::unitFulfillsRequirements(
   }
   for (auto &requirement : unitRequirements) {
     // need to check rank, first get the desired value
-    auto value = Parsing::Scenario::getBracketBlockContent(requirement, "doctrine");
+    auto value =
+        Parsing::Scenario::getBracketBlockContent(requirement, "doctrine");
     if (value != "") {
       if (value.find("any") != std::string::npos)
         continue; // fine, may target any ideology

@@ -58,7 +58,7 @@ public:
       {Fwg::Province::TerrainType::jungle, "jungle"},
       {Fwg::Province::TerrainType::desert, "desert"},
       {Fwg::Province::TerrainType::arctic, "ice"},
-      {Fwg::Province::TerrainType::tundra, "tundra"},
+      {Fwg::Province::TerrainType::tundra, "plains"},
       {Fwg::Province::TerrainType::urban, "urban"},
       {Fwg::Province::TerrainType::lake, "lakes"}};
 

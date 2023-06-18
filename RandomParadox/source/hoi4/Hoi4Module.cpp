@@ -134,9 +134,16 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
 
   //  passed to generic ScenarioGenerator
   numCountries = hoi4Conf.get<int>("scenario.numCountries");
+  // overwrites for fwg
   config.loadMapsPath = hoi4Conf.get<std::string>("fastworldgen.loadMapsPath");
   config.heightmapIn = config.loadMapsPath +
                        hoi4Conf.get<std::string>("fastworldgen.heightMapName");
+  // force defaults for the game, if not set otherwise
+  if (config.targetLandRegionAmount == 0)
+    config.targetLandRegionAmount = 640;
+  // force defaults for the game, if not set otherwise
+  if (config.targetSeaRegionAmount == 0)
+    config.targetSeaRegionAmount = 160;
   cut = config.cut;
   // check if config settings are fine
   config.sanityCheck();
@@ -277,11 +284,11 @@ void Hoi4Module::mapCountries(bool multiCore, bool stateExport,
   //                             gameModPath, gameModsDirectory, modName);
 }
 void Hoi4Module::readHoi() {
-  auto& config = Fwg::Cfg::Values();
-  hoi4Gen.provinceMap =
-      Fwg::IO::Reader::readProvinceImage(mappingPath + "map//provinces.bmp", config);
-  hoi4Gen.heightMap =
-      Fwg::IO::Reader::readGenericImage(mappingPath + "map//heightmap.bmp", config);
+  auto &config = Fwg::Cfg::Values();
+  hoi4Gen.provinceMap = Fwg::IO::Reader::readProvinceImage(
+      mappingPath + "map//provinces.bmp", config);
+  hoi4Gen.heightMap = Fwg::IO::Reader::readGenericImage(
+      mappingPath + "map//heightmap.bmp", config);
   // read in game or mod files
   Hoi4::Parsing::Reading::readProvinces(
       mappingPath, "provinces.bmp", hoi4Gen.areas, hoi4Gen.stringToTerrainType);
@@ -324,7 +331,7 @@ void Hoi4Module::mapEdit() {
   // prepare folder structure
   using namespace std::filesystem;
   try {
-    remove_all(gameModPath);
+    //remove_all(gameModPath);
     create_directory(gameModPath);
     // history
     create_directory(gameModPath + "\\history\\");
@@ -340,7 +347,8 @@ void Hoi4Module::mapEdit() {
     error += e.what();
     throw(std::exception(error.c_str()));
   }
-
-  Scenario::Hoi4::MapPainting::runMapEditor(hoi4Gen, mappingPath, gameModPath);
+  Gfx::FormatConverter formatConverter(gamePath, "Hoi4");
+  Scenario::Hoi4::MapPainting::runMapEditor(hoi4Gen, mappingPath, gameModPath,
+                                            formatConverter);
 }
 } // namespace Scenario::Hoi4
