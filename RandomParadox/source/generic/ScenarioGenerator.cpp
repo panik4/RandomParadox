@@ -14,9 +14,7 @@ Generator::Generator(const std::string &configSubFolder)
 
 Generator::~Generator() {}
 
-void Generator::loadRequiredResources(const std::string &gamePath) {
-
-}
+void Generator::loadRequiredResources(const std::string &gamePath) {}
 
 void Generator::generateWorldCivilizations() {
   typeMap = mapTerrain();
@@ -310,8 +308,8 @@ void Generator::generateCountries(int numCountries,
   for (int i = 0; i < numCountries; i++) {
     auto name{NameGeneration::generateName(nData)};
     Country pdoxC(NameGeneration::generateTag(name, nData), i, name,
-                      NameGeneration::generateAdjective(name, nData),
-                      Gfx::Flag(82, 52));
+                  NameGeneration::generateAdjective(name, nData),
+                  Gfx::Flag(82, 52));
     // randomly set development of countries
     pdoxC.developmentFactor = RandNum::getRandom(0.1, 1.0);
     countries.emplace(pdoxC.tag, pdoxC);
@@ -380,7 +378,9 @@ void Generator::evaluateNeighbours() {
   for (auto &c : countries)
     for (const auto &gR : c.second.ownedRegions)
       for (const auto &neighbourRegion : gameRegions[gR]->neighbours)
-        if (gameRegions[neighbourRegion]->owner != c.first)
+        // TO DO: Investigate rare crash issue with index being out of range
+        if (neighbourRegion < gameRegions.size() &&
+            gameRegions[neighbourRegion]->owner != c.first)
           c.second.neighbours.insert(gameRegions[neighbourRegion]->owner);
 }
 

@@ -587,7 +587,8 @@ void edit(const std::string &inPath, const std::string &outputPath,
 } // namespace Provinces
 
 void runMapEditor(Generator &hoi4Gen, const std::string &mappingPath,
-                  const std::string &gameModPath) {
+                  const std::string &gameModPath,
+                  Scenario::Gfx::FormatConverter &formatConverter) {
   /* generate world from input heightmap
    * compare differences between heightmaps for edit mask
    *  merge all maps with mask, so rest stays the same
@@ -611,6 +612,8 @@ void runMapEditor(Generator &hoi4Gen, const std::string &mappingPath,
     config.mapsToEdit.insert("provinceMap");
     config.mapsToEdit.insert("stateMap");
     config.mapsToEdit.insert("countryMap");
+    config.width = provinceMap.bInfoHeader.biWidth;
+    config.height = provinceMap.bInfoHeader.biHeight;
 
     switch (choice) {
     case 1: {
@@ -646,8 +649,28 @@ void runMapEditor(Generator &hoi4Gen, const std::string &mappingPath,
                                                    climateMap);
       // get the provinces into GameProvinces
       hoi4Gen.mapProvinces();
-      //hoi4Gen.mapTerrain();
-      Hoi4::Parsing::Writing::definition(mappingPath + "map//definition.csv", hoi4Gen.gameProvinces);
+      // hoi4Gen.mapTerrain();
+      Hoi4::Parsing::Writing::definition(mappingPath + "map//definition.csv",
+                                         hoi4Gen.gameProvinces);
+      break;
+    }
+    case 5: {
+      int factor = 1;
+      do {
+        auto heightMap = Fwg::Gfx::Bmp::load24Bit(
+            mappingPath + "map//heightmap.bmp", "heightmap");
+        auto normalMap = Fwg::Gfx::Bmp::sobelFilter(heightMap, factor);
+        formatConverter.dumpWorldNormal(
+            normalMap, mappingPath + "map//world_normal.bmp", false);
+        Fwg::Gfx::Images::show(mappingPath + "map//world_normal.bmp");
+        Fwg::Utils::Logging::logLine(
+            "Happy? You may increase the current factor of ", factor,
+            " by typing in the desired factor now, or type 0 to stop and "
+            "return to the previous menu");
+        std::cin >> factor;
+      } while (factor != 0);
+
+      break;
     }
     }
 
