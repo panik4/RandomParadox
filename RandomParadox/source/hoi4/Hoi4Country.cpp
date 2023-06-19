@@ -3,13 +3,12 @@
 namespace Scenario::Hoi4 {
 Hoi4Country::Hoi4Country() {}
 
-Hoi4Country::Hoi4Country(
-    Country &c, std::vector<std::shared_ptr<Scenario::Region>> &gameRegions)
+Hoi4Country::Hoi4Country(Country &c,
+                         std::vector<std::shared_ptr<Hoi4::Region>> &hoi4Region)
     : Country(c), allowElections{true}, bully{0.0},
       relativeScore{0.0}, parties{25, 25, 25, 25}, strengthScore{0} {
   for (auto &region : c.ownedRegions) {
-      // we want a copy of the region, that's why we create a new region
-    hoi4Regions.push_back(std::make_shared<Region>(*gameRegions[region]));
+    this->hoi4Regions.push_back(hoi4Region[region]);
   }
 }
 

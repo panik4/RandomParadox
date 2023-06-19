@@ -64,7 +64,7 @@ public:
   // give resources to states
   void generateStateResources();
   // industry, development, population, state category
-  void generateStateSpecifics(const int regionAmount);
+  void generateStateSpecifics();
   // politics: ideology, strength, major
   void generateCountrySpecifics();
   // generate weather per strategic region, from baseprovinces

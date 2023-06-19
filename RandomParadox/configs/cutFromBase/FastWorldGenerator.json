@@ -19,11 +19,11 @@
 		"heightMap" : true,
 		"terrainMap" : false,
 		"continentMap" : false,
-		"climateMap" : false,
+		"climateMap" : true,
 		"humidityMap" : false,
 		"riverMap" : false,
 		"habitabilityMap" : false,
-		"provinceMap" : false,
+		"provinceMap" : true,
 		"modifyHeight": false,
 		"heightAdjustments": 0
 	},
@@ -38,12 +38,12 @@
 	},
 	"cut":
 	{
-		"minX" : 4200,
-		"maxX" : 5224,
-		"minY" : 448,
-		"maxY" : 856,
-		"scaleX" : 5632,
-		"scaleY" : 2048,
+		"minX" : 0,
+		"maxX" : 5632,
+		"minY" : 0,
+		"maxY" : 2048,
+		"scaleX" : 1408,
+		"scaleY" : 512,
 		"keepRatio" : false,
 		"scaleFilterRuns": 0
 	},

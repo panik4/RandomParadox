@@ -37,7 +37,8 @@ void weatherPositions(const std::string &path,
 void flags(const std::string &path, const hoiMap &countries);
 
 // history
-void states(const std::string &path, const hoiMap &countries);
+void states(const std::string &path,
+            const std::vector<std::shared_ptr<Region>> &regions);
 void historyCountries(const std::string &path, const hoiMap &countries);
 void historyUnits(const std::string &path, const hoiMap &countries);
 void foci(const std::string &path, const hoiMap &countries,
