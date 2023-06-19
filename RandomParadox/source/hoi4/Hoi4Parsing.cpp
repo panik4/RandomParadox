@@ -318,73 +318,74 @@ void supply(const std::string &path,
   pU::writeFile(path + "railways.txt", railways);
 }
 
-void states(const std::string &path, const hoiMap &countries) {
+void states(const std::string &path,
+            const std::vector<std::shared_ptr<Region>> &regions) {
   Logging::logLine("HOI4 Parser: History: Drawing State Borders");
   auto templateContent = pU::readFile("resources\\hoi4\\history\\state.txt");
   std::vector<std::string> stateCategories{
       "wasteland",  "small_island", "pastoral",   "rural",      "town",
       "large_town", "city",         "large_city", "metropolis", "megalopolis"};
-  for (const auto &country : countries) {
-    for (const auto &region : country.second.hoi4Regions) {
-      if (region->sea)
-        continue;
-      std::string provString{""};
-      for (const auto &prov : region->provinces) {
-        provString.append(std::to_string(prov->ID + 1));
-        provString.append(" ");
-      }
-      auto content{templateContent};
-      pU::Scenario::replaceOccurences(content, "templateID",
-                                      std::to_string(region->ID + 1));
-      pU::Scenario::replaceOccurences(content, "template_provinces",
-                                      provString);
-      pU::Scenario::replaceOccurences(content, "templateOwner", country.first);
-      pU::Scenario::replaceOccurences(
-          content, "templateInfrastructure",
-          std::to_string(1 + (int)(region->development * 4.0)));
-      pU::Scenario::replaceOccurences(content, "templateAirbase",
-                                      std::to_string(0));
-      pU::Scenario::replaceOccurences(
-          content, "templateCivilianFactory",
-          std::to_string((int)region->civilianFactories));
-      pU::Scenario::replaceOccurences(
-          content, "templateArmsFactory",
-          std::to_string((int)region->armsFactories));
-
-      pU::Scenario::replaceOccurences(content, "templatePopulation",
-                                      std::to_string((int)region->population));
-      pU::Scenario::replaceOccurences(
-          content, "templateStateCategory",
-          stateCategories[(int)region->stateCategory]);
-      std::string navalBaseContent = "";
-      for (const auto &gameProv : region->gameProvinces) {
-        if (gameProv->attributeDoubles.at("naval_bases") > 0) {
-          navalBaseContent +=
-              std::to_string(gameProv->ID + 1) + " = {\n\t\t\t\tnaval_base = " +
-              std::to_string(
-                  (int)gameProv->attributeDoubles.at("naval_bases")) +
-              "\n\t\t\t}\n\t\t\t";
-        }
-      }
-      pU::Scenario::replaceOccurences(content, "templateNavalBases",
-                                      navalBaseContent);
-      if (region->dockyards > 0)
-        pU::Scenario::replaceOccurences(content, "templateDockyards",
-                                        std::to_string((int)region->dockyards));
-      else
-        pU::Scenario::replaceOccurences(content, "dockyard = templateDockyards",
-                                        "");
-
-      // resources
-      for (const auto &resource : std::vector<std::string>{
-               "aluminium", "chromium", "oil", "rubber", "steel", "tungsten"}) {
-        pU::Scenario::replaceOccurences(
-            content, "template" + resource,
-            std::to_string((int)region->resources.at(resource)));
-      }
-      pU::writeFile(path + "\\" + std::to_string(region->ID + 1) + ".txt",
-                    content);
+  for (const auto &region : regions) {
+    if (region->sea)
+      continue;
+    std::string provString{""};
+    for (const auto &prov : region->provinces) {
+      provString.append(std::to_string(prov->ID + 1));
+      provString.append(" ");
     }
+    auto content{templateContent};
+    pU::Scenario::replaceOccurences(content, "templateID",
+                                    std::to_string(region->ID + 1));
+    pU::Scenario::replaceOccurences(content, "template_provinces", provString);
+    if (region->owner.size())
+      pU::Scenario::replaceOccurences(content, "templateOwner", region->owner);
+    else {
+      pU::Scenario::replaceOccurences(content, "owner = templateOwner", "");
+      pU::Scenario::replaceOccurences(content, "add_core_of = templateOwner", "");
+    }
+    pU::Scenario::replaceOccurences(
+        content, "templateInfrastructure",
+        std::to_string(1 + (int)(region->development * 4.0)));
+    pU::Scenario::replaceOccurences(content, "templateAirbase",
+                                    std::to_string(0));
+    pU::Scenario::replaceOccurences(
+        content, "templateCivilianFactory",
+        std::to_string((int)region->civilianFactories));
+    pU::Scenario::replaceOccurences(content, "templateArmsFactory",
+                                    std::to_string((int)region->armsFactories));
+
+    pU::Scenario::replaceOccurences(content, "templatePopulation",
+                                    std::to_string((int)region->population));
+    pU::Scenario::replaceOccurences(
+        content, "templateStateCategory",
+        stateCategories[(int)region->stateCategory]);
+    std::string navalBaseContent = "";
+    for (const auto &gameProv : region->gameProvinces) {
+      if (gameProv->attributeDoubles.at("naval_bases") > 0) {
+        navalBaseContent +=
+            std::to_string(gameProv->ID + 1) + " = {\n\t\t\t\tnaval_base = " +
+            std::to_string((int)gameProv->attributeDoubles.at("naval_bases")) +
+            "\n\t\t\t}\n\t\t\t";
+      }
+    }
+    pU::Scenario::replaceOccurences(content, "templateNavalBases",
+                                    navalBaseContent);
+    if (region->dockyards > 0)
+      pU::Scenario::replaceOccurences(content, "templateDockyards",
+                                      std::to_string((int)region->dockyards));
+    else
+      pU::Scenario::replaceOccurences(content, "dockyard = templateDockyards",
+                                      "");
+
+    // resources
+    for (const auto &resource : std::vector<std::string>{
+             "aluminium", "chromium", "oil", "rubber", "steel", "tungsten"}) {
+      pU::Scenario::replaceOccurences(
+          content, "template" + resource,
+          std::to_string((int)region->resources.at(resource)));
+    }
+    pU::writeFile(path + "\\" + std::to_string(region->ID + 1) + ".txt",
+                  content);
   }
 }
 void flags(const std::string &path, const hoiMap &countries) {
@@ -542,31 +543,34 @@ void commonBookmarks(
   pU::Scenario::removeBracketBlockFromBracket(bookmarkTemplate,
                                               "templateMinorTAG");
   std::string bookmarkCountries{""};
-  for (auto iter = strengthScores.rbegin(); iter != strengthScores.rend();
-       ++iter) {
-    if (count == 0) {
-      pU::Scenario::replaceOccurences(bookmarkTemplate, "templateDefaultTAG",
-                                      iter->second[0]);
-    }
-    if (count < 7) {
-      // major power:
-      for (const auto &country : iter->second) {
-        auto majorString{majorTemplate};
-        pU::Scenario::replaceOccurences(majorString, "templateIdeology",
-                                        countries.at(country).rulingParty);
-        bookmarkCountries.append(pU::Scenario::replaceOccurences(
-            majorString, "templateMajorTAG", country));
-        count++;
+  if (strengthScores.size()) {
+
+    for (auto iter = strengthScores.rbegin(); iter != strengthScores.rend();
+         ++iter) {
+      if (count == 0) {
+        pU::Scenario::replaceOccurences(bookmarkTemplate, "templateDefaultTAG",
+                                        iter->second[0]);
       }
-    } else if (count < 14) {
-      // regional power:
-      for (const auto &country : iter->second) {
-        auto minorString{minorTemplate};
-        pU::Scenario::replaceOccurences(minorString, "templateIdeology",
-                                        countries.at(country).rulingParty);
-        bookmarkCountries.append(pU::Scenario::replaceOccurences(
-            minorString, "templateMinorTAG", country));
-        count++;
+      if (count < 7) {
+        // major power:
+        for (const auto &country : iter->second) {
+          auto majorString{majorTemplate};
+          pU::Scenario::replaceOccurences(majorString, "templateIdeology",
+                                          countries.at(country).rulingParty);
+          bookmarkCountries.append(pU::Scenario::replaceOccurences(
+              majorString, "templateMajorTAG", country));
+          count++;
+        }
+      } else if (count < 14) {
+        // regional power:
+        for (const auto &country : iter->second) {
+          auto minorString{minorTemplate};
+          pU::Scenario::replaceOccurences(minorString, "templateIdeology",
+                                          countries.at(country).rulingParty);
+          bookmarkCountries.append(pU::Scenario::replaceOccurences(
+              minorString, "templateMinorTAG", country));
+          count++;
+        }
       }
     }
   }

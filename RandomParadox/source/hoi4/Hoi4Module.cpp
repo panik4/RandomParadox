@@ -158,18 +158,23 @@ void Hoi4Module::genHoi() {
     hoi4Gen.mapRegions();
     hoi4Gen.mapContinents();
     hoi4Gen.generateCountries(numCountries, gamePath);
+    // transfer generic states to hoi4states
+    hoi4Gen.initializeStates();
+    // build hoi4 countries out of basic countries
     hoi4Gen.initializeCountries();
     hoi4Gen.evaluateNeighbours();
     hoi4Gen.generateWorldCivilizations();
     Fwg::Gfx::Bitmap countryMap =
-        hoi4Gen.dumpDebugCountrymap(Cfg::Values().mapsPath + "countries.bmp");
+        hoi4Gen.dumpDebugCountrymap(Cfg::Values().mapsPath + "countries.png");
 
-    // now generate hoi4 specific stuff
-    hoi4Gen.generateCountrySpecifics();
-    hoi4Gen.generateStateSpecifics(hoi4Gen.gameRegions.size());
-    hoi4Gen.generateStateResources();
+    // non-country stuff
     hoi4Gen.generateStrategicRegions();
     hoi4Gen.generateWeather();
+    // now generate hoi4 specific stuff
+    hoi4Gen.generateCountrySpecifics();
+    hoi4Gen.generateStateSpecifics();
+    hoi4Gen.generateStateResources();
+    // should work with countries = 0
     hoi4Gen.evaluateCountries();
     hoi4Gen.generateLogistics(countryMap);
     NationalFocus::buildMaps();
@@ -232,7 +237,7 @@ void Hoi4Module::genHoi() {
     rocketSites(gameModPath + "\\map\\rocketsites.txt", hoi4Gen.areas.regions);
     strategicRegions(gameModPath + "\\map\\strategicregions",
                      hoi4Gen.areas.regions, hoi4Gen.strategicRegions);
-    states(gameModPath + "\\history\\states", hoi4Gen.hoi4Countries);
+    states(gameModPath + "\\history\\states", hoi4Gen.hoi4States);
     flags(gameModPath + "\\gfx\\flags\\", hoi4Gen.hoi4Countries);
     weatherPositions(gameModPath + "\\map\\weatherpositions.txt",
                      hoi4Gen.areas.regions, hoi4Gen.strategicRegions);
@@ -251,6 +256,7 @@ void Hoi4Module::genHoi() {
     tutorials(gameModPath + "\\tutorial\\tutorial.txt");
     Parsing::copyDescriptorFile("resources\\hoi4\\descriptor.mod", gameModPath,
                                 gameModsDirectory, modName);
+
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";
@@ -261,28 +267,7 @@ void Hoi4Module::genHoi() {
   // see
   hoi4Gen.printStatistics();
 }
-void Hoi4Module::mapCountries(bool multiCore, bool stateExport,
-                              const std::string &inputMap) {
-  // prepare folder structure
-  // using namespace std::filesystem;
-  // try {
-  //  remove_all(gameModPath);
-  //  create_directory(gameModPath);
-  //  // history
-  //  create_directory(gameModPath + "\\history\\");
-  //  // gfx
-  //  create_directory(gameModPath + "\\history\\states\\");
-  //} catch (std::exception e) {
-  //  std::string error =
-  //      "Configured paths seem to be messed up, check Hoi4Module.json\n";
-  //  error += "You can try fixing it yourself. Error is:\n ";
-  //  error += e.what();
-  //  throw(std::exception(error.c_str()));
-  //}
 
-  // Parsing::copyDescriptorFile("resources\\hoi4\\descriptor-mapping.mod",
-  //                             gameModPath, gameModsDirectory, modName);
-}
 void Hoi4Module::readHoi() {
   auto &config = Fwg::Cfg::Values();
   hoi4Gen.provinceMap = Fwg::IO::Reader::readProvinceImage(
@@ -331,7 +316,7 @@ void Hoi4Module::mapEdit() {
   // prepare folder structure
   using namespace std::filesystem;
   try {
-    //remove_all(gameModPath);
+    // remove_all(gameModPath);
     create_directory(gameModPath);
     // history
     create_directory(gameModPath + "\\history\\");

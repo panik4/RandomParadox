@@ -54,7 +54,9 @@ const std::map<std::string, std::map<Gfx::Colour, int>>
           {Cfg::Values().colours["river"] * 0.7, 6},
           {Cfg::Values().colours["river"] * 0.6, 10},
           {Cfg::Values().colours["river"] * 0.5, 11},
-          {Cfg::Values().colours["river"] * 0.4, 11},
+          {Cfg::Values().colours["river"] * 0.3, 11},
+          {Cfg::Values().colours["river"] * 0.2, 11},
+          {Cfg::Values().colours["river"] * 0.1, 11},
           {Cfg::Values().colours["sea"], 254},
           {Cfg::Values().colours["riverStart"], 0},
           {Cfg::Values().colours["riverStartTributary"], 3},
@@ -249,11 +251,16 @@ void FormatConverter::dump8BitRivers(const Bitmap &riversIn,
 
   Bitmap rivers(Cfg::Values().width, Cfg::Values().height, 8);
   rivers.colourtable = colourTables.at(colourMapKey + gameTag);
-
   if (!cut) {
     for (int i = 0; i < Cfg::Values().bitmapSize; i++)
-      rivers.bit8Buffer[i] =
-          colourMaps.at(colourMapKey + gameTag).at(riversIn[i]);
+      try {
+
+        rivers.bit8Buffer[i] =
+            colourMaps.at(colourMapKey + gameTag).at(riversIn[i]);
+      } catch (std::exception e) {
+        Utils::Logging::logLine("Error at index ", i, " colour", riversIn[i],
+                                e.what());
+      }
   } else {
     rivers = cutBaseMap("\\rivers.bmp");
   }
@@ -638,11 +645,9 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
 }
 
 void FormatConverter::dynamicMasks(const std::string &path) {
-// TODO: exclusion_mask.dds
-    //
+  // TODO: exclusion_mask.dds
+  //
 }
-
-
 
 void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
                                      const std::string &path) {

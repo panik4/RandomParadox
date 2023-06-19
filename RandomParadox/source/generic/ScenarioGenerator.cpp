@@ -305,7 +305,7 @@ void Generator::generateCountries(int numCountries,
   // load tags from hoi4 that are used by the base game
   // do not use those to avoid conflicts
 
-  for (int i = 0; i < numCountries; i++) {
+  for (auto i = 0; i < numCountries; i++) {
     auto name{NameGeneration::generateName(nData)};
     Country pdoxC(NameGeneration::generateTag(name, nData), i, name,
                   NameGeneration::generateAdjective(name, nData),
@@ -321,11 +321,14 @@ void Generator::generateCountries(int numCountries,
     pdoxCountry.second.assignRegions(6, gameRegions, startRegion,
                                      gameProvinces);
   }
-  for (auto &gameRegion : gameRegions) {
-    if (!gameRegion->sea && !gameRegion->assigned) {
-      auto gR = Fwg::Utils::getNearestAssignedLand(gameRegions, gameRegion,
-                                                   config.width, config.height);
-      countries.at(gR->owner).addRegion(gameRegion, gameRegions, gameProvinces);
+  if (countries.size()) {
+    for (auto &gameRegion : gameRegions) {
+      if (!gameRegion->sea && !gameRegion->assigned) {
+        auto gR = Fwg::Utils::getNearestAssignedLand(
+            gameRegions, gameRegion, config.width, config.height);
+        countries.at(gR->owner).addRegion(gameRegion, gameRegions,
+                                          gameProvinces);
+      }
     }
   }
 }
@@ -385,7 +388,7 @@ void Generator::evaluateNeighbours() {
 }
 
 Bitmap Generator::dumpDebugCountrymap(const std::string &path) {
-  Logging::logLine("Mapping Continents");
+  Logging::logLine("Drawing borders");
   auto &config = Fwg::Cfg::Values();
   Bitmap countryBMP(config.width, config.height, 24);
   for (const auto &country : countries)
@@ -394,7 +397,7 @@ Bitmap Generator::dumpDebugCountrymap(const std::string &path) {
         for (const auto &pix : prov->pixels)
           countryBMP.setColourAtIndex(pix, country.second.colour);
 
-  Bmp::save(countryBMP, (path).c_str());
+  Png::save(countryBMP, (path).c_str());
   return countryBMP;
 }
 } // namespace Scenario

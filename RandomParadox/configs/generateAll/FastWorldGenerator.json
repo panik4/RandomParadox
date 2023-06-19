@@ -48,8 +48,8 @@
 	},
 	"map": 
 	{
-        "height" : 512,
-		"width" : 1024,
+        "height" : 256,
+		"width" : 512,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -231,19 +231,25 @@
 				}
 			}
 		},
-		"provinces" : {
+		"areas" : {
 			"auto" : true,
-			"landProvinceFactor" : 1,
-			"seaProvinceFactor" : 1,
-			"minProvPerRegion" : 8,
-			"minProvPerSeaRegion" : 1,
-			"minProvSize" : 10,
-			"provinceDensityByHabitability" : 1.0,
-			"maxProvAmount" : 20000
+			"provinces" : {
+				"landProvinceFactor" : 1,
+				"seaProvinceFactor" : 1,
+				"minProvSize" : 10,
+				"provinceDensityByHabitability" : 1.0,
+				"maxProvAmount" : 20000
+			},
+			"regions" :{
+				"minProvPerRegion" : 8,
+				"minProvPerSeaRegion" : 1,
+				"targetLandRegionAmount" : 0,
+				"targetSeaRegionAmount" : 0
+			}
 		},
 		"humidity" : {
-			"latitudeLow" : 0.3,
-			"latitudeHigh" : 1.7,
+			"latitudeLow" : 1.4,
+			"latitudeHigh" : 1.8,
 			"riverHumidityFactor" : 0.2,
 			"riverEffectRangeFactor" : 1.0,
 			"baseHumidity": 0.7

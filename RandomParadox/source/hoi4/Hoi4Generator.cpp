@@ -11,20 +11,18 @@ Generator::Generator(const std::string &configSubFolder)
 
 Generator::~Generator() {}
 
-void Generator::initializeStates() {}
+void Generator::initializeStates() {
+  for (auto &region : this->gameRegions) {
+    hoi4States.push_back(std::make_shared<Region>(*region));
+  }
+}
 
 void Generator::initializeCountries() {
-
-  hoi4States.clear();
   hoi4Countries.clear();
   for (auto &country : countries) {
     // construct a hoi4country with country from ScenarioGenerator.
     // We want a copy here
-    Hoi4Country hC(country.second, gameRegions);
-    // save the pointers to states not only in countries
-    for (const auto &hoi4State : hC.hoi4Regions) {
-      hoi4States.push_back(hoi4State);
-    }
+    Hoi4Country hC(country.second, this->hoi4States);
     hoi4Countries.insert({hC.tag, hC});
   }
   std::sort(hoi4States.begin(), hoi4States.end(),
@@ -33,80 +31,77 @@ void Generator::initializeCountries() {
 
 void Generator::generateStateResources() {
   Fwg::Utils::Logging::logLine("HOI4: Digging for resources");
-  for (auto &c : hoi4Countries) {
-    for (auto &hoi4Region : c.second.hoi4Regions) {
-      for (const auto &resource : resources) {
-        auto chance = resource.second[2];
-        if (RandNum::getRandom(100) < chance * 100.0) {
-          // calc total of this resource
-          auto totalOfResource = resource.second[1] * resource.second[0];
-          // more per selected state if the chance is lower
-          double averagePerState =
-              (totalOfResource / (double)landStates) * (1.0 / chance);
-          // range 1 to (2 times average - 1)
-          double value =
-              1.0 +
-              (RandNum::getRandom((int)ceil((2.0 * averagePerState)) - 1.0));
-          // increase by industry factor
-          value *= industryFactor;
-          value *= sizeFactor;
-          hoi4Region->resources[resource.first] = (int)value;
-          totalResources[resource.first] += (int)value;
-        }
+  for (auto &hoi4Region : hoi4States) {
+    for (const auto &resource : resources) {
+      auto chance = resource.second[2];
+      if (RandNum::getRandom(100) < chance * 100.0) {
+        // calc total of this resource
+        auto totalOfResource = resource.second[1] * resource.second[0];
+        // more per selected state if the chance is lower
+        double averagePerState =
+            (totalOfResource / (double)landStates) * (1.0 / chance);
+        // range 1 to (2 times average - 1)
+        double value =
+            1.0 +
+            (RandNum::getRandom((int)ceil((2.0 * averagePerState)) - 1.0));
+        // increase by industry factor
+        value *= industryFactor;
+        value *= sizeFactor;
+        hoi4Region->resources[resource.first] = (int)value;
+        totalResources[resource.first] += (int)value;
       }
     }
   }
 }
 
-void Generator::generateStateSpecifics(const int regionAmount) {
+void Generator::generateStateSpecifics() {
   Fwg::Utils::Logging::logLine("HOI4: Planning the economy");
   auto &config = Cfg::Values();
   // calculate the target industry amount
   auto targetWorldIndustry = 1248 * sizeFactor * industryFactor;
   Fwg::Utils::Logging::logLine(config.landPercentage);
-  for (auto &c : hoi4Countries) {
-    for (auto &hoi4Region : c.second.hoi4Regions) {
-      // count the number of land states for resource generation
-      landStates++;
-      double totalStateArea = 0;
-      double totalDevFactor = 0;
-      double totalPopFactor = 0;
-      for (const auto &gameProv : hoi4Region->gameProvinces) {
-        totalDevFactor +=
-            gameProv->devFactor / (double)hoi4Region->gameProvinces.size();
-        totalPopFactor +=
-            gameProv->popFactor / (double)hoi4Region->gameProvinces.size();
-        totalStateArea += gameProv->baseProvince->pixels.size();
+  for (auto &hoi4Region : hoi4States) {
+    // count the number of land states for resource generation
+    landStates++;
+    double totalStateArea = 0;
+    double totalDevFactor = 0;
+    double totalPopFactor = 0;
+    for (const auto &gameProv : hoi4Region->gameProvinces) {
+      totalDevFactor +=
+          gameProv->devFactor / (double)hoi4Region->gameProvinces.size();
+      totalPopFactor +=
+          gameProv->popFactor / (double)hoi4Region->gameProvinces.size();
+      totalStateArea += gameProv->baseProvince->pixels.size();
+    }
+    // state level is calculated from population and development
+    hoi4Region->stateCategory =
+        std::clamp((int)(totalPopFactor * 5.0 + totalDevFactor * 6.0), 0, 9);
+    // one province region? Must be an island state
+    if (hoi4Region->gameProvinces.size() == 1) {
+      hoi4Region->stateCategory = 1;
+    }
+    hoi4Region->development = totalDevFactor;
+    hoi4Region->population = totalStateArea * 1250.0 * totalPopFactor *
+                             worldPopulationFactor * (1.0 / sizeFactor);
+    worldPop += (long long)hoi4Region->population;
+    // count the total coastal provinces of this region
+    auto totalCoastal = 0;
+    for (auto &gameProv : hoi4Region->gameProvinces) {
+      if (gameProv->baseProvince->coastal) {
+        totalCoastal++;
+        // only create a naval base, if a coastal supply hub was determined in
+        // this province
+        if (gameProv->attributeDoubles["naval_bases"] == 1)
+          gameProv->attributeDoubles["naval_bases"] = RandNum::getRandom(1, 5);
+      } else {
+        gameProv->attributeDoubles["naval_bases"] = 0;
       }
-      // state level is calculated from population and development
-      hoi4Region->stateCategory =
-          std::clamp((int)(totalPopFactor * 5.0 + totalDevFactor * 6.0), 0, 9);
-      // one province region? Must be an island state
-      if (hoi4Region->gameProvinces.size() == 1) {
-        hoi4Region->stateCategory = 1;
-      }
-      hoi4Region->development = totalDevFactor;
-      hoi4Region->population = totalStateArea * 1250.0 * totalPopFactor *
-                               worldPopulationFactor * (1.0 / sizeFactor);
-      worldPop += (long long)hoi4Region->population;
-      // count the total coastal provinces of this region
-      auto totalCoastal = 0;
-      for (auto &gameProv : hoi4Region->gameProvinces) {
-        if (gameProv->baseProvince->coastal) {
-          totalCoastal++;
-          // only create a naval base, if a coastal supply hub was determined in
-          // this province
-          if (gameProv->attributeDoubles["naval_bases"] == 1)
-            gameProv->attributeDoubles["naval_bases"] =
-                RandNum::getRandom(1, 5);
-        } else {
-          gameProv->attributeDoubles["naval_bases"] = 0;
-        }
-      }
-      // calculate total industry in this state
+    }
+    // calculate total industry in this state
+    if (targetWorldIndustry != 0) {
       auto stateIndustry =
-          round(0.5 + totalPopFactor *
-                          (targetWorldIndustry / (double)(regionAmount)));
+          round(0.5 + totalPopFactor * (targetWorldIndustry /
+                                        (double)(this->gameRegions.size())));
       double dockChance = 0.25;
       double civChance = 0.5;
       // distribute it to military, civilian and naval factories
@@ -126,12 +121,12 @@ void Generator::generateStateSpecifics(const int regionAmount) {
           hoi4Region->armsFactories++;
         }
       }
-      militaryIndustry += (int)hoi4Region->armsFactories;
-      civilianIndustry += (int)hoi4Region->civilianFactories;
-      navalIndustry += (int)hoi4Region->dockyards;
-      // get potential building positions
-      hoi4Region->calculateBuildingPositions(this->heightMap, typeMap);
     }
+    militaryIndustry += (int)hoi4Region->armsFactories;
+    civilianIndustry += (int)hoi4Region->civilianFactories;
+    navalIndustry += (int)hoi4Region->dockyards;
+    // get potential building positions
+    hoi4Region->calculateBuildingPositions(this->heightMap, typeMap);
   }
 }
 
@@ -457,7 +452,9 @@ void Generator::evaluateCountries() {
     // global
     totalWorldIndustry += (int)totalIndustry;
   }
-  int totalDeployedCountries = numCountries - (int)strengthScores[0].size();
+
+  int totalDeployedCountries =
+      numCountries - strengthScores.size() ? (int)strengthScores[0].size() : 0;
   int numMajorPowers = totalDeployedCountries / 10;
   int numRegionalPowers = totalDeployedCountries / 3;
   int numWeakStates =
