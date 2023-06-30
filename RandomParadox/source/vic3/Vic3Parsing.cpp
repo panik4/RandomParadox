@@ -8,8 +8,9 @@ void adj(const std::string &path) {
   Logging::logLine("Vic3 Parser: Map: Writing Adjacencies");
   // empty file for now
   std::string content;
-  content.append("From;To;Type;Through;start_x;start_y;stop_x;stop_y;adjacency_"
-                 "rule_name;Comment\n");
+  content.append(
+      "#From;To;Type;Through;start_x;start_y;stop_x;stop_y;adjacency_"
+      "rule_name;Comment\n");
   pU::writeFile(path, content);
 }
 
@@ -44,11 +45,10 @@ void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap) {
   auto content = pU::readFile("resources\\vic3\\map_data\\heightmap.heightmap");
   Logging::logLine("VIC3 Parser: Map: heightmap.heightmap");
   pU::Scenario::replaceOccurences(
-      content, "template_map_x",
-                        std::to_string(heightMap.bInfoHeader.biWidth));
+      content, "template_map_x", std::to_string(heightMap.bInfoHeader.biWidth));
   pU::Scenario::replaceOccurences(
       content, "template_map_y",
-                        std::to_string(heightMap.bInfoHeader.biHeight));
+      std::to_string(heightMap.bInfoHeader.biHeight));
   pU::writeFile(path, content);
 }
 
@@ -61,47 +61,65 @@ void stateFiles(const std::string &path,
     auto content = templateFile;
     pU::Scenario::replaceOccurences(content, "template_name", region->name);
     pU::Scenario::replaceOccurences(content, "template_id",
-                          std::to_string(region->ID + 1));
+                                    std::to_string(region->ID + 1));
     std::string provinceString{""};
     for (auto prov : region->gameProvinces) {
       provinceString.append("\"" + prov->toHexString() + "\" ");
     }
     pU::Scenario::replaceOccurences(content, "template_provinces",
                                     provinceString);
+    // don't write these details for ocean regions
+    if (!region->sea) {
+      int counter = 0;
+      pU::Scenario::replaceOccurences(
+          content, "template_city",
+          region
+              ->gameProvinces[std::clamp(counter++, 0,
+                                         (int)region->provinces.size() - 1)]
+              ->toHexString());
+      pU::Scenario::replaceOccurences(
+          content, "template_port",
+          region
+              ->gameProvinces[std::clamp(counter++, 0,
+                                         (int)region->provinces.size() - 1)]
+              ->toHexString());
+      pU::Scenario::replaceOccurences(
+          content, "template_farm",
+          region
+              ->gameProvinces[std::clamp(counter++, 0,
+                                         (int)region->provinces.size() - 1)]
+              ->toHexString());
+      pU::Scenario::replaceOccurences(
+          content, "template_mine",
+          region
+              ->gameProvinces[std::clamp(counter++, 0,
+                                         (int)region->provinces.size() - 1)]
+              ->toHexString());
+      pU::Scenario::replaceOccurences(
+          content, "template_wood",
+          region
+              ->gameProvinces[std::clamp(counter++, 0,
+                                         (int)region->provinces.size() - 1)]
+              ->toHexString());
 
-    int counter = 0;
-    pU::Scenario::replaceOccurences(
-        content, "template_city",
-        region
-            ->gameProvinces[std::clamp(counter++, 0,
-                                       (int)region->provinces.size() - 1)]
-            ->toHexString());
-    pU::Scenario::replaceOccurences(
-        content, "template_port",
-        region
-            ->gameProvinces[std::clamp(counter++, 0,
-                                       (int)region->provinces.size() - 1)]
-            ->toHexString());
-    pU::Scenario::replaceOccurences(
-        content, "template_farm",
-        region
-            ->gameProvinces[std::clamp(counter++, 0,
-                                       (int)region->provinces.size() - 1)]
-            ->toHexString());
-    pU::Scenario::replaceOccurences(
-        content, "template_mine",
-        region
-            ->gameProvinces[std::clamp(counter++, 0,
-                                       (int)region->provinces.size() - 1)]
-            ->toHexString());
-    pU::Scenario::replaceOccurences(
-        content, "template_wood",
-        region
-            ->gameProvinces[std::clamp(counter++, 0,
-                                       (int)region->provinces.size() - 1)]
-            ->toHexString());
-    // TODO removed for now
-    pU::Scenario::replaceOccurences(content, "template_naval_exit", "");
+      // check if we are a coastal region
+      for (auto &prov : region->gameProvinces) {
+        if (prov->baseProvince->sea) {
+          pU::Scenario::replaceOccurences(content, "template_naval_exit",
+                                          prov->toHexString());
+        }
+      }
+      pU::Scenario::replaceOccurences(content, "template_naval_exit", "");
+
+    } else {
+      pU::Scenario::replaceOccurences(content, "template_city", "");
+      pU::Scenario::replaceOccurences(content, "template_port", "");
+      pU::Scenario::replaceOccurences(content, "template_farm", "");
+      pU::Scenario::replaceOccurences(content, "template_mine", "");
+      pU::Scenario::replaceOccurences(content, "template_wood", "");
+      pU::Scenario::replaceOccurences(content, "template_naval_exit", "");
+    }
+
     file.append(content);
   }
   pU::writeFile(path, file, true);
@@ -171,13 +189,14 @@ void cultureCommon(const std::string &path,
   for (const auto &culture : cultures) {
     auto cultString = culturesTemplate;
 
-    pU::Scenario::replaceOccurences(cultString, "templateCulture", culture->name);
+    pU::Scenario::replaceOccurences(cultString, "templateCulture",
+                                    culture->name);
     std::string colour = Fwg::Utils::varsToString(
         (int)culture->colour.getRed(), " ", (int)culture->colour.getGreen(),
         " ", (int)culture->colour.getBlue());
     pU::Scenario::replaceOccurences(cultString, "templateColour", colour);
     pU::Scenario::replaceOccurences(cultString, "templateReligion",
-                          culture->primaryReligion->name);
+                                    culture->primaryReligion->name);
     cultureFile.append(cultString);
   }
 
@@ -193,7 +212,8 @@ void religionCommon(const std::string &path,
   for (const auto &religion : religions) {
     auto relString = religionTemplate;
 
-    pU::Scenario::replaceOccurences(relString, "templateReligion", religion->name);
+    pU::Scenario::replaceOccurences(relString, "templateReligion",
+                                    religion->name);
     religionFile.append(relString);
   }
   pU::writeFile(path, religionFile, true);
@@ -214,7 +234,8 @@ void countryCommon(const std::string &path,
                                  (int)country.second.colour.getBlue());
     pU::Scenario::replaceOccurences(cString, "templateColour", colour);
     auto capitalRegion = regions[country.second.capitalRegionID];
-    pU::Scenario::replaceOccurences(cString, "templateCapital", capitalRegion->name);
+    pU::Scenario::replaceOccurences(cString, "templateCapital",
+                                    capitalRegion->name);
 
     using pair_type = decltype(capitalRegion->cultures)::value_type;
     auto pr = std::max_element(std::begin(capitalRegion->cultures),
@@ -223,7 +244,8 @@ void countryCommon(const std::string &path,
                                  return p1.second < p2.second;
                                });
 
-    pU::Scenario::replaceOccurences(cString, "templateCultures", pr->first->name);
+    pU::Scenario::replaceOccurences(cString, "templateCultures",
+                                    pr->first->name);
     countryDefinition.append(cString);
   }
   pU::writeFile(path, countryDefinition, true);
@@ -249,9 +271,11 @@ void popsHistory(const std::string &path,
     std::string listOfPops{""};
     for (auto &culture : region->cultures) {
       std::string pop = popsSingleTemplate;
-      pU::Scenario::replaceOccurences(pop, "templateCulture", culture.first->name);
-      pU::Scenario::replaceOccurences(pop, "templatePopSize",
-                            std::to_string((int)(culture.second * 10000.0)));
+      pU::Scenario::replaceOccurences(pop, "templateCulture",
+                                      culture.first->name);
+      pU::Scenario::replaceOccurences(
+          pop, "templatePopSize",
+          std::to_string((int)(culture.second * 10000.0)));
       listOfPops.append(pop);
     }
 
@@ -278,7 +302,8 @@ void stateHistory(const std::string &path,
     for (auto prov : region->gameProvinces) {
       provinceString.append("\"" + prov->toHexString() + "\" ");
     }
-    pU::Scenario::replaceOccurences(content, "templateProvinces", provinceString);
+    pU::Scenario::replaceOccurences(content, "templateProvinces",
+                                    provinceString);
 
     pU::Scenario::replaceOccurences(content, "templateCulture", "dixie");
     stateContent.append(content);
@@ -304,13 +329,12 @@ void splineNetwork(const std::string &path) {
   pU::writeFile(path + "//spline_network.splnet", "");
 }
 
-void compatCanals(const std::string &path) {
-  pU::writeFile(path, "", true);
-}
+void compatCanals(const std::string &path) { pU::writeFile(path, "", true); }
 
-void compatRegions(const std::string &inFolder, const std::string &outPath,
+std::string compatRegions(const std::string &inFolder, const std::string &outPath,
                    const std::vector<std::shared_ptr<Region>> &regions) {
-  int counter = regions.size();
+  int counter = regions.size() + 1;
+  std::string foundRegionNames = "";
   for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder}) {
     std::string pathString = dir_entry.path().string();
     if (pathString.find(".txt") == std::string::npos)
@@ -324,6 +348,8 @@ void compatRegions(const std::string &inFolder, const std::string &outPath,
     for (auto &line : lines) {
       if (line.find("STATE_") != std::string::npos) {
         content.append(line);
+        auto stateName = line.substr(0, line.find("=") - 1);
+        foundRegionNames.append(stateName);
         content.append("\n\tid = " + std::to_string(counter++) + "\n");
         content.append("\tprovinces = { }\n");
         content.append("}\n");
@@ -331,9 +357,11 @@ void compatRegions(const std::string &inFolder, const std::string &outPath,
     }
     pU::writeFile(outPath + filename, content);
   }
+  return foundRegionNames;
 }
-void compatStratRegions(const std::string &inFolder,
-                        const std::string &outPath) {
+void compatStratRegions(const std::string &inFolder, const std::string &outPath,
+                        const std::vector<std::shared_ptr<Region>> &regions,
+                        std::string &baseGameRegions) {
   for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder}) {
     std::string pathString = dir_entry.path().string();
     if (pathString.find(".txt") == std::string::npos)
@@ -343,11 +371,12 @@ void compatStratRegions(const std::string &inFolder,
                           pathString.back() - pathString.find_last_of("\\"));
     std::string content = "";
     auto lines = pU::getLines(pathString);
+    auto hexID = regions[0]->gameProvinces[0]->toHexString();
     for (auto &line : lines) {
       if (line.find("region_") != std::string::npos) {
         content.append(line);
         content.append("\n\tgraphical_culture = \"arabic\"\n");
-        content.append("\tcapital_province = x000000\n");
+        content.append("\tcapital_province = " + hexID + "\n");
         content.append("\tmap_color = { 0.5 0 0 }\n");
         content.append("\tstates = { }\n");
         content.append("}\n");
@@ -366,7 +395,8 @@ void compatReleasable(const std::string &inFolder, const std::string &outPath) {
         pathString.substr(pathString.find_last_of("\\") + 1,
                           pathString.back() - pathString.find_last_of("\\"));
     std::string content = pU::readFile(pathString);
-    while (pU::Scenario::removeBracketBlockFromBracket(content, "provinces = {")) {
+    while (
+        pU::Scenario::removeBracketBlockFromBracket(content, "provinces = {")) {
     }
     pU::Scenario::replaceLines(content, "\tprovinces =", "provinces = { }\n");
     pU::writeFile(outPath + filename, content);

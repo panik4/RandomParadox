@@ -38,10 +38,12 @@ void countryHistory(const std::string &path,
 void splineNetwork(const std::string &path);
 
 void compatCanals(const std::string &path);
-void compatRegions(const std::string &inFolder, const std::string &outPath,
+std::string compatRegions(const std::string &inFolder, const std::string &outPath,
                    const std::vector<std::shared_ptr<Region>> &regions);
 
-void compatStratRegions(const std::string &inFolder, const std::string &outPath);
+void compatStratRegions(const std::string &inFolder, const std::string &outPath,
+                        const std::vector<std::shared_ptr<Region>> &regions,
+                        std::string& baseGameRegions);
 void compatReleasable(const std::string &inFolder, const std::string &outPath);
 } // namespace Writing
 

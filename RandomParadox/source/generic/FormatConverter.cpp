@@ -435,21 +435,23 @@ void FormatConverter::writeTile(int xTiles, int yTiles,
                                 const Fwg::Gfx::Bitmap &basePackedHeightMap,
                                 Fwg::Gfx::Bitmap &packedHeightMap, int mapX,
                                 int mapY, int packedX) const {
+  const int tilesize = 64;
   for (auto tilex = 0; tilex < xTiles; tilex++) {
     for (auto tiley = 0; tiley < yTiles; tiley++) {
       Fwg::Gfx::Bitmap tileMap(
-          64, 64, 24,
-          std::move(Fwg::Utils::cutBuffer(basePackedHeightMap.imageData, mapX,
-                                          mapY, tilex * 64, (tilex + 1) * 64,
-                                          tiley * 64, (tiley + 1) * 64, 1)));
-      auto tileMap2 = Bmp::scale(tileMap, 65, 65, false);
+          tilesize, tilesize, 24,
+          std::move(Fwg::Utils::cutBuffer(basePackedHeightMap.imageData, mapX, mapY, tilex * tilesize,
+              (tilex + 1) * tilesize, tiley * tilesize, (tiley + 1) * tilesize,
+              1)));
+      auto tileMap2 = Bmp::scale(tileMap, tilesize + 1, tilesize+1, false);
 
       for (auto x = 0; x < tileMap2.size(); x++) {
         auto baseIndex =
-            tilex * 65 +
-            ((((tiley * 2 + tilex / 128) * 65) + x / 65) - tilex / 128) *
+            tilex * (tilesize+1) +
+            ((((tiley * 2 + tilex / 128) * (tilesize + 1)) + x / (tilesize+1)) -
+             tilex / 128) *
                 packedX;
-        packedHeightMap.imageData[baseIndex + x % 65] = tileMap2[x];
+        packedHeightMap.imageData[baseIndex + x % (tilesize+1)] = tileMap2[x];
       }
     }
   }
