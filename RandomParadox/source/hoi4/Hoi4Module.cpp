@@ -18,7 +18,11 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   readHoiConfig(configSubFolder, username, gamesConf);
   if (!editMode) {
     // now run the world generation
-    hoi4Gen.generateWorld();
+    if (hoi4Gen.generateWorld() < 0)
+    {
+      throw(std::exception("FastWorldGenerator reported an error, terminating. "
+                           "Check log for details"));
+    }
     // check again after generation in case of cutting, as dimension calculation
     // is not possible before the image was loaded and width and height are
     // known

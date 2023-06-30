@@ -37,8 +37,10 @@ bool Module::createPaths() { // prepare folder structure
     create_directory(gameModPath + "\\common\\history\\pops");
     create_directory(gameModPath + "\\common\\history\\countries");
     create_directory(gameModPath + "\\common\\country_creation");
+    create_directory(gameModPath + "\\common\\journal_entries");
     create_directory(gameModPath + "\\common\\decisions");
     create_directory(gameModPath + "\\events");
+    create_directory(gameModPath + "\\events\\agitators_events");
     create_directory(gameModPath + "\\gfx\\");
     create_directory(gameModPath + "\\gfx\\map");
     create_directory(gameModPath + "\\gfx\\map\\terrain");
@@ -100,6 +102,7 @@ void Module::readVic3Config(const std::string &configSubFolder,
   config.numRivers = 0;
   config.seaProvFactor *= 0.02;
   config.landProvFactor *= 1.0;
+  config.minProvPerSeaRegion = 1;
   config.loadMapsPath = vic3Conf.get<std::string>("fastworldgen.loadMapsPath");
   config.heightmapIn = config.loadMapsPath +
                        vic3Conf.get<std::string>("fastworldgen.heightMapName");
@@ -134,11 +137,12 @@ void Module::genVic3() {
   }
   try {
     using namespace Parsing::Writing;
-    compatRegions(gamePath + "\\game\\map_data\\state_regions\\",
+    auto foundRegions = compatRegions(gamePath + "\\game\\map_data\\state_regions\\",
                   gameModPath + "\\map_data\\state_regions\\",
                   vic3Gen.gameRegions);
     compatStratRegions(gamePath + "\\game\\common\\strategic_regions\\",
-                       gameModPath + "\\common\\strategic_regions\\");
+                       gameModPath + "\\common\\strategic_regions\\",
+                       vic3Gen.gameRegions, foundRegions);
     compatReleasable(gamePath + "\\game\\common\\country_creation\\",
                      gameModPath + "\\common\\country_creation\\");
     adj(gameModPath + "\\map_data\\adjacencies.csv");
@@ -170,6 +174,10 @@ void Module::genVic3() {
     splineNetwork(gameModPath + "\\gfx\\map\\spline_network\\");
     compatCanals(gameModPath + "\\common\\decisions\\canal_decisions.txt");
     compatCanals(gameModPath + "\\events\\canal_events.txt");
+    compatCanals(gameModPath + "\\events\\agitators_events\\paris_commune_events.txt");
+    compatCanals(gameModPath + "\\events\\agitators_events\\paris_commune_events.txt");
+    compatCanals(gameModPath + "\\common\\journal_entries\\00_canals.txt");
+    compatCanals(gameModPath + "\\common\\journal_entries\\02_paris_commune.txt");
 
     //  generate map files. Format must be converted and colours mapped to vic3
     //  compatible colours

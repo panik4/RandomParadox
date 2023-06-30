@@ -3,9 +3,9 @@
 #include "generic/Country.h"
 #include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Country.h"
+#include "hoi4/Hoi4FocusGen.h"
 #include "hoi4/Hoi4Region.h"
 #include "hoi4/NationalFocus.h"
-#include "hoi4/Hoi4FocusGen.h"
 #include <array>
 #include <set>
 
