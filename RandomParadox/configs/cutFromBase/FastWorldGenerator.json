@@ -2,6 +2,7 @@
 	"module": 
 	{
 		"debugLevel": 0,
+		"interactive": false,
 		"loadMaps" : true,
 		"writeMaps" : true,
 		"cut" : true,
@@ -19,11 +20,12 @@
 		"heightMap" : true,
 		"terrainMap" : false,
 		"continentMap" : false,
-		"climateMap" : true,
-		"humidityMap" : false,
+		"climateMap" : false,
 		"riverMap" : false,
+		"humidityMap" : false,
 		"habitabilityMap" : false,
-		"provinceMap" : true,
+		"provinceMap" : false,
+		"regionMap" : false,
 		"modifyHeight": false,
 		"heightAdjustments": 0
 	},
@@ -38,12 +40,12 @@
 	},
 	"cut":
 	{
-		"minX" : 0,
-		"maxX" : 5632,
-		"minY" : 0,
-		"maxY" : 2048,
-		"scaleX" : 1408,
-		"scaleY" : 512,
+		"minX" : 4200,
+		"maxX" : 5224,
+		"minY" : 1192,
+		"maxY" : 1600,
+		"scaleX" : 5632,
+		"scaleY" : 2048,
 		"keepRatio" : false,
 		"scaleFilterRuns": 0
 	},
@@ -52,7 +54,7 @@
         "height" : 512,
 		"width" : 512,
 		"landPercentage" : 34,
-		"seaLevel" : 93,
+		"seaLevel" : 94,
 		"accuracy": 100,
 		"sobelFactor": 1,
 		"rivers" : 
@@ -61,17 +63,17 @@
 		},
 		"trees" : 
 		{
-			"forestDensity" : 0.9,
+			"forestDensity" : 0.8,
 			"jungleDensity" : 0.9,
 			"savannahDensity" : 0.6,
-			"grasslandDensity" : 0.7,
+			"grasslandDensity" : 0.8,
 			"tundraDensity" : 0.4
 		},
 		"mountains" :
 		{
-			"peakFactor" : 0.9,
-			"mountainFactor" : 0.5,
-			"hillFactor" : 0.3
+			"peakFactor" : 0.98,
+			"mountainFactor" : 0.95,
+			"hillFactor" : 0.8
 		},
 		"heightmap" : {
 			"complexHeight" : true,
@@ -82,15 +84,22 @@
 			{
 			}
 		},
-		"provinces" : {
-			"auto" : true,
-			"landProvinceFactor" : 1,
-			"seaProvinceFactor" : 1,
-			"minProvPerRegion" : 3,
-			"minProvPerSeaRegion" : 3,
-			"minProvSize" : 10,
-			"provinceDensityByHabitability" : 30,
-			"maxProvAmount" : 20000
+		"areas" : {
+			"provinces" : {
+				"auto" : true,
+				"landProvinceFactor" : 1.0,
+				"seaProvinceFactor" : 1.0,
+				"minProvSize" : 10,
+				"provinceDensityByHabitability" : 10.0,
+				"maxProvAmount" : 20000
+			},
+			"regions" :{
+				"auto" : true,
+				"minProvPerRegion" : 8,
+				"minProvPerSeaRegion" : 8,
+				"targetLandRegionAmount" : 800,
+				"targetSeaRegionAmount" : 200
+			}
 		},
 		"humidity" : {
 			"latitudeLow" : 0.6,

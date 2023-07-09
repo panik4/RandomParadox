@@ -31,8 +31,10 @@ public:
   Generator(const std::string &configSubFolder);
   // vars - used for every game
   NameGeneration::NameData nData;
-  // Fwg::FastWorldGenerator fwg;
   int numCountries;
+  bool enableLoadCountries = false;
+  std::string countryMappingPath = "";
+  bool interactive = false;
   // containers - used for every game
 
   std::map<std::string, Fwg::Province::TerrainType> stringToTerrainType = {
@@ -104,6 +106,8 @@ public:
   Fwg::Gfx::Bitmap mapTerrain();
   // GameRegions are used for every single game,
   std::shared_ptr<Region> &findStartRegion();
+  // load countries from an image and map them to regions
+  void loadCountries(const std::string &countryMapPath, const std::string& mappingPath);
   // and countries are always created the same way
   void generateCountries(int numCountries, const std::string &gamePath);
   // see which country neighbours which

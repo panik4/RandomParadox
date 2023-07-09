@@ -2,17 +2,18 @@
 	"module": 
 	{
 		"debugLevel": 0,
+		"interactive": false,
 		"loadMaps" : false,
 		"writeMaps" : true,
 		"cut" : false,
 		"scale" : false,
 		"scaleFactor" : 1,
-		"seed" : 556
+		"seed" : 0
 	},
 	"paths":
 	{
 		"mapsPath": "Maps//",
-		"loadMapsPath" : ""
+		"loadMapsPath" : "Maps//"
 	},
 	"loadMaps":
 	{
@@ -20,9 +21,11 @@
 		"terrainMap" : false,
 		"continentMap" : false,
 		"climateMap" : false,
+		"riverMap" : false,
 		"humidityMap" : false,
 		"habitabilityMap" : false,
 		"provinceMap" : false,
+		"regionMap" : false,
 		"modifyHeight": false,
 		"heightAdjustments": 0
 	},
@@ -37,23 +40,15 @@
 	},
 	"cut":
 	{
-		"minX" : 1300,
-		"maxX" : 2324,
-		"minY" : 0,
-		"maxY" : 1024,
-		"scaleX" : 1024,
-		"scaleY" : 1024,
-		"keepRatio" : false,
-		"scaleFilterRuns": 5
 	},
 	"map": 
 	{
-        "height" : 256,
-		"width" : 512,
+        "height" : 2048,
+		"width" : 5632,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
-		"sobelFactor": 2,
+		"sobelFactor": 6,
 		"rivers" : 
 		{
 			"numRivers" : 300
@@ -68,9 +63,9 @@
 		},
 		"mountains" :
 		{
-			"peakFactor" : 0.9,
-			"mountainFactor" : 0.7,
-			"hillFactor" : 0.5
+			"peakFactor" : 0.98,
+			"mountainFactor" : 0.95,
+			"hillFactor" : 0.8
 		},
 		"heightmap" : {
 			"complexHeight" : true,
@@ -232,23 +227,24 @@
 			}
 		},
 		"areas" : {
-			"auto" : true,
 			"provinces" : {
-				"landProvinceFactor" : 1,
-				"seaProvinceFactor" : 1,
+				"auto" : true,
+				"landProvinceFactor" : 1.0,
+				"seaProvinceFactor" : 1.0,
 				"minProvSize" : 10,
-				"provinceDensityByHabitability" : 1.0,
+				"provinceDensityByHabitability" : 10.0,
 				"maxProvAmount" : 20000
 			},
 			"regions" :{
+				"auto" : true,
 				"minProvPerRegion" : 8,
-				"minProvPerSeaRegion" : 1,
-				"targetLandRegionAmount" : 0,
-				"targetSeaRegionAmount" : 0
+				"minProvPerSeaRegion" : 8,
+				"targetLandRegionAmount" : 800,
+				"targetSeaRegionAmount" : 200
 			}
 		},
 		"humidity" : {
-			"latitudeLow" : 1.4,
+			"latitudeLow" : 0.4,
 			"latitudeHigh" : 1.8,
 			"riverHumidityFactor" : 0.2,
 			"riverEffectRangeFactor" : 1.0,

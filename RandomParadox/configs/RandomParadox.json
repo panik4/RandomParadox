@@ -5,7 +5,10 @@
 		"editMode": false,
 		"genhoi4": true,
 		"geneu4": false,
-		"genvic3": false
+		"genvic3": false,
+		"loadCountries" : false,
+		"countryColourMap" : "inputs//countryMappings.txt",
+		"interactive" : false
 	},
 	"MappingTool":{
 		"exportCountries": true,
