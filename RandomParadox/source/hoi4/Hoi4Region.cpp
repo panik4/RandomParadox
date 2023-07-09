@@ -37,6 +37,9 @@ getBuilding(const std::string &type, const Fwg::Province &prov,
           }
         // we can't find a perfect coast
         if (coastalAttempts > 50) {
+          Fwg::Utils::Logging::logLine("WARNING: Coastal building couldn't "
+                                       "find perfect solution for province ",
+                                       prov.ID);
           // iterate through all coastal pixels
           for (auto cPix : prov.coastalPixels) {
             // get neighbours
@@ -45,12 +48,13 @@ getBuilding(const std::string &type, const Fwg::Province &prov,
             // check every neighbour for contact to ocean
             for (auto nPix : neighbourPix) {
               // if in range of image
-              if (nPix >= 0 && nPix < typeMap.imageData.size())
+              if (nPix >= 0 && nPix < typeMap.imageData.size()) {
                 // if it is sea
                 if (typeMap[nPix] == cfg.colours.at("sea")) {
                   pix = nPix;
                   done = true;
                 }
+              }
             }
           }
         }

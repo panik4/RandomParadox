@@ -295,6 +295,93 @@ std::shared_ptr<Region> &Generator::findStartRegion() {
   return gameRegions[startRegion->ID];
 }
 
+void Generator::loadCountries(const std::string &countryMapPath,
+                              const std::string &mappingPath) {
+  int counter = 0;
+  std::vector<std::string> mappingFileLines;
+  Fwg::Utils::ColourTMap<std::vector<std::string>> mapOfCountries;
+  try {
+    mappingFileLines = Fwg::Parsing::getLines(mappingPath);
+    for (auto &line : mappingFileLines) {
+      auto tokens = Fwg::Parsing::getTokens(line, ';');
+      auto colour = Fwg::Gfx::Colour(std::stoi(tokens[0]), std::stoi(tokens[1]),
+                                     std::stoi(tokens[2]));
+      mapOfCountries.setValue(colour, tokens);
+    }
+  } catch (std::exception e) {
+    Fwg::Utils::Logging::logLine(
+        e.what(), " continuing with randomly generated countries");
+    system("pause");
+  }
+  auto image =
+      Fwg::IO::Reader::loadAnySupported(countryMapPath, Fwg::Cfg::Values());
+  Fwg::Utils::ColourTMap<std::vector<std::shared_ptr<Scenario::Region>>>
+      mapOfRegions;
+  for (auto &region : gameRegions) {
+    if (region->sea)
+      continue;
+
+    Fwg::Utils::ColourTMap<int> likeliestOwner;
+    Fwg::Gfx::Colour selectedCol;
+
+    for (auto province : region->gameProvinces) {
+      if (!province->baseProvince->sea) {
+        //  we have the colour already
+        auto colour = image[province->baseProvince->pixels[0]];
+
+        if (likeliestOwner.find(colour)) {
+          likeliestOwner[colour] += province->baseProvince->pixels.size();
+
+        } else {
+          likeliestOwner.setValue(colour,
+                                  province->baseProvince->pixels.size());
+        }
+        int max = 0;
+
+        for (auto &potOwner : likeliestOwner.getMap()) {
+          if (potOwner.second > max) {
+            max = potOwner.second;
+            selectedCol = likeliestOwner.getKeyColour(potOwner.first);
+          }
+        }
+      }
+    }
+    if (mapOfRegions.find(selectedCol)) {
+      mapOfRegions[selectedCol].push_back(region);
+    } else {
+      mapOfRegions.setValue(selectedCol, {region});
+    }
+  }
+  for (auto &entry : mapOfRegions.getMap()) {
+    auto entryCol = mapOfRegions.getKeyColour(entry.first);
+    if (mapOfCountries.find(entryCol)) {
+      auto tokens = mapOfCountries[entryCol];
+      auto colour = Fwg::Gfx::Colour(std::stoi(tokens[0]), std::stoi(tokens[1]),
+                                     std::stoi(tokens[2]));
+      Country pdoxC(tokens[3], counter++, tokens[4], tokens[5],
+                    Gfx::Flag(82, 52));
+      pdoxC.colour = colour;
+      for (auto &region : entry.second) {
+        pdoxC.addRegion(region, gameRegions, gameProvinces);
+      }
+      countries.emplace(pdoxC.tag, pdoxC);
+      nData.tags.insert(pdoxC.tag);
+    } else {
+
+      auto name{NameGeneration::generateName(nData)};
+      Country pdoxC(NameGeneration::generateTag(name, nData), counter++, name,
+                    NameGeneration::generateAdjective(name, nData),
+                    Gfx::Flag(82, 52));
+      pdoxC.colour = mapOfRegions.getKeyColour(entry.first);
+      for (auto &region : entry.second) {
+        pdoxC.addRegion(region, gameRegions, gameProvinces);
+      }
+      countries.emplace(pdoxC.tag, pdoxC);
+      nData.tags.insert(pdoxC.tag);
+    }
+  }
+}
+
 // generate countries according to given ruleset for each game
 // TODO: rulesets, e.g. naming schemes? tags? country size?
 void Generator::generateCountries(int numCountries,
@@ -304,30 +391,35 @@ void Generator::generateCountries(int numCountries,
   Logging::logLine("Generating Countries");
   // load tags from hoi4 that are used by the base game
   // do not use those to avoid conflicts
-
-  for (auto i = 0; i < numCountries; i++) {
-    auto name{NameGeneration::generateName(nData)};
-    Country pdoxC(NameGeneration::generateTag(name, nData), i, name,
-                  NameGeneration::generateAdjective(name, nData),
-                  Gfx::Flag(82, 52));
-    // randomly set development of countries
-    pdoxC.developmentFactor = RandNum::getRandom(0.1, 1.0);
-    countries.emplace(pdoxC.tag, pdoxC);
-  }
-  for (auto &pdoxCountry : countries) {
-    auto startRegion(findStartRegion());
-    if (startRegion->assigned || startRegion->sea)
-      continue;
-    pdoxCountry.second.assignRegions(6, gameRegions, startRegion,
-                                     gameProvinces);
-  }
-  if (countries.size()) {
-    for (auto &gameRegion : gameRegions) {
-      if (!gameRegion->sea && !gameRegion->assigned) {
-        auto gR = Fwg::Utils::getNearestAssignedLand(
-            gameRegions, gameRegion, config.width, config.height);
-        countries.at(gR->owner).addRegion(gameRegion, gameRegions,
-                                          gameProvinces);
+  if (this->enableLoadCountries) {
+    // load countries
+    loadCountries(config.loadMapsPath + "//countries.png",
+                  this->countryMappingPath);
+  } else {
+    for (auto i = 0; i < numCountries; i++) {
+      auto name{NameGeneration::generateName(nData)};
+      Country pdoxC(NameGeneration::generateTag(name, nData), i, name,
+                    NameGeneration::generateAdjective(name, nData),
+                    Gfx::Flag(82, 52));
+      // randomly set development of countries
+      pdoxC.developmentFactor = RandNum::getRandom(0.1, 1.0);
+      countries.emplace(pdoxC.tag, pdoxC);
+    }
+    for (auto &pdoxCountry : countries) {
+      auto startRegion(findStartRegion());
+      if (startRegion->assigned || startRegion->sea)
+        continue;
+      pdoxCountry.second.assignRegions(6, gameRegions, startRegion,
+                                       gameProvinces);
+    }
+    if (countries.size()) {
+      for (auto &gameRegion : gameRegions) {
+        if (!gameRegion->sea && !gameRegion->assigned) {
+          auto gR = Fwg::Utils::getNearestAssignedLand(
+              gameRegions, gameRegion, config.width, config.height);
+          countries.at(gR->owner).addRegion(gameRegion, gameRegions,
+                                            gameProvinces);
+        }
       }
     }
   }

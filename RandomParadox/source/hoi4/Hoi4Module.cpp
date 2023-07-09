@@ -136,6 +136,12 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   hoi4Gen.industryFactor = hoi4Conf.get<double>("scenario.industryFactor");
   hoi4Gen.resourceFactor = hoi4Conf.get<double>("hoi4.resourceFactor");
 
+  // settings for scenGen
+  hoi4Gen.enableLoadCountries =
+      rpdConf.get<bool>("randomScenario.loadCountries");
+  hoi4Gen.interactive = rpdConf.get<bool>("randomScenario.loadCountries");
+  hoi4Gen.countryMappingPath = rpdConf.get<std::string>("randomScenario.countryColourMap");
+
   //  passed to generic ScenarioGenerator
   numCountries = hoi4Conf.get<int>("scenario.numCountries");
   // overwrites for fwg
@@ -143,10 +149,10 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   config.heightmapIn = config.loadMapsPath +
                        hoi4Conf.get<std::string>("fastworldgen.heightMapName");
   // force defaults for the game, if not set otherwise
-  if (config.targetLandRegionAmount == 0)
+  if (config.targetLandRegionAmount == 0 && config.autoRegionParams)
     config.targetLandRegionAmount = 640;
   // force defaults for the game, if not set otherwise
-  if (config.targetSeaRegionAmount == 0)
+  if (config.targetSeaRegionAmount == 0 && config.autoRegionParams)
     config.targetSeaRegionAmount = 160;
   cut = config.cut;
   // check if config settings are fine

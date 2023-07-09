@@ -326,8 +326,9 @@ void states(const std::string &path,
       "wasteland",  "small_island", "pastoral",   "rural",      "town",
       "large_town", "city",         "large_city", "metropolis", "megalopolis"};
   for (const auto &region : regions) {
-    if (region->sea)
+    if (region->sea) {
       continue;
+    }
     std::string provString{""};
     for (const auto &prov : region->provinces) {
       provString.append(std::to_string(prov->ID + 1));
