@@ -44,6 +44,11 @@ void updateStates(Generator &hoi4Gen, ChangeHolder &changes);
 void edit(const std::string &inPath, const std::string &outputPath,
           const std::string &mapName, Generator &hoi4Gen,
           const Fwg::Gfx::Bitmap &provinceMap, ChangeHolder &changes);
+namespace Detail {
+Fwg::Gfx::Bitmap createStateBitmap(const Generator &hoi4Gen,
+                                   const Fwg::Gfx::Bitmap &provinceMap);
+} // namespace Detail
+
 } // namespace States
 
 namespace Provinces {

@@ -88,5 +88,8 @@ public:
   void evaluateCountryStrategy();
   // print world info to console
   void printStatistics();
+
+  void loadStates();
+
 };
 } // namespace Scenario::Hoi4

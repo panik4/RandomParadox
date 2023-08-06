@@ -26,8 +26,9 @@ public:
              const bool editMode);
   ~Hoi4Module();
   // member functions
+  void prepareData();
   void genHoi();
-  void readHoi();
+  void readHoi(std::string &gamePath);
   void mapCountries(bool multiCore, bool stateExport, const std::string& inputMap);
   void mapEdit();
 };
