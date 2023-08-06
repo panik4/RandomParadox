@@ -36,7 +36,7 @@ int main() {
     if (!f.good())
       Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
-
+    Parsing::replaceInStringStream(buffer, "\\", "//");
     pt::read_json(buffer, metaConf);
   } catch (std::exception e) {
     Utils::Logging::logLine("Incorrect config \"MetaConf.json\"");
@@ -61,6 +61,7 @@ int main() {
     if (!f.good())
       Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
+    Parsing::replaceInStringStream(buffer, "\\", "//");
 
     pt::read_json(buffer, rpdConf);
   } catch (std::exception e) {
