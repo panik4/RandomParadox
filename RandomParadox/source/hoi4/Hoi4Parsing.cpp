@@ -342,7 +342,8 @@ void states(const std::string &path,
       pU::Scenario::replaceOccurences(content, "templateOwner", region->owner);
     else {
       pU::Scenario::replaceOccurences(content, "owner = templateOwner", "");
-      pU::Scenario::replaceOccurences(content, "add_core_of = templateOwner", "");
+      pU::Scenario::replaceOccurences(content, "add_core_of = templateOwner",
+                                      "");
     }
     pU::Scenario::replaceOccurences(
         content, "templateInfrastructure",
@@ -850,7 +851,15 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
     }
     pU::Scenario::replaceLine(content,
                               "capital =", "capital = " + std::to_string(1));
+    std::smatch m;
+    do {
 
+      if (std::regex_search(
+              content, m,
+              std::regex("\\s([1-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9]["
+                         "0-9])\\s?\\s?=\\s?\\s?\\{")))
+        pU::Scenario::removeBracketBlockFromKey(content, m[0]);
+    } while (m.size());
     // remove tokens that crash the mod, as in country history states are
     // referenced by IDs. If there is no state with such an ID in game, the game
     // crashes otherwise

@@ -97,8 +97,11 @@ void GenericModule::configurePaths(
   // now read the paths
   modName = gamesConf.get<std::string>(gameName + ".modName");
   gamePath = gamesConf.get<std::string>(gameName + ".gamePath");
+  Fwg::Parsing::attachTrailing(gamePath);
   mappingPath = gamesConf.get<std::string>(gameName + ".mappingPath");
+  Fwg::Parsing::attachTrailing(mappingPath);
   gameModPath = gamesConf.get<std::string>(gameName + ".modPath") + modName;
+  Fwg::Parsing::attachTrailing(gameModPath);
   Fwg::Parsing::Scenario::replaceOccurences(gameModPath, "<username>",
                                             username);
   Fwg::Parsing::Scenario::replaceOccurences(mappingPath, "<username>",
@@ -106,6 +109,7 @@ void GenericModule::configurePaths(
   Fwg::Parsing::Scenario::replaceOccurences(gamePath, "<username>",
                                             username);
   gameModsDirectory = gamesConf.get<std::string>(gameName + ".modsDirectory");
+  Fwg::Parsing::attachTrailing(gameModsDirectory);
   Fwg::Parsing::Scenario::replaceOccurences(gameModsDirectory, "<username>", username);
 }
 } // namespace Scenario

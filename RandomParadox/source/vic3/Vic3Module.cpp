@@ -84,6 +84,7 @@ void Module::readVic3Config(const std::string &configSubFolder,
     if (!f.good())
       Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
+    Fwg::Parsing::replaceInStringStream(buffer, "\\", "//");
 
     pt::read_json(buffer, vic3Conf);
   } catch (std::exception e) {
