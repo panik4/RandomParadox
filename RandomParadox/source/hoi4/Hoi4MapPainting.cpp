@@ -272,12 +272,12 @@ Fwg::Gfx::Bitmap createStateBitmap(const Generator &hoi4Gen,
       }
     }
   }
-  for (const auto borderPix : stateBorders) {
-    states.imageData[borderPix] = Fwg::Gfx::Colour{254, 253, 255};
-  }
-  for (const auto borderPix : provinceBorders) {
-    states.imageData[borderPix] = Fwg::Gfx::Colour{128, 253, 255};
-  }
+  //for (const auto borderPix : stateBorders) {
+  //  states.imageData[borderPix] = Fwg::Gfx::Colour{254, 253, 255};
+  //}
+  //for (const auto borderPix : provinceBorders) {
+  //  states.imageData[borderPix] = Fwg::Gfx::Colour{128, 253, 255};
+  //}
   return states;
 }
 } // namespace Detail

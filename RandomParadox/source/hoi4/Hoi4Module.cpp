@@ -16,10 +16,28 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   }
   // read hoi configs and potentially overwrite settings for fwg
   readHoiConfig(configSubFolder, username, gamesConf);
+  // try to assemble a region map for loading for fwg
+  if (config.cut && config.loadRegions) {
+    hoi4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
+    readHoi(gamePath);
+    auto regionMap =
+        Scenario::Hoi4::MapPainting::States::Detail::createStateBitmap(
+            hoi4Gen, Fwg::Gfx::Bmp::load24Bit(
+                         config.loadMapsPath + "//provinces.bmp", "provinces"));
+    Fwg::Gfx::Bmp::save(regionMap, config.loadMapsPath + "//regions.bmp");
+    // plenty of cleanup work has to be done after reading.
+    hoi4Gen.areas.regions.clear();
+    hoi4Gen.areas.provinces.clear();
+    hoi4Gen.areas.provinceColourMap.clear();
+    hoi4Gen.gameRegions.clear();
+    hoi4Gen.gameProvinces.clear();
+    hoi4Gen.hoi4States.clear();
+    hoi4Gen.hoi4Countries.clear();
+    hoi4Gen.countries.clear();
+  }
   if (!editMode) {
     // now run the world generation
-    if (hoi4Gen.generateWorld() < 0)
-    {
+    if (hoi4Gen.generateWorld() < 0) {
       throw(std::exception("FastWorldGenerator reported an error, terminating. "
                            "Check log for details"));
     }
@@ -36,7 +54,7 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   hoi4Gen.nData = NameGeneration::prepare("resources\\names", gamePath);
   if (editMode) {
     // start loading mod/game files
-    readHoi();
+    readHoi(gamePath);
   }
 }
 
@@ -104,6 +122,7 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
     if (!f.good())
       Fwg::Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
+    Fwg::Parsing::replaceInStringStream(buffer, "\\", "//");
 
     pt::read_json(buffer, hoi4Conf);
   } catch (std::exception e) {
@@ -140,7 +159,9 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   hoi4Gen.enableLoadCountries =
       rpdConf.get<bool>("randomScenario.loadCountries");
   hoi4Gen.interactive = rpdConf.get<bool>("randomScenario.loadCountries");
-  hoi4Gen.countryMappingPath = rpdConf.get<std::string>("randomScenario.countryColourMap");
+  hoi4Gen.countryMappingPath =
+      rpdConf.get<std::string>("randomScenario.countryColourMap");
+  Fwg::Parsing::attachTrailing(hoi4Gen.countryMappingPath);
 
   //  passed to generic ScenarioGenerator
   numCountries = hoi4Conf.get<int>("scenario.numCountries");
@@ -158,6 +179,8 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   // check if config settings are fine
   config.sanityCheck();
 }
+
+void Hoi4Module::prepareData() {}
 
 void Hoi4Module::genHoi() {
   if (!createPaths())
@@ -278,21 +301,27 @@ void Hoi4Module::genHoi() {
   hoi4Gen.printStatistics();
 }
 
-void Hoi4Module::readHoi() {
+void Hoi4Module::readHoi(std::string &gamePath) {
   auto &config = Fwg::Cfg::Values();
+  bool bufferedCut = config.cut;
+  config.cut = false;
   hoi4Gen.provinceMap = Fwg::IO::Reader::readProvinceImage(
-      mappingPath + "map//provinces.bmp", config);
+      gamePath + "map//provinces.bmp", config);
   hoi4Gen.heightMap = Fwg::IO::Reader::readGenericImage(
-      mappingPath + "map//heightmap.bmp", config);
+      gamePath + "map//heightmap.bmp", config);
   // read in game or mod files
   Hoi4::Parsing::Reading::readProvinces(
-      mappingPath, "provinces.bmp", hoi4Gen.areas, hoi4Gen.stringToTerrainType);
+      gamePath, "provinces.bmp", hoi4Gen.areas, hoi4Gen.stringToTerrainType);
   // get the provinces into GameProvinces
   hoi4Gen.mapProvinces();
   // get the states from files to initialize gameRegions
-  Hoi4::Parsing::Reading::readStates(mappingPath, hoi4Gen);
+  Hoi4::Parsing::Reading::readStates(gamePath, hoi4Gen);
+  try {
+    hoi4Gen.mapRegions();
+  } catch (std::exception e) {
+  };
   // read the colour codes from the game/mod files
-  hoi4Gen.colourMap = Hoi4::Parsing::Reading::readColourMapping(mappingPath);
+  hoi4Gen.colourMap = Hoi4::Parsing::Reading::readColourMapping(gamePath);
   // pre initialize an empty climateMap
   hoi4Gen.climateMap =
       Fwg::Gfx::Bitmap(hoi4Gen.provinceMap.bInfoHeader.biWidth,
@@ -300,6 +329,7 @@ void Hoi4Module::readHoi() {
 
   // now initialize hoi4 states from the gameRegions
   hoi4Gen.mapTerrain();
+  hoi4Gen.initializeStates();
   for (auto &c : hoi4Gen.countries) {
     auto fCol = hoi4Gen.colourMap.valueSearch(c.first);
     if (fCol != Fwg::Gfx::Colour{0, 0, 0}) {
@@ -316,11 +346,12 @@ void Hoi4Module::readHoi() {
   }
   hoi4Gen.initializeCountries();
   // read in further state details from map files
-  Hoi4::Parsing::Reading::readAirports(mappingPath, hoi4Gen.hoi4States);
-  Hoi4::Parsing::Reading::readRocketSites(mappingPath, hoi4Gen.hoi4States);
-  Hoi4::Parsing::Reading::readBuildings(mappingPath, hoi4Gen.hoi4States);
-  Hoi4::Parsing::Reading::readSupplyNodes(mappingPath, hoi4Gen.hoi4States);
-  Hoi4::Parsing::Reading::readWeatherPositions(mappingPath, hoi4Gen.hoi4States);
+  Hoi4::Parsing::Reading::readAirports(gamePath, hoi4Gen.hoi4States);
+  Hoi4::Parsing::Reading::readRocketSites(gamePath, hoi4Gen.hoi4States);
+  Hoi4::Parsing::Reading::readBuildings(gamePath, hoi4Gen.hoi4States);
+  Hoi4::Parsing::Reading::readSupplyNodes(gamePath, hoi4Gen.hoi4States);
+  Hoi4::Parsing::Reading::readWeatherPositions(gamePath, hoi4Gen.hoi4States);
+  config.cut = bufferedCut;
 }
 void Hoi4Module::mapEdit() {
   // prepare folder structure

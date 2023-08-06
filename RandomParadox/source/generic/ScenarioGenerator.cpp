@@ -53,6 +53,9 @@ void Generator::mapRegions() {
     // save game region
     gameRegions.push_back(gameRegion);
   }
+  // sort by gameprovince ID
+  std::sort(gameRegions.begin(), gameRegions.end(),
+            [](auto l, auto r) { return *l < *r; });
   // check if we have the same amount of gameProvinces as FastWorldGen provinces
   if (gameProvinces.size() != this->areas.provinces.size())
     throw(std::exception("Fatal: Lost provinces, terminating"));
@@ -63,9 +66,6 @@ void Generator::mapRegions() {
       throw(std::exception("Fatal: Invalid region IDs, terminating"));
     }
   }
-  // sort by gameprovince ID
-  std::sort(gameRegions.begin(), gameRegions.end(),
-            [](auto l, auto r) { return *l < *r; });
 }
 
 void Generator::mapProvinces() {

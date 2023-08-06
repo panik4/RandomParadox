@@ -571,6 +571,8 @@ void Generator::printStatistics() {
   }
 }
 
+void Generator::loadStates() {}
+
 bool Generator::unitFulfillsRequirements(
     std::vector<std::string> unitRequirements, Hoi4Country &country) {
   // now check if the country fulfills the target requirements
