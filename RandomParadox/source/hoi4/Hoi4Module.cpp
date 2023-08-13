@@ -36,6 +36,12 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
     hoi4Gen.countries.clear();
   }
   if (!editMode) {
+
+    if (true) {
+      GUI gui2;
+      gui2.shiny(hoi4Gen);
+    }
+    return;
     // now run the world generation
     if (hoi4Gen.generateWorld() < 0) {
       throw(std::exception("FastWorldGenerator reported an error, terminating. "

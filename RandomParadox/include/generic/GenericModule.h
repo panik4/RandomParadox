@@ -5,6 +5,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <filesystem>
 #include <string>
+#include "UI/GUI.h"
 namespace Scenario {
 class GenericModule {
 
