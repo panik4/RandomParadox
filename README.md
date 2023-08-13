@@ -5,6 +5,8 @@ Victoria 3 and Europa Universalis 4 generation are creating loadable mods, but t
 
 Note that the underlying world map generation is done in a separate project and repository "FastWorldGenerator", which is not yet open source.
 
+It contains a simple GUI built using Dear Imgui (https://github.com/ocornut/imgui)
+
 The Hearts of Iron IV module generates a full mod on a randomly generated worldmap, with random countries, flags, national focus trees, unit templates.
 ![worldmap](https://github.com/panik4/RandomParadox/blob/main/images/worldmap.png?raw=true)
 
