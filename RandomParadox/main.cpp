@@ -6,6 +6,7 @@
 #include "hoi4/Hoi4Module.h"
 #include "vic3/Vic3Module.h"
 #include <filesystem>
+
 using namespace Fwg;
 void dumpInfo(const std::string &error, const std::string &configSubFolder) {
   std::string dump = "";
@@ -25,6 +26,7 @@ void dumpInfo(const std::string &error, const std::string &configSubFolder) {
 }
 
 int main() {
+
   // Short alias for this namespace
   namespace pt = boost::property_tree;
   // Create a root
@@ -121,6 +123,7 @@ int main() {
   if (!writeMaps) {
     config.writeMaps = false;
   }
+
   try {
     if (genHoi4Scenario) {
       // generate hoi4 scenario
