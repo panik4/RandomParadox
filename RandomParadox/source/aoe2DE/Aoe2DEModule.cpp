@@ -20,7 +20,7 @@ bool Module::createPaths() { // prepare folder structure
 void Module::readVic3Config(const std::string &configSubFolder,
                             const std::string &username,
                             const boost::property_tree::ptree &rpdConf) {
-  Utils::Logging::logLine("Reading Vic 3 Config");
+  Fwg::Utils::Logging::logLine("Reading Vic 3 Config");
 }
 
 void Module::genAoe2() {
@@ -89,7 +89,7 @@ void Module::genAoe2() {
         //terrain_generation.append("land_percent 0\n");
         terrain_generation.append("number_of_tiles 1\n");
         //terrain_generation.append("set_avoid_player_start_areas\n");
-        terrain_generation.append(Utils::varsToString(
+        terrain_generation.append(Fwg::Utils::varsToString(
             "land_position ", aoe2PercentH, " ",
                                           aoe2PercentW, "\n"));
         terrain_generation.append("}\n");
@@ -99,7 +99,7 @@ void Module::genAoe2() {
         //terrain_generation.append("land_percent 0\n");
         terrain_generation.append("number_of_tiles 1\n");
         //terrain_generation.append("set_avoid_player_start_areas\n");
-        terrain_generation.append(Utils::varsToString(
+        terrain_generation.append(Fwg::Utils::varsToString(
             "land_position ", aoe2PercentH, " ",
                                           aoe2PercentW, "\n"));
         if (zone) {

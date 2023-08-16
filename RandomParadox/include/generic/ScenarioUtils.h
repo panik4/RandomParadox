@@ -32,4 +32,12 @@ static Coordinate strToPos(const std::vector<std::string> &tokens,
   p.rotation = std::stoi(tokens[positions[3]]);
   return p;
 }
+struct Pathcfg {
+  std::string modName;
+  std::string gamePath;
+  std::string gameModPath;
+  std::string gameModsDirectory;
+  std::string mappingPath;
+};
+
 }; // namespace Scenario::Utils

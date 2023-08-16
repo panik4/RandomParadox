@@ -64,7 +64,7 @@ bool GenericModule::findGame(std::string &path, const std::string &game) {
 bool GenericModule::findModFolders() {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
-  path modsDir(gameModPath);
+  path modsDir(pathcfg.gameModPath);
   if (exists(modsDir.parent_path())) {
     Logging::logLine("Located mod folder under ", modsDir.parent_path());
   } else {
@@ -76,12 +76,13 @@ bool GenericModule::findModFolders() {
     system("pause");
     return false;
   }
-  if (exists(gameModsDirectory)) {
-    Logging::logLine("Located mods directory folder under ", gameModsDirectory);
+  if (exists(pathcfg.gameModsDirectory)) {
+    Logging::logLine("Located mods directory folder under ",
+                     pathcfg.gameModsDirectory);
   } else {
     Logging::logLine(
         "Could not find game mods directory folder under configured path ",
-        gameModsDirectory,
+        pathcfg.gameModsDirectory,
         " it doesn't exist or is malformed. Please correct the path");
     system("pause");
     return false;
@@ -95,21 +96,24 @@ void GenericModule::configurePaths(
     const boost::property_tree::ptree &gamesConf) {
   // Short alias for this namespace
   // now read the paths
-  modName = gamesConf.get<std::string>(gameName + ".modName");
-  gamePath = gamesConf.get<std::string>(gameName + ".gamePath");
-  Fwg::Parsing::attachTrailing(gamePath);
-  mappingPath = gamesConf.get<std::string>(gameName + ".mappingPath");
-  Fwg::Parsing::attachTrailing(mappingPath);
-  gameModPath = gamesConf.get<std::string>(gameName + ".modPath") + modName;
-  Fwg::Parsing::attachTrailing(gameModPath);
-  Fwg::Parsing::Scenario::replaceOccurences(gameModPath, "<username>",
+  pathcfg.modName = gamesConf.get<std::string>(gameName + ".modName");
+  pathcfg.gamePath = gamesConf.get<std::string>(gameName + ".gamePath");
+  Fwg::Parsing::attachTrailing(pathcfg.gamePath);
+  pathcfg.mappingPath = gamesConf.get<std::string>(gameName + ".mappingPath");
+  Fwg::Parsing::attachTrailing(pathcfg.mappingPath);
+  pathcfg.gameModPath =
+      gamesConf.get<std::string>(gameName + ".modPath") + pathcfg.modName;
+  Fwg::Parsing::attachTrailing(pathcfg.gameModPath);
+  Fwg::Parsing::Scenario::replaceOccurences(pathcfg.gameModPath, "<username>",
                                             username);
-  Fwg::Parsing::Scenario::replaceOccurences(mappingPath, "<username>",
+  Fwg::Parsing::Scenario::replaceOccurences(pathcfg.mappingPath, "<username>",
                                             username);
-  Fwg::Parsing::Scenario::replaceOccurences(gamePath, "<username>",
+  Fwg::Parsing::Scenario::replaceOccurences(pathcfg.gamePath, "<username>",
                                             username);
-  gameModsDirectory = gamesConf.get<std::string>(gameName + ".modsDirectory");
-  Fwg::Parsing::attachTrailing(gameModsDirectory);
-  Fwg::Parsing::Scenario::replaceOccurences(gameModsDirectory, "<username>", username);
+  pathcfg.gameModsDirectory =
+      gamesConf.get<std::string>(gameName + ".modsDirectory");
+  Fwg::Parsing::attachTrailing(pathcfg.gameModsDirectory);
+  Fwg::Parsing::Scenario::replaceOccurences(pathcfg.gameModsDirectory,
+                                            "<username>", username);
 }
 } // namespace Scenario
