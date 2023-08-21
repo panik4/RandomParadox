@@ -853,7 +853,6 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
                               "capital =", "capital = " + std::to_string(1));
     std::smatch m;
     do {
-
       if (std::regex_search(
               content, m,
               std::regex("\\s([1-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9]["
