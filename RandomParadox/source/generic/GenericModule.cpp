@@ -90,7 +90,7 @@ bool GenericModule::findModFolders() {
   return true;
 }
 
-// reads config for Hearts of Iron IV
+// reads generic configs for every module
 void GenericModule::configurePaths(
     const std::string &username, const std::string &gameName,
     const boost::property_tree::ptree &gamesConf) {

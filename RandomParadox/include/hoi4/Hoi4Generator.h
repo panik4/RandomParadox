@@ -90,6 +90,5 @@ public:
   void printStatistics();
 
   void loadStates();
-
 };
 } // namespace Scenario::Hoi4
