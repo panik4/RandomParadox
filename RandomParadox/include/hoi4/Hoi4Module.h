@@ -35,7 +35,5 @@ public:
   void writeImages();
   // clear and create all the mod paths at each run
   bool createPaths();
-
-  void gui();
 };
 } // namespace Scenario::Hoi4
