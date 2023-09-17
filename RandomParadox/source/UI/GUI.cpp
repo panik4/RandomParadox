@@ -112,7 +112,10 @@ int GUI::shiny(Scenario::Hoi4::Hoi4Module &hoi4Module) {
     hoi4Module.hoi4Gen.genHeight(cfg);
   }
   frequency = cfg.overallFrequencyModifier;
-
+  // auto log = std::shared_ptr<std::stringstream>(new std::stringstream());
+  log = std::make_shared<std::stringstream>();
+  *log << Fwg::Utils::Logging::Logger::logInstance.getFullLog();
+  Fwg::Utils::Logging::Logger::logInstance.attachStream(log);
   while (!done) {
     // Poll and handle messages (inputs, window resize, etc.)
     // See the WndProc() function below for our to dispatch events to the Win32
@@ -135,7 +138,7 @@ int GUI::shiny(Scenario::Hoi4::Hoi4Module &hoi4Module) {
           if (DragQueryFileA(hDrop, i, filename, MAX_PATH)) {
 
             files.push_back(filename);
-            std::cout << filename << std::endl;
+            Fwg::Utils::Logging::logLine(filename);
           }
         }
         draggedFile = files.back();
@@ -159,25 +162,22 @@ int GUI::shiny(Scenario::Hoi4::Hoi4Module &hoi4Module) {
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-
     {
-      ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
-
       ImGui::SetNextWindowPos({0, 0});
       ImGui::SetNextWindowSize({io.DisplaySize.x, io.DisplaySize.y});
       ImGui::Begin("RandomParadox");
       showGeneric(cfg, hoi4Module.hoi4Gen, &curtexture);
-      if (ImGui::BeginTabBar("Steps", tab_bar_flags)) {
-        showConfigure(cfg, &curtexture);
-        showFwgConfigure(cfg, &curtexture);
+      ImGui::SeparatorText(
+          "Different Steps of the generation, usually go from left to right");
+      if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
+        showConfigure(cfg, hoi4Module);
         showHeightmapTab(cfg, hoi4Module.hoi4Gen, &curtexture);
         showTerrainTab(cfg, hoi4Module.hoi4Gen, &curtexture);
         showNormalMapTab(cfg, hoi4Module.hoi4Gen, &curtexture);
         showContinentTab(cfg, hoi4Module.hoi4Gen, &curtexture);
         showClimateOverview(cfg, hoi4Module.hoi4Gen, &curtexture);
         showDensityTab(cfg, hoi4Module.hoi4Gen, &curtexture);
-        showProvincesTab(cfg, hoi4Module.hoi4Gen, &curtexture);
-        showRegionTab(cfg, hoi4Module.hoi4Gen, &curtexture);
+        showAreasTab(cfg, hoi4Module.hoi4Gen);
         showTreeTab(cfg, hoi4Module.hoi4Gen);
         showHoi4Configure(cfg, hoi4Module, &curtexture);
         if (!configuredScenarioGen) {
@@ -192,7 +192,7 @@ int GUI::shiny(Scenario::Hoi4::Hoi4Module &hoi4Module) {
 
         ImGui::EndTabBar();
       }
-      auto scale = (ImGui::GetWindowHeight() * 0.5) / h;
+      auto scale = (ImGui::GetContentRegionAvail().y) / h;
       if (curtexture != nullptr)
         ImGui::Image((void *)curtexture, ImVec2(w * scale, h * scale));
       ImGui::SameLine();
@@ -233,7 +233,7 @@ std::vector<std::string> GUI::loadConfigs() {
   for (const auto &entry : std::filesystem::directory_iterator("configs")) {
     if (entry.is_directory()) {
       configSubfolders.push_back(entry.path().string());
-      std::cout << entry << std::endl;
+      Fwg::Utils::Logging::logLine(entry);
     }
   }
 
@@ -262,33 +262,41 @@ void GUI::loadGameConfig(Fwg::Cfg &cfg) {
         "\"https://jsonlint.com/\" or search for \"json validator\"");
     system("pause");
   }
-
-  // overwrites for fwg
-  cfg.loadMapsPath = hoi4Conf.get<std::string>("fastworldgen.loadMapsPath");
-  cfg.heightmapIn = cfg.loadMapsPath +
-                    hoi4Conf.get<std::string>("fastworldgen.heightMapName");
 }
 
-int GUI::showConfigure(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
+// generic configure tab, containing a tab for fwg and rpdx configs
+int GUI::showConfigure(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module) {
   if (ImGui::BeginTabItem("Configure")) {
-    // remove the images, and set pretext for them to be auto loaded after
-    // switching tabs again
-    freeTexture(texture);
+    if (ImGui::BeginTabBar("Config tabs", ImGuiTabBarFlags_None)) {
+      showRpdxConfigure(cfg, hoi4Module);
+      showFwgConfigure(cfg, &curtexture);
+      ImGui::EndTabBar();
+    }
+    ImGui::EndTabItem();
+  }
+  return 0;
+}
+
+int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
+                           Scenario::Hoi4::Hoi4Module &hoi4Module) {
+  static int item_current = 1;
+  // remove the images, and set pretext for them to be auto
+  // loaded after switching tabs again
+  if (ImGui::BeginTabItem("RandomParadox Configuration")) {
+    freeTexture(&curtexture);
     tabSwitchEvent();
     // find every subfolder of config folder
     if (!loadedConfigs) {
       loadedConfigs = true;
       configSubfolders = loadConfigs();
-      activeConfig = cfg.path;
+      activeConfig = configSubfolders[item_current];
     }
-    if (ImGui::Button("Reload config")) {
-      cfg.readConfig(activeConfig);
-      loadGameConfig(cfg);
-    }
+
     std::vector<const char *> items;
+
+    ImGui::PushItemWidth(200.0f);
     for (auto &item : configSubfolders)
       items.push_back(item.c_str());
-    static int item_current = 1;
     ImGui::SeparatorText(
         "Click an entry in the list to choose a config preset");
     if (ImGui::ListBox("Config Presets", &item_current, items.data(),
@@ -300,6 +308,24 @@ int GUI::showConfigure(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       loadGameConfig(cfg);
     }
 
+    ImGui::PopItemWidth();
+    if (ImGui::Button("Reload config")) {
+      cfg.readConfig(activeConfig);
+      loadGameConfig(cfg);
+    }
+    ImGui::PushItemWidth(600.0f);
+    ImGui::InputText("Mod Name", &hoi4Module.pathcfg.modName);
+    if (ImGui::Button("Try to find game")) {
+      hoi4Module.findGame(hoi4Module.pathcfg.gamePath, "Hearts of Iron IV");
+    }
+    ImGui::InputText("Game Path", &hoi4Module.pathcfg.gamePath);
+    if (ImGui::Button("Validate mods directories")) {
+      hoi4Module.findModFolders();
+    }
+    ImGui::InputText("Mod Path", &hoi4Module.pathcfg.gameModPath);
+    ImGui::InputText("Mods Directory", &hoi4Module.pathcfg.gameModsDirectory);
+
+    ImGui::PopItemWidth();
     ImGui::EndTabItem();
   }
   return 0;
@@ -348,7 +374,6 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module,
     }
     // drag event
     if (triggeredDrag) {
-      // generator.count = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
       generator.loadCountries(draggedFile, generator.countryMappingPath);
       // transfer generic states to hoi4states
       generator.initializeStates();

@@ -170,10 +170,11 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   //  passed to generic ScenarioGenerator
   numCountries = hoi4Conf.get<int>("scenario.numCountries");
   std::cout << numCountries << std::endl;
-  // overwrites for fwg
-  config.loadMapsPath = hoi4Conf.get<std::string>("fastworldgen.loadMapsPath");
-  config.heightmapIn = config.loadMapsPath +
-                       hoi4Conf.get<std::string>("fastworldgen.heightMapName");
+  // overwrites for fwg TODO remove overwrites
+  // config.loadMapsPath =
+  // hoi4Conf.get<std::string>("fastworldgen.loadMapsPath"); config.heightmapIn
+  // = config.loadMapsPath +
+  //                     hoi4Conf.get<std::string>("fastworldgen.heightMapName");
   // force defaults for the game, if not set otherwise
   if (config.targetLandRegionAmount == 0 && config.autoRegionParams)
     config.targetLandRegionAmount = 640;
@@ -288,7 +289,6 @@ void Hoi4Module::writeTextFiles() {
   Parsing::copyDescriptorFile("resources\\hoi4\\descriptor.mod",
                               pathcfg.gameModPath, pathcfg.gameModsDirectory,
                               pathcfg.modName);
-
 }
 void Hoi4Module::writeImages() {
   // generate map files. Format must be converted and colours mapped to hoi4
@@ -320,7 +320,6 @@ void Hoi4Module::writeImages() {
   // just copy over provinces.bmp, already in a compatible format
   Fwg::Gfx::Bmp::save(hoi4Gen.provinceMap,
                       (pathcfg.gameModPath + ("\\map\\provinces.bmp")).c_str());
-
 }
 
 void Hoi4Module::readHoi(std::string &gamePath) {
@@ -402,8 +401,4 @@ void Hoi4Module::mapEdit() {
       hoi4Gen, pathcfg.mappingPath, pathcfg.gameModPath, formatConverter);
 }
 
-void Hoi4Module::gui() {
-  //GUI gui2;
-  //gui2.shiny(hoi4Gen, pathcfg);
-}
 } // namespace Scenario::Hoi4

@@ -28,7 +28,7 @@ bool GenericModule::findGame(std::string &path, const std::string &game) {
   std::vector<std::string> drives{"C:\\", "D:\\", "E:\\",
                                   "F:\\", "G:\\", "H:\\"};
   // first try to find hoi4 at the configured location
-  if (exists(path)) {
+  if (exists(path) && path.find(game) != std::string::npos) {
     Logging::logLine("Located game under ", path);
     return true;
   } else {
@@ -37,7 +37,6 @@ bool GenericModule::findGame(std::string &path, const std::string &game) {
         " it doesn't exist or is malformed. Auto search will now "
         "try to locate the game, but may not succeed. It is "
         "recommended to correctly configure the path");
-    system("pause");
   }
   for (const auto &drive : drives) {
     if (exists(drive + "Program Files (x86)\\Steam\\steamapps\\common\\" +
@@ -73,7 +72,6 @@ bool GenericModule::findModFolders() {
         "path ",
         modsDir.parent_path(),
         " it doesn't exist or is malformed. Please correct the path");
-    system("pause");
     return false;
   }
   if (exists(pathcfg.gameModsDirectory)) {
@@ -84,7 +82,6 @@ bool GenericModule::findModFolders() {
         "Could not find game mods directory folder under configured path ",
         pathcfg.gameModsDirectory,
         " it doesn't exist or is malformed. Please correct the path");
-    system("pause");
     return false;
   }
   return true;

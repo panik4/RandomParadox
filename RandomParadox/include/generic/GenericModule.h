@@ -14,14 +14,15 @@ protected:
   void configurePaths(const std::string &username, const std::string &gameName,
                       const boost::property_tree::ptree &gamesConf);
   void createPaths(const std::string &basePath);
+
+
+public:
+  int numCountries;
   // try to locate hoi4 at configured path, if not found, try other
   // standard locations
   bool findGame(std::string &path, const std::string &game);
   // check if configured mod directories are correct
   bool findModFolders();
-
-public:
-  int numCountries;
   Utils::Pathcfg pathcfg;
 };
 } // namespace Scenario
