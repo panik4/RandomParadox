@@ -256,9 +256,12 @@ void Generator::generateWeather() {
   }
 }
 
-void Generator::generateLogistics(Bitmap logistics) {
+void Generator::generateLogistics() {
   Fwg::Utils::Logging::logLine("HOI4: Building rail networks");
   auto width = Cfg::Values().width;
+  // create a copy of the country map for
+  // visualisation of the logistics
+  auto logistics = this->countryMap;
   for (auto &country : hoi4Countries) {
     // GameProvince ID, distance
     std::map<double, int> supplyHubs;
@@ -404,6 +407,7 @@ void Generator::generateLogistics(Bitmap logistics) {
         supplyNodeConnections.back().push_back(passState);
       }
     }
+
     for (auto &pix : capitalProvince->baseProvince->pixels) {
       logistics.setColourAtIndex(pix, {255, 255, 0});
     }

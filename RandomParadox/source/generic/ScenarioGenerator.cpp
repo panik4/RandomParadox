@@ -29,6 +29,7 @@ void Generator::generateWorldCivilizations() {
 
 void Generator::mapContinents() {
   Logging::logLine("Mapping Continents");
+  pdoxContinents.clear();
   for (const auto &continent : this->areas.continents) {
     // we copy the fwg continents by choice, to leave them untouched
     pdoxContinents.push_back(ScenarioContinent(continent));
@@ -37,6 +38,7 @@ void Generator::mapContinents() {
 
 void Generator::mapRegions() {
   Logging::logLine("Mapping Regions");
+  gameRegions.clear();
   for (auto &region : this->areas.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
               [](const Fwg::Province *a, const Fwg::Province *b) {
@@ -311,9 +313,8 @@ void Generator::loadCountries(const std::string &countryMapPath,
   } catch (std::exception e) {
     Fwg::Utils::Logging::logLine(
         e.what(), " continuing with randomly generated countries");
-    system("pause");
   }
-  auto image =
+  countryMap =
       Fwg::IO::Reader::loadAnySupported(countryMapPath, Fwg::Cfg::Values());
   Fwg::Utils::ColourTMap<std::vector<std::shared_ptr<Scenario::Region>>>
       mapOfRegions;
@@ -327,7 +328,7 @@ void Generator::loadCountries(const std::string &countryMapPath,
     for (auto province : region->gameProvinces) {
       if (!province->baseProvince->sea) {
         //  we have the colour already
-        auto colour = image[province->baseProvince->pixels[0]];
+        auto colour = countryMap[province->baseProvince->pixels[0]];
 
         if (likeliestOwner.find(colour)) {
           likeliestOwner[colour] += province->baseProvince->pixels.size();
@@ -386,6 +387,10 @@ void Generator::loadCountries(const std::string &countryMapPath,
 // TODO: rulesets, e.g. naming schemes? tags? country size?
 void Generator::generateCountries(int numCountries,
                                   const std::string &gamePath) {
+  countries.clear();
+  for (auto &region : gameRegions) {
+    region->assigned = false;
+  }
   auto &config = Fwg::Cfg::Values();
   this->numCountries = numCountries;
   Logging::logLine("Generating Countries");
@@ -423,6 +428,8 @@ void Generator::generateCountries(int numCountries,
       }
     }
   }
+  countryMap =
+      dumpDebugCountrymap(Fwg::Cfg::Values().mapsPath + "countries.png");
 }
 
 void Generator::generateStrategicRegions() {

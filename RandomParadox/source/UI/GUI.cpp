@@ -167,6 +167,8 @@ int GUI::shiny(Scenario::Hoi4::Hoi4Module &hoi4Module) {
       ImGui::SetNextWindowSize({io.DisplaySize.x, io.DisplaySize.y});
       ImGui::Begin("RandomParadox");
       showGeneric(cfg, hoi4Module.hoi4Gen, &curtexture);
+      ImGui::SameLine();
+      showHoiGeneric(cfg, hoi4Module);
       ImGui::SeparatorText(
           "Different Steps of the generation, usually go from left to right");
       if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
@@ -184,7 +186,7 @@ int GUI::shiny(Scenario::Hoi4::Hoi4Module &hoi4Module) {
           ImGui::BeginDisabled();
         }
         showCountryTab(cfg, hoi4Module, &curtexture);
-        showStrategicRegionTab(cfg, hoi4Module.hoi4Gen, &curtexture);
+        showStrategicRegionTab(cfg, hoi4Module.hoi4Gen);
         showFinaliseTabConfigure(cfg, hoi4Module);
         if (!configuredScenarioGen) {
           ImGui::EndDisabled();
@@ -193,11 +195,13 @@ int GUI::shiny(Scenario::Hoi4::Hoi4Module &hoi4Module) {
         ImGui::EndTabBar();
       }
       auto scale = (ImGui::GetContentRegionAvail().y) / h;
-      if (curtexture != nullptr)
+      if (curtexture != nullptr) {
         ImGui::Image((void *)curtexture, ImVec2(w * scale, h * scale));
+      }
       ImGui::SameLine();
-      if (secondaryTexture != nullptr)
+      if (secondaryTexture != nullptr) {
         ImGui::Image((void *)secondaryTexture, ImVec2(w * scale, h * scale));
+      }
       ImGui::End();
     }
 
@@ -264,6 +268,41 @@ void GUI::loadGameConfig(Fwg::Cfg &cfg) {
   }
 }
 
+int GUI::showHoiGeneric(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module) {
+
+  if (ImGui::Button("Generate Hoi4Mod with default settings")) {
+    auto &hoi4Gen = hoi4Module.hoi4Gen;
+    if (!hoi4Module.createPaths())
+      return -1;
+    // start with the generic stuff in the Scenario Generator
+    hoi4Gen.mapProvinces();
+    hoi4Gen.mapRegions();
+    hoi4Gen.mapContinents();
+    configuredScenarioGen = true;
+    hoi4Gen.generateCountries(hoi4Module.numCountries, pathconfig.gamePath);
+    // transfer generic states to hoi4states
+    hoi4Gen.initializeStates();
+    // build hoi4 countries out of basic countries
+    hoi4Gen.initializeCountries();
+    hoi4Gen.evaluateNeighbours();
+    hoi4Gen.generateWorldCivilizations();
+    hoi4Gen.dumpDebugCountrymap(cfg.mapsPath + "countries.png");
+    hoi4Gen.generateStrategicRegions();
+    hoi4Gen.generateWeather();
+    // now generate hoi4 specific stuff
+    hoi4Gen.generateCountrySpecifics();
+    hoi4Gen.generateStateSpecifics();
+    hoi4Gen.generateStateResources();
+    // should work with countries = 0
+    hoi4Gen.evaluateCountries();
+    hoi4Gen.generateLogistics();
+    Scenario::Hoi4::NationalFocus::buildMaps();
+    hoi4Gen.generateFocusTrees();
+    hoi4Gen.generateCountryUnits();
+    hoi4Module.writeImages();
+    hoi4Module.writeTextFiles();
+  }
+}
 // generic configure tab, containing a tab for fwg and rpdx configs
 int GUI::showConfigure(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module) {
   if (ImGui::BeginTabItem("Configure")) {
@@ -369,9 +408,13 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module,
       generator.initializeCountries();
       generator.evaluateNeighbours();
       generator.generateWorldCivilizations();
-      Fwg::Gfx::Bitmap countryMap =
-          generator.dumpDebugCountrymap(cfg.mapsPath + "countries.png");
+      generator.dumpDebugCountrymap(cfg.mapsPath + "countries.png");
+      resetTexture();
     }
+    ImGui::SameLine();
+    auto str =
+        "Generated countries: " + std::to_string(generator.countries.size());
+    ImGui::Text(str.c_str());
     // drag event
     if (triggeredDrag) {
       generator.loadCountries(draggedFile, generator.countryMappingPath);
@@ -384,15 +427,31 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module,
       triggeredDrag = false;
       resetTexture();
     }
-    // switchTexture(generator., texture, ActiveTexture::COUNTRIES);
+    switchTexture(hoi4Module.hoi4Gen.countryMap, texture,
+                  ActiveTexture::COUNTRIES);
     ImGui::EndTabItem();
   }
   return 0;
 }
 
 int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
-                                Scenario::Hoi4::Generator &generator,
-                                ID3D11ShaderResourceView **texture) {
+                                Scenario::Hoi4::Generator &generator) {
+  if (ImGui::BeginTabItem("Strategic Regions")) {
+    freeTexture(&curtexture);
+    tabSwitchEvent();
+    ImGui::SeparatorText(
+        "This generates strategic regions, they cannot be loaded");
+    if (ImGui::Button("Generate strategic regions")) {
+      // non-country stuff
+      generator.generateStrategicRegions();
+      generator.generateWeather();
+    }
+    // drag event is ignored here
+    if (triggeredDrag) {
+      triggeredDrag = false;
+    }
+    ImGui::EndTabItem();
+  }
   return 0;
 }
 
@@ -405,18 +464,13 @@ int GUI::showFinaliseTabConfigure(Fwg::Cfg &cfg,
                 "configured paths");
     if (ImGui::Button("Finish mod")) {
       auto &hoi4Gen = hoi4Module.hoi4Gen;
-      // non-country stuff
-      hoi4Gen.generateStrategicRegions();
-      hoi4Gen.generateWeather();
       // now generate hoi4 specific stuff
       hoi4Gen.generateCountrySpecifics();
       hoi4Gen.generateStateSpecifics();
       hoi4Gen.generateStateResources();
       // should work with countries = 0
       hoi4Gen.evaluateCountries();
-      Fwg::Gfx::Bitmap countryMap =
-          hoi4Gen.dumpDebugCountrymap(cfg.mapsPath + "countries.png");
-      hoi4Gen.generateLogistics(countryMap);
+      hoi4Gen.generateLogistics();
       Scenario::Hoi4::NationalFocus::buildMaps();
       hoi4Gen.generateFocusTrees();
       hoi4Gen.generateCountryUnits();

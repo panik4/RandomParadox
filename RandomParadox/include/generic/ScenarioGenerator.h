@@ -71,6 +71,7 @@ public:
   std::set<std::string> tags;
   Fwg::Utils::ColourTMap<std::string> colourMap;
   std::map<std::string, Country> countries;
+  Fwg::Gfx::Bitmap countryMap;
   std::vector<strategicRegion> strategicRegions;
   std::vector<std::shared_ptr<Religion>> religions;
   std::vector<std::shared_ptr<Culture>> cultures;
