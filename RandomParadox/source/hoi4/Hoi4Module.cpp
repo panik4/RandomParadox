@@ -169,12 +169,6 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
 
   //  passed to generic ScenarioGenerator
   numCountries = hoi4Conf.get<int>("scenario.numCountries");
-  std::cout << numCountries << std::endl;
-  // overwrites for fwg TODO remove overwrites
-  // config.loadMapsPath =
-  // hoi4Conf.get<std::string>("fastworldgen.loadMapsPath"); config.heightmapIn
-  // = config.loadMapsPath +
-  //                     hoi4Conf.get<std::string>("fastworldgen.heightMapName");
   // force defaults for the game, if not set otherwise
   if (config.targetLandRegionAmount == 0 && config.autoRegionParams)
     config.targetLandRegionAmount = 640;
@@ -203,8 +197,6 @@ void Hoi4Module::genHoi() {
     hoi4Gen.initializeCountries();
     hoi4Gen.evaluateNeighbours();
     hoi4Gen.generateWorldCivilizations();
-    Fwg::Gfx::Bitmap countryMap =
-        hoi4Gen.dumpDebugCountrymap(Cfg::Values().mapsPath + "countries.png");
 
     // non-country stuff
     hoi4Gen.generateStrategicRegions();
@@ -215,7 +207,7 @@ void Hoi4Module::genHoi() {
     hoi4Gen.generateStateResources();
     // should work with countries = 0
     hoi4Gen.evaluateCountries();
-    hoi4Gen.generateLogistics(countryMap);
+    hoi4Gen.generateLogistics();
     NationalFocus::buildMaps();
     hoi4Gen.generateFocusTrees();
     hoi4Gen.generateCountryUnits();
@@ -308,7 +300,9 @@ void Hoi4Module::writeImages() {
   formatConverter.dump8BitHeightmap(
       hoi4Gen.heightMap, pathcfg.gameModPath + "\\map\\heightmap", "heightmap");
   formatConverter.dumpTerrainColourmap(
-      hoi4Gen.summerMap, hoi4Gen.cityMap, pathcfg.gameModPath,
+      Fwg::Gfx::MapMerging::mergeTerrain(hoi4Gen.heightMap, hoi4Gen.climateMap,
+                                         hoi4Gen.sobelMap),
+      hoi4Gen.cityMap, pathcfg.gameModPath,
       "\\map\\terrain\\colormap_rgb_cityemissivemask_a.dds",
       DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
   formatConverter.dumpDDSFiles(

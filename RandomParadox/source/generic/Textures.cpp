@@ -40,31 +40,6 @@ void writeMipMapDDS(const int width, const int height,
   }
 }
 
-
-
-// void writeMipMapDDS() {
-//
-//   ScratchImage landMask;
-//   TexMetadata *md = new TexMetadata();
-//
-//   LoadFromDDSFile(L"resources//land_mask.dds", DDS_FLAGS::DDS_FLAGS_NONE, md,
-//                   landMask);
-//   auto image = landMask.GetImages();
-//
-//       //HRESULT __cdecl SaveToDDSFile(
-//       //_In_reads_(nimages) const Image *images, _In_ size_t nimages,
-//       //_In_ const TexMetadata &metadata, _In_ DDS_FLAGS flags,
-//       //_In_z_ const wchar_t *szFile) noexcept;
-//   SaveToDDSFile(image, (size_t)14, *md, DDS_FLAGS::DDS_FLAGS_NONE,
-//                 L"resources//land_mask2.dds");
-//   ScratchImage mipChain;
-//   //GenerateMipMaps(image, TEX_FILTER_FLAGS::TEX_FILTER_DEFAULT, 14,
-//   mipChain);
-//
-//   //SaveToDDSFile
-//  // SaveToDDSFile(mipChain.GetImages(), DDS_FLAGS_NONE, wPath.c_str());
-// }
-
 void writeTGA(const int width, const int height, std::vector<uint8_t> pixelData,
               const std::string &path) {
   auto wPath{std::wstring(path.begin(), path.end())};

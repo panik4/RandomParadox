@@ -70,7 +70,7 @@ public:
   // generate weather per strategic region, from baseprovinces
   void generateWeather();
   // supply hubs and railroads
-  void generateLogistics(Fwg::Gfx::Bitmap countries);
+  void generateLogistics();
   // calculate how strong each country is
   void evaluateCountries();
   bool unitFulfillsRequirements(std::vector<std::string> unitRequirements,
