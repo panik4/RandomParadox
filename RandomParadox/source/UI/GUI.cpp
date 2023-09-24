@@ -374,15 +374,21 @@ int GUI::showHoi4Configure(Fwg::Cfg &cfg,
                            Scenario::Hoi4::Hoi4Module &hoi4Module,
                            ID3D11ShaderResourceView **texture) {
   if (ImGui::BeginTabItem("Hoi4 config")) {
-    if (ImGui::Button("Init")) {
-      auto &generator = hoi4Module.hoi4Gen;
-      if (!hoi4Module.createPaths())
-        return -1;
-      // start with the generic stuff in the Scenario Generator
-      generator.mapProvinces();
-      generator.mapRegions();
-      generator.mapContinents();
-      configuredScenarioGen = true;
+    tabSwitchEvent();
+    auto &generator = hoi4Module.hoi4Gen;
+    if (generator.heightMap.initialized && generator.climateMap.initialized &&
+        generator.provinceMap.initialized && generator.regionMap.initialized) {
+      if (ImGui::Button("Init")) {
+        if (!hoi4Module.createPaths())
+          return -1;
+        // start with the generic stuff in the Scenario Generator
+        generator.mapProvinces();
+        generator.mapRegions();
+        generator.mapContinents();
+        configuredScenarioGen = true;
+      }
+    } else {
+      ImGui::Text("Generate required maps in the other tabs first");
     }
     ImGui::EndTabItem();
   }

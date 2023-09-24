@@ -12,11 +12,11 @@ const std::map<std::string, std::map<Gfx::Colour, Gfx::Colour>>
     //       {Cfg::Values().colours["tundra"], Fwg::Gfx::Colour(28, 24, 29)},
     //       {Cfg::Values().colours["forest"], Fwg::Gfx::Colour(13, 21, 14)},
     //       {Cfg::Values().colours["jungle"], Fwg::Gfx::Colour(32, 31, 23)},
-    //       {Cfg::Values().colours["savannah"], Fwg::Gfx::Colour(26, 25, 24)},
+    //       {Cfg::Values().colours["savanna"], Fwg::Gfx::Colour(26, 25, 24)},
     //       {Cfg::Values().colours["desert"], Fwg::Gfx::Colour(2, 4, 255)},
-    //       {Cfg::Values().colours["peaks"], Fwg::Gfx::Colour(15, 24, 255)},
-    //       {Cfg::Values().colours["mountains"], Fwg::Gfx::Colour(24, 15, 22)},
-    //       {Cfg::Values().colours["hills"], Fwg::Gfx::Colour(24, 22, 15)},
+    //       {Cfg::Values().colours["snowyPeaks"], Fwg::Gfx::Colour(15, 24, 255)},
+    //       {Cfg::Values().colours["rockyMountains"], Fwg::Gfx::Colour(24, 15, 22)},
+    //       {Cfg::Values().colours["rockyHills"], Fwg::Gfx::Colour(24, 22, 15)},
     //       {Cfg::Values().colours["sea"], Fwg::Gfx::Colour(13, 7, 255)}}}};
     FormatConverter::colourMaps2{
         {"terrainVic3",
@@ -25,26 +25,26 @@ const std::map<std::string, std::map<Gfx::Colour, Gfx::Colour>>
           {Cfg::Values().colours["tundra"], Fwg::Gfx::Colour(23, 32, 15)},
           {Cfg::Values().colours["forest"], Fwg::Gfx::Colour(23, 32, 15)},
           {Cfg::Values().colours["jungle"], Fwg::Gfx::Colour(23, 32, 15)},
-          {Cfg::Values().colours["savannah"], Fwg::Gfx::Colour(23, 32, 15)},
+          {Cfg::Values().colours["savanna"], Fwg::Gfx::Colour(23, 32, 15)},
           {Cfg::Values().colours["desert"], Fwg::Gfx::Colour(23, 32, 15)},
-          {Cfg::Values().colours["peaks"], Fwg::Gfx::Colour(23, 32, 15)},
-          {Cfg::Values().colours["mountains"], Fwg::Gfx::Colour(23, 32, 15)},
-          {Cfg::Values().colours["hills"], Fwg::Gfx::Colour(23, 32, 15)},
+          {Cfg::Values().colours["snowyPeaks"], Fwg::Gfx::Colour(23, 32, 15)},
+          {Cfg::Values().colours["rockyMountains"], Fwg::Gfx::Colour(23, 32, 15)},
+          {Cfg::Values().colours["rockyHills"], Fwg::Gfx::Colour(23, 32, 15)},
           {Cfg::Values().colours["sea"], Fwg::Gfx::Colour(23, 32, 15)}}}};
 
 const std::map<std::string, std::map<Gfx::Colour, int>>
     FormatConverter::colourMaps{
         {"terrainHoi4",
          {{Cfg::Values().colours["grassland"], 0},
-          {Cfg::Values().colours["ice"], 19},
-          {Cfg::Values().colours["tundra"], 9},
+          {Cfg::Values().colours["ice"], 16},
+          {Cfg::Values().colours["tundra"], 19},
           {Cfg::Values().colours["forest"], 1},
           {Cfg::Values().colours["jungle"], 21},
-          {Cfg::Values().colours["savannah"], 0},
-          {Cfg::Values().colours["desert"], 7},
-          {Cfg::Values().colours["peaks"], 16},
-          {Cfg::Values().colours["mountains"], 11},
-          {Cfg::Values().colours["hills"], 20},
+          {Cfg::Values().colours["savanna"], 12},
+          {Cfg::Values().colours["desert"], 3},
+          {Cfg::Values().colours["snowyPeaks"], 16},
+          {Cfg::Values().colours["rockyMountains"], 11},
+          {Cfg::Values().colours["rockyHills"], 2},
           {Cfg::Values().colours["sea"], 15}}},
         {"riversHoi4",
          {{Cfg::Values().colours["land"], 255},
@@ -67,11 +67,11 @@ const std::map<std::string, std::map<Gfx::Colour, int>>
           {Cfg::Values().colours["tundra"], 0},
           {Cfg::Values().colours["forest"], 6},
           {Cfg::Values().colours["jungle"], 28},
-          {Cfg::Values().colours["savannah"], 0},
+          {Cfg::Values().colours["savanna"], 0},
           {Cfg::Values().colours["desert"], 0},
-          {Cfg::Values().colours["peaks"], 0},
-          {Cfg::Values().colours["mountains"], 0},
-          {Cfg::Values().colours["hills"], 0},
+          {Cfg::Values().colours["snowyPeaks"], 0},
+          {Cfg::Values().colours["rockyMountains"], 0},
+          {Cfg::Values().colours["rockyHills"], 0},
           {Cfg::Values().colours["empty"], 0},
           {Cfg::Values().colours["sea"], 0}}},
 
@@ -94,11 +94,11 @@ const std::map<std::string, std::map<Gfx::Colour, int>>
           {Cfg::Values().colours["tundra"], 0},
           {Cfg::Values().colours["forest"], 6},
           {Cfg::Values().colours["jungle"], 28},
-          {Cfg::Values().colours["savannah"], 0},
+          {Cfg::Values().colours["savanna"], 0},
           {Cfg::Values().colours["desert"], 0},
-          {Cfg::Values().colours["peaks"], 0},
-          {Cfg::Values().colours["mountains"], 0},
-          {Cfg::Values().colours["hills"], 0},
+          {Cfg::Values().colours["snowyPeaks"], 0},
+          {Cfg::Values().colours["rockyMountains"], 0},
+          {Cfg::Values().colours["rockyHills"], 0},
           {Cfg::Values().colours["empty"], 0},
           {Cfg::Values().colours["sea"], 0}}},
         {"riversEu4",
@@ -120,11 +120,11 @@ const std::map<std::string, std::map<Gfx::Colour, int>>
           {Cfg::Values().colours["tundra"], 0},
           {Cfg::Values().colours["forest"], 6},
           {Cfg::Values().colours["jungle"], 28},
-          {Cfg::Values().colours["savannah"], 0},
+          {Cfg::Values().colours["savanna"], 0},
           {Cfg::Values().colours["desert"], 0},
-          {Cfg::Values().colours["peaks"], 0},
-          {Cfg::Values().colours["mountains"], 0},
-          {Cfg::Values().colours["hills"], 0},
+          {Cfg::Values().colours["snowyPeaks"], 0},
+          {Cfg::Values().colours["rockyMountains"], 0},
+          {Cfg::Values().colours["rockyHills"], 0},
           {Cfg::Values().colours["empty"], 0},
           {Cfg::Values().colours["sea"], 0}}},
         {"terrainEu4",
@@ -133,11 +133,11 @@ const std::map<std::string, std::map<Gfx::Colour, int>>
           {Cfg::Values().colours["tundra"], 0},
           {Cfg::Values().colours["forest"], 1},
           {Cfg::Values().colours["jungle"], 0},
-          {Cfg::Values().colours["savannah"], 0},
+          {Cfg::Values().colours["savanna"], 0},
           {Cfg::Values().colours["desert"], 4},
-          {Cfg::Values().colours["peaks"], 16},
-          {Cfg::Values().colours["mountains"], 6},
-          {Cfg::Values().colours["hills"], 1},
+          {Cfg::Values().colours["snowyPeaks"], 16},
+          {Cfg::Values().colours["rockyMountains"], 6},
+          {Cfg::Values().colours["rockyHills"], 1},
           {Cfg::Values().colours["sea"], 15}}}};
 
 Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
@@ -440,18 +440,19 @@ void FormatConverter::writeTile(int xTiles, int yTiles,
     for (auto tiley = 0; tiley < yTiles; tiley++) {
       Fwg::Gfx::Bitmap tileMap(
           tilesize, tilesize, 24,
-          std::move(Fwg::Utils::cutBuffer(basePackedHeightMap.imageData, mapX, mapY, tilex * tilesize,
+          std::move(Fwg::Utils::cutBuffer(
+              basePackedHeightMap.imageData, mapX, mapY, tilex * tilesize,
               (tilex + 1) * tilesize, tiley * tilesize, (tiley + 1) * tilesize,
               1)));
-      auto tileMap2 = Bmp::scale(tileMap, tilesize + 1, tilesize+1, false);
+      auto tileMap2 = Bmp::scale(tileMap, tilesize + 1, tilesize + 1, false);
 
       for (auto x = 0; x < tileMap2.size(); x++) {
-        auto baseIndex =
-            tilex * (tilesize+1) +
-            ((((tiley * 2 + tilex / 128) * (tilesize + 1)) + x / (tilesize+1)) -
-             tilex / 128) *
-                packedX;
-        packedHeightMap.imageData[baseIndex + x % (tilesize+1)] = tileMap2[x];
+        auto baseIndex = tilex * (tilesize + 1) +
+                         ((((tiley * 2 + tilex / 128) * (tilesize + 1)) +
+                           x / (tilesize + 1)) -
+                          tilex / 128) *
+                             packedX;
+        packedHeightMap.imageData[baseIndex + x % (tilesize + 1)] = tileMap2[x];
       }
     }
   }

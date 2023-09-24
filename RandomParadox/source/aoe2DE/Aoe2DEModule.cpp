@@ -52,15 +52,15 @@ void Module::genAoe2() {
         terrainType = "JUNGLE";
       } else if (cMap[i] == colours.at("forest")) {
         terrainType = "WOODIES";
-      } else if (cMap[i] == colours.at("hills")) {
+      } else if (cMap[i] == colours.at("rockyHills")) {
         terrainType = "PINE_FOREST";
         zone = 3;
         lowEle++;
-      } else if (cMap[i] == colours.at("mountains")) {
+      } else if (cMap[i] == colours.at("rockyMountains")) {
         midEle++;
         zone = 4;
         terrainType = "SNOW_FOREST";
-      } else if (cMap[i] == colours.at("peaks")) {
+      } else if (cMap[i] == colours.at("snowyPeaks")) {
         highEle++;
         zone = 5;
         terrainType = "DIRT_SNOW";
@@ -68,7 +68,7 @@ void Module::genAoe2() {
         terrainType = "GRASS";
       } else if (cMap[i] == colours.at("desert")) {
         terrainType = "DESERT";
-      } else if (cMap[i] == colours.at("savannah")) {
+      } else if (cMap[i] == colours.at("savanna")) {
         terrainType = "DLC_SAVANNAH";
       } else if (cMap[i] == colours.at("ice")) {
         terrainType = "ICE";

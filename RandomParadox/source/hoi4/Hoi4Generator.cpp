@@ -266,6 +266,8 @@ void Generator::generateLogistics() {
     // GameProvince ID, distance
     std::map<double, int> supplyHubs;
     // add capital
+    std::cout << gameRegions.size() << "     " << country.second.capitalRegionID
+              << std::endl;
     auto capitalPosition =
         gameRegions[country.second.capitalRegionID]->position;
     auto &capitalProvince = Fwg::Utils::selectRandom(
@@ -435,6 +437,7 @@ void Generator::evaluateCountries() {
   Fwg::Utils::Logging::logLine("HOI4: Evaluating Country Strength");
   double maxScore = 0.0;
   for (auto &c : hoi4Countries) {
+    c.second.capitalRegionID = 0;
     auto totalIndustry = 0.0;
     auto totalPop = 0.0;
     auto maxIndustryLevel = 0;
@@ -444,9 +447,13 @@ void Generator::evaluateCountries() {
       // always make the most industrious region the capital
       if (regionIndustry > maxIndustryLevel)
         c.second.capitalRegionID = ownedRegion->ID;
+      if (c.second.capitalRegionID < 0)
+        std::cout << "???";
       totalIndustry += regionIndustry;
       totalPop += (int)ownedRegion->population;
     }
+    if (!c.second.hoi4Regions.size())
+      std::cout << "FUCK";
     strengthScores[(int)(totalIndustry + totalPop / 1'000'000.0)].push_back(
         c.first);
     c.second.strengthScore = totalIndustry + totalPop / 1'000'000.0;

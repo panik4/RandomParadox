@@ -31,10 +31,11 @@ getBuilding(const std::string &type, const Fwg::Province &prov,
                                        pix + Fwg::Cfg::Values().width,
                                        pix - Fwg::Cfg::Values().width};
       for (auto nPix : neighbourPix) {
-        if (nPix > 0 && nPix < typeMap.imageData.size())
+        if (nPix > 0 && nPix < typeMap.imageData.size()) {
           if (typeMap[nPix] == cfg.colours.at("lake")) {
             done = false;
           }
+        }
         // we can't find a perfect coast
         if (coastalAttempts > 50) {
           Fwg::Utils::Logging::logLine("WARNING: Coastal building couldn't "
