@@ -113,7 +113,7 @@ void writeClimate(const std::string &path,
 
     if (minTemp < 0.1 && maxTemp < 0.4)
       arctic.append(provID + " ");
-    if (province->terrainType == "mountains")
+    if (province->terrainType == "rockyMountains")
       impassable.append(provID + " ");
 
     if (province->terrainType == "jungle")
@@ -352,7 +352,7 @@ void writeProvinces(const std::string &path,
   for (const auto &region : regions) {
     for (const auto &prov : region->gameProvinces) {
       // make sure lakes and wastelands are empty
-      if (prov->baseProvince->isLake || prov->terrainType == "mountains") {
+      if (prov->baseProvince->isLake || prov->terrainType == "rockyMountains") {
         pU::writeFile(path + "\\" + std::to_string(prov->ID + 1) + "-a.txt",
                       "");
       } else {

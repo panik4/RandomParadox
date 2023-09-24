@@ -259,17 +259,17 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
               typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 0});
             else if (tType == "forest")
               typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 0});
-            else if (tType == "hills")
+            else if (tType == "rockyHills")
               typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{128, 128, 128});
             else if (tType == "grassland")
               typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
-            else if (tType == "savannah")
+            else if (tType == "savanna")
               typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
             else if (tType == "desert")
               typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 255});
             else if (tType == "mountain")
               typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
-            else if (tType == "peaks")
+            else if (tType == "snowyPeaks")
               typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
             else if (tType == "lakes")
               typeMap.setColourAtIndex(pix, colours.at("lake"));
@@ -390,6 +390,8 @@ void Generator::generateCountries(int numCountries,
   countries.clear();
   for (auto &region : gameRegions) {
     region->assigned = false;
+    region->religions.clear();
+    region->cultures.clear();
   }
   auto &config = Fwg::Cfg::Values();
   this->numCountries = numCountries;
