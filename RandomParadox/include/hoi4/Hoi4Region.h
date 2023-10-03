@@ -18,7 +18,6 @@ public:
   int civilianFactories;
   double development;
   int dockyards;
-  int population;
   int stateCategory;
   int stratID;
   int airport, rocketsite, supplyNode;

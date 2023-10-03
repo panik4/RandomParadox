@@ -110,7 +110,7 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
     throw(std::exception("Could not locate the game. Exiting"));
   }
   // now try to locate game files
-  if (!findModFolders()) {
+  if (!findModFolders("Hearts of Iron IV")) {
     throw(std::exception("Could not locate the mod folders. Exiting"));
   }
 
@@ -235,6 +235,8 @@ void Hoi4Module::genHoi() {
 
 void Hoi4Module::writeTextFiles() {
   using namespace Parsing::Writing;
+  ambientObjects(pathcfg.gameModPath + "\\map\\ambient_object.txt",
+                 hoi4Gen.heightMap);
   compatibilityHistory(pathcfg.gameModPath + "\\history\\countries\\",
                        pathcfg.gamePath, hoi4Gen.areas.regions);
   historyCountries(pathcfg.gameModPath + "\\history\\countries\\",
@@ -336,7 +338,7 @@ void Hoi4Module::readHoi(std::string &gamePath) {
   } catch (std::exception e) {
   };
   // read the colour codes from the game/mod files
-  hoi4Gen.colourMap =
+  hoi4Gen.countryColourMap =
       Hoi4::Parsing::Reading::readColourMapping(pathcfg.gamePath);
   // pre initialize an empty climateMap
   hoi4Gen.climateMap =
@@ -347,7 +349,7 @@ void Hoi4Module::readHoi(std::string &gamePath) {
   hoi4Gen.mapTerrain();
   hoi4Gen.initializeStates();
   for (auto &c : hoi4Gen.countries) {
-    auto fCol = hoi4Gen.colourMap.valueSearch(c.first);
+    auto fCol = hoi4Gen.countryColourMap.valueSearch(c.first);
     if (fCol != Fwg::Gfx::Colour{0, 0, 0}) {
       c.second.colour = fCol;
     } else {
@@ -356,8 +358,8 @@ void Hoi4Module::readHoi(std::string &gamePath) {
         c.second.colour = Fwg::Gfx::Colour(RandNum::getRandom(1, 254),
                                            RandNum::getRandom(1, 254),
                                            RandNum::getRandom(1, 254));
-      } while (hoi4Gen.colourMap.find(c.second.colour));
-      hoi4Gen.colourMap.setValue(c.second.colour, c.first);
+      } while (hoi4Gen.countryColourMap.find(c.second.colour));
+      hoi4Gen.countryColourMap.setValue(c.second.colour, c.first);
     }
   }
   hoi4Gen.initializeCountries();

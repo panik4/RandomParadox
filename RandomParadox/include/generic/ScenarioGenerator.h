@@ -34,7 +34,15 @@ public:
   int numCountries;
   bool enableLoadCountries = false;
   std::string countryMappingPath = "";
+  std::string regionMappingPath = "";
   bool interactive = false;
+  // vars - track civil statistics
+  long long worldPop = 0;
+  // vars - config options
+  double worldPopulationFactor = 1.0;
+  double industryFactor = 1.0;
+  double resourceFactor = 1.0;
+  double sizeFactor = 1.0;
   // containers - used for every game
 
   std::map<std::string, Fwg::Province::TerrainType> stringToTerrainType = {
@@ -64,12 +72,12 @@ public:
       {Fwg::Province::TerrainType::urban, "urban"},
       {Fwg::Province::TerrainType::lake, "lakes"}};
 
-  std::vector<ScenarioContinent> pdoxContinents;
+  std::vector<ScenarioContinent> scenContinents;
   Fwg::Utils::ColourTMap<std::shared_ptr<Region>> stateColours;
   std::vector<std::shared_ptr<Region>> gameRegions;
   std::vector<std::shared_ptr<GameProvince>> gameProvinces;
   std::set<std::string> tags;
-  Fwg::Utils::ColourTMap<std::string> colourMap;
+  Fwg::Utils::ColourTMap<std::string> countryColourMap;
   std::map<std::string, Country> countries;
   Fwg::Gfx::Bitmap countryMap;
   std::vector<strategicRegion> strategicRegions;
@@ -91,6 +99,8 @@ public:
   void mapContinents();
   // map base regions to generic paradox compatible game regions
   void mapRegions();
+  // apply values read from a file to override generated data
+  void applyRegionInput();
   // build strategic regions from gameregions
   void generateStrategicRegions();
   // map base provinces to generic game regions

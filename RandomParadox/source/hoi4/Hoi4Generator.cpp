@@ -12,6 +12,7 @@ Generator::Generator(const std::string &configSubFolder)
 Generator::~Generator() {}
 
 void Generator::initializeStates() {
+  hoi4States.clear();
   for (auto &region : this->gameRegions) {
     hoi4States.push_back(std::make_shared<Region>(*region));
   }
@@ -61,6 +62,8 @@ void Generator::generateStateSpecifics() {
   auto targetWorldIndustry = 1248 * sizeFactor * industryFactor;
   Fwg::Utils::Logging::logLine(config.landPercentage);
   for (auto &hoi4Region : hoi4States) {
+    if (hoi4Region->sea)
+      continue;
     // count the number of land states for resource generation
     landStates++;
     double totalStateArea = 0;
@@ -81,9 +84,13 @@ void Generator::generateStateSpecifics() {
       hoi4Region->stateCategory = 1;
     }
     hoi4Region->development = totalDevFactor;
-    hoi4Region->population = totalStateArea * 1250.0 * totalPopFactor *
-                             worldPopulationFactor * (1.0 / sizeFactor);
+    // only init this when it hasn't been initialized via text input before
+    if (hoi4Region->population < 0) {
+      hoi4Region->population = totalStateArea * 1250.0 * totalPopFactor *
+                               worldPopulationFactor * (1.0 / sizeFactor);
+    }
     worldPop += (long long)hoi4Region->population;
+
     // count the total coastal provinces of this region
     auto totalCoastal = 0;
     for (auto &gameProv : hoi4Region->gameProvinces) {
@@ -128,6 +135,7 @@ void Generator::generateStateSpecifics() {
     // get potential building positions
     hoi4Region->calculateBuildingPositions(this->heightMap, typeMap);
   }
+  dumpRegions(hoi4States);
 }
 
 void Generator::generateCountrySpecifics() {
@@ -266,8 +274,6 @@ void Generator::generateLogistics() {
     // GameProvince ID, distance
     std::map<double, int> supplyHubs;
     // add capital
-    std::cout << gameRegions.size() << "     " << country.second.capitalRegionID
-              << std::endl;
     auto capitalPosition =
         gameRegions[country.second.capitalRegionID]->position;
     auto &capitalProvince = Fwg::Utils::selectRandom(
@@ -435,6 +441,7 @@ void Generator::generateLogistics() {
 
 void Generator::evaluateCountries() {
   Fwg::Utils::Logging::logLine("HOI4: Evaluating Country Strength");
+  strengthScores.clear();
   double maxScore = 0.0;
   for (auto &c : hoi4Countries) {
     c.second.capitalRegionID = 0;
@@ -447,13 +454,9 @@ void Generator::evaluateCountries() {
       // always make the most industrious region the capital
       if (regionIndustry > maxIndustryLevel)
         c.second.capitalRegionID = ownedRegion->ID;
-      if (c.second.capitalRegionID < 0)
-        std::cout << "???";
       totalIndustry += regionIndustry;
       totalPop += (int)ownedRegion->population;
     }
-    if (!c.second.hoi4Regions.size())
-      std::cout << "FUCK";
     strengthScores[(int)(totalIndustry + totalPop / 1'000'000.0)].push_back(
         c.first);
     c.second.strengthScore = totalIndustry + totalPop / 1'000'000.0;
@@ -472,17 +475,17 @@ void Generator::evaluateCountries() {
       totalDeployedCountries - numMajorPowers - numRegionalPowers;
   for (const auto &scores : strengthScores) {
     for (const auto &entry : scores.second) {
-      if (hoi4Countries[entry].strengthScore > 0.0) {
-        hoi4Countries[entry].relativeScore = (double)scores.first / maxScore;
+      if (hoi4Countries.at(entry).strengthScore > 0.0) {
+        hoi4Countries.at(entry).relativeScore = (double)scores.first / maxScore;
         if (numWeakStates > weakPowers.size()) {
           weakPowers.insert(entry);
-          hoi4Countries[entry].rank = "weak";
+          hoi4Countries.at(entry).rank = "weak";
         } else if (numRegionalPowers > regionalPowers.size()) {
           regionalPowers.insert(entry);
-          hoi4Countries[entry].rank = "regional";
+          hoi4Countries.at(entry).rank = "regional";
         } else {
           majorPowers.insert(entry);
-          hoi4Countries[entry].rank = "major";
+          hoi4Countries.at(entry).rank = "major";
         }
       }
     }
@@ -563,7 +566,8 @@ void Generator::generateFocusTrees() {
 }
 
 void Generator::printStatistics() {
-  Fwg::Utils::Logging::logLine("Total Industry: ", totalWorldIndustry);
+  Fwg::Utils::Logging::logLine(
+      "Total Industry: ", militaryIndustry + civilianIndustry + navalIndustry);
   Fwg::Utils::Logging::logLine("Military Industry: ", militaryIndustry);
   Fwg::Utils::Logging::logLine("Civilian Industry: ", civilianIndustry);
   Fwg::Utils::Logging::logLine("Naval Industry: ", navalIndustry);

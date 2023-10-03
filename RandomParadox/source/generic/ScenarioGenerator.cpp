@@ -29,16 +29,17 @@ void Generator::generateWorldCivilizations() {
 
 void Generator::mapContinents() {
   Logging::logLine("Mapping Continents");
-  pdoxContinents.clear();
+  scenContinents.clear();
   for (const auto &continent : this->areas.continents) {
     // we copy the fwg continents by choice, to leave them untouched
-    pdoxContinents.push_back(ScenarioContinent(continent));
+    scenContinents.push_back(ScenarioContinent(continent));
   }
 }
 
 void Generator::mapRegions() {
   Logging::logLine("Mapping Regions");
   gameRegions.clear();
+
   for (auto &region : this->areas.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
               [](const Fwg::Province *a, const Fwg::Province *b) {
@@ -49,6 +50,7 @@ void Generator::mapRegions() {
       gameRegion->neighbours.push_back(baseRegion);
     // generate random name for region
     gameRegion->name = NameGeneration::generateName(nData);
+
     for (auto &province : gameRegion->provinces) {
       gameRegion->gameProvinces.push_back(gameProvinces[province->ID]);
     }
@@ -68,6 +70,35 @@ void Generator::mapRegions() {
       throw(std::exception("Fatal: Invalid region IDs, terminating"));
     }
   }
+  applyRegionInput();
+}
+
+void Generator::applyRegionInput() {
+  Fwg::Utils::ColourTMap<std::vector<std::string>> regionInputMap;
+  if (regionMappingPath.size() && std::filesystem::exists(regionMappingPath)) {
+    auto mappingFileLines = Fwg::Parsing::getLines(regionMappingPath);
+    for (auto &line : mappingFileLines) {
+      auto tokens = Fwg::Parsing::getTokens(line, ';');
+      auto colour = Fwg::Gfx::Colour(std::stoi(tokens[0]), std::stoi(tokens[1]),
+                                     std::stoi(tokens[2]));
+      regionInputMap.setValue(colour, tokens);
+    }
+  }
+  for (auto &gameRegion : this->gameRegions) {
+    if (regionInputMap.find(gameRegion->colour)) {
+      if (regionInputMap[gameRegion->colour].size() > 3 &&
+          regionInputMap[gameRegion->colour][3].size()) {
+        // get the predefined name
+        gameRegion->name = regionInputMap[gameRegion->colour][3];
+      }
+      if (regionInputMap[gameRegion->colour].size() > 4 &&
+          regionInputMap[gameRegion->colour][4].size()) {
+        // get the predefined population
+        gameRegion->population = stoi(regionInputMap[gameRegion->colour][4]);
+      }
+    }
+  }
+
 }
 
 void Generator::mapProvinces() {
@@ -437,6 +468,7 @@ void Generator::generateCountries(int numCountries,
 void Generator::generateStrategicRegions() {
   Fwg::Utils::Logging::logLine(
       "Scenario: Dividing world into strategic regions");
+  strategicRegions.clear();
   std::set<int> assignedIdeas;
   for (auto &region : gameRegions) {
     if (assignedIdeas.find(region->ID) == assignedIdeas.end()) {

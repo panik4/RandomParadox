@@ -22,7 +22,7 @@ public:
   // standard locations
   bool findGame(std::string &path, const std::string &game);
   // check if configured mod directories are correct
-  bool findModFolders();
+  bool findModFolders(const std::string &game);
   Utils::Pathcfg pathcfg;
 };
 } // namespace Scenario

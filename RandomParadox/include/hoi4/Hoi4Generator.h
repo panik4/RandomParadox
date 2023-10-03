@@ -2,6 +2,7 @@
 #include "FastWorldGenerator.h"
 #include "generic/Country.h"
 #include "generic/ScenarioGenerator.h"
+#include "generic/GenericParsing.h"
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4FocusGen.h"
 #include "hoi4/Hoi4Region.h"
@@ -20,8 +21,6 @@ class Generator : public Scenario::Generator {
   int militaryIndustry = 0;
   int navalIndustry = 0;
   int civilianIndustry = 0;
-  // vars - track civil statistics
-  long long worldPop = 0;
   std::map<std::string, int> totalResources;
   // containers
   std::set<std::string> majorPowers;
@@ -34,11 +33,6 @@ class Generator : public Scenario::Generator {
       {4, "armored"}, {5, "mass"},     {6, "support"}, {7, "defensive"}};
 
 public:
-  // vars - config options
-  double worldPopulationFactor = 1.0;
-  double industryFactor = 1.0;
-  double resourceFactor = 1.0;
-  double sizeFactor = 1.0;
 
   // containers
   std::vector<NationalFocus> foci;

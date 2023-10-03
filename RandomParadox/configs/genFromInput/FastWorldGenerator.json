@@ -1,24 +1,23 @@
 {
 	"module": 
 	{
-		"debugLevel": 0,
-		"interactive": false,
+		"debugLevel": 9,
 		"loadMaps" : true,
 		"writeMaps" : true,
 		"cut" : false,
 		"scale" : false,
 		"scaleFactor" : 1,
-		"seed" : 0
+		"seed" : 1691332740
 	},
 	"paths":
 	{
-		"mapsPath": "Maps//",
+		"mapsPath": "Maps",
 		"loadMapsPath" : ""
 	},
 	"loadMaps":
 	{
-		"heightMap" : true,
-		"terrainMap" : false,
+		"heightMap" : false,
+		"terrainMap" : true,
 		"continentMap" : false,
 		"climateMap" : false,
 		"riverMap" : false,
@@ -43,15 +42,15 @@
 	},
 	"map": 
 	{
-        "height" : 1024,
-		"width" : 2816,
+        "height" : 512,
+		"width" : 512,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
 		"sobelFactor": 8,
 		"rivers" : 
 		{
-			"numRivers" : 100
+			"riverFactor" : 1.0
 		},
 		"trees" : 
 		{
@@ -72,12 +71,14 @@
 			"layerAmount" : 4,
 			"overallFrequencyModifier" : 0.7,
 			"removeChunkThreshold": 8,
+			"baseSeaLevel": 75,
 			"layers" :
 			{
 				"0" :
 				{
 					"type" : 8,
 					"landLayer" : true,
+					"seaLayer" : false,
 					"fractalFrequency" : 8,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
@@ -93,6 +94,7 @@
 				{
 					"type" : 8,
 					"landLayer" : false,
+					"seaLayer" : true,
 					"fractalFrequency" : 4,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
@@ -100,7 +102,7 @@
 					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 0.5,
-					"maxHeight" : 255,
+					"maxHeight" : 150,
 					"minHeight" : 0,
 					"tanFactor": 0.22
 				},
@@ -108,6 +110,7 @@
 				{
 					"type" : 8,
 					"landLayer" : false,
+					"seaLayer" : false,
 					"fractalFrequency" : 4,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
@@ -115,22 +118,23 @@
 					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 0.8,
-					"maxHeight" : 150,
+					"maxHeight" : 50,
 					"minHeight" : 0,
 					"tanFactor": 0.21
 				},
 				"3" :
 				{
-					"type" : 8,
+					"type" : 2,
 					"landLayer" : false,
-					"fractalFrequency" : 4,
+					"seaLayer" : true,
+					"fractalFrequency" : 1.2,
 					"fractalOctaves" : 11,
-					"fractalGain" : 0.5,
+					"fractalGain" : 0.4,
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 0.5,
-					"maxHeight" : 10,
+					"weight" : 1.0,
+					"maxHeight" : 18,
 					"minHeight" : 0,
 					"tanFactor": 0.0
 				}
@@ -138,19 +142,19 @@
 		},
 		"areas" : {
 			"provinces" : {
-				"auto" : true,
-				"landProvinceFactor" : 1.0,
+				"auto" : false,
+				"landProvinceFactor" : 0.7,
 				"seaProvinceFactor" : 1.0,
-				"minProvSize" : 10,
-				"provinceDensityByHabitability" : 1.0,
-				"maxProvAmount" : 20000
+				"minProvSize" : 20,
+				"provinceDensityEffects" : 1.0,
+				"maxProvAmount" : 15000
 			},
 			"regions" :{
-				"auto" : true,
-				"minProvPerRegion" : 8,
-				"minProvPerSeaRegion" : 8,
-				"targetLandRegionAmount" : 800,
-				"targetSeaRegionAmount" : 200
+				"auto" : false,
+				"minProvPerRegion" : 10,
+				"minProvPerSeaRegion" : 10,
+				"targetLandRegionAmount" : 640,
+				"targetSeaRegionAmount" : 160
 			}
 		},
 		"humidity" : {

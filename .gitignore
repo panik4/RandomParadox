@@ -18,6 +18,7 @@
 *x64
 *.bmp
 *runDump*
+*imgui*
 
 packages.config*
 *packages

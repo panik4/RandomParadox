@@ -48,7 +48,7 @@ void Module::readEu4Config(const std::string &configSubFolder,
     throw(std::exception("Could not locate the game. Exiting"));
   }
   // now try to locate game files
-  if (!findModFolders()) {
+  if (!findModFolders("Europa Universalis IV")) {
     throw(std::exception("Could not locate the mod folders. Exiting"));
   }
   auto &config = Cfg::Values();

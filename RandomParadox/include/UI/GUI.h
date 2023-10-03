@@ -18,6 +18,7 @@
 class GUI : Fwg::fwgUI {
   bool loadedConfigs = false;
   bool configuredScenarioGen = false;
+  Fwg::Gfx::Bitmap regionSelectMap;
   Scenario::Utils::Pathcfg pathconfig;
   std::string activeConfig;
   std::vector<std::string> configSubfolders;
@@ -25,11 +26,11 @@ class GUI : Fwg::fwgUI {
   int showConfigure(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module);
   int showHoiGeneric(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module);
   int showRpdxConfigure(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module);
-  int showHoi4Configure(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module,
-                        ID3D11ShaderResourceView **texture);
-
+  int showHoi4Configure(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module);
+  int showScenarioTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module);
   int showCountryTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module,
                      ID3D11ShaderResourceView **texture);
+  int showStateTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module);
   int showStrategicRegionTab(Fwg::Cfg &cfg,
                              Scenario::Hoi4::Generator &generator);
   int showFinaliseTabConfigure(Fwg::Cfg &cfg,

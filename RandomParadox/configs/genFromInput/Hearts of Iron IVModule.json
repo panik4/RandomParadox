@@ -1,9 +1,4 @@
 {
-	"fastworldgen":
-	{
-		"loadMapsPath": "inputs//mapInputs//",
-		"heightMapName": "heightmap.bmp"
-	},
 	"hoi4":
 	{
 		"strategicRegionSize": 2,
@@ -23,7 +18,7 @@
 	},
 	"scenario":
 	{
-		"numCountries" : 5,
+		"numCountries" : 0,
 		"worldPopulationFactor" : 1.0,
 		"industryFactor" : 1.0
 	}

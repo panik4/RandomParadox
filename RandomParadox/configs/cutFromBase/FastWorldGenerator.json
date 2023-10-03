@@ -1,12 +1,11 @@
 {
 	"module": 
 	{
-		"debugLevel": 0,
-		"interactive": false,
+		"debugLevel": 8,
 		"loadMaps" : true,
 		"writeMaps" : true,
 		"cut" : true,
-		"scale" : true,
+		"scale" : false,
 		"scaleFactor" : 1,
 		"seed" : 0
 	},
@@ -18,13 +17,13 @@
 	"loadMaps":
 	{
 		"heightMap" : true,
-		"terrainMap" : false,
+		"terrainMap" : true,
 		"continentMap" : false,
-		"climateMap" : false,
+		"climateMap" : true,
 		"riverMap" : false,
 		"humidityMap" : false,
 		"habitabilityMap" : false,
-		"provinceMap" : false,
+		"provinceMap" : true,
 		"regionMap" : false,
 		"modifyHeight": false,
 		"heightAdjustments": 0
@@ -42,10 +41,10 @@
 	{
 		"minX" : 4200,
 		"maxX" : 5224,
-		"minY" : 1192,
+		"minY" : 1088,
 		"maxY" : 1600,
 		"scaleX" : 5632,
-		"scaleY" : 2048,
+		"scaleY" : 512,
 		"keepRatio" : false,
 		"scaleFilterRuns": 0
 	},
@@ -59,7 +58,7 @@
 		"sobelFactor": 1,
 		"rivers" : 
 		{
-			"numRivers" : 100
+			"riverFactor" : 1.0
 		},
 		"trees" : 
 		{
@@ -80,6 +79,7 @@
 			"layerAmount" : 0,
 			"overallFrequencyModifier" : 0.7,
 			"removeChunkThreshold": 8,
+			"baseSeaLevel": 80,
 			"layers" :
 			{
 			}
@@ -90,7 +90,7 @@
 				"landProvinceFactor" : 1.0,
 				"seaProvinceFactor" : 1.0,
 				"minProvSize" : 10,
-				"provinceDensityByHabitability" : 10.0,
+				"provinceDensityEffects" : 10.0,
 				"maxProvAmount" : 20000
 			},
 			"regions" :{
