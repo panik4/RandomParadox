@@ -35,6 +35,22 @@ void airports(const std::string &path,
   pU::writeFile(path, content);
 }
 
+void ambientObjects(const std::string &path,
+                    const Fwg::Gfx::Bitmap &heightMap) {
+  Logging::logLine("HOI4 Parser: Map: Drawing Strategic Regions");
+  auto templateContent =
+      pU::readFile("resources\\hoi4\\map\\ambient_object.txt");
+
+  pU::Scenario::replaceOccurences(templateContent, "template_yresolution_top",
+                                  std::to_string(heightMap.height() + 142));
+  pU::Scenario::replaceOccurences(templateContent, "template_yresolution_logo",
+                                  std::to_string(heightMap.height() + 82));
+  // place in middle of map xres
+  pU::Scenario::replaceOccurences(templateContent, "template_xpos_logo",
+                                  std::to_string(heightMap.width() / 2));
+  pU::writeFile(path, templateContent);
+}
+
 // places building positions
 void buildings(const std::string &path,
                const std::vector<std::shared_ptr<Region>> &regions,
@@ -549,10 +565,6 @@ void commonBookmarks(
 
     for (auto iter = strengthScores.rbegin(); iter != strengthScores.rend();
          ++iter) {
-      if (count == 0) {
-        pU::Scenario::replaceOccurences(bookmarkTemplate, "templateDefaultTAG",
-                                        iter->second[0]);
-      }
       if (count < 7) {
         // major power:
         for (const auto &country : iter->second) {

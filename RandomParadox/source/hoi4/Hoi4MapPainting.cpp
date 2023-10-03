@@ -23,8 +23,8 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInCountryMap,
       for (const auto pixel : province->baseProvince->pixels) {
         // and determine who owns it in the edited image
         const auto &col = readInCountryMap[pixel];
-        if (hoi4Gen.colourMap.find(col)) {
-          potentialOwners[hoi4Gen.colourMap[col]]++;
+        if (hoi4Gen.countryColourMap.find(col)) {
+          potentialOwners[hoi4Gen.countryColourMap[col]]++;
         }
       }
     }

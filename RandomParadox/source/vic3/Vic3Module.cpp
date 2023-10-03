@@ -72,7 +72,7 @@ void Module::readVic3Config(const std::string &configSubFolder,
     throw(std::exception("Could not locate the game. Exiting"));
   }
   // now try to locate game files
-  if (!findModFolders()) {
+  if (!findModFolders("Victoria 3")) {
     throw(std::exception("Could not locate the mod folders. Exiting"));
   }
   auto &config = Cfg::Values();
@@ -101,7 +101,7 @@ void Module::readVic3Config(const std::string &configSubFolder,
   //  passed to generic ScenarioGenerator
   numCountries = vic3Conf.get<int>("scenario.numCountries");
   config.seaLevel = 18;
-  config.numRivers = 0;
+  config.riverFactor = 0.0;
   config.seaProvFactor *= 0.02;
   config.landProvFactor *= 1.0;
   config.minProvPerSeaRegion = 1;

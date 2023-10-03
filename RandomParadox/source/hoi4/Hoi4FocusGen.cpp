@@ -357,7 +357,7 @@ void FocusGen::evaluateCountryGoals(
   auto branchRules = (Fwg::Parsing::getLinesByID(
       "resources\\hoi4\\ai\\national_focus\\chains\\chain_rules.txt"));
   for (auto &sourceCountry : hoi4Countries) {
-    const auto &source = hoi4Countries[sourceCountry.first];
+    const auto &source = hoi4Countries.at(sourceCountry.first);
     sourceCountry.second.bully = 0;
     // sourceCountry.second.defensive = 0;
     for (const auto &chainType : chains) {
@@ -394,7 +394,7 @@ void FocusGen::evaluateCountryGoals(
                   // requirements
                   if (targetFulfillsRequirements(
                           targetRequirements,
-                          hoi4Countries[sourceCountry.first],
+                          hoi4Countries.at(sourceCountry.first),
                           destCountry.second, levelTargets, gameRegions,
                           level)) {
                     stepTargets[chainStep].insert(destCountry.second);

@@ -1,11 +1,11 @@
 #include "FastWorldGenerator.h"
+#include "UI/GUI.h"
 #include "aoe2DE/Aoe2DEModule.h"
 #include "eu4/Eu4Module.h"
 #include "generic/ScenarioGenerator.h"
 #include "generic/Textures.h"
 #include "hoi4/Hoi4Module.h"
 #include "vic3/Vic3Module.h"
-#include "UI/GUI.h"
 #include <filesystem>
 
 using namespace Fwg;
@@ -125,7 +125,7 @@ int main() {
     config.writeMaps = false;
   }
 
-  //try {
+  try {
     if (genHoi4Scenario) {
       // generate hoi4 scenario
       Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username,
@@ -156,12 +156,12 @@ int main() {
       dumpInfo("", configSubFolder);
       system("pause");
     }
-  //} catch (std::exception e) {
-  //  Utils::Logging::logLine(e.what());
-  //  dumpInfo(e.what(), configSubFolder);
-  //  system("pause");
-  //  return -1;
-  //}
+  } catch (std::exception e) {
+    Utils::Logging::logLine(e.what());
+    dumpInfo(e.what(), configSubFolder);
+    system("pause");
+    return -1;
+  }
   Utils::Logging::logLine("Done with the generation");
   return 0;
 }

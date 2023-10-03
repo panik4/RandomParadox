@@ -1,0 +1,27 @@
+#this is a file to map the hoi4 terrain.bmp to a climate map compatible with fwg
+#this file needs to be placed right next to the read in climate.bmp/climate.png
+86,124,27,grassland
+0,86,6,forest
+112,74,31,rockyHills
+206,169,99,desert
+6,200,11,forest
+255,0,24,farm
+134,84,30,rockyMountains
+252,255,0,desert
+73,59,15,desertHills
+75,147,174,marsh
+174,0,255,desertMountains
+92,83,76,rockyMountains
+255,0,240,drysavanna
+240,255,0,urban
+55,90,220,sea
+8,31,130,sea
+255,255,255,snowyPeaks
+132,255,0,rockyHills
+255,126,0,desertMountains
+114,137,105,farm
+58,131,82,grasslandMountains
+255,0,127,jungle
+0,82,82,jungle
+243,199,147,desertMountains
+255,0,252,jungle
