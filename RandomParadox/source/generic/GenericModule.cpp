@@ -1,25 +1,7 @@
 #include "generic/GenericModule.h"
 namespace Scenario {
-void GenericModule::createPaths(const std::string &basePath) { // mod directory
-  using namespace std::filesystem;
-  create_directory(basePath);
-  // map
-  remove_all(basePath + "\\map\\");
-  remove_all(basePath + "\\gfx");
-  remove_all(basePath + "\\history");
-  remove_all(basePath + "\\common\\");
-  remove_all(basePath + "\\localisation\\");
-  create_directory(basePath + "\\map\\");
-  create_directory(basePath + "\\map\\terrain\\");
-  // gfx
-  create_directory(basePath + "\\gfx\\");
-  create_directory(basePath + "\\gfx\\flags\\");
-  // history
-  create_directory(basePath + "\\history\\");
-  // localisation
-  create_directory(basePath + "\\localisation\\");
-  // common
-  create_directory(basePath + "\\common\\");
+bool GenericModule::createPaths() { // mod directory
+  return false;
 }
 // a method to search for the original game files on the hard drive(s)
 bool GenericModule::findGame(std::string &path, const std::string &game) {
@@ -50,7 +32,7 @@ bool GenericModule::findGame(std::string &path, const std::string &game) {
       Logging::logLine("Located game under ", path);
       return true;
     } else if (exists(drive + "Steam\\steamapps\\common\\" + game)) {
-      path = drive + "Steam\\steamapps\\common\\" + game;
+      path = drive + "Steams\\steamapps\\common\\" + game;
       Logging::logLine("Located game under ", path);
       return true;
     }
@@ -60,37 +42,62 @@ bool GenericModule::findGame(std::string &path, const std::string &game) {
   return false;
 }
 
-bool GenericModule::findModFolders(const std::string &game) {
+bool GenericModule::validateGameModFolder(const std::string &game) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
-  path modsDir(pathcfg.gameModPath);
-  if (exists(modsDir.parent_path())) {
-    Logging::logLine("Located mod folder under ", modsDir.parent_path());
+  // find the usermod directory of the relevant game
+  if (exists(pathcfg.gameModsDirectory)) {
+    Logging::logLine("Located mods directory folder under ",
+                     pathcfg.gameModsDirectory);
+    return true;
+  } else {
+    Logging::logLine(
+        "Could not find the games mods directory folder under configured path ",
+        pathcfg.gameModsDirectory,
+        " it doesn't exist or is malformed. Please correct the path");
+    return false;
+  }
+}
+bool GenericModule::autoLocateGameModFolder(const std::string &game) {
+  using namespace std::filesystem;
+  namespace Logging = Fwg::Utils::Logging;
+  Logging::logLine("Trying to auto locate mod directory path for ", game);
+  std::string autoPath = getenv("USERPROFILE");
+  autoPath += "//Documents//Paradox Interactive//" + game + "//mod//";
+
+  if (exists(autoPath)) {
+    pathcfg.gameModsDirectory = autoPath;
+    Logging::logLine("Auto located game mod directory is ",
+                     pathcfg.gameModsDirectory);
+    pathcfg.gameModPath = autoPath + pathcfg.modName;
+    Logging::logLine("Auto located mod directory is ", pathcfg.gameModPath);
+  }
+
+  return false;
+}
+
+// try to find parent directory of where the mod should be
+bool GenericModule::validateModFolder(const std::string &game) {
+  using namespace std::filesystem;
+  namespace Logging = Fwg::Utils::Logging;
+  std::string tempPath = pathcfg.gameModPath;
+  while (tempPath.back() == '\\')
+    tempPath.pop_back();
+  while (tempPath.back() == '/')
+    tempPath.pop_back();
+  path modDestinationDir(tempPath);
+  if (exists(modDestinationDir.parent_path())) {
+    Logging::logLine("Located mod folder under ",
+                     modDestinationDir.parent_path());
+    return true;
   } else {
     Logging::logLine(
         "Could not find parent directory of mod directory under configured "
         "path ",
-        modsDir.parent_path(),
+        modDestinationDir.parent_path(),
         " it doesn't exist or is malformed. Please correct the path");
-    // return false;
+    return false;
   }
-  if (exists(pathcfg.gameModsDirectory)) {
-    Logging::logLine("Located mods directory folder under ",
-                     pathcfg.gameModsDirectory);
-  } else {
-    Logging::logLine(
-        "Could not find game mods directory folder under configured path ",
-        pathcfg.gameModsDirectory,
-        " it doesn't exist or is malformed. Please correct the path");
-    // return false;
-  }
-  Logging::logLine("Trying to auto locate mod directory path for ", game);
-  std::string autoPath = getenv("USERPROFILE");
-  autoPath += "//Documents//Paradox Interactive//" + game + "// mod//";
-  pathcfg.gameModsDirectory = autoPath;
-  pathcfg.gameModPath = autoPath;
-  Logging::logLine("Auto located paths are ", autoPath);
-  return true;
 }
 
 // reads generic configs for every module
@@ -102,14 +109,10 @@ void GenericModule::configurePaths(
   pathcfg.modName = gamesConf.get<std::string>(gameName + ".modName");
   pathcfg.gamePath = gamesConf.get<std::string>(gameName + ".gamePath");
   Fwg::Parsing::attachTrailing(pathcfg.gamePath);
-  pathcfg.mappingPath = gamesConf.get<std::string>(gameName + ".mappingPath");
-  Fwg::Parsing::attachTrailing(pathcfg.mappingPath);
   pathcfg.gameModPath =
       gamesConf.get<std::string>(gameName + ".modPath") + pathcfg.modName;
   Fwg::Parsing::attachTrailing(pathcfg.gameModPath);
   Fwg::Parsing::Scenario::replaceOccurences(pathcfg.gameModPath, "<username>",
-                                            username);
-  Fwg::Parsing::Scenario::replaceOccurences(pathcfg.mappingPath, "<username>",
                                             username);
   Fwg::Parsing::Scenario::replaceOccurences(pathcfg.gamePath, "<username>",
                                             username);
