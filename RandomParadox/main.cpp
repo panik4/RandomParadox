@@ -126,36 +126,34 @@ int main() {
   }
 
   try {
-    if (genHoi4Scenario) {
-      // generate hoi4 scenario
-      Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username,
-                                         editMode);
-      if (editMode) {
-        hoi4Mod.mapEdit();
-      } else if (true) {
-        GUI gui2;
-        gui2.shiny(hoi4Mod);
-
-      } else {
-        hoi4Mod.genHoi();
-      }
+    // make sure we always have the default exports directory
+    std::filesystem::create_directory("exports\\");
+      GUI gui2;
+    gui2.shiny(rpdConf, configSubFolder, username);
       dumpInfo("", configSubFolder);
-      system("pause");
-    }
-    if (genEu4Scenario) {
-      // create eu4module and have it run the scenario generation
-      Scenario::Eu4::Module eu4(rpdConf, configSubFolder, username);
-      eu4.genEu4();
-      dumpInfo("", configSubFolder);
-      system("pause");
-    }
-    if (genVic3Scenario) {
-      // create vic3module and have it run the scenario generation
-      Scenario::Vic3::Module vic3(rpdConf, configSubFolder, username);
-      vic3.genVic3();
-      dumpInfo("", configSubFolder);
-      system("pause");
-    }
+    //if (genHoi4Scenario) {
+    //  // generate hoi4 scenario
+    //  Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username,
+    //                                     editMode);
+    //  GUI gui2;
+    //  gui2.shiny(hoi4Mod);
+    //  dumpInfo("", configSubFolder);
+    //  system("pause");
+    //}
+    //if (genEu4Scenario) {
+    //  // create eu4module and have it run the scenario generation
+    //  Scenario::Eu4::Module eu4(rpdConf, configSubFolder, username);
+    //  eu4.genEu4();
+    //  dumpInfo("", configSubFolder);
+    //  system("pause");
+    //}
+    //if (genVic3Scenario) {
+    //  // create vic3module and have it run the scenario generation
+    //  Scenario::Vic3::Module vic3(rpdConf, configSubFolder, username);
+    //  vic3.genVic3();
+    //  dumpInfo("", configSubFolder);
+    //  system("pause");
+    //}
   } catch (std::exception e) {
     Utils::Logging::logLine(e.what());
     dumpInfo(e.what(), configSubFolder);

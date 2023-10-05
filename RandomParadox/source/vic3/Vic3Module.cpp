@@ -67,14 +67,14 @@ void Module::readVic3Config(const std::string &configSubFolder,
   Fwg::Utils::Logging::logLine("Reading Vic 3 Config");
   this->configurePaths(username, "Victoria 3", rpdConf);
 
-  // now try to locate game files
-  if (!findGame(pathcfg.gamePath, "Victoria 3")) {
-    throw(std::exception("Could not locate the game. Exiting"));
-  }
-  // now try to locate game files
-  if (!findModFolders("Victoria 3")) {
-    throw(std::exception("Could not locate the mod folders. Exiting"));
-  }
+  //// now try to locate game files
+  //if (!findGame(pathcfg.gamePath, "Victoria 3")) {
+  //  //throw(std::exception("Could not locate the game. Exiting"));
+  //}
+  //// now try to locate game files
+  //if (!validateModFolders("Victoria 3")) {
+  //  //throw(std::exception("Could not locate the mod folders. Exiting"));
+  //}
   auto &config = Cfg::Values();
   namespace pt = boost::property_tree;
   pt::ptree vic3Conf;

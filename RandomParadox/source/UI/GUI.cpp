@@ -39,8 +39,8 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
-int GUI::shiny(Scenario::Hoi4::Hoi4Module &hoi4Module) {
-  this->pathconfig = hoi4Module.pathcfg;
+int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
+               const std::string &username) {
   // this->fwg = generator;
   //  Create application window
   //  ImGui_ImplWin32_EnableDpiAwareness();
@@ -105,11 +105,14 @@ int GUI::shiny(Scenario::Hoi4::Hoi4Module &hoi4Module) {
   //--- prior to main loop:
   DragAcceptFiles(hwnd, TRUE);
   curtexture = nullptr;
-
+  activeModule = std::make_shared<Scenario::Hoi4::Hoi4Module>(
+      Scenario::Hoi4::Hoi4Module(rpdConf, configSubFolder, username, false));
+  initGameConfigs();
+  this->pathconfig = activeModule->pathcfg;
   // Fwg::generatorUI generatorUI;
   //  initial loading
   if (cfg.loadHeight) {
-    hoi4Module.hoi4Gen.genHeight(cfg);
+    activeModule->generator->genHeight(cfg);
   }
   frequency = cfg.overallFrequencyModifier;
   // auto log = std::shared_ptr<std::stringstream>(new std::stringstream());
@@ -166,32 +169,49 @@ int GUI::shiny(Scenario::Hoi4::Hoi4Module &hoi4Module) {
       ImGui::SetNextWindowPos({0, 0});
       ImGui::SetNextWindowSize({io.DisplaySize.x, io.DisplaySize.y});
       ImGui::Begin("RandomParadox");
-      showGeneric(cfg, hoi4Module.hoi4Gen, &curtexture);
+      showGeneric(cfg, *activeModule->generator, &curtexture);
       ImGui::SameLine();
-      showHoiGeneric(cfg, hoi4Module);
+      if (activeGameConfig.gameName == "Hearts of Iron IV") {
+        showHoiGeneric(cfg, std::reinterpret_pointer_cast<Scenario::Hoi4::Hoi4Module,
+                                                 Scenario::GenericModule>(
+                       activeModule));
+      }
       ImGui::SeparatorText(
           "Different Steps of the generation, usually go from left to right");
       if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
-        showConfigure(cfg, hoi4Module);
-        showHeightmapTab(cfg, hoi4Module.hoi4Gen, &curtexture);
-        showTerrainTab(cfg, hoi4Module.hoi4Gen, &curtexture);
-        showNormalMapTab(cfg, hoi4Module.hoi4Gen, &curtexture);
-        showContinentTab(cfg, hoi4Module.hoi4Gen, &curtexture);
-        showClimateOverview(cfg, hoi4Module.hoi4Gen, &curtexture);
-        showDensityTab(cfg, hoi4Module.hoi4Gen, &curtexture);
-        showAreasTab(cfg, hoi4Module.hoi4Gen);
-        showTreeTab(cfg, hoi4Module.hoi4Gen);
-        showScenarioTab(cfg, hoi4Module);
-        if (!configuredScenarioGen) {
-          ImGui::BeginDisabled();
+        showConfigure(cfg, activeModule);
+        //if (!validatedPaths)
+        //  ImGui::BeginDisabled();
+        showHeightmapTab(cfg, *activeModule->generator, &curtexture);
+        showTerrainTab(cfg, *activeModule->generator, &curtexture);
+        showNormalMapTab(cfg, *activeModule->generator, &curtexture);
+        showContinentTab(cfg, *activeModule->generator, &curtexture);
+        showClimateOverview(cfg, *activeModule->generator, &curtexture);
+        showDensityTab(cfg, *activeModule->generator, &curtexture);
+        showAreasTab(cfg, *activeModule->generator);
+        showTreeTab(cfg, *activeModule->generator);
+        showScenarioTab(cfg, activeModule);
+        //if (!configuredScenarioGen) {
+        //  ImGui::BeginDisabled();
+        //}
+        showCountryTab(cfg, &curtexture);
+        if (activeGameConfig.gameName == "Hearts of Iron IV") {
+          auto hoi4Gen =
+              std::reinterpret_pointer_cast<Scenario::Hoi4::Generator,
+                                            Scenario::Generator>(
+                  activeModule->generator);
+          showStateTab(cfg, hoi4Gen);
+          showStrategicRegionTab(cfg, hoi4Gen);
+          showHoi4Finalise(
+              cfg, std::reinterpret_pointer_cast<Scenario::Hoi4::Hoi4Module,
+                                                 Scenario::GenericModule>(
+                       activeModule));
         }
-        showCountryTab(cfg, hoi4Module, &curtexture);
-        showStateTab(cfg, hoi4Module);
-        showStrategicRegionTab(cfg, hoi4Module.hoi4Gen);
-        showFinaliseTabConfigure(cfg, hoi4Module);
-        if (!configuredScenarioGen) {
-          ImGui::EndDisabled();
-        }
+        //if (!configuredScenarioGen) {
+        //  ImGui::EndDisabled();
+        //}
+        //if (!validatedPaths)
+        //  ImGui::EndDisabled();
 
         ImGui::EndTabBar();
       }
@@ -271,29 +291,20 @@ void GUI::loadGameConfig(Fwg::Cfg &cfg) {
     system("pause");
   }
 }
-
-int GUI::showHoiGeneric(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module) {
-  auto &hoi4Gen = hoi4Module.hoi4Gen;
-  if (hoi4Gen.heightMap.initialized && hoi4Gen.climateMap.initialized &&
-      hoi4Gen.provinceMap.initialized && hoi4Gen.regionMap.initialized) {
-    if (ImGui::Button("Generate Hoi4Mod with default settings")) {
-      hoi4Module.genHoi();
-      configuredScenarioGen = true;
-    }
-  }
-  ImGui::SameLine();
-  if (ImGui::Button("Generate world + Hoi4 mod in one go")) {
-    hoi4Gen.generateWorld();
-    hoi4Module.genHoi();
-    configuredScenarioGen = true;
-  }
-  return 0;
+// hardcoded init of some game configs
+void GUI::initGameConfigs() {
+  gameConfigs.push_back({"Hearts of Iron IV", "hoi4"});
+  gameConfigs.push_back({"Victoria 3", "vic3"});
+  gameConfigs.push_back({"Europa Universalis IV", "eu4"});
+  activeGameConfig = gameConfigs[0];
 }
+
 // generic configure tab, containing a tab for fwg and rpdx configs
-int GUI::showConfigure(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module) {
+int GUI::showConfigure(Fwg::Cfg &cfg,
+                       std::shared_ptr<Scenario::GenericModule> activeModule) {
   if (ImGui::BeginTabItem("Configure")) {
     if (ImGui::BeginTabBar("Config tabs", ImGuiTabBarFlags_None)) {
-      showRpdxConfigure(cfg, hoi4Module);
+      showRpdxConfigure(cfg, activeModule);
       showFwgConfigure(cfg, &curtexture);
       ImGui::EndTabBar();
     }
@@ -302,8 +313,8 @@ int GUI::showConfigure(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module) {
   return 0;
 }
 
-int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
-                           Scenario::Hoi4::Hoi4Module &hoi4Module) {
+int GUI::showRpdxConfigure(
+    Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> activeModule) {
   static int item_current = 1;
   // remove the images, and set pretext for them to be auto
   // loaded after switching tabs again
@@ -339,16 +350,25 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
       loadGameConfig(cfg);
     }
     ImGui::PushItemWidth(600.0f);
-    ImGui::InputText("Mod Name", &hoi4Module.pathcfg.modName);
+    ImGui::InputText("Mod Name", &activeModule->pathcfg.modName);
     if (ImGui::Button("Try to find game")) {
-      hoi4Module.findGame(hoi4Module.pathcfg.gamePath, "Hearts of Iron IV");
+      activeModule->findGame(activeModule->pathcfg.gamePath,
+                             activeGameConfig.gameName);
     }
-    ImGui::InputText("Game Path", &hoi4Module.pathcfg.gamePath);
-    if (ImGui::Button("Validate mods directories")) {
-      hoi4Module.findModFolders("Hearts of Iron IV");
+    ImGui::InputText("Game Path", &activeModule->pathcfg.gamePath);
+    if (ImGui::Button("Validate all paths")) {
+      validatedPaths = activeModule->findGame(activeModule->pathcfg.gamePath,
+                                              activeGameConfig.gameName);
+      if (validatedPaths)
+        validatedPaths =
+            activeModule->validateGameModFolder(activeGameConfig.gameName);
+      if (validatedPaths)
+        validatedPaths =
+            activeModule->validateModFolder(activeGameConfig.gameName);
     }
-    ImGui::InputText("Mod Path", &hoi4Module.pathcfg.gameModPath);
-    ImGui::InputText("Mods Directory", &hoi4Module.pathcfg.gameModsDirectory);
+    ImGui::InputText("Mod Path", &activeModule->pathcfg.gameModPath);
+    ImGui::InputText("Mods Directory",
+                     &activeModule->pathcfg.gameModsDirectory);
 
     ImGui::PopItemWidth();
     ImGui::EndTabItem();
@@ -356,73 +376,47 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
   // force path for cutting to gamePath + maps, but only if no other path
   // defined
   if (cfg.cut) {
-    cfg.loadMapsPath = hoi4Module.pathcfg.gamePath + "map//";
+    cfg.loadMapsPath = activeModule->pathcfg.gamePath + "map//";
     cfg.heightmapIn = cfg.loadMapsPath + "heightmap.bmp";
   }
   if (cfg.loadClimate) {
-    cfg.climateMappingPath = "resources//hoi4//climateMapping.txt";
+    cfg.climateMappingPath = "resources//" + activeGameConfig.gameShortName +
+                             "//climateMapping.txt ";
   }
   return 0;
 }
 
-int GUI::showHoi4Configure(Fwg::Cfg &cfg,
-                           Scenario::Hoi4::Hoi4Module &hoi4Module) {
-
-  ImGui::InputDouble("resourceFactor", &hoi4Module.hoi4Gen.resourceFactor, 0.1);
-  ImGui::InputDouble("aluminiumFactor",
-                     &hoi4Module.hoi4Gen.resources["aluminium"][2], 0.1);
-  ImGui::InputDouble("chromiumFactor",
-                     &hoi4Module.hoi4Gen.resources["chromium"][2], 0.1);
-  ImGui::InputDouble("oilFactor", &hoi4Module.hoi4Gen.resources["oil"][2], 0.1);
-  ImGui::InputDouble("rubberFactor", &hoi4Module.hoi4Gen.resources["rubber"][2],
-                     0.1);
-  ImGui::InputDouble("steelFactor", &hoi4Module.hoi4Gen.resources["steel"][2],
-                     0.1);
-  ImGui::InputDouble("tungstenFactor",
-                     &hoi4Module.hoi4Gen.resources["tungsten"][2], 0.1);
-  ImGui::InputDouble("baseLightRainChance",
-                     &hoi4Module.hoi4Gen.weatherChances["baseLightRainChance"],
-                     0.1);
-  ImGui::InputDouble("baseHeavyRainChance",
-                     &hoi4Module.hoi4Gen.weatherChances["baseHeavyRainChance"],
-                     0.1);
-  ImGui::InputDouble("baseMudChance",
-                     &hoi4Module.hoi4Gen.weatherChances["baseMudChance"], 0.1);
-  ImGui::InputDouble("baseBlizzardChance",
-                     &hoi4Module.hoi4Gen.weatherChances["baseBlizzardChance"],
-                     0.1);
-  ImGui::InputDouble("baseSandstormChance",
-                     &hoi4Module.hoi4Gen.weatherChances["baseSandstormChance"],
-                     0.1);
-  ImGui::InputDouble("baseSnowChance",
-                     &hoi4Module.hoi4Gen.weatherChances["baseSnowChance"], 0.1);
-  return 0;
-}
-
-int GUI::showScenarioTab(Fwg::Cfg &cfg,
-                         Scenario::Hoi4::Hoi4Module &hoi4Module) {
+int GUI::showScenarioTab(
+    Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> activeModule) {
   if (ImGui::BeginTabItem("Scenario")) {
     freeTexture(&curtexture);
     tabSwitchEvent();
-    auto &generator = hoi4Module.hoi4Gen;
-    if (generator.heightMap.initialized && generator.climateMap.initialized &&
-        generator.provinceMap.initialized && generator.regionMap.initialized) {
+    if (activeModule->generator->heightMap.initialized &&
+        activeModule->generator->climateMap.initialized &&
+        activeModule->generator->provinceMap.initialized &&
+        activeModule->generator->regionMap.initialized) {
       // auto initialize
-      if (ImGui::Button("Init") || !generator.gameProvinces.size()) {
-        if (!hoi4Module.createPaths())
+      if (ImGui::Button("Init") ||
+          !activeModule->generator->gameProvinces.size()) {
+        if (!activeModule->createPaths())
           return -1;
         // start with the generic stuff in the Scenario Generator
-        generator.mapProvinces();
-        generator.mapRegions();
-        generator.mapContinents();
+        activeModule->generator->mapProvinces();
+        activeModule->generator->mapRegions();
+        activeModule->generator->mapContinents();
         configuredScenarioGen = true;
       }
       ImGui::PushItemWidth(200.0f);
       ImGui::InputDouble("WorldPopulationFactor",
-                         &hoi4Module.hoi4Gen.worldPopulationFactor, 0.1);
-      ImGui::InputDouble("industryFactor", &hoi4Module.hoi4Gen.industryFactor,
-                         0.1);
-      showHoi4Configure(cfg, hoi4Module);
+                         &activeModule->generator->worldPopulationFactor, 0.1);
+      ImGui::InputDouble("industryFactor",
+                         &activeModule->generator->industryFactor, 0.1);
+      if (activeGameConfig.gameName == "Hearts of Iron IV") {
+        auto hoi4Gen = std::reinterpret_pointer_cast<Scenario::Hoi4::Generator,
+                                                     Scenario::Generator>(
+            activeModule->generator);
+        showHoi4Configure(cfg, hoi4Gen);
+      }
       ImGui::PopItemWidth();
     } else {
       ImGui::Text("Generate required maps in the other tabs first");
@@ -434,10 +428,9 @@ int GUI::showScenarioTab(Fwg::Cfg &cfg,
   return 0;
 }
 
-int GUI::showCountryTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module,
-                        ID3D11ShaderResourceView **texture) {
+int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
   if (ImGui::BeginTabItem("Countries")) {
-    auto &generator = hoi4Module.hoi4Gen;
+    auto generator = activeModule->generator;
     tabSwitchEvent();
     ImGui::Text(
         "Use auto generated country map or drop it in. You may also first "
@@ -448,35 +441,36 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module,
                 "inputs//countryMappings.txt as an example. If no file is "
                 "dragged in, this example file is used.");
     ImGui::PushItemWidth(300.0f);
-    ImGui::InputInt("Number of countries", &hoi4Module.numCountries);
-    ImGui::InputText("Path to country list: ", &generator.countryMappingPath);
+    // TODO ImGui::InputInt("Number of countries", &hoi4Module.numCountries);
+    ImGui::InputText("Path to country list: ", &generator->countryMappingPath);
     if (ImGui::Button("Generate countries")) {
-      generator.generateCountries(hoi4Module.numCountries, pathconfig.gamePath);
-      // transfer generic states to hoi4states
-      generator.initializeStates();
-      // build hoi4 countries out of basic countries
-      generator.initializeCountries();
-      generator.evaluateNeighbours();
-      generator.generateWorldCivilizations();
-      generator.dumpDebugCountrymap(cfg.mapsPath + "countries.png");
+      // generator->generateCountries(hoi4Module.numCountries,
+      //                              pathconfig.gamePath);
+      //// transfer generic states to hoi4states
+      // generator->initializeStates();
+      //// build hoi4 countries out of basic countries
+      // generator->initializeCountries();
+      generator->evaluateNeighbours();
+      generator->generateWorldCivilizations();
+      generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png");
       resetTexture();
     }
     ImGui::SameLine();
     auto str =
-        "Generated countries: " + std::to_string(generator.countries.size());
+        "Generated countries: " + std::to_string(generator->countries.size());
     ImGui::Text(str.c_str());
     // drag event
     if (triggeredDrag) {
       if (draggedFile.find(".txt") != std::string::npos) {
-        generator.countryMappingPath = draggedFile;
+        generator->countryMappingPath = draggedFile;
       } else {
-        generator.loadCountries(draggedFile, generator.countryMappingPath);
+        generator->loadCountries(draggedFile, generator->countryMappingPath);
         // transfer generic states to hoi4states
-        generator.initializeStates();
-        // build hoi4 countries out of basic countries
-        generator.initializeCountries();
-        generator.evaluateNeighbours();
-        generator.generateWorldCivilizations();
+        // generator->initializeStates();
+        //// build hoi4 countries out of basic countries
+        // generator->initializeCountries();
+        generator->evaluateNeighbours();
+        generator->generateWorldCivilizations();
         resetTexture();
       }
       triggeredDrag = false;
@@ -485,14 +479,14 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module,
     std::vector<const char *> items;
     std::vector<std::string> tags;
     static int selectedCountryIndex = 0;
-    for (auto &country : generator.countries) {
+    for (auto &country : generator->countries) {
       items.push_back(country.second.name.c_str());
       tags.push_back(country.first);
     }
-    if (generator.countries.size()) {
+    if (generator->countries.size()) {
       ImGui::ListBox("Select Country", &selectedCountryIndex, items.data(),
                      items.size(), 4);
-      auto selectedCountry = generator.countries[tags[selectedCountryIndex]];
+      auto selectedCountry = generator->countries[tags[selectedCountryIndex]];
       std::string tempTag = selectedCountry.tag;
       static std::string bufferChangedTag = "";
       if (ImGui::InputText("Country tag", &tempTag)) {
@@ -500,14 +494,15 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module,
       }
       if (ImGui::Button("update tag")) {
         std::string &oldTag = tags[selectedCountryIndex];
-        generator.countries.erase(oldTag);
+        generator->countries.erase(oldTag);
         selectedCountry.tag = bufferChangedTag;
         // add country under different tag
-        generator.countries.insert({selectedCountry.tag, selectedCountry});
+        generator->countries.insert({selectedCountry.tag, selectedCountry});
         // update old tag in list
         tags[selectedCountryIndex] = selectedCountry.tag;
       }
-      auto &modifiableCountry = generator.countries[tags[selectedCountryIndex]];
+      auto &modifiableCountry =
+          generator->countries[tags[selectedCountryIndex]];
       ImGui::InputText("Country name", &modifiableCountry.name);
       ImGui::InputText("Country adjective", &modifiableCountry.adjective);
       // ImGui::InputText("Country adjective", &selectedCountry.colour);
@@ -523,14 +518,14 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module,
         modifiableCountry.colour =
             Fwg::Gfx::Colour(color.x * 255.0, color.y * 255.0, color.z * 255.0);
         if (ImGui::IsMouseClicked) {
-          generator.countryMap =
-              generator.dumpDebugCountrymap(cfg.mapsPath + "countries.png");
+          generator->countryMap =
+              generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png");
           resetTexture();
         }
       }
     }
 
-    switchTexture(hoi4Module.hoi4Gen.countryMap, texture,
+    switchTexture(activeModule->generator->countryMap, texture,
                   ActiveTexture::COUNTRIES);
     ImGui::EndTabItem();
     ImGui::PopItemWidth();
@@ -538,9 +533,57 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module,
   return 0;
 }
 
-int GUI::showStateTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module) {
+// HOI4
+int GUI::showHoi4Configure(
+    Fwg::Cfg &cfg, std::shared_ptr<Scenario::Hoi4::Generator> generator) {
+
+  ImGui::InputDouble("resourceFactor", &generator->resourceFactor, 0.1);
+  ImGui::InputDouble("aluminiumFactor", &generator->resources["aluminium"][2],
+                     0.1);
+  ImGui::InputDouble("chromiumFactor", &generator->resources["chromium"][2],
+                     0.1);
+  ImGui::InputDouble("oilFactor", &generator->resources["oil"][2], 0.1);
+  ImGui::InputDouble("rubberFactor", &generator->resources["rubber"][2], 0.1);
+  ImGui::InputDouble("steelFactor", &generator->resources["steel"][2], 0.1);
+  ImGui::InputDouble("tungstenFactor", &generator->resources["tungsten"][2],
+                     0.1);
+  ImGui::InputDouble("baseLightRainChance",
+                     &generator->weatherChances["baseLightRainChance"], 0.1);
+  ImGui::InputDouble("baseHeavyRainChance",
+                     &generator->weatherChances["baseHeavyRainChance"], 0.1);
+  ImGui::InputDouble("baseMudChance",
+                     &generator->weatherChances["baseMudChance"], 0.1);
+  ImGui::InputDouble("baseBlizzardChance",
+                     &generator->weatherChances["baseBlizzardChance"], 0.1);
+  ImGui::InputDouble("baseSandstormChance",
+                     &generator->weatherChances["baseSandstormChance"], 0.1);
+  ImGui::InputDouble("baseSnowChance",
+                     &generator->weatherChances["baseSnowChance"], 0.1);
+  return 0;
+}
+
+int GUI::showHoiGeneric(
+    Fwg::Cfg &cfg, std::shared_ptr<Scenario::Hoi4::Hoi4Module> hoi4Module) {
+  if (hoi4Module->generator->heightMap.initialized &&
+      hoi4Module->generator->climateMap.initialized &&
+      hoi4Module->generator->provinceMap.initialized &&
+      hoi4Module->generator->regionMap.initialized) {
+    if (ImGui::Button("Generate Hoi4Mod with default settings")) {
+      hoi4Module->genHoi();
+      configuredScenarioGen = true;
+    }
+  }
+  ImGui::SameLine();
+  if (ImGui::Button("Generate world + Hoi4 mod in one go")) {
+    hoi4Module->generator->generateWorld();
+    hoi4Module->genHoi();
+    configuredScenarioGen = true;
+  }
+  return 0;
+}
+int GUI::showStateTab(Fwg::Cfg &cfg,
+                      std::shared_ptr<Scenario::Hoi4::Generator> generator) {
   if (ImGui::BeginTabItem("States")) {
-    auto &generator = hoi4Module.hoi4Gen;
     tabSwitchEvent();
     ImGui::Text(
         "Use auto generated country map or drop it in. You may also first "
@@ -551,28 +594,28 @@ int GUI::showStateTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module) {
                 "inputs//countryMappings.txt as an example. If no file is "
                 "dragged in, this example file is used.");
     ImGui::PushItemWidth(300.0f);
-    ImGui::InputText("Path to country list: ", &generator.regionMappingPath);
+    ImGui::InputText("Path to country list: ", &generator->regionMappingPath);
     ImGui::SameLine();
     auto str =
-        "Amount of states: " + std::to_string(generator.hoi4States.size());
+        "Amount of states: " + std::to_string(generator->hoi4States.size());
     ImGui::Text(str.c_str());
     // drag event
     if (triggeredDrag) {
       if (draggedFile.find(".txt") != std::string::npos) {
-        generator.regionMappingPath = draggedFile;
-        generator.applyRegionInput();
+        generator->regionMappingPath = draggedFile;
+        generator->applyRegionInput();
       }
       triggeredDrag = false;
     }
     std::vector<const char *> items;
     static int selectedStateIndex = 0;
-    for (auto &state : generator.hoi4States) {
+    for (auto &state : generator->hoi4States) {
       items.push_back(state->name.c_str());
     }
-    if (generator.countries.size()) {
+    if (generator->countries.size()) {
       ImGui::ListBox("Select State", &selectedStateIndex, items.data(),
                      items.size(), 4);
-      auto &modifiableState = generator.hoi4States[selectedStateIndex];
+      auto &modifiableState = generator->hoi4States[selectedStateIndex];
       ImGui::InputText("Country name", &modifiableState->name);
       ImGui::InputInt("Population", &modifiableState->population);
       ImGui::InputInt("Arms Industry", &modifiableState->armsFactories);
@@ -587,26 +630,26 @@ int GUI::showStateTab(Fwg::Cfg &cfg, Scenario::Hoi4::Hoi4Module &hoi4Module) {
   return 0;
 }
 
-int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
-                                Scenario::Hoi4::Generator &generator) {
+int GUI::showStrategicRegionTab(
+    Fwg::Cfg &cfg, std::shared_ptr<Scenario::Hoi4::Generator> generator) {
   if (ImGui::BeginTabItem("Strategic Regions")) {
     freeTexture(&curtexture);
     tabSwitchEvent();
     ImGui::SeparatorText(
         "This generates strategic regions, they cannot be loaded");
-    if (generator.hoi4States.size()) {
+    if (generator->hoi4States.size()) {
       if (ImGui::Button("Generate strategic regions")) {
         // non-country stuff
-        generator.generateStrategicRegions();
-        generator.generateWeather();
+        generator->generateStrategicRegions();
+        generator->generateWeather();
       }
     } else {
       // transfer generic states to hoi4states
-      generator.initializeStates();
+      generator->initializeStates();
       // build hoi4 countries out of basic countries
-      generator.initializeCountries();
-      generator.evaluateNeighbours();
-      generator.generateWorldCivilizations();
+      generator->initializeCountries();
+      generator->evaluateNeighbours();
+      generator->generateWorldCivilizations();
     }
     // drag event is ignored here
     if (triggeredDrag) {
@@ -617,28 +660,28 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
   return 0;
 }
 
-int GUI::showFinaliseTabConfigure(Fwg::Cfg &cfg,
-                                  Scenario::Hoi4::Hoi4Module &hoi4Module) {
+int GUI::showHoi4Finalise(
+    Fwg::Cfg &cfg, std::shared_ptr<Scenario::Hoi4::Hoi4Module> hoi4Module) {
   if (ImGui::BeginTabItem("Finalise")) {
     freeTexture(&curtexture);
     tabSwitchEvent();
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
-    auto &hoi4Gen = hoi4Module.hoi4Gen;
-    if (hoi4Gen.strategicRegions.size()) {
+    auto &generator = hoi4Module->hoi4Gen;
+    if (generator->strategicRegions.size()) {
       if (ImGui::Button("Export mod")) {
         // now generate hoi4 specific stuff
-        hoi4Gen.generateCountrySpecifics();
-        hoi4Gen.generateStateSpecifics();
-        hoi4Gen.generateStateResources();
+        generator->generateCountrySpecifics();
+        generator->generateStateSpecifics();
+        generator->generateStateResources();
         // should work with countries = 0
-        hoi4Gen.evaluateCountries();
-        hoi4Gen.generateLogistics();
+        generator->evaluateCountries();
+        generator->generateLogistics();
         Scenario::Hoi4::NationalFocus::buildMaps();
-        hoi4Gen.generateFocusTrees();
-        hoi4Gen.generateCountryUnits();
-        hoi4Module.writeImages();
-        hoi4Module.writeTextFiles();
+        generator->generateFocusTrees();
+        generator->generateCountryUnits();
+        hoi4Module->writeImages();
+        hoi4Module->writeTextFiles();
       }
     } else {
       ImGui::Text("Generate strategic regions first before exporting the mod");
@@ -652,3 +695,4 @@ int GUI::showFinaliseTabConfigure(Fwg::Cfg &cfg,
 
   return 0;
 }
+//

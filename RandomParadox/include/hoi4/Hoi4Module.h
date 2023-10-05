@@ -19,7 +19,8 @@ class Hoi4Module : public GenericModule {
                      const boost::property_tree::ptree &rpdConf);
 
 public:
-  Generator hoi4Gen;
+  // Hoi4::Generator generator;
+  std::shared_ptr<Hoi4::Generator> hoi4Gen;
   Hoi4Module(const boost::property_tree::ptree &rpdConf,
              const std::string &configSubFolder, const std::string &username,
              const bool editMode);
@@ -34,6 +35,6 @@ public:
   void writeTextFiles();
   void writeImages();
   // clear and create all the mod paths at each run
-  bool createPaths();
+  virtual bool createPaths();
 };
 } // namespace Scenario::Hoi4
