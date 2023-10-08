@@ -14,6 +14,10 @@ class Generator : public Scenario::Generator {
 public:
   Generator();
   Generator(const std::string &configSubFolder);
+  // initialize states
+  virtual void initializeStates();
+  // initialize countries
+  virtual void initializeCountries();
   void generateRegions(std::vector<std::shared_ptr<Region>> &regions);
   std::vector<Vic3Region> getVic3Regions() { return vic3regions; };
 };

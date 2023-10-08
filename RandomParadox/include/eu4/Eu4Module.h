@@ -6,8 +6,8 @@
 #include "generic/GenericModule.h"
 #include "generic/ScenarioGenerator.h"
 namespace Scenario::Eu4 {
-class Module : GenericModule {
-  Generator eu4Gen;
+class Module : public GenericModule {
+  std::shared_ptr<Generator> eu4Gen;
   // clear and create all the mod paths at each run
   bool createPaths();
   // read the config options specific to eu4
@@ -20,6 +20,6 @@ public:
          const std::string &configSubFolder, const std::string &username);
   ~Module();
   // member functions
-  void genEu4();
+  virtual void generate();
 };
 } // namespace Scenario::Eu4

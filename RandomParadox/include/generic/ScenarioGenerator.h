@@ -111,6 +111,10 @@ public:
   void generateReligions();
   void generateCultures();
 
+  // initialize states
+  virtual void initializeStates();
+  // initialize countries
+  virtual void initializeCountries();
   // determine development from habitability, population density and randomness
   void generateDevelopment();
   // mapping terrain types of FastWorldGen to paradox compatible terrains
@@ -120,7 +124,7 @@ public:
   // load countries from an image and map them to regions
   void loadCountries(const std::string &countryMapPath, const std::string& mappingPath);
   // and countries are always created the same way
-  void generateCountries(int numCountries, const std::string &gamePath);
+  void generateCountries();
   // see which country neighbours which
   void evaluateNeighbours();
 }; // namespace Scenario

@@ -79,29 +79,7 @@ int main() {
     return -1;
   }
 
-  bool writeMaps, editMode, genHoi4Scenario, genEu4Scenario, genVic3Scenario,
-      multiCore, stateExport;
   std::string mapName;
-  try {
-    // if debug is enabled in the config, a directory subtree containing
-    // visualisation of many maps will be created
-    writeMaps = rpdConf.get<bool>("randomScenario.writeMaps");
-    editMode = rpdConf.get<bool>("randomScenario.editMode");
-    // generate hoi4 scenario or not
-    genHoi4Scenario = rpdConf.get<bool>("randomScenario.genhoi4");
-    genEu4Scenario = rpdConf.get<bool>("randomScenario.geneu4");
-    genVic3Scenario = rpdConf.get<bool>("randomScenario.genvic3");
-    multiCore = rpdConf.get<bool>("MappingTool.multiCore");
-    stateExport = rpdConf.get<bool>("MappingTool.stateExport");
-    mapName = rpdConf.get<std::string>("MappingTool.mapName");
-  } catch (std::exception e) {
-    Utils::Logging::logLine("Error reading boost::property_tree");
-    Utils::Logging::logLine(
-        "Did you rename a field in the json file?. Error is: ", e.what());
-    dumpInfo(e.what(), configSubFolder);
-    system("pause");
-    return -1;
-  }
 
   auto &config = Cfg::Values();
   // check if we can read the config
@@ -118,42 +96,12 @@ int main() {
     system("pause");
     return -1;
   }
-
-  // if we don't want the FastWorldGenerator output in MapsPath, debug = 0 turns
-  // this off
-  if (!writeMaps) {
-    config.writeMaps = false;
-  }
-
   try {
     // make sure we always have the default exports directory
     std::filesystem::create_directory("exports\\");
-      GUI gui2;
+    GUI gui2;
     gui2.shiny(rpdConf, configSubFolder, username);
-      dumpInfo("", configSubFolder);
-    //if (genHoi4Scenario) {
-    //  // generate hoi4 scenario
-    //  Scenario::Hoi4::Hoi4Module hoi4Mod(rpdConf, configSubFolder, username,
-    //                                     editMode);
-    //  GUI gui2;
-    //  gui2.shiny(hoi4Mod);
-    //  dumpInfo("", configSubFolder);
-    //  system("pause");
-    //}
-    //if (genEu4Scenario) {
-    //  // create eu4module and have it run the scenario generation
-    //  Scenario::Eu4::Module eu4(rpdConf, configSubFolder, username);
-    //  eu4.genEu4();
-    //  dumpInfo("", configSubFolder);
-    //  system("pause");
-    //}
-    //if (genVic3Scenario) {
-    //  // create vic3module and have it run the scenario generation
-    //  Scenario::Vic3::Module vic3(rpdConf, configSubFolder, username);
-    //  vic3.genVic3();
-    //  dumpInfo("", configSubFolder);
-    //  system("pause");
-    //}
+    dumpInfo("", configSubFolder);
   } catch (std::exception e) {
     Utils::Logging::logLine(e.what());
     dumpInfo(e.what(), configSubFolder);

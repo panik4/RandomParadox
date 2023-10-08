@@ -49,5 +49,8 @@ void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
   Bmp::bufferBitmap("eu4regions", eu4RegionBmp);
   Bmp::save(eu4RegionBmp, "Maps\\eu4Regions.bmp");
 }
-
+// initialize states
+void Generator::initializeStates() {}
+// initialize states
+void Generator::initializeCountries() {}
 } // namespace Scenario::Eu4

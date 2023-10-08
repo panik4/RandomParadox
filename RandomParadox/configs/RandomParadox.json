@@ -1,11 +1,6 @@
 {
 	"randomScenario": 
 	{
-		"writeMaps": true,
-		"editMode": false,
-		"genhoi4": true,
-		"geneu4": false,
-		"genvic3": false,
 		"loadCountries" : false,
 		"countryColourMap" : "inputs//countryMappings.txt"
 	},
@@ -20,26 +15,22 @@
 	{
 		"modName" : "eu4Mod1",
 		"gamePath" : "D:\Steam//steamapps//common//Europa Universalis IV",
-		"modPath" : "C://Users//<username>//Documents//Paradox Interactive//Europa Universalis IV//mod//",
-		"modsDirectory" : "C://Users//<username>//Documents//Paradox Interactive//Europa Universalis IV//mod//",
-		"checkDiff": true
+		"modPath" : "exports//",
+		"modsDirectory" : "exports//"
 	},
 	"Hearts of Iron IV": 
 	{
 		"modName" : "hoi4Mod1",
 		"gamePath" : "D://Steam//steamapps//common//Hearts of Iron IV//",
-		"modPath" : "C://Users//<username>//Documents//Paradox Interactive//Hearts of Iron IV//mod//",
-		"modsDirectory" : "C://Users//<username>//Documents//Paradox Interactive//Hearts of Iron IV//mod//",
-		"mappingPath": "C://Users//<username>//Documents//Paradox Interactive//Hearts of Iron IV//mod//hoi4mod1//",
-		"checkDiff": true
+		"modPath" : "C:\Users\<username>\Documents\Paradox Interactive\Hearts of Iron IV\mod",
+		"modsDirectory" : "C:\Users\<username>\Documents\Paradox Interactive\Hearts of Iron IV\mod"
 	},
 	"Victoria 3": 
 	{
 		"modName" : "vic3Mod1",
 		"gamePath" : "D://Steam//steamapps//common//Victoria 3//",
-		"modPath" : "C://Users//<username>//Documents//Paradox Interactive//Victoria 3//mod//",
-		"modsDirectory" : "C://Users//<username>//Documents//Paradox Interactive//Victoria 3//mod//",
-		"mappingPath": "inputs//Victoria 3//",
-		"checkDiff": true
+		"modPath" : "exports//",
+		"modsDirectory" : "exports//",
+		"mappingPath": "inputs//Victoria 3//"
 	}
 }
