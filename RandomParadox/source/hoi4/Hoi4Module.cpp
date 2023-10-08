@@ -4,9 +4,7 @@ namespace Scenario::Hoi4 {
 Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
                        const std::string &configSubFolder,
                        const std::string &username, const bool editMode) {
-  // this.ge
-  generator = std::make_shared<Scenario::Hoi4::Generator>(
-      (configSubFolder));
+  generator = std::make_shared<Scenario::Hoi4::Generator>((configSubFolder));
   hoi4Gen = std::reinterpret_pointer_cast<Scenario::Hoi4::Generator,
                                           Scenario::Generator>(generator);
   const auto &config = Fwg::Cfg::Values();
@@ -41,29 +39,14 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
     hoi4Gen->hoi4Countries.clear();
     hoi4Gen->countries.clear();
   }
-  if (!editMode) {
-    // now run the world generation
-    // if (hoi4Gen.generateWorld() < 0) {
-    //  throw(std::exception("FastWorldhoi4Gen reported an error, terminating.
-    //  "
-    //                       "Check log for details"));
-    //}
-    // check again after generation in case of cutting, as dimension calculation
-    // is not possible before the image was loaded and width and height are
-    // known
-    if (config.width % 64 || config.height % 64) {
-      throw(std::exception("Invalid format, both width and height of the image "
-                           "must be multiples of 64."));
-    }
-  }
 
   readHoiConfig(configSubFolder, username, gamesConf);
   hoi4Gen->nData =
       NameGeneration::prepare("resources\\names", pathcfg.gamePath);
-  if (editMode) {
-    // start loading mod/game files
-    readHoi(pathcfg.gamePath);
-  }
+  // if (editMode) {
+  //   // start loading mod/game files
+  //   readHoi(pathcfg.gamePath);
+  // }
 }
 
 Hoi4Module::~Hoi4Module() {}
@@ -73,7 +56,7 @@ bool Hoi4Module::createPaths() {
   try {
     // generic cleanup and path creation
     using namespace std::filesystem;
-    //GenericModule::createPaths(pathcfg.gameModPath);
+    // GenericModule::createPaths(pathcfg.gameModPath);
     create_directory(pathcfg.gameModPath);
     // map
     remove_all(pathcfg.gameModPath + "\\map\\");
@@ -192,7 +175,7 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   Fwg::Parsing::attachTrailing(hoi4Gen->countryMappingPath);
 
   //  passed to generic Scenariohoi4Gen
-  numCountries = hoi4Conf.get<int>("scenario.numCountries");
+  hoi4Gen->numCountries = hoi4Conf.get<int>("scenario.numCountries");
   // force defaults for the game, if not set otherwise
   if (config.targetLandRegionAmount == 0 && config.autoRegionParams)
     config.targetLandRegionAmount = 640;
@@ -205,57 +188,6 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
 }
 
 void Hoi4Module::prepareData() {}
-
-void Hoi4Module::genHoi() {
-  if (!createPaths())
-    return;
-  try {
-    // start with the generic stuff in the Scenario hoi4Gen
-    hoi4Gen->mapProvinces();
-    hoi4Gen->mapRegions();
-    hoi4Gen->mapContinents();
-    hoi4Gen->generateCountries(numCountries, pathcfg.gamePath);
-    // transfer generic states to hoi4states
-    hoi4Gen->initializeStates();
-    // build hoi4 countries out of basic countries
-    hoi4Gen->initializeCountries();
-    hoi4Gen->evaluateNeighbours();
-    hoi4Gen->generateWorldCivilizations();
-
-    // non-country stuff
-    hoi4Gen->generateStrategicRegions();
-    hoi4Gen->generateWeather();
-    // now generate hoi4 specific stuff
-    hoi4Gen->generateCountrySpecifics();
-    hoi4Gen->generateStateSpecifics();
-    hoi4Gen->generateStateResources();
-    // should work with countries = 0
-    hoi4Gen->evaluateCountries();
-    hoi4Gen->generateLogistics();
-    NationalFocus::buildMaps();
-    hoi4Gen->generateFocusTrees();
-    hoi4Gen->generateCountryUnits();
-  } catch (std::exception e) {
-    std::string error = "Error while generating the Hoi4 Module.\n";
-    error += "Error is: \n";
-    error += e.what();
-    throw(std::exception(error.c_str()));
-  }
-  // now start writing game files
-  try {
-    writeImages();
-    writeTextFiles();
-
-  } catch (std::exception e) {
-    std::string error = "Error while dumping and writing files.\n";
-    error += "Error is: \n";
-    error += e.what();
-    throw(std::exception(error.c_str()));
-  }
-  // now if everything worked, print info about world and pause for user to
-  // see
-  hoi4Gen->printStatistics();
-}
 
 void Hoi4Module::writeTextFiles() {
   using namespace Parsing::Writing;
@@ -274,8 +206,7 @@ void Hoi4Module::writeTextFiles() {
                   pathcfg.gamePath + "\\common\\countries\\colors.txt",
                   hoi4Gen->hoi4Countries);
   adj(pathcfg.gameModPath + "\\map\\adjacencies.csv");
-  airports(pathcfg.gameModPath + "\\map\\airports.txt",
-           hoi4Gen->areas.regions);
+  airports(pathcfg.gameModPath + "\\map\\airports.txt", hoi4Gen->areas.regions);
   buildings(pathcfg.gameModPath + "\\map\\buildings.txt", hoi4Gen->hoi4States,
             hoi4Gen->heightMap);
   continents(pathcfg.gameModPath + "\\map\\continents.txt",
@@ -353,9 +284,8 @@ void Hoi4Module::readHoi(std::string &gamePath) {
   hoi4Gen->heightMap = Fwg::IO::Reader::readGenericImage(
       gamePath + "map//heightmap.bmp", config);
   // read in game or mod files
-  Hoi4::Parsing::Reading::readProvinces(gamePath, "provinces.bmp",
-                                        hoi4Gen->areas,
-                                        hoi4Gen->stringToTerrainType);
+  Hoi4::Parsing::Reading::readProvinces(
+      gamePath, "provinces.bmp", hoi4Gen->areas, hoi4Gen->stringToTerrainType);
   // get the provinces into GameProvinces
   hoi4Gen->mapProvinces();
   // get the states from files to initialize gameRegions
@@ -424,6 +354,57 @@ void Hoi4Module::mapEdit() {
   Gfx::FormatConverter formatConverter(pathcfg.gamePath, "Hoi4");
   Scenario::Hoi4::MapPainting::runMapEditor(
       *hoi4Gen, pathcfg.mappingPath, pathcfg.gameModPath, formatConverter);
+}
+
+void Hoi4Module::generate() {
+  if (!createPaths())
+    return;
+  try {
+    // start with the generic stuff in the Scenario hoi4Gen
+    hoi4Gen->mapProvinces();
+    hoi4Gen->mapRegions();
+    hoi4Gen->mapContinents();
+    hoi4Gen->generateCountries();
+    // transfer generic states to hoi4states
+    hoi4Gen->initializeStates();
+    // build hoi4 countries out of basic countries
+    hoi4Gen->initializeCountries();
+    hoi4Gen->evaluateNeighbours();
+    hoi4Gen->generateWorldCivilizations();
+
+    // non-country stuff
+    hoi4Gen->generateStrategicRegions();
+    hoi4Gen->generateWeather();
+    // now generate hoi4 specific stuff
+    hoi4Gen->generateCountrySpecifics();
+    hoi4Gen->generateStateSpecifics();
+    hoi4Gen->generateStateResources();
+    // should work with countries = 0
+    hoi4Gen->evaluateCountries();
+    hoi4Gen->generateLogistics();
+    NationalFocus::buildMaps();
+    hoi4Gen->generateFocusTrees();
+    hoi4Gen->generateCountryUnits();
+  } catch (std::exception e) {
+    std::string error = "Error while generating the Hoi4 Module.\n";
+    error += "Error is: \n";
+    error += e.what();
+    throw(std::exception(error.c_str()));
+  }
+  // now start writing game files
+  try {
+    writeImages();
+    writeTextFiles();
+
+  } catch (std::exception e) {
+    std::string error = "Error while dumping and writing files.\n";
+    error += "Error is: \n";
+    error += e.what();
+    throw(std::exception(error.c_str()));
+  }
+  // now if everything worked, print info about world and pause for user to
+  // see
+  hoi4Gen->printStatistics();
 }
 
 } // namespace Scenario::Hoi4

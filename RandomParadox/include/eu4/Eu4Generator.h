@@ -15,6 +15,11 @@ public:
   Generator();
   Generator(const std::string &configSubFolder);
   void generateRegions(std::vector<std::shared_ptr<Region>> &regions);
+
+  // initialize states
+  virtual void initializeStates();
+  // initialize countries
+  virtual void initializeCountries();
   std::vector<eu4Region> getEu4Regions() { return eu4regions; };
 };
 } // namespace Scenario::Eu4

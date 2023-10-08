@@ -100,6 +100,8 @@ bool GenericModule::validateModFolder(const std::string &game) {
   }
 }
 
+void GenericModule::generate() {}
+
 // reads generic configs for every module
 void GenericModule::configurePaths(
     const std::string &username, const std::string &gameName,
@@ -109,8 +111,10 @@ void GenericModule::configurePaths(
   pathcfg.modName = gamesConf.get<std::string>(gameName + ".modName");
   pathcfg.gamePath = gamesConf.get<std::string>(gameName + ".gamePath");
   Fwg::Parsing::attachTrailing(pathcfg.gamePath);
-  pathcfg.gameModPath =
-      gamesConf.get<std::string>(gameName + ".modPath") + pathcfg.modName;
+  pathcfg.gameModPath = gamesConf.get<std::string>(gameName + ".modPath");
+  // already attach trailing before attaching the modname as the subfolder
+  Fwg::Parsing::attachTrailing(pathcfg.gameModPath);
+  pathcfg.gameModPath += pathcfg.modName;
   Fwg::Parsing::attachTrailing(pathcfg.gameModPath);
   Fwg::Parsing::Scenario::replaceOccurences(pathcfg.gameModPath, "<username>",
                                             username);

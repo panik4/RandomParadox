@@ -98,7 +98,6 @@ void Generator::applyRegionInput() {
       }
     }
   }
-
 }
 
 void Generator::mapProvinces() {
@@ -240,7 +239,10 @@ void Generator::generateCultures() {
   }
   Png::save(cultureMap, "Maps/world/cultures.png");
 }
-
+// initialize states
+void Generator::initializeStates() {}
+// initialize states
+void Generator::initializeCountries() {}
 void Generator::generateDevelopment() {
   // high pop-> high development
   // high city share->high dev
@@ -416,8 +418,7 @@ void Generator::loadCountries(const std::string &countryMapPath,
 
 // generate countries according to given ruleset for each game
 // TODO: rulesets, e.g. naming schemes? tags? country size?
-void Generator::generateCountries(int numCountries,
-                                  const std::string &gamePath) {
+void Generator::generateCountries() {
   countries.clear();
   for (auto &region : gameRegions) {
     region->assigned = false;
@@ -425,7 +426,6 @@ void Generator::generateCountries(int numCountries,
     region->cultures.clear();
   }
   auto &config = Fwg::Cfg::Values();
-  this->numCountries = numCountries;
   Logging::logLine("Generating Countries");
   // load tags from hoi4 that are used by the base game
   // do not use those to avoid conflicts

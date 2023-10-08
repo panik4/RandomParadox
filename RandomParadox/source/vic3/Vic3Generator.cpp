@@ -55,5 +55,8 @@ void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
   Bmp::save(vic3RegionBmp, "Maps\\vic3Regions.bmp");
   Fwg::Gfx::Png::save(vic3RegionBmp, "Maps\\vic3Regions.png");
 }
-
+// initialize states
+void Generator::initializeStates() {}
+// initialize states
+void Generator::initializeCountries() {}
 } // namespace Scenario::Vic3

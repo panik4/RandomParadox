@@ -19,7 +19,6 @@ protected:
 public:
   virtual bool createPaths() =0;
   std::shared_ptr<Scenario::Generator> generator;
-  int numCountries;
   // try to locate hoi4 at configured path, if not found, try other
   // standard locations
   bool findGame(std::string &path, const std::string &game);
@@ -29,5 +28,6 @@ public:
   // check if configured mod location directory is correct
   bool validateModFolder(const std::string &game);
   Utils::Pathcfg pathcfg;
+  virtual void generate();
 };
 } // namespace Scenario

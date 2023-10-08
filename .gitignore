@@ -24,6 +24,7 @@ packages.config*
 *packages
 
 pdoxMod
+exports
 helpFiles
 mapInputs
 eu4Inputs

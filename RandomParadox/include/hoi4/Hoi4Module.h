@@ -27,7 +27,6 @@ public:
   ~Hoi4Module();
   // member functions
   void prepareData();
-  void genHoi();
   void readHoi(std::string &gamePath);
   void mapCountries(bool multiCore, bool stateExport,
                     const std::string &inputMap);
@@ -36,5 +35,6 @@ public:
   void writeImages();
   // clear and create all the mod paths at each run
   virtual bool createPaths();
+  virtual void generate();
 };
 } // namespace Scenario::Hoi4
