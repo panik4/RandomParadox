@@ -10,6 +10,7 @@
 #include "RandNum/RandNum.h"
 #include "Religion.h"
 #include "ResourceLoading.h"
+#include "ParserUtils.h"
 #include <map>
 namespace Scenario {
 struct strategicRegion {
@@ -98,7 +99,7 @@ public:
   // map base continents to generic paradox compatible game continents
   void mapContinents();
   // map base regions to generic paradox compatible game regions
-  void mapRegions();
+  virtual void mapRegions();
   // apply values read from a file to override generated data
   void applyRegionInput();
   // build strategic regions from gameregions

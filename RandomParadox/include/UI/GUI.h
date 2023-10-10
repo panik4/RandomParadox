@@ -28,7 +28,6 @@ using Hoi4Gen = Scenario::Hoi4::Generator;
 using Vic3Gen = Scenario::Vic3::Generator;
 using Eu4Gen = Scenario::Eu4::Generator;
 
-
 class GUI : Fwg::fwgUI {
   std::vector<GameConfig> gameConfigs;
   GameConfig activeGameConfig;
@@ -48,15 +47,14 @@ class GUI : Fwg::fwgUI {
   void loadGameConfig(Fwg::Cfg &cfg);
   void initGameConfigs();
   bool isRelevantModuleActive(const std::string &shortName);
-  template <class T>
-  constexpr std::shared_ptr<T> getGeneratorPointer() {
+  template <class T> constexpr std::shared_ptr<T> getGeneratorPointer() {
     return std::reinterpret_pointer_cast<T, Scenario::Generator>(
         activeModule->generator);
   }
   int showConfigure(Fwg::Cfg &cfg,
-                    std::shared_ptr<Scenario::GenericModule>& genericModule);
-  int showRpdxConfigure(Fwg::Cfg &cfg,
-                        std::shared_ptr<Scenario::GenericModule>& genericModule);
+                    std::shared_ptr<Scenario::GenericModule> &genericModule);
+  int showRpdxConfigure(
+      Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> &genericModule);
   bool scenarioGenReady();
   // generic scenario stuff
   int showScenarioTab(Fwg::Cfg &cfg,
@@ -64,14 +62,11 @@ class GUI : Fwg::fwgUI {
   int showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture);
 
   // HOI stuff
-  int showHoi4Configure(Fwg::Cfg &cfg,
-                        std::shared_ptr<Scenario::Hoi4::Generator> generator);
+  int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
   int showModuleGeneric(Fwg::Cfg &cfg,
                         std::shared_ptr<Scenario::GenericModule> genericModule);
-  int showStateTab(Fwg::Cfg &cfg,
-                   std::shared_ptr<Scenario::Hoi4::Generator> generator);
-  int showStrategicRegionTab(
-      Fwg::Cfg &cfg, std::shared_ptr<Scenario::Hoi4::Generator> generator);
+  int showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
+  int showStrategicRegionTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
   int showHoi4Finalise(Fwg::Cfg &cfg,
                        std::shared_ptr<Scenario::Hoi4::Hoi4Module> hoi4Module);
   int showStatisticsTab();

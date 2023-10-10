@@ -304,7 +304,6 @@ void Hoi4Module::readHoi(std::string &gamePath) {
 
   // now initialize hoi4 states from the gameRegions
   hoi4Gen->mapTerrain();
-  hoi4Gen->initializeStates();
   for (auto &c : hoi4Gen->countries) {
     auto fCol = hoi4Gen->countryColourMap.valueSearch(c.first);
     if (fCol != Fwg::Gfx::Colour{0, 0, 0}) {
@@ -365,8 +364,6 @@ void Hoi4Module::generate() {
     hoi4Gen->mapRegions();
     hoi4Gen->mapContinents();
     hoi4Gen->generateCountries();
-    // transfer generic states to hoi4states
-    hoi4Gen->initializeStates();
     // build hoi4 countries out of basic countries
     hoi4Gen->initializeCountries();
     hoi4Gen->evaluateNeighbours();

@@ -211,7 +211,6 @@ void Module::generate() {
                eu4Gen->gameRegions, eu4Gen->gameProvinces,
                eu4Gen->getEu4Regions());
     }
-
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";

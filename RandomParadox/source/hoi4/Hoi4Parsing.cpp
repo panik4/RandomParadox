@@ -624,8 +624,8 @@ void commonCountryTags(const std::string &path, const hoiMap &countries) {
   Logging::logLine("HOI4 Parser: Common: Writing Country Tags");
   std::string content = "";
   for (const auto &country : countries)
-    content.append(country.first + " = countries/" + country.second.name +
-                   ".txt\n");
+    content.append(country.first + " = \"countries / " + country.second.name +
+                   ".txt\"\n");
   pU::writeFile(path, content);
 }
 

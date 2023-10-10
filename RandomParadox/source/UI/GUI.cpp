@@ -198,8 +198,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         showCountryTab(cfg, &curtexture);
         if (activeGameConfig.gameName == "Hearts of Iron IV") {
           auto hoi4Gen =
-              std::reinterpret_pointer_cast<Scenario::Hoi4::Generator,
-                                            Scenario::Generator>(
+              std::reinterpret_pointer_cast<Hoi4Gen, Scenario::Generator>(
                   activeModule->generator);
           showStateTab(cfg, hoi4Gen);
           showStrategicRegionTab(cfg, hoi4Gen);
@@ -305,7 +304,9 @@ void GUI::initGameConfigs() {
   activeGameConfig = gameConfigs[0];
 }
 
-bool GUI::isRelevantModuleActive(const std::string &shortName) { return false; }
+bool GUI::isRelevantModuleActive(const std::string &shortName) {
+  return activeGameConfig.gameShortName == shortName;
+}
 
 // generic configure tab, containing a tab for fwg and rpdx configs
 int GUI::showConfigure(Fwg::Cfg &cfg,
@@ -430,7 +431,8 @@ int GUI::showScenarioTab(
     if (activeModule->generator->heightMap.initialised() &&
         activeModule->generator->climateMap.initialised() &&
         activeModule->generator->provinceMap.initialised() &&
-        activeModule->generator->regionMap.initialised()) {
+        activeModule->generator->regionMap.initialised() &&
+        activeModule->generator->treeMap.initialised()) {
       // auto initialize
       if (ImGui::Button("Init") ||
           !activeModule->generator->gameProvinces.size()) {
@@ -571,8 +573,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
 }
 
 // HOI4
-int GUI::showHoi4Configure(
-    Fwg::Cfg &cfg, std::shared_ptr<Scenario::Hoi4::Generator> generator) {
+int GUI::showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
   ImGui::InputDouble("resourceFactor", &generator->resourceFactor, 0.1);
   ImGui::InputDouble("aluminiumFactor", &generator->resources["aluminium"][2],
                      0.1);
@@ -625,8 +626,7 @@ int GUI::showModuleGeneric(
     ImGui::EndDisabled();
   return 0;
 }
-int GUI::showStateTab(Fwg::Cfg &cfg,
-                      std::shared_ptr<Scenario::Hoi4::Generator> generator) {
+int GUI::showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
   if (ImGui::BeginTabItem("States")) {
     tabSwitchEvent();
     ImGui::Text(
@@ -674,8 +674,8 @@ int GUI::showStateTab(Fwg::Cfg &cfg,
   return 0;
 }
 
-int GUI::showStrategicRegionTab(
-    Fwg::Cfg &cfg, std::shared_ptr<Scenario::Hoi4::Generator> generator) {
+int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
+                                std::shared_ptr<Hoi4Gen> generator) {
   if (ImGui::BeginTabItem("Strategic Regions")) {
     freeTexture(&curtexture);
     tabSwitchEvent();
