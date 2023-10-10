@@ -51,8 +51,9 @@ public:
   Generator();
   Generator(const std::string &configSubFolder);
   ~Generator();
+  void mapRegions();
   // initialize states
-  void initializeStates();
+  //void initializeStates();
   // initialize states
   void initializeCountries();
   // give resources to states

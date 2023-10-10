@@ -230,7 +230,6 @@ void Module::generate() {
           pathcfg.gameModPath + "\\map_data\\indirection_heightmap.png",
           copyOptions);
     }
-
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";

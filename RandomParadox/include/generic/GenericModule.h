@@ -27,6 +27,8 @@ public:
   bool autoLocateGameModFolder(const std::string &game);
   // check if configured mod location directory is correct
   bool validateModFolder(const std::string &game);
+  // replace slash type and append slashes
+  void sanitizePath(std::string& path);
   Utils::Pathcfg pathcfg;
   virtual void generate();
 };

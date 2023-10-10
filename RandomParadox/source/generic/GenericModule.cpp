@@ -67,9 +67,11 @@ bool GenericModule::autoLocateGameModFolder(const std::string &game) {
 
   if (exists(autoPath)) {
     pathcfg.gameModsDirectory = autoPath;
+    sanitizePath(pathcfg.gameModsDirectory);
     Logging::logLine("Auto located game mod directory is ",
                      pathcfg.gameModsDirectory);
     pathcfg.gameModPath = autoPath + pathcfg.modName;
+    sanitizePath(pathcfg.gameModPath);
     Logging::logLine("Auto located mod directory is ", pathcfg.gameModPath);
   }
 
@@ -100,6 +102,11 @@ bool GenericModule::validateModFolder(const std::string &game) {
   }
 }
 
+void GenericModule::sanitizePath(std::string &path) {
+  Fwg::Parsing::Scenario::replaceOccurences(path, "\\", "//");
+  Fwg::Parsing::attachTrailing(path);
+}
+
 void GenericModule::generate() {}
 
 // reads generic configs for every module
@@ -110,19 +117,19 @@ void GenericModule::configurePaths(
   // now read the paths
   pathcfg.modName = gamesConf.get<std::string>(gameName + ".modName");
   pathcfg.gamePath = gamesConf.get<std::string>(gameName + ".gamePath");
-  Fwg::Parsing::attachTrailing(pathcfg.gamePath);
+  sanitizePath(pathcfg.gamePath);
   pathcfg.gameModPath = gamesConf.get<std::string>(gameName + ".modPath");
   // already attach trailing before attaching the modname as the subfolder
-  Fwg::Parsing::attachTrailing(pathcfg.gameModPath);
+  sanitizePath(pathcfg.gameModPath);
   pathcfg.gameModPath += pathcfg.modName;
-  Fwg::Parsing::attachTrailing(pathcfg.gameModPath);
+  sanitizePath(pathcfg.gameModPath);
   Fwg::Parsing::Scenario::replaceOccurences(pathcfg.gameModPath, "<username>",
                                             username);
   Fwg::Parsing::Scenario::replaceOccurences(pathcfg.gamePath, "<username>",
                                             username);
   pathcfg.gameModsDirectory =
       gamesConf.get<std::string>(gameName + ".modsDirectory");
-  Fwg::Parsing::attachTrailing(pathcfg.gameModsDirectory);
+  sanitizePath(pathcfg.gameModsDirectory);
   Fwg::Parsing::Scenario::replaceOccurences(pathcfg.gameModsDirectory,
                                             "<username>", username);
 }

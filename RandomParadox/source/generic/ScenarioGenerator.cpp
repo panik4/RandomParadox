@@ -93,8 +93,16 @@ void Generator::applyRegionInput() {
       }
       if (regionInputMap[gameRegion->colour].size() > 4 &&
           regionInputMap[gameRegion->colour][4].size()) {
-        // get the predefined population
-        gameRegion->population = stoi(regionInputMap[gameRegion->colour][4]);
+        try {
+
+          // get the predefined population
+          gameRegion->population = stoi(regionInputMap[gameRegion->colour][4]);
+        } catch (std::exception e) {
+          Fwg::Utils::Logging::logLine(
+              "ERROR: Some of the tokens can't be turned into a population "
+              "number. The faulty token is ",
+              regionInputMap[gameRegion->colour][4]);
+        }
       }
     }
   }
@@ -345,7 +353,8 @@ void Generator::loadCountries(const std::string &countryMapPath,
     }
   } catch (std::exception e) {
     Fwg::Utils::Logging::logLine(
-        e.what(), " continuing with randomly generated countries");
+        "Exception while parsing country input, ", e.what(),
+        " continuing with randomly generated countries");
   }
   countryMap =
       Fwg::IO::Reader::loadAnySupported(countryMapPath, Fwg::Cfg::Values());

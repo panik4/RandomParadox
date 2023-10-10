@@ -23,7 +23,7 @@ void dumpInfo(const std::string &error, const std::string &configSubFolder) {
   }
   dump += error;
   dump += Utils::Logging::Logger::logInstance.getFullLog();
-  Fwg::Parsing::writeFile("runDump.txt", dump);
+  Fwg::Parsing::writeFile("log.txt", dump);
 }
 
 int main() {

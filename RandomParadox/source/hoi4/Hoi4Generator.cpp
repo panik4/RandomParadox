@@ -11,12 +11,52 @@ Generator::Generator(const std::string &configSubFolder)
 
 Generator::~Generator() {}
 
-void Generator::initializeStates() {
+void Generator::mapRegions() {
+  Fwg::Utils::Logging::logLine("Mapping Regions");
+  gameRegions.clear();
   hoi4States.clear();
-  for (auto &region : this->gameRegions) {
-    hoi4States.push_back(std::make_shared<Region>(*region));
+
+  for (auto &region : this->areas.regions) {
+    std::sort(region.provinces.begin(), region.provinces.end(),
+              [](const Fwg::Province *a, const Fwg::Province *b) {
+                return (*a < *b);
+              });
+    auto gameRegion = std::make_shared<Region>(region);
+    for (auto &baseRegion : gameRegion->neighbours)
+      gameRegion->neighbours.push_back(baseRegion);
+    // generate random name for region
+    gameRegion->name = NameGeneration::generateName(nData);
+
+    for (auto &province : gameRegion->provinces) {
+      gameRegion->gameProvinces.push_back(gameProvinces[province->ID]);
+    }
+    // save game region to generic module container and to hoi4 specific
+    // container
+    gameRegions.push_back(gameRegion);
+    hoi4States.push_back(gameRegion);
   }
+  // sort by gameprovince ID
+  std::sort(gameRegions.begin(), gameRegions.end(),
+            [](auto l, auto r) { return *l < *r; });
+  // check if we have the same amount of gameProvinces as FastWorldGen provinces
+  if (gameProvinces.size() != this->areas.provinces.size())
+    throw(std::exception("Fatal: Lost provinces, terminating"));
+  if (gameRegions.size() != this->areas.regions.size())
+    throw(std::exception("Fatal: Lost regions, terminating"));
+  for (const auto &gameRegion : gameRegions) {
+    if (gameRegion->ID > gameRegions.size()) {
+      throw(std::exception("Fatal: Invalid region IDs, terminating"));
+    }
+  }
+  applyRegionInput();
 }
+
+// void Generator::initializeStates() {
+//   hoi4States.clear();
+//   for (auto &region : this->gameRegions) {
+//     hoi4States.push_back(std::make_shared<Region>(*region));
+//   }
+// }
 
 void Generator::initializeCountries() {
   hoi4Countries.clear();
@@ -294,25 +334,34 @@ void Generator::generateLogistics() {
               supplyHubProvinces.size() <
                   (country.second.hoi4Regions.size() / 4))) {
         // select a random gameprovince of the state
-
-        auto y{Fwg::Utils::selectRandom(region->gameProvinces)};
+        int lakeCounter = 0;
+        auto hubProvince{Fwg::Utils::selectRandom(region->gameProvinces)};
+        while (hubProvince->baseProvince->isLake && lakeCounter++ < 1000) {
+          hubProvince = Fwg::Utils::selectRandom(region->gameProvinces);
+        }
+        // just skip a lake
+        if (lakeCounter >= 1000) {
+          Fwg::Utils::Logging::logLine("Error: Skipping a region for logistics "
+                                       "as it only contains lakes");
+          continue;
+        }
         for (auto &prov : region->gameProvinces) {
-          if (prov->baseProvince->coastal) {
+          if (prov->baseProvince->coastal && !prov->baseProvince->isLake) {
             // if this is a coastal region, the supply hub is a naval base as
-            // well
-            y = prov;
+            // well, so we overwrite y
+            hubProvince = prov;
             prov->attributeDoubles["naval_bases"] = 1;
             break;
           }
         }
         // save the province under the provinces ID
-        supplyHubProvinces[y->ID] = y;
-        navalBases[y->ID] = y->baseProvince->coastal;
+        supplyHubProvinces[hubProvince->ID] = hubProvince;
+        navalBases[hubProvince->ID] = hubProvince->baseProvince->coastal;
         // get the distance between this supply hub and the capital
         auto distance = Fwg::getPositionDistance(
-            capitalPosition, y->baseProvince->position, width);
+            capitalPosition, hubProvince->baseProvince->position, width);
         // save the distance under the province ID
-        supplyHubs[distance] = y->ID;
+        supplyHubs[distance] = hubProvince->ID;
         // save the distance
         distances.push_back(distance); // save distances to ensure ordering
       }
