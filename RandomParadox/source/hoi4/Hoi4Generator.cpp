@@ -6,7 +6,7 @@ Generator::Generator() {}
 
 Generator::Generator(const std::string &configSubFolder)
     : Scenario::Generator(configSubFolder) {
-  nData = NameGeneration::prepare("resources\\names");
+  nData = NameGeneration::prepare("resources//names");
 }
 
 Generator::~Generator() {}
@@ -126,8 +126,9 @@ void Generator::generateStateSpecifics() {
     hoi4Region->development = totalDevFactor;
     // only init this when it hasn't been initialized via text input before
     if (hoi4Region->population < 0) {
-      hoi4Region->population = totalStateArea * 1250.0 * totalPopFactor *
-                               worldPopulationFactor * (1.0 / sizeFactor);
+      hoi4Region->population =
+          static_cast<int>(totalStateArea * 1250.0 * totalPopFactor *
+                           worldPopulationFactor * (1.0 / sizeFactor));
     }
     worldPop += (long long)hoi4Region->population;
 
@@ -545,7 +546,7 @@ void Generator::generateCountryUnits() {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Unit Files");
   // read in different compositions
   auto unitTemplateFile =
-      Parsing::readFile("resources\\hoi4\\history\\divisionTemplates.txt");
+      Parsing::readFile("resources//hoi4//history//divisionTemplates.txt");
   // now tokenize by : character to get single
   auto unitTemplates = Fwg::Parsing::getTokens(unitTemplateFile, ':');
   for (auto &c : hoi4Countries) {

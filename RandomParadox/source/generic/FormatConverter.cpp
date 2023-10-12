@@ -306,7 +306,7 @@ void FormatConverter::dump8BitTerrain(const Bitmap &climateIn,
           colourMaps.at(colourMapKey + gameTag).at(climateIn[i]);
     }
   } else {
-    hoi4terrain = cutBaseMap("\\terrain.bmp");
+    hoi4terrain = cutBaseMap("//terrain.bmp");
   }
   Bmp::save(hoi4terrain, path);
 }
@@ -323,7 +323,7 @@ void FormatConverter::dump8BitCities(const Bitmap &climateIn,
       cities.bit8Buffer[i] =
           climateIn[i] == Cfg::Values().colours["sea"] ? 15 : 1;
   } else {
-    cities = cutBaseMap("\\cities.bmp");
+    cities = cutBaseMap("//cities.bmp");
   }
   Bmp::save(cities, path);
 }
@@ -347,7 +347,7 @@ void FormatConverter::dump8BitRivers(const Bitmap &riversIn,
                                 e.what());
       }
   } else {
-    rivers = cutBaseMap("\\rivers.bmp");
+    rivers = cutBaseMap("//rivers.bmp");
   }
   if (gameTag == "Vic3") {
     auto scaledMap = Bmp::scale(rivers, 8192, 3616, false);
@@ -382,7 +382,7 @@ void FormatConverter::dump8BitTrees(const Bitmap &climate,
       }
     }
   } else {
-    trees = cutBaseMap("\\trees.bmp", (1.0 / factor));
+    trees = cutBaseMap("//trees.bmp", (1.0 / factor));
   }
   Bmp::save(trees, path);
 }
@@ -414,9 +414,9 @@ void FormatConverter::dumpDDSFiles(const Bitmap &riverMap,
             imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
         imageIndex *= 4;
         if (riverMap[referenceIndex] == Cfg::Values().colours["sea"]) {
-          pixels[imageIndex] = 49 * depth;
-          pixels[imageIndex + 1] = 24 * depth;
-          pixels[imageIndex + 2] = 16 * depth;
+          pixels[imageIndex] = static_cast<unsigned char>(49.0 * depth);
+          pixels[imageIndex + 1] = static_cast<unsigned char>(24.0 * depth);
+          pixels[imageIndex + 2] = static_cast<unsigned char>(16.0 * depth);
           pixels[imageIndex + 3] = 255;
         } else {
           pixels[imageIndex] = 100;
@@ -437,7 +437,7 @@ void FormatConverter::dumpTerrainColourmap(
     const bool cut) const {
   Utils::Logging::logLine("FormatConverter::Writing terrain colourmap to ",
                           modPath + mapName);
-  auto &config = Cfg::Values();
+  auto &cfg = Cfg::Values();
   const auto &height = climateMap.bInfoHeader.biHeight;
   const auto &width = climateMap.bInfoHeader.biWidth;
   int factor = scaleFactor;
@@ -459,26 +459,25 @@ void FormatConverter::dumpTerrainColourmap(
         if (gameTag == "Eu4" || gameTag == "Vic3") {
           pixels[imageIndex + 3] = 255;
         } else
-          pixels[imageIndex + 3] =
-              255.0 *
-              (cityMap[colourmapIndex] /
-               Cfg::Values().colours["cities"]); // alpha for city lights
+          // alpha for city lights
+          pixels[imageIndex + 3] = static_cast<unsigned char>(
+              255.0 * (cityMap[colourmapIndex] / cfg.colours["cities"]));
       }
     }
   } else {
     // load base game colourmap
     pixels = readDDS(gamePath + mapName);
-    auto maxY = 1024 - config.maxY / (double)factor;
-    auto minY = 1024 - config.minY / (double)factor;
-    auto maxX = config.maxX / (double)factor;
-    auto minX = config.minX / (double)factor;
+    auto maxY = 1024 - cfg.maxY / (double)factor;
+    auto minY = 1024 - cfg.minY / (double)factor;
+    auto maxX = cfg.maxX / (double)factor;
+    auto minX = cfg.minX / (double)factor;
     std::swap(minY, maxY);
     // cut it and reassign it
     pixels = Utils::cutBuffer(pixels, 2816, 1024, minX, maxX, minY, maxY, 4);
-    if (config.scale) {
+    if (cfg.scale) {
       pixels = Utils::scaleBuffer(pixels, abs(maxX - minX), abs(maxY - minY),
-                                  config.scaleX / factor,
-                                  config.scaleY / factor, 4, config.keepRatio);
+                                  cfg.scaleX / factor, cfg.scaleY / factor, 4,
+                                  cfg.keepRatio);
     }
   }
   if (gameTag == "Vic3") {
@@ -486,8 +485,8 @@ void FormatConverter::dumpTerrainColourmap(
                              modPath + mapName, true);
   } else {
 
-    if (config.scale)
-      writeDDS(config.scaleX / factor, config.scaleY / factor, pixels, format,
+    if (cfg.scale)
+      writeDDS(cfg.scaleX / factor, cfg.scaleY / factor, pixels, format,
                modPath + mapName);
     else
       writeDDS(imageWidth, imageHeight, pixels, format, modPath + mapName);
@@ -509,7 +508,7 @@ void FormatConverter::dumpWorldNormal(const Bitmap &sobelMap,
         normalMap.setColourAtIndex(i * normalMap.bInfoHeader.biWidth + w,
                                    sobelMap[factor * i * width + factor * w]);
   } else {
-    normalMap = cutBaseMap("\\world_normal.bmp", (1.0 / (double)factor), 24);
+    normalMap = cutBaseMap("//world_normal.bmp", (1.0 / (double)factor), 24);
     for (auto i = 0; i < 5; i++)
       normalMap.imageData = Bmp::filter(normalMap);
   }
@@ -605,7 +604,7 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
   }
   Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
                            DXGI_FORMAT_B8G8R8A8_UNORM,
-                           path + "\\textures\\land_mask.dds", false);
+                           path + "//textures//land_mask.dds", false);
 
   // flatmap
   for (auto h = 0; h < imageHeight; h++) {
@@ -630,11 +629,11 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
   }
   Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
                            DXGI_FORMAT_B8G8R8A8_UNORM,
-                           path + "\\textures\\flatmap.dds");
+                           path + "//textures//flatmap.dds");
 
   // terrain colour map
   scaledMap = Bmp::scale(climateMap, 8192, 4096, false);
-  dumpTerrainColourmap(scaledMap, scaledMap, path, "\\textures\\colormap.dds",
+  dumpTerrainColourmap(scaledMap, scaledMap, path, "//textures//colormap.dds",
                        DXGI_FORMAT_B8G8R8A8_UNORM, 1, false);
 
   Utils::Logging::logLine(
@@ -653,12 +652,11 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
           imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
       imageIndex *= 4;
       if (depth < 1.0) {
-        pixels[imageIndex] = 49 * depth;
-        pixels[imageIndex + 1] = 24 * depth;
-        pixels[imageIndex + 2] = 16 * depth;
+        pixels[imageIndex] = static_cast<unsigned char>(49.0 * depth);
+        pixels[imageIndex + 1] = static_cast<unsigned char>(24.0 * depth);
+        pixels[imageIndex + 2] = static_cast<unsigned char>(16.0 * depth);
         pixels[imageIndex + 3] = 255;
       } else {
-
         pixels[imageIndex] = 100;
         pixels[imageIndex + 1] = 100;
         pixels[imageIndex + 2] = 50;
@@ -668,7 +666,7 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
   }
   Textures::writeMipMapDDS(
       imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
-      path + "\\water\\watercolor_rgb_waterspec_a.dds", true);
+      path + "//water//watercolor_rgb_waterspec_a.dds", true);
 
   // colormap_tree.dds
   scaledMap = Bmp::scale(humidityMap, 1024, 512, false);
@@ -699,7 +697,7 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
     }
   }
   writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
-           path + "\\textures\\colormap_tree.dds");
+           path + "//textures//colormap_tree.dds");
 
   scaledHeight = Bmp::scale(heightMap, 1024, 452, false);
   imageWidth = scaledHeight.bInfoHeader.biWidth;
@@ -729,7 +727,7 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
 
   Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
                            DXGI_FORMAT_B8G8R8A8_UNORM,
-                           path + "\\textures\\windmap_tree.dds", true);
+                           path + "//textures//windmap_tree.dds", true);
 }
 
 void FormatConverter::dynamicMasks(const std::string &path) {
@@ -762,33 +760,33 @@ void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
     }
   }
 
-  Textures::writeTGA(8192, 3616, pixels, path + "\\terrain\\detail_index.tga");
+  Textures::writeTGA(8192, 3616, pixels, path + "//terrain//detail_index.tga");
 }
 
 FormatConverter::FormatConverter(const std::string &gamePath,
                                  const std::string &gameTag)
     : gamePath{gamePath}, gameTag{gameTag} {
-  std::string mapFolderName = "\\map";
+  std::string mapFolderName = "//map";
   if (gameTag == "Vic3")
     mapFolderName.append("_data");
   std::string terrainsourceString =
-      (gamePath + mapFolderName + "\\terrain.bmp");
+      (gamePath + mapFolderName + "//terrain.bmp");
   Bitmap terrain = Bmp::load8Bit(terrainsourceString, "terrain");
   colourTables["terrain" + gameTag] = terrain.colourtable;
 
-  std::string citySource = (gamePath + mapFolderName + "\\terrain.bmp");
+  std::string citySource = (gamePath + mapFolderName + "//terrain.bmp");
   Bitmap cities = Bmp::load8Bit(citySource, "cities");
   colourTables["cities" + gameTag] = cities.colourtable;
 
-  std::string riverSource = (gamePath + mapFolderName + "\\rivers.bmp");
+  std::string riverSource = (gamePath + mapFolderName + "//rivers.bmp");
   Bitmap rivers = Bmp::load8Bit(riverSource, "rivers");
   colourTables["rivers" + gameTag] = rivers.colourtable;
 
-  std::string treeSource = (gamePath + mapFolderName + "\\trees.bmp");
+  std::string treeSource = (gamePath + mapFolderName + "//trees.bmp");
   Bitmap trees = Bmp::load8Bit(treeSource, "trees");
   colourTables["trees" + gameTag] = trees.colourtable;
 
-  std::string heightmapSource = (gamePath + mapFolderName + "\\heightmap.bmp");
+  std::string heightmapSource = (gamePath + mapFolderName + "//heightmap.bmp");
   Bitmap heightmap = Bmp::load8Bit(heightmapSource, "heightmap");
   colourTables["heightmap" + gameTag] = heightmap.colourtable;
 }

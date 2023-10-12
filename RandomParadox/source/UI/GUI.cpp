@@ -283,7 +283,7 @@ void GUI::loadGameConfig(Fwg::Cfg &cfg) {
     if (!f.good())
       Fwg::Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
-    Fwg::Parsing::replaceInStringStream(buffer, "\\", "//");
+    Fwg::Parsing::replaceInStringStream(buffer, "//", "//");
 
     pt::read_json(buffer, hoi4Conf);
   } catch (std::exception e) {
@@ -369,7 +369,7 @@ int GUI::showRpdxConfigure(
                        items.size())) {
       activeConfig = items[item_current];
       Fwg::Utils::Logging::logLine("Switched to ", activeConfig,
-                                   "\\FastWorldGenerator.json");
+                                   "//FastWorldGenerator.json");
       cfg.readConfig(activeConfig);
       loadGameConfig(cfg);
     }
@@ -514,7 +514,6 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       }
       triggeredDrag = false;
     }
-    bool updateCountryMap = false;
     std::vector<const char *> items;
     std::vector<std::string> tags;
     static int selectedCountryIndex = 0;
@@ -556,11 +555,10 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
                                 ImGuiColorEditFlags_HDR)) {
         modifiableCountry.colour =
             Fwg::Gfx::Colour(color.x * 255.0, color.y * 255.0, color.z * 255.0);
-        if (ImGui::IsMouseClicked) {
-          generator->countryMap =
-              generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png");
-          resetTexture();
-        }
+        // TODO: only trigger after release of colour edit
+        generator->countryMap =
+            generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png");
+        resetTexture();
       }
     }
 
@@ -640,9 +638,7 @@ int GUI::showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
     ImGui::PushItemWidth(300.0f);
     ImGui::InputText("Path to country list: ", &generator->regionMappingPath);
     ImGui::SameLine();
-    auto str =
-        "Amount of states: " + std::to_string(generator->hoi4States.size());
-    ImGui::Text(str.c_str());
+    ImGui::Text("Amount of states: %i", generator->hoi4States.size());
     // drag event
     if (triggeredDrag) {
       if (draggedFile.find(".txt") != std::string::npos) {
