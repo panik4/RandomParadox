@@ -7,7 +7,7 @@ Region::Region(const Fwg::Region &baseRegion)
 
 Region::~Region() {}
 void Region::sumPopulations() {
-  double totalShare = gameProvinces.size();
+  double totalShare = static_cast<double>(gameProvinces.size());
   for (const auto &prov : gameProvinces) {
     for (auto &religion : prov->religions) {
       // if we don't find the religion, add it to the map
@@ -20,7 +20,7 @@ void Region::sumPopulations() {
     }
   }
 
-    for (const auto &prov : gameProvinces) {
+  for (const auto &prov : gameProvinces) {
     for (auto &culture : prov->cultures) {
       // if we don't find the religion, add it to the map
       if (cultures.find(culture.first) == cultures.end()) {
@@ -31,6 +31,5 @@ void Region::sumPopulations() {
       cultures[culture.first] += culture.second / totalShare;
     }
   }
-
 }
 } // namespace Scenario

@@ -43,8 +43,8 @@ void Module::genAoe2() {
       double h = i / hMap.bInfoHeader.biWidth;
       double w = i % hMap.bInfoHeader.biWidth;
 
-      int aoe2PercentH = 100.0 * h / (double)hMap.bInfoHeader.biHeight;
-      int aoe2PercentW = 100.0 * w / (double)hMap.bInfoHeader.biWidth;
+      int aoe2PercentH = static_cast<int>(100.0 * h / (double)hMap.bInfoHeader.biHeight);
+      int aoe2PercentW = static_cast<int>(100.0 * w / (double)hMap.bInfoHeader.biWidth);
 
       int zone = 0;
       std::string terrainType = "DESERT";

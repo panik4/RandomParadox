@@ -292,7 +292,7 @@ void updateStates(Generator &hoi4Gen, ChangeHolder &changes) {
     Fwg::Gfx::Colour colour;
     Scenario::Region r;
     auto reg = std::make_shared<Scenario::Region>(r);
-    reg->ID = hoi4Gen.gameRegions.size();
+    reg->ID = static_cast<int>(hoi4Gen.gameRegions.size());
     // pick a random, but unique colour
     do {
       colour.randomize();
@@ -678,7 +678,7 @@ void runMapEditor(Generator &hoi4Gen, const std::string &mappingPath,
     // get the new internal representation of the game state into mod files
 
     // update province related files
-    Hoi4::Parsing::Writing::definition(gameModPath + "\\map\\definition.csv",
+    Hoi4::Parsing::Writing::definition(gameModPath + "//map//definition.csv",
                                        hoi4Gen.gameProvinces);
 
     // update states according to previously generated (and potentially edited)

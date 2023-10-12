@@ -98,7 +98,7 @@ int main() {
   }
   try {
     // make sure we always have the default exports directory
-    std::filesystem::create_directory("exports\\");
+    std::filesystem::create_directory("exports//");
     GUI gui2;
     gui2.shiny(rpdConf, configSubFolder, username);
     dumpInfo("", configSubFolder);

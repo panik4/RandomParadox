@@ -7,8 +7,8 @@ bool GenericModule::createPaths() { // mod directory
 bool GenericModule::findGame(std::string &path, const std::string &game) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
-  std::vector<std::string> drives{"C:\\", "D:\\", "E:\\",
-                                  "F:\\", "G:\\", "H:\\"};
+  std::vector<std::string> drives{"C://", "D://", "E://",
+                                  "F://", "G://", "H://"};
   // first try to find hoi4 at the configured location
   if (exists(path) && path.find(game) != std::string::npos) {
     Logging::logLine("Located game under ", path);
@@ -21,18 +21,18 @@ bool GenericModule::findGame(std::string &path, const std::string &game) {
         "recommended to correctly configure the path");
   }
   for (const auto &drive : drives) {
-    if (exists(drive + "Program Files (x86)\\Steam\\steamapps\\common\\" +
+    if (exists(drive + "Program Files (x86)//Steam//steamapps//common//" +
                game)) {
-      path = drive + "Program Files (x86)\\Steam\\steamapps\\common\\" + game;
+      path = drive + "Program Files (x86)//Steam//steamapps//common//" + game;
       Logging::logLine("Located game under ", path);
       return true;
-    } else if (exists(drive + "Program Files\\Steam\\steamapps\\common\\" +
+    } else if (exists(drive + "Program Files//Steam//steamapps//common//" +
                       game)) {
-      path = drive + "Program Files\\Steam\\steamapps\\common\\" + game;
+      path = drive + "Program Files//Steam//steamapps//common//" + game;
       Logging::logLine("Located game under ", path);
       return true;
-    } else if (exists(drive + "Steam\\steamapps\\common\\" + game)) {
-      path = drive + "Steams\\steamapps\\common\\" + game;
+    } else if (exists(drive + "Steam//steamapps//common//" + game)) {
+      path = drive + "Steams//steamapps//common//" + game;
       Logging::logLine("Located game under ", path);
       return true;
     }
@@ -83,7 +83,7 @@ bool GenericModule::validateModFolder(const std::string &game) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
   std::string tempPath = pathcfg.gameModPath;
-  while (tempPath.back() == '\\')
+  while (tempPath.back() == '//')
     tempPath.pop_back();
   while (tempPath.back() == '/')
     tempPath.pop_back();

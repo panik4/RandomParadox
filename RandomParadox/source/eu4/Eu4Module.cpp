@@ -10,7 +10,7 @@ Module::Module(const boost::property_tree::ptree &gamesConf,
                                          Scenario::Generator>(generator);
   // read eu4 configs and potentially overwrite settings for fwg
   readEu4Config(configSubFolder, username, gamesConf);
-  eu4Gen->nData = NameGeneration::prepare("resources\\names", pathcfg.gamePath);
+  eu4Gen->nData = NameGeneration::prepare("resources//names", pathcfg.gamePath);
 }
 
 Module::~Module() {}
@@ -21,28 +21,28 @@ bool Module::createPaths() { // prepare folder structure
     // generic cleanup and path creation
     create_directory(pathcfg.gameModPath);
     // map
-    remove_all(pathcfg.gameModPath + "\\map\\");
-    remove_all(pathcfg.gameModPath + "\\gfx");
-    remove_all(pathcfg.gameModPath + "\\history");
-    remove_all(pathcfg.gameModPath + "\\common\\");
-    remove_all(pathcfg.gameModPath + "\\localisation\\");
-    create_directory(pathcfg.gameModPath + "\\map\\");
-    create_directory(pathcfg.gameModPath + "\\map\\terrain\\");
+    remove_all(pathcfg.gameModPath + "//map//");
+    remove_all(pathcfg.gameModPath + "//gfx");
+    remove_all(pathcfg.gameModPath + "//history");
+    remove_all(pathcfg.gameModPath + "//common//");
+    remove_all(pathcfg.gameModPath + "//localisation//");
+    create_directory(pathcfg.gameModPath + "//map//");
+    create_directory(pathcfg.gameModPath + "//map//terrain//");
     // gfx
-    create_directory(pathcfg.gameModPath + "\\gfx\\");
-    create_directory(pathcfg.gameModPath + "\\gfx\\flags\\");
+    create_directory(pathcfg.gameModPath + "//gfx//");
+    create_directory(pathcfg.gameModPath + "//gfx//flags//");
     // history
-    create_directory(pathcfg.gameModPath + "\\history\\");
+    create_directory(pathcfg.gameModPath + "//history//");
     // localisation
-    create_directory(pathcfg.gameModPath + "\\localisation\\");
+    create_directory(pathcfg.gameModPath + "//localisation//");
     // common
-    create_directory(pathcfg.gameModPath + "\\common\\");
-    create_directory(pathcfg.gameModPath + "\\history\\diplomacy\\");
-    create_directory(pathcfg.gameModPath + "\\history\\provinces\\");
-    create_directory(pathcfg.gameModPath + "\\history\\wars\\");
-    create_directory(pathcfg.gameModPath + "\\common\\colonial_regions\\");
-    create_directory(pathcfg.gameModPath + "\\common\\trade_companies\\");
-    create_directory(pathcfg.gameModPath + "\\common\\trade_nodes\\");
+    create_directory(pathcfg.gameModPath + "//common//");
+    create_directory(pathcfg.gameModPath + "//history//diplomacy//");
+    create_directory(pathcfg.gameModPath + "//history//provinces//");
+    create_directory(pathcfg.gameModPath + "//history//wars//");
+    create_directory(pathcfg.gameModPath + "//common//colonial_regions//");
+    create_directory(pathcfg.gameModPath + "//common//trade_companies//");
+    create_directory(pathcfg.gameModPath + "//common//trade_nodes//");
     return true;
   } catch (std::exception e) {
     std::string error = "Configured paths seem to be messed up, check Europa "
@@ -78,7 +78,7 @@ void Module::readEu4Config(const std::string &configSubFolder,
     if (!f.good())
       Fwg::Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
-    Fwg::Parsing::replaceInStringStream(buffer, "\\", "//");
+    Fwg::Parsing::replaceInStringStream(buffer, "//", "//");
 
     pt::read_json(buffer, eu4Conf);
   } catch (std::exception e) {
@@ -129,85 +129,85 @@ void Module::generate() {
     // compatible colours
     Gfx::FormatConverter formatConverter(pathcfg.gamePath, "Eu4");
     formatConverter.dump8BitTerrain(eu4Gen->climateMap,
-                                    pathcfg.gameModPath + "\\map\\terrain.bmp",
+                                    pathcfg.gameModPath + "//map//terrain.bmp",
                                     "terrain", cut);
     formatConverter.dump8BitRivers(eu4Gen->riverMap,
-                                   pathcfg.gameModPath + "\\map\\rivers.bmp",
+                                   pathcfg.gameModPath + "//map//rivers.bmp",
                                    "rivers", cut);
     formatConverter.dump8BitTrees(eu4Gen->climateMap, eu4Gen->treeMap,
-                                  pathcfg.gameModPath + "\\map\\trees.bmp",
+                                  pathcfg.gameModPath + "//map//trees.bmp",
                                   "trees", false);
     formatConverter.dump8BitHeightmap(
-        eu4Gen->heightMap, pathcfg.gameModPath + "\\map\\heightmap.bmp",
+        eu4Gen->heightMap, pathcfg.gameModPath + "//map//heightmap.bmp",
         "heightmap");
     formatConverter.dumpTerrainColourmap(eu4Gen->springMap, eu4Gen->cityMap,
                                          pathcfg.gameModPath,
-                                         "\\map\\terrain\\colormap_spring.dds",
+                                         "//map//terrain//colormap_spring.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
     formatConverter.dumpTerrainColourmap(eu4Gen->summerMap, eu4Gen->cityMap,
                                          pathcfg.gameModPath,
-                                         "\\map\\terrain\\colormap_summer.dds",
+                                         "//map//terrain//colormap_summer.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
     formatConverter.dumpTerrainColourmap(eu4Gen->autumnMap, eu4Gen->cityMap,
                                          pathcfg.gameModPath,
-                                         "\\map\\terrain\\colormap_autumn.dds",
+                                         "//map//terrain//colormap_autumn.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
     formatConverter.dumpTerrainColourmap(eu4Gen->winterMap, eu4Gen->cityMap,
                                          pathcfg.gameModPath,
-                                         "\\map\\terrain\\colormap_winter.dds",
+                                         "//map//terrain//colormap_winter.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
     formatConverter.dumpDDSFiles(
         eu4Gen->riverMap, eu4Gen->heightMap,
-        pathcfg.gameModPath + "\\map\\terrain\\colormap_water", cut, 2);
+        pathcfg.gameModPath + "//map//terrain//colormap_water", cut, 2);
     formatConverter.dumpWorldNormal(
-        eu4Gen->sobelMap, pathcfg.gameModPath + "\\map\\world_normal.bmp", cut);
+        eu4Gen->sobelMap, pathcfg.gameModPath + "//map//world_normal.bmp", cut);
 
     using namespace Fwg::Gfx;
     // just copy over provinces.bmp, already in a compatible format
     Bmp::save(eu4Gen->provinceMap,
-              pathcfg.gameModPath + "\\map\\provinces.bmp");
+              pathcfg.gameModPath + "//map//provinces.bmp");
     {
       using namespace Parsing;
       // now do text
-      writeAdj(pathcfg.gameModPath + "\\map\\adjacencies.csv",
+      writeAdj(pathcfg.gameModPath + "//map//adjacencies.csv",
                eu4Gen->gameProvinces);
-      writeAmbientObjects(pathcfg.gameModPath + "\\map\\ambient_object.txt",
+      writeAmbientObjects(pathcfg.gameModPath + "//map//ambient_object.txt",
                           eu4Gen->gameProvinces);
-      writeAreas(pathcfg.gameModPath + "\\map\\area.txt", eu4Gen->gameRegions,
+      writeAreas(pathcfg.gameModPath + "//map//area.txt", eu4Gen->gameRegions,
                  pathcfg.gamePath);
       writeColonialRegions(
           pathcfg.gameModPath +
-              "\\common\\colonial_regions\\00_colonial_regions.txt",
+              "//common//colonial_regions//00_colonial_regions.txt",
           pathcfg.gamePath, eu4Gen->gameProvinces);
-      writeClimate(pathcfg.gameModPath + "\\map\\climate.txt",
+      writeClimate(pathcfg.gameModPath + "//map//climate.txt",
                    eu4Gen->gameProvinces);
-      writeContinent(pathcfg.gameModPath + "\\map\\continent.txt",
+      writeContinent(pathcfg.gameModPath + "//map//continent.txt",
                      eu4Gen->gameProvinces);
-      writeDefaultMap(pathcfg.gameModPath + "\\map\\default.map",
+      writeDefaultMap(pathcfg.gameModPath + "//map//default.map",
                       eu4Gen->gameProvinces);
-      writeDefinition(pathcfg.gameModPath + "\\map\\definition.csv",
+      writeDefinition(pathcfg.gameModPath + "//map//definition.csv",
                       eu4Gen->gameProvinces);
-      writePositions(pathcfg.gameModPath + "\\map\\positions.txt",
+      writePositions(pathcfg.gameModPath + "//map//positions.txt",
                      eu4Gen->gameProvinces);
-      writeRegions(pathcfg.gameModPath + "\\map\\region.txt", pathcfg.gamePath,
+      writeRegions(pathcfg.gameModPath + "//map//region.txt", pathcfg.gamePath,
                    eu4Gen->getEu4Regions());
-      writeSuperregion(pathcfg.gameModPath + "\\map\\superregion.txt",
+      writeSuperregion(pathcfg.gameModPath + "//map//superregion.txt",
                        pathcfg.gamePath, eu4Gen->gameRegions);
-      writeTerrain(pathcfg.gameModPath + "\\map\\terrain.txt",
+      writeTerrain(pathcfg.gameModPath + "//map//terrain.txt",
                    eu4Gen->gameProvinces);
       writeTradeCompanies(
           pathcfg.gameModPath +
-              "\\common\\trade_companies\\00_trade_companies.txt",
+              "//common//trade_companies//00_trade_companies.txt",
           pathcfg.gamePath, eu4Gen->gameProvinces);
-      writeTradewinds(pathcfg.gameModPath + "\\map\\trade_winds.txt",
+      writeTradewinds(pathcfg.gameModPath + "//map//trade_winds.txt",
                       eu4Gen->gameProvinces);
 
-      copyDescriptorFile("resources\\eu4\\descriptor.mod", pathcfg.gameModPath,
+      copyDescriptorFile("resources//eu4//descriptor.mod", pathcfg.gameModPath,
                          pathcfg.gameModsDirectory, pathcfg.modName);
 
-      writeProvinces(pathcfg.gameModPath + "\\history\\provinces\\",
+      writeProvinces(pathcfg.gameModPath + "//history//provinces//",
                      eu4Gen->gameProvinces, eu4Gen->gameRegions);
-      writeLoc(pathcfg.gameModPath + "\\localisation\\", pathcfg.gamePath,
+      writeLoc(pathcfg.gameModPath + "//localisation//", pathcfg.gamePath,
                eu4Gen->gameRegions, eu4Gen->gameProvinces,
                eu4Gen->getEu4Regions());
     }

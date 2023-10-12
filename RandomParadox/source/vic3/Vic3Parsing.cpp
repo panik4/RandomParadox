@@ -16,7 +16,7 @@ void adj(const std::string &path) {
 
 void defaultMap(const std::string &path,
                 const std::vector<std::shared_ptr<GameProvince>> &provinces) {
-  auto templateContent = pU::readFile("resources\\vic3\\map_data\\default.map");
+  auto templateContent = pU::readFile("resources//vic3//map_data//default.map");
   Logging::logLine("VIC3 Parser: Map: Default Map");
   std::string content = templateContent;
   std::string seaStarts{""};
@@ -42,7 +42,7 @@ void defaultMap(const std::string &path,
 }
 
 void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap) {
-  auto content = pU::readFile("resources\\vic3\\map_data\\heightmap.heightmap");
+  auto content = pU::readFile("resources//vic3//map_data//heightmap.heightmap");
   Logging::logLine("VIC3 Parser: Map: heightmap.heightmap");
   pU::Scenario::replaceOccurences(
       content, "template_map_x", std::to_string(heightMap.bInfoHeader.biWidth));
@@ -55,7 +55,7 @@ void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap) {
 void stateFiles(const std::string &path,
                 const std::vector<std::shared_ptr<Region>> &regions) {
   const auto templateFile =
-      pU::readFile("resources\\vic3\\map_data\\state_template.txt");
+      pU::readFile("resources//vic3//map_data//state_template.txt");
   std::string file = "";
   for (const auto &region : regions) {
     auto content = templateFile;
@@ -148,7 +148,7 @@ void provinceTerrains(
   pU::writeFile(path, content);
 }
 void writeMetadata(const std::string &path) {
-  const auto templateFile = pU::readFile("resources\\vic3\\metadata.json");
+  const auto templateFile = pU::readFile("resources//vic3//metadata.json");
 
   pU::writeFile(path, templateFile);
 }
@@ -157,7 +157,7 @@ void strategicRegions(const std::string &path,
                       const std::vector<std::shared_ptr<Region>> &regions) {
 
   const auto templateFile =
-      pU::readFile("resources\\vic3\\common\\strategic_regions\\template.txt");
+      pU::readFile("resources//vic3//common//strategic_regions//template.txt");
   std::string file = "";
   for (const auto &region : strategicRegions) {
     auto content = templateFile;
@@ -184,7 +184,7 @@ void cultureCommon(const std::string &path,
                    const std::vector<std::shared_ptr<Culture>> &cultures) {
 
   const auto culturesTemplate =
-      pU::readFile("resources\\vic3\\common\\cultureTemplate.txt");
+      pU::readFile("resources//vic3//common//cultureTemplate.txt");
   std::string cultureFile{""};
   for (const auto &culture : cultures) {
     auto cultString = culturesTemplate;
@@ -206,9 +206,9 @@ void religionCommon(const std::string &path,
                     const std::vector<std::shared_ptr<Religion>> &religions) {
 
   const auto religionTemplate =
-      pU::readFile("resources\\vic3\\common\\singleReligionTemplate.txt");
+      pU::readFile("resources//vic3//common//singleReligionTemplate.txt");
   auto religionFile =
-      pU::readFile("resources\\vic3\\common\\religionTemplate.txt");
+      pU::readFile("resources//vic3//common//religionTemplate.txt");
   for (const auto &religion : religions) {
     auto relString = religionTemplate;
 
@@ -222,7 +222,7 @@ void countryCommon(const std::string &path,
                    const std::map<std::string, Country> &countries,
                    const std::vector<std::shared_ptr<Region>> &regions) {
   const auto countryTemplate =
-      pU::readFile("resources\\vic3\\common\\countryDefinitionTemplate.txt");
+      pU::readFile("resources//vic3//common//countryDefinitionTemplate.txt");
   std::string countryDefinition{""};
   for (const auto &country : countries) {
     auto cString = countryTemplate;
@@ -253,12 +253,12 @@ void countryCommon(const std::string &path,
 void popsHistory(const std::string &path,
                  const std::vector<std::shared_ptr<Region>> &regions) {
   auto popsFile =
-      pU::readFile("resources\\vic3\\common\\history\\popsTemplate.txt");
+      pU::readFile("resources//vic3//common//history//popsTemplate.txt");
   // std::string statePops = "";
   const auto popsSingleTemplate =
-      pU::readFile("resources\\vic3\\common\\history\\popsSingleTemplate.txt");
+      pU::readFile("resources//vic3//common//history//popsSingleTemplate.txt");
   const auto popsStateTemplate =
-      pU::readFile("resources\\vic3\\common\\history\\popsStateTemplate.txt");
+      pU::readFile("resources//vic3//common//history//popsStateTemplate.txt");
   std::string listOfStates{""};
   for (const auto &region : regions) {
     if (region->sea)
@@ -288,10 +288,10 @@ void popsHistory(const std::string &path,
 }
 void stateHistory(const std::string &path,
                   const std::vector<std::shared_ptr<Region>> &regions) {
-  auto file = pU::readFile("resources\\vic3\\common\\history\\states.txt");
+  auto file = pU::readFile("resources//vic3//common//history//states.txt");
   std::string stateContent = "";
   const auto stateTemplate =
-      pU::readFile("resources\\vic3\\common\\history\\stateTemplate.txt");
+      pU::readFile("resources//vic3//common//history//stateTemplate.txt");
   for (const auto &region : regions) {
     if (region->sea)
       continue;
@@ -315,14 +315,14 @@ void stateHistory(const std::string &path,
 void countryHistory(const std::string &path,
                     const std::map<std::string, Country> &countries) {
   const auto countryTemplate =
-      pU::readFile("resources\\vic3\\common\\countryHistoryTemplate.txt");
+      pU::readFile("resources//vic3//common//countryHistoryTemplate.txt");
   for (const auto &country : countries) {
     auto cString = countryTemplate;
 
     pU::Scenario::replaceOccurences(cString, "templateTag", country.second.tag);
     std::string filename =
         country.second.tag + " - " + country.second.name + ".txt";
-    pU::writeFile(path + "\\" + filename, cString, true);
+    pU::writeFile(path + "//" + filename, cString, true);
   }
 }
 void splineNetwork(const std::string &path) {
@@ -341,8 +341,8 @@ std::string compatRegions(const std::string &inFolder, const std::string &outPat
       continue;
 
     std::string filename =
-        pathString.substr(pathString.find_last_of("\\") + 1,
-                          pathString.back() - pathString.find_last_of("\\"));
+        pathString.substr(pathString.find_last_of("//") + 1,
+                          pathString.back() - pathString.find_last_of("//"));
     std::string content = "";
     auto lines = pU::getLines(pathString);
     for (auto &line : lines) {
@@ -367,8 +367,8 @@ void compatStratRegions(const std::string &inFolder, const std::string &outPath,
     if (pathString.find(".txt") == std::string::npos)
       continue;
     std::string filename =
-        pathString.substr(pathString.find_last_of("\\") + 1,
-                          pathString.back() - pathString.find_last_of("\\"));
+        pathString.substr(pathString.find_last_of("//") + 1,
+                          pathString.back() - pathString.find_last_of("//"));
     std::string content = "";
     auto lines = pU::getLines(pathString);
     auto hexID = regions[0]->gameProvinces[0]->toHexString();
@@ -392,8 +392,8 @@ void compatReleasable(const std::string &inFolder, const std::string &outPath) {
     if (pathString.find(".txt") == std::string::npos)
       continue;
     std::string filename =
-        pathString.substr(pathString.find_last_of("\\") + 1,
-                          pathString.back() - pathString.find_last_of("\\"));
+        pathString.substr(pathString.find_last_of("//") + 1,
+                          pathString.back() - pathString.find_last_of("//"));
     std::string content = pU::readFile(pathString);
     while (
         pU::Scenario::removeBracketBlockFromBracket(content, "provinces = {")) {

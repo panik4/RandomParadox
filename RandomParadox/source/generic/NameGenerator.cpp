@@ -65,10 +65,10 @@ NameData prepare(const std::string &path, const std::string &gamePath) {
   NameData nameData;
   if (std::filesystem::exists(gamePath)) {
     nameData.nameRules =
-        Fwg::Parsing::getLines(path + "\\name_rules.txt");
-    Detail::readMap(path + "\\token_groups.txt", nameData.groups);
-    Detail::readMap(path + "\\state_types.txt", nameData.ideologyNames);
-    Detail::readMap(path + "\\faction_names.txt", nameData.factionNames);
+        Fwg::Parsing::getLines(path + "//name_rules.txt");
+    Detail::readMap(path + "//token_groups.txt", nameData.groups);
+    Detail::readMap(path + "//state_types.txt", nameData.ideologyNames);
+    Detail::readMap(path + "//faction_names.txt", nameData.factionNames);
     if (gamePath.size()) {
       const auto forbiddenTags = ResourceLoading::loadForbiddenTags(gamePath);
       for (const auto &tag : forbiddenTags)

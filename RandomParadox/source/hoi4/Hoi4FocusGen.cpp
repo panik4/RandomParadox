@@ -348,14 +348,14 @@ void FocusGen::evaluateCountryGoals(
   std::vector<std::vector<std::vector<std::string>>> chains;
 
   chains.push_back(Fwg::Parsing::getLinesByID(
-      "resources\\hoi4\\ai\\national_focus\\chains\\major_chains.txt"));
+      "resources//hoi4//ai//national_focus//chains//major_chains.txt"));
   
   chains.push_back(Fwg::Parsing::getLinesByID(
-      "resources\\hoi4\\ai\\national_focus\\chains\\regional_chains.txt"));
+      "resources//hoi4//ai//national_focus//chains//regional_chains.txt"));
   chains.push_back(Fwg::Parsing::getLinesByID(
-      "resources\\hoi4\\ai\\national_focus\\chains\\army_chains.txt"));
+      "resources//hoi4//ai//national_focus//chains//army_chains.txt"));
   auto branchRules = (Fwg::Parsing::getLinesByID(
-      "resources\\hoi4\\ai\\national_focus\\chains\\chain_rules.txt"));
+      "resources//hoi4//ai//national_focus//chains//chain_rules.txt"));
   for (auto &sourceCountry : hoi4Countries) {
     const auto &source = hoi4Countries.at(sourceCountry.first);
     sourceCountry.second.bully = 0;
