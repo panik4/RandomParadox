@@ -35,8 +35,6 @@ class Generator : public Scenario::Generator {
 public:
 
   // containers
-  std::vector<NationalFocus> foci;
-  std::vector<NationalFocus> warFoci;
   std::vector<std::shared_ptr<Region>> hoi4States;
   std::map<int, std::vector<std::string>> strengthScores;
   std::map<std::string, Hoi4Country> hoi4Countries;
