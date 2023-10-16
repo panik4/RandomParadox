@@ -247,8 +247,8 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
   Utils::Logging::logLine("FormatConverter::Copying heightmap to ", path);
   if (gameTag == "Vic3") {
     // need to scale to default vic3 map sizes, due to their compression
-    int width = heightMap.bInfoHeader.biWidth;
-    int height = heightMap.bInfoHeader.biHeight;
+    int width = heightMap.width();
+    int height = heightMap.height();
     std::vector<uint8_t> pixels(width * height * 4, 0);
     for (auto h = 0; h < height; h++) {
       for (auto w = 0; w < width; w++) {
@@ -285,9 +285,10 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
     outputMap.colourtable = colourTables.at(colourMapKey + gameTag);
     // now map from 24 bit climate map
     for (int i = 0; i < Cfg::Values().bitmapSize; i++)
-      outputMap.bit8Buffer[i] = heightMap[i].getRed();
+      //  outputMap.bit8Buffer[i] = heightMap[i].getRed();
+      outputMap.setColourAtIndex(i, outputMap.lookUp(heightMap[i].getRed()));
 
-    Bmp::save(outputMap, path + ".bmp");
+    Bmp::save8bit(outputMap, path + ".bmp");
   }
 }
 
@@ -302,13 +303,14 @@ void FormatConverter::dump8BitTerrain(const Bitmap &climateIn,
   if (!cut) {
     // now map from 24 bit climate map
     for (int i = 0; i < conf.bitmapSize; i++) {
-      hoi4terrain.bit8Buffer[i] =
-          colourMaps.at(colourMapKey + gameTag).at(climateIn[i]);
+      hoi4terrain.setColourAtIndex(
+          i, hoi4terrain.lookUp(
+                 colourMaps.at(colourMapKey + gameTag).at(climateIn[i])));
     }
   } else {
     hoi4terrain = cutBaseMap("//terrain.bmp");
   }
-  Bmp::save(hoi4terrain, path);
+  Bmp::save8bit(hoi4terrain, path);
 }
 
 void FormatConverter::dump8BitCities(const Bitmap &climateIn,
@@ -320,12 +322,13 @@ void FormatConverter::dump8BitCities(const Bitmap &climateIn,
   cities.colourtable = colourTables.at(colourMapKey + gameTag);
   if (!cut) {
     for (int i = 0; i < Cfg::Values().bitmapSize; i++)
-      cities.bit8Buffer[i] =
-          climateIn[i] == Cfg::Values().colours["sea"] ? 15 : 1;
+      cities.setColourAtIndex(
+          i,
+          cities.lookUp(climateIn[i] == Cfg::Values().colours["sea"] ? 15 : 1));
   } else {
     cities = cutBaseMap("//cities.bmp");
   }
-  Bmp::save(cities, path);
+  Bmp::save8bit(cities, path);
 }
 
 void FormatConverter::dump8BitRivers(const Bitmap &riversIn,
@@ -339,9 +342,9 @@ void FormatConverter::dump8BitRivers(const Bitmap &riversIn,
   if (!cut) {
     for (int i = 0; i < Cfg::Values().bitmapSize; i++)
       try {
-
-        rivers.bit8Buffer[i] =
-            colourMaps.at(colourMapKey + gameTag).at(riversIn[i]);
+        rivers.setColourAtIndex(
+            i, rivers.lookUp(
+                   colourMaps.at(colourMapKey + gameTag).at(riversIn[i])));
       } catch (std::exception e) {
         Utils::Logging::logLine("Error at index ", i, " colour", riversIn[i],
                                 e.what());
@@ -353,7 +356,7 @@ void FormatConverter::dump8BitRivers(const Bitmap &riversIn,
     auto scaledMap = Bmp::scale(rivers, 8192, 3616, false);
     Png::save(scaledMap, path + ".png");
   } else {
-    Bmp::save(rivers, path + ".bmp");
+    Bmp::save8bit(rivers, path + ".bmp");
   }
 }
 
@@ -370,21 +373,22 @@ void FormatConverter::dump8BitTrees(const Bitmap &climate,
   trees.colourtable = colourTables.at(colourMapKey + gameTag);
 
   if (!cut) {
-    for (auto i = 0; i < trees.bInfoHeader.biHeight; i++) {
-      for (auto w = 0; w < trees.bInfoHeader.biWidth; w++) {
+    for (auto i = 0; i < trees.height(); i++) {
+      for (auto w = 0; w < trees.width(); w++) {
         double refHeight = ceil((double)i * factor);
         double refWidth =
             std::clamp((double)w * factor, 0.0, (double)Cfg::Values().width);
         // map the colour from
-        trees.bit8Buffer[i * trees.bInfoHeader.biWidth + w] =
-            colourMaps.at(colourMapKey + gameTag)
-                .at(treesIn[refHeight * width + refWidth]);
+        trees.setColourAtIndex(
+            i * trees.width() + w,
+            trees.lookUp(colourMaps.at(colourMapKey + gameTag)
+                             .at(treesIn[refHeight * width + refWidth])));
       }
     }
   } else {
     trees = cutBaseMap("//trees.bmp", (1.0 / factor));
   }
-  Bmp::save(trees, path);
+  Bmp::save8bit(trees, path);
 }
 
 void FormatConverter::dumpDDSFiles(const Bitmap &riverMap,
@@ -438,8 +442,8 @@ void FormatConverter::dumpTerrainColourmap(
   Utils::Logging::logLine("FormatConverter::Writing terrain colourmap to ",
                           modPath + mapName);
   auto &cfg = Cfg::Values();
-  const auto &height = climateMap.bInfoHeader.biHeight;
-  const auto &width = climateMap.bInfoHeader.biWidth;
+  const auto &height = climateMap.height();
+  const auto &width = climateMap.width();
   int factor = scaleFactor;
   auto imageWidth = width / factor;
   auto imageHeight = height / factor;
@@ -503,9 +507,9 @@ void FormatConverter::dumpWorldNormal(const Bitmap &sobelMap,
   int factor = 2; // image width and height are halved
   Bitmap normalMap(width / factor, height / factor, 24);
   if (!cut) {
-    for (auto i = 0; i < normalMap.bInfoHeader.biHeight; i++)
-      for (auto w = 0; w < normalMap.bInfoHeader.biWidth; w++)
-        normalMap.setColourAtIndex(i * normalMap.bInfoHeader.biWidth + w,
+    for (auto i = 0; i < normalMap.height(); i++)
+      for (auto w = 0; w < normalMap.width(); w++)
+        normalMap.setColourAtIndex(i * normalMap.width() + w,
                                    sobelMap[factor * i * width + factor * w]);
   } else {
     normalMap = cutBaseMap("//world_normal.bmp", (1.0 / (double)factor), 24);
@@ -565,7 +569,9 @@ void FormatConverter::dumpPackedHeightmap(
     packedHeightMap.colourtable = colourTables.at(colourMapKey + gameTag);
     // now map from 24 bit climate map
     for (int i = 0; i < Cfg::Values().bitmapSize; i++) {
-      packedHeightMap.bit8Buffer[i] = heightMap[i].getRed();
+      // packedHeightMap.bit8Buffer[i] = heightMap[i].getRed();
+      packedHeightMap.setColourAtIndex(
+          i, packedHeightMap.lookUp(heightMap[i].getRed()));
     }
   }
 }
@@ -579,8 +585,8 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
   auto &config = Cfg::Values();
   // need to scale to default vic3 map sizes, due to their compression
   auto scaledMap = Bmp::scale(heightMap, 8192, 3616, false);
-  const auto &height = scaledMap.bInfoHeader.biHeight;
-  const auto &width = scaledMap.bInfoHeader.biWidth;
+  const auto &height = scaledMap.height();
+  const auto &width = scaledMap.width();
   int factor = 1;
   auto imageWidth = width / factor;
   auto imageHeight = height / factor;
@@ -641,8 +647,8 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
   using namespace DirectX;
 
   scaledMap = Bmp::scale(heightMap, 4096, 1808, false);
-  imageWidth = scaledMap.bInfoHeader.biWidth;
-  imageHeight = scaledMap.bInfoHeader.biHeight;
+  imageWidth = scaledMap.width();
+  imageHeight = scaledMap.height();
   for (auto h = 0; h < imageHeight; h++) {
     for (auto w = 0; w < imageWidth; w++) {
       auto referenceIndex = h * width + w;
@@ -671,8 +677,8 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
   // colormap_tree.dds
   scaledMap = Bmp::scale(humidityMap, 1024, 512, false);
   auto scaledHeight = Bmp::scale(heightMap, 1024, 512, false);
-  imageWidth = scaledMap.bInfoHeader.biWidth;
-  imageHeight = scaledMap.bInfoHeader.biHeight;
+  imageWidth = scaledMap.width();
+  imageHeight = scaledMap.height();
   Fwg::Gfx::Colour baseColour = {40, 140, 120};
   Fwg::Gfx::Colour baseColour2 = {40, 100, 110};
   for (auto h = 0; h < imageHeight; h++) {
@@ -700,8 +706,8 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
            path + "//textures//colormap_tree.dds");
 
   scaledHeight = Bmp::scale(heightMap, 1024, 452, false);
-  imageWidth = scaledHeight.bInfoHeader.biWidth;
-  imageHeight = scaledHeight.bInfoHeader.biHeight;
+  imageWidth = scaledHeight.width();
+  imageHeight = scaledHeight.height();
   for (auto h = 0; h < imageHeight; h++) {
     for (auto w = 0; w < imageWidth; w++) {
       auto referenceIndex = h * width + w;
@@ -739,8 +745,8 @@ void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
                                      const std::string &path) {
 
   auto copy = Fwg::Gfx::Bmp::scale(climateMap, 8192, 3616, false);
-  const auto &height = copy.bInfoHeader.biHeight;
-  const auto &width = copy.bInfoHeader.biWidth;
+  const auto &height = copy.height();
+  const auto &width = copy.width();
   int factor = 1;
   auto imageWidth = width / factor;
   auto imageHeight = height / factor;
@@ -771,23 +777,23 @@ FormatConverter::FormatConverter(const std::string &gamePath,
     mapFolderName.append("_data");
   std::string terrainsourceString =
       (gamePath + mapFolderName + "//terrain.bmp");
-  Bitmap terrain = Bmp::load8Bit(terrainsourceString, "terrain");
+  Bitmap terrain = Bmp::load24Bit(terrainsourceString, "terrain");
   colourTables["terrain" + gameTag] = terrain.colourtable;
 
   std::string citySource = (gamePath + mapFolderName + "//terrain.bmp");
-  Bitmap cities = Bmp::load8Bit(citySource, "cities");
+  Bitmap cities = Bmp::load24Bit(citySource, "cities");
   colourTables["cities" + gameTag] = cities.colourtable;
 
   std::string riverSource = (gamePath + mapFolderName + "//rivers.bmp");
-  Bitmap rivers = Bmp::load8Bit(riverSource, "rivers");
+  Bitmap rivers = Bmp::load24Bit(riverSource, "rivers");
   colourTables["rivers" + gameTag] = rivers.colourtable;
 
   std::string treeSource = (gamePath + mapFolderName + "//trees.bmp");
-  Bitmap trees = Bmp::load8Bit(treeSource, "trees");
+  Bitmap trees = Bmp::load24Bit(treeSource, "trees");
   colourTables["trees" + gameTag] = trees.colourtable;
 
   std::string heightmapSource = (gamePath + mapFolderName + "//heightmap.bmp");
-  Bitmap heightmap = Bmp::load8Bit(heightmapSource, "heightmap");
+  Bitmap heightmap = Bmp::load24Bit(heightmapSource, "heightmap");
   colourTables["heightmap" + gameTag] = heightmap.colourtable;
 }
 

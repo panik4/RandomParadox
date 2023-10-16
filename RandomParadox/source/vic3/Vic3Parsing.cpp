@@ -45,10 +45,10 @@ void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap) {
   auto content = pU::readFile("resources//vic3//map_data//heightmap.heightmap");
   Logging::logLine("VIC3 Parser: Map: heightmap.heightmap");
   pU::Scenario::replaceOccurences(
-      content, "template_map_x", std::to_string(heightMap.bInfoHeader.biWidth));
+      content, "template_map_x", std::to_string(heightMap.width()));
   pU::Scenario::replaceOccurences(
       content, "template_map_y",
-      std::to_string(heightMap.bInfoHeader.biHeight));
+      std::to_string(heightMap.height()));
   pU::writeFile(path, content);
 }
 

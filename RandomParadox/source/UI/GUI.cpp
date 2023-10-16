@@ -41,7 +41,6 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                const std::string &username) {
-  // this->fwg = generator;
   //  Create application window
   //  ImGui_ImplWin32_EnableDpiAwareness();
   WNDCLASSEXW wc = {sizeof(wc),
@@ -64,7 +63,6 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
   monitor_info.cbSize = sizeof(monitor_info);
   GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST),
                  &monitor_info);
-  // gfx::Rect window_rect(monitor_info.rcMonitor);
   SetWindowPos(hwnd, NULL, 0, 0,
                monitor_info.rcMonitor.right - monitor_info.rcMonitor.left,
                monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top,
@@ -247,7 +245,6 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     g_pSwapChain->Present(1, 0); // Present with vsync
-    // g_pSwapChain->Present(0, 0); // Present without vsync
   }
 
   // Cleanup

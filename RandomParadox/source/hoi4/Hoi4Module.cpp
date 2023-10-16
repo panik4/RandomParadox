@@ -299,8 +299,8 @@ void Hoi4Module::readHoi(std::string &gamePath) {
       Hoi4::Parsing::Reading::readColourMapping(pathcfg.gamePath);
   // pre initialize an empty climateMap
   hoi4Gen->climateMap =
-      Fwg::Gfx::Bitmap(hoi4Gen->provinceMap.bInfoHeader.biWidth,
-                       hoi4Gen->provinceMap.bInfoHeader.biHeight, 24);
+      Fwg::Gfx::Bitmap(hoi4Gen->provinceMap.width(),
+                       hoi4Gen->provinceMap.height(), 24);
 
   // now initialize hoi4 states from the gameRegions
   hoi4Gen->mapTerrain();
