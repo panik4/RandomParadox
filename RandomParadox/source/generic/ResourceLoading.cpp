@@ -7,7 +7,7 @@ Bitmap loadProvinceMap(const std::string &gamePath) {
 }
 
 Bitmap loadHeightMap(const std::string &gamePath) {
-  return Bmp::load8Bit(gamePath + "//map//heightmap.bmp", "heightmap");
+  return Bmp::load24Bit(gamePath + "//map//heightmap.bmp", "heightmap");
 }
 
 std::vector<std::string> loadStates(const std::string &gamePath) {

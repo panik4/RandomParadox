@@ -69,8 +69,8 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInCountryMap,
 Fwg::Gfx::Bitmap createCountryBitmap(const Generator &hoi4Gen,
                                      Fwg::Gfx::Bitmap &provinceMap) {
   Fwg::Utils::Logging::logLine("Creating Country Map from game files");
-  Fwg::Gfx::Bitmap countries(provinceMap.bInfoHeader.biWidth,
-                             provinceMap.bInfoHeader.biHeight, 24);
+  Fwg::Gfx::Bitmap countries(provinceMap.width(),
+                             provinceMap.height(), 24);
   std::set<int> stateBorders;
   // for every country
   for (const auto &country : hoi4Gen.hoi4Countries) {
@@ -90,8 +90,8 @@ Fwg::Gfx::Bitmap createCountryBitmap(const Generator &hoi4Gen,
       // now save the borders of states
       for (const auto pixel : statePixels) {
         std::array<int, 4> newPixels = {pixel + 1, pixel - 1,
-                                        pixel + countries.bInfoHeader.biWidth,
-                                        pixel - countries.bInfoHeader.biWidth};
+                                        pixel + countries.width(),
+                                        pixel - countries.width()};
         for (const auto newPix : newPixels) {
           if (statePixels.find(newPix) == statePixels.end()) {
             stateBorders.insert(pixel);
@@ -245,8 +245,8 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInStateMap,
 Fwg::Gfx::Bitmap createStateBitmap(const Generator &hoi4Gen,
                                    const Fwg::Gfx::Bitmap &provinceMap) {
   Fwg::Utils::Logging::logLine("Creating State Image from game files");
-  Fwg::Gfx::Bitmap states(provinceMap.bInfoHeader.biWidth,
-                          provinceMap.bInfoHeader.biHeight, 24);
+  Fwg::Gfx::Bitmap states(provinceMap.width(),
+                          provinceMap.height(), 24);
   std::set<int> stateBorders;
   std::set<int> provinceBorders;
 
@@ -263,8 +263,8 @@ Fwg::Gfx::Bitmap createStateBitmap(const Generator &hoi4Gen,
     for (const auto pixel : statePixels) {
       states.imageData[pixel] = state->colour;
       std::array<int, 4> newPixels = {pixel + 1, pixel - 1,
-                                      pixel + states.bInfoHeader.biWidth,
-                                      pixel - states.bInfoHeader.biWidth};
+                                      pixel + states.width(),
+                                      pixel - states.width()};
       for (const auto newPix : newPixels) {
         if (statePixels.find(newPix) == statePixels.end()) {
           stateBorders.insert(pixel);
@@ -612,8 +612,8 @@ void runMapEditor(Generator &hoi4Gen, const std::string &mappingPath,
     config.mapsToEdit.insert("provinceMap");
     config.mapsToEdit.insert("stateMap");
     config.mapsToEdit.insert("countryMap");
-    config.width = provinceMap.bInfoHeader.biWidth;
-    config.height = provinceMap.bInfoHeader.biHeight;
+    config.width = provinceMap.width();
+    config.height = provinceMap.height();
 
     switch (choice) {
     case 1: {

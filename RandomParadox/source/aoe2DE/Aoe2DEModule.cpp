@@ -40,11 +40,11 @@ void Module::genAoe2() {
     auto cMap = f.climateMap;
     int lowEle = 0, midEle = 0, highEle = 0;
     for (int i = 0; i < hMap.size(); i++) {
-      double h = i / hMap.bInfoHeader.biWidth;
-      double w = i % hMap.bInfoHeader.biWidth;
+      double h = i / hMap.width();
+      double w = i % hMap.width();
 
-      int aoe2PercentH = static_cast<int>(100.0 * h / (double)hMap.bInfoHeader.biHeight);
-      int aoe2PercentW = static_cast<int>(100.0 * w / (double)hMap.bInfoHeader.biWidth);
+      int aoe2PercentH = static_cast<int>(100.0 * h / (double)hMap.height());
+      int aoe2PercentW = static_cast<int>(100.0 * w / (double)hMap.width());
 
       int zone = 0;
       std::string terrainType = "DESERT";

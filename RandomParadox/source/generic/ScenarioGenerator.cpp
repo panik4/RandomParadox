@@ -164,6 +164,7 @@ void Generator::generatePopulations() {
 
 void Generator::generateReligions() {
   auto &config = Fwg::Cfg::Values();
+  religions.clear();
   Bitmap religionMap(config.width, config.height, 24);
   for (int i = 0; i < 8; i++) {
     Religion r;
@@ -200,6 +201,7 @@ void Generator::generateReligions() {
 }
 
 void Generator::generateCultures() {
+  cultures.clear();
   auto &config = Fwg::Cfg::Values();
   Bitmap cultureMap(config.width, config.height, 24);
   for (int i = 0; i < 200; i++) {
@@ -282,8 +284,8 @@ void Generator::generateDevelopment() {
 
 Fwg::Gfx::Bitmap Generator::mapTerrain() {
   const auto &climateMap = this->climateMap;
-  Bitmap typeMap(climateMap.bInfoHeader.biWidth,
-                 climateMap.bInfoHeader.biHeight, 24);
+  Bitmap typeMap(climateMap.width(),
+                 climateMap.height(), 24);
   auto &colours = Fwg::Cfg::Values().colours;
   typeMap.fill(colours.at("sea"));
   Logging::logLine("Mapping Terrain");

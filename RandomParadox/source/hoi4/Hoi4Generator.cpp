@@ -307,6 +307,7 @@ void Generator::generateWeather() {
 
 void Generator::generateLogistics() {
   Fwg::Utils::Logging::logLine("HOI4: Building rail networks");
+  supplyNodeConnections.clear();
   auto width = Cfg::Values().width;
   // create a copy of the country map for
   // visualisation of the logistics
