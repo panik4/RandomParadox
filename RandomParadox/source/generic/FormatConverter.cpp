@@ -230,8 +230,7 @@ Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
   auto &conf = Cfg::Values();
   std::string sourceMap{conf.loadMapsPath + path};
   Fwg::Utils::Logging::logLine("CUTTING mode: Cutting Map from ", sourceMap);
-  Bitmap baseMap =
-      bit == 24 ? Bmp::load24Bit(sourceMap, "") : Bmp::load8Bit(sourceMap, "");
+  Bitmap baseMap = Bmp::load24Bit(sourceMap, "");
   auto cutBase = Bmp::cut(baseMap, conf.minX * factor, conf.maxX * factor,
                           conf.minY * factor, conf.maxY * factor, factor);
   if (conf.scale) {
