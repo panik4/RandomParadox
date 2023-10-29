@@ -9,12 +9,14 @@
 "game_custom_data" : {
         "replace_paths" : [
                 "map_data/state_regions",
+                "common/country_creation",
                 "common/history/population",
                 "common/history/buildings",
                 "common/history/diplomacy",
                 "common/history/diplomatic_plays",
                 "common/history/pops",
                 "common/history/states",
+                "common/history/countries",
                 "common/history/interests",
                 "common/history/production_methods",
                 "common/history/ai",

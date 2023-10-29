@@ -53,10 +53,10 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                     nullptr,
                     nullptr,
                     nullptr,
-                    L"ImGui Example",
+                    L"RandomParadox",
                     nullptr};
   ::RegisterClassExW(&wc);
-  HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX11 Example",
+  HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"RandomParadox",
                               WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr,
                               nullptr, wc.hInstance, nullptr);
   MONITORINFO monitor_info;
@@ -115,6 +115,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
   *log << Fwg::Utils::Logging::Logger::logInstance.getFullLog();
   Fwg::Utils::Logging::Logger::logInstance.attachStream(log);
   while (!done) {
+    // reset dragging all the time in case it wasn't handled in a tab on purpose
+    triggeredDrag = false;
     // Poll and handle messages (inputs, window resize, etc.)
     // See the WndProc() function below for our to dispatch events to the Win32
     // backend.
@@ -183,6 +185,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
           ImGui::BeginDisabled();
         showHeightmapTab(cfg, *activeModule->generator, &curtexture);
         showTerrainTab(cfg, *activeModule->generator, &curtexture);
+        showBordersTab(cfg, *activeModule->generator);
         showNormalMapTab(cfg, *activeModule->generator, &curtexture);
         showContinentTab(cfg, *activeModule->generator, &curtexture);
         showClimateOverview(cfg, *activeModule->generator, &curtexture);
@@ -379,8 +382,13 @@ int GUI::showRpdxConfigure(
     ImGui::PushItemWidth(600.0f);
     ImGui::InputText("Mod Name", &activeModule->pathcfg.modName);
     if (ImGui::Button("Try to find game")) {
-      activeModule->findGame(activeModule->pathcfg.gamePath,
-                             activeGameConfig.gameName);
+      if (activeGameConfig.gameName == "Victoria 3") {
+        activeModule->findGame(activeModule->pathcfg.gamePath,
+                               activeGameConfig.gameName + "//game//");
+      } else {
+        activeModule->findGame(activeModule->pathcfg.gamePath,
+                               activeGameConfig.gameName);
+      }
     }
     if (ImGui::Button("Try to find mod folder")) {
       activeModule->autoLocateGameModFolder(activeGameConfig.gameName);
@@ -624,16 +632,15 @@ int GUI::showModuleGeneric(
 int GUI::showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
   if (ImGui::BeginTabItem("States")) {
     tabSwitchEvent();
-    ImGui::Text(
-        "Use auto generated country map or drop it in. You may also first "
-        "generate a country map, then edit it in the Maps folder, and then "
-        "drop it in again.");
+    ImGui::Text("In this tab, edit the states. You can NOT drag in an image "
+                "here, nothing happens. If you want to input a state image, "
+                "use the region tab!");
     ImGui::Text("You can also drag in a list of states (in a .txt file) "
                 "with the following format: #r;g;b;tag;name;population. See "
                 "inputs//countryMappings.txt as an example. If no file is "
                 "dragged in, this example file is used.");
     ImGui::PushItemWidth(300.0f);
-    ImGui::InputText("Path to country list: ", &generator->regionMappingPath);
+    ImGui::InputText("Path to state list: ", &generator->regionMappingPath);
     ImGui::SameLine();
     ImGui::Text("Amount of states: %i", generator->hoi4States.size());
     // drag event
@@ -649,11 +656,12 @@ int GUI::showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
     for (auto &state : generator->hoi4States) {
       items.push_back(state->name.c_str());
     }
-    if (generator->countries.size()) {
+    if (generator->hoi4States.size()) {
       ImGui::ListBox("Select State", &selectedStateIndex, items.data(),
                      items.size(), 4);
       auto &modifiableState = generator->hoi4States[selectedStateIndex];
-      ImGui::InputText("Country name", &modifiableState->name);
+      ImGui::InputText("State name", &modifiableState->name);
+      ImGui::InputText("State owner", &modifiableState->owner);
       ImGui::InputInt("Population", &modifiableState->population);
       ImGui::InputInt("Arms Industry", &modifiableState->armsFactories);
       ImGui::InputInt("Civilian Industry", &modifiableState->civilianFactories);
@@ -719,6 +727,7 @@ int GUI::showHoi4Finalise(
         generator->generateCountryUnits();
         hoi4Module->writeImages();
         hoi4Module->writeTextFiles();
+        generator->printStatistics();
       }
     } else {
       ImGui::Text("Generate strategic regions first before exporting the mod");

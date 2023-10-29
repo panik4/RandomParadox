@@ -1,7 +1,7 @@
 {
 	"module": 
 	{
-		"debugLevel": 8,
+		"debugLevel": 0,
 		"loadMaps" : true,
 		"writeMaps" : true,
 		"cut" : true,
@@ -43,7 +43,7 @@
 		"maxX" : 5224,
 		"minY" : 1088,
 		"maxY" : 1600,
-		"scaleX" : 5632,
+		"scaleX" : 512,
 		"scaleY" : 512,
 		"keepRatio" : false,
 		"scaleFilterRuns": 0
@@ -89,7 +89,7 @@
 				"auto" : true,
 				"landProvinceFactor" : 1.0,
 				"seaProvinceFactor" : 1.0,
-				"minProvSize" : 10,
+				"minProvSize" : 20,
 				"provinceDensityEffects" : 10.0,
 				"maxProvAmount" : 20000
 			},
@@ -106,11 +106,12 @@
 			"latitudeHigh" : 1.8,
 			"riverHumidityFactor" : 0.2,
 			"riverEffectRangeFactor" : 1.0,
-			"baseHumidity": 0.7
+			"baseHumidity": 0.7,
+			"baseTemperature": 1.0
 		},
 		"weather":
 		{
-			"baseTemperature": -20,
+			"minimumDegCelcius": -20,
 			"deviationFactor": 10,
 			"temperatureRange": 60
 		}

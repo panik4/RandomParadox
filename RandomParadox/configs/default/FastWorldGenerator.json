@@ -1,13 +1,13 @@
 {
 	"module": 
 	{
-		"debugLevel": 9,
+		"debugLevel": 0,
 		"loadMaps" : false,
 		"writeMaps" : true,
 		"cut" : false,
 		"scale" : false,
 		"scaleFactor" : 1,
-		"seed" : 3
+		"seed" : 0
 	},
 	"paths":
 	{
@@ -42,8 +42,8 @@
 	},
 	"map": 
 	{
-        "height" : 256,
-		"width" : 704,
+		"height" : 2048,
+		"width" : 5632,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -257,7 +257,7 @@
 				"auto" : true,
 				"landProvinceFactor" : 1.0,
 				"seaProvinceFactor" : 1.0,
-				"minProvSize" : 10,
+				"minProvSize" : 20,
 				"provinceDensityEffects" : 1.0,
 				"maxProvAmount" : 15000
 			},
@@ -274,11 +274,12 @@
 			"latitudeHigh" : 1.8,
 			"riverHumidityFactor" : 0.2,
 			"riverEffectRangeFactor" : 1.0,
-			"baseHumidity": 0.7
+			"baseHumidity": 0.7,
+			"baseTemperature": 1.0
 		},
 		"weather":
 		{
-			"baseTemperature": -20,
+			"minimumDegCelcius": -20,
 			"deviationFactor": 10,
 			"temperatureRange": 60
 		}

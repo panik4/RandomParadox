@@ -284,41 +284,38 @@ void Generator::generateDevelopment() {
 
 Fwg::Gfx::Bitmap Generator::mapTerrain() {
   const auto &climateMap = this->climateMap;
-  Bitmap typeMap(climateMap.width(),
-                 climateMap.height(), 24);
+  Bitmap typeMap(climateMap.width(), climateMap.height(), 24);
   auto &colours = Fwg::Cfg::Values().colours;
   typeMap.fill(colours.at("sea"));
   Logging::logLine("Mapping Terrain");
-  for (auto &c : countries) {
-    for (auto &gameRegion : c.second.ownedRegions) {
-      for (auto &gameProv : gameRegions[gameRegion]->gameProvinces) {
-        gameProv->terrainType =
-            terrainTypeToString.at(gameProv->baseProvince->terrainType);
+  for (auto &gameRegion : gameRegions) {
+    for (auto &gameProv : gameRegion->gameProvinces) {
+      gameProv->terrainType =
+          terrainTypeToString.at(gameProv->baseProvince->terrainType);
 
-        if (climateMap.imageData.size()) {
-          auto tType = gameProv->terrainType;
-          for (auto pix : gameProv->baseProvince->pixels) {
-            if (tType == "jungle")
-              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 0});
-            else if (tType == "forest")
-              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 0});
-            else if (tType == "rockyHills")
-              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{128, 128, 128});
-            else if (tType == "grassland")
-              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
-            else if (tType == "savanna")
-              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
-            else if (tType == "desert")
-              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 255});
-            else if (tType == "mountain")
-              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
-            else if (tType == "snowyPeaks")
-              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
-            else if (tType == "lakes")
-              typeMap.setColourAtIndex(pix, colours.at("lake"));
-            else
-              typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 0, 0});
-          }
+      if (climateMap.imageData.size()) {
+        auto tType = gameProv->terrainType;
+        for (auto pix : gameProv->baseProvince->pixels) {
+          if (tType == "jungle")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 0});
+          else if (tType == "forest")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 0});
+          else if (tType == "rockyHills")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{128, 128, 128});
+          else if (tType == "grassland")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
+          else if (tType == "savanna")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 128});
+          else if (tType == "desert")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{0, 255, 255});
+          else if (tType == "mountain")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
+          else if (tType == "snowyPeaks")
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 255, 255});
+          else if (tType == "lakes")
+            typeMap.setColourAtIndex(pix, colours.at("lake"));
+          else
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour{255, 0, 0});
         }
       }
     }
