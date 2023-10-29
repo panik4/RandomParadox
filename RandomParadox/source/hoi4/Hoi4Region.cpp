@@ -58,6 +58,7 @@ getBuilding(const std::string &type, const Fwg::Province &prov,
               }
             }
           }
+          done = true;
         }
       }
     }

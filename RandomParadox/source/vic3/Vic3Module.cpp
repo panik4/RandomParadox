@@ -126,7 +126,7 @@ void Module::generate() {
     vic3Gen->generateCountries();
     vic3Gen->evaluateNeighbours();
     vic3Gen->generateWorldCivilizations();
-    vic3Gen->dumpDebugCountrymap(Cfg::Values().mapsPath + "countries.bmp");
+    vic3Gen->dumpDebugCountrymap(Cfg::Values().mapsPath + "countries.png");
     vic3Gen->generateRegions(vic3Gen->gameRegions);
     // Vic3 specifics:
     vic3Gen->generateStrategicRegions();
@@ -210,9 +210,9 @@ void Module::generate() {
       }
 
       // also dump uncompressed packed heightmap
-      formatConverter.dump8BitHeightmap(
-          vic3Gen->heightMap, pathcfg.gameModPath + "//map_data//heightmap",
-          "heightmap");
+      //formatConverter.dump8BitHeightmap(
+      //    vic3Gen->heightMap, pathcfg.gameModPath + "//map_data//heightmap",
+      //    "heightmap");
       formatConverter.dumpPackedHeightmap(
           vic3Gen->heightMap,
           pathcfg.gameModPath + "//map_data//packed_heightmap", "heightmap");

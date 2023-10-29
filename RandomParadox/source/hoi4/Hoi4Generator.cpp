@@ -256,12 +256,12 @@ void Generator::generateWeather() {
         strat.weatherMonths.push_back(
             {averageDeviation, averageTemperature, averagePrecipitation});
         // temperature low, 3
-        strat.weatherMonths[i].push_back(Cfg::Values().baseTemperature +
+        strat.weatherMonths[i].push_back(Cfg::Values().minimumDegCelcius +
                                          averageTemperature *
                                              Cfg::Values().temperatureRange);
         // tempHigh, 4
         strat.weatherMonths[i].push_back(
-            Cfg::Values().baseTemperature +
+            Cfg::Values().minimumDegCelcius +
             averageTemperature * Cfg::Values().temperatureRange +
             averageDeviation * Cfg::Values().deviationFactor);
         // light_rain chance: cold and humid -> high, 5

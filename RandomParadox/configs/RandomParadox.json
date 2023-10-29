@@ -14,7 +14,7 @@
 	"Europa Universalis IV": 
 	{
 		"modName" : "eu4Mod1",
-		"gamePath" : "D:\Steam//steamapps//common//Europa Universalis IV",
+		"gamePath" : "D://Steam//steamapps//common//Europa Universalis IV",
 		"modPath" : "exports//",
 		"modsDirectory" : "exports//"
 	},
@@ -29,8 +29,8 @@
 	{
 		"modName" : "vic3Mod1",
 		"gamePath" : "D://Steam//steamapps//common//Victoria 3//",
-		"modPath" : "exports//",
-		"modsDirectory" : "exports//",
+		"modPath" : "C:\Users\<username>\Documents\Paradox Interactive\Victoria 3\mod",
+		"modsDirectory" : "C:\Users\<username>\Documents\Paradox Interactive\Victoria 3\mod",
 		"mappingPath": "inputs//Victoria 3//"
 	}
 }

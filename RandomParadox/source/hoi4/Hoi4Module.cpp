@@ -76,7 +76,6 @@ bool Hoi4Module::createPaths() {
     // common
     create_directory(pathcfg.gameModPath + "//common//");
     // map
-    create_directory(pathcfg.gameModPath + "//map//supplyareas//");
     create_directory(pathcfg.gameModPath + "//map//strategicregions//");
     // gfx
     create_directory(pathcfg.gameModPath + "//gfx//flags//small//");
@@ -111,15 +110,6 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
                                const boost::property_tree::ptree &rpdConf) {
   Fwg::Utils::Logging::logLine("Reading Hoi4 Config");
   this->configurePaths(username, "Hearts of Iron IV", rpdConf);
-
-  //// now try to locate game files
-  // if (!findGame(pathcfg.gamePath, "Hearts of Iron IV")) {
-  //   //throw(std::exception("Could not locate the game. Exiting"));
-  // }
-  //// now try to locate game files
-  // if (!validateModFolder("Hearts of Iron IV")) {
-  //   //throw(std::exception("Could not locate the mod folders. Exiting"));
-  // }
 
   auto &config = Cfg::Values();
   namespace pt = boost::property_tree;

@@ -35,6 +35,10 @@ bool GenericModule::findGame(std::string &path, const std::string &game) {
       path = drive + "Steams//steamapps//common//" + game;
       Logging::logLine("Located game under ", path);
       return true;
+    } else if (exists(drive + "SteamLibrary//steamapps//common//" + game)) {
+      path = drive + "SteamLibrary//steamapps//common//" + game;
+      Logging::logLine("Located game under ", path);
+      return true;
     }
   }
   Logging::logLine("Could not find the game anywhere. Make sure the path to ",
