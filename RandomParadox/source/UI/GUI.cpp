@@ -430,6 +430,7 @@ bool GUI::scenarioGenReady() {
 
 int GUI::showScenarioTab(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> activeModule) {
+  int retCode = 0;
   if (ImGui::BeginTabItem("Scenario")) {
     freeTexture(&curtexture);
     tabSwitchEvent();
@@ -441,8 +442,10 @@ int GUI::showScenarioTab(
       // auto initialize
       if (ImGui::Button("Init") ||
           !activeModule->generator->gameProvinces.size()) {
-        if (!activeModule->createPaths())
-          return -1;
+        if (!activeModule->createPaths()) {
+          Fwg::Utils::Logging::logLine("ERROR: Couldn't create paths");
+          retCode = -1;
+        }
         // start with the generic stuff in the Scenario Generator
         activeModule->generator->mapProvinces();
         activeModule->generator->mapRegions();
@@ -470,7 +473,7 @@ int GUI::showScenarioTab(
     // switchTexture(fwg.provinceMap, texture, ActiveTexture::PROVINCES);
     ImGui::EndTabItem();
   }
-  return 0;
+  return retCode;
 }
 
 int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
