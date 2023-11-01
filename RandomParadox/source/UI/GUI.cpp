@@ -446,6 +446,8 @@ int GUI::showScenarioTab(
           Fwg::Utils::Logging::logLine("ERROR: Couldn't create paths");
           retCode = -1;
         }
+        activeModule->initNameData("resources//names",
+                                   activeModule->pathcfg.gamePath);
         // start with the generic stuff in the Scenario Generator
         activeModule->generator->mapProvinces();
         activeModule->generator->mapRegions();

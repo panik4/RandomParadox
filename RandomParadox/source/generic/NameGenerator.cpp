@@ -4,7 +4,8 @@ namespace Scenario {
 namespace NameGeneration {
 std::string generateName(const NameData &nameData) {
   auto selectedRule{
-      nameData.nameRules[RandNum::getRandom((size_t)0, nameData.nameRules.size())]};
+      nameData
+          .nameRules[RandNum::getRandom((size_t)0, nameData.nameRules.size())]};
   auto selectedRuleNum{Fwg::Parsing::getTokens(selectedRule, ';')};
   std::string name{Detail::getToken(selectedRuleNum, nameData)};
   std::transform(name.begin(), name.begin() + 1, name.begin(), ::toupper);
@@ -64,8 +65,7 @@ NameData prepare(const std::string &path, const std::string &gamePath) {
   Fwg::Utils::Logging::logLine("Preparing name generation from path", path);
   NameData nameData;
   if (std::filesystem::exists(gamePath)) {
-    nameData.nameRules =
-        Fwg::Parsing::getLines(path + "//name_rules.txt");
+    nameData.nameRules = Fwg::Parsing::getLines(path + "//name_rules.txt");
     Detail::readMap(path + "//token_groups.txt", nameData.groups);
     Detail::readMap(path + "//state_types.txt", nameData.ideologyNames);
     Detail::readMap(path + "//faction_names.txt", nameData.factionNames);
@@ -74,6 +74,9 @@ NameData prepare(const std::string &path, const std::string &gamePath) {
       for (const auto &tag : forbiddenTags)
         nameData.tags.insert(tag);
     }
+  } else {
+    Fwg::Utils::Logging::logLine(
+        "ERROR: Can't prepare namedata as path does not exist!");
   }
   return nameData;
 }

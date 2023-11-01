@@ -20,25 +20,29 @@ bool GenericModule::findGame(std::string &path, const std::string &game) {
         "try to locate the game, but may not succeed. It is "
         "recommended to correctly configure the path");
   }
+  const std::vector<std::string> commonPaths{
+      "Program Files (x86)//Steam//steamapps//common//",
+      "Program Files//Steam//steamapps//common//", "Steam//steamapps//common//",
+      "SteamLibrary//steamapps//common//"};
   for (const auto &drive : drives) {
-    if (exists(drive + "Program Files (x86)//Steam//steamapps//common//" +
-               game)) {
-      path = drive + "Program Files (x86)//Steam//steamapps//common//" + game;
-      Logging::logLine("Located game under ", path);
-      return true;
-    } else if (exists(drive + "Program Files//Steam//steamapps//common//" +
-                      game)) {
-      path = drive + "Program Files//Steam//steamapps//common//" + game;
-      Logging::logLine("Located game under ", path);
-      return true;
-    } else if (exists(drive + "Steam//steamapps//common//" + game)) {
-      path = drive + "Steam//steamapps//common//" + game;
-      Logging::logLine("Located game under ", path);
-      return true;
-    } else if (exists(drive + "SteamLibrary//steamapps//common//" + game)) {
-      path = drive + "SteamLibrary//steamapps//common//" + game;
-      Logging::logLine("Located game under ", path);
-      return true;
+    for (auto &commonPath : commonPaths) {
+      if (exists(drive + commonPath + game)) {
+        path = drive + commonPath + game;
+        Logging::logLine("Located game under ", path);
+        return true;
+      } else if (exists(drive + commonPath + game)) {
+        path = drive + commonPath + game;
+        Logging::logLine("Located game under ", path);
+        return true;
+      } else if (exists(drive + commonPath + game)) {
+        path = drive + commonPath + game;
+        Logging::logLine("Located game under ", path);
+        return true;
+      } else if (exists(drive + commonPath + game)) {
+        path = drive + commonPath + game;
+        Logging::logLine("Located game under ", path);
+        return true;
+      }
     }
   }
   Logging::logLine("Could not find the game anywhere. Make sure the path to ",
@@ -112,6 +116,11 @@ void GenericModule::sanitizePath(std::string &path) {
 }
 
 void GenericModule::generate() {}
+
+void GenericModule::initNameData(const std::string &path,
+                                 const std::string &gamePath) {
+  generator->nData = NameGeneration::prepare(path, gamePath);
+}
 
 // reads generic configs for every module
 void GenericModule::configurePaths(

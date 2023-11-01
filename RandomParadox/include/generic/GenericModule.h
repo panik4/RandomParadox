@@ -31,5 +31,6 @@ public:
   void sanitizePath(std::string& path);
   Utils::Pathcfg pathcfg;
   virtual void generate();
+  virtual void initNameData(const std::string& path, const std::string& gamePath);
 };
 } // namespace Scenario

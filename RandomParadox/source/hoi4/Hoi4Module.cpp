@@ -20,8 +20,6 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   readHoiConfig(configSubFolder, username, gamesConf);
   // try to assemble a region map for loading for fwg
   if (config.cut && config.loadRegions) {
-    hoi4Gen->nData =
-        NameGeneration::prepare("resources//names", pathcfg.gamePath);
     readHoi(pathcfg.gamePath);
     auto regionMap =
         Scenario::Hoi4::MapPainting::States::Detail::createStateBitmap(
@@ -41,8 +39,6 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   }
 
   readHoiConfig(configSubFolder, username, gamesConf);
-  hoi4Gen->nData =
-      NameGeneration::prepare("resources//names", pathcfg.gamePath);
   // if (editMode) {
   //   // start loading mod/game files
   //   readHoi(pathcfg.gamePath);
@@ -349,6 +345,7 @@ void Hoi4Module::generate() {
   if (!createPaths())
     return;
   try {
+    initNameData("resources//names", this->pathcfg.gamePath);
     // start with the generic stuff in the Scenario hoi4Gen
     hoi4Gen->mapProvinces();
     hoi4Gen->mapRegions();
