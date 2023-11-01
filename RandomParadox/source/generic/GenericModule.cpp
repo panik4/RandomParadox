@@ -32,7 +32,7 @@ bool GenericModule::findGame(std::string &path, const std::string &game) {
       Logging::logLine("Located game under ", path);
       return true;
     } else if (exists(drive + "Steam//steamapps//common//" + game)) {
-      path = drive + "Steams//steamapps//common//" + game;
+      path = drive + "Steam//steamapps//common//" + game;
       Logging::logLine("Located game under ", path);
       return true;
     } else if (exists(drive + "SteamLibrary//steamapps//common//" + game)) {
