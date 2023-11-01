@@ -10,8 +10,6 @@ Module::Module(const boost::property_tree::ptree &gamesConf,
                                           Scenario::Generator>(generator);
   // read eu4 configs and potentially overwrite settings for fwg
   readVic3Config(configSubFolder, username, gamesConf);
-  vic3Gen->nData =
-      NameGeneration::prepare("resources//names", pathcfg.gamePath + "");
 }
 
 Module::~Module() {}
@@ -117,6 +115,7 @@ void Module::generate() {
   if (!createPaths())
     return;
 
+  initNameData("resources//names", this->pathcfg.gamePath);
   try {
     // start with the generic stuff in the Scenario Generator
     vic3Gen->mapProvinces();

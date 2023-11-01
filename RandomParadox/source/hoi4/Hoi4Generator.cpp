@@ -6,7 +6,6 @@ Generator::Generator() {}
 
 Generator::Generator(const std::string &configSubFolder)
     : Scenario::Generator(configSubFolder) {
-  nData = NameGeneration::prepare("resources//names");
 }
 
 Generator::~Generator() {}
@@ -50,13 +49,6 @@ void Generator::mapRegions() {
   }
   applyRegionInput();
 }
-
-// void Generator::initializeStates() {
-//   hoi4States.clear();
-//   for (auto &region : this->gameRegions) {
-//     hoi4States.push_back(std::make_shared<Region>(*region));
-//   }
-// }
 
 void Generator::initializeCountries() {
   hoi4Countries.clear();

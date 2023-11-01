@@ -10,7 +10,6 @@ Module::Module(const boost::property_tree::ptree &gamesConf,
                                          Scenario::Generator>(generator);
   // read eu4 configs and potentially overwrite settings for fwg
   readEu4Config(configSubFolder, username, gamesConf);
-  eu4Gen->nData = NameGeneration::prepare("resources//names", pathcfg.gamePath);
 }
 
 Module::~Module() {}
@@ -108,6 +107,7 @@ void Module::generate() {
   if (!createPaths())
     return;
 
+  initNameData("resources//names", this->pathcfg.gamePath);
   try {
     // start with the generic stuff in the Scenario Generator
     eu4Gen->mapProvinces();
