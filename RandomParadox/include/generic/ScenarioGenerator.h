@@ -45,7 +45,6 @@ public:
   double resourceFactor = 1.0;
   double sizeFactor = 1.0;
   // containers - used for every game
-
   std::map<std::string, Fwg::Province::TerrainType> stringToTerrainType = {
       {"plains", Fwg::Province::TerrainType::grassland},
       {"forest", Fwg::Province::TerrainType::forest},
