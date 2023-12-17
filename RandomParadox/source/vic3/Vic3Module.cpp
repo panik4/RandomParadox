@@ -209,9 +209,9 @@ void Module::generate() {
       }
 
       // also dump uncompressed packed heightmap
-      //formatConverter.dump8BitHeightmap(
-      //    vic3Gen->heightMap, pathcfg.gameModPath + "//map_data//heightmap",
-      //    "heightmap");
+      formatConverter.dump8BitHeightmap(
+          vic3Gen->heightMap, pathcfg.gameModPath + "//map_data//heightmap",
+          "heightmap");
       formatConverter.dumpPackedHeightmap(
           vic3Gen->heightMap,
           pathcfg.gameModPath + "//map_data//packed_heightmap", "heightmap");

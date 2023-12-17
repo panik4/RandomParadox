@@ -561,7 +561,7 @@ void FormatConverter::dumpPackedHeightmap(
     // TODO: Threading
     writeTile(xTiles, yTiles, basePackedHeightMap, packedHeightMap, mapX, mapY,
               packedX);
-    Png::save(packedHeightMap, path + ".png");
+    Png::save(packedHeightMap, path + ".png", false, LCT_GREY, 16);
   } else {
 
     Bitmap packedHeightMap(Cfg::Values().width, Cfg::Values().height, 8);
@@ -682,7 +682,8 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
   Fwg::Gfx::Colour baseColour2 = {40, 100, 110};
   for (auto h = 0; h < imageHeight; h++) {
     for (auto w = 0; w < imageWidth; w++) {
-      auto referenceIndex = h * width + w;
+        // use imagewidth here, as we simply compare two equally sized images
+      auto referenceIndex = h * imageWidth + w;
       double humidity = (double)scaledMap[referenceIndex].getBlue() / 255.0;
       auto imageIndex =
           imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
@@ -709,7 +710,8 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
   imageHeight = scaledHeight.height();
   for (auto h = 0; h < imageHeight; h++) {
     for (auto w = 0; w < imageWidth; w++) {
-      auto referenceIndex = h * width + w;
+      // use imagewidth here, as we simply compare two equally sized images
+      auto referenceIndex = h * imageWidth + w;
       double humidity = (double)scaledMap[referenceIndex].getBlue() / 255.0;
       auto imageIndex =
           imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
