@@ -8,14 +8,7 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   hoi4Gen = std::reinterpret_pointer_cast<Scenario::Hoi4::Generator,
                                           Scenario::Generator>(generator);
   const auto &config = Fwg::Cfg::Values();
-  if (config.width % 64 || config.height % 64) {
-    throw(std::exception("Invalid format, both width and height of the image "
-                         "must be multiples of 64."));
-  } else if (config.scale && (config.scaleX % 64 || config.scaleY % 64)) {
-    throw(std::exception("Invalid target dimensions for scaling mode, both "
-                         "scaleX and scaleY of the image "
-                         "must be multiples of 64."));
-  }
+
   // read hoi configs and potentially overwrite settings for fwg
   readHoiConfig(configSubFolder, username, gamesConf);
   // try to assemble a region map for loading for fwg
@@ -342,6 +335,15 @@ void Hoi4Module::mapEdit() {
 }
 
 void Hoi4Module::generate() {
+  const auto &config = Fwg::Cfg::Values();
+  if (config.width % 64 || config.height % 64) {
+    throw(std::exception("Invalid format, both width and height of the image "
+                         "must be multiples of 64."));
+  } else if (config.scale && (config.scaleX % 64 || config.scaleY % 64)) {
+    throw(std::exception("Invalid target dimensions for scaling mode, both "
+                         "scaleX and scaleY of the image "
+                         "must be multiples of 64."));
+  }
   if (!createPaths())
     return;
   try {

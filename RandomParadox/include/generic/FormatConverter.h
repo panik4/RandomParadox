@@ -66,7 +66,10 @@ public:
                       const Fwg::Gfx::Bitmap &humidityMap,
                       const std::string &path);
   void dynamicMasks(const std::string &path);
-  void detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
+  void detailIndexMap(const Fwg::Gfx::Bitmap &fwgDetailIndex,
+                      const Fwg::Gfx::Bitmap &fwgDetailIntensity,
+                      const std::string &path);
+  void detailIntensityMap(const Fwg::Gfx::Bitmap &fwgDetailIntensity,
                       const std::string &path);
 };
 } // namespace Scenario::Gfx
