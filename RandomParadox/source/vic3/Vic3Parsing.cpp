@@ -44,11 +44,10 @@ void defaultMap(const std::string &path,
 void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap) {
   auto content = pU::readFile("resources//vic3//map_data//heightmap.heightmap");
   Logging::logLine("VIC3 Parser: Map: heightmap.heightmap");
-  pU::Scenario::replaceOccurences(
-      content, "template_map_x", std::to_string(heightMap.width()));
-  pU::Scenario::replaceOccurences(
-      content, "template_map_y",
-      std::to_string(heightMap.height()));
+  pU::Scenario::replaceOccurences(content, "template_map_x",
+                                  std::to_string(heightMap.width()));
+  pU::Scenario::replaceOccurences(content, "template_map_y",
+                                  std::to_string(heightMap.height()));
   pU::writeFile(path, content);
 }
 
@@ -273,9 +272,8 @@ void popsHistory(const std::string &path,
       std::string pop = popsSingleTemplate;
       pU::Scenario::replaceOccurences(pop, "templateCulture",
                                       culture.first->name);
-      pU::Scenario::replaceOccurences(
-          pop, "templatePopSize",
-          std::to_string((int)(culture.second * 10000.0)));
+      pU::Scenario::replaceOccurences(pop, "templatePopSize",
+                                      std::to_string(region->population));
       listOfPops.append(pop);
     }
 
@@ -331,8 +329,9 @@ void splineNetwork(const std::string &path) {
 
 void compatCanals(const std::string &path) { pU::writeFile(path, "", true); }
 
-std::string compatRegions(const std::string &inFolder, const std::string &outPath,
-                   const std::vector<std::shared_ptr<Region>> &regions) {
+std::string compatRegions(const std::string &inFolder,
+                          const std::string &outPath,
+                          const std::vector<std::shared_ptr<Region>> &regions) {
   int counter = regions.size() + 1;
   std::string foundRegionNames = "";
   for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder}) {

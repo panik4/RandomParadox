@@ -64,15 +64,6 @@ void Module::readVic3Config(const std::string &configSubFolder,
                             const boost::property_tree::ptree &rpdConf) {
   Fwg::Utils::Logging::logLine("Reading Vic 3 Config");
   this->configurePaths(username, "Victoria 3", rpdConf);
-
-  //// now try to locate game files
-  // if (!findGame(pathcfg.gamePath, "Victoria 3")) {
-  //   //throw(std::exception("Could not locate the game. Exiting"));
-  // }
-  //// now try to locate game files
-  // if (!validateModFolders("Victoria 3")) {
-  //   //throw(std::exception("Could not locate the mod folders. Exiting"));
-  // }
   auto &config = Cfg::Values();
   namespace pt = boost::property_tree;
   pt::ptree vic3Conf;
@@ -103,6 +94,8 @@ void Module::readVic3Config(const std::string &configSubFolder,
   config.seaProvFactor *= 0.02;
   config.landProvFactor *= 1.0;
   config.minProvPerSeaRegion = 1;
+  // allow massive images for Vic3
+  config.targetMaxImageSize = 160'000'000;
   config.loadMapsPath = vic3Conf.get<std::string>("fastworldgen.loadMapsPath");
   config.heightmapIn = config.loadMapsPath +
                        vic3Conf.get<std::string>("fastworldgen.heightMapName");
@@ -125,8 +118,8 @@ void Module::generate() {
     vic3Gen->generateCountries();
     vic3Gen->evaluateNeighbours();
     vic3Gen->generateWorldCivilizations();
+    vic3Gen->distributePops();
     vic3Gen->dumpDebugCountrymap(Cfg::Values().mapsPath + "countries.png");
-    vic3Gen->generateRegions(vic3Gen->gameRegions);
     // Vic3 specifics:
     vic3Gen->generateStrategicRegions();
 
@@ -141,10 +134,10 @@ void Module::generate() {
     auto foundRegions =
         compatRegions(pathcfg.gamePath + "//game//map_data//state_regions//",
                       pathcfg.gameModPath + "//map_data//state_regions//",
-                      vic3Gen->gameRegions);
+                      vic3Gen->vic3Regions);
     compatStratRegions(pathcfg.gamePath + "//game//common//strategic_regions//",
                        pathcfg.gameModPath + "//common//strategic_regions//",
-                       vic3Gen->gameRegions, foundRegions);
+                       vic3Gen->vic3Regions, foundRegions);
     compatReleasable(pathcfg.gamePath + "//game//common//country_creation//",
                      pathcfg.gameModPath + "//common//country_creation//");
     adj(pathcfg.gameModPath + "//map_data//adjacencies.csv");
@@ -156,12 +149,12 @@ void Module::generate() {
               vic3Gen->heightMap);
     stateFiles(pathcfg.gameModPath +
                    "//map_data//state_regions//00_regions.txt",
-               vic3Gen->gameRegions);
+               vic3Gen->vic3Regions);
     writeMetadata(pathcfg.gameModPath + "//.metadata//metadata.json");
     strategicRegions(
         pathcfg.gameModPath +
             "//common//strategic_regions//randVic_strategic_regions.txt",
-        vic3Gen->strategicRegions, vic3Gen->gameRegions);
+        vic3Gen->strategicRegions, vic3Gen->vic3Regions);
     cultureCommon(pathcfg.gameModPath +
                       "//common//cultures//01_additional_cultures.txt",
                   vic3Gen->cultures);
@@ -169,12 +162,12 @@ void Module::generate() {
                    vic3Gen->religions);
     countryCommon(pathcfg.gameModPath +
                       "//common//country_definitions//02_custom.txt",
-                  vic3Gen->countries, vic3Gen->gameRegions);
+                  vic3Gen->countries, vic3Gen->vic3Regions);
     stateHistory(pathcfg.gameModPath +
                      "//common//history//states//00_states.txt",
-                 vic3Gen->gameRegions);
+                 vic3Gen->vic3Regions);
     popsHistory(pathcfg.gameModPath + "//common//history//pops//00_world.txt",
-                vic3Gen->gameRegions);
+                vic3Gen->vic3Regions);
     countryHistory(pathcfg.gameModPath + "//common//history//countries",
                    vic3Gen->countries);
     splineNetwork(pathcfg.gameModPath + "//gfx//map//spline_network//");
@@ -195,9 +188,11 @@ void Module::generate() {
     Gfx::FormatConverter formatConverter(pathcfg.gamePath, "Vic3");
     if (true) {
 
-      formatConverter.Vic3ColourMaps(vic3Gen->climateMap, vic3Gen->treeMap,
-                                     vic3Gen->heightMap, vic3Gen->humidityMap,
-                                     pathcfg.gameModPath + "//gfx//map//");
+      formatConverter.Vic3ColourMaps(
+          Fwg::Gfx::MapMerging::mergeTerrain(
+              vic3Gen->heightMap, vic3Gen->climateMap, vic3Gen->sobelMap),
+          vic3Gen->treeMap, vic3Gen->heightMap, vic3Gen->humidityMap,
+          pathcfg.gameModPath + "//gfx//map//");
       formatConverter.dump8BitRivers(vic3Gen->riverMap,
                                      pathcfg.gameModPath + "//map_data//rivers",
                                      "rivers", cut);
@@ -215,8 +210,11 @@ void Module::generate() {
       formatConverter.dumpPackedHeightmap(
           vic3Gen->heightMap,
           pathcfg.gameModPath + "//map_data//packed_heightmap", "heightmap");
-      formatConverter.detailIndexMap(vic3Gen->climateMap,
+      formatConverter.detailIndexMap(vic3Gen->climateIndexMap,
+                                     vic3Gen->climateIndexIntensityMap,
                                      pathcfg.gameModPath + "//gfx//map//");
+      formatConverter.detailIntensityMap(vic3Gen->climateIndexIntensityMap,
+                                         pathcfg.gameModPath + "//gfx//map//");
       using namespace Fwg::Gfx;
       // just copy over provinces.bmp as a .png, already in a compatible format
       auto scaledMap = Bmp::scale(vic3Gen->provinceMap, 8192, 3616, false);

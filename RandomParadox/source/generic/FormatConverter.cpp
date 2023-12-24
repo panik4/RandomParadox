@@ -4,32 +4,47 @@ using namespace Textures;
 using namespace Fwg;
 using namespace Fwg::Gfx;
 
+//
+//{
+//  "terrainVic3", {
+//    {Cfg::Values().colours["rockyHills"], 13},
+//        {Cfg::Values().colours["snowyHills"], 22},
+//        {Cfg::Values().colours["rockyMountains"], 15},
+//        {Cfg::Values().colours["snowyMountains"], 22},
+//        {Cfg::Values().colours["rockyPeaks"], 16},
+//        {Cfg::Values().colours["snowyPeaks"], 22},
+//        {Cfg::Values().colours["grassland"], 23},
+//        {Cfg::Values().colours["grasslandHills"], 13},
+//        {Cfg::Values().colours["grasslandMountains"], 14},
+//        {Cfg::Values().colours["desert"], 1},
+//        {Cfg::Values().colours["desertHills"], 19},
+//        {Cfg::Values().colours["desertMountains"], 20},
+//        {Cfg::Values().colours["forest"], 26},
+//        {Cfg::Values().colours["forestHills"], 13},
+//        {Cfg::Values().colours["forestMountains"], 14},
+//        {Cfg::Values().colours["savanna"], 5},
+//        {Cfg::Values().colours["drysavanna"], 6},
+//        {Cfg::Values().colours["jungle"], 28},
+//        {Cfg::Values().colours["tundra"], 29},
+//        {Cfg::Values().colours["ice"], 22}, {Cfg::Values().colours["marsh"],
+//        9}, {Cfg::Values().colours["urban"], 24},
+//        {Cfg::Values().colours["farm"], 25}, {
+//      Cfg::Values().colours["sea"], 1
+//    }
+//  }
+//}
+
 const std::map<std::string, std::map<Gfx::Colour, Gfx::Colour>>
-    // FormatConverter::colourMaps2{
-    //     {"terrainVic3",
-    //      {{Cfg::Values().colours["grassland"], Fwg::Gfx::Colour(23, 32, 15)},
-    //       {Cfg::Values().colours["ice"], Fwg::Gfx::Colour(21, 12, 255)},
-    //       {Cfg::Values().colours["tundra"], Fwg::Gfx::Colour(28, 24, 29)},
-    //       {Cfg::Values().colours["forest"], Fwg::Gfx::Colour(13, 21, 14)},
-    //       {Cfg::Values().colours["jungle"], Fwg::Gfx::Colour(32, 31, 23)},
-    //       {Cfg::Values().colours["savanna"], Fwg::Gfx::Colour(26, 25, 24)},
-    //       {Cfg::Values().colours["desert"], Fwg::Gfx::Colour(2, 4, 255)},
-    //       {Cfg::Values().colours["snowyPeaks"], Fwg::Gfx::Colour(15, 24,
-    //       255)}, {Cfg::Values().colours["rockyMountains"],
-    //       Fwg::Gfx::Colour(24, 15, 22)},
-    //       {Cfg::Values().colours["rockyHills"], Fwg::Gfx::Colour(24, 22,
-    //       15)}, {Cfg::Values().colours["sea"], Fwg::Gfx::Colour(13, 7,
-    //       255)}}}};
     FormatConverter::colourMaps2{
         {"terrainVic3",
-         {{Cfg::Values().colours["rockyHills"], Fwg::Gfx::Colour(24, 22, 15)},
+         {{Cfg::Values().colours["rockyHills"], Fwg::Gfx::Colour(14, 24, 23)},
           {Cfg::Values().colours["snowyHills"], Fwg::Gfx::Colour(21, 12, 255)},
           {Cfg::Values().colours["rockyMountains"],
            Fwg::Gfx::Colour(24, 22, 15)},
           {Cfg::Values().colours["snowyMountains"],
            Fwg::Gfx::Colour(21, 12, 255)},
           {Cfg::Values().colours["rockyPeaks"], Fwg::Gfx::Colour(24, 22, 15)},
-          {Cfg::Values().colours["snowyPeaks"], Fwg::Gfx::Colour(21, 12, 255)},
+          {Cfg::Values().colours["snowyPeaks"], Fwg::Gfx::Colour(3, 2, 4)},
           {Cfg::Values().colours["grassland"], Fwg::Gfx::Colour(23, 32, 15)},
           {Cfg::Values().colours["grasslandHills"],
            Fwg::Gfx::Colour(23, 32, 15)},
@@ -39,7 +54,7 @@ const std::map<std::string, std::map<Gfx::Colour, Gfx::Colour>>
           {Cfg::Values().colours["desertHills"], Fwg::Gfx::Colour(2, 4, 255)},
           {Cfg::Values().colours["desertMountains"],
            Fwg::Gfx::Colour(2, 4, 255)},
-          {Cfg::Values().colours["forest"], Fwg::Gfx::Colour(13, 21, 14)},
+          {Cfg::Values().colours["forest"], Fwg::Gfx::Colour(31, 28, 23)},
           {Cfg::Values().colours["forestHills"], Fwg::Gfx::Colour(13, 21, 14)},
           {Cfg::Values().colours["forestMountains"],
            Fwg::Gfx::Colour(13, 21, 14)},
@@ -48,10 +63,11 @@ const std::map<std::string, std::map<Gfx::Colour, Gfx::Colour>>
           {Cfg::Values().colours["jungle"], Fwg::Gfx::Colour(32, 31, 23)},
           {Cfg::Values().colours["tundra"], Fwg::Gfx::Colour(28, 24, 29)},
           {Cfg::Values().colours["ice"], Fwg::Gfx::Colour(21, 12, 255)},
-          {Cfg::Values().colours["marsh"], Fwg::Gfx::Colour(23, 32, 15)},
+          {Cfg::Values().colours["marsh"], Fwg::Gfx::Colour(7, 6, 23)},
           {Cfg::Values().colours["urban"], Fwg::Gfx::Colour(23, 32, 15)},
           {Cfg::Values().colours["farm"], Fwg::Gfx::Colour(23, 32, 15)},
-          {Cfg::Values().colours["sea"], Fwg::Gfx::Colour(13, 7, 255)}}}};
+          {Cfg::Values().colours["sea"], Fwg::Gfx::Colour(13, 7, 255)}}},
+    };
 const std::map<std::string, std::map<Gfx::Colour, int>>
     FormatConverter::colourMaps{
         {"terrainHoi4",
@@ -223,7 +239,9 @@ const std::map<std::string, std::map<Gfx::Colour, int>>
           {Cfg::Values().colours["marsh"], 0},
           {Cfg::Values().colours["urban"], 0},
           {Cfg::Values().colours["farm"], 0},
-          {Cfg::Values().colours["sea"], 15}}}};
+          {Cfg::Values().colours["sea"], 15}}}
+
+    };
 
 Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
                                    const int bit) const {
@@ -276,9 +294,10 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
                                          scaledImg.GetPixels()[i + 2]));
     }
     // save the bmp as a png
-    Png::save(scaledMap, path + ".png", false);
+    Png::save(scaledMap, path + ".png", true, LCT_GREY, 8);
     // overwrite the current heightmap with the scaled one, for later packing
     heightMap = scaledMap;
+    heightMap.gaussianFilter(25, 3);
   } else {
     Bitmap outputMap(Cfg::Values().width, Cfg::Values().height, 8);
     outputMap.colourtable = colourTables.at(colourMapKey + gameTag);
@@ -650,7 +669,7 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
   imageHeight = scaledMap.height();
   for (auto h = 0; h < imageHeight; h++) {
     for (auto w = 0; w < imageWidth; w++) {
-      auto referenceIndex = h * width + w;
+      auto referenceIndex = h * imageWidth + w;
       double depth = (double)scaledMap[referenceIndex].getBlue() /
                      (double)Cfg::Values().seaLevel;
       auto imageIndex =
@@ -682,7 +701,7 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
   Fwg::Gfx::Colour baseColour2 = {40, 100, 110};
   for (auto h = 0; h < imageHeight; h++) {
     for (auto w = 0; w < imageWidth; w++) {
-        // use imagewidth here, as we simply compare two equally sized images
+      // use imagewidth here, as we simply compare two equally sized images
       auto referenceIndex = h * imageWidth + w;
       double humidity = (double)scaledMap[referenceIndex].getBlue() / 255.0;
       auto imageIndex =
@@ -742,32 +761,156 @@ void FormatConverter::dynamicMasks(const std::string &path) {
   //
 }
 
-void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &climateMap,
+void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &fwgDetailIndex,
+                                     const Fwg::Gfx::Bitmap &fwgDetailIntensity,
                                      const std::string &path) {
+  Utils::Logging::logLine("Vic3::Writing detailIndexMap");
+  auto scaledFwgDetailIndex =
+      Fwg::Gfx::Bmp::scale(fwgDetailIndex, 8192, 3616, false);
+  auto scaledfwgDetailIntensity =
+      Fwg::Gfx::Bmp::scale(fwgDetailIntensity, 8192, 3616, false);
+  const auto &height = scaledFwgDetailIndex.height();
+  const auto &width = scaledFwgDetailIndex.width();
+  int factor = 1;
+  auto imageWidth = width / factor;
+  auto imageHeight = height / factor;
+  std::vector<Fwg::Gfx::Bitmap> masks;
+  auto inMap = scaledFwgDetailIndex;
+  inMap.fill(0);
+  for (int i = 0; i < 36; i++) {
+    masks.push_back(inMap);
+  }
 
-  auto copy = Fwg::Gfx::Bmp::scale(climateMap, 8192, 3616, false);
+  // we need a definition for each mask, that contains the mask name, the input
+  // colour, the output colour in theory, iterate over created detail_index.tga,
+  // for every pixel get values in detail_intensity, then by the index, modify
+  // mask in a vector of masks. At the end, write all masks according to index
+  // and therefore name
+
+  //    {Cfg::Values().colours["rockyHills"], 13},
+  //        {Cfg::Values().colours["snowyHills"], 22},
+  //        {Cfg::Values().colours["rockyMountains"], 15},
+  //        {Cfg::Values().colours["snowyMountains"], 22},
+  //        {Cfg::Values().colours["rockyPeaks"], 16},
+  //        {Cfg::Values().colours["snowyPeaks"], 22},
+  //        {Cfg::Values().colours["grassland"], 23},
+  //        {Cfg::Values().colours["grasslandHills"], 13},
+  //        {Cfg::Values().colours["grasslandMountains"], 14},
+  //        {Cfg::Values().colours["desert"], 1},
+  //        {Cfg::Values().colours["desertHills"], 19}, //10
+  //        {Cfg::Values().colours["desertMountains"], 20},
+  //        {Cfg::Values().colours["forest"], 26},
+  //        {Cfg::Values().colours["forestHills"], 13},
+  //        {Cfg::Values().colours["forestMountains"], 14},
+  //        {Cfg::Values().colours["savanna"], 5}, //15
+  //        {Cfg::Values().colours["drysavanna"], 6},
+  //        {Cfg::Values().colours["jungle"], 28},
+  //        {Cfg::Values().colours["tundra"], 29},
+  //        {Cfg::Values().colours["ice"], 22},
+  //         {Cfg::Values().colours["marsh"], 9},
+  //        {Cfg::Values().colours["urban"], 24},
+  //        {Cfg::Values().colours["farm"], 25}, {
+  //      Cfg::Values().colours["sea"], 1
+  std::map<int, int> testmap{{0, 12},  {1, 21},  {2, 14},  {3, 21},  {4, 15},
+                             {5, 21},  {6, 22},  {7, 12},  {8, 13},  {9, 0},
+                             {10, 18}, {11, 19}, {12, 30}, {13, 12}, {14, 13},
+                             {15, 34}, {16, 35},  {17, 32}, {18, 28}, {19, 21},
+                             {20, 8},  {21, 23}, {22, 24}, {255, 1}};
+  std::map<int, std::string> nameMapping{{0, "desert_01"},
+                                         {1, "desert_03"},
+                                         {2, "desert_04"},
+                                         {3, "desert_05"},
+                                         {4, "desert_06"},
+                                         {5, "beach_01"},
+                                         {6, "beach_02"},
+                                         {7, "beach_03"},
+                                         {8, "marchlands_01"},
+                                         {9, "marchlands_02"},
+                                         {10, "marchlands_03"},
+                                         {11, "marchlands_04"},
+                                         {12, "cliff_granite_01"},
+                                         {13, "cliff_granite_02"},
+                                         {14, "cliff_granite_06"},
+                                         {15, "cliff_granite_07"},
+                                         {16, "cliff_limestone_02"},
+                                         {17, "cliff_limestone_03"},
+                                         {18, "cliff_sandstone_03"},
+                                         {19, "cliff_sandstone_04"},
+                                         {20, "cliff_sandstone_05"},
+                                         {21, "snow_02"},
+                                         {22, "grasslands_01"},
+                                         {23, "grasslands_02"},
+                                         {24, "grasslands_05"},
+                                         {25, "grasslands_06"},
+                                         {26, "grasslands_07"},
+                                         {27, "grasslands_08"},
+                                         {28, "permafrost_01"},
+                                         {29, "permafrost_03"},
+                                         {30, "woodlands_01"},
+                                         {31, "woodlands_02"},
+                                         {32, "woodlands_03"},
+                                         {33, "rocks_01"},
+                                         {34, "savanna_01"},
+                                         {35, "savanna_03"}};
+  std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
+  for (auto h = 0; h < imageHeight; h++) {
+    for (auto w = 0; w < imageWidth; w++) {
+      auto colourmapIndex = factor * h * width + factor * w;
+      auto &c = scaledFwgDetailIndex[colourmapIndex];
+      auto imageIndex =
+          imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
+      imageIndex *= 4;
+      try {
+        pixels[imageIndex] = testmap.at(c.getBlue());
+        pixels[imageIndex + 1] = testmap.at(c.getGreen());
+        pixels[imageIndex + 2] = testmap.at(c.getRed());
+        pixels[imageIndex + 3] = 255;
+        // get the intensity of the colours
+        const auto &intensity = scaledfwgDetailIntensity[imageIndex / 4];
+        // now for every current channel, write the mask using both index and
+        // colour
+        Fwg::Gfx::Colour intensityColour;
+        for (int i = 0; i < 3; i++) {
+          auto maskIndex = pixels[imageIndex + i];
+          // now locate which mask index we need to write to
+          masks[maskIndex].setColourAtIndex(colourmapIndex,
+                                            intensity.getBGR()[2 - i]);
+        }
+      } catch (std::exception e) {
+        std::cout << c << std::endl;
+      }
+    }
+  }
+
+  Textures::writeTGA(8192, 3616, pixels, path + "//terrain//detail_index.tga");
+  for (int i = 0; i < masks.size(); i++) {
+    Fwg::Gfx::Png::save(masks[i],
+                        path + "//terrain//mask_" + nameMapping.at(i) + ".png",
+                        true, LCT_GREY, 8);
+  }
+}
+
+void FormatConverter::detailIntensityMap(
+    const Fwg::Gfx::Bitmap &fwgDetailIntensity, const std::string &path) {
+
+  Utils::Logging::logLine("Vic3::Writing detailIntensity Map");
+  auto copy = Fwg::Gfx::Bmp::scale(fwgDetailIntensity, 8192, 3616, false);
   const auto &height = copy.height();
   const auto &width = copy.width();
   int factor = 1;
   auto imageWidth = width / factor;
   auto imageHeight = height / factor;
-
   std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
-  for (auto h = 0; h < imageHeight; h++) {
-    for (auto w = 0; w < imageWidth; w++) {
-      auto colourmapIndex = factor * h * width + factor * w;
-      const auto &c = colourMaps2.at("terrainVic3").at(copy[colourmapIndex]);
-      auto imageIndex =
-          imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
-      imageIndex *= 4;
-      pixels[imageIndex] = c.getBlue();
-      pixels[imageIndex + 1] = c.getGreen();
-      pixels[imageIndex + 2] = c.getRed();
-      pixels[imageIndex + 3] = 255;
-    }
+  for (auto i = 0; i < copy.size(); i++) {
+    auto imageIndex = i * 4;
+    auto &c = copy[i];
+    pixels[imageIndex] = c.getBlue();
+    pixels[imageIndex + 1] = c.getGreen();
+    pixels[imageIndex + 2] = c.getRed();
+    pixels[imageIndex + 3] = 0;
   }
-
-  Textures::writeTGA(8192, 3616, pixels, path + "//terrain//detail_index.tga");
+  Textures::writeTGA(8192, 3616, pixels,
+                     path + "//terrain//detail_intensity.tga");
 }
 
 FormatConverter::FormatConverter(const std::string &gamePath,
