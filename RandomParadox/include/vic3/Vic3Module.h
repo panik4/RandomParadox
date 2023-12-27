@@ -1,6 +1,6 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include "generic/FormatConverter.h"
+#include "vic3/Vic3FormatConverter.h"
 #include "generic/GenericModule.h"
 #include "generic/ScenarioGenerator.h"
 #include "vic3/Vic3Generator.h"

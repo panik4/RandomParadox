@@ -17,7 +17,7 @@ void adj(const std::string &path) {
 void defaultMap(const std::string &path,
                 const std::vector<std::shared_ptr<GameProvince>> &provinces) {
   auto templateContent = pU::readFile("resources//vic3//map_data//default.map");
-  Logging::logLine("VIC3 Parser: Map: Default Map");
+  Logging::logLine("Vic3 Parser: Map: Default Map");
   std::string content = templateContent;
   std::string seaStarts{""};
   std::string lakes{""};
@@ -43,7 +43,7 @@ void defaultMap(const std::string &path,
 
 void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap) {
   auto content = pU::readFile("resources//vic3//map_data//heightmap.heightmap");
-  Logging::logLine("VIC3 Parser: Map: heightmap.heightmap");
+  Logging::logLine("Vic3 Parser: Map: Writing heightmap.heightmap");
   pU::Scenario::replaceOccurences(content, "template_map_x",
                                   std::to_string(heightMap.width()));
   pU::Scenario::replaceOccurences(content, "template_map_y",
@@ -53,6 +53,8 @@ void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap) {
 
 void stateFiles(const std::string &path,
                 const std::vector<std::shared_ptr<Region>> &regions) {
+  Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing state files");
+
   const auto templateFile =
       pU::readFile("resources//vic3//map_data//state_template.txt");
   std::string file = "";
@@ -127,7 +129,7 @@ void stateFiles(const std::string &path,
 void provinceTerrains(
     const std::string &path,
     const std::vector<std::shared_ptr<GameProvince>> &provinces) {
-  // x48E2A5 = "desert"
+  Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Province Terrains");
   std::string content{""};
   for (const auto &province : provinces) {
     content.append(province->toHexString());
@@ -147,6 +149,7 @@ void provinceTerrains(
   pU::writeFile(path, content);
 }
 void writeMetadata(const std::string &path) {
+  Fwg::Utils::Logging::logLine("Vic3 Parser: Mod: Writing metadata.json");
   const auto templateFile = pU::readFile("resources//vic3//metadata.json");
 
   pU::writeFile(path, templateFile);
@@ -155,6 +158,7 @@ void strategicRegions(const std::string &path,
                       const std::vector<strategicRegion> &strategicRegions,
                       const std::vector<std::shared_ptr<Region>> &regions) {
 
+  Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Strategig Regions");
   const auto templateFile =
       pU::readFile("resources//vic3//common//strategic_regions//template.txt");
   std::string file = "";
@@ -181,7 +185,7 @@ void strategicRegions(const std::string &path,
 }
 void cultureCommon(const std::string &path,
                    const std::vector<std::shared_ptr<Culture>> &cultures) {
-
+  Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing cultures");
   const auto culturesTemplate =
       pU::readFile("resources//vic3//common//cultureTemplate.txt");
   std::string cultureFile{""};
@@ -203,6 +207,7 @@ void cultureCommon(const std::string &path,
 }
 void religionCommon(const std::string &path,
                     const std::vector<std::shared_ptr<Religion>> &religions) {
+  Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing religions");
 
   const auto religionTemplate =
       pU::readFile("resources//vic3//common//singleReligionTemplate.txt");
@@ -220,6 +225,7 @@ void religionCommon(const std::string &path,
 void countryCommon(const std::string &path,
                    const std::map<std::string, Country> &countries,
                    const std::vector<std::shared_ptr<Region>> &regions) {
+  Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing countries");
   const auto countryTemplate =
       pU::readFile("resources//vic3//common//countryDefinitionTemplate.txt");
   std::string countryDefinition{""};
@@ -251,6 +257,7 @@ void countryCommon(const std::string &path,
 }
 void popsHistory(const std::string &path,
                  const std::vector<std::shared_ptr<Region>> &regions) {
+  Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing pops");
   auto popsFile =
       pU::readFile("resources//vic3//common//history//popsTemplate.txt");
   // std::string statePops = "";
@@ -286,6 +293,7 @@ void popsHistory(const std::string &path,
 }
 void stateHistory(const std::string &path,
                   const std::vector<std::shared_ptr<Region>> &regions) {
+  Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing state history");
   auto file = pU::readFile("resources//vic3//common//history//states.txt");
   std::string stateContent = "";
   const auto stateTemplate =
@@ -312,6 +320,7 @@ void stateHistory(const std::string &path,
 }
 void countryHistory(const std::string &path,
                     const std::map<std::string, Country> &countries) {
+  Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing country history");
   const auto countryTemplate =
       pU::readFile("resources//vic3//common//countryHistoryTemplate.txt");
   for (const auto &country : countries) {
@@ -324,14 +333,21 @@ void countryHistory(const std::string &path,
   }
 }
 void splineNetwork(const std::string &path) {
+  Fwg::Utils::Logging::logLine("Vic3 Parser: Gfx: Writing splines");
   pU::writeFile(path + "//spline_network.splnet", "");
 }
 
-void compatCanals(const std::string &path) { pU::writeFile(path, "", true); }
+void compatFile(const std::string &path) {
+  Fwg::Utils::Logging::logLine("Vic3 Parser: Mod: Writing empty file for compatibility to ",
+                               path);
+  pU::writeFile(path, "", true);
+}
 
 std::string compatRegions(const std::string &inFolder,
                           const std::string &outPath,
                           const std::vector<std::shared_ptr<Region>> &regions) {
+  Fwg::Utils::Logging::logLine(
+      "Vic3 Parser: Map: Reading compatibility Regions from ", inFolder);
   int counter = regions.size() + 1;
   std::string foundRegionNames = "";
   for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder}) {
@@ -339,9 +355,11 @@ std::string compatRegions(const std::string &inFolder,
     if (pathString.find(".txt") == std::string::npos)
       continue;
 
+    Fwg::Utils::Logging::logLine("Working with: ", pathString);
     std::string filename =
         pathString.substr(pathString.find_last_of("//") + 1,
                           pathString.back() - pathString.find_last_of("//"));
+    Fwg::Utils::Logging::logLine("Determined filename: ", filename);
     std::string content = "";
     auto lines = pU::getLines(pathString);
     for (auto &line : lines) {
@@ -361,13 +379,18 @@ std::string compatRegions(const std::string &inFolder,
 void compatStratRegions(const std::string &inFolder, const std::string &outPath,
                         const std::vector<std::shared_ptr<Region>> &regions,
                         std::string &baseGameRegions) {
+  Fwg::Utils::Logging::logLine(
+      "Vic3 Parser: Map: Generating compatibility Strategic Regions from ",
+      inFolder);
   for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder}) {
     std::string pathString = dir_entry.path().string();
     if (pathString.find(".txt") == std::string::npos)
       continue;
+    Fwg::Utils::Logging::logLine("Working with: ", pathString);
     std::string filename =
         pathString.substr(pathString.find_last_of("//") + 1,
                           pathString.back() - pathString.find_last_of("//"));
+    Fwg::Utils::Logging::logLine("Determined filename: ", filename);
     std::string content = "";
     auto lines = pU::getLines(pathString);
     auto hexID = regions[0]->gameProvinces[0]->toHexString();
@@ -386,13 +409,18 @@ void compatStratRegions(const std::string &inFolder, const std::string &outPath,
 }
 
 void compatReleasable(const std::string &inFolder, const std::string &outPath) {
+  Fwg::Utils::Logging::logLine(
+      "Vic3 Parser: History: Compatibility Releasable Countries from ",
+      inFolder);
   for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder}) {
     std::string pathString = dir_entry.path().string();
     if (pathString.find(".txt") == std::string::npos)
       continue;
+    Fwg::Utils::Logging::logLine("Working with: ", pathString);
     std::string filename =
         pathString.substr(pathString.find_last_of("//") + 1,
                           pathString.back() - pathString.find_last_of("//"));
+    Fwg::Utils::Logging::logLine("Determined filename: ", filename);
     std::string content = pU::readFile(pathString);
     while (
         pU::Scenario::removeBracketBlockFromBracket(content, "provinces = {")) {
