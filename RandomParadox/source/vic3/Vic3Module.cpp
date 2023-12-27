@@ -22,6 +22,7 @@ bool Module::createPaths() { // prepare folder structure
     // remove_all(pathcfg.gameModPath + "//map_data//");
     remove_all(pathcfg.gameModPath + "//common//");
     remove_all(pathcfg.gameModPath + "//localization//");
+    remove_all(pathcfg.gameModPath + "//map_data//");
     create_directory(pathcfg.gameModPath);
     create_directory(pathcfg.gameModPath + "//.metadata//");
     create_directory(pathcfg.gameModPath + "//map_data//");
@@ -42,6 +43,7 @@ bool Module::createPaths() { // prepare folder structure
     create_directory(pathcfg.gameModPath + "//events//agitators_events");
     create_directory(pathcfg.gameModPath + "//gfx//");
     create_directory(pathcfg.gameModPath + "//gfx//map");
+    create_directory(pathcfg.gameModPath + "//gfx//map//masks");
     create_directory(pathcfg.gameModPath + "//gfx//map//terrain");
     create_directory(pathcfg.gameModPath + "//gfx//map//textures");
     create_directory(pathcfg.gameModPath + "//gfx//map//water");
@@ -171,21 +173,21 @@ void Module::generate() {
     countryHistory(pathcfg.gameModPath + "//common//history//countries",
                    vic3Gen->countries);
     splineNetwork(pathcfg.gameModPath + "//gfx//map//spline_network//");
-    compatCanals(pathcfg.gameModPath +
+    compatFile(pathcfg.gameModPath +
                  "//common//decisions//canal_decisions.txt");
-    compatCanals(pathcfg.gameModPath + "//events//canal_events.txt");
-    compatCanals(pathcfg.gameModPath +
+    compatFile(pathcfg.gameModPath + "//events//canal_events.txt");
+    compatFile(pathcfg.gameModPath +
                  "//events//agitators_events//paris_commune_events.txt");
-    compatCanals(pathcfg.gameModPath +
+    compatFile(pathcfg.gameModPath +
                  "//events//agitators_events//paris_commune_events.txt");
-    compatCanals(pathcfg.gameModPath +
+    compatFile(pathcfg.gameModPath +
                  "//common//journal_entries//00_canals.txt");
-    compatCanals(pathcfg.gameModPath +
+    compatFile(pathcfg.gameModPath +
                  "//common//journal_entries//02_paris_commune.txt");
 
     //  generate map files. Format must be converted and colours mapped to vic3
     //  compatible colours
-    Gfx::FormatConverter formatConverter(pathcfg.gamePath, "Vic3");
+    Gfx::Vic3::FormatConverter formatConverter(pathcfg.gamePath, "Vic3");
     if (true) {
 
       formatConverter.Vic3ColourMaps(
@@ -193,9 +195,9 @@ void Module::generate() {
               vic3Gen->heightMap, vic3Gen->climateMap, vic3Gen->sobelMap),
           vic3Gen->treeMap, vic3Gen->heightMap, vic3Gen->humidityMap,
           pathcfg.gameModPath + "//gfx//map//");
-      formatConverter.dump8BitRivers(vic3Gen->riverMap,
-                                     pathcfg.gameModPath + "//map_data//rivers",
-                                     "rivers", cut);
+      //formatConverter.dump8BitRivers(vic3Gen->riverMap,
+      //                               pathcfg.gameModPath + "//map_data//rivers",
+      //                               "rivers", cut);
 
       // overwrite the heightmap with the input heightmap, to conserve detail,
       // which would otherwise be lost if the scaled down version had be used

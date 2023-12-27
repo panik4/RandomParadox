@@ -37,7 +37,7 @@ void countryHistory(const std::string &path,
 
 void splineNetwork(const std::string &path);
 
-void compatCanals(const std::string &path);
+void compatFile(const std::string &path);
 std::string compatRegions(const std::string &inFolder, const std::string &outPath,
                    const std::vector<std::shared_ptr<Region>> &regions);
 

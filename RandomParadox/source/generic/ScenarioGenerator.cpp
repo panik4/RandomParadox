@@ -517,7 +517,8 @@ void Generator::generateStrategicRegions() {
     }
   }
   Bmp::bufferBitmap("strat", stratRegionBMP);
-  Bmp::save(stratRegionBMP, "Maps//stratRegions.bmp");
+  Bmp::save(stratRegionBMP,
+            Fwg::Cfg::Values().mapsPath + "stratRegions.bmp");
 }
 
 void Generator::evaluateNeighbours() {

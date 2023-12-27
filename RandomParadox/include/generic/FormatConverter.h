@@ -7,6 +7,7 @@
 #include <map>
 namespace Scenario::Gfx {
 class FormatConverter {
+protected:
   // map of maps of colours, defines which FastWorldGen colour
   // should be mapped to which game compatible colour
   const static std::map<std::string, std::map<Fwg::Gfx::Colour, int>>
@@ -23,6 +24,8 @@ public:
   FormatConverter(const std::string &gamePath, const std::string &gameTag);
   ~FormatConverter();
   // member functions
+  void writeBufferPixels(std::vector<unsigned char> &pixels, int index,
+                         Fwg::Gfx::Colour &colour, unsigned char alphaValue);
   Fwg::Gfx::Bitmap cutBaseMap(const std::string &path,
                               const double factor = 1.0,
                               const int bit = 8) const;
@@ -52,24 +55,5 @@ public:
                             const bool cut = false) const;
   void dumpWorldNormal(const Fwg::Gfx::Bitmap &sobelMap,
                        const std::string &path, const bool cut) const;
-
-  void writeTile(int xTiles, int yTiles,
-                 const Fwg::Gfx::Bitmap &basePackedHeightMap,
-                 Fwg::Gfx::Bitmap &packedHeightMap, int mapX, int mapY,
-                 int packedX) const;
-  void dumpPackedHeightmap(const Fwg::Gfx::Bitmap &heightMap,
-                           const std::string &path,
-                           const std::string &colourMapKey) const;
-  void Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
-                      const Fwg::Gfx::Bitmap &treesIn,
-                      const Fwg::Gfx::Bitmap &heightMap,
-                      const Fwg::Gfx::Bitmap &humidityMap,
-                      const std::string &path);
-  void dynamicMasks(const std::string &path);
-  void detailIndexMap(const Fwg::Gfx::Bitmap &fwgDetailIndex,
-                      const Fwg::Gfx::Bitmap &fwgDetailIntensity,
-                      const std::string &path);
-  void detailIntensityMap(const Fwg::Gfx::Bitmap &fwgDetailIntensity,
-                      const std::string &path);
 };
 } // namespace Scenario::Gfx
