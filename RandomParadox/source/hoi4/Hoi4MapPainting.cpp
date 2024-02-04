@@ -645,8 +645,8 @@ void runMapEditor(Generator &hoi4Gen, const std::string &mappingPath,
       auto climateMap = Fwg::IO::Reader::readClimateImage(
           mappingPath + "map//terrain.bmp", config);
       // set terrain types of base fwg provinces
-      Fwg::ClimateGeneration::provinceTerrainTypes(hoi4Gen.areas.provinces,
-                                                   climateMap);
+      //Fwg::ClimateGeneration::provinceTerrainTypes(hoi4Gen.areas.provinces,
+      //                                             climateMap);
       // get the provinces into GameProvinces
       hoi4Gen.mapProvinces();
       // hoi4Gen.mapTerrain();
@@ -665,7 +665,7 @@ void runMapEditor(Generator &hoi4Gen, const std::string &mappingPath,
         Fwg::Gfx::Images::show(mappingPath + "map//world_normal.bmp");
         Fwg::Utils::Logging::logLine(
             "Happy? You may increase the current factor of ", factor,
-            " by typing in the desired factor now, or type 0 to stop and "
+            " by typing in the desired factor now, or noiseType 0 to stop and "
             "return to the previous menu");
         std::cin >> factor;
       } while (factor != 0);

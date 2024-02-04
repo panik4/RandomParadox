@@ -36,7 +36,7 @@ void Module::genAoe2() {
     std::string terrain_generation{""};
     std::string elevation{""};
     auto hMap = f.heightMap;
-    auto tMap = f.terrainMap;
+    auto tMap = f.landMap;
     auto cMap = f.climateMap;
     int lowEle = 0, midEle = 0, highEle = 0;
     for (int i = 0; i < hMap.size(); i++) {

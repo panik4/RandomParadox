@@ -223,7 +223,7 @@ void Hoi4Module::writeImages() {
   // generate map files. Format must be converted and colours mapped to hoi4
   // compatible colours
   Gfx::FormatConverter formatConverter(pathcfg.gamePath, "Hoi4");
-  formatConverter.dump8BitTerrain(hoi4Gen->climateMap,
+  formatConverter.dump8BitTerrain(hoi4Gen->climateData, hoi4Gen->civLayer,
                                   pathcfg.gameModPath + "//map//terrain.bmp",
                                   "terrain", cut);
   formatConverter.dump8BitCities(hoi4Gen->climateMap,
@@ -231,7 +231,7 @@ void Hoi4Module::writeImages() {
                                  "cities", cut);
   formatConverter.dump8BitRivers(
       hoi4Gen->riverMap, pathcfg.gameModPath + "//map//rivers", "rivers", cut);
-  formatConverter.dump8BitTrees(hoi4Gen->climateMap, hoi4Gen->treeMap,
+  formatConverter.dump8BitTrees(hoi4Gen->climateData,
                                 pathcfg.gameModPath + "//map//trees.bmp",
                                 "trees", false);
   formatConverter.dump8BitHeightmap(hoi4Gen->heightMap,
@@ -240,7 +240,7 @@ void Hoi4Module::writeImages() {
   formatConverter.dumpTerrainColourmap(
       Fwg::Gfx::MapMerging::mergeTerrain(
           hoi4Gen->heightMap, hoi4Gen->climateMap, hoi4Gen->sobelMap),
-      hoi4Gen->cityMap, pathcfg.gameModPath,
+      hoi4Gen->civLayer, pathcfg.gameModPath,
       "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
       DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
   formatConverter.dumpDDSFiles(
@@ -277,9 +277,8 @@ void Hoi4Module::readHoi(std::string &gamePath) {
   hoi4Gen->countryColourMap =
       Hoi4::Parsing::Reading::readColourMapping(pathcfg.gamePath);
   // pre initialize an empty climateMap
-  hoi4Gen->climateMap =
-      Fwg::Gfx::Bitmap(hoi4Gen->provinceMap.width(),
-                       hoi4Gen->provinceMap.height(), 24);
+  hoi4Gen->climateMap = Fwg::Gfx::Bitmap(hoi4Gen->provinceMap.width(),
+                                         hoi4Gen->provinceMap.height(), 24);
 
   // now initialize hoi4 states from the gameRegions
   hoi4Gen->mapTerrain();
@@ -378,16 +377,16 @@ void Hoi4Module::generate() {
     throw(std::exception(error.c_str()));
   }
   // now start writing game files
-  try {
-    writeImages();
-    writeTextFiles();
+  // try {
+  writeImages();
+  writeTextFiles();
 
-  } catch (std::exception e) {
-    std::string error = "Error while dumping and writing files.\n";
-    error += "Error is: \n";
-    error += e.what();
-    throw(std::exception(error.c_str()));
-  }
+  //} catch (std::exception e) {
+  //  std::string error = "Error while dumping and writing files.\n";
+  //  error += "Error is: \n";
+  //  error += e.what();
+  //  throw(std::exception(error.c_str()));
+  //}
   // now if everything worked, print info about world and pause for user to
   // see
   hoi4Gen->printStatistics();

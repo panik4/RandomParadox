@@ -46,8 +46,6 @@ void Generator::mapRegions() {
                 return (*a < *b);
               });
     auto gameRegion = std::make_shared<Region>(region);
-    for (auto &baseRegion : gameRegion->neighbours)
-      gameRegion->neighbours.push_back(baseRegion);
     // generate random name for region
     gameRegion->name = NameGeneration::generateName(nData);
 
@@ -134,6 +132,7 @@ void Generator::mapProvinces() {
     // give name to province
     gP->name = NameGeneration::generateName(nData);
     gameProvinces.push_back(gP);
+    
   }
   // sort by gameprovince ID
   std::sort(gameProvinces.begin(), gameProvinces.end(),
@@ -142,23 +141,11 @@ void Generator::mapProvinces() {
 
 void Generator::generatePopulations() {
   Logging::logLine("Generating Population");
-  auto &config = Fwg::Cfg::Values();
-  const auto &popMap = this->populationMap;
-  const auto &cityMap = this->cityMap;
   for (auto &c : countries)
     for (auto &gR : c.second.ownedRegions)
       for (auto &gProv : gameRegions[gR]->gameProvinces) {
         // calculate the population factor
-        gProv->popFactor =
-            0.1 + popMap[gProv->baseProvince->position.weightedCenter] /
-                      config.colours["population"];
-        int cityPixels = 0;
-        // calculate share of province that is a city
-        for (auto pix : gProv->baseProvince->pixels)
-          if (cityMap[pix].isShadeOf(config.colours["cities"]))
-            cityPixels++;
-        gProv->cityShare =
-            (double)cityPixels / gProv->baseProvince->pixels.size();
+        gProv->popFactor = gProv->baseProvince->populationDensity;
       }
 }
 
@@ -261,25 +248,21 @@ void Generator::generateDevelopment() {
   Logging::logLine("Generating State Development");
   auto &config = Fwg::Cfg::Values();
   Bitmap development(config.width, config.height, 24);
-  const auto &cityMap = this->cityMap;
   for (auto &c : countries)
     for (auto &gR : c.second.ownedRegions)
       for (auto &gameProv : gameRegions[gR]->gameProvinces) {
         auto cityDensity = 0.0;
         // calculate development with density of city and population factor
         if (gameProv->baseProvince->cityPixels.size())
-          cityDensity = cityMap[gameProv->baseProvince->cityPixels[0]] /
-                        config.colours["cities"];
-        gameProv->devFactor =
-            std::clamp(0.2 + 0.5 * gameProv->popFactor +
-                           1.0 * gameProv->cityShare * cityDensity,
-                       0.0, 1.0);
+          cityDensity = gameProv->baseProvince->urbanisation;
+        gameProv->devFactor = gameProv->baseProvince->development;
 
         for (auto pix : gameProv->baseProvince->pixels) {
-          development.setColourAtIndex(pix, gameProv->devFactor * 255.0);
+          development.setColourAtIndex(
+              pix, static_cast<unsigned char>(gameProv->devFactor * 255.0));
         }
       }
-  Png::save(development, "Maps/world/development.png");
+  Png::save(development, config.mapsPath + "world/developmentScenario.png");
 }
 
 Fwg::Gfx::Bitmap Generator::mapTerrain() {
@@ -517,8 +500,7 @@ void Generator::generateStrategicRegions() {
     }
   }
   Bmp::bufferBitmap("strat", stratRegionBMP);
-  Bmp::save(stratRegionBMP,
-            Fwg::Cfg::Values().mapsPath + "stratRegions.bmp");
+  Bmp::save(stratRegionBMP, Fwg::Cfg::Values().mapsPath + "stratRegions.bmp");
 }
 
 void Generator::evaluateNeighbours() {

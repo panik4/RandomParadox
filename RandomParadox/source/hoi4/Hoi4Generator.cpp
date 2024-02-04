@@ -21,8 +21,6 @@ void Generator::mapRegions() {
                 return (*a < *b);
               });
     auto gameRegion = std::make_shared<Region>(region);
-    for (auto &baseRegion : gameRegion->neighbours)
-      gameRegion->neighbours.push_back(baseRegion);
     // generate random name for region
     gameRegion->name = NameGeneration::generateName(nData);
 

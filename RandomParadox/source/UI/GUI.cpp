@@ -179,19 +179,25 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
       showModuleGeneric(cfg, activeModule);
       ImGui::SeparatorText(
           "Different Steps of the generation, usually go from left to right");
+
+      if (uiUtils.actTxs[1] == UIUtils::ActiveTexture::NONE &&
+          secondaryTexture != nullptr) {
+        uiUtils.freeTexture(&secondaryTexture);
+      }
       if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
         showConfigure(cfg, activeModule);
         if (!validatedPaths)
           ImGui::BeginDisabled();
         showHeightmapTab(cfg, *activeModule->generator, &curtexture);
-        showTerrainTab(cfg, *activeModule->generator, &curtexture);
+        showLandTab(cfg, *activeModule->generator);
+        // showTerrainTab(cfg, *activeModule->generator, &curtexture);
         showBordersTab(cfg, *activeModule->generator);
         showNormalMapTab(cfg, *activeModule->generator, &curtexture);
         showContinentTab(cfg, *activeModule->generator, &curtexture);
+        showClimateInputTab(cfg, *activeModule->generator, &curtexture);
         showClimateOverview(cfg, *activeModule->generator, &curtexture);
         showDensityTab(cfg, *activeModule->generator, &curtexture);
         showAreasTab(cfg, *activeModule->generator);
-        showTreeTab(cfg, *activeModule->generator);
         showScenarioTab(cfg, activeModule);
         if (!configuredScenarioGen) {
           ImGui::BeginDisabled();
@@ -329,9 +335,9 @@ int GUI::showRpdxConfigure(
   // remove the images, and set pretext for them to be auto
   // loaded after switching tabs again
   if (ImGui::BeginTabItem("RandomParadox Configuration")) {
-    freeTexture(&curtexture);
+    uiUtils.freeTexture(&curtexture);
     ImGui::PushItemWidth(200.0f);
-    tabSwitchEvent();
+    uiUtils.tabSwitchEvent();
     // find every subfolder of config folder
     if (!loadedConfigs) {
       loadedConfigs = true;
@@ -432,8 +438,8 @@ int GUI::showScenarioTab(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> activeModule) {
   int retCode = 0;
   if (ImGui::BeginTabItem("Scenario")) {
-    freeTexture(&curtexture);
-    tabSwitchEvent();
+    uiUtils.freeTexture(&curtexture);
+    uiUtils.tabSwitchEvent();
     if (activeModule->generator->heightMap.initialised() &&
         activeModule->generator->climateMap.initialised() &&
         activeModule->generator->provinceMap.initialised() &&
@@ -481,7 +487,7 @@ int GUI::showScenarioTab(
 int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
   if (ImGui::BeginTabItem("Countries")) {
     auto generator = activeModule->generator;
-    tabSwitchEvent();
+    uiUtils.tabSwitchEvent();
     ImGui::Text(
         "Use auto generated country map or drop it in. You may also first "
         "generate a country map, then edit it in the Maps folder, and then "
@@ -502,7 +508,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       generator->evaluateNeighbours();
       generator->generateWorldCivilizations();
       generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png");
-      resetTexture();
+      uiUtils.resetTexture();
     }
     ImGui::SameLine();
     auto str =
@@ -520,7 +526,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
         generator->initializeCountries();
         generator->evaluateNeighbours();
         generator->generateWorldCivilizations();
-        resetTexture();
+        uiUtils.resetTexture();
       }
       triggeredDrag = false;
     }
@@ -568,12 +574,13 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
         // TODO: only trigger after release of colour edit
         generator->countryMap =
             generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png");
-        resetTexture();
+        uiUtils.resetTexture();
       }
     }
 
-    switchTexture(activeModule->generator->countryMap, texture,
-                  ActiveTexture::COUNTRIES);
+    uiUtils.switchTexture(activeModule->generator->countryMap, texture, 0,
+                          UIUtils::ActiveTexture::COUNTRIES, g_pd3dDevice, w,
+                          h);
     ImGui::EndTabItem();
     ImGui::PopItemWidth();
   }
@@ -636,7 +643,7 @@ int GUI::showModuleGeneric(
 }
 int GUI::showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
   if (ImGui::BeginTabItem("States")) {
-    tabSwitchEvent();
+    uiUtils.tabSwitchEvent();
     ImGui::Text("In this tab, edit the states. You can NOT drag in an image "
                 "here, nothing happens. If you want to input a state image, "
                 "use the region tab!");
@@ -683,8 +690,8 @@ int GUI::showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
 int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                                 std::shared_ptr<Hoi4Gen> generator) {
   if (ImGui::BeginTabItem("Strategic Regions")) {
-    freeTexture(&curtexture);
-    tabSwitchEvent();
+    uiUtils.freeTexture(&curtexture);
+    uiUtils.tabSwitchEvent();
     ImGui::SeparatorText(
         "This generates strategic regions, they cannot be loaded");
     if (generator->hoi4States.size()) {
@@ -713,8 +720,8 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
 int GUI::showHoi4Finalise(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::Hoi4::Hoi4Module> hoi4Module) {
   if (ImGui::BeginTabItem("Finalise")) {
-    freeTexture(&curtexture);
-    tabSwitchEvent();
+    uiUtils.freeTexture(&curtexture);
+    uiUtils.tabSwitchEvent();
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
     auto &generator = hoi4Module->hoi4Gen;

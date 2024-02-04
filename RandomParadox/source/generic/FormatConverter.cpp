@@ -138,6 +138,98 @@ const std::map<std::string, std::map<Gfx::Colour, int>>
           {Cfg::Values().colours["sea"], 15}}}
 
     };
+using namespace Fwg::ClimateGeneration::Detail;
+const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
+    {"terrainHoi4",
+     {{(int)ClimateTypeIndex::TROPICSRAINFOREST, 21},
+      {100 + (int)ClimateTypeIndex::TROPICSRAINFOREST, 22},
+      {200 + (int)ClimateTypeIndex::TROPICSRAINFOREST, 27},
+      {300 + (int)ClimateTypeIndex::TROPICSRAINFOREST, 27},
+      {(int)ClimateTypeIndex::TROPICSMONSOON, 22},
+      {100 + (int)ClimateTypeIndex::TROPICSMONSOON, 22},
+      {200 + (int)ClimateTypeIndex::TROPICSMONSOON, 27},
+      {300 + (int)ClimateTypeIndex::TROPICSMONSOON, 27},
+      {(int)ClimateTypeIndex::TROPICSSAVANNA, 0},
+      {100 + (int)ClimateTypeIndex::TROPICSSAVANNA, 18},
+      {200 + (int)ClimateTypeIndex::TROPICSSAVANNA, 18},
+      {300 + (int)ClimateTypeIndex::TROPICSSAVANNA, 27},
+      {(int)ClimateTypeIndex::DESERT, 3},
+      {100 + (int)ClimateTypeIndex::DESERT, 8},
+      {200 + (int)ClimateTypeIndex::DESERT, 10},
+      {300 + (int)ClimateTypeIndex::DESERT, 31},
+      {(int)ClimateTypeIndex::COLDDESERT, 12},
+      {100 + (int)ClimateTypeIndex::COLDDESERT, 8},
+      {200 + (int)ClimateTypeIndex::COLDDESERT, 19},
+      {300 + (int)ClimateTypeIndex::COLDDESERT, 16},
+      {(int)ClimateTypeIndex::HOTSEMIARID, 0},
+      {100 + (int)ClimateTypeIndex::HOTSEMIARID, 18},
+      {200 + (int)ClimateTypeIndex::HOTSEMIARID, 19},
+      {300 + (int)ClimateTypeIndex::HOTSEMIARID, 11},
+      {(int)ClimateTypeIndex::COLDSEMIARID, 0},
+      {100 + (int)ClimateTypeIndex::COLDSEMIARID, 18},
+      {200 + (int)ClimateTypeIndex::COLDSEMIARID, 19},
+      {300 + (int)ClimateTypeIndex::COLDSEMIARID, 11},
+      {(int)ClimateTypeIndex::TEMPERATEHOT, 0},
+      {100 + (int)ClimateTypeIndex::TEMPERATEHOT, 2},
+      {200 + (int)ClimateTypeIndex::TEMPERATEHOT, 20},
+      {300 + (int)ClimateTypeIndex::TEMPERATEHOT, 16},
+      {(int)ClimateTypeIndex::TEMPERATEWARM, 0},
+      {100 + (int)ClimateTypeIndex::TEMPERATEWARM, 2},
+      {200 + (int)ClimateTypeIndex::TEMPERATEWARM, 20},
+      {300 + (int)ClimateTypeIndex::TEMPERATEWARM, 16},
+      {(int)ClimateTypeIndex::TEMPERATECOLD, 0},
+      {100 + (int)ClimateTypeIndex::TEMPERATECOLD, 2},
+      {200 + (int)ClimateTypeIndex::TEMPERATECOLD, 16},
+      {300 + (int)ClimateTypeIndex::TEMPERATECOLD, 16},
+      {(int)ClimateTypeIndex::CONTINENTALHOT, 1},
+      {100 + (int)ClimateTypeIndex::CONTINENTALHOT, 2},
+      {200 + (int)ClimateTypeIndex::CONTINENTALHOT, 20},
+      {300 + (int)ClimateTypeIndex::CONTINENTALHOT, 16},
+      {(int)ClimateTypeIndex::CONTINENTALWARM, 4},
+      {100 + (int)ClimateTypeIndex::CONTINENTALWARM, 2},
+      {200 + (int)ClimateTypeIndex::CONTINENTALWARM, 20},
+      {300 + (int)ClimateTypeIndex::CONTINENTALWARM, 16},
+      {(int)ClimateTypeIndex::CONTINENTALCOLD, 17},
+      {100 + (int)ClimateTypeIndex::CONTINENTALCOLD, 2},
+      {200 + (int)ClimateTypeIndex::CONTINENTALCOLD, 16},
+      {300 + (int)ClimateTypeIndex::CONTINENTALCOLD, 16},
+      {(int)ClimateTypeIndex::POLARTUNDRA, 17},
+      {100 + (int)ClimateTypeIndex::POLARTUNDRA, 18},
+      {200 + (int)ClimateTypeIndex::POLARTUNDRA, 16},
+      {300 + (int)ClimateTypeIndex::POLARTUNDRA, 16},
+      {(int)ClimateTypeIndex::POLARARCTIC, 16},
+      {100 + (int)ClimateTypeIndex::POLARARCTIC, 16},
+      {200 + (int)ClimateTypeIndex::POLARARCTIC, 16},
+      {300 + (int)ClimateTypeIndex::POLARARCTIC, 16},
+      {(int)ClimateTypeIndex::SNOW, 16},
+      {100 + (int)ClimateTypeIndex::SNOW, 16},
+      {200 + (int)ClimateTypeIndex::SNOW, 16},
+      {300 + (int)ClimateTypeIndex::SNOW, 16},
+      {(int)ClimateTypeIndex::ROCK, 11},
+      {100 + (int)ClimateTypeIndex::ROCK, 2},
+      {200 + (int)ClimateTypeIndex::ROCK, 16},
+      {300 + (int)ClimateTypeIndex::ROCK, 16},
+      {(int)ClimateTypeIndex::WATER, 15}
+
+     }},
+    {"treeterrainHoi4",
+     {{(int)TreeType::NONE, 0},
+      {(int)TreeType::BOREAL, 6},
+      {(int)TreeType::TEMPERATENEEDLE, 1},
+      {(int)TreeType::TEMPERATEMIXED, 4},
+      {(int)TreeType::SPARSE, 4},
+      {(int)TreeType::TROPICALDRY, 22},
+      {(int)TreeType::TROPICALMOIST, 21}}},
+    {"treesHoi4",
+     {{(int)TreeType::NONE, 0},
+      {(int)TreeType::BOREAL, 6},
+      {(int)TreeType::TEMPERATENEEDLE, 6},
+      {(int)TreeType::TEMPERATEMIXED, 5},
+      {(int)TreeType::SPARSE, 3},
+      {(int)TreeType::TROPICALDRY, 28},
+      {(int)TreeType::TROPICALMOIST, 29}}}
+
+};
 
 void FormatConverter::writeBufferPixels(std::vector<unsigned char> &pixels,
                                         int index, Fwg::Gfx::Colour &colour,
@@ -215,23 +307,57 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
   }
 }
 
-void FormatConverter::dump8BitTerrain(const Bitmap &climateIn,
-                                      const std::string &path,
-                                      const std::string &colourMapKey,
-                                      const bool cut) const {
+void FormatConverter::dump8BitTerrain(
+    const Fwg::ClimateGeneration::ClimateData &climateIn,
+    const Fwg::Civilization::CivilizationLayer &civLayer,
+    const std::string &path, const std::string &colourMapKey,
+    const bool cut) const {
   Utils::Logging::logLine("FormatConverter::Writing terrain to ", path);
   auto &conf = Cfg::Values();
   Bitmap hoi4terrain(conf.width, conf.height, 8);
   hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
-  if (!cut) {
-    // now map from 24 bit climate map
-    for (int i = 0; i < conf.bitmapSize; i++) {
-      hoi4terrain.setColourAtIndex(
-          i, hoi4terrain.lookUp(
-                 colourMaps.at(colourMapKey + gameTag).at(climateIn[i])));
-    }
-  } else {
+  // hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
+  if (cut) {
     hoi4terrain = cutBaseMap("//terrain.bmp");
+  } else {
+
+    for (auto i = 0; i < conf.bitmapSize; i++) {
+      int elevationMod = 0;
+      auto elevationType = climateIn.landForms[i].landForm;
+      if (elevationType == ElevationTypeIndex::HILLS) {
+        elevationMod = 100;
+      } else if (elevationType == ElevationTypeIndex::MOUNTAINS) {
+        elevationMod = 200;
+      } else if (elevationType == ElevationTypeIndex::PEAKS) {
+        elevationMod = 300;
+      } else if (elevationType == ElevationTypeIndex::STEEPPEAKS) {
+        elevationMod = 300;
+      } else if (elevationType == ElevationTypeIndex::CLIFF) {
+        elevationMod = 200;
+      } else if (elevationType == ElevationTypeIndex::LOWHILLS) {
+        elevationMod = 100;
+      }
+
+      auto primaryClimateType = (int)climateIn.climates[i].chances[0].second;
+      hoi4terrain.setColourAtIndex(
+          i, hoi4terrain.lookUp(indexMaps.at(colourMapKey + gameTag)
+                                    .at(elevationMod + primaryClimateType)));
+      auto treeType = (int)climateIn.treeCoverage[i];
+      if (treeType) {
+        hoi4terrain.setColourAtIndex(
+            i, hoi4terrain.lookUp(
+                   indexMaps.at("tree" + colourMapKey + gameTag).at(treeType)));
+      }
+
+
+      if (civLayer.urbanisation[i]) {
+        // urban texture
+        hoi4terrain.setColourAtIndex(i, hoi4terrain.lookUp(13));
+      } else if (civLayer.agriculture[i]) {
+        // farm texture
+        hoi4terrain.setColourAtIndex(i, hoi4terrain.lookUp(5));
+      }
+    }
   }
   Bmp::save8bit(hoi4terrain, path);
 }
@@ -246,8 +372,9 @@ void FormatConverter::dump8BitCities(const Bitmap &climateIn,
   if (!cut) {
     for (int i = 0; i < Cfg::Values().bitmapSize; i++)
       cities.setColourAtIndex(
-          i,
-          cities.lookUp(climateIn[i] == Cfg::Values().colours["sea"] ? 15 : 1));
+          i, cities.lookUp(climateIn[i] == Cfg::Values().climateColours["ocean"]
+                               ? 15
+                               : 1));
   } else {
     cities = cutBaseMap("//cities.bmp");
   }
@@ -283,11 +410,10 @@ void FormatConverter::dump8BitRivers(const Bitmap &riversIn,
   }
 }
 
-void FormatConverter::dump8BitTrees(const Bitmap &climate,
-                                    const Bitmap &treesIn,
-                                    const std::string &path,
-                                    const std::string &colourMapKey,
-                                    const bool cut) const {
+void FormatConverter::dump8BitTrees(
+    const Fwg::ClimateGeneration::ClimateData &climateIn,
+    const std::string &path, const std::string &colourMapKey,
+    const bool cut) const {
   Utils::Logging::logLine("FormatConverter::Writing trees to ", path);
   const double width = Cfg::Values().width;
   constexpr auto factor = 3.4133333333333333333333333333333;
@@ -301,11 +427,12 @@ void FormatConverter::dump8BitTrees(const Bitmap &climate,
         double refHeight = ceil((double)i * factor);
         double refWidth =
             std::clamp((double)w * factor, 0.0, (double)Cfg::Values().width);
+        auto treeType =
+            (int)climateIn.treeCoverage[refHeight * width + refWidth];
         // map the colour from
         trees.setColourAtIndex(
             i * trees.width() + w,
-            trees.lookUp(colourMaps.at(colourMapKey + gameTag)
-                             .at(treesIn[refHeight * width + refWidth])));
+            trees.lookUp(indexMaps.at(colourMapKey + gameTag).at(treeType)));
       }
     }
   } else {
@@ -359,9 +486,10 @@ void FormatConverter::dumpDDSFiles(const Bitmap &riverMap,
 }
 
 void FormatConverter::dumpTerrainColourmap(
-    const Bitmap &climateMap, const Bitmap &cityMap, const std::string &modPath,
-    const std::string &mapName, const DXGI_FORMAT format, int scaleFactor,
-    const bool cut) const {
+    const Bitmap &climateMap,
+    const Fwg::Civilization::CivilizationLayer &civLayer,
+    const std::string &modPath, const std::string &mapName,
+    const DXGI_FORMAT format, int scaleFactor, const bool cut) const {
   Utils::Logging::logLine("FormatConverter::Writing terrain colourmap to ",
                           modPath + mapName);
   auto &cfg = Cfg::Values();
@@ -387,8 +515,7 @@ void FormatConverter::dumpTerrainColourmap(
           pixels[imageIndex + 3] = 255;
         } else
           // alpha for city lights
-          pixels[imageIndex + 3] = static_cast<unsigned char>(
-              255.0 * (cityMap[colourmapIndex] / cfg.colours["cities"]));
+          pixels[imageIndex + 3] = civLayer.urbanisation[colourmapIndex];
       }
     }
   } else {
