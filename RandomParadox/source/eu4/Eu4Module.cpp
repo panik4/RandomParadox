@@ -128,31 +128,31 @@ void Module::generate() {
     // generate map files. Format must be converted and colours mapped to eu4
     // compatible colours
     Gfx::FormatConverter formatConverter(pathcfg.gamePath, "Eu4");
-    formatConverter.dump8BitTerrain(eu4Gen->climateMap,
+    formatConverter.dump8BitTerrain(eu4Gen->climateData, eu4Gen->civLayer,
                                     pathcfg.gameModPath + "//map//terrain.bmp",
                                     "terrain", cut);
     formatConverter.dump8BitRivers(eu4Gen->riverMap,
                                    pathcfg.gameModPath + "//map//rivers.bmp",
                                    "rivers", cut);
-    formatConverter.dump8BitTrees(eu4Gen->climateMap, eu4Gen->treeMap,
+    formatConverter.dump8BitTrees(eu4Gen->climateData,
                                   pathcfg.gameModPath + "//map//trees.bmp",
                                   "trees", false);
     formatConverter.dump8BitHeightmap(
         eu4Gen->heightMap, pathcfg.gameModPath + "//map//heightmap.bmp",
         "heightmap");
-    formatConverter.dumpTerrainColourmap(eu4Gen->springMap, eu4Gen->cityMap,
+    formatConverter.dumpTerrainColourmap(eu4Gen->springMap, eu4Gen->civLayer,
                                          pathcfg.gameModPath,
                                          "//map//terrain//colormap_spring.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
-    formatConverter.dumpTerrainColourmap(eu4Gen->summerMap, eu4Gen->cityMap,
+    formatConverter.dumpTerrainColourmap(eu4Gen->summerMap, eu4Gen->civLayer,
                                          pathcfg.gameModPath,
                                          "//map//terrain//colormap_summer.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
-    formatConverter.dumpTerrainColourmap(eu4Gen->autumnMap, eu4Gen->cityMap,
+    formatConverter.dumpTerrainColourmap(eu4Gen->autumnMap, eu4Gen->civLayer,
                                          pathcfg.gameModPath,
                                          "//map//terrain//colormap_autumn.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
-    formatConverter.dumpTerrainColourmap(eu4Gen->winterMap, eu4Gen->cityMap,
+    formatConverter.dumpTerrainColourmap(eu4Gen->winterMap, eu4Gen->civLayer,
                                          pathcfg.gameModPath,
                                          "//map//terrain//colormap_winter.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);

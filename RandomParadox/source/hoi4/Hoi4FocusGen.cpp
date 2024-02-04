@@ -148,7 +148,7 @@ void mergeFocusBranches(Hoi4Country &source) {
   }
 }
 
-void FocusGen::buildFocusTree(Hoi4Country &source) {
+void buildFocusTree(Hoi4Country &source) {
   mergeFocusBranches(source);
   // std::array<std::array<int, 100>, 100> occupiedPositions;
   // start left. Chains go down, new chains go right
@@ -228,7 +228,7 @@ void FocusGen::buildFocusTree(Hoi4Country &source) {
   }
 }
 
-bool FocusGen::stepFulfillsRequirements(
+bool stepFulfillsRequirements(
     const std::string stepRequirements,
     const std::vector<std::set<Hoi4Country>> &stepTargets) {
 
@@ -253,7 +253,7 @@ bool FocusGen::stepFulfillsRequirements(
 
 /* checks all requirements for a national focus. Returns false if any
  * requirement isn't fulfilled, else returns true*/
-bool FocusGen::targetFulfillsRequirements(
+bool targetFulfillsRequirements(
     const std::string &targetRequirements, const Hoi4Country &source,
     const Hoi4Country &target,
     const std::vector<std::set<std::string>> &levelTargets,
@@ -339,7 +339,7 @@ bool FocusGen::targetFulfillsRequirements(
   return true;
 }
 
-void FocusGen::evaluateCountryGoals(
+void evaluateCountryGoals(
     std::map<std::string, Hoi4Country> &hoi4Countries,
     const std::vector<std::shared_ptr<Scenario::Region>> &gameRegions) {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Goals");

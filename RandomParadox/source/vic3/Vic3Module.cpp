@@ -174,16 +174,16 @@ void Module::generate() {
                    vic3Gen->countries);
     splineNetwork(pathcfg.gameModPath + "//gfx//map//spline_network//");
     compatFile(pathcfg.gameModPath +
-                 "//common//decisions//canal_decisions.txt");
+               "//common//decisions//canal_decisions.txt");
     compatFile(pathcfg.gameModPath + "//events//canal_events.txt");
     compatFile(pathcfg.gameModPath +
-                 "//events//agitators_events//paris_commune_events.txt");
+               "//events//agitators_events//paris_commune_events.txt");
     compatFile(pathcfg.gameModPath +
-                 "//events//agitators_events//paris_commune_events.txt");
+               "//events//agitators_events//paris_commune_events.txt");
     compatFile(pathcfg.gameModPath +
-                 "//common//journal_entries//00_canals.txt");
+               "//common//journal_entries//00_canals.txt");
     compatFile(pathcfg.gameModPath +
-                 "//common//journal_entries//02_paris_commune.txt");
+               "//common//journal_entries//02_paris_commune.txt");
 
     //  generate map files. Format must be converted and colours mapped to vic3
     //  compatible colours
@@ -194,10 +194,10 @@ void Module::generate() {
           Fwg::Gfx::MapMerging::mergeTerrain(
               vic3Gen->heightMap, vic3Gen->climateMap, vic3Gen->sobelMap),
           vic3Gen->treeMap, vic3Gen->heightMap, vic3Gen->humidityMap,
-          pathcfg.gameModPath + "//gfx//map//");
-      //formatConverter.dump8BitRivers(vic3Gen->riverMap,
-      //                               pathcfg.gameModPath + "//map_data//rivers",
-      //                               "rivers", cut);
+          vic3Gen->civLayer, pathcfg.gameModPath + "//gfx//map//");
+      // formatConverter.dump8BitRivers(vic3Gen->riverMap,
+      //                                pathcfg.gameModPath +
+      //                                "//map_data//rivers", "rivers", cut);
 
       // overwrite the heightmap with the input heightmap, to conserve detail,
       // which would otherwise be lost if the scaled down version had be used

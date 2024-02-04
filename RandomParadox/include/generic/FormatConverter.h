@@ -2,6 +2,7 @@
 #include "DirectXTex.h"
 #include "Textures.h"
 #include "entities/Colour.h"
+#include "terrain/ClimateGeneration.h"
 #include "utils/Bitmap.h"
 #include "utils/Cfg.h"
 #include <map>
@@ -12,6 +13,7 @@ protected:
   // should be mapped to which game compatible colour
   const static std::map<std::string, std::map<Fwg::Gfx::Colour, int>>
       colourMaps;
+  const static std::map<std::string, std::map<int, int>> indexMaps;
   const static std::map<std::string,
                         std::map<Fwg::Gfx::Colour, Fwg::Gfx::Colour>>
       colourMaps2;
@@ -31,7 +33,8 @@ public:
                               const int bit = 8) const;
   void dump8BitHeightmap(Fwg::Gfx::Bitmap &heightMap, const std::string &path,
                          const std::string &colourMapKey) const;
-  void dump8BitTerrain(const Fwg::Gfx::Bitmap &climateIn,
+  void dump8BitTerrain(const Fwg::ClimateGeneration::ClimateData &climateIn,
+                       const Fwg::Civilization::CivilizationLayer &civLayer,
                        const std::string &path, const std::string &colourMapKey,
                        const bool cut = false) const;
   void dump8BitCities(const Fwg::Gfx::Bitmap &climateIn,
@@ -40,19 +43,18 @@ public:
   void dump8BitRivers(const Fwg::Gfx::Bitmap &riversIn, const std::string &path,
                       const std::string &colourMapKey,
                       const bool cut = false) const;
-  void dump8BitTrees(const Fwg::Gfx::Bitmap &climate,
-                     const Fwg::Gfx::Bitmap &treesIn, const std::string &path,
-                     const std::string &colourMapKey,
+  void dump8BitTrees(const Fwg::ClimateGeneration::ClimateData &climateIn,
+                     const std::string &path, const std::string &colourMapKey,
                      const bool cut = false) const;
   void dumpDDSFiles(const Fwg::Gfx::Bitmap &riverMap,
                     const Fwg::Gfx::Bitmap &heightMap, const std::string &path,
                     const bool cut = false, const int maxFactor = 2) const;
-  void dumpTerrainColourmap(const Fwg::Gfx::Bitmap &climateMap,
-                            const Fwg::Gfx::Bitmap &cityMap,
-                            const std::string &modPath,
-                            const std::string &mapName,
-                            const DXGI_FORMAT format, int scaleFactor,
-                            const bool cut = false) const;
+  void
+  dumpTerrainColourmap(const Fwg::Gfx::Bitmap &climateMap,
+                       const Fwg::Civilization::CivilizationLayer &civLayer,
+                       const std::string &modPath, const std::string &mapName,
+                       const DXGI_FORMAT format, int scaleFactor,
+                       const bool cut = false) const;
   void dumpWorldNormal(const Fwg::Gfx::Bitmap &sobelMap,
                        const std::string &path, const bool cut) const;
 };

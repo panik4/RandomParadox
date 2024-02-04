@@ -25,6 +25,7 @@ public:
                       const Fwg::Gfx::Bitmap &treesIn,
                       const Fwg::Gfx::Bitmap &heightMap,
                       const Fwg::Gfx::Bitmap &humidityMap,
+                      const Fwg::Civilization::CivilizationLayer &civLayer,
                       const std::string &path);
   void dynamicMasks(const std::string &path);
   void detailIndexMap(const Fwg::Gfx::Bitmap &fwgDetailIndex,

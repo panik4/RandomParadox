@@ -139,11 +139,11 @@ void FormatConverter::dumpPackedHeightmap(
   }
 }
 
-void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
-                                     const Fwg::Gfx::Bitmap &treesIn,
-                                     const Fwg::Gfx::Bitmap &heightMap,
-                                     const Fwg::Gfx::Bitmap &humidityMap,
-                                     const std::string &path) {
+void FormatConverter::Vic3ColourMaps(
+    const Fwg::Gfx::Bitmap &climateMap, const Fwg::Gfx::Bitmap &treesIn,
+    const Fwg::Gfx::Bitmap &heightMap, const Fwg::Gfx::Bitmap &humidityMap,
+    const Fwg::Civilization::CivilizationLayer &civLayer,
+    const std::string &path) {
   Fwg::Utils::Logging::logLine("Vic3 Format Converter: Writing colour maps");
 
   auto &config = Cfg::Values();
@@ -197,7 +197,7 @@ void FormatConverter::Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
 
   // terrain colour map
   scaledMap = Bmp::scale(climateMap, 8192, 4096, false);
-  dumpTerrainColourmap(scaledMap, scaledMap, path, "//textures//colormap.dds",
+  dumpTerrainColourmap(scaledMap, civLayer, path, "//textures//colormap.dds",
                        DXGI_FORMAT_B8G8R8A8_UNORM, 1, false);
 
   Utils::Logging::logLine(
