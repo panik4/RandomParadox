@@ -131,7 +131,7 @@ void Module::generate() {
     error += e.what();
     throw(std::exception(error.c_str()));
   }
-  try {
+  //try {
     using namespace Parsing::Writing;
     auto foundRegions =
         compatRegions(pathcfg.gamePath + "//game//map_data//state_regions//",
@@ -193,7 +193,7 @@ void Module::generate() {
       formatConverter.Vic3ColourMaps(
           Fwg::Gfx::MapMerging::mergeTerrain(
               vic3Gen->heightMap, vic3Gen->climateMap, vic3Gen->sobelMap),
-          vic3Gen->treeMap, vic3Gen->heightMap, vic3Gen->humidityMap,
+          vic3Gen->worldMap, vic3Gen->heightMap, vic3Gen->humidityMap,
           vic3Gen->civLayer, pathcfg.gameModPath + "//gfx//map//");
       // formatConverter.dump8BitRivers(vic3Gen->riverMap,
       //                                pathcfg.gameModPath +
@@ -204,7 +204,13 @@ void Module::generate() {
       if (vic3Gen->originalHeightMap.size() > 0) {
         vic3Gen->heightMap = vic3Gen->originalHeightMap;
       }
-
+      formatConverter.detailMaps(vic3Gen->climateData, vic3Gen->civLayer,
+                                 pathcfg.gameModPath + "//gfx//map//");
+      //formatConverter.detailIndexMap(vic3Gen->climateData,
+      //                               vic3Gen->climateIndexIntensityMap,
+      //                               pathcfg.gameModPath + "//gfx//map//");
+      //formatConverter.detailIntensityMap(vic3Gen->climateIndexIntensityMap,
+      //                                   pathcfg.gameModPath + "//gfx//map//");
       // also dump uncompressed packed heightmap
       formatConverter.dump8BitHeightmap(
           vic3Gen->heightMap, pathcfg.gameModPath + "//map_data//heightmap",
@@ -212,11 +218,6 @@ void Module::generate() {
       formatConverter.dumpPackedHeightmap(
           vic3Gen->heightMap,
           pathcfg.gameModPath + "//map_data//packed_heightmap", "heightmap");
-      formatConverter.detailIndexMap(vic3Gen->climateIndexMap,
-                                     vic3Gen->climateIndexIntensityMap,
-                                     pathcfg.gameModPath + "//gfx//map//");
-      formatConverter.detailIntensityMap(vic3Gen->climateIndexIntensityMap,
-                                         pathcfg.gameModPath + "//gfx//map//");
       using namespace Fwg::Gfx;
       // just copy over provinces.bmp as a .png, already in a compatible format
       auto scaledMap = Bmp::scale(vic3Gen->provinceMap, 8192, 3616, false);
@@ -229,12 +230,12 @@ void Module::generate() {
           pathcfg.gameModPath + "//map_data//indirection_heightmap.png",
           copyOptions);
     }
-  } catch (std::exception e) {
-    std::string error = "Error while dumping and writing files.\n";
-    error += "Error is: \n";
-    error += e.what();
-    throw(std::exception(error.c_str()));
-  }
+  //} catch (std::exception e) {
+  //  std::string error = "Error while dumping and writing files.\n";
+  //  error += "Error is: \n";
+  //  error += e.what();
+  //  throw(std::exception(error.c_str()));
+  //}
 }
 
 } // namespace Scenario::Vic3

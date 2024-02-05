@@ -444,7 +444,7 @@ int GUI::showScenarioTab(
         activeModule->generator->climateMap.initialised() &&
         activeModule->generator->provinceMap.initialised() &&
         activeModule->generator->regionMap.initialised() &&
-        activeModule->generator->treeMap.initialised()) {
+        activeModule->generator->worldMap.initialised()) {
       // auto initialize
       if (ImGui::Button("Init") ||
           !activeModule->generator->gameProvinces.size()) {
