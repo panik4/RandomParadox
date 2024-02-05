@@ -28,10 +28,9 @@ public:
                       const Fwg::Civilization::CivilizationLayer &civLayer,
                       const std::string &path);
   void dynamicMasks(const std::string &path);
-  void detailIndexMap(const Fwg::Gfx::Bitmap &fwgDetailIndex,
-                      const Fwg::Gfx::Bitmap &fwgDetailIntensity,
-                      const std::string &path);
-  void detailIntensityMap(const Fwg::Gfx::Bitmap &fwgDetailIntensity,
-                          const std::string &path);
+  void detailMaps(const Fwg::ClimateGeneration::ClimateData &climateData,
+                  const Fwg::Civilization::CivilizationLayer &civLayer,
+                  const std::string &path);
+
 };
 } // namespace Scenario::Gfx

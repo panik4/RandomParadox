@@ -301,61 +301,40 @@ void FormatConverter::dynamicMasks(const std::string &path) {
   Fwg::Gfx::Png::save(agricultureMap, path + "mask_dynamic_farmland.png");
 }
 
-void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &fwgDetailIndex,
-                                     const Fwg::Gfx::Bitmap &fwgDetailIntensity,
-                                     const std::string &path) {
-  Utils::Logging::logLine("Vic3::Writing detailIndexMap");
-  auto scaledFwgDetailIndex =
-      Fwg::Gfx::Bmp::scale(fwgDetailIndex, 8192, 3616, false);
-  auto scaledfwgDetailIntensity =
-      Fwg::Gfx::Bmp::scale(fwgDetailIntensity, 8192, 3616, false);
-  const auto &height = scaledFwgDetailIndex.height();
-  const auto &width = scaledFwgDetailIndex.width();
-  int factor = 1;
-  auto imageWidth = width / factor;
-  auto imageHeight = height / factor;
-  std::vector<Fwg::Gfx::Bitmap> masks;
-  auto inMap = scaledFwgDetailIndex;
-  inMap.fill(0);
-  for (int i = 0; i < 36; i++) {
-    masks.push_back(inMap);
-  }
+void FormatConverter::detailMaps(
+    const Fwg::ClimateGeneration::ClimateData &climateData,
+    const Fwg::Civilization::CivilizationLayer &civLayer,
+    const std::string &path) {
+  using Et = Fwg::ElevationTypeIndex;
+  using Clt = Fwg::ClimateGeneration::Detail::ClimateTypeIndex;
+  using ft = Fwg::ClimateGeneration::Detail::TreeType;
+  std::map<Et, int> elevationMap{{Et::CLIFF, 16},      {Et::DEEPOCEAN, 6},
+                                 {Et::HIGHLANDS, 18},  {Et::HILLS, 16},
+                                 {Et::LOWHILLS, 13},   {Et::MOUNTAINS, 14},
+                                 {Et::OCEAN, 5},       {Et::PEAKS, 15},
+                                 {Et::STEEPPEAKS, 15}, {Et::VALLEY, 12}};
+  std::map<Clt, int> climateMap{{Clt::COLDDESERT, 1},
+                                {Clt::COLDSEMIARID, 25},
+                                {Clt::CONTINENTALCOLD, 22},
+                                {Clt::CONTINENTALHOT, 24},
+                                {Clt::CONTINENTALWARM, 23},
+                                {Clt::DESERT, 0},
+                                {Clt::HOTSEMIARID, 26},
+                                {Clt::POLARARCTIC, 21},
+                                {Clt::POLARTUNDRA, 28},
+                                {Clt::ROCK, 15},
+                                {Clt::SNOW, 21},
+                                {Clt::TEMPERATECOLD, 22},
+                                {Clt::TEMPERATEHOT, 24},
+                                {Clt::TEMPERATEWARM, 23},
+                                {Clt::TROPICSMONSOON, 34},
+                                {Clt::TROPICSRAINFOREST, 32},
+                                {Clt::TROPICSSAVANNA, 35},
+                                {Clt::WATER, 5}};
+  std::map<ft, int> treeMap{{ft::SPARSE, 34},          {ft::TEMPERATEMIXED, 30},
+                            {ft::TEMPERATENEEDLE, 31}, {ft::TROPICALDRY, 32},
+                            {ft::TROPICALMOIST, 32},   {ft::BOREAL, 31}};
 
-  // we need a definition for each mask, that contains the mask name, the input
-  // colour, the output colour in theory, iterate over created detail_index.tga,
-  // for every pixel get values in detail_intensity, then by the index, modify
-  // mask in a vector of masks. At the end, write all masks according to index
-  // and therefore name
-
-  //    {Cfg::Values().colours["rockyHills"], 13},
-  //        {Cfg::Values().colours["snowyHills"], 22},
-  //        {Cfg::Values().colours["rockyMountains"], 15},
-  //        {Cfg::Values().colours["snowyMountains"], 22},
-  //        {Cfg::Values().colours["rockyPeaks"], 16},
-  //        {Cfg::Values().colours["snowyPeaks"], 22},
-  //        {Cfg::Values().colours["grassland"], 23},
-  //        {Cfg::Values().colours["grasslandHills"], 13},
-  //        {Cfg::Values().colours["grasslandMountains"], 14},
-  //        {Cfg::Values().colours["desert"], 1},
-  //        {Cfg::Values().colours["desertHills"], 19}, //10
-  //        {Cfg::Values().colours["desertMountains"], 20},
-  //        {Cfg::Values().colours["forest"], 26},
-  //        {Cfg::Values().colours["forestHills"], 13},
-  //        {Cfg::Values().colours["forestMountains"], 14},
-  //        {Cfg::Values().colours["savanna"], 5}, //15
-  //        {Cfg::Values().colours["drysavanna"], 6},
-  //        {Cfg::Values().colours["jungle"], 28},
-  //        {Cfg::Values().colours["tundra"], 29},
-  //        {Cfg::Values().colours["ice"], 22},
-  //         {Cfg::Values().colours["marsh"], 9},
-  //        {Cfg::Values().colours["urban"], 24},
-  //        {Cfg::Values().colours["farm"], 25}, {
-  //      Cfg::Values().colours["sea"], 1
-  std::map<int, int> testmap{{0, 12},  {1, 21},  {2, 14},  {3, 21},  {4, 15},
-                             {5, 21},  {6, 22},  {7, 12},  {8, 13},  {9, 0},
-                             {10, 18}, {11, 19}, {12, 30}, {13, 12}, {14, 13},
-                             {15, 34}, {16, 35}, {17, 32}, {18, 28}, {19, 21},
-                             {20, 8},  {21, 23}, {22, 24}, {255, 1}};
   std::map<int, std::string> nameMapping{{0, "desert_01"},
                                          {1, "desert_03"},
                                          {2, "desert_04"},
@@ -392,21 +371,81 @@ void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &fwgDetailIndex,
                                          {33, "rocks_01"},
                                          {34, "savanna_01"},
                                          {35, "savanna_03"}};
-  std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
-  for (auto h = 0; h < imageHeight; h++) {
-    for (auto w = 0; w < imageWidth; w++) {
-      auto colourmapIndex = factor * h * width + factor * w;
-      auto &c = scaledFwgDetailIndex[colourmapIndex];
-      auto imageIndex =
-          imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
+  Utils::Logging::logLine("Vic3::Writing detailMaps");
+  const auto &config = Fwg::Cfg::Values();
+  Fwg::Gfx::Bitmap detailIndexBmp(config.width, config.height, 24);
+  Fwg::Gfx::Bitmap detailIntensity(config.width, config.height, 24);
+  for (auto i = 0; i < climateData.climates.size(); i++) {
+    std::array<unsigned char, 3> colour;
+    std::array<float, 3> intensities;
+
+    for (auto chanceIndex = 0; chanceIndex < 3; chanceIndex++) {
+      auto type = climateData.climates[i].chances[chanceIndex].second;
+      auto intensity = climateData.climates[i].chances[chanceIndex].first *
+                       (1.0 / pow(2.0, (double)chanceIndex));
+      auto mappedType = climateMap.at(type);
+      colour[chanceIndex] = mappedType;
+      intensities[chanceIndex] = intensity;
+    }
+
+    auto elevType = climateData.landForms[i].landForm;
+    if (elevType != ElevationTypeIndex::PLAINS &&
+        elevType != ElevationTypeIndex::HIGHLANDS) {
+      colour[2] = elevationMap.at(elevType);
+      intensities[2] =
+          std::clamp(climateData.landForms[i].inclination * 0.5f, 0.0f, 1.0f);
+    }
+
+    auto treeType = climateData.treeCoverage[i];
+    if (treeType != ft::NONE) {
+      colour[1] = treeMap.at(treeType);
+      intensities[1] = 1.0;
+    }
+    double intensitySum = intensities[0] + intensities[1] + intensities[2];
+    detailIndexBmp.setColourAtIndex(i, {colour[2], colour[1], colour[0]});
+    detailIntensity.setColourAtIndex(i,
+                                     {intensities[0] / intensitySum * 255.0f,
+                                      intensities[1] / intensitySum * 255.0f,
+                                      intensities[2] / intensitySum * 255.0f});
+  }
+
+  Fwg::Gfx::Png::save(detailIndexBmp,
+                      config.mapsPath + "Vic3//" + "detailIndex.png");
+  Fwg::Gfx::Png::save(detailIntensity,
+                      config.mapsPath + "Vic3//" + "detailIntensity.png");
+
+  auto scaledDetailIndex =
+      Fwg::Gfx::Bmp::scale(detailIndexBmp, 8192, 3616, false);
+  Fwg::Gfx::Png::save(scaledDetailIndex,
+                      config.mapsPath + "Vic3//" + "sdetailIndex.png");
+  auto scaledDetailIntensity =
+      Fwg::Gfx::Bmp::scale(detailIntensity, 8192, 3616, false);
+  Fwg::Gfx::Png::save(scaledDetailIntensity,
+                      config.mapsPath + "Vic3//" + "sdetailIntensity.png");
+
+  const auto &height = scaledDetailIndex.height();
+  const auto &width = scaledDetailIndex.width();
+  std::vector<Fwg::Gfx::Bitmap> masks;
+  auto inMap = scaledDetailIndex;
+  inMap.fill(0);
+  for (int i = 0; i < 36; i++) {
+    masks.push_back(inMap);
+  }
+  std::vector<uint8_t> pixels(width * height * 4, 0);
+  std::vector<uint8_t> intensityPixels(width * height * 4, 0);
+  for (auto h = 0; h < height; h++) {
+    for (auto w = 0; w < width; w++) {
+      auto colourmapIndex = h * width + w;
+      auto &c = scaledDetailIndex[colourmapIndex];
+      auto imageIndex = height * width - (h * width + (width - w));
       imageIndex *= 4;
       try {
-        pixels[imageIndex] = testmap.at(c.getBlue());
-        pixels[imageIndex + 1] = testmap.at(c.getGreen());
-        pixels[imageIndex + 2] = testmap.at(c.getRed());
+        pixels[imageIndex] = (c.getRed());
+        pixels[imageIndex + 1] = (c.getGreen());
+        pixels[imageIndex + 2] = (c.getBlue());
         pixels[imageIndex + 3] = 255;
         // get the intensity of the colours
-        const auto &intensity = scaledfwgDetailIntensity[imageIndex / 4];
+        const auto &intensity = scaledDetailIntensity[colourmapIndex];
         // now for every current channel, write the mask using both index and
         // colour
         Fwg::Gfx::Colour intensityColour;
@@ -414,43 +453,24 @@ void FormatConverter::detailIndexMap(const Fwg::Gfx::Bitmap &fwgDetailIndex,
           auto maskIndex = pixels[imageIndex + i];
           // now locate which mask index we need to write to
           masks[maskIndex].setColourAtIndex(colourmapIndex,
-                                            intensity.getBGR()[2 - i]);
+                                            intensity.getBGR()[i]);
+          intensityPixels[imageIndex + i] = intensity.getBGR()[i];
         }
+        intensityPixels[imageIndex + 4] = 0;
       } catch (std::exception e) {
         std::cout << c << std::endl;
       }
     }
   }
-
   Textures::writeTGA(8192, 3616, pixels, path + "//terrain//detail_index.tga");
+  Textures::writeTGA(8192, 3616, intensityPixels,
+                     path + "//terrain//detail_intensity.tga");
+
   for (int i = 0; i < masks.size(); i++) {
     Fwg::Gfx::Png::save(masks[i],
                         path + "//terrain//mask_" + nameMapping.at(i) + ".png",
                         true, LCT_GREY, 8);
   }
-}
-
-void FormatConverter::detailIntensityMap(
-    const Fwg::Gfx::Bitmap &fwgDetailIntensity, const std::string &path) {
-
-  Utils::Logging::logLine("Vic3::Writing detailIntensity Map");
-  auto copy = Fwg::Gfx::Bmp::scale(fwgDetailIntensity, 8192, 3616, false);
-  const auto &height = copy.height();
-  const auto &width = copy.width();
-  int factor = 1;
-  auto imageWidth = width / factor;
-  auto imageHeight = height / factor;
-  std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
-  for (auto i = 0; i < copy.size(); i++) {
-    auto imageIndex = i * 4;
-    auto &c = copy[i];
-    pixels[imageIndex] = c.getBlue();
-    pixels[imageIndex + 1] = c.getGreen();
-    pixels[imageIndex + 2] = c.getRed();
-    pixels[imageIndex + 3] = 0;
-  }
-  Textures::writeTGA(8192, 3616, pixels,
-                     path + "//terrain//detail_intensity.tga");
 }
 
 FormatConverter::FormatConverter(const std::string &gamePath,
