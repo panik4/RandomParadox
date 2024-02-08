@@ -25,6 +25,9 @@ public:
   virtual void initializeCountries();
   //void generateRegions(std::vector<std::shared_ptr<Region>> &regions);
   void distributePops();
+  void totalResourceVal(const std::vector<double> &resPrev,
+                        double resourceModifier, ResourceType type);
+  void distributeResources();
  // std::vector<Vic3StratRegion> getVic3Regions() { return vic3StratRegions; };
 };
 } // namespace Scenario::Vic3

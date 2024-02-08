@@ -7,12 +7,13 @@ STATE_template_name = {
     farm = "template_farm"
     mine = "template_mine"
     wood = "template_wood"
-    arable_land = 30
-    arable_resources = { "bg_rye_farms" "bg_livestock_ranches" }
+    arable_land = template_arable_land
+    arable_resources = { template_arable_resources }
+        #bg_iron_mining = 36
+       # bg_lead_mining = 18
+       # bg_logging = 23
     capped_resources = {
-        bg_iron_mining = 36
-        bg_lead_mining = 18
-        bg_logging = 23
+        template_capped_resources
     }
     template_naval_exit
 }

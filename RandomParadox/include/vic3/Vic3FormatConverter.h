@@ -27,7 +27,9 @@ public:
                       const Fwg::Gfx::Bitmap &humidityMap,
                       const Fwg::Civilization::CivilizationLayer &civLayer,
                       const std::string &path);
-  void dynamicMasks(const std::string &path);
+  void dynamicMasks(const std::string &path,
+                    const Fwg::ClimateGeneration::ClimateData &climateData,
+                    const Fwg::Civilization::CivilizationLayer &civLayer);
   void detailMaps(const Fwg::ClimateGeneration::ClimateData &climateData,
                   const Fwg::Civilization::CivilizationLayer &civLayer,
                   const std::string &path);

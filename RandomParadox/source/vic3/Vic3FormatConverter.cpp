@@ -283,22 +283,37 @@ void FormatConverter::Vic3ColourMaps(
                            path + "//textures//windmap_tree.dds", true);
 }
 
-void FormatConverter::dynamicMasks(const std::string &path) {
+void FormatConverter::dynamicMasks(
+    const std::string &path,
+    const Fwg::ClimateGeneration::ClimateData &climateData,
+    const Fwg::Civilization::CivilizationLayer &civLayer) {
   // TODO: exclusion_mask.dds
   //
-  auto agricultureMap = Fwg::Gfx::Bmp::load24Bit(
-      Fwg::Cfg::Values().mapsPath + "//resourcelayers//agriculture.bmp", "");
-  auto miningMap = Fwg::Gfx::Bmp::load24Bit(
-      Fwg::Cfg::Values().mapsPath + "//resourcelayers//ores.bmp", "");
-  auto jungleMap = Fwg::Gfx::Bmp::load24Bit(
-      Fwg::Cfg::Values().mapsPath + "//resourcelayers//jungle.bmp", "");
 
-  for (int i = 0; i < agricultureMap.size(); i++) {
-    auto val = agricultureMap[i].getGreen();
-    val += jungleMap[i].getGreen();
-    agricultureMap.setColourAtIndex(i, val * 3);
+  Utils::Logging::logLine("Vic3::Writing dynamic masks");
+  const auto &config = Fwg::Cfg::Values();
+
+  std::vector<double> dynamicMask(config.bitmapSize);
+  for (int i = 0; i < civLayer.agriculture.size(); i++) {
+    auto val = civLayer.agriculture[i];
+    dynamicMask[i] = val * 255.0;
   }
-  Fwg::Gfx::Png::save(agricultureMap, path + "mask_dynamic_farmland.png");
+  Fwg::Gfx::Png::save(
+      Fwg::Gfx::Bmp::scale(
+          Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask), 8192,
+          3616, false),
+      path + "mask_dynamic_farmland.png");
+  for (int i = 0; i < climateData.treeCoverage.size(); i++) {
+    dynamicMask[i] = 0;
+    auto val = climateData.treeCoverage[i];
+    if (val != Fwg::ClimateGeneration::Detail::TreeType::NONE)
+      dynamicMask[i] = 255.0;
+  }
+  Fwg::Gfx::Png::save(
+      Fwg::Gfx::Bmp::scale(
+          Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask), 8192,
+          3616, false),
+      path + "mask_dynamic_forestry.png");
 }
 
 void FormatConverter::detailMaps(
