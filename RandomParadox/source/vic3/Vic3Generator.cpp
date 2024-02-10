@@ -85,29 +85,52 @@ void Generator::distributePops() {
     worldPop += (long long)region->population;
   }
 }
-
-void Generator::totalResourceVal(const std::vector<double> &resPrev,
-                                 double resourceModifier, ResourceType type) {
+void Generator::totalArableLand(const std::vector<float> &arableLand) {
+  const auto baseWorldArableSlots = 50000.0;
+  auto totalArable = 0.0f;
+  for (auto &val : arableLand) {
+    totalArable += val;
+  }
   for (auto &reg : vic3Regions) {
     auto resShare = 0.0;
-    auto stateSize = 0;
+    for (const auto &prov : reg->provinces) {
+      for (const auto &pix : prov->pixels) {
+        resShare += arableLand[pix];
+      }
+    }
+    // basically fictive value from given input of how often this resource
+    // appears
+    auto stateArable = baseWorldArableSlots * (resShare / totalArable);
+    reg->arableLand = stateArable;
+  }
+}
+void Generator::totalResourceVal(const std::vector<double> &resPrev,
+                                 double resourceModifier, ResourceType type) {
+  const auto baseResourceAmount = 2500.0 * resourceModifier;
+  auto totalRes = 0.0;
+  for (auto &val : resPrev) {
+    totalRes += val;
+  }
+  for (auto &reg : vic3Regions) {
+    auto resShare = 0.0;
     for (const auto &prov : reg->provinces) {
       for (const auto &pix : prov->pixels) {
         resShare += resPrev[pix];
-        stateSize++;
       }
     }
-    // how prevalent is this resource overall
-    auto averageStateRes = resShare / (double)stateSize;
     // basically fictive value from given input of how often this resource
     // appears
-    auto totalRes = 50 * averageStateRes * resourceModifier;
-    reg->resources.insert({type, totalRes});
+    auto stateRes = baseResourceAmount * (resShare / totalRes);
+    reg->resources.insert({type, stateRes});
   }
 }
 
 void Generator::distributeResources() {
   const auto &cfg = Fwg::Cfg::Values();
+
+  // distribute arable land to states
+  totalArableLand(climateData.arableLand);
+
   struct NoiseConfig {
     double fractalFrequency;
     double tanFactor;
@@ -119,7 +142,7 @@ void Generator::distributeResources() {
   NoiseConfig rareLargePatch{0.005, 0.0, 0.7, 0.0};
   NoiseConfig rareNoise{0.01, 0.0, 0.9, 2.0};
   NoiseConfig agriNoise{0.24, 0.0, 0.0, 0.0};
-  // coal
+
   struct ResConfig {
     ResourceType resType;
     std::string name;
@@ -136,16 +159,15 @@ void Generator::distributeResources() {
     double lakeFactor = 0.0;
   };
   using CTI = Fwg::ClimateGeneration::Detail::ClimateTypeIndex;
-
   // config for all resource types
   std::vector<ResConfig> resConfigs{
-      {ResourceType::COAL, "Coal", 1.0, true, defaultNoise},
+      {ResourceType::COAL, "Coal", 5.0, true, defaultNoise},
       {ResourceType::GOLDMINES, "Goldmines", 0.2, true, rareNoise},
       {ResourceType::GOLDFIELDS, "Goldfields", 0.2, true, rareNoise},
-      {ResourceType::IRON, "Iron", 1.0, true, defaultNoise},
-      {ResourceType::LEAD, "Lead", 1.0, true, semiRareNoise},
+      {ResourceType::IRON, "Iron", 5.0, true, defaultNoise},
+      {ResourceType::LEAD, "Lead", 2.0, true, semiRareNoise},
       {ResourceType::OIL, "Oil", 1.0, true, rareLargePatch},
-      {ResourceType::SULFUR, "Sulfur", 1.0, true, semiRareNoise},
+      {ResourceType::SULFUR, "Sulfur", 2.0, true, semiRareNoise},
       {ResourceType::LOGGING,
        "Logging",
        10.0,
@@ -169,7 +191,8 @@ void Generator::distributeResources() {
        false,
        agriNoise,
        true,
-       {{CTI::TROPICSMONSOON, 0.7},
+       {{CTI::POLARTUNDRA, 0.2},
+        {CTI::TROPICSMONSOON, 0.7},
         {CTI::TROPICSRAINFOREST, 0.6},
         {CTI::TROPICSSAVANNA, 0.8},
         {CTI::COLDSEMIARID, 0.5},
@@ -347,7 +370,19 @@ void Generator::distributeResources() {
        {},
        true,
        1.0,
-       1.0}};
+       1.0},
+      {ResourceType::WHALING,
+       "Whale",
+       1.0,
+       false,
+       defaultNoise,
+       false,
+       {},
+       false,
+       {},
+       true,
+       1.0,
+       0.0}};
 
   for (auto &resConfig : resConfigs) {
     std::vector<double> resPrev;
@@ -358,7 +393,8 @@ void Generator::distributeResources() {
           resConfig.noiseConfig.mountainBonus);
     } else if (resConfig.considerSea) {
       resPrev = Fwg::Civilization::Resources::coastDependentLayer(
-          resConfig.name, resConfig.oceanFactor, resConfig.lakeFactor);
+          resConfig.name, resConfig.oceanFactor, resConfig.lakeFactor,
+          areas.provinces);
     } else {
       resPrev = Fwg::Civilization::Resources::climateDependentLayer(
           resConfig.name, resConfig.noiseConfig.fractalFrequency,

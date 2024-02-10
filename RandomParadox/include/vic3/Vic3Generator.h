@@ -25,6 +25,7 @@ public:
   virtual void initializeCountries();
   //void generateRegions(std::vector<std::shared_ptr<Region>> &regions);
   void distributePops();
+  void totalArableLand(const std::vector<float> &arableLand);
   void totalResourceVal(const std::vector<double> &resPrev,
                         double resourceModifier, ResourceType type);
   void distributeResources();
