@@ -375,7 +375,7 @@ void countryHistory(const std::string &path,
                     const std::map<std::string, Country> &countries) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing country history");
   const auto countryTemplate =
-      pU::readFile("resources//vic3//common//countryHistoryTemplate.txt");
+      pU::readFile("resources//vic3//common//history//countryHistoryTemplate.txt");
   for (const auto &country : countries) {
     auto cString = countryTemplate;
 

@@ -202,6 +202,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         if (!configuredScenarioGen) {
           ImGui::BeginDisabled();
         }
+        showDevelopmentTab(cfg);
         showCountryTab(cfg, &curtexture);
         if (activeGameConfig.gameName == "Hearts of Iron IV") {
           auto hoi4Gen =
@@ -484,9 +485,42 @@ int GUI::showScenarioTab(
   return retCode;
 }
 
+int GUI::showDevelopmentTab(Fwg::Cfg &cfg) {
+  if (ImGui::BeginTabItem("Development")) {
+    auto &fwg = activeModule->generator;
+    uiUtils.activeImage = &fwg->developmentMap;
+    uiUtils.tabSwitchEvent();
+    ImGui::SeparatorText("Drop in a development map, or use the displayed one");
+
+    if (triggeredDrag) {
+      auto devMapIn = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
+      Fwg::Civilization::readDevelopment(devMapIn, fwg->areas.provinces);
+      triggeredDrag = false;
+      uiUtils.resetTexture();
+    }
+    for (auto &continent : fwg->areas.continents) {
+      std::string displayString =
+          "Continent development modifier for continent" +
+          std::to_string(continent.ID);
+      ImGui::InputDouble(displayString.c_str(), &continent.developmentModifier);
+    }
+    ImGui::Checkbox("Random Development", &cfg.randomDevelopment);
+    if (ImGui::Button("Generate Development")) {
+      Fwg::Civilization::generateDevelopment(fwg->areas.continents);
+      fwg->developmentMap = Fwg::Gfx::displayDevelopment(fwg->areas.provinces);
+      uiUtils.resetTexture();
+    }
+    uiUtils.switchTexture(fwg->developmentMap, &curtexture, 0,
+                          UIUtils::ActiveTexture::DEVELOPMENT, g_pd3dDevice, w,
+                          h);
+    ImGui::EndTabItem();
+  }
+  return 0;
+}
+
 int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
   if (ImGui::BeginTabItem("Countries")) {
-    auto generator = activeModule->generator;
+    auto &generator = activeModule->generator;
     uiUtils.tabSwitchEvent();
     ImGui::Text(
         "Use auto generated country map or drop it in. You may also first "
