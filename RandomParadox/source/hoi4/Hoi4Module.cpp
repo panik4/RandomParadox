@@ -285,15 +285,15 @@ void Hoi4Module::readHoi(std::string &gamePath) {
   for (auto &c : hoi4Gen->countries) {
     auto fCol = hoi4Gen->countryColourMap.valueSearch(c.first);
     if (fCol != Fwg::Gfx::Colour{0, 0, 0}) {
-      c.second.colour = fCol;
+      c.second->colour = fCol;
     } else {
       do {
         // generate random colour as long as we have a duplicate
-        c.second.colour = Fwg::Gfx::Colour(RandNum::getRandom(1, 254),
+        c.second->colour = Fwg::Gfx::Colour(RandNum::getRandom(1, 254),
                                            RandNum::getRandom(1, 254),
                                            RandNum::getRandom(1, 254));
-      } while (hoi4Gen->countryColourMap.find(c.second.colour));
-      hoi4Gen->countryColourMap.setValue(c.second.colour, c.first);
+      } while (hoi4Gen->countryColourMap.find(c.second->colour));
+      hoi4Gen->countryColourMap.setValue(c.second->colour, c.first);
     }
   }
   hoi4Gen->initializeCountries();
@@ -351,7 +351,7 @@ void Hoi4Module::generate() {
     hoi4Gen->mapProvinces();
     hoi4Gen->mapRegions();
     hoi4Gen->mapContinents();
-    hoi4Gen->generateCountries();
+    hoi4Gen->generateCountries<Hoi4::Hoi4Country>();
     // build hoi4 countries out of basic countries
     hoi4Gen->initializeCountries();
     hoi4Gen->evaluateNeighbours();

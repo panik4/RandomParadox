@@ -1,6 +1,11 @@
 #include "vic3/Vic3Country.h"
 
 namespace Scenario::Vic3 {
-Vic3Country::Vic3Country() {}
+Country::Country(std::string tag, int ID, std::string name,
+                 std::string adjective, Gfx::Flag flag)
+    : Scenario::Country(tag, ID, name, adjective, flag) {}
 
-} // namespace Scenario::Hoi4
+
+Country::~Country() {}
+
+} // namespace Scenario::Vic3

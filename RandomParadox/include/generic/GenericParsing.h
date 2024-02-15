@@ -14,7 +14,7 @@ template <typename T> void dumpRegions(const std::vector<T> &regions) {
         {std::to_string(region->colour.getRed()),
          std::to_string(region->colour.getGreen()),
          std::to_string(region->colour.getBlue()), region->name,
-         std::to_string(region->population)},
+         std::to_string(region->totalPopulation)},
         ';', true);
   }
   Fwg::Parsing::writeFile("Maps//states.txt", content);

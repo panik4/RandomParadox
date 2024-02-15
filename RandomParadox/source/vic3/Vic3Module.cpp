@@ -117,13 +117,16 @@ void Module::generate() {
     vic3Gen->mapRegions();
     vic3Gen->mapTerrain();
     vic3Gen->mapContinents();
-    vic3Gen->generateCountries();
+    vic3Gen->generateCountries<Vic3::Country>();
     vic3Gen->evaluateNeighbours();
     vic3Gen->generateWorldCivilizations();
-    vic3Gen->distributePops();
-    vic3Gen->distributeResources();
     vic3Gen->dumpDebugCountrymap(Cfg::Values().mapsPath + "countries.png");
     // Vic3 specifics:
+    vic3Gen->distributePops();
+    vic3Gen->distributeResources();
+    vic3Gen->mapCountries();
+    // handle basic development, tech level, policies,
+    vic3Gen->initializeCountries();
     vic3Gen->generateStrategicRegions();
 
   } catch (std::exception e) {
@@ -164,13 +167,13 @@ void Module::generate() {
                  vic3Gen->religions);
   countryCommon(pathcfg.gameModPath +
                     "//common//country_definitions//02_custom.txt",
-                vic3Gen->countries, vic3Gen->vic3Regions);
+                vic3Gen->vic3Countries, vic3Gen->vic3Regions);
   stateHistory(pathcfg.gameModPath + "//common//history//states//00_states.txt",
                vic3Gen->vic3Regions);
   popsHistory(pathcfg.gameModPath + "//common//history//pops//00_world.txt",
               vic3Gen->vic3Regions);
   countryHistory(pathcfg.gameModPath + "//common//history//countries",
-                 vic3Gen->countries);
+                 vic3Gen->vic3Countries);
   splineNetwork(pathcfg.gameModPath + "//gfx//map//spline_network//");
   compatFile(pathcfg.gameModPath + "//common//decisions//canal_decisions.txt");
   compatFile(pathcfg.gameModPath + "//events//canal_events.txt");

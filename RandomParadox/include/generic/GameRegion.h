@@ -10,7 +10,11 @@ public:
   // member variables
   std::string owner;
   std::string name;
-  int population;
+  // calculate this for the scenario in general
+  double populationFactor;
+  // calculate this in every module
+  int totalPopulation;
+  double development;
   bool assigned;
   double snowChance, lightRainChance, heavyRainChance, blizzardChance,
       mudChance, sandStormChance;

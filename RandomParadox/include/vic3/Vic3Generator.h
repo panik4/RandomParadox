@@ -1,7 +1,8 @@
 #pragma once
-#include <generic/ScenarioGenerator.h>
-#include "Vic3Region.h"
 #include "Vic3Country.h"
+#include "Vic3Region.h"
+#include "vic3/Vic3Utils.h"
+#include <generic/ScenarioGenerator.h>
 
 namespace Scenario::Vic3 {
 
@@ -11,24 +12,24 @@ struct Vic3StratRegion {
 };
 
 class Generator : public Scenario::Generator {
- // std::vector<Vic3StratRegion> vic3StratRegions;
 
 public:
   std::vector<std::shared_ptr<Region>> vic3Regions;
+  std::map<std::string, std::shared_ptr<Country>> vic3Countries;
   Generator();
   Generator(const std::string &configSubFolder);
-  // initialize states
+
   virtual void mapRegions();
-  // initialize states
-  virtual void initializeStates();
-  // initialize countries
-  virtual void initializeCountries();
-  //void generateRegions(std::vector<std::shared_ptr<Region>> &regions);
   void distributePops();
   void totalArableLand(const std::vector<float> &arableLand);
   void totalResourceVal(const std::vector<double> &resPrev,
                         double resourceModifier, ResourceType type);
   void distributeResources();
- // std::vector<Vic3StratRegion> getVic3Regions() { return vic3StratRegions; };
+  // initialize states
+  virtual void initializeStates();
+  // map scenario countries to vic3 countries
+  virtual void mapCountries();
+  // initialize countries
+  virtual void initializeCountries();
 };
 } // namespace Scenario::Vic3

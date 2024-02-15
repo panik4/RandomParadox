@@ -7,6 +7,7 @@
 #include <vector>
 namespace Scenario {
 class Country {
+
 public:
   // member variables
   const int ID;
@@ -14,7 +15,10 @@ public:
   std::string name;
   std::string adjective;
   int capitalRegionID;
+  double populationFactor;
   double developmentFactor;
+  // the gamemodule calculate the total population
+  int pop;
   Gfx::Flag flag;
   Fwg::Gfx::Colour colour;
   // constructors/destructors
@@ -23,7 +27,7 @@ public:
               Gfx::Flag flag);
   ~Country();
   // containers
-  std::vector<int> ownedRegions;
+  std::vector<std::shared_ptr<Region>> ownedRegions;
   std::set<std::string> neighbours;
   // member functions
   void assignRegions(int maxRegions,

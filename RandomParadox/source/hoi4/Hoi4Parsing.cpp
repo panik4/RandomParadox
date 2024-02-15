@@ -373,7 +373,7 @@ void states(const std::string &path,
                                     std::to_string((int)region->armsFactories));
 
     pU::Scenario::replaceOccurences(content, "templatePopulation",
-                                    std::to_string((int)region->population));
+                                    std::to_string((int)region->totalPopulation));
     pU::Scenario::replaceOccurences(
         content, "templateStateCategory",
         stateCategories[(int)region->stateCategory]);
@@ -992,12 +992,12 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
             [](auto l, auto r) { return *l < *r; });
   for (auto &region : hoi4Gen.gameRegions) {
     if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end()) {
-      hoi4Gen.countries.at(region->owner).ownedRegions.push_back(region->ID);
+      hoi4Gen.countries.at(region->owner)->ownedRegions.push_back(region);
     } else {
       Country c;
       c.tag = region->owner;
-      c.ownedRegions.push_back(region->ID);
-      hoi4Gen.countries.insert({c.tag, c});
+      c.ownedRegions.push_back(region);
+      hoi4Gen.countries.insert({c.tag, std::make_shared<Country>(c)});
     }
   }
 }
@@ -1074,9 +1074,9 @@ readCountries(const std::string &path) {
     if (line.size() > 3) {
       auto tag = line.substr(0, 3);
       auto name = pU::getValue(line, "=");
-      Hoi4Country hc;
-      hc.tag = tag;
-      hc.name = name;
+      //Hoi4Country hc;
+      //hc.tag = tag;
+      //hc.name = name;
     }
   }
 

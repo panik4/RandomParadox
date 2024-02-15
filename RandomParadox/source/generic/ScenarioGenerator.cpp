@@ -94,7 +94,8 @@ void Generator::applyRegionInput() {
         try {
 
           // get the predefined population
-          gameRegion->population = stoi(regionInputMap[gameRegion->colour][4]);
+          gameRegion->totalPopulation =
+              stoi(regionInputMap[gameRegion->colour][4]);
         } catch (std::exception e) {
           Fwg::Utils::Logging::logLine(
               "ERROR: Some of the tokens can't be turned into a population "
@@ -132,7 +133,6 @@ void Generator::mapProvinces() {
     // give name to province
     gP->name = NameGeneration::generateName(nData);
     gameProvinces.push_back(gP);
-    
   }
   // sort by gameprovince ID
   std::sort(gameProvinces.begin(), gameProvinces.end(),
@@ -141,14 +141,48 @@ void Generator::mapProvinces() {
 
 void Generator::generatePopulations() {
   Logging::logLine("Generating Population");
-  for (auto &c : countries)
-    for (auto &gR : c.second.ownedRegions)
-      for (auto &gProv : gameRegions[gR]->gameProvinces) {
-        // calculate the population factor
-        gProv->popFactor = gProv->baseProvince->populationDensity;
-      }
+  for (auto &gR : gameRegions) {
+    gR->populationFactor = 0.0;
+    for (auto &gProv : gR->gameProvinces) {
+      // calculate the population factor
+      gProv->popFactor = gProv->baseProvince->populationDensity;
+      gR->populationFactor += gProv->popFactor;
+    }
+  }
 }
-
+void Generator::generateDevelopment() {
+  Logging::logLine("Generating State Development");
+  auto &config = Fwg::Cfg::Values();
+  Bitmap development(config.width, config.height, 24);
+  for (auto &region : gameRegions) {
+    region->development = 0.0;
+    for (auto &gameProv : region->gameProvinces) {
+      gameProv->devFactor = gameProv->baseProvince->development;
+      // weigh more populated provinces more
+      region->development += gameProv->devFactor *
+                             (gameProv->popFactor * region->populationFactor);
+      for (auto pix : gameProv->baseProvince->pixels) {
+        development.setColourAtIndex(
+            pix, static_cast<unsigned char>(gameProv->devFactor * 255.0));
+      }
+    }
+  }
+  // this initializes pop and dev factors for countries
+  for (auto &cEntry : countries) {
+    auto &c = cEntry.second;
+    for (auto &state : c->ownedRegions) {
+      // to count total pop
+      c->populationFactor += state->populationFactor;
+    }
+    for (auto &state : c->ownedRegions) {
+      // development should be weighed by the pop in the state
+      c->developmentFactor +=
+          state->development *
+          ((double)state->populationFactor / (double)c->populationFactor);
+    }
+  }
+  Png::save(development, config.mapsPath + "world/developmentScenario.png");
+}
 void Generator::generateReligions() {
   auto &config = Fwg::Cfg::Values();
   religions.clear();
@@ -240,30 +274,6 @@ void Generator::generateCultures() {
 void Generator::initializeStates() {}
 // initialize states
 void Generator::initializeCountries() {}
-void Generator::generateDevelopment() {
-  // high pop-> high development
-  // high city share->high dev
-  // terrain type?
-  // .....
-  Logging::logLine("Generating State Development");
-  auto &config = Fwg::Cfg::Values();
-  Bitmap development(config.width, config.height, 24);
-  for (auto &c : countries)
-    for (auto &gR : c.second.ownedRegions)
-      for (auto &gameProv : gameRegions[gR]->gameProvinces) {
-        auto cityDensity = 0.0;
-        // calculate development with density of city and population factor
-        if (gameProv->baseProvince->cityPixels.size())
-          cityDensity = gameProv->baseProvince->urbanisation;
-        gameProv->devFactor = gameProv->baseProvince->development;
-
-        for (auto pix : gameProv->baseProvince->pixels) {
-          development.setColourAtIndex(
-              pix, static_cast<unsigned char>(gameProv->devFactor * 255.0));
-        }
-      }
-  Png::save(development, config.mapsPath + "world/developmentScenario.png");
-}
 
 Fwg::Gfx::Bitmap Generator::mapTerrain() {
   const auto &climateMap = this->climateMap;
@@ -392,7 +402,7 @@ void Generator::loadCountries(const std::string &countryMapPath,
       for (auto &region : entry.second) {
         pdoxC.addRegion(region, gameRegions, gameProvinces);
       }
-      countries.emplace(pdoxC.tag, pdoxC);
+      countries.emplace(pdoxC.tag, std::make_shared<Country>(pdoxC));
       nData.tags.insert(pdoxC.tag);
     } else {
 
@@ -404,7 +414,7 @@ void Generator::loadCountries(const std::string &countryMapPath,
       for (auto &region : entry.second) {
         pdoxC.addRegion(region, gameRegions, gameProvinces);
       }
-      countries.emplace(pdoxC.tag, pdoxC);
+      countries.emplace(pdoxC.tag, std::make_shared<Country>(pdoxC));
       nData.tags.insert(pdoxC.tag);
     }
   }
@@ -412,52 +422,7 @@ void Generator::loadCountries(const std::string &countryMapPath,
 
 // generate countries according to given ruleset for each game
 // TODO: rulesets, e.g. naming schemes? tags? country size?
-void Generator::generateCountries() {
-  countries.clear();
-  for (auto &region : gameRegions) {
-    region->assigned = false;
-    region->religions.clear();
-    region->cultures.clear();
-  }
-  auto &config = Fwg::Cfg::Values();
-  Logging::logLine("Generating Countries");
-  // load tags from hoi4 that are used by the base game
-  // do not use those to avoid conflicts
-  if (this->enableLoadCountries) {
-    // load countries
-    loadCountries(config.loadMapsPath + "//countries.png",
-                  this->countryMappingPath);
-  } else {
-    for (auto i = 0; i < numCountries; i++) {
-      auto name{NameGeneration::generateName(nData)};
-      Country pdoxC(NameGeneration::generateTag(name, nData), i, name,
-                    NameGeneration::generateAdjective(name, nData),
-                    Gfx::Flag(82, 52));
-      // randomly set development of countries
-      pdoxC.developmentFactor = RandNum::getRandom(0.1, 1.0);
-      countries.emplace(pdoxC.tag, pdoxC);
-    }
-    for (auto &pdoxCountry : countries) {
-      auto startRegion(findStartRegion());
-      if (startRegion->assigned || startRegion->sea)
-        continue;
-      pdoxCountry.second.assignRegions(6, gameRegions, startRegion,
-                                       gameProvinces);
-    }
-    if (countries.size()) {
-      for (auto &gameRegion : gameRegions) {
-        if (!gameRegion->sea && !gameRegion->assigned) {
-          auto gR = Fwg::Utils::getNearestAssignedLand(
-              gameRegions, gameRegion, config.width, config.height);
-          countries.at(gR->owner).addRegion(gameRegion, gameRegions,
-                                            gameProvinces);
-        }
-      }
-    }
-  }
-  countryMap =
-      dumpDebugCountrymap(Fwg::Cfg::Values().mapsPath + "countries.png");
-}
+
 
 void Generator::generateStrategicRegions() {
   Fwg::Utils::Logging::logLine(
@@ -499,19 +464,18 @@ void Generator::generateStrategicRegions() {
       }
     }
   }
-  Bmp::bufferBitmap("strat", stratRegionBMP);
   Bmp::save(stratRegionBMP, Fwg::Cfg::Values().mapsPath + "stratRegions.bmp");
 }
 
 void Generator::evaluateNeighbours() {
   Logging::logLine("Evaluating Country Neighbours");
   for (auto &c : countries)
-    for (const auto &gR : c.second.ownedRegions)
-      for (const auto &neighbourRegion : gameRegions[gR]->neighbours)
+    for (const auto &gR : c.second->ownedRegions)
+      for (const auto &neighbourRegion : gR->neighbours)
         // TO DO: Investigate rare crash issue with index being out of range
         if (neighbourRegion < gameRegions.size() &&
             gameRegions[neighbourRegion]->owner != c.first)
-          c.second.neighbours.insert(gameRegions[neighbourRegion]->owner);
+          c.second->neighbours.insert(gameRegions[neighbourRegion]->owner);
 }
 
 Bitmap Generator::dumpDebugCountrymap(const std::string &path) {
@@ -519,10 +483,10 @@ Bitmap Generator::dumpDebugCountrymap(const std::string &path) {
   auto &config = Fwg::Cfg::Values();
   Bitmap countryBMP(config.width, config.height, 24);
   for (const auto &country : countries)
-    for (const auto &region : country.second.ownedRegions)
-      for (const auto &prov : gameRegions[region]->provinces)
+    for (const auto &region : country.second->ownedRegions)
+      for (const auto &prov : region->provinces)
         for (const auto &pix : prov->pixels)
-          countryBMP.setColourAtIndex(pix, country.second.colour);
+          countryBMP.setColourAtIndex(pix, country.second->colour);
 
   Png::save(countryBMP, (path).c_str());
   return countryBMP;
