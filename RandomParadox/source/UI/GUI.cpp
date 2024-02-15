@@ -534,7 +534,14 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     ImGui::InputInt("Number of countries", &generator->numCountries);
     ImGui::InputText("Path to country list: ", &generator->countryMappingPath);
     if (ImGui::Button("Generate countries")) {
-      generator->generateCountries();
+      if (isRelevantModuleActive("hoi4")) {
+        auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
+        generator->generateCountries<Scenario::Hoi4::Hoi4Country>();
+      } else if (isRelevantModuleActive("vic3")) {
+        generator->generateCountries<Scenario::Vic3::Country>();
+      } else if (isRelevantModuleActive("eu4")) {
+        generator->generateCountries<Scenario::Country>();
+      }
       // transfer generic states to hoi4states
       generator->initializeStates();
       // build hoi4 countries out of basic countries
@@ -568,14 +575,14 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     std::vector<std::string> tags;
     static int selectedCountryIndex = 0;
     for (auto &country : generator->countries) {
-      items.push_back(country.second.name.c_str());
+      items.push_back(country.second->name.c_str());
       tags.push_back(country.first);
     }
     if (generator->countries.size()) {
       ImGui::ListBox("Select Country", &selectedCountryIndex, items.data(),
                      items.size(), 4);
       auto selectedCountry = generator->countries[tags[selectedCountryIndex]];
-      std::string tempTag = selectedCountry.tag;
+      std::string tempTag = selectedCountry->tag;
       static std::string bufferChangedTag = "";
       if (ImGui::InputText("Country tag", &tempTag)) {
         bufferChangedTag = tempTag;
@@ -583,27 +590,27 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       if (ImGui::Button("update tag")) {
         std::string &oldTag = tags[selectedCountryIndex];
         generator->countries.erase(oldTag);
-        selectedCountry.tag = bufferChangedTag;
+        selectedCountry->tag = bufferChangedTag;
         // add country under different tag
-        generator->countries.insert({selectedCountry.tag, selectedCountry});
+        generator->countries.insert({selectedCountry->tag, selectedCountry});
         // update old tag in list
-        tags[selectedCountryIndex] = selectedCountry.tag;
+        tags[selectedCountryIndex] = selectedCountry->tag;
       }
       auto &modifiableCountry =
           generator->countries[tags[selectedCountryIndex]];
-      ImGui::InputText("Country name", &modifiableCountry.name);
-      ImGui::InputText("Country adjective", &modifiableCountry.adjective);
+      ImGui::InputText("Country name", &modifiableCountry->name);
+      ImGui::InputText("Country adjective", &modifiableCountry->adjective);
       // ImGui::InputText("Country adjective", &selectedCountry.colour);
       ImVec4 color =
-          ImVec4(((float)modifiableCountry.colour.getRed()) / 255.0f,
-                 ((float)modifiableCountry.colour.getGreen()) / 255.0f,
-                 ((float)modifiableCountry.colour.getBlue()) / 255.0f, 1.0f);
+          ImVec4(((float)modifiableCountry->colour.getRed()) / 255.0f,
+                 ((float)modifiableCountry->colour.getGreen()) / 255.0f,
+                 ((float)modifiableCountry->colour.getBlue()) / 255.0f, 1.0f);
 
       if (ImGui::ColorEdit3("Country Colour", (float *)&color,
                             ImGuiColorEditFlags_NoInputs |
                                 ImGuiColorEditFlags_NoLabel |
                                 ImGuiColorEditFlags_HDR)) {
-        modifiableCountry.colour =
+        modifiableCountry->colour =
             Fwg::Gfx::Colour(color.x * 255.0, color.y * 255.0, color.z * 255.0);
         // TODO: only trigger after release of colour edit
         generator->countryMap =
@@ -708,7 +715,7 @@ int GUI::showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
       auto &modifiableState = generator->hoi4States[selectedStateIndex];
       ImGui::InputText("State name", &modifiableState->name);
       ImGui::InputText("State owner", &modifiableState->owner);
-      ImGui::InputInt("Population", &modifiableState->population);
+      ImGui::InputInt("Population", &modifiableState->totalPopulation);
       ImGui::InputInt("Arms Industry", &modifiableState->armsFactories);
       ImGui::InputInt("Civilian Industry", &modifiableState->civilianFactories);
       ImGui::InputInt("Naval Industry", &modifiableState->dockyards);

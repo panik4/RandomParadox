@@ -53,7 +53,7 @@ void Generator::initializeCountries() {
   for (auto &country : countries) {
     // construct a hoi4country with country from ScenarioGenerator.
     // We want a copy here
-    Hoi4Country hC(country.second, this->hoi4States);
+    Hoi4Country hC(*country.second, this->hoi4States);
     hoi4Countries.insert({hC.tag, hC});
   }
   std::sort(hoi4States.begin(), hoi4States.end(),
@@ -77,7 +77,7 @@ void Generator::generateStateResources() {
             (RandNum::getRandom((int)ceil((2.0 * averagePerState)) - 1.0));
         // increase by industry factor
         value *= industryFactor;
-        value *= sizeFactor;
+        value *= Fwg::Cfg::Values().sizeFactor;
         hoi4Region->resources[resource.first] = (int)value;
         totalResources[resource.first] += (int)value;
       }
@@ -89,7 +89,7 @@ void Generator::generateStateSpecifics() {
   Fwg::Utils::Logging::logLine("HOI4: Planning the economy");
   auto &config = Cfg::Values();
   // calculate the target industry amount
-  auto targetWorldIndustry = 1248 * sizeFactor * industryFactor;
+  auto targetWorldIndustry = 1248 * config.sizeFactor * industryFactor;
   Fwg::Utils::Logging::logLine(config.landPercentage);
   for (auto &hoi4Region : hoi4States) {
     if (hoi4Region->sea)
@@ -115,12 +115,12 @@ void Generator::generateStateSpecifics() {
     }
     hoi4Region->development = totalDevFactor;
     // only init this when it hasn't been initialized via text input before
-    if (hoi4Region->population < 0) {
-      hoi4Region->population =
+    if (hoi4Region->totalPopulation < 0) {
+      hoi4Region->totalPopulation =
           static_cast<int>(totalStateArea * 1250.0 * totalPopFactor *
-                           worldPopulationFactor * (1.0 / sizeFactor));
+                           worldPopulationFactor * (1.0 / config.sizeFactor));
     }
-    worldPop += (long long)hoi4Region->population;
+    worldPop += (long long)hoi4Region->totalPopulation;
 
     // count the total coastal provinces of this region
     auto totalCoastal = 0;
@@ -171,8 +171,7 @@ void Generator::generateStateSpecifics() {
 
 void Generator::generateCountrySpecifics() {
   Fwg::Utils::Logging::logLine("HOI4: Choosing uniforms and electing Tyrants");
-  sizeFactor = sqrt((double)(Cfg::Values().width * Cfg::Values().height) /
-                    (double)(5632 * 2048));
+
   // graphical culture pairs:
   // { graphical_culture = type }
   // { graphical_culture_2d = type_2d }
@@ -496,7 +495,7 @@ void Generator::evaluateCountries() {
       if (regionIndustry > maxIndustryLevel)
         c.second.capitalRegionID = ownedRegion->ID;
       totalIndustry += regionIndustry;
-      totalPop += (int)ownedRegion->population;
+      totalPop += (int)ownedRegion->totalPopulation;
     }
     strengthScores[(int)(totalIndustry + totalPop / 1'000'000.0)].push_back(
         c.first);

@@ -3,7 +3,7 @@ namespace Scenario::Vic3 {
 using namespace Fwg;
 using namespace Fwg::Gfx;
 
-Generator::Generator() {}
+Generator::Generator() : Scenario::Generator() {}
 
 Generator::Generator(const std::string &configSubFolder)
     : Scenario::Generator(configSubFolder) {
@@ -13,76 +13,19 @@ Generator::Generator(const std::string &configSubFolder)
   this->terrainTypeToString.at(Fwg::Province::TerrainType::tundra) = "snow";
   this->terrainTypeToString.at(Fwg::Province::TerrainType::arctic) = "snow";
 }
-// void Generator::generateRegions(std::vector<std::shared_ptr<Region>>
-// &regions) {
-//   Utils::Logging::logLine("Vic3: Dividing world into strategic regions");
-//   std::set<int> assignedIdeas;
-//   for (auto &region : regions) {
-//     if (assignedIdeas.find(region->ID) == assignedIdeas.end()) {
-//       Vic3StratRegion vicR;
-//       // std::set<int>stratRegion;
-//       vicR.areaIDs.insert(region->ID);
-//       assignedIdeas.insert(region->ID);
-//       for (auto &neighbour : region->neighbours) {
-//         // should be equal in sea/land
-//         if (neighbour > regions.size())
-//           continue;
-//         if (regions[neighbour]->sea == region->sea &&
-//             assignedIdeas.find(neighbour) == assignedIdeas.end()) {
-//           vicR.areaIDs.insert(neighbour);
-//           assignedIdeas.insert(neighbour);
-//         }
-//       }
-//       vicR.name = NameGeneration::generateName(nData);
-//       vic3StratRegions.push_back(vicR);
-//     }
-//   }
-//   Bitmap vic3RegionBmp(Cfg::Values().width, Cfg::Values().height, 24);
-//   for (auto &strat : vic3StratRegions) {
-//     Colour c{
-//         static_cast<unsigned char>(RandNum::getRandom<unsigned char>() %
-//         255), static_cast<unsigned char>(RandNum::getRandom<unsigned char>()
-//         % 255), static_cast<unsigned char>(RandNum::getRandom<unsigned
-//         char>() % 255)};
-//     for (auto &area : strat.areaIDs) {
-//       c.setBlue(regions[area]->sea ? 255 : 0);
-//       for (auto &prov : regions[area]->gameProvinces) {
-//         for (auto &pix : prov->baseProvince->pixels) {
-//           vic3RegionBmp.setColourAtIndex(pix, c);
-//         }
-//       }
-//     }
-//   }
-//   Bmp::bufferBitmap("vic3regions", vic3RegionBmp);
-//   Bmp::save(vic3RegionBmp, "Maps//vic3Regions.bmp");
-//   Fwg::Gfx::Png::save(vic3RegionBmp, "Maps//vic3Regions.png");
-// }
+
 void Generator::distributePops() {
-  int landStates = 0;
+  auto overallpopFactor =
+      1000000.0 * worldPopulationFactor * (1.0 / Fwg::Cfg::Values().sizeFactor);
   for (auto &region : vic3Regions) {
     if (region->sea)
       continue;
-    // count the number of land states for resource generation
-    landStates++;
-    double totalStateArea = 0;
-    double totalDevFactor = 0;
-    double totalPopFactor = 0;
-    for (const auto &gameProv : region->gameProvinces) {
-      totalDevFactor +=
-          gameProv->devFactor / (double)region->gameProvinces.size();
-      totalPopFactor +=
-          gameProv->popFactor / (double)region->gameProvinces.size();
-      totalStateArea += gameProv->baseProvince->pixels.size();
-    }
 
-    region->development = totalDevFactor;
     //// only init this when it hasn't been initialized via text input before
-    if (region->population < 0) {
-      region->population =
-          static_cast<int>(totalStateArea * 400 * totalPopFactor *
-                           worldPopulationFactor * (1.0 / sizeFactor));
+    if (region->totalPopulation < 0) {
+      region->totalPopulation = static_cast<int>(region->populationFactor * overallpopFactor);
     }
-    worldPop += (long long)region->population;
+    worldPop += (long long)region->totalPopulation;
   }
 }
 void Generator::totalArableLand(const std::vector<float> &arableLand) {
@@ -449,6 +392,40 @@ void Generator::mapRegions() {
 }
 // initialize states
 void Generator::initializeStates() {}
-// initialize states
-void Generator::initializeCountries() {}
+void Generator::mapCountries() {
+  for (auto &country : countries) {
+
+    std::shared_ptr<Country> vic3 =
+        std::reinterpret_pointer_cast<Vic3::Country, Scenario::Country>(country.second);
+    for (auto &region : vic3->ownedRegions) {
+      vic3->ownedVic3Regions.push_back(
+          std::reinterpret_pointer_cast<Vic3::Region, Scenario::Region>(region));
+    }
+    vic3Countries.emplace(country.first, vic3);
+  }
+}
+// set tech levels, give techs, count pops, cultures and religions, set
+// diplomatic relations (e.g. puppets, markets, protectorates)
+void Generator::initializeCountries() {
+  auto &cfg = Fwg::Cfg::Values();
+  // count pops
+  for (auto &cEntry : vic3Countries) {
+    auto &c = cEntry.second;
+    auto totalPop = 0;
+    auto averageDevelopment = 0.0;
+    for (auto &state : c->ownedVic3Regions) {
+      // to count total pop
+      totalPop += state->totalPopulation;
+    }
+    c->pop = totalPop;
+    for (auto &state : c->ownedVic3Regions) {
+      // development should be weighed by the pop in the state
+      averageDevelopment += state->development *
+                            ((double)state->totalPopulation / (double)totalPop);
+    }
+    if (cfg.debugLevel > 5) {
+      Fwg::Utils::Logging::logLine(c->tag, " has a population of ", c->pop);
+    }
+  }
+}
 } // namespace Scenario::Vic3

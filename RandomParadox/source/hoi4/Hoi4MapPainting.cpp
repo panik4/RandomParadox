@@ -40,15 +40,15 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInCountryMap,
     // track the change if the owner changed
     if (newOwnerCountry.tag != previousOwnerCountry) {
       // give the new owner a region
-      newOwnerCountry.ownedRegions.push_back(state->ID);
+      newOwnerCountry.ownedRegions.push_back(state);
       auto &prevCountry = hoi4Gen.hoi4Countries.at(previousOwnerCountry);
       for (auto st = 0; st < prevCountry.ownedRegions.size(); st++) {
-        if (prevCountry.ownedRegions[st] == state->ID) {
-          prevCountry.ownedRegions.erase(prevCountry.ownedRegions.begin() + st);
-          st--;
-          Fwg::Utils::Logging::logLine("Deleting state ", state->ID,
-                                       " from country: ", previousOwnerCountry);
-        }
+        //if (prevCountry.ownedRegions[st] == state) {
+        //  prevCountry.ownedRegions.erase(prevCountry.ownedRegions.begin() + st);
+        //  st--;
+        //  Fwg::Utils::Logging::logLine("Deleting state ", state->ID,
+        //                               " from country: ", previousOwnerCountry);
+        //}
       }
 
       Fwg::Utils::Logging::logLine("State ", state->ID, " changed owner from ",
@@ -211,9 +211,9 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInStateMap,
     if (!hoi4Gen.gameRegions[i]->gameProvinces.size()) {
       // remove this state from the country as well
       auto &c = hoi4Gen.countries.at(hoi4Gen.gameRegions[i]->owner);
-      c.ownedRegions.erase(std::find(c.ownedRegions.begin(),
-                                     c.ownedRegions.end(),
-                                     hoi4Gen.gameRegions[i]->ID));
+      c->ownedRegions.erase(std::find(c->ownedRegions.begin(),
+                                     c->ownedRegions.end(),
+                                     hoi4Gen.gameRegions[i]));
       // remove it from game regions as well
       hoi4Gen.gameRegions.erase(hoi4Gen.gameRegions.begin() + i);
       //  state was removed
@@ -234,11 +234,11 @@ void trackChanges(Generator &hoi4Gen, const Fwg::Gfx::Bitmap readInStateMap,
   }
   // now update all countries by changing the IDs they own according to the
   // stateIdMapping
-  for (auto &c : hoi4Gen.countries) {
-    for (auto &state : c.second.ownedRegions) {
-      state += changes.stateIdMapping.at(state);
-    }
-  }
+  //for (auto &c : hoi4Gen.countries) {
+  //  for (auto &state : c.second->ownedRegions) {
+  //    state += changes.stateIdMapping.at(state);
+  //  }
+  //}
   Fwg::Utils::Logging::logLine("Done tracking changes to states");
 }
 

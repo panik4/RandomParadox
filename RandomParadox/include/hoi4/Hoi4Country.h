@@ -19,7 +19,8 @@ public:
     support,
     defensive
   };
-  Hoi4Country();
+  Hoi4Country(std::string tag, int ID, std::string name, std::string adjective,
+              Gfx::Flag flag);
   Hoi4Country(Scenario::Country &country,
               std::vector<std::shared_ptr<Hoi4::Region>> &hoi4Region);
   ~Hoi4Country();

@@ -1,5 +1,4 @@
 #include "generic/ParserUtils.h"
-#include "generic/ParserUtils.h"
 #include "vic3/Vic3Generator.h"
 #include <generic/GameProvince.h>
 #include <generic/GameRegion.h>
@@ -25,25 +24,28 @@ void cultureCommon(const std::string &path,
                    const std::vector<std::shared_ptr<Culture>> &cultures);
 void religionCommon(const std::string &path,
                     const std::vector<std::shared_ptr<Religion>> &religions);
-void countryCommon(const std::string &path,
-                   const std::map<std::string, Country> &countries,
-                   const std::vector<std::shared_ptr<Region>> &regions);
+void countryCommon(
+    const std::string &path,
+    const std::map<std::string, std::shared_ptr<Country>> &countries,
+    const std::vector<std::shared_ptr<Region>> &regions);
 void popsHistory(const std::string &path,
                  const std::vector<std::shared_ptr<Region>> &regions);
 void stateHistory(const std::string &path,
                   const std::vector<std::shared_ptr<Region>> &regions);
-void countryHistory(const std::string &path,
-                    const std::map<std::string, Country> &countries);
+void countryHistory(
+    const std::string &path,
+    const std::map<std::string, std::shared_ptr<Country>> &countries);
 
 void splineNetwork(const std::string &path);
 
 void compatFile(const std::string &path);
-std::string compatRegions(const std::string &inFolder, const std::string &outPath,
-                   const std::vector<std::shared_ptr<Region>> &regions);
+std::string compatRegions(const std::string &inFolder,
+                          const std::string &outPath,
+                          const std::vector<std::shared_ptr<Region>> &regions);
 
 void compatStratRegions(const std::string &inFolder, const std::string &outPath,
                         const std::vector<std::shared_ptr<Region>> &regions,
-                        std::string& baseGameRegions);
+                        std::string &baseGameRegions);
 void compatReleasable(const std::string &inFolder, const std::string &outPath);
 } // namespace Writing
 

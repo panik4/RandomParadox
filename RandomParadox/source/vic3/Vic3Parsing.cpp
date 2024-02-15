@@ -275,9 +275,10 @@ void religionCommon(const std::string &path,
   }
   pU::writeFile(path, religionFile, true);
 }
-void countryCommon(const std::string &path,
-                   const std::map<std::string, Country> &countries,
-                   const std::vector<std::shared_ptr<Region>> &regions) {
+void countryCommon(
+    const std::string &path,
+    const std::map<std::string, std::shared_ptr<Country>> &countries,
+    const std::vector<std::shared_ptr<Region>> &regions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing countries");
   const auto countryTemplate =
       pU::readFile("resources//vic3//common//countryDefinitionTemplate.txt");
@@ -285,13 +286,14 @@ void countryCommon(const std::string &path,
   for (const auto &country : countries) {
     auto cString = countryTemplate;
 
-    pU::Scenario::replaceOccurences(cString, "templateTag", country.second.tag);
+    pU::Scenario::replaceOccurences(cString, "templateTag",
+                                    country.second->tag);
     std::string colour =
-        Fwg::Utils::varsToString((int)country.second.colour.getRed(), " ",
-                                 (int)country.second.colour.getGreen(), " ",
-                                 (int)country.second.colour.getBlue());
+        Fwg::Utils::varsToString((int)country.second->colour.getRed(), " ",
+                                 (int)country.second->colour.getGreen(), " ",
+                                 (int)country.second->colour.getBlue());
     pU::Scenario::replaceOccurences(cString, "templateColour", colour);
-    auto capitalRegion = regions[country.second.capitalRegionID];
+    auto capitalRegion = regions[country.second->capitalRegionID];
     pU::Scenario::replaceOccurences(cString, "templateCapital",
                                     capitalRegion->name);
 
@@ -333,7 +335,7 @@ void popsHistory(const std::string &path,
       pU::Scenario::replaceOccurences(pop, "templateCulture",
                                       culture.first->name);
       pU::Scenario::replaceOccurences(pop, "templatePopSize",
-                                      std::to_string(region->population));
+                                      std::to_string(region->totalPopulation));
       listOfPops.append(pop);
     }
 
@@ -371,17 +373,19 @@ void stateHistory(const std::string &path,
 
   pU::writeFile(path, file, true);
 }
-void countryHistory(const std::string &path,
-                    const std::map<std::string, Country> &countries) {
+void countryHistory(
+    const std::string &path,
+    const std::map<std::string, std::shared_ptr<Country>> &countries) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing country history");
-  const auto countryTemplate =
-      pU::readFile("resources//vic3//common//history//countryHistoryTemplate.txt");
+  const auto countryTemplate = pU::readFile(
+      "resources//vic3//common//history//countryHistoryTemplate.txt");
   for (const auto &country : countries) {
     auto cString = countryTemplate;
 
-    pU::Scenario::replaceOccurences(cString, "templateTag", country.second.tag);
+    pU::Scenario::replaceOccurences(cString, "templateTag",
+                                    country.second->tag);
     std::string filename =
-        country.second.tag + " - " + country.second.name + ".txt";
+        country.second->tag + " - " + country.second->name + ".txt";
     pU::writeFile(path + "//" + filename, cString, true);
   }
 }

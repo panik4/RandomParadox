@@ -43,7 +43,6 @@ public:
   double worldPopulationFactor = 1.0;
   double industryFactor = 1.0;
   double resourceFactor = 1.0;
-  double sizeFactor = 1.0;
   // containers - used for every game
   std::map<std::string, Fwg::Province::TerrainType> stringToTerrainType = {
       {"plains", Fwg::Province::TerrainType::grassland},
@@ -78,7 +77,7 @@ public:
   std::vector<std::shared_ptr<GameProvince>> gameProvinces;
   std::set<std::string> tags;
   Fwg::Utils::ColourTMap<std::string> countryColourMap;
-  std::map<std::string, Country> countries;
+  std::map <std::string, std::shared_ptr<Country>> countries;
   Fwg::Gfx::Bitmap countryMap;
   std::vector<strategicRegion> strategicRegions;
   std::vector<std::shared_ptr<Religion>> religions;
@@ -124,7 +123,54 @@ public:
   // load countries from an image and map them to regions
   void loadCountries(const std::string &countryMapPath, const std::string& mappingPath);
   // and countries are always created the same way
-  void generateCountries();
+  template<typename T>
+  void generateCountries() {
+    countries.clear();
+    for (auto &region : gameRegions) {
+      region->assigned = false;
+      region->religions.clear();
+      region->cultures.clear();
+    }
+    auto &config = Fwg::Cfg::Values();
+    Fwg::Utils::Logging::logLine("Generating Countries");
+    // load tags from hoi4 that are used by the base game
+    // do not use those to avoid conflicts
+    if (this->enableLoadCountries) {
+      // load countries
+      loadCountries(config.loadMapsPath + "//countries.png",
+                    this->countryMappingPath);
+    } else {
+      for (auto i = 0; i < numCountries; i++) {
+        auto name{NameGeneration::generateName(nData)};
+        T pdoxC(NameGeneration::generateTag(name, nData), i, name,
+                      NameGeneration::generateAdjective(name, nData),
+                      Gfx::Flag(82, 52));
+        // randomly set development of countries
+        pdoxC.developmentFactor = RandNum::getRandom(0.1, 1.0);
+        countries.emplace(pdoxC.tag, std::make_shared<T>(pdoxC));
+      }
+      for (auto &pdoxCountry : countries) {
+        auto startRegion(findStartRegion());
+        if (startRegion->assigned || startRegion->sea)
+          continue;
+        pdoxCountry.second->assignRegions(6, gameRegions, startRegion,
+                                          gameProvinces);
+      }
+      // assigns remaining regions to provinces
+      if (countries.size()) {
+        for (auto &gameRegion : gameRegions) {
+          if (!gameRegion->sea && !gameRegion->assigned) {
+            auto gR = Fwg::Utils::getNearestAssignedLand(
+                gameRegions, gameRegion, config.width, config.height);
+            countries.at(gR->owner)->addRegion(gameRegion, gameRegions,
+                                               gameProvinces);
+          }
+        }
+      }
+    }
+    countryMap =
+        dumpDebugCountrymap(Fwg::Cfg::Values().mapsPath + "countries.png");
+  }
   // see which country neighbours which
   void evaluateNeighbours();
 }; // namespace Scenario
