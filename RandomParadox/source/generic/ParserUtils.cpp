@@ -2,8 +2,6 @@
 
 namespace Fwg::Parsing::Scenario {
 
-
-
 void removeCharacter(std::string &content, char character) {
   content.erase(std::remove(content.begin(), content.end(), character),
                 content.end());
@@ -12,10 +10,14 @@ void removeSpecials(std::string &content) {
   removeCharacter(content, '{');
   removeCharacter(content, '\n');
   removeCharacter(content, '\t');
+  removeCharacter(content, '\r');
   removeCharacter(content, '=');
   removeCharacter(content, '}');
+  // utf-8 BOM stuff
+  removeCharacter(content, 'ï');
+  removeCharacter(content, '»');
+  removeCharacter(content, '¿');
 };
-
 
 std::vector<int> getNumbers(const std::string &content, const char delimiter,
                             const std::set<int> tokensToConvert) {
@@ -33,9 +35,10 @@ std::vector<int> getNumbers(const std::string &content, const char delimiter,
   return numbers;
 };
 
-std::vector<int> getNumbersMultiDelim(const std::string &content, const char delimiter,
-                            const std::set<int> tokensToConvert) {
-  std::vector<std::string> delims { "\t"};
+std::vector<int> getNumbersMultiDelim(const std::string &content,
+                                      const char delimiter,
+                                      const std::set<int> tokensToConvert) {
+  std::vector<std::string> delims{"\t"};
   auto cCopy = content;
   for (auto character : delims) {
     replaceOccurences(cCopy, character, " ");
@@ -185,4 +188,64 @@ std::string removeSurroundingBracketBlockFromLineBreak(std::string &content,
   }
   return "";
 };
+
+std::vector<Block> getOuterBlocks(const std::vector<std::string> &lines) {
+  std::vector<Block> outermostBlocks;
+  bool insideBlock = false;
+  int bracketSurplus = 0;
+  Block currentBlock;
+  for (auto &line : lines) {
+      // ignore this case, don't know how to handle it yet, TODO
+    if (line.find('{') != std::string::npos &&
+        line.find('}') != std::string::npos)
+      continue;
+    if (line.find('{') != std::string::npos) {
+      // open a new block here, if we're not in a block
+      if (!bracketSurplus && line.find('=') != std::string::npos) {
+        insideBlock = true;
+        currentBlock.name = line.substr(0, line.find('='));
+        // remove potential whitespaces from name
+        removeCharacter(currentBlock.name, ' ');
+        currentBlock.content.clear();
+      } else {
+        currentBlock.content += line + '\n';
+      }
+      bracketSurplus++;
+    } else if (insideBlock) {
+      if (line.find('}') != std::string::npos) {
+        if (bracketSurplus == 1) {
+          insideBlock = false;
+          outermostBlocks.push_back(currentBlock);
+        } else {
+          currentBlock.content += line + '\n';
+        }
+        bracketSurplus--;
+      } else {
+        currentBlock.content += line + '\n';
+      }
+    }
+  }
+  return outermostBlocks;
+}
+
+std::string getEntrenched(const std::string &content,
+                          const std::string &keyLeft,
+                          const std::string &keyRight) {
+  auto startPos = content.find(keyLeft) + keyLeft.size();
+  return content.substr(startPos, content.find(keyRight) - startPos);
+}
+
+int getNumber(const std::string &content) {
+  std::regex pattern("-?\\d+");
+  std::smatch match;
+
+  if (std::regex_search(content, match, pattern)) {
+    return std::stoi(match[0]);
+  } else {
+    // Handle case where no number is found
+    Utils::Logging::logLine("ERROR: Couldn't extract number from string: ", content);
+    return 0; // Or throw an exception, return a default value, etc.
+  }
+}
+
 }; // namespace Fwg::Parsing::Scenario

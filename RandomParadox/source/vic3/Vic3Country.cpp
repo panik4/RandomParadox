@@ -8,4 +8,9 @@ Country::Country(std::string tag, int ID, std::string name,
 
 Country::~Country() {}
 
+std::vector<std::shared_ptr<Region>>
+Country::getEligibleRegions(const std::string &resourceName) {
+  return std::vector<std::shared_ptr<Region>>();
+}
+
 } // namespace Scenario::Vic3

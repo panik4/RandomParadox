@@ -1,10 +1,15 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "utils/Parsing.h"
+#include <regex>
 #include <filesystem>
 #include <string>
 
 namespace Fwg::Parsing::Scenario {
+struct Block {
+  std::string name;
+  std::string content;
+};
 
 void removeCharacter(std::string &content, char character);
 void removeSpecials(std::string &content);
@@ -44,4 +49,12 @@ bool removeBracketBlockFromKey(std::string &content, const std::string key);
 void removeSurroundingBracketBlock(std::string &content, const std::string key);
 std::string removeSurroundingBracketBlockFromLineBreak(std::string &content,
                                                        const std::string key);
+
+
+std::vector<Block> getOuterBlocks(const std::vector<std::string> &lines);
+std::string getEntrenched(const std::string& content, const std::string& keyLeft, const std::string& keyRight);
+
+int getNumber(const std::string &content);
+
+
 }; // namespace Fwg::Parsing::Scenario

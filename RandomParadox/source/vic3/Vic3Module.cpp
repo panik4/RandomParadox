@@ -111,7 +111,7 @@ void Module::generate() {
     return;
 
   initNameData("resources//names", this->pathcfg.gamePath);
-  try {
+ // try {
     // start with the generic stuff in the Scenario Generator
     vic3Gen->mapProvinces();
     vic3Gen->mapRegions();
@@ -125,16 +125,21 @@ void Module::generate() {
     vic3Gen->distributePops();
     vic3Gen->distributeResources();
     vic3Gen->mapCountries();
+    vic3Gen->importData(this->pathcfg.gamePath + "//game//");
     // handle basic development, tech level, policies,
     vic3Gen->initializeCountries();
+    vic3Gen->diplomaticRelations();
+    vic3Gen->createMarkets();
+    vic3Gen->calculateNeeds();
+    vic3Gen->distributeBuildings();
     vic3Gen->generateStrategicRegions();
 
-  } catch (std::exception e) {
-    std::string error = "Error while generating the Vic3 Module.\n";
-    error += "Error is: \n";
-    error += e.what();
-    throw(std::exception(error.c_str()));
-  }
+  //} catch (std::exception e) {
+  //  std::string error = "Error while generating the Vic3 Module.\n";
+  //  error += "Error is: \n";
+  //  error += e.what();
+  //  throw(std::exception(error.c_str()));
+  //}
   // try {
   using namespace Parsing::Writing;
   auto foundRegions =
