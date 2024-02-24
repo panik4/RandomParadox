@@ -55,36 +55,6 @@ void stateFiles(const std::string &path,
                 const std::vector<std::shared_ptr<Region>> &regions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing state files");
 
-  std::map<ResourceType, std::string> cappedRes{
-      {ResourceType::GOLDFIELDS, "bg_gold_fields"},
-      {ResourceType::GOLDMINES, "bg_gold_mining"},
-      {ResourceType::COAL, "bg_coal_mining"},
-      {ResourceType::IRON, "bg_iron_mining"},
-      {ResourceType::LEAD, "bg_lead_mining"},
-      {ResourceType::SULFUR, "bg_sulfur_mining"},
-      {ResourceType::LOGGING, "bg_logging"},
-      {ResourceType::RUBBER, "bg_rubber"},
-      {ResourceType::WHALING, "bg_whaling"},
-      {ResourceType::FISH, "bg_fishing"},
-      {ResourceType::OIL, "bg_oil_extraction"}};
-
-  std::map<ResourceType, std::string> agriRes{
-      {ResourceType::RYE, "bg_rye_farms"},
-      {ResourceType::WHEAT, "bg_wheat_farms"},
-      {ResourceType::RICE, "bg_rice_farms"},
-      {ResourceType::MAIZE, "bg_maize_farms"},
-      {ResourceType::MILLET, "bg_millet_farms"},
-      {ResourceType::VINYARDS, "bg_vineyard_plantations"},
-      {ResourceType::LIVESTOCK, "bg_livestock_ranches"},
-      {ResourceType::COFFEE, "bg_coffee_plantations"},
-      {ResourceType::COTTON, "bg_cotton_plantations"},
-      {ResourceType::SILK, "bg_silk_plantations"},
-      {ResourceType::DYE, "bg_dye_plantations"},
-      {ResourceType::OPIUM, "bg_opium_plantations"},
-      {ResourceType::TEA, "bg_tea_plantations"},
-      {ResourceType::TOBACCO, "bg_tobacco_plantations"},
-      {ResourceType::SUGAR, "bg_sugar_plantations"},
-      {ResourceType::BANANA, "bg_banana_plantations"}};
   const auto templateFile =
       pU::readFile("resources//vic3//map_data//state_template.txt");
   std::string file = "";
@@ -145,14 +115,14 @@ void stateFiles(const std::string &path,
       std::string agriResString = "";
       std::string cappedResString = "";
       for (auto &res : region->resources) {
-        if (res.second > 1.0) {
-          if (cappedRes.find(res.first) != cappedRes.end()) {
+        if (res.second.amount > 1.0) {
+          if (res.second.capped) {
             cappedResString.append(
-                cappedRes.at(res.first) + " = " +
-                std::to_string(static_cast<int>(res.second)));
-            cappedResString.append("\n        ");
-          } else if (agriRes.find(res.first) != agriRes.end()) {
-            agriResString.append("\"" + agriRes.at(res.first) + "\"");
+                res.first + " = " +
+                std::to_string(static_cast<int>(res.second.amount)));
+            agriResString.append("\n\t\t");
+          } else {
+            agriResString.append("\"" + res.first + +"\"");
             agriResString.append(" ");
           }
         }
@@ -164,7 +134,6 @@ void stateFiles(const std::string &path,
       pU::Scenario::replaceOccurences(
           content, "template_arable_land",
           std::to_string(static_cast<int>(region->arableLand)));
-
     } else {
       pU::Scenario::replaceOccurences(content, "template_city", "");
       pU::Scenario::replaceOccurences(content, "template_port", "");
