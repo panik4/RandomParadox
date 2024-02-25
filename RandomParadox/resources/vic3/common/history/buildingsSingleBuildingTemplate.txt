@@ -1,0 +1,6 @@
+			create_building={
+				building="templateBuildingName"
+				level=templateBuildingLevel
+				reserves=1
+				activate_production_methods={ templateProductionMethods }
+			}

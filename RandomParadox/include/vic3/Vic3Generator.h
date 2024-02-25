@@ -8,6 +8,8 @@
 #include <random>
 #include <vector>
 #include <cmath>
+#include <utility>
+#include <memory>
 namespace Scenario::Vic3 {
 
 struct Vic3StratRegion {

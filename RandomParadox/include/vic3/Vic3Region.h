@@ -14,9 +14,9 @@ public:
   Region(const Scenario::Region &gameRegion);
   ~Region();
   std::map<std::string, Resource> resources;
-  double arableLand = 100.0;
-  std::vector<Building> buildings;
-
+  double arableLand = 0.0;
+  std::map<std::string, Building> buildings;
+  int supportsBuilding(const BuildingType &buildingType);
   
 };
 } // namespace Scenario::Vic3

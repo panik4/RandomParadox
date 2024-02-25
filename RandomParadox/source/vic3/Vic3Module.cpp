@@ -33,9 +33,10 @@ bool Module::createPaths() { // prepare folder structure
     create_directory(pathcfg.gameModPath + "//common//religions");
     create_directory(pathcfg.gameModPath + "//common//country_definitions");
     create_directory(pathcfg.gameModPath + "//common//history");
-    create_directory(pathcfg.gameModPath + "//common//history//states");
-    create_directory(pathcfg.gameModPath + "//common//history//pops");
+    create_directory(pathcfg.gameModPath + "//common//history//buildings");
     create_directory(pathcfg.gameModPath + "//common//history//countries");
+    create_directory(pathcfg.gameModPath + "//common//history//pops");
+    create_directory(pathcfg.gameModPath + "//common//history//states");
     create_directory(pathcfg.gameModPath + "//common//country_creation");
     create_directory(pathcfg.gameModPath + "//common//journal_entries");
     create_directory(pathcfg.gameModPath + "//common//decisions");
@@ -160,6 +161,7 @@ void Module::generate() {
             vic3Gen->heightMap);
   stateFiles(pathcfg.gameModPath + "//map_data//state_regions//00_regions.txt",
              vic3Gen->vic3Regions);
+  Parsing::History::writeBuildings(pathcfg.gameModPath + "//common//history//buildings//00_buildings.txt", vic3Gen->vic3Regions);
   writeMetadata(pathcfg.gameModPath + "//.metadata//metadata.json");
   strategicRegions(
       pathcfg.gameModPath +

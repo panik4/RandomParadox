@@ -460,3 +460,38 @@ void compatReleasable(const std::string &inFolder, const std::string &outPath) {
 
 namespace Reading {}
 } // namespace Scenario::Vic3::Parsing
+
+void Scenario::Vic3::Parsing::History::writeBuildings(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Region>> &regions) {
+
+  Fwg::Utils::Logging::logLine("Vic3 Parser: History: Constructing economy");
+  auto buildingsTemplate =
+      pU::readFile("resources//vic3//common//history//buildingsTemplate.txt");
+  const auto buildingsStateTemplate = pU::readFile(
+      "resources//vic3//common//history//buildingsStateTemplate.txt");
+  const auto buildingsSingleBuildingTemplate = pU::readFile(
+      "resources//vic3//common//history//buildingsSingleBuildingTemplate.txt");
+  std::string allStateString;
+  for (auto &region : regions) {
+    auto stateString = buildingsStateTemplate;
+    pU::replaceOccurence(stateString, "templateStateName",
+                         "STATE_" + region->name);
+    pU::replaceOccurence(stateString, "templateTag", region->owner);
+    std::string allBuildings;
+    for (auto &building : region->buildings) {
+      allBuildings.append(buildingsSingleBuildingTemplate);
+      pU::replaceOccurence(allBuildings, "templateBuildingName",
+                           building.first);
+      pU::replaceOccurence(allBuildings, "templateBuildingLevel",
+                           std::to_string(building.second.level));
+      pU::replaceOccurence(allBuildings, "templateProductionMethods",
+                           "\"" + building.second.prodMethod.name + "\"");
+    }
+    pU::replaceOccurence(stateString, "templateBuildings", allBuildings);
+    allStateString.append(stateString);
+  }
+  pU::replaceOccurence(buildingsTemplate, "templateStateBuildings",
+                       allStateString);
+  pU::writeFile(path, buildingsTemplate);
+}

@@ -49,6 +49,9 @@ void compatStratRegions(const std::string &inFolder, const std::string &outPath,
 void compatReleasable(const std::string &inFolder, const std::string &outPath);
 } // namespace Writing
 
-namespace Reading {}
+namespace History {
+void writeBuildings(const std::string &path,
+                    const std::vector<std::shared_ptr<Region>> &regions);
+}
 
 }; // namespace Scenario::Vic3::Parsing
