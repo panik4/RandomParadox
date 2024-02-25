@@ -128,6 +128,7 @@ std::vector<BuildingType> readBuildings(
       bt.name = block.name;
       PUS::removeSpecials(bt.name);
       bt.group = PU::getValue(block.content, "building_group");
+      PUS::removeCharacter(bt.group, ' ');
       auto unlockTechs =
           PUS::getBracketBlockContent(block.content, "unlocking_technologies");
       auto unlockTechTokens = PU::getTokens(unlockTechs, '\n');
@@ -151,6 +152,23 @@ std::vector<BuildingType> readBuildings(
             // silent
           }
         }
+      }
+      bool input, output = false;
+      // designate classification of the building
+      for (auto &productionMethod : bt.productionMethods) {
+        if (productionMethod.second.inputs.size()) {
+          input = true;
+        }
+        if (productionMethod.second.outputs.size()) {
+          output = true;
+        }
+      }
+      if (output && input) {
+        bt.category = BuildingCategory::SECONDARY;
+      } else if (output) {
+        bt.category = BuildingCategory::PRIMARY;
+      } else {
+        bt.category = BuildingCategory::TERTIARY;
       }
       bts.push_back(bt);
     }

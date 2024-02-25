@@ -6,35 +6,6 @@
 #include <string>
 #include <vector>
 namespace Scenario::Vic3 {
-// enum class ResourceType : int {
-//   COAL,
-//   FISH,
-//   GOLDFIELDS,
-//   GOLDMINES,
-//   IRON,
-//   LEAD,
-//   LOGGING,
-//   OIL,
-//   RUBBER,
-//   SULFUR,
-//   WHALING,
-//   LIVESTOCK,
-//   BANANA,
-//   COFFEE,
-//   COTTON,
-//   DYE,
-//   MAIZE,
-//   MILLET,
-//   OPIUM,
-//   RICE,
-//   RYE,
-//   SILK,
-//   SUGAR,
-//   TEA,
-//   TOBACCO,
-//   VINYARDS,
-//   WHEAT
-// };
 
 struct NoiseConfig {
   double fractalFrequency;
@@ -327,6 +298,8 @@ struct ProductionmethodGroup {
   std::map<std::string, Productionmethod> productionMethods;
 };
 
+enum class BuildingCategory : int { PRIMARY, SECONDARY, TERTIARY };
+
 struct BuildingType {
   std::string name;
   std::string group;
@@ -334,12 +307,13 @@ struct BuildingType {
   std::vector<ProductionmethodGroup> productionMethodGroups;
   // for a simpler mapping
   std::map<std::string, Productionmethod> productionMethods;
+  BuildingCategory category = BuildingCategory::PRIMARY;
 };
 
 struct Building {
   BuildingType type;
   int level;
-  ProductionmethodGroup prodMethod;
+  Productionmethod prodMethod;
 };
 
 } // namespace Scenario::Vic3

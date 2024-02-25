@@ -199,16 +199,20 @@ void Generator::importData(const std::string &path) {
   for (auto &good : goods) {
     std::vector<Productionmethod> prodMethods;
     for (auto &productionmethod : productionmethods) {
+      // ignore subsistence buildings
+      if (productionmethod.first.find("subsistence") != std::string::npos) {
+        continue;
+      }
       for (auto &outputGood : productionmethod.second.outputs) {
         // this building has a production method that outputs this good
-        if (good.first == outputGood.first.name) {
+        if (good.first == outputGood.first.name && outputGood.second > 0) {
           goodToProdMethodsOutput[good.first].push_back(
               productionmethod.second);
         }
       }
       for (auto &inputGood : productionmethod.second.inputs) {
-        // this building has a production method that outputs this good
-        if (good.first == inputGood.first.name) {
+        // this building has a production method that inputs this good
+        if (good.first == inputGood.first.name && inputGood.second > 0) {
           goodToProdMethodsInput[good.first].push_back(productionmethod.second);
         }
       }
@@ -323,8 +327,10 @@ void Generator::distributeBuildings() {
       }
       // now find the building that produces this, and plop it into a state
       for (auto &produceableGood : produceableGoods) {
-        double actualDemand =
-            amount / (double)produceableGoods.size() / produceableGood.cost;
+        double actualDemand = amount / (double)produceableGoods.size() /
+                              (double)produceableGood.cost;
+        Fwg::Utils::Logging::logLine(produceableGood.name, " has demand of ",
+                                     actualDemand);
         // filter out tiny demands for now: TODO
         if (actualDemand > 5.0) {
           // find production methods that produce this good
@@ -345,7 +351,8 @@ void Generator::distributeBuildings() {
                   productionMethodToBuildingTypes.end()) {
                 auto &entry2 = productionMethodToBuildingTypes.at(entry.name);
                 for (auto &entry3 : entry2) {
-                  buildingTypes.emplace(entry3.name, entry3);
+                  if (entry3.name.find("subsistence") == std::string::npos)
+                    buildingTypes.emplace(entry3.name, entry3);
                 }
               }
             } catch (std::exception e) {
@@ -356,33 +363,64 @@ void Generator::distributeBuildings() {
             }
           }
           // now figure out how much to plop, and where
+          actualDemand /= std::max<int>(buildingTypes.size(), 1);
           for (auto &type : buildingTypes) {
-            if (type.second.name.find("subsistence") != std::string::npos) {
-              continue;
-            }
             Fwg::Utils::Logging::logLine("Have ", type.second.name,
                                          " as option for ",
                                          produceableGood.name);
-
+            // now get the potential production methods of this single building
+            std::vector<Productionmethod> buildingProdMethods;
+            for (auto &prodMethod : potentialProdMethods) {
+              if (type.second.productionMethods.find(prodMethod.name)!= type.second.productionMethods.end()) {
+                buildingProdMethods.push_back(prodMethod);
+              }
+            }
             // now check if we have the tech, if not, we can't build the
             // building
 
             // then select the production method, by ordering them by output of
             // the good and checking if it is in the potentialProdMethods
-
+            auto &prodMethod = Fwg::Utils::selectRandom(buildingProdMethods);
+            auto outputAmount = 0;
+            for (auto &prodMethodGood : prodMethod.outputs) {
+              if (produceableGood.name == prodMethodGood.first.name) {
+                outputAmount = prodMethodGood.second;
+              }
+            }
             // then figure out how many buildings we need for the overall demand
-
+            int levelRequired = std::max<int>(actualDemand / (double)outputAmount, 1);
+            Fwg::Utils::Logging::logLine("Requiring ", levelRequired,
+                                         " to create ", actualDemand, " ",
+                                         produceableGood.name);
             // get the amount of states that support this building
 
+            std::vector<std::pair<std::shared_ptr<Region>, int>>
+                potentialRegions;
+            for (auto &region : country->ownedVic3Regions) {
+              int retVal = 0;
+              if (retVal = region->supportsBuilding(type.second)) {
+                potentialRegions.push_back({region, retVal});
+              }
+            }
+
             // then figure out how to distribute the buildings to states
-
-
-
-
-
-
-
-
+            if (!potentialRegions.size()) {
+              Fwg::Utils::Logging::logLineLevel(
+                  9, "No potential state found to produce ",
+                  produceableGood.name);
+            } else {
+              for (auto i = 0; i < levelRequired; i++) {
+                auto &region =
+                    potentialRegions[i % potentialRegions.size()].first;
+                if (region->buildings.find(type.first) !=
+                    region->buildings.end()) {
+                  region->buildings.at(type.first).level++;
+                } else {
+                  region->buildings.emplace(
+                      type.first, Building{type.second, 1, prodMethod});
+                }
+              }
+            }
             // const auto& buildingOutputs =
             //     type.productionMethodGroups[0].productionMethods[0].outputs;
             // auto a = type.productionMethodGroups[0];
