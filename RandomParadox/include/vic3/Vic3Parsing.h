@@ -8,7 +8,9 @@ namespace Writing {
 void adj(const std::string &path);
 void defaultMap(const std::string &path,
                 const std::vector<std::shared_ptr<GameProvince>> &provinces);
-void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap);
+void defines(const std::string &pathOut);
+void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap,
+               const Fwg::Gfx::Bitmap &packedHeightmap);
 
 void stateFiles(const std::string &path,
                 const std::vector<std::shared_ptr<Region>> &regions);

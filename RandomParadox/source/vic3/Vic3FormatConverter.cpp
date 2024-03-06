@@ -91,41 +91,57 @@ void FormatConverter::writeTile(int xTiles, int yTiles,
     for (auto tiley = 0; tiley < yTiles; tiley++) {
       Fwg::Gfx::Bitmap tileMap(
           tilesize, tilesize, 24,
-          std::move(Fwg::Utils::cutBuffer(
-              basePackedHeightMap.imageData, mapX, mapY, tilex * tilesize,
-              (tilex + 1) * tilesize, tiley * tilesize, (tiley + 1) * tilesize,
-              1)));
+          (Fwg::Utils::cutBuffer(basePackedHeightMap.imageData, mapX, mapY,
+                                 tilex * tilesize, (tilex + 1) * tilesize,
+                                 tiley * tilesize, (tiley + 1) * tilesize, 1)));
       auto tileMap2 = Bmp::scale(tileMap, tilesize + 1, tilesize + 1, false);
 
       for (auto x = 0; x < tileMap2.size(); x++) {
         auto baseIndex = tilex * (tilesize + 1) +
-                         ((((tiley * 2 + tilex / 128) * (tilesize + 1)) +
+                         ((((tiley * 2 + tilex / (xTiles)) * (tilesize + 1)) +
                            x / (tilesize + 1)) -
-                          tilex / 128) *
+                          tilex / (xTiles)) *
                              packedX;
-        packedHeightMap.imageData[baseIndex + x % (tilesize + 1)] = tileMap2[x];
+        // try {
+
+        //  packedHeightMap.imageData[baseIndex + x % (tilesize + 1)] =
+        //      tileMap2[x];
+        //} catch (std::exception e) {
+        //  std::cout << baseIndex << std::endl;
+        //  std::cout << baseIndex + x % (tilesize + 1) << std::endl;
+
+        //}
       }
     }
   }
 }
 
-void FormatConverter::dumpPackedHeightmap(
-    const Bitmap &heightMap, const std::string &path,
-    const std::string &colourMapKey) const {
+Bitmap
+FormatConverter::dumpPackedHeightmap(const Bitmap &heightMap,
+                                     const std::string &path,
+                                     const std::string &colourMapKey) const {
   Utils::Logging::logLine("FormatConverter::Packing heightmap to ", path);
-  int mapX = 16384;
-  int mapY = 7232;
-  int packedX = 8320;
-  int packedY = 14695;
-  int xTiles = 256;
-  int yTiles = 113;
+  int mapX = heightMap.width();
+  int mapY = heightMap.height();
+  int xTiles = mapX / 64;
+  int yTiles = mapY / 64;
+  int packedX = (yTiles)*65;
+  int packedY = (xTiles)*65 + 5;
   if (gameTag == "Vic3") {
-    auto basePackedHeightMap = heightMap;
     Fwg::Gfx::Bitmap packedHeightMap(packedX, packedY, 24);
+    auto basePackedHeightMap = heightMap;
     // TODO: Threading
-    writeTile(xTiles, yTiles, basePackedHeightMap, packedHeightMap, mapX, mapY,
-              packedX);
+    // writeTile(xTiles, yTiles, basePackedHeightMap, packedHeightMap, mapX,
+    // mapY,
+    //          packedX);
+    basePackedHeightMap = Fwg::Gfx::Bmp::scale(basePackedHeightMap, xTiles * 65,
+                                               yTiles * 65, false);
+    packedHeightMap = Fwg::Gfx::Bitmap(xTiles * 65, yTiles * 65 + 5, 24);
+    for (int i = 0; i < basePackedHeightMap.size(); i++) {
+      packedHeightMap.setColourAtIndex(i, basePackedHeightMap[i]);
+    }
     Png::save(packedHeightMap, path + ".png", false, LCT_GREY, 16);
+    return packedHeightMap;
   } else {
 
     Bitmap packedHeightMap(Cfg::Values().width, Cfg::Values().height, 8);
@@ -136,9 +152,21 @@ void FormatConverter::dumpPackedHeightmap(
       packedHeightMap.setColourAtIndex(
           i, packedHeightMap.lookUp(heightMap[i].getRed()));
     }
+    return packedHeightMap;
   }
 }
-
+void FormatConverter::dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
+                                         const std::string &path) {
+  auto indirectionMap =
+      Fwg::Gfx::Bitmap(heightMap.width() / 64, heightMap.height() / 64, 24);
+  indirectionMap.fill({255, 255, 255});
+  for (int h = 0; h < indirectionMap.height(); h++) {
+    for (int w = 0; w < indirectionMap.width(); w++) {
+      indirectionMap.setColourAtIndex(h * indirectionMap.width() + w, {w, h, 1});
+    }
+  }
+  Fwg::Gfx::Png::save(indirectionMap, path, false, LCT_RGBA, 8U, 0);
+}
 void FormatConverter::Vic3ColourMaps(
     const Fwg::Gfx::Bitmap &climateMap, const Fwg::Gfx::Bitmap &treesIn,
     const Fwg::Gfx::Bitmap &heightMap, const Fwg::Gfx::Bitmap &humidityMap,
@@ -148,7 +176,7 @@ void FormatConverter::Vic3ColourMaps(
 
   auto &config = Cfg::Values();
   // need to scale to default vic3 map sizes, due to their compression
-  auto scaledMap = Bmp::scale(heightMap, 8192, 3616, false);
+  auto scaledMap = Bmp::scale(heightMap, config.width, config.height, false);
   const auto &height = scaledMap.height();
   const auto &width = scaledMap.width();
   int factor = 1;
@@ -195,8 +223,12 @@ void FormatConverter::Vic3ColourMaps(
                            DXGI_FORMAT_B8G8R8A8_UNORM,
                            path + "//textures//flatmap.dds");
 
+  std::fill(pixels.begin(), pixels.end(), 0);
+  Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
+                           DXGI_FORMAT_B8G8R8A8_UNORM,
+                           path + "//textures//flatmap_overlay.dds");
   // terrain colour map
-  scaledMap = Bmp::scale(climateMap, 8192, 4096, false);
+  scaledMap = Bmp::scale(climateMap, config.width, config.height, false);
   dumpTerrainColourmap(scaledMap, civLayer, path, "//textures//colormap.dds",
                        DXGI_FORMAT_B8G8R8A8_UNORM, 1, false);
 
@@ -204,7 +236,7 @@ void FormatConverter::Vic3ColourMaps(
       "FormatConverter::Writing watercolor_rgb_waterspec_a to ", path);
   using namespace DirectX;
 
-  scaledMap = Bmp::scale(heightMap, 4096, 1808, false);
+  scaledMap = Bmp::scale(heightMap, config.width / 2, config.height / 2, false);
   imageWidth = scaledMap.width();
   imageHeight = scaledMap.height();
   for (auto h = 0; h < imageHeight; h++) {
@@ -228,10 +260,18 @@ void FormatConverter::Vic3ColourMaps(
   Textures::writeMipMapDDS(
       imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
       path + "//water//watercolor_rgb_waterspec_a.dds", true);
-
+  std::fill(pixels.begin(), pixels.end(), 0);
+  Textures::writeMipMapDDS(imageWidth / 4, imageHeight / 4, pixels,
+                           DXGI_FORMAT_B8G8R8A8_UNORM,
+                           path + "//water//foam_map.dds");
+  Textures::writeMipMapDDS(imageWidth / 8, imageHeight / 8, pixels,
+                           DXGI_FORMAT_B8G8R8A8_UNORM,
+                           path + "//water//flowmap.dds");
   // colormap_tree.dds
-  scaledMap = Bmp::scale(humidityMap, 1024, 512, false);
-  auto scaledHeight = Bmp::scale(heightMap, 1024, 512, false);
+  scaledMap =
+      Bmp::scale(humidityMap, config.width / 8, config.height / 8, false);
+  auto scaledHeight =
+      Bmp::scale(heightMap, config.width / 8, config.height / 8, false);
   imageWidth = scaledMap.width();
   imageHeight = scaledMap.height();
   Fwg::Gfx::Colour baseColour = {40, 140, 120};
@@ -257,7 +297,8 @@ void FormatConverter::Vic3ColourMaps(
   writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
            path + "//textures//colormap_tree.dds");
 
-  scaledHeight = Bmp::scale(heightMap, 1024, 452, false);
+  scaledHeight =
+      Bmp::scale(heightMap, config.width / 8, config.height / 8, false);
   imageWidth = scaledHeight.width();
   imageHeight = scaledHeight.height();
   for (auto h = 0; h < imageHeight; h++) {
@@ -300,8 +341,8 @@ void FormatConverter::dynamicMasks(
   }
   Fwg::Gfx::Png::save(
       Fwg::Gfx::Bmp::scale(
-          Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask), 8192,
-          3616, false),
+          Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask),
+          config.width, config.height, false),
       path + "mask_dynamic_farmland.png");
   for (int i = 0; i < climateData.treeCoverage.size(); i++) {
     dynamicMask[i] = 0;
@@ -311,8 +352,8 @@ void FormatConverter::dynamicMasks(
   }
   Fwg::Gfx::Png::save(
       Fwg::Gfx::Bmp::scale(
-          Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask), 8192,
-          3616, false),
+          Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask),
+          config.width, config.height, false),
       path + "mask_dynamic_forestry.png");
 }
 
@@ -430,11 +471,11 @@ void FormatConverter::detailMaps(
                       config.mapsPath + "Vic3//" + "detailIntensity.png");
 
   auto scaledDetailIndex =
-      Fwg::Gfx::Bmp::scale(detailIndexBmp, 8192, 3616, false);
+      Fwg::Gfx::Bmp::scale(detailIndexBmp, config.width, config.height, false);
   Fwg::Gfx::Png::save(scaledDetailIndex,
                       config.mapsPath + "Vic3//" + "sdetailIndex.png");
   auto scaledDetailIntensity =
-      Fwg::Gfx::Bmp::scale(detailIntensity, 8192, 3616, false);
+      Fwg::Gfx::Bmp::scale(detailIntensity, config.width, config.height, false);
   Fwg::Gfx::Png::save(scaledDetailIntensity,
                       config.mapsPath + "Vic3//" + "sdetailIntensity.png");
 
@@ -477,8 +518,9 @@ void FormatConverter::detailMaps(
       }
     }
   }
-  Textures::writeTGA(8192, 3616, pixels, path + "//terrain//detail_index.tga");
-  Textures::writeTGA(8192, 3616, intensityPixels,
+  Textures::writeTGA(config.width, config.height, pixels,
+                     path + "//terrain//detail_index.tga");
+  Textures::writeTGA(config.width, config.height, intensityPixels,
                      path + "//terrain//detail_intensity.tga");
 
   for (int i = 0; i < masks.size(); i++) {

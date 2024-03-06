@@ -18,9 +18,11 @@ public:
                  const Fwg::Gfx::Bitmap &basePackedHeightMap,
                  Fwg::Gfx::Bitmap &packedHeightMap, int mapX, int mapY,
                  int packedX) const;
-  void dumpPackedHeightmap(const Fwg::Gfx::Bitmap &heightMap,
+  Fwg::Gfx::Bitmap dumpPackedHeightmap(const Fwg::Gfx::Bitmap &heightMap,
                            const std::string &path,
                            const std::string &colourMapKey) const;
+  void dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
+                          const std::string &path);
   void Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
                       const Fwg::Gfx::Bitmap &treesIn,
                       const Fwg::Gfx::Bitmap &heightMap,
