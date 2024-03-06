@@ -263,38 +263,41 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
     // need to scale to default vic3 map sizes, due to their compression
     int width = heightMap.width();
     int height = heightMap.height();
-    std::vector<uint8_t> pixels(width * height * 4, 0);
-    for (auto h = 0; h < height; h++) {
-      for (auto w = 0; w < width; w++) {
-        auto colourmapIndex = h * width + w;
-        const auto &c = heightMap[colourmapIndex];
+    //std::vector<uint8_t> pixels(width * height * 4, 0);
+    //for (auto h = 0; h < height; h++) {
+    //  for (auto w = 0; w < width; w++) {
+    //    auto colourmapIndex = h * width + w;
+    //    const auto &c = heightMap[colourmapIndex];
 
-        auto imageIndex = 4 * (h * width + w);
-        pixels[imageIndex] = c.getBlue();
-        pixels[imageIndex + 1] = c.getGreen();
-        pixels[imageIndex + 2] = c.getRed();
-        pixels[imageIndex + 3] = 255;
-      }
-    }
-    DirectX::Image image(width, height, DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM,
-                         sizeof(uint8_t) * width * 4,
-                         sizeof(uint8_t) * width * height, pixels.data());
-    // resize the image to the full vic3 resolution
-    DirectX::ScratchImage scaledImg;
-    DirectX::Resize(image, 16384, 7232, DirectX::TEX_FILTER_FORCE_NON_WIC,
-                    scaledImg);
-    auto scaledMap = Bitmap(16384, 7232, 24);
-    // write it to a BMP
-    for (int i = 0; i < 16384 * 7232 * 4; i += 4) {
-      scaledMap.setColourAtIndex(i / 4, (scaledImg.GetPixels()[i],
-                                         scaledImg.GetPixels()[i + 1],
-                                         scaledImg.GetPixels()[i + 2]));
-    }
-    // save the bmp as a png
-    Png::save(scaledMap, path + ".png", true, LCT_GREY, 8);
+    //    auto imageIndex = 4 * (h * width + w);
+    //    pixels[imageIndex] = c.getBlue();
+    //    pixels[imageIndex + 1] = c.getGreen();
+    //    pixels[imageIndex + 2] = c.getRed();
+    //    pixels[imageIndex + 3] = 255;
+    //  }
+    //}
+    // DirectX::Image image(width, height,
+    // DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM,
+    //                      sizeof(uint8_t) * width * 4,
+    //                      sizeof(uint8_t) * width * height, pixels.data());
+    //// resize the image to the full vic3 resolution
+    // DirectX::ScratchImage scaledImg;
+    // DirectX::Resize(image, 16384, 7232, DirectX::TEX_FILTER_FORCE_NON_WIC,
+    //                 scaledImg);
+    // auto scaledMap = Bitmap(16384, 7232, 24);
+    //// write it to a BMP
+    // for (int i = 0; i < 16384 * 7232 * 4; i += 4) {
+    //   scaledMap.setColourAtIndex(i / 4, (scaledImg.GetPixels()[i],
+    //                                      scaledImg.GetPixels()[i + 1],
+    //                                      scaledImg.GetPixels()[i + 2]));
+    // }
+    //  save the bmp as a png
+    auto h2 = Bmp::scale(heightMap, width*2, height*2, false);
+    Png::save(h2, path + ".png", true, LCT_GREY, 8);
+    heightMap = h2;
     // overwrite the current heightmap with the scaled one, for later packing
-    heightMap = scaledMap;
-    heightMap.gaussianFilter(25, 3);
+    // heightMap = scaledMap;
+    // heightMap.gaussianFilter(25, 3);
   } else {
     Bitmap outputMap(Cfg::Values().width, Cfg::Values().height, 8);
     outputMap.colourtable = colourTables.at(colourMapKey + gameTag);
@@ -348,7 +351,6 @@ void FormatConverter::dump8BitTerrain(
             i, hoi4terrain.lookUp(
                    indexMaps.at("tree" + colourMapKey + gameTag).at(treeType)));
       }
-
 
       if (civLayer.urbanisation[i]) {
         // urban texture

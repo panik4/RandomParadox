@@ -41,13 +41,27 @@ void defaultMap(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap) {
+void defines(const std::string &pathOut) {
+  const auto &cfg = Cfg::Values();
+  auto templateContent =
+      pU::readFile("resources//vic3//common//defines//01_defines.txt");
+  pU::Scenario::replaceOccurences(templateContent, "template_mapX",
+                                  std::to_string(cfg.width));
+  pU::Scenario::replaceOccurences(templateContent, "template_mapY",
+                                  std::to_string(cfg.height));
+  pU::writeFile(pathOut, templateContent);
+}
+
+void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap,
+               const Fwg::Gfx::Bitmap &packedHeightmap) {
   auto content = pU::readFile("resources//vic3//map_data//heightmap.heightmap");
   Logging::logLine("Vic3 Parser: Map: Writing heightmap.heightmap");
-  pU::Scenario::replaceOccurences(content, "template_map_x",
+  pU::Scenario::replaceOccurences(content, "template_mapX",
                                   std::to_string(heightMap.width()));
-  pU::Scenario::replaceOccurences(content, "template_map_y",
+  pU::Scenario::replaceOccurences(content, "template_mapY",
                                   std::to_string(heightMap.height()));
+  pU::Scenario::replaceOccurences(content, "template_packedX",
+                                  std::to_string(packedHeightmap.height() - 5));
   pU::writeFile(path, content);
 }
 
