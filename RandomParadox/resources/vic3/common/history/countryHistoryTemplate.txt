@@ -2,7 +2,7 @@ COUNTRIES = {
 	c:templateTag = {
 		set_next_election_date = 1837.11.4
 		
-		effect_starting_technology_tier_template_techlevel_tech = yes
+		template_techlevel = yes
 
 		set_tax_level = medium
 

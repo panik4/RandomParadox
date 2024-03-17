@@ -31,6 +31,8 @@ bool replaceLine(std::string &content, const std::string &key,
 // replace complete line from beginning of key to linebreak with value
 void replaceLines(std::string &content, const std::string &key,
                   const std::string &value);
+bool removeLine(std::string &content, const std::string &key);
+void removeLines(std::string &content, const std::string &key);
 // find the closing bracket of a block. Handles opening brackets correctly
 // as long as every opening bracket has an opening bracket
 size_t findClosingBracket(const std::string &content, size_t startPos);

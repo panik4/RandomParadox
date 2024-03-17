@@ -162,7 +162,8 @@ void FormatConverter::dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
   indirectionMap.fill({255, 255, 255});
   for (int h = 0; h < indirectionMap.height(); h++) {
     for (int w = 0; w < indirectionMap.width(); w++) {
-      indirectionMap.setColourAtIndex(h * indirectionMap.width() + w, {w, h, 1});
+      indirectionMap.setColourAtIndex(h * indirectionMap.width() + w,
+                                      {w, h, 1});
     }
   }
   Fwg::Gfx::Png::save(indirectionMap, path, false, LCT_RGBA, 8U, 0);
@@ -335,6 +336,11 @@ void FormatConverter::dynamicMasks(
   const auto &config = Fwg::Cfg::Values();
 
   std::vector<double> dynamicMask(config.bitmapSize);
+  Fwg::Gfx::Png::save(
+      Fwg::Gfx::Bmp::scale(
+          Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask),
+          config.width, config.height, false),
+      path + "mask_dynamic_mining.png");
   for (int i = 0; i < civLayer.agriculture.size(); i++) {
     auto val = civLayer.agriculture[i];
     dynamicMask[i] = val * 255.0;
@@ -350,13 +356,58 @@ void FormatConverter::dynamicMasks(
     if (val != Fwg::ClimateGeneration::Detail::TreeType::NONE)
       dynamicMask[i] = 255.0;
   }
+
   Fwg::Gfx::Png::save(
       Fwg::Gfx::Bmp::scale(
           Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask),
           config.width, config.height, false),
       path + "mask_dynamic_forestry.png");
 }
+void FormatConverter::contentSource(
+    const std::string &path,
+    const Fwg::ClimateGeneration::ClimateData &climateData,
+    const Fwg::Civilization::CivilizationLayer &civLayer) {
 
+  Utils::Logging::logLine("Vic3::Writing content source masks");
+  const auto &config = Fwg::Cfg::Values();
+
+  std::vector<std::string> maskNames = {"african_dynamic_farmland_objects",
+                                        "african_dynamic_forestry_objects",
+                                        "african_dynamic_mining_objects",
+                                        "arabic_dynamic_farmland_objects",
+                                        "arabic_dynamic_forestry_objects",
+                                        "arabic_dynamic_mining_objects",
+                                        "asian_dynamic_farmland_objects",
+                                        "asian_dynamic_forestry_objects",
+                                        "asian_dynamic_mining_objects",
+                                        "baobab_01",
+                                        "bush_01",
+                                        "bush_02",
+                                        "bush_dry_02",
+                                        "cypress_mediterranean_dense_01",
+                                        "cypress_mediterranean_sparse_01",
+                                        "dense_cypress_01",
+                                        "european_dynamic_farmland_objects",
+                                        "european_dynamic_forestry_objects",
+                                        "european_dynamic_mining_objects",
+                                        "iceberg_01",
+                                        "latin_dynamic_farmland_objects",
+                                        "latin_dynamic_forestry_objects",
+                                        "latin_dynamic_mining_objects",
+                                        "oak_01",
+                                        "oak_dense_01",
+                                        "palm_dense_01",
+                                        "pine_dense_01",
+                                        "pine_sparse_01",
+                                        "rainforest_01",
+                                        "savanna_tree_01",
+                                        "sparse_rainforest_01"};
+
+  Fwg::Gfx::Bitmap emptyMap(config.width / 2, config.height / 2, 24);
+  for (const auto &maskName : maskNames) {
+    Fwg::Gfx::Png::save(emptyMap, path + "mask_" + maskName + ".png");
+  }
+}
 void FormatConverter::detailMaps(
     const Fwg::ClimateGeneration::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer,

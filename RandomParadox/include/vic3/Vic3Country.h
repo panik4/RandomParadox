@@ -22,12 +22,13 @@ public:
   std::map<std::string, double> summedPopNeeds;
   std::vector<Building> buildings;
   std::map<Good, double> producedGoods;
-
-
-
+  std::map<std::string, Technology> techs;
+  std::string techLevel;
   std::vector<std::shared_ptr<Region>>
   getEligibleRegions(const std::string &resourceName);
-
-
+  void
+  evaluateTechLevel(const std::map<std::string, TechnologyLevel> &techLevels);
+  bool hasTech(const std::string &techName) const;
+  bool canUseProductionMethod(const Productionmethod &prodMethod) const;
 };
 } // namespace Scenario::Vic3

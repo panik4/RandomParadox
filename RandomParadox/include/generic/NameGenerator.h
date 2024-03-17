@@ -14,9 +14,10 @@ struct NameData {
   std::map<std::string, std::vector<std::string>> groups;
   std::map<std::string, std::vector<std::string>> ideologyNames;
   std::map<std::string, std::vector<std::string>> factionNames;
+  std::set<std::string> disallowedTokens;
 };
 // member functions
-std::string generateName(const NameData &nameData);
+std::string generateName(NameData &nameData);
 std::string generateAdjective(const std::string &name,
                               const NameData &nameData);
 std::string generateTag(const std::string name, 

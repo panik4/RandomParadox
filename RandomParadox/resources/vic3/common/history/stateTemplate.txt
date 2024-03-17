@@ -5,5 +5,5 @@
 			owned_provinces = { templateProvinces }
 		}
 		
-		add_homeland = templateCulture
+		templateCulture
 	}

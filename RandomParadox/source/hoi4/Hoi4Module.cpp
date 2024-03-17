@@ -32,10 +32,6 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   }
 
   readHoiConfig(configSubFolder, username, gamesConf);
-  // if (editMode) {
-  //   // start loading mod/game files
-  //   readHoi(pathcfg.gamePath);
-  // }
 }
 
 Hoi4Module::~Hoi4Module() {}

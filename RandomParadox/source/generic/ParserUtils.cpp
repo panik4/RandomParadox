@@ -98,6 +98,29 @@ void replaceLines(std::string &content, const std::string &key,
   while (replaceLine(content, key, value)) {
   }
 };
+bool removeLine(std::string &content, const std::string &key) {
+  size_t pos = content.find(key);
+  if (pos != std::string::npos) {
+    // Find the start of the line
+    size_t lineStart = content.rfind("\n", pos);
+    lineStart = (lineStart == std::string::npos) ? 0 : lineStart + 1;
+
+    // Find the end of the line
+    size_t lineEnd = content.find("\n", pos);
+    lineEnd = (lineEnd == std::string::npos) ? content.size() : lineEnd;
+
+    // Erase the line
+    content.erase(lineStart, lineEnd - lineStart);
+    return true;
+  }
+  return false;
+};
+
+void removeLines(std::string &content, const std::string &key) {
+  while (removeLine(content, key)) {
+  }
+};
+
 // find the closing bracket of a block. Handles opening brackets correctly
 // as long as every opening bracket has an opening bracket
 size_t findClosingBracket(const std::string &content, size_t startPos) {
@@ -195,7 +218,7 @@ std::vector<Block> getOuterBlocks(const std::vector<std::string> &lines) {
   int bracketSurplus = 0;
   Block currentBlock;
   for (auto &line : lines) {
-      // ignore this case, don't know how to handle it yet, TODO
+    // ignore this case, don't know how to handle it yet, TODO
     if (line.find('{') != std::string::npos &&
         line.find('}') != std::string::npos)
       continue;
@@ -243,7 +266,8 @@ int getNumber(const std::string &content) {
     return std::stoi(match[0]);
   } else {
     // Handle case where no number is found
-    Utils::Logging::logLine("ERROR: Couldn't extract number from string: ", content);
+    Utils::Logging::logLine("ERROR: Couldn't extract number from string: ",
+                            content);
     return 0; // Or throw an exception, return a default value, etc.
   }
 }

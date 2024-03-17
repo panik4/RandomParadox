@@ -180,6 +180,7 @@ void Generator::generateDevelopment() {
           state->development *
           ((double)state->populationFactor / (double)c->populationFactor);
     }
+    std::cout << c->developmentFactor << std::endl;
   }
   Png::save(development, config.mapsPath + "world/developmentScenario.png");
 }

@@ -5,9 +5,6 @@
 #include "generic/ScenarioUtils.h"
 #include "hoi4/Hoi4Generator.h"
 #include "hoi4/Hoi4Module.h"
-#include "imgui.h"
-#include "imgui_impl_dx11.h"
-#include "imgui_impl_win32.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "vic3/Vic3Module.h"
 #include <boost/property_tree/json_parser.hpp>
@@ -73,6 +70,7 @@ class GUI : Fwg::fwgUI {
   int showStatisticsTab();
 
 public:
+  GUI();
   int shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
             const std::string &username);
 };

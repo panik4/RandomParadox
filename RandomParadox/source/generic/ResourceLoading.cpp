@@ -27,6 +27,7 @@ std::vector<std::string> loadForbiddenTags(const std::string &gamePath) {
     //  auto tag = line.substr(0, 3);
     //  tags.push_back(tag);
     //}
+
   } else {
 
     if (std::filesystem::exists(gamePath +

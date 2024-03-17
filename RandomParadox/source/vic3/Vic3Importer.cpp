@@ -3,8 +3,86 @@
 namespace Scenario::Vic3::Importing {
 namespace PU = Fwg::Parsing;
 namespace PUS = Fwg::Parsing::Scenario;
+
 std::map<std::string, Technology> readTechs(const std::string &inFolder) {
-  return std::map<std::string, Technology>();
+  Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Reading techs from ",
+                               inFolder);
+  std::map<std::string, Technology> techs;
+  for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder}) {
+    std::string pathString = dir_entry.path().string();
+    if (pathString.find(".txt") == std::string::npos)
+      continue;
+
+    Fwg::Utils::Logging::logLine("Working with: ", pathString);
+    std::string filename =
+        pathString.substr(pathString.find_last_of("//") + 1,
+                          pathString.back() - pathString.find_last_of("//"));
+    Fwg::Utils::Logging::logLine("Determined filename: ", filename);
+    std::string content = "";
+    auto lines = Fwg::Parsing::getLines(pathString);
+    auto blocks = Fwg::Parsing::Scenario::getOuterBlocks(lines);
+
+    for (auto &block : blocks) {
+      Technology tech;
+      tech.name = block.name;
+      PUS::removeSpecials(tech.name);
+      tech.era = PU::getValue(block.content, "era");
+      PUS::removeCharacter(tech.era, ' ');
+      auto unlockTechs =
+          PUS::getBracketBlockContent(block.content, "unlocking_technologies");
+      auto unlockTechTokens = PU::getTokens(unlockTechs, '\n');
+      for (auto &technology : unlockTechTokens) {
+        PUS::removeSpecials(technology);
+        if (technology.size())
+          tech.unlockingTechnologies.push_back(technology);
+      }
+
+      techs.insert({tech.name, tech});
+    }
+  }
+
+  return techs;
+}
+std::map<std::string, TechnologyLevel>
+readTechLevels(const std::string &inPath,
+               const std::map<std::string, Technology> &techs) {
+  std::map<std::string, TechnologyLevel> techlevels;
+  auto lines = Fwg::Parsing::getLines(inPath);
+  auto blocks = Fwg::Parsing::Scenario::getOuterBlocks(lines);
+
+  for (auto &block : blocks) {
+    TechnologyLevel techLevel;
+    // something like wealth_9
+    techLevel.name = block.name;
+    PUS::removeSpecials(techLevel.name);
+
+    auto blockLines = PU::splitLines(block.content);
+    for (auto &line : blockLines) {
+      if (line.find("add_era_researched") != std::string::npos) {
+        // add a fully researched era
+        auto &era = Fwg::Parsing::getValue(line, "add_era_researched");
+        PUS::removeCharacter(era, ' ');
+        techLevel.era_researched = era;
+        for (auto &tech : techs) {
+          if (tech.second.era == era) {
+            techLevel.technologies.push_back(tech.second);
+          }
+        }
+      } else if (line.find("add_technology_researched") != std::string::npos) {
+        // add particular technologies
+        auto &tech = Fwg::Parsing::getValue(line, "add_technology_researched");
+        PUS::removeCharacter(tech, ' ');
+        if (techs.find(tech) != techs.end()) {
+          techLevel.technologies.push_back(techs.at(tech));
+        } else {
+          Fwg::Utils::Logging::logLine("Warning: Can't find tech ", tech,
+                                       " for techlevel");
+        }
+      }
+    }
+    techlevels.emplace(techLevel.name, techLevel);
+  }
+  return techlevels;
 }
 std::map<std::string, ProductionmethodGroup> readProdMethodGroups(
     const std::string &inFolder,
@@ -55,7 +133,8 @@ std::map<std::string, ProductionmethodGroup> readProdMethodGroups(
 }
 std::map<std::string, Productionmethod>
 readProdMethods(const std::string &inFolder,
-                const std::map<std::string, Good> &goods) {
+                const std::map<std::string, Good> &goods,
+                const std::map<std::string, Technology> &techs) {
   const std::string endString = "_add";
   const std::string inGood = "goods_input_";
   const std::string outGood = "goods_output_";
@@ -79,6 +158,18 @@ readProdMethods(const std::string &inFolder,
       PUS::removeSpecials(block.name);
       prodmeth.name = block.name;
       auto prodmetLines = Fwg::Parsing::splitLines(block.content);
+
+      auto unlockTechs =
+          PUS::getBracketBlockContent(block.content, "unlocking_technologies");
+      auto unlockTechTokens = PU::getTokens(unlockTechs, '\n');
+      for (auto &tech : unlockTechTokens) {
+        PUS::removeSpecials(tech);
+        PUS::removeCharacter(tech, ' ');
+        if (tech.size() && techs.find(tech) != techs.end()) {
+          prodmeth.unlockingTechnologies.emplace(tech, techs.at(tech));
+        }
+      }
+
       for (auto &line : prodmetLines) {
         if (line.find(inGood) != std::string::npos) {
           auto goodName = PUS::getEntrenched(line, inGood, endString);
@@ -92,8 +183,6 @@ readProdMethods(const std::string &inFolder,
           auto amount = PUS::getNumber(line);
           if (amount) {
             prodmeth.outputs.push_back({goods.at(goodName), amount});
-            std::cout << prodmeth.name << "  " << goodName << "   " << amount
-                      << std::endl;
           }
         }
       }
@@ -105,7 +194,8 @@ readProdMethods(const std::string &inFolder,
 }
 std::vector<BuildingType> readBuildings(
     const std::string &inFolder,
-    std::map<std::string, ProductionmethodGroup> productionmethodGroups) {
+    std::map<std::string, ProductionmethodGroup> productionmethodGroups,
+    const std::map<std::string, Technology> &techs) {
   std::vector<BuildingType> bts;
   Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Reading buildings from ",
                                inFolder);
@@ -129,12 +219,15 @@ std::vector<BuildingType> readBuildings(
       PUS::removeSpecials(bt.name);
       bt.group = PU::getValue(block.content, "building_group");
       PUS::removeCharacter(bt.group, ' ');
+
       auto unlockTechs =
           PUS::getBracketBlockContent(block.content, "unlocking_technologies");
       auto unlockTechTokens = PU::getTokens(unlockTechs, '\n');
       for (auto &tech : unlockTechTokens) {
         PUS::removeSpecials(tech);
-        // TODO: convert to read in Tech
+        PUS::removeCharacter(tech, ' ');
+        if (tech.size() && techs.find(tech) != techs.end())
+          bt.unlockTechs.push_back(techs.at(tech));
       }
       auto prodMethods = PUS::getBracketBlockContent(
           block.content, "production_method_groups");
@@ -255,5 +348,19 @@ std::map<std::string, Good> readGoods(const std::string &inFolder) {
   }
 
   return goods;
+}
+std::set<std::string> readTags(const std::string &inFolder) {
+  Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Reading tags from ",
+                               inFolder);
+  std::set<std::string> tags;
+  for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder}) {
+    std::string pathString = dir_entry.path().string();
+    if (pathString.find(".txt") == std::string::npos)
+      continue;
+    std::string tag = pathString.substr(0, 3);
+    std::transform(tag.begin(), tag.end(), tag.begin(), ::toupper);
+    tags.insert(tag);
+  }
+  return tags;
 }
 } // namespace Scenario::Vic3::Importing
