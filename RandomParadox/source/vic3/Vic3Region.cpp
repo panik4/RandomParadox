@@ -18,7 +18,9 @@ int Region::supportsBuilding(const BuildingType &buildingType) {
   }
   if (resources.find(buildingType.group) != resources.end()) {
     auto &res = resources.at(buildingType.group);
-    return res.capped ? res.amount : arableLand;
+    if (res.amount > 0) {
+      return res.capped ? res.amount : arableLand;
+    }
   }
 
   return 0;

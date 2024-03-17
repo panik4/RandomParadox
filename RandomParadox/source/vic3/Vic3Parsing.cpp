@@ -71,9 +71,11 @@ void stateFiles(const std::string &path,
 
   const auto templateFile =
       pU::readFile("resources//vic3//map_data//state_template.txt");
+  const auto seaTemplateFile =
+      pU::readFile("resources//vic3//map_data//sea_state_template.txt");
   std::string file = "";
   for (const auto &region : regions) {
-    auto content = templateFile;
+    auto content = region->sea ? seaTemplateFile : templateFile;
     pU::Scenario::replaceOccurences(content, "template_name", region->name);
     pU::Scenario::replaceOccurences(content, "template_id",
                                     std::to_string(region->ID + 1));
@@ -134,7 +136,7 @@ void stateFiles(const std::string &path,
             cappedResString.append(
                 res.first + " = " +
                 std::to_string(static_cast<int>(res.second.amount)));
-            agriResString.append("\n\t\t");
+            cappedResString.append("\n\t\t");
           } else {
             agriResString.append("\"" + res.first + +"\"");
             agriResString.append(" ");
@@ -348,8 +350,11 @@ void stateHistory(const std::string &path,
     }
     pU::Scenario::replaceOccurences(content, "templateProvinces",
                                     provinceString);
-
-    pU::Scenario::replaceOccurences(content, "templateCulture", "dixie");
+    std::string cultures;
+    for (auto &culture : region->cultures) {
+      cultures.append("add_homeland = cu:" + culture.first->name + "\n\t\t");
+    }
+    pU::Scenario::replaceOccurences(content, "templateCulture", cultures);
     stateContent.append(content);
   }
   pU::Scenario::replaceOccurences(file, "templateStateData", stateContent);
@@ -367,6 +372,8 @@ void countryHistory(
 
     pU::Scenario::replaceOccurences(cString, "templateTag",
                                     country.second->tag);
+    pU::Scenario::replaceOccurences(cString, "template_techlevel",
+                                    country.second->techLevel);
     std::string filename =
         country.second->tag + " - " + country.second->name + ".txt";
     pU::writeFile(path + "//" + filename, cString, true);
@@ -456,7 +463,6 @@ void compatReleasable(const std::string &inFolder, const std::string &outPath) {
     std::string pathString = dir_entry.path().string();
     if (pathString.find(".txt") == std::string::npos)
       continue;
-    Fwg::Utils::Logging::logLine("Working with: ", pathString);
     std::string filename =
         pathString.substr(pathString.find_last_of("//") + 1,
                           pathString.back() - pathString.find_last_of("//"));
@@ -466,6 +472,23 @@ void compatReleasable(const std::string &inFolder, const std::string &outPath) {
         pU::Scenario::removeBracketBlockFromBracket(content, "provinces = {")) {
     }
     pU::Scenario::replaceLines(content, "\tprovinces =", "provinces = { }\n");
+    pU::writeFile(outPath + filename, content);
+  }
+}
+
+void compatTriggers(const std::string &inFolder, const std::string &outPath) {
+  Fwg::Utils::Logging::logLine(
+      "Vic3 Parser: Common: Compatibility scripted Triggers ", inFolder);
+  for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder}) {
+    std::string pathString = dir_entry.path().string();
+    if (pathString.find(".txt") == std::string::npos)
+      continue;
+    std::string filename =
+        pathString.substr(pathString.find_last_of("//") + 1,
+                          pathString.back() - pathString.find_last_of("//"));
+    std::string content = pU::readFile(pathString);
+    pU::Scenario::removeLines(content, "sr:region");
+    pU::Scenario::removeLines(content, "STATE_");
     pU::writeFile(outPath + filename, content);
   }
 }
@@ -488,6 +511,8 @@ void Scenario::Vic3::Parsing::History::writeBuildings(
       "resources//vic3//common//history//buildingsSingleBuildingTemplate.txt");
   std::string allStateString;
   for (auto &region : regions) {
+    if (region->sea)
+        continue;
     auto stateString = buildingsStateTemplate;
     pU::replaceOccurence(stateString, "templateStateName",
                          "STATE_" + region->name);

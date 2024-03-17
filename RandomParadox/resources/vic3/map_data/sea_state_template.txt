@@ -1,0 +1,4 @@
+STATE_template_name = {
+    id = template_id
+    provinces = { template_provinces }
+}

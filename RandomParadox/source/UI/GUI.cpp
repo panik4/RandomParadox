@@ -39,6 +39,8 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
+GUI::GUI() : fwgUI() {}
+
 int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                const std::string &username) {
   //  Create application window
@@ -56,17 +58,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                     L"RandomParadox",
                     nullptr};
   ::RegisterClassExW(&wc);
-  HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"RandomParadox",
-                              WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr,
-                              nullptr, wc.hInstance, nullptr);
-  MONITORINFO monitor_info;
-  monitor_info.cbSize = sizeof(monitor_info);
-  GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST),
-                 &monitor_info);
-  SetWindowPos(hwnd, NULL, 0, 0,
-               monitor_info.rcMonitor.right - monitor_info.rcMonitor.left,
-               monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top,
-               SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+  HWND hwnd =
+      uiUtils->createAndConfigureWindow(wc, wc.lpszClassName, L"RandomParadox");
   // Initialize Direct3D
   if (!CreateDeviceD3D(hwnd)) {
     CleanupDeviceD3D();
@@ -79,22 +72,14 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
   ::UpdateWindow(hwnd);
 
   // Setup Dear ImGui context
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-  ImGuiIO &io = ImGui::GetIO();
-  (void)io;
-  io.ConfigFlags |=
-      ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-  io.ConfigFlags |=
-      ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
-
+  uiUtils->setupImGuiContextAndStyle();
+  auto &io = ImGui::GetIO();
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();
   // ImGui::StyleColorsLight();
 
   // Setup Platform/Renderer backends
-  ImGui_ImplWin32_Init(hwnd);
-  ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
+  uiUtils->setupImGuiBackends(hwnd, g_pd3dDevice, g_pd3dDeviceContext);
 
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
   auto &cfg = Fwg::Cfg::Values();
@@ -180,9 +165,9 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
       ImGui::SeparatorText(
           "Different Steps of the generation, usually go from left to right");
 
-      if (uiUtils.actTxs[1] == UIUtils::ActiveTexture::NONE &&
+      if (uiUtils->actTxs[1] == UIUtils::ActiveTexture::NONE &&
           secondaryTexture != nullptr) {
-        uiUtils.freeTexture(&secondaryTexture);
+        uiUtils->freeTexture(&secondaryTexture);
       }
       if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
         showConfigure(cfg, activeModule);
@@ -244,23 +229,12 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
     }
 
     // Rendering
-    ImGui::Render();
-    const float clear_color_with_alpha[4] = {
-        clear_color.x * clear_color.w, clear_color.y * clear_color.w,
-        clear_color.z * clear_color.w, clear_color.w};
-    g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView,
-                                            nullptr);
-    g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView,
-                                               clear_color_with_alpha);
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-    g_pSwapChain->Present(1, 0); // Present with vsync
+    uiUtils->renderImGui(g_pd3dDeviceContext, g_mainRenderTargetView,
+                         clear_color, g_pSwapChain);
   }
 
   // Cleanup
-  ImGui_ImplDX11_Shutdown();
-  ImGui_ImplWin32_Shutdown();
-  ImGui::DestroyContext();
+  uiUtils->shutdownImGui();
 
   CleanupDeviceD3D();
   ::DestroyWindow(hwnd);
@@ -336,9 +310,9 @@ int GUI::showRpdxConfigure(
   // remove the images, and set pretext for them to be auto
   // loaded after switching tabs again
   if (ImGui::BeginTabItem("RandomParadox Configuration")) {
-    uiUtils.freeTexture(&curtexture);
+    uiUtils->freeTexture(&curtexture);
     ImGui::PushItemWidth(200.0f);
-    uiUtils.tabSwitchEvent();
+    uiUtils->tabSwitchEvent();
     // find every subfolder of config folder
     if (!loadedConfigs) {
       loadedConfigs = true;
@@ -389,13 +363,9 @@ int GUI::showRpdxConfigure(
     ImGui::PushItemWidth(600.0f);
     ImGui::InputText("Mod Name", &activeModule->pathcfg.modName);
     if (ImGui::Button("Try to find game")) {
-      if (activeGameConfig.gameName == "Victoria 3") {
-        activeModule->findGame(activeModule->pathcfg.gamePath,
-                               activeGameConfig.gameName + "//game//");
-      } else {
-        activeModule->findGame(activeModule->pathcfg.gamePath,
-                               activeGameConfig.gameName);
-      }
+
+      activeModule->findGame(activeModule->pathcfg.gamePath,
+                             activeGameConfig.gameName);
     }
     if (ImGui::Button("Try to find mod folder")) {
       activeModule->autoLocateGameModFolder(activeGameConfig.gameName);
@@ -439,8 +409,8 @@ int GUI::showScenarioTab(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> activeModule) {
   int retCode = 0;
   if (ImGui::BeginTabItem("Scenario")) {
-    uiUtils.freeTexture(&curtexture);
-    uiUtils.tabSwitchEvent();
+    uiUtils->freeTexture(&curtexture);
+    uiUtils->tabSwitchEvent();
     if (activeModule->generator->heightMap.initialised() &&
         activeModule->generator->climateMap.initialised() &&
         activeModule->generator->provinceMap.initialised() &&
@@ -488,15 +458,15 @@ int GUI::showScenarioTab(
 int GUI::showDevelopmentTab(Fwg::Cfg &cfg) {
   if (ImGui::BeginTabItem("Development")) {
     auto &fwg = activeModule->generator;
-    uiUtils.activeImage = &fwg->developmentMap;
-    uiUtils.tabSwitchEvent();
+    uiUtils->activeImage = &fwg->developmentMap;
+    uiUtils->tabSwitchEvent();
     ImGui::SeparatorText("Drop in a development map, or use the displayed one");
 
     if (triggeredDrag) {
       auto devMapIn = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
       Fwg::Civilization::readDevelopment(devMapIn, fwg->areas.provinces);
       triggeredDrag = false;
-      uiUtils.resetTexture();
+      uiUtils->resetTexture();
     }
     for (auto &continent : fwg->areas.continents) {
       std::string displayString =
@@ -508,11 +478,11 @@ int GUI::showDevelopmentTab(Fwg::Cfg &cfg) {
     if (ImGui::Button("Generate Development")) {
       Fwg::Civilization::generateDevelopment(fwg->areas.continents);
       fwg->developmentMap = Fwg::Gfx::displayDevelopment(fwg->areas.provinces);
-      uiUtils.resetTexture();
+      uiUtils->resetTexture();
     }
-    uiUtils.switchTexture(fwg->developmentMap, &curtexture, 0,
-                          UIUtils::ActiveTexture::DEVELOPMENT, g_pd3dDevice, w,
-                          h);
+    uiUtils->switchTexture(fwg->developmentMap, &curtexture, 0,
+                           UIUtils::ActiveTexture::DEVELOPMENT, g_pd3dDevice, w,
+                           h);
     ImGui::EndTabItem();
   }
   return 0;
@@ -521,7 +491,7 @@ int GUI::showDevelopmentTab(Fwg::Cfg &cfg) {
 int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
   if (ImGui::BeginTabItem("Countries")) {
     auto &generator = activeModule->generator;
-    uiUtils.tabSwitchEvent();
+    uiUtils->tabSwitchEvent();
     ImGui::Text(
         "Use auto generated country map or drop it in. You may also first "
         "generate a country map, then edit it in the Maps folder, and then "
@@ -549,7 +519,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       generator->evaluateNeighbours();
       generator->generateWorldCivilizations();
       generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png");
-      uiUtils.resetTexture();
+      uiUtils->resetTexture();
     }
     ImGui::SameLine();
     auto str =
@@ -567,7 +537,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
         generator->initializeCountries();
         generator->evaluateNeighbours();
         generator->generateWorldCivilizations();
-        uiUtils.resetTexture();
+        uiUtils->resetTexture();
       }
       triggeredDrag = false;
     }
@@ -615,13 +585,13 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
         // TODO: only trigger after release of colour edit
         generator->countryMap =
             generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png");
-        uiUtils.resetTexture();
+        uiUtils->resetTexture();
       }
     }
 
-    uiUtils.switchTexture(activeModule->generator->countryMap, texture, 0,
-                          UIUtils::ActiveTexture::COUNTRIES, g_pd3dDevice, w,
-                          h);
+    uiUtils->switchTexture(activeModule->generator->countryMap, texture, 0,
+                           UIUtils::ActiveTexture::COUNTRIES, g_pd3dDevice, w,
+                           h);
     ImGui::EndTabItem();
     ImGui::PopItemWidth();
   }
@@ -684,7 +654,7 @@ int GUI::showModuleGeneric(
 }
 int GUI::showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
   if (ImGui::BeginTabItem("States")) {
-    uiUtils.tabSwitchEvent();
+    uiUtils->tabSwitchEvent();
     ImGui::Text("In this tab, edit the states. You can NOT drag in an image "
                 "here, nothing happens. If you want to input a state image, "
                 "use the region tab!");
@@ -731,8 +701,8 @@ int GUI::showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
 int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                                 std::shared_ptr<Hoi4Gen> generator) {
   if (ImGui::BeginTabItem("Strategic Regions")) {
-    uiUtils.freeTexture(&curtexture);
-    uiUtils.tabSwitchEvent();
+    uiUtils->freeTexture(&curtexture);
+    uiUtils->tabSwitchEvent();
     ImGui::SeparatorText(
         "This generates strategic regions, they cannot be loaded");
     if (generator->hoi4States.size()) {
@@ -761,8 +731,8 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
 int GUI::showHoi4Finalise(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::Hoi4::Hoi4Module> hoi4Module) {
   if (ImGui::BeginTabItem("Finalise")) {
-    uiUtils.freeTexture(&curtexture);
-    uiUtils.tabSwitchEvent();
+    uiUtils->freeTexture(&curtexture);
+    uiUtils->tabSwitchEvent();
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
     auto &generator = hoi4Module->hoi4Gen;

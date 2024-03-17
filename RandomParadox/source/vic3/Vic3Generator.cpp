@@ -177,24 +177,32 @@ void Generator::initializeCountries() {
       averageDevelopment += state->development *
                             ((double)state->totalPopulation / (double)totalPop);
     }
+    // c->developmentFactor = averageDevelopment;
+    c->evaluateTechLevel(techLevels);
     if (cfg.debugLevel > 5) {
       Fwg::Utils::Logging::logLine(c->tag, " has a population of ", c->pop);
     }
   }
 }
 void Generator::importData(const std::string &path) {
+
+  techs =
+      Vic3::Importing::readTechs(path + "common//technology//technologies//");
+  techLevels = Vic3::Importing::readTechLevels(
+      path + "common//scripted_effects//00_starting_inventions.txt", techs);
   goods = Vic3::Importing::readGoods(path + "common//goods//00_goods.txt");
   productionmethods = Vic3::Importing::readProdMethods(
-      path + "common//production_methods//", goods);
+      path + "common//production_methods//", goods, techs);
   productionmethodGroups = Vic3::Importing::readProdMethodGroups(
       path + "common//production_method_groups//", productionmethods);
-  buildingsTypes = Vic3::Importing::readBuildings(path + "common//buildings//",
-                                                  productionmethodGroups);
+  buildingsTypes = Vic3::Importing::readBuildings(
+      path + "common//buildings//", productionmethodGroups, techs);
   popNeeds = Vic3::Importing::readPopNeeds(
       path + "common//pop_needs//00_pop_needs.txt", goods);
   buypackages = Vic3::Importing::readBuypackages(
       path + "//common//buy_packages//00_buy_packages.txt", popNeeds);
-
+  nData.disallowedTokens =
+      Vic3::Importing::readTags(path + "common//history//countries//");
   // now map goods to building types
   for (auto &good : goods) {
     std::vector<Productionmethod> prodMethods;
@@ -311,22 +319,9 @@ void Generator::distributeBuildings() {
       // if not, try to produce some of them with a larger share
       auto goods = popNeed.goods;
       std::vector<Good> produceableGoods;
-      for (auto &good : goods) {
-        // to check if we can actually produce this
-        try {
-          const auto &potentialProdMethods =
-              goodToProdMethodsOutput.at(good.name);
-          // TODO: insert check against techs, this is the decisive factor in
-          // evaluating if a building can actually be built already to fulfill
-          // the demand
-          produceableGoods.push_back(good);
-        } catch (std::exception e) {
-          Fwg::Utils::Logging::logLineLevel(
-              9, "Couldn't find production method for ", good.name);
-        }
-      }
+
       // now find the building that produces this, and plop it into a state
-      for (auto &produceableGood : produceableGoods) {
+      for (auto &produceableGood : goods) {
         double actualDemand = amount / (double)produceableGoods.size() /
                               (double)produceableGood.cost;
         Fwg::Utils::Logging::logLine(produceableGood.name, " has demand of ",
@@ -336,16 +331,18 @@ void Generator::distributeBuildings() {
           // find production methods that produce this good
           const auto &potentialProdMethods =
               goodToProdMethodsOutput.at(produceableGood.name);
-          for (auto i = 0; i < potentialProdMethods.size(); i++) {
-            // TODO: insert check against techs, this is the decisive factor in
-            // evaluating if a building can actually be built already to fulfill
-            // the demand
-          }
 
           // now find all buildings for all the production methods, so we get a
           // complete list of prod methods we support
           std::map<std::string, BuildingType> buildingTypes;
           for (auto &entry : potentialProdMethods) {
+            // check against techs, this is the decisive factor in
+            // evaluating if a building can actually be built already to
+            // fulfill the demand
+            if (!country->canUseProductionMethod(entry)) {
+              continue;
+            }
+
             try {
               if (productionMethodToBuildingTypes.find(entry.name) !=
                   productionMethodToBuildingTypes.end()) {
@@ -371,95 +368,62 @@ void Generator::distributeBuildings() {
             // now get the potential production methods of this single building
             std::vector<Productionmethod> buildingProdMethods;
             for (auto &prodMethod : potentialProdMethods) {
-              if (type.second.productionMethods.find(prodMethod.name)!= type.second.productionMethods.end()) {
-                buildingProdMethods.push_back(prodMethod);
-              }
-            }
-            // now check if we have the tech, if not, we can't build the
-            // building
-
-            // then select the production method, by ordering them by output of
-            // the good and checking if it is in the potentialProdMethods
-            auto &prodMethod = Fwg::Utils::selectRandom(buildingProdMethods);
-            auto outputAmount = 0;
-            for (auto &prodMethodGood : prodMethod.outputs) {
-              if (produceableGood.name == prodMethodGood.first.name) {
-                outputAmount = prodMethodGood.second;
-              }
-            }
-            // then figure out how many buildings we need for the overall demand
-            int levelRequired = std::max<int>(actualDemand / (double)outputAmount, 1);
-            Fwg::Utils::Logging::logLine("Requiring ", levelRequired,
-                                         " to create ", actualDemand, " ",
-                                         produceableGood.name);
-            // get the amount of states that support this building
-
-            std::vector<std::pair<std::shared_ptr<Region>, int>>
-                potentialRegions;
-            for (auto &region : country->ownedVic3Regions) {
-              int retVal = 0;
-              if (retVal = region->supportsBuilding(type.second)) {
-                potentialRegions.push_back({region, retVal});
-              }
-            }
-
-            // then figure out how to distribute the buildings to states
-            if (!potentialRegions.size()) {
-              Fwg::Utils::Logging::logLineLevel(
-                  9, "No potential state found to produce ",
-                  produceableGood.name);
-            } else {
-              for (auto i = 0; i < levelRequired; i++) {
-                auto &region =
-                    potentialRegions[i % potentialRegions.size()].first;
-                if (region->buildings.find(type.first) !=
-                    region->buildings.end()) {
-                  region->buildings.at(type.first).level++;
-                } else {
-                  region->buildings.emplace(
-                      type.first, Building{type.second, 1, prodMethod});
+              if (type.second.productionMethods.find(prodMethod.name) !=
+                  type.second.productionMethods.end()) {
+                // filter by tech
+                if (country->canUseProductionMethod(prodMethod)) {
+                  buildingProdMethods.push_back(prodMethod);
                 }
               }
             }
-            // const auto& buildingOutputs =
-            //     type.productionMethodGroups[0].productionMethods[0].outputs;
-            // auto a = type.productionMethodGroups[0];
-            //// find the lowest outputting production method
-            // std::map<Good, int> selectedOutput;
-            // for (auto &prodMeth : a.productionMethods) {
-            //   // go through the outputs
-            //   for (auto &outputs : prodMeth.second.outputs) {
-            //     // if we already have selected a production method, make sure
-            //     // the output is lower
-            //     if (!selectedProdMeth.outputs.size()) {
-            //       selectedProdMeth = prodMeth.second;
-            //     } else {
-            //       if (outputs.second > selectedProdMeth.outputs)
-            //     }
-            //   }
-            // }
+            // only proceed if the country actually has the production method
+            // available
+            if (buildingProdMethods.size()) {
+              // then select the production method, by ordering them by output
+              // of the good and checking if it is in the potentialProdMethods
+              auto &prodMethod = Fwg::Utils::selectRandom(buildingProdMethods);
+              auto outputAmount = 0;
+              for (auto &prodMethodGood : prodMethod.outputs) {
+                if (produceableGood.name == prodMethodGood.first.name) {
+                  outputAmount = prodMethodGood.second;
+                }
+              }
+              // then figure out how many buildings we need for the overall
+              // demand
+              int levelRequired =
+                  std::max<int>(actualDemand / (double)outputAmount, 1);
+              Fwg::Utils::Logging::logLine("Requiring ", levelRequired,
+                                           " to create ", actualDemand, " ",
+                                           produceableGood.name);
+              // get the amount of states that support this building
+              std::vector<std::pair<std::shared_ptr<Region>, int>>
+                  potentialRegions;
+              for (auto &region : country->ownedVic3Regions) {
+                int retVal = 0;
+                if (retVal = region->supportsBuilding(type.second)) {
+                  potentialRegions.push_back({region, retVal});
+                }
+              }
 
-            // now find the productionmethodgroup that actually outputs the good
-            // required
-
-            // auto buildingOutputs = b.outputs;
-            // for (const auto &output : buildingOutputs) {
-            //   // the good we are actually trying to produce
-            //   if (output.first.name == produceableGood.name) {
-            //     auto outputAmount = output.second;
-            //     int levelRequired = actualDemand / (double)outputAmount;
-            //     if (levelRequired > 0) {
-            //       // find state to put the buildings
-            //       // TODO: disperse buildings between states
-            //       auto &state =
-            //           Fwg::Utils::selectRandom(country->ownedVic3Regions);
-            //       state->buildings.push_back(Building(
-            //           type, levelRequired, type.productionMethodGroups[0]));
-            //       country->buildings.push_back(Building(
-            //           type, levelRequired, type.productionMethodGroups[0]));
-            //     }
-            //   }
-            // }
+              // then figure out how to distribute the buildings to states
+              if (!potentialRegions.size()) {
+                Fwg::Utils::Logging::logLineLevel(
+                    9, "No potential state found to produce ",
+                    produceableGood.name);
+              } else {
+                for (auto i = 0; i < levelRequired; i++) {
+                  auto &region =
+                      potentialRegions[i % potentialRegions.size()].first;
+                  if (region->buildings.find(type.first) !=
+                      region->buildings.end()) {
+                    region->buildings.at(type.first).level++;
+                  } else {
+                    region->buildings.emplace(
+                        type.first, Building{type.second, 1, prodMethod});
+                  }
+                }
+              }
+            }
           }
         }
       }

@@ -2,12 +2,14 @@
 
 namespace Scenario {
 namespace NameGeneration {
-std::string generateName(const NameData &nameData) {
+std::string generateName(NameData &nameData) {
   auto selectedRule{
       nameData
           .nameRules[RandNum::getRandom((size_t)0, nameData.nameRules.size())]};
   auto selectedRuleNum{Fwg::Parsing::getTokens(selectedRule, ';')};
   std::string name{Detail::getToken(selectedRuleNum, nameData)};
+  // insert before the toupper, to ensure we don't add the same name twice
+  nameData.disallowedTokens.insert(name);
   std::transform(name.begin(), name.begin() + 1, name.begin(), ::toupper);
   return name;
 }
@@ -25,19 +27,21 @@ std::string generateAdjective(const std::string &name,
 std::string generateTag(const std::string name, NameData &nameData) {
   std::string tag{""};
   int retries = 0;
-  while ((tag.size() == 0 || nameData.tags.find(tag) != nameData.tags.end()) &&
-         retries++ < 10) {
+
+  do {
     int offset = std::clamp(retries - 1, 0, (int)name.size() - 3);
     tag = name.substr(0 + offset, 3);
     std::transform(tag.begin(), tag.end(), tag.begin(), ::toupper);
-  }
+  } while (nameData.disallowedTokens.find(tag) !=
+               nameData.disallowedTokens.end() &&
+           retries++ < 10);
   if (retries == 11) {
     tag = Detail::getRandomMapElement("consonants", nameData.groups) +
           Detail::getRandomMapElement("consonants", nameData.groups) +
           Detail::getRandomMapElement("consonants", nameData.groups);
     std::transform(tag.begin(), tag.end(), tag.begin(), ::toupper);
   }
-  nameData.tags.insert(tag);
+  nameData.disallowedTokens.insert(tag);
   return tag;
 }
 
@@ -72,7 +76,7 @@ NameData prepare(const std::string &path, const std::string &gamePath) {
     if (gamePath.size()) {
       const auto forbiddenTags = ResourceLoading::loadForbiddenTags(gamePath);
       for (const auto &tag : forbiddenTags)
-        nameData.tags.insert(tag);
+        nameData.disallowedTokens.insert(tag);
     }
   } else {
     Fwg::Utils::Logging::logLine(
@@ -106,8 +110,12 @@ getRandomMapElement(const std::string key,
 std::string getToken(const std::vector<std::string> &rule,
                      const NameData &nameData) {
   std::string retString{""};
-  for (auto i = 0; i < rule.size(); i++)
-    retString += getRandomMapElement(rule[i], nameData.groups);
+  do {
+
+    for (auto i = 0; i < rule.size(); i++)
+      retString += getRandomMapElement(rule[i], nameData.groups);
+  } while (nameData.disallowedTokens.find(retString) !=
+           nameData.disallowedTokens.end());
   return retString;
 }
 } // namespace Detail

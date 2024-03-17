@@ -267,10 +267,16 @@ static std::vector<ResConfig> resConfigs{
      0.0}};
 
 struct DiplomaticRelation {};
-struct Technology {};
+struct Technology {
+  std::string name;
+  std::string era;
+  std::vector<std::string> unlockingTechnologies;
+};
 
 struct TechnologyLevel {
-  std::vector<Technology> minimumTech;
+  std::string name;
+  std::string era_researched;
+  std::vector<Technology> technologies;
 };
 
 struct Good {

@@ -19,6 +19,7 @@ struct Vic3StratRegion {
 
 class Generator : public Scenario::Generator {
   std::map<std::string, Technology> techs;
+  std::map<std::string, TechnologyLevel> techLevels;
   std::map<std::string, ProductionmethodGroup> productionmethodGroups;
   std::map<std::string, Productionmethod> productionmethods;
   std::vector<BuildingType> buildingsTypes;

@@ -49,6 +49,9 @@ void compatStratRegions(const std::string &inFolder, const std::string &outPath,
                         const std::vector<std::shared_ptr<Region>> &regions,
                         std::string &baseGameRegions);
 void compatReleasable(const std::string &inFolder, const std::string &outPath);
+
+void compatTriggers(const std::string &inFolder, const std::string &outPath);
+
 } // namespace Writing
 
 namespace History {
