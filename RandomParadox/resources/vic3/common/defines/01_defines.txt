@@ -1,0 +1,6 @@
+﻿NJominiMap = {
+	WORLD_EXTENTS_X = template_mapX
+	WORLD_EXTENTS_Y = 24					#This determines the max height of the world. Original settings = 25.5
+	WORLD_EXTENTS_Z = template_mapY
+	WATERLEVEL = 1.74						#Original Settings 3.7
+}
