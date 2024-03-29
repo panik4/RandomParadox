@@ -183,6 +183,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         showClimateOverview(cfg, *activeModule->generator, &curtexture);
         showDensityTab(cfg, *activeModule->generator, &curtexture);
         showAreasTab(cfg, *activeModule->generator);
+        showCivilizationTab(cfg, *activeModule->generator);
         showScenarioTab(cfg, activeModule);
         if (!configuredScenarioGen) {
           ImGui::BeginDisabled();
@@ -214,14 +215,16 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         auto scale =
             std::min<float>((ImGui::GetContentRegionAvail().y) / h,
                             (ImGui::GetContentRegionAvail().x) * modif / w);
-        if (curtexture != nullptr) {
+        if (curtexture != nullptr &&
+            uiUtils->actTxs[0] != UIUtils::ActiveTexture::NONE) {
           ImGui::Image((void *)curtexture, ImVec2(w * scale, h * scale));
         }
         // images are less wide, on a usual 16x9 monitor, it is better to place
         // them besides each other
         if (aspectRatio <= 2.0)
           ImGui::SameLine();
-        if (secondaryTexture != nullptr) {
+        if (secondaryTexture != nullptr &&
+            uiUtils->actTxs[0] != UIUtils::ActiveTexture::NONE) {
           ImGui::Image((void *)secondaryTexture, ImVec2(w * scale, h * scale));
         }
       }
