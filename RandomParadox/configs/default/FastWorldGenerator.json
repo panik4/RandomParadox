@@ -42,8 +42,8 @@
 	},
 	"map": 
 	{
-		"width" : 512,
-		"height" : 512,
+		"width" : 5632,
+		"height" : 2048,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -100,7 +100,7 @@
 					"fractalType" : 1,
 					"landLayer" : false,
 					"seaLayer" : false,
-					"fractalFrequency" : 0.7,
+					"fractalFrequency" : 5,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
 					"seed" : 0,
@@ -109,7 +109,7 @@
 					"weight" : 0.5,
 					"altitudeWeightStart" : 0.0,
 					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 5,
+					"maxHeight" : 25,
 					"minHeight" : 0,
 					"tanFactor": 0.0
 				},
@@ -119,7 +119,7 @@
 					"fractalType" : 1,
 					"landLayer" : false,
 					"seaLayer" : false,
-					"fractalFrequency" : 2,
+					"fractalFrequency" : 5,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
 					"seed" : 0,
@@ -128,7 +128,7 @@
 					"weight" : 0.5,
 					"altitudeWeightStart" : 0.0,
 					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 5,
+					"maxHeight" : 25,
 					"minHeight" : 0,
 					"tanFactor": 0.0
 				},
@@ -149,7 +149,7 @@
 					"altitudeWeightEnd" : 0.0,
 					"maxHeight" : 50,
 					"minHeight" : 0,
-					"tanFactor": 0.21
+					"tanFactor": 0.16
 				},
 				"4" :
 				{
