@@ -354,7 +354,7 @@ std::set<std::string> readTags(const std::string &inFolder) {
                                inFolder);
   std::set<std::string> tags;
   for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder}) {
-    std::string pathString = dir_entry.path().string();
+    std::string pathString = dir_entry.path().filename().string();
     if (pathString.find(".txt") == std::string::npos)
       continue;
     std::string tag = pathString.substr(0, 3);

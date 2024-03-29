@@ -101,9 +101,9 @@ void Generator::generateStateSpecifics() {
     double totalPopFactor = 0;
     for (const auto &gameProv : hoi4Region->gameProvinces) {
       totalDevFactor +=
-          gameProv->devFactor / (double)hoi4Region->gameProvinces.size();
+          gameProv->devFactor;
       totalPopFactor +=
-          gameProv->popFactor / (double)hoi4Region->gameProvinces.size();
+          gameProv->popFactor;
       totalStateArea += gameProv->baseProvince->pixels.size();
     }
     // state level is calculated from population and development
@@ -118,7 +118,7 @@ void Generator::generateStateSpecifics() {
     if (hoi4Region->totalPopulation < 0) {
       hoi4Region->totalPopulation =
           static_cast<int>(totalStateArea * 1250.0 * totalPopFactor *
-                           worldPopulationFactor * (1.0 / config.sizeFactor));
+                           worldPopulationFactor / config.sizeFactor);
     }
     worldPop += (long long)hoi4Region->totalPopulation;
 

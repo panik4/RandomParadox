@@ -180,9 +180,9 @@ void Generator::generateDevelopment() {
           state->development *
           ((double)state->populationFactor / (double)c->populationFactor);
     }
-    std::cout << c->developmentFactor << std::endl;
   }
-  Png::save(development, config.mapsPath + "world/developmentScenario.png");
+  if (config.debugLevel > 5)
+    Png::save(development, config.mapsPath + "world/developmentScenario.png");
 }
 void Generator::generateReligions() {
   auto &config = Fwg::Cfg::Values();
@@ -423,7 +423,6 @@ void Generator::loadCountries(const std::string &countryMapPath,
 
 // generate countries according to given ruleset for each game
 // TODO: rulesets, e.g. naming schemes? tags? country size?
-
 
 void Generator::generateStrategicRegions() {
   Fwg::Utils::Logging::logLine(

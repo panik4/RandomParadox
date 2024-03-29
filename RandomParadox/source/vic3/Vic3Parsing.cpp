@@ -430,27 +430,32 @@ void compatStratRegions(const std::string &inFolder, const std::string &outPath,
       "Vic3 Parser: Map: Generating compatibility Strategic Regions from ",
       inFolder);
   for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder}) {
-    std::string pathString = dir_entry.path().string();
-    if (pathString.find(".txt") == std::string::npos)
+    auto filePath = dir_entry.path();
+    std::string filename = filePath.filename().string();
+    if (filename.find(".txt") == std::string::npos)
       continue;
-    Fwg::Utils::Logging::logLine("Working with: ", pathString);
-    std::string filename =
-        pathString.substr(pathString.find_last_of("//") + 1,
-                          pathString.back() - pathString.find_last_of("//"));
-    Fwg::Utils::Logging::logLine("Determined filename: ", filename);
     std::string content = "";
-    auto lines = pU::getLines(pathString);
+    auto lines = pU::getLines(filePath.string());
     auto hexID = regions[0]->gameProvinces[0]->toHexString();
-    for (auto &line : lines) {
-      if (line.find("region_") != std::string::npos) {
-        content.append(line);
-        content.append("\n\tgraphical_culture = \"arabic\"\n");
-        content.append("\tcapital_province = " + hexID + "\n");
-        content.append("\tmap_color = { 0.5 0 0 }\n");
-        content.append("\tstates = { }\n");
-        content.append("}\n");
-      }
+    auto blocks = pU::Scenario::getOuterBlocks(lines);
+    for (auto &block : blocks) {
+      pU::Scenario::removeLines(block.content, "capital_province");
+      content.append(block.name + " = {\n");
+      content.append("\tcapital_province = " + hexID + "\n");
+      content.append(block.content);
+      std::cout << block.content << std::endl;
+      content.append("}\n");
     }
+    // for (auto &line : lines) {
+    //   if (line.find("region_") != std::string::npos) {
+    //     content.append(line);
+    //     content.append("\n\tgraphical_culture = \"arabic\"\n");
+    //     content.append("\tcapital_province = " + hexID + "\n");
+    //     content.append("\tmap_color = { 0.5 0 0 }\n");
+    //     content.append("\tstates = { }\n");
+    //     content.append("}\n");
+    //   }
+    // }
     pU::writeFile(outPath + filename, content, true);
   }
 }
@@ -512,7 +517,7 @@ void Scenario::Vic3::Parsing::History::writeBuildings(
   std::string allStateString;
   for (auto &region : regions) {
     if (region->sea)
-        continue;
+      continue;
     auto stateString = buildingsStateTemplate;
     pU::replaceOccurence(stateString, "templateStateName",
                          "STATE_" + region->name);
@@ -532,5 +537,5 @@ void Scenario::Vic3::Parsing::History::writeBuildings(
   }
   pU::replaceOccurence(buildingsTemplate, "templateStateBuildings",
                        allStateString);
-  pU::writeFile(path, buildingsTemplate);
+  pU::writeFile(path, buildingsTemplate, true);
 }

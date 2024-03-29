@@ -14,15 +14,12 @@ Country::getEligibleRegions(const std::string &resourceName) {
 
 void Country::evaluateTechLevel(
     const std::map<std::string, TechnologyLevel> &techLevels) {
-    std::cout << this->developmentFactor << std::endl;
   auto techLevel = std::clamp(1.0 + (1.0 - this->developmentFactor) * 6.0, 1.0, 7.0);
-  std::cout << techLevel << std::endl;
   this->techLevel = "effect_starting_technology_tier_" +
                     std::to_string((int)techLevel) + "_tech";
   for (const auto &tech : techLevels.at(this->techLevel).technologies) {
     this->techs[tech.name] = tech;
   }
-  std::cout << this->techs.size() << std::endl;
 }
 
 bool Country::hasTech(const std::string &techName) const {
