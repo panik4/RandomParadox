@@ -149,23 +149,23 @@ const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
       {100 + (int)ClimateTypeIndex::TROPICSMONSOON, 22},
       {200 + (int)ClimateTypeIndex::TROPICSMONSOON, 27},
       {300 + (int)ClimateTypeIndex::TROPICSMONSOON, 27},
-      {(int)ClimateTypeIndex::TROPICSSAVANNA, 0},
+      {(int)ClimateTypeIndex::TROPICSSAVANNA, 5},
       {100 + (int)ClimateTypeIndex::TROPICSSAVANNA, 18},
       {200 + (int)ClimateTypeIndex::TROPICSSAVANNA, 18},
       {300 + (int)ClimateTypeIndex::TROPICSSAVANNA, 27},
-      {(int)ClimateTypeIndex::DESERT, 3},
+      {(int)ClimateTypeIndex::DESERT, 7},
       {100 + (int)ClimateTypeIndex::DESERT, 8},
       {200 + (int)ClimateTypeIndex::DESERT, 10},
       {300 + (int)ClimateTypeIndex::DESERT, 31},
-      {(int)ClimateTypeIndex::COLDDESERT, 12},
+      {(int)ClimateTypeIndex::COLDDESERT, 3},
       {100 + (int)ClimateTypeIndex::COLDDESERT, 8},
       {200 + (int)ClimateTypeIndex::COLDDESERT, 19},
       {300 + (int)ClimateTypeIndex::COLDDESERT, 16},
-      {(int)ClimateTypeIndex::HOTSEMIARID, 0},
-      {100 + (int)ClimateTypeIndex::HOTSEMIARID, 18},
+      {(int)ClimateTypeIndex::HOTSEMIARID, 3},
+      {100 + (int)ClimateTypeIndex::HOTSEMIARID, 2},
       {200 + (int)ClimateTypeIndex::HOTSEMIARID, 19},
-      {300 + (int)ClimateTypeIndex::HOTSEMIARID, 11},
-      {(int)ClimateTypeIndex::COLDSEMIARID, 0},
+      {300 + (int)ClimateTypeIndex::HOTSEMIARID, 10},
+      {(int)ClimateTypeIndex::COLDSEMIARID, 12},
       {100 + (int)ClimateTypeIndex::COLDSEMIARID, 18},
       {200 + (int)ClimateTypeIndex::COLDSEMIARID, 19},
       {300 + (int)ClimateTypeIndex::COLDSEMIARID, 11},
@@ -173,11 +173,11 @@ const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
       {100 + (int)ClimateTypeIndex::TEMPERATEHOT, 2},
       {200 + (int)ClimateTypeIndex::TEMPERATEHOT, 20},
       {300 + (int)ClimateTypeIndex::TEMPERATEHOT, 16},
-      {(int)ClimateTypeIndex::TEMPERATEWARM, 0},
+      {(int)ClimateTypeIndex::TEMPERATEWARM, 4},
       {100 + (int)ClimateTypeIndex::TEMPERATEWARM, 2},
       {200 + (int)ClimateTypeIndex::TEMPERATEWARM, 20},
       {300 + (int)ClimateTypeIndex::TEMPERATEWARM, 16},
-      {(int)ClimateTypeIndex::TEMPERATECOLD, 0},
+      {(int)ClimateTypeIndex::TEMPERATECOLD, 17},
       {100 + (int)ClimateTypeIndex::TEMPERATECOLD, 2},
       {200 + (int)ClimateTypeIndex::TEMPERATECOLD, 16},
       {300 + (int)ClimateTypeIndex::TEMPERATECOLD, 16},
@@ -189,11 +189,11 @@ const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
       {100 + (int)ClimateTypeIndex::CONTINENTALWARM, 2},
       {200 + (int)ClimateTypeIndex::CONTINENTALWARM, 20},
       {300 + (int)ClimateTypeIndex::CONTINENTALWARM, 16},
-      {(int)ClimateTypeIndex::CONTINENTALCOLD, 17},
+      {(int)ClimateTypeIndex::CONTINENTALCOLD, 1},
       {100 + (int)ClimateTypeIndex::CONTINENTALCOLD, 2},
       {200 + (int)ClimateTypeIndex::CONTINENTALCOLD, 16},
       {300 + (int)ClimateTypeIndex::CONTINENTALCOLD, 16},
-      {(int)ClimateTypeIndex::POLARTUNDRA, 17},
+      {(int)ClimateTypeIndex::POLARTUNDRA, 0},
       {100 + (int)ClimateTypeIndex::POLARTUNDRA, 18},
       {200 + (int)ClimateTypeIndex::POLARTUNDRA, 16},
       {300 + (int)ClimateTypeIndex::POLARTUNDRA, 16},
@@ -213,21 +213,21 @@ const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
 
      }},
     {"treeterrainHoi4",
-     {{(int)TreeType::NONE, 0},
-      {(int)TreeType::BOREAL, 6},
-      {(int)TreeType::TEMPERATENEEDLE, 1},
-      {(int)TreeType::TEMPERATEMIXED, 4},
-      {(int)TreeType::SPARSE, 4},
-      {(int)TreeType::TROPICALDRY, 22},
-      {(int)TreeType::TROPICALMOIST, 21}}},
+     {{(int)TreeTypeIndex::NONE, 0},
+      {(int)TreeTypeIndex::BOREAL, 1},
+      {(int)TreeTypeIndex::TEMPERATENEEDLE, 1},
+      {(int)TreeTypeIndex::TEMPERATEMIXED, 4},
+      {(int)TreeTypeIndex::SPARSE, 4},
+      {(int)TreeTypeIndex::TROPICALDRY, 22},
+      {(int)TreeTypeIndex::TROPICALMOIST, 21}}},
     {"treesHoi4",
-     {{(int)TreeType::NONE, 0},
-      {(int)TreeType::BOREAL, 6},
-      {(int)TreeType::TEMPERATENEEDLE, 6},
-      {(int)TreeType::TEMPERATEMIXED, 5},
-      {(int)TreeType::SPARSE, 3},
-      {(int)TreeType::TROPICALDRY, 28},
-      {(int)TreeType::TROPICALMOIST, 29}}}
+     {{(int)TreeTypeIndex::NONE, 0},
+      {(int)TreeTypeIndex::BOREAL, 6},
+      {(int)TreeTypeIndex::TEMPERATENEEDLE, 6},
+      {(int)TreeTypeIndex::TEMPERATEMIXED, 5},
+      {(int)TreeTypeIndex::SPARSE, 3},
+      {(int)TreeTypeIndex::TROPICALDRY, 28},
+      {(int)TreeTypeIndex::TROPICALMOIST, 29}}}
 
 };
 
@@ -263,11 +263,11 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
     // need to scale to default vic3 map sizes, due to their compression
     int width = heightMap.width();
     int height = heightMap.height();
-    //std::vector<uint8_t> pixels(width * height * 4, 0);
-    //for (auto h = 0; h < height; h++) {
-    //  for (auto w = 0; w < width; w++) {
-    //    auto colourmapIndex = h * width + w;
-    //    const auto &c = heightMap[colourmapIndex];
+    // std::vector<uint8_t> pixels(width * height * 4, 0);
+    // for (auto h = 0; h < height; h++) {
+    //   for (auto w = 0; w < width; w++) {
+    //     auto colourmapIndex = h * width + w;
+    //     const auto &c = heightMap[colourmapIndex];
 
     //    auto imageIndex = 4 * (h * width + w);
     //    pixels[imageIndex] = c.getBlue();
@@ -292,7 +292,7 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
     //                                      scaledImg.GetPixels()[i + 2]));
     // }
     //  save the bmp as a png
-    auto h2 = Bmp::scale(heightMap, width*2, height*2, false);
+    auto h2 = Bmp::scale(heightMap, width * 2, height * 2, false);
     Png::save(h2, path + ".png", true, LCT_GREY, 8);
     heightMap = h2;
     // overwrite the current heightmap with the scaled one, for later packing
@@ -346,7 +346,7 @@ void FormatConverter::dump8BitTerrain(
           i, hoi4terrain.lookUp(indexMaps.at(colourMapKey + gameTag)
                                     .at(elevationMod + primaryClimateType)));
       auto treeType = (int)climateIn.treeCoverage[i];
-      if (treeType) {
+      if (treeType && climateIn.dominantForest[i]) {
         hoi4terrain.setColourAtIndex(
             i, hoi4terrain.lookUp(
                    indexMaps.at("tree" + colourMapKey + gameTag).at(treeType)));
@@ -431,10 +431,12 @@ void FormatConverter::dump8BitTrees(
             std::clamp((double)w * factor, 0.0, (double)Cfg::Values().width);
         auto treeType =
             (int)climateIn.treeCoverage[refHeight * width + refWidth];
-        // map the colour from
-        trees.setColourAtIndex(
-            i * trees.width() + w,
-            trees.lookUp(indexMaps.at(colourMapKey + gameTag).at(treeType)));
+        if (climateIn.dominantForest[refHeight * width + refWidth]) {
+          // map the colour from
+          trees.setColourAtIndex(
+              i * trees.width() + w,
+              trees.lookUp(indexMaps.at(colourMapKey + gameTag).at(treeType)));
+        }
       }
     }
   } else {

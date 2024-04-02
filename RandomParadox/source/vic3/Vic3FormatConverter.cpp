@@ -353,7 +353,7 @@ void FormatConverter::dynamicMasks(
   for (int i = 0; i < climateData.treeCoverage.size(); i++) {
     dynamicMask[i] = 0;
     auto val = climateData.treeCoverage[i];
-    if (val != Fwg::ClimateGeneration::Detail::TreeType::NONE)
+    if (val != Fwg::ClimateGeneration::Detail::TreeTypeIndex::NONE)
       dynamicMask[i] = 255.0;
   }
 
@@ -414,7 +414,7 @@ void FormatConverter::detailMaps(
     const std::string &path) {
   using Et = Fwg::ElevationTypeIndex;
   using Clt = Fwg::ClimateGeneration::Detail::ClimateTypeIndex;
-  using ft = Fwg::ClimateGeneration::Detail::TreeType;
+  using ft = Fwg::ClimateGeneration::Detail::TreeTypeIndex;
   std::map<Et, int> elevationMap{{Et::CLIFF, 16},      {Et::DEEPOCEAN, 6},
                                  {Et::HIGHLANDS, 18},  {Et::HILLS, 16},
                                  {Et::LOWHILLS, 13},   {Et::MOUNTAINS, 14},

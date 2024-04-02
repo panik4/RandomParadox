@@ -29,7 +29,7 @@ struct ResConfig {
   std::map<Fwg::ClimateGeneration::Detail::ClimateTypeIndex, double>
       climateEffects;
   bool considerTrees = false;
-  std::map<Fwg::ClimateGeneration::Detail::TreeType, double> treeEffects;
+  std::map<Fwg::ClimateGeneration::Detail::TreeTypeIndex, double> treeEffects;
   bool considerSea = false;
   double oceanFactor = 0.0;
   double lakeFactor = 0.0;
