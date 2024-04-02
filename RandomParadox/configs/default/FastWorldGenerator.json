@@ -42,8 +42,8 @@
 	},
 	"map": 
 	{
-		"width" : 5632,
-		"height" : 2048,
+		"width" :2816,
+		"height" : 1024,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -54,12 +54,12 @@
 		},
 		"trees" : 
 		{
-			"borealDensity" : 0.8,
-			"temperateNeedleDensity" : 0.65,
-			"temperateMixedDensity" : 0.5,
-			"sparseDensity" : 0.2,
-			"tropicalDryDensity" : 0.6,
-			"tropicalMoistDensity" : 0.8
+			"borealDensity" : 0.9,
+			"temperateNeedleDensity" : 0.6,
+			"temperateMixedDensity" : 0.75,
+			"sparseDensity" : 0.9,
+			"tropicalDryDensity" : 0.5,
+			"tropicalMoistDensity" : 0.55
 		},
 		"mountains" :
 		{
@@ -304,9 +304,9 @@
 			}
 		},
 		"humidity" : {
-			"latitudeLow" : 0.2,
-			"latitudeHigh" : 1.8,
-			"riverHumidityFactor" : 0.2,
+			"latitudeLow" : 0.3,
+			"latitudeHigh" : 1.7,
+			"riverHumidityFactor" : 0.1,
 			"riverEffectRangeFactor" : 0.3,
 			"baseHumidity": 1.0,
 			"baseTemperature": 1.0
