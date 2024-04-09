@@ -42,15 +42,15 @@
 	},
 	"map": 
 	{
-		"width" :2816,
-		"height" : 1024,
+		"width" :512,
+		"height" : 512,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
 		"sobelFactor": 4,
 		"rivers" : 
 		{
-			"riverFactor" : 1.0
+			"riverFactor" : 0.0
 		},
 		"trees" : 
 		{
@@ -166,7 +166,7 @@
 					"weight" : 0.8,
 					"altitudeWeightStart" : 0.0,
 					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 50,
+					"maxHeight" : 80,
 					"minHeight" : 0,
 					"tanFactor": 0.21
 				},
@@ -223,9 +223,9 @@
 					"weight" : 0.8,
 					"altitudeWeightStart" : 0.0,
 					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 59,
+					"maxHeight" : 150,
 					"minHeight" : 0,
-					"tanFactor": 0.21
+					"tanFactor": 0.22
 				},
 				"8" :
 				{
@@ -242,7 +242,7 @@
 					"weight" : 0.5,
 					"altitudeWeightStart" : 0.0,
 					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 15,
+					"maxHeight" : 5,
 					"minHeight" : 1,
 					"tanFactor": 0.0
 				},
@@ -259,11 +259,11 @@
 					"widthEdge" : 10,
 					"heightEdge" : 0,
 					"weight" : 1.0,
-					"altitudeWeightStart" : 0.5,
-					"altitudeWeightEnd" : 1.0,
-					"maxHeight" : 100,
+					"altitudeWeightStart" : 0.0,
+					"altitudeWeightEnd" : 0.0,
+					"maxHeight" : 80,
 					"minHeight" : 0,
-					"tanFactor": 0.2
+					"tanFactor": 0.21
 				},
 				"10" :
 				{
@@ -304,8 +304,8 @@
 			}
 		},
 		"humidity" : {
-			"latitudeLow" : 0.3,
-			"latitudeHigh" : 1.7,
+			"latitudeLow" : 1.1,
+			"latitudeHigh" : 1.4,
 			"riverHumidityFactor" : 0.1,
 			"riverEffectRangeFactor" : 0.3,
 			"baseHumidity": 1.0,
