@@ -113,7 +113,7 @@ void Generator::generateStateSpecifics() {
     if (hoi4Region->gameProvinces.size() == 1) {
       hoi4Region->stateCategory = 1;
     }
-    hoi4Region->development = totalDevFactor;
+    hoi4Region->development = totalDevFactor / hoi4Region->provinces.size();
     // only init this when it hasn't been initialized via text input before
     if (hoi4Region->totalPopulation < 0) {
       hoi4Region->totalPopulation =

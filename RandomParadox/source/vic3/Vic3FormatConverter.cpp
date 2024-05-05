@@ -487,8 +487,8 @@ void FormatConverter::detailMaps(
     std::array<float, 3> intensities;
 
     for (auto chanceIndex = 0; chanceIndex < 3; chanceIndex++) {
-      auto type = climateData.climates[i].chances[chanceIndex].second;
-      auto intensity = climateData.climates[i].chances[chanceIndex].first *
+      auto type = climateData.climates[i].getChances(chanceIndex).second;
+      auto intensity = climateData.climates[i].getChances(chanceIndex).first *
                        (1.0 / pow(2.0, (double)chanceIndex));
       auto mappedType = climateMap.at(type);
       colour[chanceIndex] = mappedType;

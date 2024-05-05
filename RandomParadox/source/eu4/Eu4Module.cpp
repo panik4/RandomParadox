@@ -131,7 +131,7 @@ void Module::generate() {
     formatConverter.dump8BitTerrain(eu4Gen->climateData, eu4Gen->civLayer,
                                     pathcfg.gameModPath + "//map//terrain.bmp",
                                     "terrain", cut);
-    formatConverter.dump8BitRivers(eu4Gen->riverMap,
+    formatConverter.dump8BitRivers(eu4Gen->climateData,
                                    pathcfg.gameModPath + "//map//rivers.bmp",
                                    "rivers", cut);
     formatConverter.dump8BitTrees(eu4Gen->climateData,

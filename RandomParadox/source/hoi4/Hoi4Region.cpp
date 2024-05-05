@@ -103,7 +103,7 @@ Scenario::Utils::Building getBuilding(const std::string &type,
 
 void Region::calculateBuildingPositions(const Fwg::Gfx::Bitmap &heightmap,
                                         const Fwg::Gfx::Bitmap &typeMap) {
-  if (this->sea)
+  if (this->sea || this->lake)
     return;
   bool coastal = false;
   for (const auto &prov : provinces) {

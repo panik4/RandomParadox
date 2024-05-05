@@ -14,12 +14,6 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   // try to assemble a region map for loading for fwg
   if (config.cut && config.loadRegions) {
     readHoi(pathcfg.gamePath);
-    auto regionMap =
-        Scenario::Hoi4::MapPainting::States::Detail::createStateBitmap(
-            *hoi4Gen,
-            Fwg::Gfx::Bmp::load24Bit(config.loadMapsPath + "//provinces.bmp",
-                                     "provinces"));
-    Fwg::Gfx::Bmp::save(regionMap, config.loadMapsPath + "//regions.bmp");
     // plenty of cleanup work has to be done after reading.
     hoi4Gen->areas.regions.clear();
     hoi4Gen->areas.provinces.clear();
@@ -226,7 +220,7 @@ void Hoi4Module::writeImages() {
                                  pathcfg.gameModPath + "//map//cities.bmp",
                                  "cities", cut);
   formatConverter.dump8BitRivers(
-      hoi4Gen->riverMap, pathcfg.gameModPath + "//map//rivers", "rivers", cut);
+      hoi4Gen->climateData, pathcfg.gameModPath + "//map//rivers", "rivers", cut);
   formatConverter.dump8BitTrees(hoi4Gen->climateData,
                                 pathcfg.gameModPath + "//map//trees.bmp",
                                 "trees", false);
@@ -303,30 +297,6 @@ void Hoi4Module::readHoi(std::string &gamePath) {
   Hoi4::Parsing::Reading::readWeatherPositions(pathcfg.gamePath,
                                                hoi4Gen->hoi4States);
   config.cut = bufferedCut;
-}
-void Hoi4Module::mapEdit() {
-  // prepare folder structure
-  using namespace std::filesystem;
-  try {
-    // remove_all(pathcfg.gameModPath);
-    create_directory(pathcfg.gameModPath);
-    // history
-    create_directory(pathcfg.gameModPath + "//history//");
-    create_directory(pathcfg.gameModPath + "//history//states//");
-    // map
-    create_directory(pathcfg.gameModPath + "//map//");
-    // common
-    create_directory(pathcfg.gameModPath + "//common//");
-  } catch (std::exception e) {
-    std::string error =
-        "Configured paths seem to be messed up, check Hoi4Module.json\n";
-    error += "You can try fixing it yourself. Error is:\n ";
-    error += e.what();
-    throw(std::exception(error.c_str()));
-  }
-  Gfx::FormatConverter formatConverter(pathcfg.gamePath, "Hoi4");
-  Scenario::Hoi4::MapPainting::runMapEditor(
-      *hoi4Gen, pathcfg.mappingPath, pathcfg.gameModPath, formatConverter);
 }
 
 void Hoi4Module::generate() {

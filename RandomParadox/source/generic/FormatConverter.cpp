@@ -227,9 +227,33 @@ const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
       {(int)TreeTypeIndex::TEMPERATEMIXED, 5},
       {(int)TreeTypeIndex::SPARSE, 3},
       {(int)TreeTypeIndex::TROPICALDRY, 28},
+      {(int)TreeTypeIndex::TROPICALMOIST, 29}}},
+    {"riversHoi4",
+     {{(int)0, 0},
+      {(int)1, 6},
+      {(int)2, 6},
+      {(int)TreeTypeIndex::TEMPERATEMIXED, 5},
+      {(int)TreeTypeIndex::SPARSE, 3},
+      {(int)TreeTypeIndex::TROPICALDRY, 28},
       {(int)TreeTypeIndex::TROPICALMOIST, 29}}}
 
 };
+
+//{"riversHoi4",
+// {{Cfg::Values().colours["land"], 255},
+//  {Cfg::Values().colours["river"], 3},
+//  {Cfg::Values().colours["river"] * 0.9, 3},
+//  {Cfg::Values().colours["river"] * 0.8, 6},
+//  {Cfg::Values().colours["river"] * 0.7, 6},
+//  {Cfg::Values().colours["river"] * 0.6, 10},
+//  {Cfg::Values().colours["river"] * 0.5, 11},
+//  {Cfg::Values().colours["river"] * 0.3, 11},
+//  {Cfg::Values().colours["river"] * 0.2, 11},
+//  {Cfg::Values().colours["river"] * 0.1, 11},
+//  {Cfg::Values().colours["sea"], 254},
+//  {Cfg::Values().colours["riverStart"], 0},
+//  {Cfg::Values().colours["riverStartTributary"], 3},
+//  {Cfg::Values().colours["riverEnd"], 1}}},
 
 void FormatConverter::writeBufferPixels(std::vector<unsigned char> &pixels,
                                         int index, Fwg::Gfx::Colour &colour,
@@ -263,47 +287,15 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
     // need to scale to default vic3 map sizes, due to their compression
     int width = heightMap.width();
     int height = heightMap.height();
-    // std::vector<uint8_t> pixels(width * height * 4, 0);
-    // for (auto h = 0; h < height; h++) {
-    //   for (auto w = 0; w < width; w++) {
-    //     auto colourmapIndex = h * width + w;
-    //     const auto &c = heightMap[colourmapIndex];
-
-    //    auto imageIndex = 4 * (h * width + w);
-    //    pixels[imageIndex] = c.getBlue();
-    //    pixels[imageIndex + 1] = c.getGreen();
-    //    pixels[imageIndex + 2] = c.getRed();
-    //    pixels[imageIndex + 3] = 255;
-    //  }
-    //}
-    // DirectX::Image image(width, height,
-    // DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM,
-    //                      sizeof(uint8_t) * width * 4,
-    //                      sizeof(uint8_t) * width * height, pixels.data());
-    //// resize the image to the full vic3 resolution
-    // DirectX::ScratchImage scaledImg;
-    // DirectX::Resize(image, 16384, 7232, DirectX::TEX_FILTER_FORCE_NON_WIC,
-    //                 scaledImg);
-    // auto scaledMap = Bitmap(16384, 7232, 24);
-    //// write it to a BMP
-    // for (int i = 0; i < 16384 * 7232 * 4; i += 4) {
-    //   scaledMap.setColourAtIndex(i / 4, (scaledImg.GetPixels()[i],
-    //                                      scaledImg.GetPixels()[i + 1],
-    //                                      scaledImg.GetPixels()[i + 2]));
-    // }
     //  save the bmp as a png
     auto h2 = Bmp::scale(heightMap, width * 2, height * 2, false);
     Png::save(h2, path + ".png", true, LCT_GREY, 8);
     heightMap = h2;
-    // overwrite the current heightmap with the scaled one, for later packing
-    // heightMap = scaledMap;
-    // heightMap.gaussianFilter(25, 3);
   } else {
     Bitmap outputMap(Cfg::Values().width, Cfg::Values().height, 8);
     outputMap.colourtable = colourTables.at(colourMapKey + gameTag);
     // now map from 24 bit climate map
     for (int i = 0; i < Cfg::Values().bitmapSize; i++)
-      //  outputMap.bit8Buffer[i] = heightMap[i].getRed();
       outputMap.setColourAtIndex(i, outputMap.lookUp(heightMap[i].getRed()));
 
     Bmp::save8bit(outputMap, path + ".bmp");
@@ -341,7 +333,7 @@ void FormatConverter::dump8BitTerrain(
         elevationMod = 100;
       }
 
-      auto primaryClimateType = (int)climateIn.climates[i].chances[0].second;
+      auto primaryClimateType = (int)climateIn.climates[i].getChances(0).second;
       hoi4terrain.setColourAtIndex(
           i, hoi4terrain.lookUp(indexMaps.at(colourMapKey + gameTag)
                                     .at(elevationMod + primaryClimateType)));
@@ -383,32 +375,43 @@ void FormatConverter::dump8BitCities(const Bitmap &climateIn,
   Bmp::save8bit(cities, path);
 }
 
-void FormatConverter::dump8BitRivers(const Bitmap &riversIn,
-                                     const std::string &path,
-                                     const std::string &colourMapKey,
-                                     const bool cut) const {
+void FormatConverter::dump8BitRivers(
+    const Fwg::ClimateGeneration::ClimateData &climateIn,
+    const std::string &path, const std::string &colourMapKey,
+    const bool cut) const {
   Utils::Logging::logLine("FormatConverter::Writing rivers to ", path);
 
-  Bitmap rivers(Cfg::Values().width, Cfg::Values().height, 8);
-  rivers.colourtable = colourTables.at(colourMapKey + gameTag);
+  Bitmap riverMap(Cfg::Values().width, Cfg::Values().height, 8);
+  riverMap.colourtable = colourTables.at(colourMapKey + gameTag);
   if (!cut) {
-    for (int i = 0; i < Cfg::Values().bitmapSize; i++)
-      try {
-        rivers.setColourAtIndex(
-            i, rivers.lookUp(
-                   colourMaps.at(colourMapKey + gameTag).at(riversIn[i])));
-      } catch (std::exception e) {
-        Utils::Logging::logLine("Error at index ", i, " colour", riversIn[i],
-                                e.what());
+    for (auto i = 0; i < riverMap.size(); i++) {
+      if (climateIn.landForms[i].altitude > 0.0) {
+        riverMap.setColourAtIndex(i, riverMap.lookUp(255));
+      } else {
+        riverMap.setColourAtIndex(i, riverMap.lookUp(254));
       }
+    }
+    for (auto &river : climateIn.rivers) {
+      for (int i = 0; i < river.pixels.size(); i++) {
+        riverMap.setColourAtIndex(
+            river.pixels[i],
+            riverMap.lookUp(3 + static_cast<int>(river.getWeight(i) * 8.0)));
+      }
+
+      if (!river.isTributaryRiver()) {
+        riverMap.setColourAtIndex(river.getSource(), riverMap.lookUp(0));
+      } else {
+        riverMap.setColourAtIndex(river.getCurrentEnd(), riverMap.lookUp(1));
+      }
+    }
   } else {
-    rivers = cutBaseMap("//rivers.bmp");
+    riverMap = cutBaseMap("//rivers.bmp");
   }
   if (gameTag == "Vic3") {
-    auto scaledMap = Bmp::scale(rivers, 8192, 3616, false);
+    auto scaledMap = Bmp::scale(riverMap, 8192, 3616, false);
     Png::save(scaledMap, path + ".png");
   } else {
-    Bmp::save8bit(rivers, path + ".bmp");
+    Bmp::save8bit(riverMap, path + ".bmp");
   }
 }
 

@@ -175,13 +175,12 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
           ImGui::BeginDisabled();
         showHeightmapTab(cfg, *activeModule->generator, &curtexture);
         showLandTab(cfg, *activeModule->generator);
-        // showTerrainTab(cfg, *activeModule->generator, &curtexture);
-        showBordersTab(cfg, *activeModule->generator);
         showNormalMapTab(cfg, *activeModule->generator, &curtexture);
         showContinentTab(cfg, *activeModule->generator, &curtexture);
         showClimateInputTab(cfg, *activeModule->generator, &curtexture);
         showClimateOverview(cfg, *activeModule->generator, &curtexture);
         showDensityTab(cfg, *activeModule->generator, &curtexture);
+        showBordersTab(cfg, *activeModule->generator);
         showAreasTab(cfg, *activeModule->generator);
         showCivilizationTab(cfg, *activeModule->generator);
         showScenarioTab(cfg, activeModule);
