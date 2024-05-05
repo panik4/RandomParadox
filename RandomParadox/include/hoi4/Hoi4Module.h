@@ -3,7 +3,6 @@
 #include "generic/FormatConverter.h"
 #include "generic/GenericModule.h"
 #include "hoi4/Hoi4Generator.h"
-#include "hoi4/Hoi4MapPainting.h"
 #include "hoi4/Hoi4Parsing.h"
 #include "hoi4/NationalFocus.h"
 #include <boost/property_tree/json_parser.hpp>

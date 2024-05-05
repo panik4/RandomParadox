@@ -40,7 +40,8 @@ public:
   void dump8BitCities(const Fwg::Gfx::Bitmap &climateIn,
                       const std::string &path, const std::string &colourMapKey,
                       const bool cut = false) const;
-  void dump8BitRivers(const Fwg::Gfx::Bitmap &riversIn, const std::string &path,
+  void dump8BitRivers(const Fwg::ClimateGeneration::ClimateData &climateIn,
+                      const std::string &path,
                       const std::string &colourMapKey,
                       const bool cut = false) const;
   void dump8BitTrees(const Fwg::ClimateGeneration::ClimateData &climateIn,
