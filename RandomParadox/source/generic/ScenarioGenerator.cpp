@@ -482,11 +482,23 @@ Bitmap Generator::dumpDebugCountrymap(const std::string &path) {
   Logging::logLine("Drawing borders");
   auto &config = Fwg::Cfg::Values();
   Bitmap countryBMP(config.width, config.height, 24);
-  for (const auto &country : countries)
-    for (const auto &region : country.second->ownedRegions)
-      for (const auto &prov : region->provinces)
-        for (const auto &pix : prov->pixels)
-          countryBMP.setColourAtIndex(pix, country.second->colour);
+  for (const auto &country : countries) {
+    auto countryColour = country.second->colour;
+    for (const auto &region : country.second->ownedRegions) {
+      for (const auto &prov : region->provinces) {
+        for (const auto &pix : prov->pixels) {
+          countryBMP.setColourAtIndex(pix, countryColour);
+        }
+        for (auto &pix : prov->borderPixels) {
+          countryBMP.setColourAtIndex(pix, countryColour * 0.5);
+        }
+      }
+      std::cout << region->borderPixels.size() << std::endl;
+      for (auto &pix : region->borderPixels) {
+        countryBMP.setColourAtIndex(pix, countryColour * 0.0);
+      }
+    }
+  }
 
   Png::save(countryBMP, (path).c_str());
   return countryBMP;
