@@ -208,15 +208,24 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
 
         ImGui::EndTabBar();
       }
+
+      // Handle zooming
+      if (io.KeyCtrl) {
+        zoom += io.MouseWheel * 0.1f;
+      }
       float modif = 1.0 - (secondaryTexture != nullptr) * 0.5;
       if (w > 0 && h > 0) {
         float aspectRatio = (float)w / (float)h;
         auto scale =
             std::min<float>((ImGui::GetContentRegionAvail().y) / h,
                             (ImGui::GetContentRegionAvail().x) * modif / w);
+        auto texWidth = w * scale;
+        auto texHeight = h * scale;
         if (curtexture != nullptr &&
             uiUtils->actTxs[0] != UIUtils::ActiveTexture::NONE) {
-          ImGui::Image((void *)curtexture, ImVec2(w * scale, h * scale));
+          ImGui::Image((void *)curtexture,
+                       ImVec2(texWidth * zoom, texHeight * zoom));
+          imageClick(scale);
         }
         // images are less wide, on a usual 16x9 monitor, it is better to place
         // them besides each other
@@ -655,8 +664,10 @@ int GUI::showModuleGeneric(
   return 0;
 }
 int GUI::showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
+
   if (ImGui::BeginTabItem("States")) {
     uiUtils->tabSwitchEvent();
+    uiUtils->activeImage = &generator->countryMap;
     ImGui::Text("In this tab, edit the states. You can NOT drag in an image "
                 "here, nothing happens. If you want to input a state image, "
                 "use the region tab!");
@@ -681,9 +692,21 @@ int GUI::showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
     for (auto &state : generator->hoi4States) {
       items.push_back(state->name.c_str());
     }
+    if (clickEvents.size()) {
+      auto pix = clickEvents.front();
+      clickEvents.pop();
+      const auto &colour = generator->provinceMap[pix];
+      std::cout << colour << std::endl;
+      if (generator->areas.provinceColourMap.find(colour)) {
+        const auto &prov = generator->areas.provinceColourMap[colour];
+        auto &state = generator->hoi4States[prov->regionID];
+        selectedStateIndex = state->ID;
+      }
+    }
     if (generator->hoi4States.size()) {
       ImGui::ListBox("Select State", &selectedStateIndex, items.data(),
                      items.size(), 4);
+
       auto &modifiableState = generator->hoi4States[selectedStateIndex];
       ImGui::InputText("State name", &modifiableState->name);
       ImGui::InputText("State owner", &modifiableState->owner);
@@ -693,6 +716,8 @@ int GUI::showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
       ImGui::InputInt("Naval Industry", &modifiableState->dockyards);
       ImGui::InputInt("State Category", &modifiableState->stateCategory);
     }
+    uiUtils->switchTexture(generator->countryMap, &curtexture, 0,
+                           UIUtils::ActiveTexture::REGIONS, g_pd3dDevice, w, h);
 
     ImGui::EndTabItem();
     ImGui::PopItemWidth();
