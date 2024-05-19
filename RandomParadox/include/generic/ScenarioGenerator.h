@@ -162,8 +162,7 @@ public:
           if (!gameRegion->sea && !gameRegion->assigned) {
             auto gR = Fwg::Utils::getNearestAssignedLand(
                 gameRegions, gameRegion, config.width, config.height);
-            countries.at(gR->owner)->addRegion(gameRegion, gameRegions,
-                                               gameProvinces);
+            countries.at(gR->owner)->addRegion(gameRegion);
           }
         }
       }

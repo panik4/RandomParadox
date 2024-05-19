@@ -63,7 +63,6 @@ class GUI : Fwg::fwgUI {
   int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
   int showModuleGeneric(Fwg::Cfg &cfg,
                         std::shared_ptr<Scenario::GenericModule> genericModule);
-  int showStateTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
   int showStrategicRegionTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
   int showHoi4Finalise(Fwg::Cfg &cfg,
                        std::shared_ptr<Scenario::Hoi4::Hoi4Module> hoi4Module);
