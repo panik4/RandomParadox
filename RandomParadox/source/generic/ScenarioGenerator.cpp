@@ -401,7 +401,7 @@ void Generator::loadCountries(const std::string &countryMapPath,
                     Gfx::Flag(82, 52));
       pdoxC.colour = colour;
       for (auto &region : entry.second) {
-        pdoxC.addRegion(region, gameRegions, gameProvinces);
+        pdoxC.addRegion(region);
       }
       countries.emplace(pdoxC.tag, std::make_shared<Country>(pdoxC));
       nData.tags.insert(pdoxC.tag);
@@ -413,7 +413,7 @@ void Generator::loadCountries(const std::string &countryMapPath,
                     Gfx::Flag(82, 52));
       pdoxC.colour = mapOfRegions.getKeyColour(entry.first);
       for (auto &region : entry.second) {
-        pdoxC.addRegion(region, gameRegions, gameProvinces);
+        pdoxC.addRegion(region);
       }
       countries.emplace(pdoxC.tag, std::make_shared<Country>(pdoxC));
       nData.tags.insert(pdoxC.tag);
@@ -482,21 +482,23 @@ Bitmap Generator::dumpDebugCountrymap(const std::string &path) {
   Logging::logLine("Drawing borders");
   auto &config = Fwg::Cfg::Values();
   Bitmap countryBMP(config.width, config.height, 24);
-  for (const auto &country : countries) {
-    auto countryColour = country.second->colour;
-    for (const auto &region : country.second->ownedRegions) {
-      for (const auto &prov : region->provinces) {
-        for (const auto &pix : prov->pixels) {
-          countryBMP.setColourAtIndex(pix, countryColour);
-        }
-        for (auto &pix : prov->borderPixels) {
-          countryBMP.setColourAtIndex(pix, countryColour * 0.5);
-        }
+
+  for (const auto &region : gameRegions) {
+    auto countryColour = Fwg::Gfx::Colour(128, 128, 128);
+    // if this tag is assigned, use the colour
+    if (region->owner.size()) {
+      countryColour = countries.at(region->owner)->colour;
+    }
+    for (const auto &prov : region->provinces) {
+      for (const auto &pix : prov->pixels) {
+        countryBMP.setColourAtIndex(pix, countryColour);
       }
-      std::cout << region->borderPixels.size() << std::endl;
-      for (auto &pix : region->borderPixels) {
-        countryBMP.setColourAtIndex(pix, countryColour * 0.0);
+      for (auto &pix : prov->borderPixels) {
+        countryBMP.setColourAtIndex(pix, countryColour * 0.5);
       }
+    }
+    for (auto &pix : region->borderPixels) {
+      countryBMP.setColourAtIndex(pix, countryColour * 0.0);
     }
   }
 

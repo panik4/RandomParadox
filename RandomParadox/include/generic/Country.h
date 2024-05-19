@@ -24,7 +24,7 @@ public:
   // constructors/destructors
   Country();
   Country(std::string tag, int ID, std::string name, std::string adjective,
-              Gfx::Flag flag);
+          Gfx::Flag flag);
   ~Country();
   // containers
   std::vector<std::shared_ptr<Region>> ownedRegions;
@@ -34,9 +34,7 @@ public:
                      std::vector<std::shared_ptr<Region>> &gameRegions,
                      std::shared_ptr<Region> startRegion,
                      std::vector<std::shared_ptr<GameProvince>> &gameProvinces);
-  void addRegion(std::shared_ptr<Region> region,
-                 std::vector<std::shared_ptr<Region>> &gameRegions,
-                 std::vector<std::shared_ptr<GameProvince>> &gameProvinces);
+  void addRegion(std::shared_ptr<Region> region);
   // operators
   bool operator<(const Country &right) const { return ID < right.ID; };
 };
