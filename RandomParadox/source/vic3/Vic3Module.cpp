@@ -128,7 +128,8 @@ void Module::generate() {
   vic3Gen->generateCountries<Vic3::Country>();
   vic3Gen->evaluateNeighbours();
   vic3Gen->generateWorldCivilizations();
-  vic3Gen->dumpDebugCountrymap(Cfg::Values().mapsPath + "countries.png");
+  vic3Gen->dumpDebugCountrymap(Cfg::Values().mapsPath + "countries.png",
+                               generator->countryMap);
   // Vic3 specifics:
   vic3Gen->distributePops();
   vic3Gen->distributeResources();

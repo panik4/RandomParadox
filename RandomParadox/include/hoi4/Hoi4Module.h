@@ -30,6 +30,7 @@ public:
   void mapCountries(bool multiCore, bool stateExport,
                     const std::string &inputMap);
   void mapEdit();
+  //void modEdit(std::string &path);
   void writeTextFiles();
   void writeImages();
   // clear and create all the mod paths at each run
