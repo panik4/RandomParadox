@@ -158,6 +158,20 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
 
 void Hoi4Module::prepareData() {}
 
+//void Hoi4Module::modEdit(std::string &path) {
+//  auto &config = Fwg::Cfg::Values();
+//  path.append("//");
+//  hoi4Gen->heightMap = Fwg::IO::Reader::readGenericImage(
+//      path + "map//heightmap.bmp", Fwg::Cfg::Values());
+//  if (hoi4Gen->heightMap.initialised()) {
+//    hoi4Gen->genSobelMap(config);
+//    hoi4Gen->genLand();
+//    hoi4Gen->genLand();
+//    hoi4Gen->genHumidity(config);
+//    hoi4Gen->loadClimate(path + "map//terrain.bmp");
+//  }
+//}
+
 void Hoi4Module::writeTextFiles() {
   using namespace Parsing::Writing;
   ambientObjects(pathcfg.gameModPath + "//map//ambient_object.txt",
@@ -219,8 +233,9 @@ void Hoi4Module::writeImages() {
   formatConverter.dump8BitCities(hoi4Gen->climateMap,
                                  pathcfg.gameModPath + "//map//cities.bmp",
                                  "cities", cut);
-  formatConverter.dump8BitRivers(
-      hoi4Gen->climateData, pathcfg.gameModPath + "//map//rivers", "rivers", cut);
+  formatConverter.dump8BitRivers(hoi4Gen->climateData,
+                                 pathcfg.gameModPath + "//map//rivers",
+                                 "rivers", cut);
   formatConverter.dump8BitTrees(hoi4Gen->climateData,
                                 pathcfg.gameModPath + "//map//trees.bmp",
                                 "trees", false);
@@ -280,8 +295,8 @@ void Hoi4Module::readHoi(std::string &gamePath) {
       do {
         // generate random colour as long as we have a duplicate
         c.second->colour = Fwg::Gfx::Colour(RandNum::getRandom(1, 254),
-                                           RandNum::getRandom(1, 254),
-                                           RandNum::getRandom(1, 254));
+                                            RandNum::getRandom(1, 254),
+                                            RandNum::getRandom(1, 254));
       } while (hoi4Gen->countryColourMap.find(c.second->colour));
       hoi4Gen->countryColourMap.setValue(c.second->colour, c.first);
     }

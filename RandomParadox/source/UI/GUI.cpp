@@ -43,6 +43,7 @@ GUI::GUI() : fwgUI() {}
 
 int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                const std::string &username) {
+
   //  Create application window
   //  ImGui_ImplWin32_EnableDpiAwareness();
   WNDCLASSEXW wc = {sizeof(wc),
@@ -57,6 +58,21 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                     nullptr,
                     L"RandomParadox",
                     nullptr};
+  HICON hIcon = (HICON)LoadImage(NULL, "resources//worldMap.ico", IMAGE_ICON, 0,
+                                 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+  if (hIcon) {
+    // Icon loaded successfully, set it to the window class
+    wc.hIcon = hIcon;
+  } else {
+    // Icon failed to load, handle error
+    DWORD error = GetLastError();
+    // handle error...
+  }
+
+  HWND consoleWindow = GetConsoleWindow();
+
+  SendMessage(consoleWindow, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+  SendMessage(consoleWindow, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
   ::RegisterClassExW(&wc);
   HWND hwnd =
       uiUtils->createAndConfigureWindow(wc, wc.lpszClassName, L"RandomParadox");
@@ -122,7 +138,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         for (UINT i = 0; i < count; ++i) {
           if (DragQueryFileA(hDrop, i, filename, MAX_PATH)) {
             files.push_back(filename);
-            Fwg::Utils::Logging::logLine("Loaded file ", filename);
+            //Fwg::Utils::Logging::logLine("Loaded file ", filename);
           }
         }
         draggedFile = files.back();
@@ -173,6 +189,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         showConfigure(cfg, activeModule);
         if (!validatedPaths)
           ImGui::BeginDisabled();
+        // showModLoader(cfg, activeModule);
         showHeightmapTab(cfg, *activeModule->generator, &curtexture);
         showLandTab(cfg, *activeModule->generator);
         showNormalMapTab(cfg, *activeModule->generator, &curtexture);
@@ -187,7 +204,6 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         if (!configuredScenarioGen) {
           ImGui::BeginDisabled();
         }
-        showDevelopmentTab(cfg);
         showCountryTab(cfg, &curtexture);
         if (activeGameConfig.gameName == "Hearts of Iron IV") {
           auto hoi4Gen =
@@ -207,11 +223,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
 
         ImGui::EndTabBar();
       }
+      static ImVec2 cursorPos;
 
-      // Handle zooming
-      if (io.KeyCtrl) {
-        zoom += io.MouseWheel * 0.1f;
-      }
       float modif = 1.0 - (secondaryTexture != nullptr) * 0.5;
       if (w > 0 && h > 0) {
         float aspectRatio = (float)w / (float)h;
@@ -220,12 +233,52 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                             (ImGui::GetContentRegionAvail().x) * modif / w);
         auto texWidth = w * scale;
         auto texHeight = h * scale;
+
+        // Handle zooming
+        if (io.KeyCtrl) {
+          zoom += io.MouseWheel * 0.1f;
+        }
+
         if (curtexture != nullptr &&
             uiUtils->actTxs[0] != UIUtils::ActiveTexture::NONE) {
+          // Create a child window with scrollbars
+          ImGui::BeginChild("Image", ImVec2(texWidth, texHeight), false,
+                            ImGuiWindowFlags_HorizontalScrollbar |
+                                ImGuiWindowFlags_AlwaysVerticalScrollbar);
+
           ImGui::Image((void *)curtexture,
                        ImVec2(texWidth * zoom, texHeight * zoom));
-          imageClick(scale);
+          static auto delta = ImGui::GetIO().MouseDelta.x;
+
+          if (io.KeyCtrl && io.MouseWheel) {
+            // Get the mouse position relative to the image
+            ImVec2 mouse_pos = ImGui::GetMousePos();
+            ImVec2 image_pos = ImGui::GetItemRectMin();
+            auto itemsize = ImGui::GetItemRectSize();
+            ImVec2 mouse_pos_relative =
+                ImVec2(mouse_pos.x - image_pos.x, mouse_pos.y - image_pos.y);
+            // Calculate the pixel position in the texture
+            float pixel_x = ((mouse_pos_relative.x / itemsize.x));
+            float pixel_y = ((mouse_pos_relative.y / itemsize.y));
+            ImGui::SetScrollHereY(std::clamp(pixel_y, 0.0f, 1.0f));
+            ImGui::SetScrollHereX(std::clamp(pixel_x, 0.0f, 1.0f));
+          }
+
+          // Handle dragging
+          if (io.KeyCtrl && ImGui::IsMouseDragging(0, 0.0f)) {
+            ImVec2 drag_delta = ImGui::GetMouseDragDelta(0, 0.0f);
+            ImGui::ResetMouseDragDelta(0);
+            ImGui::SetScrollX(ImGui::GetScrollX() - drag_delta.x);
+            ImGui::SetScrollY(ImGui::GetScrollY() - drag_delta.y);
+          }
+          if (!io.KeyCtrl) {
+            uiUtils->imageClick(scale, io);
+          }
+
+          // End the child window
+          ImGui::EndChild();
         }
+
         // images are less wide, on a usual 16x9 monitor, it is better to place
         // them besides each other
         if (aspectRatio <= 2.0)
@@ -411,6 +464,21 @@ int GUI::showRpdxConfigure(
   return 0;
 }
 
+void GUI::showModLoader(
+    Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> &genericModule) {
+  if (ImGui::BeginTabItem("Modloader")) {
+    if (triggeredDrag) {
+      auto hoi4Module =
+          std::reinterpret_pointer_cast<Scenario::Hoi4::Hoi4Module,
+                                        Scenario::GenericModule>(genericModule);
+      //hoi4Module->modEdit(draggedFile);
+      triggeredDrag = false;
+      uiUtils->resetTexture();
+    }
+    ImGui::EndTabItem();
+  }
+}
+
 bool GUI::scenarioGenReady() {
   return configuredScenarioGen && !redoRegions && !redoProvinces;
 }
@@ -465,49 +533,17 @@ int GUI::showScenarioTab(
   return retCode;
 }
 
-int GUI::showDevelopmentTab(Fwg::Cfg &cfg) {
-  if (ImGui::BeginTabItem("Development")) {
-    auto &fwg = activeModule->generator;
-    uiUtils->activeImage = &fwg->developmentMap;
-    uiUtils->tabSwitchEvent();
-    ImGui::SeparatorText("Drop in a development map, or use the displayed one");
-
-    if (triggeredDrag) {
-      auto devMapIn = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
-      Fwg::Civilization::readDevelopment(devMapIn, fwg->areas.provinces);
-      triggeredDrag = false;
-      uiUtils->resetTexture();
-    }
-    for (auto &continent : fwg->areas.continents) {
-      std::string displayString =
-          "Continent development modifier for continent" +
-          std::to_string(continent.ID);
-      ImGui::InputDouble(displayString.c_str(), &continent.developmentModifier);
-    }
-    ImGui::Checkbox("Random Development", &cfg.randomDevelopment);
-    if (ImGui::Button("Generate Development")) {
-      Fwg::Civilization::generateDevelopment(fwg->areas.continents);
-      fwg->developmentMap = Fwg::Gfx::displayDevelopment(fwg->areas.provinces);
-      uiUtils->resetTexture();
-    }
-    uiUtils->switchTexture(fwg->developmentMap, &curtexture, 0,
-                           UIUtils::ActiveTexture::DEVELOPMENT, g_pd3dDevice, w,
-                           h);
-    ImGui::EndTabItem();
-  }
-  return 0;
-}
-
 int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
   if (ImGui::BeginTabItem("Countries")) {
     auto &generator = activeModule->generator;
+    uiUtils->activeImage = &generator->countryMap;
     static int selectedStateIndex = 0;
     static std::string drawCountryTag;
     uiUtils->tabSwitchEvent(true);
     // pre-generate simply image even if no countries present
     if (!generator->countryMap.size()) {
-      generator->countryMap =
-          generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png");
+      generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png",
+                                     generator->countryMap);
     }
     ImGui::Text(
         "Use auto generated country map or drop it in. You may also first "
@@ -541,8 +577,8 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       generator->initializeCountries();
       generator->evaluateNeighbours();
       generator->generateWorldCivilizations();
-      generator->countryMap =
-          generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png");
+      generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png",
+                                     generator->countryMap);
       uiUtils->resetTexture();
     }
     ImGui::SameLine();
@@ -566,30 +602,38 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       triggeredDrag = false;
     }
 
+    auto &clickEvents = uiUtils->clickEvents;
     if (clickEvents.size()) {
       auto pix = clickEvents.front();
       clickEvents.pop();
-      const auto &colour = generator->provinceMap[pix];
+      const auto &colour = generator->provinceMap[pix.pixel];
       if (generator->areas.provinceColourMap.find(colour)) {
         const auto &prov = generator->areas.provinceColourMap[colour];
         auto &state = generator->gameRegions[prov->regionID];
         selectedStateIndex = state->ID;
       }
     }
+    ImGui::Columns(3, "Edit"); // Start columns
     if (generator->gameRegions.size()) {
       auto &modifiableState = generator->gameRegions[selectedStateIndex];
-      ImGui::InputText("State name", &modifiableState->name);
-      ImGui::InputText("State owner", &modifiableState->owner);
-      ImGui::InputInt("Population", &modifiableState->totalPopulation);
+      Elements::borderChild("StateEdit", [&]() {
+        ImGui::InputText("State name", &modifiableState->name);
+        ImGui::InputText("State owner", &modifiableState->owner);
+        ImGui::InputInt("Population", &modifiableState->totalPopulation);
+      });
+      ImGui::NextColumn();
       if (isRelevantModuleActive("hoi4")) {
         const auto &hoi4Region =
             std::reinterpret_pointer_cast<Scenario::Hoi4::Region,
                                           Scenario::Region>(modifiableState);
-        ImGui::InputInt("Arms Industry", &hoi4Region->armsFactories);
-        ImGui::InputInt("Civilian Industry", &hoi4Region->civilianFactories);
-        ImGui::InputInt("Naval Industry", &hoi4Region->dockyards);
-        ImGui::InputInt("State Category", &hoi4Region->stateCategory);
+        Elements::borderChild("StateEdit2", [&]() {
+          ImGui::InputInt("Arms Industry", &hoi4Region->armsFactories);
+          ImGui::InputInt("Civilian Industry", &hoi4Region->civilianFactories);
+          ImGui::InputInt("Naval Industry", &hoi4Region->dockyards);
+          ImGui::InputInt("State Category", &hoi4Region->stateCategory);
+        });
       }
+      ImGui::NextColumn();
       if ((modifiableState->owner.size() &&
                generator->countries.find(modifiableState->owner) !=
                    generator->countries.end() ||
@@ -604,36 +648,40 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
         }
         std::string tempTag = selectedCountry->tag;
         static std::string bufferChangedTag = "";
-        if (ImGui::InputText("Country tag", &tempTag)) {
-          bufferChangedTag = tempTag;
-        }
-        if (ImGui::Button("update tag")) {
-          std::string &oldTag = selectedCountry->tag;
-          generator->countries.erase(oldTag);
-          selectedCountry->tag = bufferChangedTag;
-          // add country under different tag
-          generator->countries.insert({selectedCountry->tag, selectedCountry});
-          for (auto &region : selectedCountry->ownedRegions) {
-            region->owner = selectedCountry->tag;
+        Elements::borderChild("CountryEdit", [&]() {
+          if (ImGui::InputText("Country tag", &tempTag)) {
+            bufferChangedTag = tempTag;
           }
-        }
-        ImGui::InputText("Country name", &selectedCountry->name);
-        ImGui::InputText("Country adjective", &selectedCountry->adjective);
-        ImVec4 color =
-            ImVec4(((float)selectedCountry->colour.getRed()) / 255.0f,
-                   ((float)selectedCountry->colour.getGreen()) / 255.0f,
-                   ((float)selectedCountry->colour.getBlue()) / 255.0f, 1.0f);
+          if (ImGui::Button("update tag")) {
+            std::string &oldTag = selectedCountry->tag;
+            generator->countries.erase(oldTag);
+            selectedCountry->tag = bufferChangedTag;
+            // add country under different tag
+            generator->countries.insert(
+                {selectedCountry->tag, selectedCountry});
+            for (auto &region : selectedCountry->ownedRegions) {
+              region->owner = selectedCountry->tag;
+            }
+          }
+          ImGui::InputText("Country name", &selectedCountry->name);
+          ImGui::InputText("Country adjective", &selectedCountry->adjective);
+          ImVec4 color =
+              ImVec4(((float)selectedCountry->colour.getRed()) / 255.0f,
+                     ((float)selectedCountry->colour.getGreen()) / 255.0f,
+                     ((float)selectedCountry->colour.getBlue()) / 255.0f, 1.0f);
 
-        if (ImGui::ColorEdit3("Country Colour", (float *)&color,
-                              ImGuiColorEditFlags_NoInputs |
-                                  ImGuiColorEditFlags_NoLabel |
-                                  ImGuiColorEditFlags_HDR)) {
-          selectedCountry->colour = Fwg::Gfx::Colour(
-              color.x * 255.0, color.y * 255.0, color.z * 255.0);
-          generator->countryMap =
-              generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png");
-          uiUtils->resetTexture();
-        }
+          if (ImGui::ColorEdit3("Country Colour", (float *)&color,
+                                ImGuiColorEditFlags_NoInputs |
+                                    ImGuiColorEditFlags_NoLabel |
+                                    ImGuiColorEditFlags_HDR)) {
+            selectedCountry->colour = Fwg::Gfx::Colour(
+                color.x * 255.0, color.y * 255.0, color.z * 255.0);
+            // generator->countryMap =
+            generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png",
+                                           generator->countryMap);
+            uiUtils->resetTexture();
+          }
+        });
 
         if (drawBorders && drawCountryTag.size()) {
           if (generator->countries.find(drawCountryTag) !=
@@ -644,13 +692,15 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
               modifiableState->owner != selectedCountry->tag) {
             // modifiableState->owner = selectedCountry->tag;
             selectedCountry->addRegion(modifiableState);
-            generator->countryMap =
-                generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png");
+            generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png",
+                                           generator->countryMap,
+                                           modifiableState->ID);
             uiUtils->resetTexture();
           }
         }
       }
     }
+    ImGui::Columns(1); // End columns
     uiUtils->switchTexture(activeModule->generator->countryMap, texture, 0,
                            UIUtils::ActiveTexture::COUNTRIES, g_pd3dDevice, w,
                            h);
@@ -714,7 +764,6 @@ int GUI::showModuleGeneric(
     ImGui::EndDisabled();
   return 0;
 }
-
 
 int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                                 std::shared_ptr<Hoi4Gen> generator) {

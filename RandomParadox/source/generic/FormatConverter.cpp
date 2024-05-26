@@ -209,7 +209,10 @@ const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
       {100 + (int)ClimateTypeIndex::ROCK, 2},
       {200 + (int)ClimateTypeIndex::ROCK, 16},
       {300 + (int)ClimateTypeIndex::ROCK, 16},
-      {(int)ClimateTypeIndex::WATER, 15}
+      {(int)ClimateTypeIndex::WATER, 15},
+      {100 + (int)ClimateTypeIndex::WATER, 15},
+      {200 + (int)ClimateTypeIndex::WATER, 15},
+      {300 + (int)ClimateTypeIndex::WATER, 15}
 
      }},
     {"treeterrainHoi4",

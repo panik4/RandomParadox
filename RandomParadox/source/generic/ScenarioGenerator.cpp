@@ -478,31 +478,50 @@ void Generator::evaluateNeighbours() {
           c.second->neighbours.insert(gameRegions[neighbourRegion]->owner);
 }
 
-Bitmap Generator::dumpDebugCountrymap(const std::string &path) {
+Bitmap Generator::dumpDebugCountrymap(const std::string &path,
+                                      Fwg::Gfx::Bitmap &countryBmp,
+                                      const int ID) {
   Logging::logLine("Drawing borders");
   auto &config = Fwg::Cfg::Values();
-  Bitmap countryBMP(config.width, config.height, 24);
-
-  for (const auto &region : gameRegions) {
-    auto countryColour = Fwg::Gfx::Colour(128, 128, 128);
-    // if this tag is assigned, use the colour
-    if (region->owner.size()) {
-      countryColour = countries.at(region->owner)->colour;
-    }
-    for (const auto &prov : region->provinces) {
+  if (!countryBmp.initialised()) {
+    countryBmp = Bitmap(config.width, config.height, 24);
+  }
+  if (ID > -1) {
+    for (const auto &prov : gameRegions[ID]->provinces) {
+      auto countryColour = Fwg::Gfx::Colour(128, 128, 128);
+      const auto &region = gameRegions[ID];
+      if (region->owner.size()) {
+        countryColour = countries.at(region->owner)->colour;
+      }
       for (const auto &pix : prov->pixels) {
-        countryBMP.setColourAtIndex(pix, countryColour);
+        countryBmp.setColourAtIndex(pix,
+                                    countryColour * 0.9 + prov->colour * 0.1);
       }
-      for (auto &pix : prov->borderPixels) {
-        countryBMP.setColourAtIndex(pix, countryColour * 0.5);
+      for (auto &pix : region->borderPixels) {
+        countryBmp.setColourAtIndex(pix, countryColour * 0.0);
       }
     }
-    for (auto &pix : region->borderPixels) {
-      countryBMP.setColourAtIndex(pix, countryColour * 0.0);
+  } else {
+
+    for (const auto &region : gameRegions) {
+      auto countryColour = Fwg::Gfx::Colour(128, 128, 128);
+      // if this tag is assigned, use the colour
+      if (region->owner.size()) {
+        countryColour = countries.at(region->owner)->colour;
+      }
+      for (const auto &prov : region->provinces) {
+        for (const auto &pix : prov->pixels) {
+          countryBmp.setColourAtIndex(pix,
+                                      countryColour * 0.9 + prov->colour * 0.1);
+        }
+      }
+      for (auto &pix : region->borderPixels) {
+        countryBmp.setColourAtIndex(pix, countryColour * 0.0);
+      }
     }
   }
 
-  Png::save(countryBMP, (path).c_str());
-  return countryBMP;
+  // Png::save(countryBMP, (path).c_str());
+  return countryBmp;
 }
 } // namespace Scenario

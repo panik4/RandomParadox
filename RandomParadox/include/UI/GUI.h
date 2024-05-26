@@ -52,11 +52,12 @@ class GUI : Fwg::fwgUI {
                     std::shared_ptr<Scenario::GenericModule> &genericModule);
   int showRpdxConfigure(
       Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> &genericModule);
+  void showModLoader(Fwg::Cfg &cfg,
+                     std::shared_ptr<Scenario::GenericModule> &genericModule);
   bool scenarioGenReady();
   // generic scenario stuff
   int showScenarioTab(Fwg::Cfg &cfg,
                       std::shared_ptr<Scenario::GenericModule> genericModule);
-  int showDevelopmentTab(Fwg::Cfg &cfg);
   int showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture);
 
   // HOI stuff
