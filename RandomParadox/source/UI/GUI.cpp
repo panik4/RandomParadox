@@ -38,7 +38,8 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   }
   return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
-
+// for state/country/strategic region editing
+static bool drawBorders = false;
 GUI::GUI() : fwgUI() {}
 
 int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
@@ -138,7 +139,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         for (UINT i = 0; i < count; ++i) {
           if (DragQueryFileA(hDrop, i, filename, MAX_PATH)) {
             files.push_back(filename);
-            //Fwg::Utils::Logging::logLine("Loaded file ", filename);
+            // Fwg::Utils::Logging::logLine("Loaded file ", filename);
           }
         }
         draggedFile = files.back();
@@ -471,7 +472,7 @@ void GUI::showModLoader(
       auto hoi4Module =
           std::reinterpret_pointer_cast<Scenario::Hoi4::Hoi4Module,
                                         Scenario::GenericModule>(genericModule);
-      //hoi4Module->modEdit(draggedFile);
+      // hoi4Module->modEdit(draggedFile);
       triggeredDrag = false;
       uiUtils->resetTexture();
     }
@@ -536,7 +537,6 @@ int GUI::showScenarioTab(
 int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
   if (ImGui::BeginTabItem("Countries")) {
     auto &generator = activeModule->generator;
-    uiUtils->activeImage = &generator->countryMap;
     static int selectedStateIndex = 0;
     static std::string drawCountryTag;
     uiUtils->tabSwitchEvent(true);
@@ -545,6 +545,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png",
                                      generator->countryMap);
     }
+    uiUtils->activeImage = &generator->countryMap;
     ImGui::Text(
         "Use auto generated country map or drop it in. You may also first "
         "generate a country map, then edit it in the Maps folder, and then "
@@ -556,7 +557,6 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     ImGui::PushItemWidth(300.0f);
     ImGui::InputInt("Number of countries", &generator->numCountries);
     ImGui::InputText("Path to country list: ", &generator->countryMappingPath);
-    static bool drawBorders = false;
     if (ImGui::Checkbox("Draw-borders", &drawBorders)) {
       if (!drawBorders) {
         drawCountryTag = "";
@@ -702,8 +702,8 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     }
     ImGui::Columns(1); // End columns
     uiUtils->switchTexture(activeModule->generator->countryMap, texture, 0,
-                           UIUtils::ActiveTexture::COUNTRIES, g_pd3dDevice, w,
-                           h);
+                           UIUtils::ActiveTexture::EXTENDEABLE1, g_pd3dDevice,
+                           w, h);
     ImGui::EndTabItem();
     ImGui::PopItemWidth();
   }
@@ -768,8 +768,14 @@ int GUI::showModuleGeneric(
 int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                                 std::shared_ptr<Hoi4Gen> generator) {
   if (ImGui::BeginTabItem("Strategic Regions")) {
-    uiUtils->freeTexture(&curtexture);
-    uiUtils->tabSwitchEvent();
+    static int selectedStratRegionIndex = 0;
+    // tab switch setting draw events as accepted
+    uiUtils->tabSwitchEvent(true);
+    if (!generator->stratRegionMap.size()) {
+      activeModule->generator->stratRegionMap =
+          generator->visualiseStrategicRegions();
+    }
+    uiUtils->activeImage = &generator->stratRegionMap;
     ImGui::SeparatorText(
         "This generates strategic regions, they cannot be loaded");
     if (generator->hoi4States.size()) {
@@ -777,7 +783,10 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
         // non-country stuff
         generator->generateStrategicRegions();
         generator->generateWeather();
+        activeModule->generator->stratRegionMap =
+            generator->visualiseStrategicRegions();
       }
+      ImGui::Checkbox("Draw strategic regions", &drawBorders);
     } else {
       // transfer generic states to hoi4states
       generator->initializeStates();
@@ -790,6 +799,31 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
     if (triggeredDrag) {
       triggeredDrag = false;
     }
+    auto &clickEvents = uiUtils->clickEvents;
+    if (clickEvents.size()) {
+      auto pix = clickEvents.front();
+      clickEvents.pop();
+      const auto &colour = generator->provinceMap[pix.pixel];
+      if (generator->areas.provinceColourMap.find(colour)) {
+        const auto &prov = generator->areas.provinceColourMap[colour];
+        auto &state = generator->gameRegions[prov->regionID];
+        auto &stratRegion = generator->strategicRegions[state->superRegionID];
+        if (drawBorders) {
+          auto &rootRegion =
+              generator->strategicRegions[selectedStratRegionIndex];
+          stratRegion.removeRegion(state);
+          rootRegion.addRegion(state);
+        } else {
+          selectedStratRegionIndex = stratRegion.ID;
+        }
+      }
+      activeModule->generator->stratRegionMap =
+          generator->visualiseStrategicRegions();
+      uiUtils->resetTexture();
+    }
+    uiUtils->switchTexture(activeModule->generator->stratRegionMap, &curtexture,
+                           0, UIUtils::ActiveTexture::EXTENDEABLE2,
+                           g_pd3dDevice, w, h);
     ImGui::EndTabItem();
   }
   return 0;

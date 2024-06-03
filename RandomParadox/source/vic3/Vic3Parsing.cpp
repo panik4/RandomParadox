@@ -193,7 +193,7 @@ void writeMetadata(const std::string &path) {
   pU::writeFile(path, templateFile);
 }
 void strategicRegions(const std::string &path,
-                      const std::vector<strategicRegion> &strategicRegions,
+                      const std::vector<StrategicRegion> &strategicRegions,
                       const std::vector<std::shared_ptr<Region>> &regions) {
 
   Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Strategig Regions");
@@ -205,8 +205,7 @@ void strategicRegions(const std::string &path,
     std::string states{""};
     std::string capital;
     bool capitalSelected = false;
-    for (auto stateID : region.gameRegionIDs) {
-      const auto &state = regions[stateID];
+    for (const auto& state : region.gameRegions) {
       states.append(" STATE_" + state->name);
       if (!capitalSelected) {
         capitalSelected = true;

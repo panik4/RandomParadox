@@ -227,17 +227,17 @@ void Generator::generateCountrySpecifics() {
 
 void Generator::generateWeather() {
   for (auto &strat : strategicRegions) {
-    for (auto &reg : strat.gameRegionIDs) {
+    for (auto &reg : strat.gameRegions) {
       for (auto i = 0; i < 12; i++) {
         double averageTemperature = 0.0;
         double averageDeviation = 0.0;
         double averagePrecipitation = 0.0;
-        for (auto &prov : gameRegions[reg]->gameProvinces) {
+        for (auto &prov : reg->gameProvinces) {
           averageDeviation += prov->baseProvince->weatherMonths[i][0];
           averageTemperature += prov->baseProvince->weatherMonths[i][1];
           averagePrecipitation += prov->baseProvince->weatherMonths[i][2];
         }
-        double divisor = (int)gameRegions[reg]->gameProvinces.size();
+        double divisor = (int)reg->gameProvinces.size();
         averageDeviation /= divisor;
         averageTemperature /= divisor;
         averagePrecipitation /= divisor;

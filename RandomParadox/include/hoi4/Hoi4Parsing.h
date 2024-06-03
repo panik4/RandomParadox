@@ -25,7 +25,7 @@ void rocketSites(const std::string &path,
                  const std::vector<Fwg::Region> &regions);
 void strategicRegions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
-                      const std::vector<strategicRegion> &strategicRegions);
+                      const std::vector<StrategicRegion> &strategicRegions);
 void supply(const std::string &path,
             const std::vector<std::vector<int>> &supplyNodeConnections);
 void unitStacks(const std::string &path,
@@ -33,7 +33,7 @@ void unitStacks(const std::string &path,
                 const Fwg::Gfx::Bitmap &heightMap);
 void weatherPositions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
-                      const std::vector<strategicRegion> &strategicRegions);
+                      const std::vector<StrategicRegion> &strategicRegions);
 // gfx
 void flags(const std::string &path, const hoiMap &countries);
 
@@ -58,7 +58,7 @@ void countryNames(const std::string &path, const hoiMap &countries,
                   const NameGeneration::NameData &nData);
 void stateNames(const std::string &path, const hoiMap &countries);
 void strategicRegionNames(const std::string &path,
-                          const std::vector<strategicRegion> &strategicRegions);
+                          const std::vector<StrategicRegion> &strategicRegions);
 void tutorials(const std::string &path);
 // copy base game countries and remove certain lines to reduce crashes
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,

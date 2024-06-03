@@ -205,7 +205,7 @@ void unitStacks(const std::string &path,
 
 void weatherPositions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
-                      const std::vector<strategicRegion> &strategicRegions) {
+                      const std::vector<StrategicRegion> &strategicRegions) {
   Logging::logLine("HOI4 Parser: Map: Creating Storms");
   // 1; 2781.24; 9.90; 1571.49; small
   std::string content{""};
@@ -214,8 +214,8 @@ void weatherPositions(const std::string &path,
 
   for (auto i = 0; i < strategicRegions.size(); i++) {
     const auto &region =
-        Fwg::Utils::selectRandom(strategicRegions[i].gameRegionIDs);
-    const auto prov = Fwg::Utils::selectRandom(regions[region].provinces);
+        Fwg::Utils::selectRandom(strategicRegions[i].gameRegions);
+    const auto prov = Fwg::Utils::selectRandom(region->provinces);
     const auto pix = Fwg::Utils::selectRandom(prov->pixels);
     auto widthPos = pix % Cfg::Values().width;
     auto heightPos = pix / Cfg::Values().width;
@@ -236,7 +236,7 @@ void adjacencyRules(const std::string &path) {
 
 void strategicRegions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
-                      const std::vector<strategicRegion> &strategicRegions) {
+                      const std::vector<StrategicRegion> &strategicRegions) {
   constexpr std::array<int, 12> daysInMonth{30, 27, 30, 29, 30, 29,
                                             30, 30, 29, 30, 29, 30};
   Logging::logLine("HOI4 Parser: Map: Drawing Strategic Regions");
@@ -246,8 +246,8 @@ void strategicRegions(const std::string &path,
       pU::Scenario::getBracketBlock(templateContent, "period");
   for (auto i = 0; i < strategicRegions.size(); i++) {
     std::string provString{""};
-    for (const auto &region : strategicRegions[i].gameRegionIDs) {
-      for (const auto prov : regions[region].provinces) {
+    for (const auto &region : strategicRegions[i].gameRegions) {
+      for (const auto prov : region->provinces) {
         provString.append(std::to_string(prov->ID + 1));
         provString.append(" ");
       }
@@ -667,7 +667,7 @@ void stateNames(const std::string &path, const hoiMap &countries) {
 
 void strategicRegionNames(
     const std::string &path,
-    const std::vector<strategicRegion> &strategicRegions) {
+    const std::vector<StrategicRegion> &strategicRegions) {
   Logging::logLine("HOI4 Parser: Map: Naming the Regions");
   std::string content = "l_english:\n";
   for (auto i = 0; i < strategicRegions.size(); i++) {
