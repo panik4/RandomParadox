@@ -1,25 +1,25 @@
 #pragma once
+#include "Country.h"
 #include "Culture.h"
 #include "FastWorldGenerator.h"
 #include "Flag.h"
 #include "GameProvince.h"
 #include "GameRegion.h"
 #include "NameGenerator.h"
-#include "ScenarioContinent.h"
-#include "Country.h"
+#include "ParserUtils.h"
 #include "RandNum/RandNum.h"
 #include "Religion.h"
 #include "ResourceLoading.h"
-#include "ParserUtils.h"
+#include "ScenarioContinent.h"
+#include "SuperRegion.h"
 #include <map>
 namespace Scenario {
-struct strategicRegion {
-  std::set<int> gameRegionIDs;
+class StrategicRegion : public SuperRegion {
+public:
   // weather: month{averageTemp, standard deviation, average precipitation,
   // tempLow, tempHigh, tempNightly, snowChance, lightRainChance,
   // heavyRainChance, blizzardChance,mudChance, sandstormChance}
   std::vector<std::vector<double>> weatherMonths;
-  std::string name;
 };
 
 class Generator : public Fwg::FastWorldGenerator {
@@ -77,9 +77,10 @@ public:
   std::vector<std::shared_ptr<GameProvince>> gameProvinces;
   std::set<std::string> tags;
   Fwg::Utils::ColourTMap<std::string> countryColourMap;
-  std::map <std::string, std::shared_ptr<Country>> countries;
+  std::map<std::string, std::shared_ptr<Country>> countries;
   Fwg::Gfx::Bitmap countryMap;
-  std::vector<strategicRegion> strategicRegions;
+  Fwg::Gfx::Bitmap stratRegionMap;
+  std::vector<StrategicRegion> strategicRegions;
   std::vector<std::shared_ptr<Religion>> religions;
   std::vector<std::shared_ptr<Culture>> cultures;
   // constructors/destructors
@@ -104,6 +105,7 @@ public:
   void applyRegionInput();
   // build strategic regions from gameregions
   void generateStrategicRegions();
+  Fwg::Gfx::Bitmap visualiseStrategicRegions();
   // map base provinces to generic game regions
   void mapProvinces();
   // calculating amount of population in states
@@ -123,10 +125,10 @@ public:
   // GameRegions are used for every single game,
   std::shared_ptr<Region> &findStartRegion();
   // load countries from an image and map them to regions
-  void loadCountries(const std::string &countryMapPath, const std::string& mappingPath);
+  void loadCountries(const std::string &countryMapPath,
+                     const std::string &mappingPath);
   // and countries are always created the same way
-  template<typename T>
-  void generateCountries() {
+  template <typename T> void generateCountries() {
     countries.clear();
     for (auto &region : gameRegions) {
       region->assigned = false;
@@ -145,8 +147,8 @@ public:
       for (auto i = 0; i < numCountries; i++) {
         auto name{NameGeneration::generateName(nData)};
         T pdoxC(NameGeneration::generateTag(name, nData), i, name,
-                      NameGeneration::generateAdjective(name, nData),
-                      Gfx::Flag(82, 52));
+                NameGeneration::generateAdjective(name, nData),
+                Gfx::Flag(82, 52));
         // randomly set development of countries
         pdoxC.developmentFactor = RandNum::getRandom(0.1, 1.0);
         countries.emplace(pdoxC.tag, std::make_shared<T>(pdoxC));
@@ -169,7 +171,8 @@ public:
         }
       }
     }
-        dumpDebugCountrymap(Fwg::Cfg::Values().mapsPath + "countries.png", countryMap);
+    dumpDebugCountrymap(Fwg::Cfg::Values().mapsPath + "countries.png",
+                        countryMap);
   }
   // see which country neighbours which
   void evaluateNeighbours();

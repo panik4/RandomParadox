@@ -428,43 +428,52 @@ void Generator::generateStrategicRegions() {
   Fwg::Utils::Logging::logLine(
       "Scenario: Dividing world into strategic regions");
   strategicRegions.clear();
-  std::set<int> assignedIdeas;
+  std::set<int> assignedIDs;
+  auto idcounter = 0;
   for (auto &region : gameRegions) {
-    if (assignedIdeas.find(region->ID) == assignedIdeas.end()) {
-      strategicRegion sR;
-      // std::set<int>stratRegion;
-      sR.gameRegionIDs.insert(region->ID);
-      assignedIdeas.insert(region->ID);
-      for (auto &neighbour : region->neighbours) {
+    if (assignedIDs.find(region->ID) == assignedIDs.end()) {
+      StrategicRegion stratRegion;
+      stratRegion.ID = idcounter++;
+      stratRegion.addRegion(region);
+      assignedIDs.insert(region->ID);
+      for (auto &neighbourID : region->neighbours) {
         // should be equal in sea/land
-        if (neighbour > gameRegions.size())
+        if (neighbourID > gameRegions.size())
           continue;
-        if (gameRegions[neighbour]->sea == region->sea &&
-            assignedIdeas.find(neighbour) == assignedIdeas.end()) {
-          sR.gameRegionIDs.insert(neighbour);
-          assignedIdeas.insert(neighbour);
+        auto neighbourRegion = gameRegions[neighbourID];
+        if (gameRegions[neighbourID]->sea == region->sea &&
+            assignedIDs.find(neighbourID) == assignedIDs.end()) {
+          stratRegion.addRegion(neighbourRegion);
+          assignedIDs.insert(neighbourID);
         }
       }
-      sR.name = NameGeneration::generateName(nData);
-      strategicRegions.push_back(sR);
+      stratRegion.name = NameGeneration::generateName(nData);
+      Colour c{static_cast<unsigned char>(RandNum::getRandom(255)),
+               static_cast<unsigned char>(RandNum::getRandom(255)),
+               static_cast<unsigned char>(region->sea ? 255 : 0)};
+      stratRegion.colour = c;
+      strategicRegions.push_back(stratRegion);
     }
   }
+}
+
+Fwg::Gfx::Bitmap Generator::visualiseStrategicRegions() {
   Bitmap stratRegionBMP(Fwg::Cfg::Values().width, Fwg::Cfg::Values().height,
                         24);
   for (auto &strat : strategicRegions) {
-    Colour c{static_cast<unsigned char>(RandNum::getRandom(255)),
-             static_cast<unsigned char>(RandNum::getRandom(255)),
-             static_cast<unsigned char>(RandNum::getRandom(255))};
-    for (auto &reg : strat.gameRegionIDs) {
-      c.setBlue(gameRegions[reg]->sea ? 255 : 0);
-      for (auto &prov : gameRegions[reg]->gameProvinces) {
+    for (auto &reg : strat.gameRegions) {
+      for (auto &prov : reg->gameProvinces) {
         for (auto &pix : prov->baseProvince->pixels) {
-          stratRegionBMP.setColourAtIndex(pix, c);
+          stratRegionBMP.setColourAtIndex(pix, strat.colour);
         }
+      }
+      for (auto &pix : reg->borderPixels) {
+        stratRegionBMP.setColourAtIndex(pix, strat.colour * 0.5);
       }
     }
   }
   Bmp::save(stratRegionBMP, Fwg::Cfg::Values().mapsPath + "stratRegions.bmp");
+  return stratRegionBMP;
 }
 
 void Generator::evaluateNeighbours() {
@@ -488,7 +497,7 @@ Bitmap Generator::dumpDebugCountrymap(const std::string &path,
   }
   if (ID > -1) {
     for (const auto &prov : gameRegions[ID]->provinces) {
-      auto countryColour = Fwg::Gfx::Colour(128, 128, 128);
+      auto countryColour = Fwg::Gfx::Colour(0, 0, 0);
       const auto &region = gameRegions[ID];
       if (region->owner.size()) {
         countryColour = countries.at(region->owner)->colour;
@@ -502,9 +511,8 @@ Bitmap Generator::dumpDebugCountrymap(const std::string &path,
       }
     }
   } else {
-
     for (const auto &region : gameRegions) {
-      auto countryColour = Fwg::Gfx::Colour(128, 128, 128);
+      auto countryColour = Fwg::Gfx::Colour(0, 0, 0);
       // if this tag is assigned, use the colour
       if (region->owner.size()) {
         countryColour = countries.at(region->owner)->colour;
@@ -520,8 +528,6 @@ Bitmap Generator::dumpDebugCountrymap(const std::string &path,
       }
     }
   }
-
-  // Png::save(countryBMP, (path).c_str());
   return countryBmp;
 }
 } // namespace Scenario

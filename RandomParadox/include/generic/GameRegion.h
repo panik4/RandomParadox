@@ -10,6 +10,7 @@ public:
   // member variables
   std::string owner;
   std::string name;
+  int superRegionID;
   // calculate this for the scenario in general
   double populationFactor;
   // calculate this in every module
