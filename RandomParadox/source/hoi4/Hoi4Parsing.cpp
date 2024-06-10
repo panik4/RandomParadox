@@ -960,22 +960,22 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
   using namespace Fwg::Parsing::Scenario;
   auto states = pU::readFilesInDirectory(path + "/history/states");
 
-  auto &stateColours = hoi4Gen.stateColours;
+  Fwg::Utils::ColourTMap<Fwg::Region> stateColours;
   hoi4Gen.gameRegions.clear();
   hoi4Gen.countries.clear();
   stateColours.clear();
 
   for (auto &state : states) {
-    Scenario::Region r;
-    auto reg = std::make_shared<Scenario::Region>(r);
+    Fwg::Region reg;
     auto tag = pU::getValue(state, "owner");
-    reg->ID = std::stoi(pU::getValue(state, "id")) - 1;
+    reg.ID = std::stoi(pU::getValue(state, "id")) - 1;
     removeCharacter(tag, ' ');
-    reg->owner = tag;
+    //reg->owner = tag;
     auto readIDs = getNumberBlockMultiDelim(state, "provinces");
     for (auto id : readIDs) {
-      reg->gameProvinces.push_back(hoi4Gen.gameProvinces[id - 1]);
-      hoi4Gen.gameProvinces[id - 1]->baseProvince->regionID = reg->ID;
+      //reg->gameProvinces.push_back(hoi4Gen.gameProvinces[id - 1]);
+      reg.provinces.push_back(hoi4Gen.gameProvinces[id - 1]->baseProvince);
+      //hoi4Gen.gameProvinces[id - 1]->baseProvince->regionID = reg.ID;
     }
 
     Fwg::Gfx::Colour colour;
@@ -983,23 +983,27 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
     do {
       colour.randomize();
     } while (stateColours.find(colour));
-    reg->colour = colour;
-    hoi4Gen.gameRegions.push_back(reg);
-    hoi4Gen.stateColours.setValue(reg->colour, reg);
+    reg.colour = colour;
+    //hoi4Gen.gameRegions.push_back(reg);
+    stateColours.setValue(reg.colour, reg);
+    hoi4Gen.areas.regions.push_back(reg);
   }
 
-  std::sort(hoi4Gen.gameRegions.begin(), hoi4Gen.gameRegions.end(),
-            [](auto l, auto r) { return *l < *r; });
-  for (auto &region : hoi4Gen.gameRegions) {
-    if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end()) {
-      hoi4Gen.countries.at(region->owner)->ownedRegions.push_back(region);
-    } else {
-      Country c;
-      c.tag = region->owner;
-      c.ownedRegions.push_back(region);
-      hoi4Gen.countries.insert({c.tag, std::make_shared<Country>(c)});
-    }
-  }
+  std::sort(hoi4Gen.areas.regions.begin(), hoi4Gen.areas.regions.end(),
+            [](auto l, auto r) { return l < r; });
+  //for (auto &region : hoi4Gen.gameRegions) {
+  //  if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end()) {
+  //    hoi4Gen.countries.at(region->owner)->ownedRegions.push_back(region);
+  //  } else {
+  //    Country c;
+  //    c.tag = region->owner;
+  //    c.ownedRegions.push_back(region);
+  //    hoi4Gen.countries.insert({c.tag, std::make_shared<Country>(c)});
+  //  }
+  //}
+  Fwg::Gfx::Bitmap regionMap(5632, 2048, 24);
+  Fwg::Gfx::regionMap(hoi4Gen.areas.regions, regionMap);
+  Fwg::Gfx::Bmp::save(regionMap, path + "/map/regions.bmp");
 }
 // get the bmp file info and extract the respective IDs from definition.csv
 std::vector<Fwg::Province> readProvinceMap(const std::string &path) {
@@ -1087,7 +1091,8 @@ std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
   auto list = pU::getLinesByID(path);
   return list;
 }
-void readProvinces(const std::string &inPath, const std::string &mapName,
+void readProvinces(ClimateGeneration::ClimateData &climateData,
+                   const std::string &inPath, const std::string &mapName,
                    Fwg::Areas::AreaData &areaData,
                    const std::map<std::string, Fwg::Province::TerrainType>
                        stringToTerrainType) {
@@ -1115,6 +1120,7 @@ void readProvinces(const std::string &inPath, const std::string &mapName,
         p->coastal = false;
         p->sea = false;
       }
+      std::cout << tokens[6]<< std::endl;
       p->terrainType = stringToTerrainType.at(tokens[6]);
       p->continentID = stoi(tokens[7]) - 1;
       areaData.provinceColourMap.setValue(p->colour, p);
@@ -1122,7 +1128,7 @@ void readProvinces(const std::string &inPath, const std::string &mapName,
     }
   }
   // call it with special idsort bool to make sure we sort by ID only this time
-  Fwg::Areas::Provinces::readProvinceBMP(provMap, heightMap, areaData.provinces,
+  Fwg::Areas::Provinces::readProvinceBMP(climateData ,provMap, heightMap, areaData.provinces,
                                          areaData.provinceColourMap, true);
 }
 void readRocketSites(const std::string &path,

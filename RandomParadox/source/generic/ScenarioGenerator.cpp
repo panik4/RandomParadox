@@ -271,6 +271,9 @@ void Generator::generateCultures() {
   }
   Png::save(cultureMap, "Maps/world/cultures.png");
 }
+void Generator::cutFromFiles(const std::string &gamePath) {
+  Fwg::Utils::Logging::logLine("Unimplemented cutting");
+}
 // initialize states
 void Generator::initializeStates() {}
 // initialize states
@@ -464,7 +467,7 @@ Fwg::Gfx::Bitmap Generator::visualiseStrategicRegions() {
     for (auto &reg : strat.gameRegions) {
       for (auto &prov : reg->gameProvinces) {
         for (auto &pix : prov->baseProvince->pixels) {
-          stratRegionBMP.setColourAtIndex(pix, strat.colour);
+          stratRegionBMP.setColourAtIndex(pix, reg->colour);
         }
       }
       for (auto &pix : reg->borderPixels) {

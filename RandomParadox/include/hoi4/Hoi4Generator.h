@@ -50,6 +50,7 @@ public:
   Generator(const std::string &configSubFolder);
   ~Generator();
   void mapRegions();
+  void cutFromFiles(const std::string &gamePath);
   // initialize states
   //void initializeStates();
   // initialize states

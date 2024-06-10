@@ -30,31 +30,26 @@
 	},
 	"edit":
 	{
-		"editor" : "mspaint.exe",
-		"heightmap" : false,
-		"oceanHeatMap" : false,
-		"riverMap" : false,
-		"humidityMap" : false,
-		"habitabilityMap" : false
+		"editor" : "mspaint.exe"
 	},
 	"cut":
 	{
 	},
 	"map": 
 	{
-		"width" :512,
-		"height" : 512,
+		"width" : 2048,
+		"height" : 2048,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
 		"sobelFactor": 4,
 		"rivers" : 
 		{
-			"riverFactor" : 0.0
+			"riverFactor" : 1.0
 		},
 		"trees" : 
 		{
-			"borealDensity" : 0.9,
+			"borealDensity" : 1.0,
 			"temperateNeedleDensity" : 0.6,
 			"temperateMixedDensity" : 0.75,
 			"sparseDensity" : 0.9,
@@ -280,7 +275,7 @@
 					"weight" : 1.0,
 					"altitudeWeightStart" : 0.0,
 					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 25,
+					"maxHeight" : 255,
 					"minHeight" : 0,
 					"tanFactor": 0.0
 				}
@@ -304,10 +299,10 @@
 			}
 		},
 		"humidity" : {
-			"latitudeLow" : 1.1,
-			"latitudeHigh" : 1.4,
-			"riverHumidityFactor" : 0.1,
-			"riverEffectRangeFactor" : 0.3,
+			"latitudeLow" : 0.2,
+			"latitudeHigh" : 1.8,
+			"riverHumidityFactor" : 0.5,
+			"riverEffectRangeFactor" : 0.5,
 			"baseHumidity": 1.0,
 			"baseTemperature": 1.0
 		},

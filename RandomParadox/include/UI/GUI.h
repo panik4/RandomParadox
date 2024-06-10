@@ -44,6 +44,8 @@ class GUI : Fwg::fwgUI {
   void loadGameConfig(Fwg::Cfg &cfg);
   void initGameConfigs();
   bool isRelevantModuleActive(const std::string &shortName);
+  int showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
+                  ID3D11ShaderResourceView **texture);
   template <class T> constexpr std::shared_ptr<T> getGeneratorPointer() {
     return std::reinterpret_pointer_cast<T, Scenario::Generator>(
         activeModule->generator);

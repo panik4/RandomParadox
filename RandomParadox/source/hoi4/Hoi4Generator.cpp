@@ -5,8 +5,7 @@ namespace Scenario::Hoi4 {
 Generator::Generator() {}
 
 Generator::Generator(const std::string &configSubFolder)
-    : Scenario::Generator(configSubFolder) {
-}
+    : Scenario::Generator(configSubFolder) {}
 
 Generator::~Generator() {}
 
@@ -48,6 +47,13 @@ void Generator::mapRegions() {
   applyRegionInput();
 }
 
+/*Get the generator in the correct state first, e.g. load all the maps in. They
+ * can be modified later still. However, generation of early steps would then
+ * require generation and therefore overwriting of previously cut parts */
+void Generator::cutFromFiles(const std::string &gamePath) {
+  // first, cut the heightmap
+    auto heightMapPath = gamePath + "//heightMap.bmp";
+}
 void Generator::initializeCountries() {
   hoi4Countries.clear();
   for (auto &country : countries) {
@@ -100,10 +106,8 @@ void Generator::generateStateSpecifics() {
     double totalDevFactor = 0;
     double totalPopFactor = 0;
     for (const auto &gameProv : hoi4Region->gameProvinces) {
-      totalDevFactor +=
-          gameProv->devFactor;
-      totalPopFactor +=
-          gameProv->popFactor;
+      totalDevFactor += gameProv->devFactor;
+      totalPopFactor += gameProv->popFactor;
       totalStateArea += gameProv->baseProvince->pixels.size();
     }
     // state level is calculated from population and development

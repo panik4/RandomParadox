@@ -11,21 +11,6 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
 
   // read hoi configs and potentially overwrite settings for fwg
   readHoiConfig(configSubFolder, username, gamesConf);
-  // try to assemble a region map for loading for fwg
-  if (config.cut && config.loadRegions) {
-    readHoi(pathcfg.gamePath);
-    // plenty of cleanup work has to be done after reading.
-    hoi4Gen->areas.regions.clear();
-    hoi4Gen->areas.provinces.clear();
-    hoi4Gen->areas.provinceColourMap.clear();
-    hoi4Gen->gameRegions.clear();
-    hoi4Gen->gameProvinces.clear();
-    hoi4Gen->hoi4States.clear();
-    hoi4Gen->hoi4Countries.clear();
-    hoi4Gen->countries.clear();
-  }
-
-  readHoiConfig(configSubFolder, username, gamesConf);
 }
 
 Hoi4Module::~Hoi4Module() {}
@@ -158,19 +143,19 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
 
 void Hoi4Module::prepareData() {}
 
-//void Hoi4Module::modEdit(std::string &path) {
-//  auto &config = Fwg::Cfg::Values();
-//  path.append("//");
-//  hoi4Gen->heightMap = Fwg::IO::Reader::readGenericImage(
-//      path + "map//heightmap.bmp", Fwg::Cfg::Values());
-//  if (hoi4Gen->heightMap.initialised()) {
-//    hoi4Gen->genSobelMap(config);
-//    hoi4Gen->genLand();
-//    hoi4Gen->genLand();
-//    hoi4Gen->genHumidity(config);
-//    hoi4Gen->loadClimate(path + "map//terrain.bmp");
-//  }
-//}
+// void Hoi4Module::modEdit(std::string &path) {
+//   auto &config = Fwg::Cfg::Values();
+//   path.append("//");
+//   hoi4Gen->heightMap = Fwg::IO::Reader::readGenericImage(
+//       path + "map//heightmap.bmp", Fwg::Cfg::Values());
+//   if (hoi4Gen->heightMap.initialised()) {
+//     hoi4Gen->genSobelMap(config);
+//     hoi4Gen->genLand();
+//     hoi4Gen->genLand();
+//     hoi4Gen->genHumidity(config);
+//     hoi4Gen->loadClimate(path + "map//terrain.bmp");
+//   }
+// }
 
 void Hoi4Module::writeTextFiles() {
   using namespace Parsing::Writing;
@@ -260,6 +245,7 @@ void Hoi4Module::writeImages() {
 }
 
 void Hoi4Module::readHoi(std::string &gamePath) {
+  initNameData("resources//names", gamePath);
   auto &config = Fwg::Cfg::Values();
   bool bufferedCut = config.cut;
   config.cut = false;
@@ -268,8 +254,10 @@ void Hoi4Module::readHoi(std::string &gamePath) {
   hoi4Gen->heightMap = Fwg::IO::Reader::readGenericImage(
       gamePath + "map//heightmap.bmp", config);
   // read in game or mod files
-  Hoi4::Parsing::Reading::readProvinces(
-      gamePath, "provinces.bmp", hoi4Gen->areas, hoi4Gen->stringToTerrainType);
+  hoi4Gen->climateData.habitabilities.resize(hoi4Gen->provinceMap.size());
+  Hoi4::Parsing::Reading::readProvinces(hoi4Gen->climateData, gamePath,
+                                        "provinces.bmp", hoi4Gen->areas,
+                                        hoi4Gen->stringToTerrainType);
   // get the provinces into GameProvinces
   hoi4Gen->mapProvinces();
   // get the states from files to initialize gameRegions
@@ -281,10 +269,6 @@ void Hoi4Module::readHoi(std::string &gamePath) {
   // read the colour codes from the game/mod files
   hoi4Gen->countryColourMap =
       Hoi4::Parsing::Reading::readColourMapping(pathcfg.gamePath);
-  // pre initialize an empty climateMap
-  hoi4Gen->climateMap = Fwg::Gfx::Bitmap(hoi4Gen->provinceMap.width(),
-                                         hoi4Gen->provinceMap.height(), 24);
-
   // now initialize hoi4 states from the gameRegions
   hoi4Gen->mapTerrain();
   for (auto &c : hoi4Gen->countries) {

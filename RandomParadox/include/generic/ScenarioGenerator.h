@@ -50,7 +50,7 @@ public:
       {"ocean", Fwg::Province::TerrainType::ocean},
       {"mountain", Fwg::Province::TerrainType::mountains},
       {"marsh", Fwg::Province::TerrainType::marsh},
-      {"rockyHills", Fwg::Province::TerrainType::hills},
+      {"hills", Fwg::Province::TerrainType::hills},
       {"jungle", Fwg::Province::TerrainType::jungle},
       {"desert", Fwg::Province::TerrainType::desert},
       {"urban", Fwg::Province::TerrainType::urban},
@@ -72,7 +72,7 @@ public:
       {Fwg::Province::TerrainType::lake, "lakes"}};
 
   std::vector<ScenarioContinent> scenContinents;
-  Fwg::Utils::ColourTMap<std::shared_ptr<Region>> stateColours;
+  
   std::vector<std::shared_ptr<Region>> gameRegions;
   std::vector<std::shared_ptr<GameProvince>> gameProvinces;
   std::set<std::string> tags;
@@ -114,6 +114,7 @@ public:
   void generateReligions();
   void generateCultures();
 
+  virtual void cutFromFiles(const std::string &gamePath);
   // initialize states
   virtual void initializeStates();
   // initialize countries

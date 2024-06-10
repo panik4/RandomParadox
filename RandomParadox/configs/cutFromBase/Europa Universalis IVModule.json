@@ -1,8 +1,8 @@
 {
 	"fastworldgen":
 	{
-		"loadMapsPath": "eu4Inputs//maps//",
-		"heightMapName": "heightmap.bmp"
+		"loadMapsPath": "",
+		"heightMapName": ""
 	},
 	"eu4":
 	{
