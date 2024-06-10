@@ -1,6 +1,8 @@
 #include "UI/GUI.h"
 // Data
 static UINT g_ResizeWidth = 0, g_ResizeHeight = 0;
+// to track which game was selected for generation
+static int selectedGame = 0;
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd,
                                                              UINT msg,
@@ -249,8 +251,6 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
 
           ImGui::Image((void *)curtexture,
                        ImVec2(texWidth * zoom, texHeight * zoom));
-          static auto delta = ImGui::GetIO().MouseDelta.x;
-
           if (io.KeyCtrl && io.MouseWheel) {
             // Get the mouse position relative to the image
             ImVec2 mouse_pos = ImGui::GetMousePos();
@@ -352,7 +352,71 @@ void GUI::initGameConfigs() {
 bool GUI::isRelevantModuleActive(const std::string &shortName) {
   return activeGameConfig.gameShortName == shortName;
 }
+int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
+                     ID3D11ShaderResourceView **texture) {
+  ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
+  ImGui::BeginChild("Log",
+                    ImVec2(ImGui::GetContentRegionAvail().x * 1.0f,
+                           ImGui::GetContentRegionAvail().y * 0.1),
+                    false, window_flags);
+  ImGui::TextUnformatted(log->str().c_str());
+  initAllowedInput(cfg, generator);
+  if (!ImGui::IsWindowHovered()) {
+    // scroll to bottom
+    ImGui::SetScrollHereY(1.0f);
+  }
+  ImGui::EndChild();
+  ImGui::PushItemWidth(200.0f);
+  uiUtils->brushSettingsHeader();
+  if (ImGui::InputInt("<--Seed", &cfg.seed)) {
+    cfg.randomSeed = false;
+    cfg.reRandomize();
+  }
+  ImGui::SameLine();
+  if (ImGui::Button("Get random seed")) {
+    cfg.randomSeed = true;
+    cfg.reRandomize();
+  }
+  ImGui::SameLine();
+  if (cfg.debugLevel > 5 && ImGui::Button("Display size")) {
+    std::cout << generator.size() << std::endl;
+  }
+  ImGui::SameLine();
+  if (ImGui::Button(("Save current image to " + cfg.mapsPath).c_str())) {
+    writeCurrentlyDisplayedImage(cfg);
+  }
+  ImGui::SameLine();
+  ImGui::InputInt("<--Debug level", &cfg.debugLevel);
+  if (ImGui::Button("Generate all world data")) {
+    generator.resetData();
+    if (cfg.cut) {
+      if (gameConfigs[selectedGame].gameName == "Hearts of Iron IV") {
+        // auto hoi4Module = std::reinterpret_pointer_cast<
+        //     Scenario::Hoi4::Hoi4Module,
+        //     Scenario::GenericModule>(activeModule);
+        // hoi4Module->readHoi(hoi4Module->pathcfg.gamePath);
+        if (cfg.loadRegions) {
+          Fwg::Utils::Logging::logLine(
+              "Loading of regions from base game is currently not supported");
 
+          cfg.loadRegions = false;
+        }
+      } else if (gameConfigs[selectedGame].gameName ==
+                 "Europa Universalis IV") {
+        Fwg::Utils::Logging::logLine(
+            "Cutting from Europa Universalis IV not yet supported");
+        cfg.cut = false;
+      } else if (gameConfigs[selectedGame].gameName == "Victoria 3") {
+        Fwg::Utils::Logging::logLine(
+            "Cutting from Victoria 3 not yet supported");
+        cfg.cut = false;
+      }
+    }
+    generator.generateWorld();
+  }
+  ImGui::PopItemWidth();
+  return 0;
+}
 // generic configure tab, containing a tab for fwg and rpdx configs
 int GUI::showConfigure(Fwg::Cfg &cfg,
                        std::shared_ptr<Scenario::GenericModule> &activeModule) {
@@ -370,7 +434,6 @@ int GUI::showConfigure(Fwg::Cfg &cfg,
 int GUI::showRpdxConfigure(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> &activeModule) {
   static int item_current = 1;
-  static int selectedGame = 0;
   // remove the images, and set pretext for them to be auto
   // loaded after switching tabs again
   if (ImGui::BeginTabItem("RandomParadox Configuration")) {
@@ -609,8 +672,10 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       const auto &colour = generator->provinceMap[pix.pixel];
       if (generator->areas.provinceColourMap.find(colour)) {
         const auto &prov = generator->areas.provinceColourMap[colour];
-        auto &state = generator->gameRegions[prov->regionID];
-        selectedStateIndex = state->ID;
+        if (prov->regionID < generator->gameRegions.size()) {
+          auto &state = generator->gameRegions[prov->regionID];
+          selectedStateIndex = state->ID;
+        }
       }
     }
     ImGui::Columns(3, "Edit"); // Start columns

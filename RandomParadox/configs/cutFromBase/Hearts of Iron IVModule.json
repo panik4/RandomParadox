@@ -18,7 +18,7 @@
 	},
 	"scenario":
 	{
-		"numCountries" : 1,
+		"numCountries" : 20,
 		"worldPopulationFactor" : 1.0,
 		"industryFactor" : 1.0
 	}
