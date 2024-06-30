@@ -217,6 +217,15 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               cfg, std::reinterpret_pointer_cast<Scenario::Hoi4::Hoi4Module,
                                                  Scenario::GenericModule>(
                        activeModule));
+        } else if (activeGameConfig.gameName == "Victoria 3") {
+          auto vic3Gen =
+              std::reinterpret_pointer_cast<Vic3Gen, Scenario::Generator>(
+                  activeModule->generator);
+          showStrategicRegionTab(cfg, vic3Gen);
+          showVic3Finalise(
+              cfg, std::reinterpret_pointer_cast<Scenario::Vic3::Module,
+                                                 Scenario::GenericModule>(
+                       activeModule));
         }
         if (!configuredScenarioGen) {
           ImGui::EndDisabled();
@@ -559,7 +568,9 @@ int GUI::showScenarioTab(
         activeModule->generator->regionMap.initialised() &&
         activeModule->generator->worldMap.initialised()) {
       // auto initialize
-      if (ImGui::Button("Init") ||
+      ImGui::SeparatorText(
+          "Only remap when you have changed the maps in the previous tabs");
+      if (ImGui::Button("Remap areas") ||
           !activeModule->generator->gameProvinces.size()) {
         if (!activeModule->createPaths()) {
           Fwg::Utils::Logging::logLine("ERROR: Couldn't create paths");
@@ -570,6 +581,7 @@ int GUI::showScenarioTab(
         // start with the generic stuff in the Scenario Generator
         activeModule->generator->mapProvinces();
         activeModule->generator->mapRegions();
+        activeModule->generator->mapTerrain();
         activeModule->generator->mapContinents();
         configuredScenarioGen = true;
       }
@@ -583,6 +595,7 @@ int GUI::showScenarioTab(
         showHoi4Configure(cfg, hoi4Gen);
       } else if (isRelevantModuleActive("vic3")) {
         auto vic3Gen = getGeneratorPointer<Vic3Gen>();
+        showVic3Configure(cfg, vic3Gen);
       } else if (isRelevantModuleActive("eu4")) {
         auto eu4Gen = getGeneratorPointer<Eu4Gen>();
       }
@@ -590,8 +603,6 @@ int GUI::showScenarioTab(
     } else {
       ImGui::Text("Generate required maps in the other tabs first");
     }
-
-    // switchTexture(fwg.provinceMap, texture, ActiveTexture::PROVINCES);
     ImGui::EndTabItem();
   }
   return retCode;
@@ -605,8 +616,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     uiUtils->tabSwitchEvent(true);
     // pre-generate simply image even if no countries present
     if (!generator->countryMap.size()) {
-      generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png",
-                                     generator->countryMap);
+      generator->dumpDebugCountrymap(generator->countryMap);
     }
     uiUtils->activeImage = &generator->countryMap;
     ImGui::Text(
@@ -637,11 +647,10 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       // transfer generic states to hoi4states
       generator->initializeStates();
       // build hoi4 countries out of basic countries
-      generator->initializeCountries();
+      generator->mapCountries();
       generator->evaluateNeighbours();
       generator->generateWorldCivilizations();
-      generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png",
-                                     generator->countryMap);
+      generator->dumpDebugCountrymap(generator->countryMap);
       uiUtils->resetTexture();
     }
     ImGui::SameLine();
@@ -653,11 +662,26 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       if (draggedFile.find(".txt") != std::string::npos) {
         generator->countryMappingPath = draggedFile;
       } else {
-        generator->loadCountries(draggedFile, generator->countryMappingPath);
+        // load countries with correct type, dependent on the gamemodule that is
+        // active
+        if (isRelevantModuleActive("hoi4")) {
+          auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
+          generator->loadCountries<Scenario::Hoi4::Hoi4Country>(
+              draggedFile, generator->countryMappingPath);
+        } else if (isRelevantModuleActive("vic3")) {
+          generator->loadCountries<Scenario::Vic3::Country>(
+              draggedFile, generator->countryMappingPath);
+        } else if (isRelevantModuleActive("eu4")) {
+          generator->loadCountries<Scenario::Country>(
+              draggedFile, generator->countryMappingPath);
+        }
+        generator->dumpDebugCountrymap(generator->countryMap);
+        Fwg::Gfx::Png::save(generator->countryMap,
+                            cfg.mapsPath + "countryMap.png");
         // transfer generic states to hoi4states
         generator->initializeStates();
         // build hoi4 countries out of basic countries
-        generator->initializeCountries();
+        generator->mapCountries();
         generator->evaluateNeighbours();
         generator->generateWorldCivilizations();
         uiUtils->resetTexture();
@@ -681,24 +705,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     ImGui::Columns(3, "Edit"); // Start columns
     if (generator->gameRegions.size()) {
       auto &modifiableState = generator->gameRegions[selectedStateIndex];
-      Elements::borderChild("StateEdit", [&]() {
-        ImGui::InputText("State name", &modifiableState->name);
-        ImGui::InputText("State owner", &modifiableState->owner);
-        ImGui::InputInt("Population", &modifiableState->totalPopulation);
-      });
-      ImGui::NextColumn();
-      if (isRelevantModuleActive("hoi4")) {
-        const auto &hoi4Region =
-            std::reinterpret_pointer_cast<Scenario::Hoi4::Region,
-                                          Scenario::Region>(modifiableState);
-        Elements::borderChild("StateEdit2", [&]() {
-          ImGui::InputInt("Arms Industry", &hoi4Region->armsFactories);
-          ImGui::InputInt("Civilian Industry", &hoi4Region->civilianFactories);
-          ImGui::InputInt("Naval Industry", &hoi4Region->dockyards);
-          ImGui::InputInt("State Category", &hoi4Region->stateCategory);
-        });
-      }
-      ImGui::NextColumn();
+
       if ((modifiableState->owner.size() &&
                generator->countries.find(modifiableState->owner) !=
                    generator->countries.end() ||
@@ -742,8 +749,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
             selectedCountry->colour = Fwg::Gfx::Colour(
                 color.x * 255.0, color.y * 255.0, color.z * 255.0);
             // generator->countryMap =
-            generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png",
-                                           generator->countryMap);
+            generator->dumpDebugCountrymap(generator->countryMap);
             uiUtils->resetTexture();
           }
         });
@@ -757,12 +763,29 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
               modifiableState->owner != selectedCountry->tag) {
             // modifiableState->owner = selectedCountry->tag;
             selectedCountry->addRegion(modifiableState);
-            generator->dumpDebugCountrymap(cfg.mapsPath + "countries.png",
-                                           generator->countryMap,
+            generator->dumpDebugCountrymap(generator->countryMap,
                                            modifiableState->ID);
             uiUtils->resetTexture();
           }
         }
+      }
+      ImGui::NextColumn();
+      Elements::borderChild("StateEdit", [&]() {
+        ImGui::InputText("State name", &modifiableState->name);
+        ImGui::InputText("State owner", &modifiableState->owner);
+        ImGui::InputInt("Population", &modifiableState->totalPopulation);
+      });
+      ImGui::NextColumn();
+      if (isRelevantModuleActive("hoi4")) {
+        const auto &hoi4Region =
+            std::reinterpret_pointer_cast<Scenario::Hoi4::Region,
+                                          Scenario::Region>(modifiableState);
+        Elements::borderChild("StateEdit2", [&]() {
+          ImGui::InputInt("Arms Industry", &hoi4Region->armsFactories);
+          ImGui::InputInt("Civilian Industry", &hoi4Region->civilianFactories);
+          ImGui::InputInt("Naval Industry", &hoi4Region->dockyards);
+          ImGui::InputInt("State Category", &hoi4Region->stateCategory);
+        });
       }
     }
     ImGui::Columns(1); // End columns
@@ -772,33 +795,6 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     ImGui::EndTabItem();
     ImGui::PopItemWidth();
   }
-  return 0;
-}
-
-// HOI4
-int GUI::showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
-  ImGui::InputDouble("resourceFactor", &generator->resourceFactor, 0.1);
-  ImGui::InputDouble("aluminiumFactor", &generator->resources["aluminium"][2],
-                     0.1);
-  ImGui::InputDouble("chromiumFactor", &generator->resources["chromium"][2],
-                     0.1);
-  ImGui::InputDouble("oilFactor", &generator->resources["oil"][2], 0.1);
-  ImGui::InputDouble("rubberFactor", &generator->resources["rubber"][2], 0.1);
-  ImGui::InputDouble("steelFactor", &generator->resources["steel"][2], 0.1);
-  ImGui::InputDouble("tungstenFactor", &generator->resources["tungsten"][2],
-                     0.1);
-  ImGui::InputDouble("baseLightRainChance",
-                     &generator->weatherChances["baseLightRainChance"], 0.1);
-  ImGui::InputDouble("baseHeavyRainChance",
-                     &generator->weatherChances["baseHeavyRainChance"], 0.1);
-  ImGui::InputDouble("baseMudChance",
-                     &generator->weatherChances["baseMudChance"], 0.1);
-  ImGui::InputDouble("baseBlizzardChance",
-                     &generator->weatherChances["baseBlizzardChance"], 0.1);
-  ImGui::InputDouble("baseSandstormChance",
-                     &generator->weatherChances["baseSandstormChance"], 0.1);
-  ImGui::InputDouble("baseSnowChance",
-                     &generator->weatherChances["baseSnowChance"], 0.1);
   return 0;
 }
 
@@ -830,38 +826,45 @@ int GUI::showModuleGeneric(
   return 0;
 }
 
-int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
-                                std::shared_ptr<Hoi4Gen> generator) {
+int GUI::showStrategicRegionTab(
+    Fwg::Cfg &cfg, std::shared_ptr<Scenario::Generator> generator) {
   if (ImGui::BeginTabItem("Strategic Regions")) {
     static int selectedStratRegionIndex = 0;
     // tab switch setting draw events as accepted
     uiUtils->tabSwitchEvent(true);
-    if (!generator->stratRegionMap.size()) {
-      activeModule->generator->stratRegionMap =
-          generator->visualiseStrategicRegions();
-    }
+
     uiUtils->activeImage = &generator->stratRegionMap;
     ImGui::SeparatorText(
         "This generates strategic regions, they cannot be loaded");
-    if (generator->hoi4States.size()) {
+    if (generator->gameRegions.size()) {
       if (ImGui::Button("Generate strategic regions")) {
         // non-country stuff
         generator->generateStrategicRegions();
-        generator->generateWeather();
-        activeModule->generator->stratRegionMap =
-            generator->visualiseStrategicRegions();
+        if (activeGameConfig.gameName == "Hearts of Iron IV") {
+          auto hoi4Gen =
+              std::reinterpret_pointer_cast<Hoi4Gen, Scenario::Generator>(
+                  activeModule->generator);
+          hoi4Gen->generateWeather();
+        } else if (activeGameConfig.gameName == "Victoria 3") {
+          auto vic3Gen =
+              std::reinterpret_pointer_cast<Vic3Gen, Scenario::Generator>(
+                  activeModule->generator);
+          // do stuff
+        }
       }
       ImGui::Checkbox("Draw strategic regions", &drawBorders);
     } else {
       // transfer generic states to hoi4states
       generator->initializeStates();
       // build hoi4 countries out of basic countries
-      generator->initializeCountries();
+      generator->mapCountries();
       generator->evaluateNeighbours();
       generator->generateWorldCivilizations();
     }
     // drag event is ignored here
     if (triggeredDrag) {
+      Fwg::Utils::Logging::logLine(
+          "No loading of strategic regions supported at this time");
       triggeredDrag = false;
     }
     auto &clickEvents = uiUtils->clickEvents;
@@ -882,8 +885,6 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
           selectedStratRegionIndex = stratRegion.ID;
         }
       }
-      activeModule->generator->stratRegionMap =
-          generator->visualiseStrategicRegions();
       uiUtils->resetTexture();
     }
     uiUtils->switchTexture(activeModule->generator->stratRegionMap, &curtexture,
@@ -891,6 +892,33 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                            g_pd3dDevice, w, h);
     ImGui::EndTabItem();
   }
+  return 0;
+}
+
+// HOI4
+int GUI::showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
+  ImGui::InputDouble("resourceFactor", &generator->resourceFactor, 0.1);
+  ImGui::InputDouble("aluminiumFactor", &generator->resources["aluminium"][2],
+                     0.1);
+  ImGui::InputDouble("chromiumFactor", &generator->resources["chromium"][2],
+                     0.1);
+  ImGui::InputDouble("oilFactor", &generator->resources["oil"][2], 0.1);
+  ImGui::InputDouble("rubberFactor", &generator->resources["rubber"][2], 0.1);
+  ImGui::InputDouble("steelFactor", &generator->resources["steel"][2], 0.1);
+  ImGui::InputDouble("tungstenFactor", &generator->resources["tungsten"][2],
+                     0.1);
+  ImGui::InputDouble("baseLightRainChance",
+                     &generator->weatherChances["baseLightRainChance"], 0.1);
+  ImGui::InputDouble("baseHeavyRainChance",
+                     &generator->weatherChances["baseHeavyRainChance"], 0.1);
+  ImGui::InputDouble("baseMudChance",
+                     &generator->weatherChances["baseMudChance"], 0.1);
+  ImGui::InputDouble("baseBlizzardChance",
+                     &generator->weatherChances["baseBlizzardChance"], 0.1);
+  ImGui::InputDouble("baseSandstormChance",
+                     &generator->weatherChances["baseSandstormChance"], 0.1);
+  ImGui::InputDouble("baseSnowChance",
+                     &generator->weatherChances["baseSnowChance"], 0.1);
   return 0;
 }
 
@@ -930,4 +958,61 @@ int GUI::showHoi4Finalise(
 
   return 0;
 }
-//
+
+int GUI::showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator) {
+  // Iterate through each ResConfig in the vector
+  auto &resourceConfigs = generator->getResConfigs();
+  ImGui::SeparatorText("Configure amount and distribution of resources. Do NOT "
+                       "remove the checkmark in the random field, if it is "
+                       "preselected. You may add the flag to others.");
+  for (size_t i = 0; i < resourceConfigs.size(); ++i) {
+    ImGui::Text(resourceConfigs[i].name.c_str());
+    ImGui::SameLine();
+    // Display and edit the resourcePrevalence field
+    ImGui::InputDouble("Resource Prevalence",
+                       &resourceConfigs[i].resourcePrevalence);
+
+    ImGui::SameLine();
+    // Display and edit the random field
+    ImGui::Checkbox("Random", &resourceConfigs[i].random);
+  }
+  return 0;
+}
+
+int GUI::showVic3Finalise(Fwg::Cfg &cfg,
+                          std::shared_ptr<Scenario::Vic3::Module> vic3Module) {
+  if (ImGui::BeginTabItem("Finalise")) {
+    uiUtils->freeTexture(&curtexture);
+    uiUtils->tabSwitchEvent();
+    ImGui::Text("This will finish generating the mod and write it to the "
+                "configured paths");
+    const auto &generator = vic3Module->getGenerator();
+    if (generator->strategicRegions.size()) {
+      if (ImGui::Button("Export mod")) {
+        // Vic3 specifics:
+        generator->distributePops();
+        generator->distributeResources();
+        generator->mapCountries();
+        generator->importData(vic3Module->pathcfg.gamePath + "//game//");
+        // handle basic development, tech level, policies,
+        generator->generateCountrySpecifics();
+        generator->diplomaticRelations();
+        generator->createMarkets();
+        generator->calculateNeeds();
+        generator->distributeBuildings();
+        vic3Module->writeImages();
+        vic3Module->writeTextFiles();
+        generator->printStatistics();
+      }
+    } else {
+      ImGui::Text("Generate strategic regions first before exporting the mod");
+    }
+    // drag event is ignored here
+    if (triggeredDrag) {
+      triggeredDrag = false;
+    }
+    ImGui::EndTabItem();
+  }
+
+  return 0;
+}

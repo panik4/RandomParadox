@@ -146,21 +146,29 @@ void Generator::mapRegions() {
 void Generator::initializeStates() {}
 void Generator::mapCountries() {
   for (auto &country : countries) {
-
-    std::shared_ptr<Country> vic3 =
-        std::reinterpret_pointer_cast<Vic3::Country, Scenario::Country>(
+    std::shared_ptr<Country> vic3Country =
+        std::dynamic_pointer_cast<Vic3::Country, Scenario::Country>(
             country.second);
-    for (auto &region : vic3->ownedRegions) {
-      vic3->ownedVic3Regions.push_back(
-          std::reinterpret_pointer_cast<Vic3::Region, Scenario::Region>(
-              region));
+    if (vic3Country != nullptr) {
+      for (auto &region : vic3Country->ownedRegions) {
+        // vic3Country->ownedVic3Regions.push_back(
+        //     std::reinterpret_pointer_cast<Vic3::Region, Scenario::Region>(
+        //         region));
+
+        vic3Country->ownedVic3Regions.push_back(
+            std::dynamic_pointer_cast<Region>(region));
+      }
+    } else {
+
+      Fwg::Utils::Logging::logLine("Warning: Country ", country.first,
+                                   " not found in Vic3 countries");
     }
-    vic3Countries.emplace(country.first, vic3);
+    vic3Countries.emplace(country.first, vic3Country);
   }
 }
 // set tech levels, give techs, count pops, cultures and religions, set
 // diplomatic relations (e.g. puppets, markets, protectorates)
-void Generator::initializeCountries() {
+void Generator::generateCountrySpecifics() {
   auto &cfg = Fwg::Cfg::Values();
   // count pops
   for (auto &cEntry : vic3Countries) {
@@ -242,38 +250,6 @@ void Generator::importData(const std::string &path) {
 }
 void Generator::diplomaticRelations() {}
 void Generator::createMarkets() {}
-
-std::vector<double> shiftedGaussian(double input) {
-  std::vector<double> values(15, 0.0);
-
-  // Calculate the mean and standard deviation based on the input
-  double mean = 1.0 + input * 14.0;  // Scale mean between 1 and 15
-  double stdDev = 0.1 + input * 5.0; // Scale std deviation between 0.1 and 2.1
-
-  // Create a random number generator
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::normal_distribution<double> distribution(mean, stdDev);
-
-  // Generate 15 values representing the distribution at each integer value
-  // between 1 and 15
-  for (int i = 0; i < 15; ++i) {
-    double x = i + 1; // Value between 1 and 15
-    values[i] = std::exp(-0.5 * std::pow((x - mean) / stdDev, 2)) /
-                (stdDev * std::sqrt(2.0 * 3.14));
-  }
-
-  // Normalize the values such that their sum equals 1.0
-  double sum = 0.0;
-  for (double value : values) {
-    sum += value;
-  }
-  for (double &value : values) {
-    value /= sum;
-  }
-
-  return values;
-}
 
 void Generator::calculateNeeds() {
 

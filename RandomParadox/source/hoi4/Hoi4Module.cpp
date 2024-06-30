@@ -131,10 +131,10 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   //  passed to generic Scenariohoi4Gen
   hoi4Gen->numCountries = hoi4Conf.get<int>("scenario.numCountries");
   // force defaults for the game, if not set otherwise
-  if (config.targetLandRegionAmount == 0 && config.autoRegionParams)
+  if (config.targetLandRegionAmount == 0 && config.autoLandRegionParams)
     config.targetLandRegionAmount = 640;
   // force defaults for the game, if not set otherwise
-  if (config.targetSeaRegionAmount == 0 && config.autoRegionParams)
+  if (config.targetSeaRegionAmount == 0 && config.autoSeaRegionParams)
     config.targetSeaRegionAmount = 160;
   cut = config.cut;
   // check if config settings are fine
@@ -285,7 +285,7 @@ void Hoi4Module::readHoi(std::string &gamePath) {
       hoi4Gen->countryColourMap.setValue(c.second->colour, c.first);
     }
   }
-  hoi4Gen->initializeCountries();
+  hoi4Gen->mapCountries();
   // read in further state details from map files
   Hoi4::Parsing::Reading::readAirports(pathcfg.gamePath, hoi4Gen->hoi4States);
   Hoi4::Parsing::Reading::readRocketSites(pathcfg.gamePath,
@@ -318,7 +318,7 @@ void Hoi4Module::generate() {
     hoi4Gen->mapContinents();
     hoi4Gen->generateCountries<Hoi4::Hoi4Country>();
     // build hoi4 countries out of basic countries
-    hoi4Gen->initializeCountries();
+    hoi4Gen->mapCountries();
     hoi4Gen->evaluateNeighbours();
     hoi4Gen->generateWorldCivilizations();
 
@@ -342,16 +342,16 @@ void Hoi4Module::generate() {
     throw(std::exception(error.c_str()));
   }
   // now start writing game files
-  // try {
-  writeImages();
-  writeTextFiles();
+  try {
+    writeImages();
+    writeTextFiles();
 
-  //} catch (std::exception e) {
-  //  std::string error = "Error while dumping and writing files.\n";
-  //  error += "Error is: \n";
-  //  error += e.what();
-  //  throw(std::exception(error.c_str()));
-  //}
+  } catch (std::exception e) {
+    std::string error = "Error while dumping and writing files.\n";
+    error += "Error is: \n";
+    error += e.what();
+    throw(std::exception(error.c_str()));
+  }
   // now if everything worked, print info about world and pause for user to
   // see
   hoi4Gen->printStatistics();

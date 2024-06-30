@@ -28,7 +28,7 @@ public:
 
   Region();
   Region(const Fwg::Region &baseRegion);
-  ~Region();
+  virtual ~Region();
 
   // member functions
   // average given culture and religion shares of all provinces

@@ -21,5 +21,8 @@ public:
   ~Module();
   // member functions
   virtual void generate();
+  void writeTextFiles();
+  void writeImages();
+  std::shared_ptr<Generator> getGenerator() { return vic3Gen; }
 };
 } // namespace Scenario::Vic3

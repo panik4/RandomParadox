@@ -122,6 +122,10 @@ void GenericModule::initNameData(const std::string &path,
   generator->nData = NameGeneration::prepare(path, gamePath);
 }
 
+void GenericModule::writeFiles() {}
+
+void GenericModule::writeImages() {}
+
 // reads generic configs for every module
 void GenericModule::configurePaths(
     const std::string &username, const std::string &gameName,

@@ -16,6 +16,8 @@ class Country : public Scenario::Country {
 public:
   Country(std::string tag, int ID, std::string name, std::string adjective,
           Gfx::Flag flag);
+  Country(Scenario::Country &country,
+          std::vector<std::shared_ptr<Vic3::Region>> &regions);
   ~Country();
   std::vector<std::shared_ptr<Region>> ownedVic3Regions;
   std::vector<DiplomaticRelation> relations;
