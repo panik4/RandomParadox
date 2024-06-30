@@ -17,6 +17,8 @@ public:
   int armsFactories;
   int civilianFactories;
   int dockyards;
+  int navalBases;
+  int infrastructure;
   int stateCategory;
   int stratID;
   int airport, rocketsite, supplyNode;

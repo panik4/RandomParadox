@@ -124,6 +124,9 @@ void Generator::generateStateSpecifics() {
     hoi4State->stateCategory = std::clamp(
         (int)(hoi4State->worldEconomicActivityShare / averageEconomicActivity),
         0, 9);
+    hoi4State->infrastructure = std::clamp(
+        (int)(hoi4State->worldEconomicActivityShare / averageEconomicActivity),
+        0, 5);
     // one province state? Must be an island state
     if (hoi4State->gameProvinces.size() == 1) {
       // if only one province, should be an island. Make it an island state, if

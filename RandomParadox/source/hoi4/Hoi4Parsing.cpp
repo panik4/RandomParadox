@@ -342,7 +342,7 @@ void states(const std::string &path,
       "wasteland",  "small_island", "pastoral",   "rural",      "town",
       "large_town", "city",         "large_city", "metropolis", "megalopolis"};
   for (const auto &region : regions) {
-      // skip both sea and lake regions
+    // skip both sea and land regions
     if (region->sea || region->lake) {
       continue;
     }
@@ -364,7 +364,7 @@ void states(const std::string &path,
     }
     pU::Scenario::replaceOccurences(
         content, "templateInfrastructure",
-        std::to_string(1 + (int)(region->developmentFactor * 4.0)));
+        std::to_string(std::clamp(region->infrastructure, 1, 5)));
     pU::Scenario::replaceOccurences(content, "templateAirbase",
                                     std::to_string(0));
     pU::Scenario::replaceOccurences(
@@ -381,7 +381,9 @@ void states(const std::string &path,
         stateCategories[(int)region->stateCategory]);
     std::string navalBaseContent = "";
     for (const auto &gameProv : region->gameProvinces) {
-      if (gameProv->attributeDoubles.at("naval_bases") > 0) {
+      if (gameProv->attributeDoubles.find("naval_bases") !=
+              gameProv->attributeDoubles.end() &&
+          gameProv->attributeDoubles.at("naval_bases") > 0) {
         navalBaseContent +=
             std::to_string(gameProv->ID + 1) + " = {\n\t\t\t\tnaval_base = " +
             std::to_string((int)gameProv->attributeDoubles.at("naval_bases")) +
