@@ -85,9 +85,7 @@ readCountries(const std::string &path);
 std::vector<std::vector<std::string>> readDefinitions(const std::string &path);
 void readProvinces(Fwg::ClimateGeneration::ClimateData &climateData,
                    const std::string &inPath, const std::string &mapName,
-                   Fwg::Areas::AreaData &areaData,
-                   const std::map<std::string, Fwg::Province::TerrainType>
-                       stringToTerrainType);
+                   Fwg::Areas::AreaData &areaData);
 void readRailways(const std::string &path, Fwg::Areas::AreaData &areaData);
 void readRocketSites(const std::string &path,
                      std::vector<std::shared_ptr<Region>> &regions);

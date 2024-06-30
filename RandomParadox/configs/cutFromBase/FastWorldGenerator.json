@@ -1,7 +1,7 @@
 {
 	"module": 
 	{
-		"debugLevel": 9,
+		"debugLevel": 0,
 		"loadMaps" : true,
 		"writeMaps" : true,
 		"cut" : true,
@@ -299,7 +299,8 @@
 				"maxProvAmount" : 15000
 			},
 			"regions" :{
-				"auto" : true,
+				"autoLandRegions" : true,
+				"autoSeaRegions" : true,
 				"minProvPerRegion" : 8,
 				"minProvPerSeaRegion" : 8,
 				"targetLandRegionAmount" : 640,

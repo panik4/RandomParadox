@@ -1,7 +1,6 @@
 {
 	"randomScenario": 
 	{
-		"loadCountries" : false,
 		"countryColourMap" : "inputs//countryMappings.txt"
 	},
 	"MappingTool":{

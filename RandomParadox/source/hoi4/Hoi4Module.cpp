@@ -122,9 +122,6 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   hoi4Gen->resourceFactor = hoi4Conf.get<double>("hoi4.resourceFactor");
 
   // settings for scenGen
-  hoi4Gen->enableLoadCountries =
-      rpdConf.get<bool>("randomScenario.loadCountries");
-  hoi4Gen->interactive = rpdConf.get<bool>("randomScenario.loadCountries");
   hoi4Gen->countryMappingPath =
       rpdConf.get<std::string>("randomScenario.countryColourMap");
   Fwg::Parsing::attachTrailing(hoi4Gen->countryMappingPath);
@@ -257,8 +254,7 @@ void Hoi4Module::readHoi(std::string &gamePath) {
   // read in game or mod files
   hoi4Gen->climateData.habitabilities.resize(hoi4Gen->provinceMap.size());
   Hoi4::Parsing::Reading::readProvinces(hoi4Gen->climateData, gamePath,
-                                        "provinces.bmp", hoi4Gen->areas,
-                                        hoi4Gen->stringToTerrainType);
+                                        "provinces.bmp", hoi4Gen->areas);
   // get the provinces into GameProvinces
   hoi4Gen->mapProvinces();
   // get the states from files to initialize gameRegions
@@ -317,6 +313,7 @@ void Hoi4Module::generate() {
     hoi4Gen->mapProvinces();
     hoi4Gen->mapRegions();
     hoi4Gen->mapContinents();
+    hoi4Gen->mapTerrain();
     hoi4Gen->generateCountries<Hoi4::Hoi4Country>();
     // build hoi4 countries out of basic countries
     hoi4Gen->mapCountries();

@@ -1098,9 +1098,7 @@ std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
 }
 void readProvinces(ClimateGeneration::ClimateData &climateData,
                    const std::string &inPath, const std::string &mapName,
-                   Fwg::Areas::AreaData &areaData,
-                   const std::map<std::string, Fwg::Province::TerrainType>
-                       stringToTerrainType) {
+                   Fwg::Areas::AreaData &areaData) {
   Logging::logLine("HOI4 Parser: Map: Studying the land");
   auto provMap =
       Fwg::Gfx::Bmp::load24Bit(inPath + "map//" + mapName, "provinces");
@@ -1125,8 +1123,6 @@ void readProvinces(ClimateGeneration::ClimateData &climateData,
         p->coastal = false;
         p->sea = false;
       }
-      std::cout << tokens[6] << std::endl;
-      p->terrainType = stringToTerrainType.at(tokens[6]);
       p->continentID = stoi(tokens[7]) - 1;
       areaData.provinceColourMap.setValue(p->colour, p);
       areaData.provinces.push_back(p);

@@ -37,8 +37,8 @@
 	},
 	"map": 
 	{
-		"width" : 2048,
-		"height" : 2048,
+		"width" : 512,
+		"height" : 512,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -262,11 +262,11 @@
 				},
 				"10" :
 				{
-					"noiseType" : 4,
+					"noiseType" : 5,
 					"fractalType" : 1,
 					"landLayer" : false,
 					"seaLayer" : true,
-					"fractalFrequency" : 2,
+					"fractalFrequency" : 12,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
 					"seed" : 0,
@@ -291,7 +291,8 @@
 				"maxProvAmount" : 15000
 			},
 			"regions" :{
-				"auto" : true,
+				"autoLandRegions" : true,
+				"autoSeaRegions" : true,
 				"minProvPerRegion" : 8,
 				"minProvPerSeaRegion" : 8,
 				"targetLandRegionAmount" : 640,
@@ -299,8 +300,8 @@
 			}
 		},
 		"humidity" : {
-			"latitudeLow" : 0.2,
-			"latitudeHigh" : 1.8,
+			"latitudeLow" : 0.25,
+			"latitudeHigh" : 1.75,
 			"riverHumidityFactor" : 0.5,
 			"riverEffectRangeFactor" : 0.5,
 			"baseHumidity": 1.0,
