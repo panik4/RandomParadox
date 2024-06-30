@@ -16,7 +16,6 @@ public:
   // member variables
   int armsFactories;
   int civilianFactories;
-  double development;
   int dockyards;
   int stateCategory;
   int stratID;

@@ -39,9 +39,10 @@ public:
   bool interactive = false;
   // vars - track civil statistics
   long long worldPop = 0;
+  double worldEconomicActivity = 0;
   // vars - config options
   double worldPopulationFactor = 1.0;
-  double industryFactor = 1.0;
+  double worldIndustryFactor = 1.0;
   double resourceFactor = 1.0;
   // containers - used for every game
   std::map<std::string, Fwg::Province::TerrainType> stringToTerrainType = {
@@ -108,7 +109,11 @@ public:
   // map base provinces to generic game regions
   void mapProvinces();
   // calculating amount of population in states
-  void generatePopulations();
+  void generatePopulationFactors();
+  // determine development from habitability, population density and randomness
+  void generateDevelopment();
+  // determine development from habitability, population density and randomness
+  virtual void generateEconomicActivity();
 
   void generateReligions();
   void generateCultures();
@@ -118,8 +123,6 @@ public:
   virtual void initializeStates();
   // initialize countries
   virtual void mapCountries();
-  // determine development from habitability, population density and randomness
-  void generateDevelopment();
   // mapping terrain types of FastWorldGen to paradox compatible terrains
   Fwg::Gfx::Bitmap mapTerrain();
   // GameRegions are used for every single game,

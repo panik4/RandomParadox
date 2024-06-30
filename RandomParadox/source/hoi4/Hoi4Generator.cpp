@@ -52,7 +52,7 @@ void Generator::mapRegions() {
  * require generation and therefore overwriting of previously cut parts */
 void Generator::cutFromFiles(const std::string &gamePath) {
   // first, cut the heightmap
-    auto heightMapPath = gamePath + "//heightMap.bmp";
+  auto heightMapPath = gamePath + "//heightMap.bmp";
 }
 void Generator::mapCountries() {
   hoi4Countries.clear();
@@ -68,6 +68,10 @@ void Generator::mapCountries() {
 
 void Generator::generateStateResources() {
   Fwg::Utils::Logging::logLine("HOI4: Digging for resources");
+
+  for (const auto &resource : resources) {
+    totalResources[resource.first] = 0;
+  }
   for (auto &hoi4Region : hoi4States) {
     for (const auto &resource : resources) {
       auto chance = resource.second[2];
@@ -76,14 +80,13 @@ void Generator::generateStateResources() {
         auto totalOfResource = resource.second[1] * resource.second[0];
         // more per selected state if the chance is lower
         double averagePerState =
-            (totalOfResource / (double)landStates) * (1.0 / chance);
+            (totalOfResource / (double)areas.landRegions) * (1.0 / chance);
         // range 1 to (2 times average - 1)
         double value =
             1.0 +
             (RandNum::getRandom((int)ceil((2.0 * averagePerState)) - 1.0));
         // increase by industry factor
-        value *= industryFactor;
-        value *= Fwg::Cfg::Values().sizeFactor;
+        value *= worldIndustryFactor;
         hoi4Region->resources[resource.first] = (int)value;
         totalResources[resource.first] += (int)value;
       }
@@ -95,40 +98,49 @@ void Generator::generateStateSpecifics() {
   Fwg::Utils::Logging::logLine("HOI4: Planning the economy");
   auto &config = Cfg::Values();
   // calculate the target industry amount
-  auto targetWorldIndustry = 1248 * config.sizeFactor * industryFactor;
-  Fwg::Utils::Logging::logLine(config.landPercentage);
-  for (auto &hoi4Region : hoi4States) {
-    if (hoi4Region->sea)
-      continue;
-    // count the number of land states for resource generation
-    landStates++;
-    double totalStateArea = 0;
-    double totalDevFactor = 0;
-    double totalPopFactor = 0;
-    for (const auto &gameProv : hoi4Region->gameProvinces) {
-      totalDevFactor += gameProv->devFactor;
-      totalPopFactor += gameProv->popFactor;
-      totalStateArea += gameProv->baseProvince->pixels.size();
-    }
-    // state level is calculated from population and development
-    hoi4Region->stateCategory =
-        std::clamp((int)(totalPopFactor * 5.0 + totalDevFactor * 6.0), 0, 9);
-    // one province region? Must be an island state
-    if (hoi4Region->gameProvinces.size() == 1) {
-      hoi4Region->stateCategory = 1;
-    }
-    hoi4Region->development = totalDevFactor / hoi4Region->provinces.size();
-    // only init this when it hasn't been initialized via text input before
-    if (hoi4Region->totalPopulation < 0) {
-      hoi4Region->totalPopulation =
-          static_cast<int>(totalStateArea * 1250.0 * totalPopFactor *
-                           worldPopulationFactor / config.sizeFactor);
-    }
-    worldPop += (long long)hoi4Region->totalPopulation;
+  auto targetWorldIndustry = 1248.0 * worldIndustryFactor;
+  auto targetWorldPop = 3'000'000'000.0 * worldPopulationFactor;
+  // we need a reference to determine how industrious a state is
+  double averageEconomicActivity = 1.0 / areas.landRegions;
 
-    // count the total coastal provinces of this region
+  worldPop = 0;
+  militaryIndustry = 0;
+  civilianIndustry = 0;
+  navalIndustry = 0;
+  // cleanup work
+  for (auto &hoi4State : hoi4States) {
+    hoi4State->dockyards = 0;
+    hoi4State->civilianFactories = 0;
+    hoi4State->armsFactories = 0;
+  }
+
+  Fwg::Utils::Logging::logLine(config.landPercentage);
+  for (auto &hoi4State : hoi4States) {
+    // skip sea and lake states
+    if (hoi4State->sea || hoi4State->lake)
+      continue;
+
+    // state level is calculated from population and development
+    hoi4State->stateCategory = std::clamp(
+        (int)(hoi4State->worldEconomicActivityShare / averageEconomicActivity),
+        0, 9);
+    // one province state? Must be an island state
+    if (hoi4State->gameProvinces.size() == 1) {
+      // if only one province, should be an island. Make it an island state, if
+      // it isn't more developed
+      hoi4State->stateCategory = std::max<int>(1, hoi4State->stateCategory);
+    }
+
+    // only init this when it hasn't been initialized via text input before
+    if (hoi4State->totalPopulation < 0) {
+      hoi4State->totalPopulation =
+          static_cast<int>(targetWorldPop * hoi4State->worldPopulationShare);
+    }
+    worldPop += (long long)hoi4State->totalPopulation;
+
+    // count the total coastal provinces of this state
     auto totalCoastal = 0;
-    for (auto &gameProv : hoi4Region->gameProvinces) {
+    for (auto &gameProv : hoi4State->gameProvinces) {
       if (gameProv->baseProvince->coastal) {
         totalCoastal++;
         // only create a naval base, if a coastal supply hub was determined in
@@ -141,9 +153,13 @@ void Generator::generateStateSpecifics() {
     }
     // calculate total industry in this state
     if (targetWorldIndustry != 0) {
-      auto stateIndustry =
-          round(0.5 + totalPopFactor * (targetWorldIndustry /
-                                        (double)(this->gameRegions.size())));
+      auto stateIndustry = std::min<double>(
+          hoi4State->worldEconomicActivityShare * targetWorldIndustry, 18.0);
+      // if we're below one, randomize if this state gets a actory or not
+      if (stateIndustry < 1.0) {
+        stateIndustry =
+            RandNum::getRandom(0.0, 1.0) < stateIndustry ? 1.0 : 0.0;
+      }
       double dockChance = 0.25;
       double civChance = 0.5;
       // distribute it to military, civilian and naval factories
@@ -154,21 +170,21 @@ void Generator::generateStateSpecifics() {
       while (--stateIndustry >= 0) {
         auto choice = RandNum::getRandom(0.0, 1.0);
         if (choice < dockChance) {
-          hoi4Region->dockyards++;
+          hoi4State->dockyards++;
         } else if (Fwg::Utils::inRange(dockChance, dockChance + civChance,
                                        choice)) {
-          hoi4Region->civilianFactories++;
+          hoi4State->civilianFactories++;
 
         } else {
-          hoi4Region->armsFactories++;
+          hoi4State->armsFactories++;
         }
       }
     }
-    militaryIndustry += (int)hoi4Region->armsFactories;
-    civilianIndustry += (int)hoi4Region->civilianFactories;
-    navalIndustry += (int)hoi4Region->dockyards;
+    militaryIndustry += (int)hoi4State->armsFactories;
+    civilianIndustry += (int)hoi4State->civilianFactories;
+    navalIndustry += (int)hoi4State->dockyards;
     // get potential building positions
-    hoi4Region->calculateBuildingPositions(this->heightMap, typeMap);
+    hoi4State->calculateBuildingPositions(this->heightMap, typeMap);
   }
   dumpRegions(hoi4States);
 }

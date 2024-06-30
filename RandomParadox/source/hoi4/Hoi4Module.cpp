@@ -117,7 +117,8 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
       {"baseSnowChance", hoi4Conf.get<double>("hoi4.baseSnowChance")}};
   hoi4Gen->worldPopulationFactor =
       hoi4Conf.get<double>("scenario.worldPopulationFactor");
-  hoi4Gen->industryFactor = hoi4Conf.get<double>("scenario.industryFactor");
+  hoi4Gen->worldIndustryFactor =
+      hoi4Conf.get<double>("scenario.industryFactor");
   hoi4Gen->resourceFactor = hoi4Conf.get<double>("hoi4.resourceFactor");
 
   // settings for scenGen
@@ -345,7 +346,6 @@ void Hoi4Module::generate() {
   try {
     writeImages();
     writeTextFiles();
-
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";

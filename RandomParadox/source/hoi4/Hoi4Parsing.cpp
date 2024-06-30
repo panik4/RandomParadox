@@ -20,7 +20,7 @@ void airports(const std::string &path,
   Logging::logLine("HOI4 Parser: Map: Building Airfields");
   std::string content;
   for (const auto &region : regions) {
-    if (region.sea)
+    if (region.sea || region.lake)
       continue;
     content.append(std::to_string(region.ID + 1));
     content.append("={");
@@ -142,7 +142,7 @@ void rocketSites(const std::string &path,
   std::string content;
   // regionId={provId }
   for (const auto &region : regions) {
-    if (region.sea)
+    if (region.sea || region.lake)
       continue;
     content.append(std::to_string(region.ID + 1));
     content.append("={");
@@ -342,7 +342,8 @@ void states(const std::string &path,
       "wasteland",  "small_island", "pastoral",   "rural",      "town",
       "large_town", "city",         "large_city", "metropolis", "megalopolis"};
   for (const auto &region : regions) {
-    if (region->sea) {
+      // skip both sea and lake regions
+    if (region->sea || region->lake) {
       continue;
     }
     std::string provString{""};
@@ -363,7 +364,7 @@ void states(const std::string &path,
     }
     pU::Scenario::replaceOccurences(
         content, "templateInfrastructure",
-        std::to_string(1 + (int)(region->development * 4.0)));
+        std::to_string(1 + (int)(region->developmentFactor * 4.0)));
     pU::Scenario::replaceOccurences(content, "templateAirbase",
                                     std::to_string(0));
     pU::Scenario::replaceOccurences(
@@ -372,8 +373,9 @@ void states(const std::string &path,
     pU::Scenario::replaceOccurences(content, "templateArmsFactory",
                                     std::to_string((int)region->armsFactories));
 
-    pU::Scenario::replaceOccurences(content, "templatePopulation",
-                                    std::to_string((int)region->totalPopulation));
+    pU::Scenario::replaceOccurences(
+        content, "templatePopulation",
+        std::to_string((int)region->totalPopulation));
     pU::Scenario::replaceOccurences(
         content, "templateStateCategory",
         stateCategories[(int)region->stateCategory]);
@@ -970,12 +972,12 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
     auto tag = pU::getValue(state, "owner");
     reg.ID = std::stoi(pU::getValue(state, "id")) - 1;
     removeCharacter(tag, ' ');
-    //reg->owner = tag;
+    // reg->owner = tag;
     auto readIDs = getNumberBlockMultiDelim(state, "provinces");
     for (auto id : readIDs) {
-      //reg->gameProvinces.push_back(hoi4Gen.gameProvinces[id - 1]);
+      // reg->gameProvinces.push_back(hoi4Gen.gameProvinces[id - 1]);
       reg.provinces.push_back(hoi4Gen.gameProvinces[id - 1]->baseProvince);
-      //hoi4Gen.gameProvinces[id - 1]->baseProvince->regionID = reg.ID;
+      // hoi4Gen.gameProvinces[id - 1]->baseProvince->regionID = reg.ID;
     }
 
     Fwg::Gfx::Colour colour;
@@ -984,25 +986,26 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
       colour.randomize();
     } while (stateColours.find(colour));
     reg.colour = colour;
-    //hoi4Gen.gameRegions.push_back(reg);
+    // hoi4Gen.gameRegions.push_back(reg);
     stateColours.setValue(reg.colour, reg);
     hoi4Gen.areas.regions.push_back(reg);
   }
 
   std::sort(hoi4Gen.areas.regions.begin(), hoi4Gen.areas.regions.end(),
             [](auto l, auto r) { return l < r; });
-  //for (auto &region : hoi4Gen.gameRegions) {
-  //  if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end()) {
-  //    hoi4Gen.countries.at(region->owner)->ownedRegions.push_back(region);
-  //  } else {
-  //    Country c;
-  //    c.tag = region->owner;
-  //    c.ownedRegions.push_back(region);
-  //    hoi4Gen.countries.insert({c.tag, std::make_shared<Country>(c)});
-  //  }
-  //}
+  // for (auto &region : hoi4Gen.gameRegions) {
+  //   if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end()) {
+  //     hoi4Gen.countries.at(region->owner)->ownedRegions.push_back(region);
+  //   } else {
+  //     Country c;
+  //     c.tag = region->owner;
+  //     c.ownedRegions.push_back(region);
+  //     hoi4Gen.countries.insert({c.tag, std::make_shared<Country>(c)});
+  //   }
+  // }
   Fwg::Gfx::Bitmap regionMap(5632, 2048, 24);
-  Fwg::Gfx::regionMap(hoi4Gen.areas.regions, regionMap);
+  Fwg::Gfx::regionMap(hoi4Gen.areas.regions, hoi4Gen.areas.provinces,
+                      regionMap);
   Fwg::Gfx::Bmp::save(regionMap, path + "/map/regions.bmp");
 }
 // get the bmp file info and extract the respective IDs from definition.csv
@@ -1078,9 +1081,9 @@ readCountries(const std::string &path) {
     if (line.size() > 3) {
       auto tag = line.substr(0, 3);
       auto name = pU::getValue(line, "=");
-      //Hoi4Country hc;
-      //hc.tag = tag;
-      //hc.name = name;
+      // Hoi4Country hc;
+      // hc.tag = tag;
+      // hc.name = name;
     }
   }
 
@@ -1120,7 +1123,7 @@ void readProvinces(ClimateGeneration::ClimateData &climateData,
         p->coastal = false;
         p->sea = false;
       }
-      std::cout << tokens[6]<< std::endl;
+      std::cout << tokens[6] << std::endl;
       p->terrainType = stringToTerrainType.at(tokens[6]);
       p->continentID = stoi(tokens[7]) - 1;
       areaData.provinceColourMap.setValue(p->colour, p);
@@ -1128,7 +1131,8 @@ void readProvinces(ClimateGeneration::ClimateData &climateData,
     }
   }
   // call it with special idsort bool to make sure we sort by ID only this time
-  Fwg::Areas::Provinces::readProvinceBMP(climateData ,provMap, heightMap, areaData.provinces,
+  Fwg::Areas::Provinces::readProvinceBMP(climateData, provMap, heightMap,
+                                         areaData.provinces,
                                          areaData.provinceColourMap, true);
 }
 void readRocketSites(const std::string &path,

@@ -8,6 +8,7 @@
 
 namespace Scenario {
 template <typename T> void dumpRegions(const std::vector<T> &regions) {
+  const auto &config = Fwg::Cfg::Values();
   std::string content = "";
   for (const auto &region : regions) {
     content += Fwg::Parsing::csvFormat(
@@ -17,6 +18,6 @@ template <typename T> void dumpRegions(const std::vector<T> &regions) {
          std::to_string(region->totalPopulation)},
         ';', true);
   }
-  Fwg::Parsing::writeFile("Maps//states.txt", content);
+  Fwg::Parsing::writeFile(config.mapsPath + "states.txt", content);
 }
-}; // namespace Fwg::Parsing::Scenario
+}; // namespace Scenario

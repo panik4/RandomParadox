@@ -1,7 +1,7 @@
 #pragma once
+#include "Culture.h"
 #include "FastWorldGenerator.h"
 #include "Religion.h"
-#include "Culture.h"
 namespace Scenario {
 class GameProvince {
 public:
@@ -15,7 +15,9 @@ public:
   Fwg::Province *baseProvince;
   // containers
   std::vector<GameProvince> neighbours;
+  // TODO: Remove this crap
   std::map<std::string, double> attributeDoubles;
+  // TODO: Remove this crap
   std::map<std::string, std::string> attributeStrings;
   std::map<std::shared_ptr<Scenario::Religion>, double> religions;
   std::map<std::shared_ptr<Scenario::Culture>, double> cultures;
