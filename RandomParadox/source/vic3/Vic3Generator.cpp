@@ -182,7 +182,7 @@ void Generator::generateCountrySpecifics() {
     c->pop = totalPop;
     for (auto &state : c->ownedVic3Regions) {
       // development should be weighed by the pop in the state
-      averageDevelopment += state->development *
+      averageDevelopment += state->developmentFactor *
                             ((double)state->totalPopulation / (double)totalPop);
     }
     // c->developmentFactor = averageDevelopment;

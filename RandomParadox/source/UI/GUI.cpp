@@ -589,7 +589,7 @@ int GUI::showScenarioTab(
       ImGui::InputDouble("WorldPopulationFactor",
                          &activeModule->generator->worldPopulationFactor, 0.1);
       ImGui::InputDouble("industryFactor",
-                         &activeModule->generator->industryFactor, 0.1);
+                         &activeModule->generator->worldIndustryFactor, 0.1);
       if (isRelevantModuleActive("hoi4")) {
         auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
         showHoi4Configure(cfg, hoi4Gen);
@@ -840,6 +840,7 @@ int GUI::showStrategicRegionTab(
       if (ImGui::Button("Generate strategic regions")) {
         // non-country stuff
         generator->generateStrategicRegions();
+        uiUtils->resetTexture();
         if (activeGameConfig.gameName == "Hearts of Iron IV") {
           auto hoi4Gen =
               std::reinterpret_pointer_cast<Hoi4Gen, Scenario::Generator>(

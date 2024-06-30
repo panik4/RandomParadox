@@ -14,7 +14,6 @@ namespace Scenario::Hoi4 {
 
 class Generator : public Scenario::Generator {
   // vars
-  int landStates = 0;
   int focusID = 0;
   // vars - track industry statistics
   int totalWorldIndustry = 0;

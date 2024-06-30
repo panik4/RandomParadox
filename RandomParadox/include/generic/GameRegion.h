@@ -13,9 +13,17 @@ public:
   int superRegionID;
   // calculate this for the scenario in general
   double populationFactor;
+  double worldPopulationShare;
+  double developmentFactor;
+  double worldDevelopmentShare;
   // calculate this in every module
   int totalPopulation;
-  double development;
+  // this calculated in every module, usually by taking both population and
+  // development into account
+  double economicActivity;
+  double worldEconomicActivityShare;
+
+  // other
   bool assigned;
   double snowChance, lightRainChance, heavyRainChance, blizzardChance,
       mudChance, sandStormChance;

@@ -18,8 +18,9 @@ void Generator::loadRequiredResources(const std::string &gamePath) {}
 
 void Generator::generateWorldCivilizations() {
   typeMap = mapTerrain();
-  generatePopulations();
+  generatePopulationFactors();
   generateDevelopment();
+  generateEconomicActivity();
   generateReligions();
   generateCultures();
   for (auto &region : gameRegions) {
@@ -139,50 +140,68 @@ void Generator::mapProvinces() {
             [](auto l, auto r) { return *l < *r; });
 }
 
-void Generator::generatePopulations() {
+void Generator::generatePopulationFactors() {
   Logging::logLine("Generating Population");
+  double worldPopulationFactorSum = 0.0;
   for (auto &gR : gameRegions) {
     gR->populationFactor = 0.0;
     for (auto &gProv : gR->gameProvinces) {
-      // calculate the population factor
-      gProv->popFactor = gProv->baseProvince->populationDensity;
+      // calculate the population factor. We use both the size of the province
+      // and the population density
+      gProv->popFactor = gProv->baseProvince->populationDensity *
+                         gProv->baseProvince->pixels.size();
+      // the game region has its population increased by the population factor
+      // of the province, therefore a product of the size of all provinces and
+      // their respective population densities
       gR->populationFactor += gProv->popFactor;
     }
+    // to track the share of this region of the total
+    worldPopulationFactorSum += gR->populationFactor;
+  }
+  // calculate the share of the world population for each region
+  for (auto &gR : gameRegions) {
+    gR->worldPopulationShare = gR->populationFactor / worldPopulationFactorSum;
   }
 }
 void Generator::generateDevelopment() {
   Logging::logLine("Generating State Development");
   auto &config = Fwg::Cfg::Values();
-  Bitmap development(config.width, config.height, 24);
+  double worldDevelopmentFactorSum = 0.0;
+  Bitmap developmentFactor(config.width, config.height, 24);
   for (auto &region : gameRegions) {
-    region->development = 0.0;
+    region->developmentFactor = 0.0;
     for (auto &gameProv : region->gameProvinces) {
-      gameProv->devFactor = gameProv->baseProvince->development;
-      // weigh more populated provinces more
-      region->development += gameProv->devFactor *
-                             (gameProv->popFactor * region->populationFactor);
-      for (auto pix : gameProv->baseProvince->pixels) {
-        development.setColourAtIndex(
-            pix, static_cast<unsigned char>(gameProv->devFactor * 255.0));
-      }
+      // calculate the development of a province. We use both the size of the
+      // province and the development average
+      gameProv->devFactor = gameProv->baseProvince->developmentFactor *
+                            gameProv->baseProvince->pixels.size();
+      // the game region has its population increased by the development factor
+      // of the province, therefore a product of the size of all provinces and
+      // their respective development factors
+      region->developmentFactor += gameProv->devFactor;
     }
+    worldDevelopmentFactorSum += region->developmentFactor;
   }
-  // this initializes pop and dev factors for countries
-  for (auto &cEntry : countries) {
-    auto &c = cEntry.second;
-    for (auto &state : c->ownedRegions) {
-      // to count total pop
-      c->populationFactor += state->populationFactor;
-    }
-    for (auto &state : c->ownedRegions) {
-      // development should be weighed by the pop in the state
-      c->developmentFactor +=
-          state->development *
-          ((double)state->populationFactor / (double)c->populationFactor);
-    }
+  // calculate the share of the world development for each region
+  for (auto &region : gameRegions) {
+    region->worldDevelopmentShare =
+        region->developmentFactor / worldDevelopmentFactorSum;
   }
-  if (config.debugLevel > 5)
-    Png::save(development, config.mapsPath + "world/developmentScenario.png");
+}
+/* Very simple calculation of economic activity. The modules can override this
+ * to implement their own, more complex calculations
+ */
+void Generator::generateEconomicActivity() {
+  double worldEconomicActivitySum = 0.0;
+  for (auto &region : gameRegions) {
+    region->economicActivity =
+        region->worldDevelopmentShare * region->worldPopulationShare;
+    worldEconomicActivitySum += region->economicActivity;
+  }
+  for (auto &region : gameRegions) {
+    region->worldEconomicActivityShare =
+        region->economicActivity / worldEconomicActivitySum;
+  }
 }
 void Generator::generateReligions() {
   auto &config = Fwg::Cfg::Values();

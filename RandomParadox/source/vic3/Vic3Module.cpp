@@ -243,6 +243,10 @@ void Module::writeImages() {
   formatConverter.contentSource(pathcfg.gameModPath +
                                     "//content_source//map_objects//masks//",
                                 vic3Gen->climateData, vic3Gen->civLayer);
+  // save this and reset the heightmap later. The map will be scaled and the
+  // scaled one then used for the packed heightmap generation. It is important
+  // we reset this after
+  auto temporaryHeightmap = vic3Gen->heightMap;
   // also dump uncompressed packed heightmap
   formatConverter.dump8BitHeightmap(
       vic3Gen->heightMap, pathcfg.gameModPath + "//map_data//heightmap",
@@ -256,9 +260,11 @@ void Module::writeImages() {
   Parsing::Writing::heightmap(pathcfg.gameModPath +
                                   "//map_data//heightmap.heightmap",
                               vic3Gen->heightMap, packedHeightmap);
+  vic3Gen->heightMap = temporaryHeightmap;
+  temporaryHeightmap.clear();
   vic3Gen->dumpDebugCountrymap(generator->countryMap);
   Fwg::Gfx::Png::save(vic3Gen->countryMap,
-					  Cfg::Values().mapsPath + "countries.png");
+                      Cfg::Values().mapsPath + "countries.png");
   using namespace Fwg::Gfx;
   // just copy over provinces.bmp as a .png, already in a compatible format
   // auto scaledMap = Bmp::scale(vic3Gen->provinceMap, 8192, 3616, false);
