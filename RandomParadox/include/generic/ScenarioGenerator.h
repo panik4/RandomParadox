@@ -33,10 +33,8 @@ public:
   // vars - used for every game
   NameGeneration::NameData nData;
   int numCountries;
-  bool enableLoadCountries = false;
   std::string countryMappingPath = "";
   std::string regionMappingPath = "";
-  bool interactive = false;
   // vars - track civil statistics
   long long worldPop = 0;
   double worldEconomicActivity = 0;
@@ -45,35 +43,7 @@ public:
   double worldIndustryFactor = 1.0;
   double resourceFactor = 1.0;
   // containers - used for every game
-  std::map<std::string, Fwg::Province::TerrainType> stringToTerrainType = {
-      {"plains", Fwg::Province::TerrainType::grassland},
-      {"forest", Fwg::Province::TerrainType::forest},
-      {"ocean", Fwg::Province::TerrainType::ocean},
-      {"mountain", Fwg::Province::TerrainType::mountains},
-      {"marsh", Fwg::Province::TerrainType::marsh},
-      {"hills", Fwg::Province::TerrainType::hills},
-      {"jungle", Fwg::Province::TerrainType::jungle},
-      {"desert", Fwg::Province::TerrainType::desert},
-      {"urban", Fwg::Province::TerrainType::urban},
-      {"lakes", Fwg::Province::TerrainType::lake}};
-  std::map<Fwg::Province::TerrainType, std::string> terrainTypeToString = {
-      {Fwg::Province::TerrainType::grassland, "plains"},
-      {Fwg::Province::TerrainType::savannah, "plains"},
-      {Fwg::Province::TerrainType::peaks, "mountain"},
-      {Fwg::Province::TerrainType::marsh, "marsh"},
-      {Fwg::Province::TerrainType::forest, "forest"},
-      {Fwg::Province::TerrainType::ocean, "ocean"},
-      {Fwg::Province::TerrainType::mountains, "mountain"},
-      {Fwg::Province::TerrainType::hills, "rockyHills"},
-      {Fwg::Province::TerrainType::jungle, "jungle"},
-      {Fwg::Province::TerrainType::desert, "desert"},
-      {Fwg::Province::TerrainType::arctic, "ice"},
-      {Fwg::Province::TerrainType::tundra, "plains"},
-      {Fwg::Province::TerrainType::urban, "urban"},
-      {Fwg::Province::TerrainType::lake, "lakes"}};
-
   std::vector<ScenarioContinent> scenContinents;
-
   std::vector<std::shared_ptr<Region>> gameRegions;
   std::vector<std::shared_ptr<GameProvince>> gameProvinces;
   std::set<std::string> tags;
@@ -123,8 +93,9 @@ public:
   virtual void initializeStates();
   // initialize countries
   virtual void mapCountries();
-  // mapping terrain types of FastWorldGen to paradox compatible terrains
-  Fwg::Gfx::Bitmap mapTerrain();
+  // mapping terrain types of FastWorldGen to module compatible terrains, only
+  // implemented for some modules
+  virtual Fwg::Gfx::Bitmap mapTerrain();
   // GameRegions are used for every single game,
   std::shared_ptr<Region> &findStartRegion();
   // load countries from an image and map them to regions
@@ -226,42 +197,36 @@ public:
     }
     auto &config = Fwg::Cfg::Values();
     Fwg::Utils::Logging::logLine("Generating Countries");
-    // load tags from hoi4 that are used by the base game
-    // do not use those to avoid conflicts
-    if (this->enableLoadCountries) {
-      // load countries with correct type as specified by the template
-      loadCountries<T>(config.loadMapsPath + "//countries.png",
-                       this->countryMappingPath);
-    } else {
-      for (auto i = 0; i < numCountries; i++) {
-        auto name{NameGeneration::generateName(nData)};
-        T pdoxC(NameGeneration::generateTag(name, nData), i, name,
-                NameGeneration::generateAdjective(name, nData),
-                Gfx::Flag(82, 52));
-        // randomly set development of countries
-        pdoxC.developmentFactor = RandNum::getRandom(0.1, 1.0);
-        countries.emplace(pdoxC.tag, std::make_shared<T>(pdoxC));
-      }
-      for (auto &pdoxCountry : countries) {
-        auto startRegion(findStartRegion());
-        if (startRegion->assigned || startRegion->sea)
-          continue;
-        pdoxCountry.second->assignRegions(6, gameRegions, startRegion,
-                                          gameProvinces);
-      }
-      // assigns remaining regions to provinces
-      if (countries.size()) {
-        for (auto &gameRegion : gameRegions) {
-          if (!gameRegion->sea && !gameRegion->assigned) {
-            auto gR = Fwg::Utils::getNearestAssignedLand(
-                gameRegions, gameRegion, config.width, config.height);
-            countries.at(gR->owner)->addRegion(gameRegion);
-          }
+    for (auto i = 0; i < numCountries; i++) {
+      auto name{NameGeneration::generateName(nData)};
+      T pdoxC(NameGeneration::generateTag(name, nData), i, name,
+              NameGeneration::generateAdjective(name, nData),
+              Gfx::Flag(82, 52));
+      // randomly set development of countries
+      pdoxC.developmentFactor = RandNum::getRandom(0.1, 1.0);
+      countries.emplace(pdoxC.tag, std::make_shared<T>(pdoxC));
+    }
+    for (auto &pdoxCountry : countries) {
+      auto startRegion(findStartRegion());
+      if (startRegion->assigned || startRegion->sea)
+        continue;
+      pdoxCountry.second->assignRegions(6, gameRegions, startRegion,
+                                        gameProvinces);
+    }
+    // assigns remaining regions to provinces
+    if (countries.size()) {
+      for (auto &gameRegion : gameRegions) {
+        if (!gameRegion->sea && !gameRegion->assigned) {
+          auto gR = Fwg::Utils::getNearestAssignedLand(
+              gameRegions, gameRegion, config.width, config.height);
+          countries.at(gR->owner)->addRegion(gameRegion);
         }
       }
     }
+
     dumpDebugCountrymap(countryMap);
-    Fwg::Gfx::Png::save(countryMap, Fwg::Cfg::Values().mapsPath + "countries.png");
+    Fwg::Gfx::Png::save(countryMap,
+                        Fwg::Cfg::Values().mapsPath + "countries.png");
   }
   // see which country neighbours which
   void evaluateNeighbours();

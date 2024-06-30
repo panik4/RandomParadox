@@ -96,18 +96,18 @@ int main() {
     system("pause");
     return -1;
   }
-  //try {
+  try {
     // make sure we always have the default exports directory
     std::filesystem::create_directory("exports//");
     GUI gui2;
     gui2.shiny(rpdConf, configSubFolder, username);
     dumpInfo("", configSubFolder);
-  //} catch (std::exception e) {
-  //  Utils::Logging::logLine(e.what());
-  //  dumpInfo(e.what(), configSubFolder);
-  //  system("pause");
-  //  return -1;
-  //}
+  } catch (std::exception e) {
+    Utils::Logging::logLine(e.what());
+    dumpInfo(e.what(), configSubFolder);
+    system("pause");
+    return -1;
+  }
   Utils::Logging::logLine("Done with the generation");
   return 0;
 }

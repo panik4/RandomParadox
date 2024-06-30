@@ -49,6 +49,7 @@ public:
   Generator(const std::string &configSubFolder);
   ~Generator();
   void mapRegions();
+  virtual Fwg::Gfx::Bitmap mapTerrain();
   void cutFromFiles(const std::string &gamePath);
   // initialize states
   //void initializeStates();

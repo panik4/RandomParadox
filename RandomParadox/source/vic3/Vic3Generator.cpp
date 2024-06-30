@@ -7,11 +7,11 @@ Generator::Generator() : Scenario::Generator() {}
 
 Generator::Generator(const std::string &configSubFolder)
     : Scenario::Generator(configSubFolder) {
-  this->terrainTypeToString.at(Fwg::Province::TerrainType::marsh) = "wetlands";
-  this->terrainTypeToString.at(Fwg::Province::TerrainType::savannah) =
-      "savanna";
-  this->terrainTypeToString.at(Fwg::Province::TerrainType::tundra) = "snow";
-  this->terrainTypeToString.at(Fwg::Province::TerrainType::arctic) = "snow";
+  //this->terrainTypeToString.at(Fwg::Province::TerrainType::marsh) = "wetlands";
+  //this->terrainTypeToString.at(Fwg::Province::TerrainType::savannah) =
+  //    "savanna";
+  //this->terrainTypeToString.at(Fwg::Province::TerrainType::tundra) = "snow";
+  //this->terrainTypeToString.at(Fwg::Province::TerrainType::arctic) = "snow";
 }
 
 void Generator::distributePops() {

@@ -47,9 +47,109 @@ void Generator::mapRegions() {
   applyRegionInput();
 }
 
-/*Get the generator in the correct state first, e.g. load all the maps in. They
- * can be modified later still. However, generation of early steps would then
- * require generation and therefore overwriting of previously cut parts */
+Fwg::Gfx::Bitmap Generator::mapTerrain() {
+  const auto &climateMap = this->climateMap;
+  Bitmap typeMap(climateMap.width(), climateMap.height(), 24);
+  auto &colours = Fwg::Cfg::Values().colours;
+  auto &climateColours = Fwg::Cfg::Values().climateColours;
+  auto &elevationColours = Fwg::Cfg::Values().elevationColours;
+  typeMap.fill(colours.at("sea"));
+  Fwg::Utils::Logging::logLine("Mapping Terrain");
+  const auto &landForms = climateData.landForms;
+  const auto &climates = climateData.climates;
+  const auto &forests = climateData.dominantForest;
+  for (auto &gameRegion : gameRegions) {
+    for (auto &gameProv : gameRegion->gameProvinces) {
+      gameProv->terrainType = "plains";
+      const auto &baseProv = gameProv->baseProvince;
+      if (baseProv->isLake) {
+        gameProv->terrainType = "lake";
+        for (auto &pix : baseProv->pixels) {
+          typeMap.setColourAtIndex(pix, colours.at("lake"));
+        }
+      } else if (baseProv->sea) {
+        gameProv->terrainType = "sea";
+        for (auto &pix : baseProv->pixels) {
+          typeMap.setColourAtIndex(pix, climateColours.at("ocean"));
+        }
+      } else {
+        int forestPixels = 0;
+        std::map<ClimateGeneration::Detail::ClimateTypeIndex, int>
+            climateScores;
+        std::map<Fwg::ElevationTypeIndex, int> terrainTypeScores;
+        // get the dominant climate of the province
+        for (auto &pix : baseProv->pixels) {
+          climateScores[climates[pix].getChances(0).second]++;
+          terrainTypeScores[landForms[pix].landForm]++;
+          if (forests[pix]) {
+            forestPixels++;
+          }
+        }
+        auto dominantClimate =
+            std::max_element(climateScores.begin(), climateScores.end(),
+                             [](const auto &l, const auto &r) {
+                               return l.second < r.second;
+                             })
+                ->first;
+        auto dominantTerrain =
+            std::max_element(terrainTypeScores.begin(), terrainTypeScores.end(),
+                             [](const auto &l, const auto &r) {
+                               return l.second < r.second;
+                             })
+                ->first;
+        // now first check the terrains, if e.g. mountains or peaks are too
+        // dominant, this is a mountainous province
+        if (dominantTerrain == Fwg::ElevationTypeIndex::MOUNTAINS ||
+            dominantTerrain == Fwg::ElevationTypeIndex::PEAKS ||
+            dominantTerrain == Fwg::ElevationTypeIndex::STEEPPEAKS) {
+          gameProv->terrainType = "mountain";
+          for (auto &pix : baseProv->pixels) {
+            typeMap.setColourAtIndex(pix, elevationColours.at("mountains"));
+          }
+        } else if (dominantTerrain == Fwg::ElevationTypeIndex::HILLS) {
+          gameProv->terrainType = "hills";
+          for (auto &pix : baseProv->pixels) {
+            typeMap.setColourAtIndex(pix, elevationColours.at("hills"));
+          }
+        } else if ((double)forestPixels / baseProv->pixels.size() > 0.5) {
+          gameProv->terrainType = "forest";
+          for (auto &pix : baseProv->pixels) {
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour(16, 40, 8));
+          }
+        } else {
+          using CTI = ClimateGeneration::Detail::ClimateTypeIndex;
+          // now, if this is a more flat land, check the climate type
+          if (dominantClimate == CTI::TROPICSMONSOON ||
+              dominantClimate == CTI::TROPICSRAINFOREST) {
+            gameProv->terrainType = "jungle";
+            for (auto &pix : baseProv->pixels) {
+              typeMap.setColourAtIndex(pix,
+                                       climateColours.at("tropicsrainforest"));
+            }
+          } else if (dominantClimate == CTI::COLDDESERT ||
+                     dominantClimate == CTI::DESERT) {
+            gameProv->terrainType = "desert";
+            for (auto &pix : baseProv->pixels) {
+              typeMap.setColourAtIndex(pix, climateColours.at("desert"));
+            }
+          } else {
+            gameProv->terrainType = "plains";
+            for (auto &pix : baseProv->pixels) {
+              typeMap.setColourAtIndex(pix, elevationColours.at("plains"));
+            }
+          }
+        }
+      }
+    }
+  }
+  Png::save(typeMap, "Maps/typeMap.png");
+  return typeMap;
+}
+
+/*Get the generator in the correct state first, e.g. load all the maps in.
+ * They can be modified later still. However, generation of early steps
+ * would then require generation and therefore overwriting of previously cut
+ * parts */
 void Generator::cutFromFiles(const std::string &gamePath) {
   // first, cut the heightmap
   auto heightMapPath = gamePath + "//heightMap.bmp";
@@ -129,8 +229,8 @@ void Generator::generateStateSpecifics() {
         0, 5);
     // one province state? Must be an island state
     if (hoi4State->gameProvinces.size() == 1) {
-      // if only one province, should be an island. Make it an island state, if
-      // it isn't more developed
+      // if only one province, should be an island. Make it an island state,
+      // if it isn't more developed
       hoi4State->stateCategory = std::max<int>(1, hoi4State->stateCategory);
     }
 
@@ -146,8 +246,8 @@ void Generator::generateStateSpecifics() {
     for (auto &gameProv : hoi4State->gameProvinces) {
       if (gameProv->baseProvince->coastal) {
         totalCoastal++;
-        // only create a naval base, if a coastal supply hub was determined in
-        // this province
+        // only create a naval base, if a coastal supply hub was determined
+        // in this province
         if (gameProv->attributeDoubles["naval_bases"] == 1)
           gameProv->attributeDoubles["naval_bases"] = RandNum::getRandom(1, 5);
       } else {
@@ -340,9 +440,9 @@ void Generator::generateLogistics() {
     for (auto &region : country.second.hoi4Regions) {
       if ((region->stateCategory > 6 &&
            region->ID != country.second.capitalRegionID)
-          // if we're nearing the end of our region std::vector, and don't have
-          // more than 25% of our regions as supply bases generate supply bases
-          // for the last two regions
+          // if we're nearing the end of our region std::vector, and don't
+          // have more than 25% of our regions as supply bases generate
+          // supply bases for the last two regions
           || (country.second.hoi4Regions.size() > 2 &&
               (region->ID == (*(country.second.hoi4Regions.end() - 2))->ID) &&
               supplyHubProvinces.size() <
@@ -361,8 +461,8 @@ void Generator::generateLogistics() {
         }
         for (auto &prov : region->gameProvinces) {
           if (prov->baseProvince->coastal && !prov->baseProvince->isLake) {
-            // if this is a coastal region, the supply hub is a naval base as
-            // well, so we overwrite y
+            // if this is a coastal region, the supply hub is a naval base
+            // as well, so we overwrite y
             hubProvince = prov;
             prov->attributeDoubles["naval_bases"] = 1;
             break;
@@ -415,8 +515,8 @@ void Generator::generateLogistics() {
             supplyNodeConnections.back()[0] = sourceNodeID;
           }
         } else {
-          // NOT at the start of the search, therefore sourceNodeID must be the
-          // last element of passThroughStates
+          // NOT at the start of the search, therefore sourceNodeID must be
+          // the last element of passThroughStates
           sourceNodeID = passthroughProvinceIDs.back();
         }
         // break if this is another landmass. We can't reach it anyway
@@ -430,7 +530,8 @@ void Generator::generateLogistics() {
         // save the distance in a temp variable
         double tempMinDistance = width;
         auto closestID = INT_MAX;
-        // now check every sourceNode neighbour for distance to destinationNode
+        // now check every sourceNode neighbour for distance to
+        // destinationNode
         for (auto &neighbourGProvince :
              gameProvinces[sourceNodeID]->neighbours) {
           // check if this belongs to us
@@ -458,8 +559,8 @@ void Generator::generateLogistics() {
           // now save source
           sourceNodeID = passthroughProvinceIDs.back();
         }
-        // if we can't end this rail line, wrap up. Rails shouldn't be longer
-        // than 200 provinces anyway
+        // if we can't end this rail line, wrap up. Rails shouldn't be
+        // longer than 200 provinces anyway
         else if (attempts == 200) {
           // clean it up: if we can't reach our target, the railway must be
           // cleared
@@ -566,9 +667,9 @@ void Generator::generateCountryUnits() {
     // determine army doctrine
     // defensive vs offensive
     // infantry/milita, infantry+support, mechanized+armored, artillery
-    // bully factor? Getting bullied? Infantry+artillery in defensive doctrine
-    // bully? Mechanized+armored
-    // major nation? more mechanized share
+    // bully factor? Getting bullied? Infantry+artillery in defensive
+    // doctrine bully? Mechanized+armored major nation? more mechanized
+    // share
     auto majorFactor = c.second.relativeScore;
     auto bullyFactor = 0.05 * c.second.bully / 5.0;
     if (c.second.rank == "major") {
@@ -602,7 +703,8 @@ void Generator::generateCountryUnits() {
       c.second.doctrines.push_back(Hoi4Country::doctrineType::mass);
     }
 
-    // now evaluate each template and add it if all requirements are fulfilled
+    // now evaluate each template and add it if all requirements are
+    // fulfilled
     for (int i = 0; i < unitTemplates.size(); i++) {
       auto requirements = Parsing::Scenario::getBracketBlockContent(
           unitTemplates[i], "requirements");

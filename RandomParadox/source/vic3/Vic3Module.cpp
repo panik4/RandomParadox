@@ -120,35 +120,35 @@ void Module::generate() {
     return;
 
   initNameData("resources//names", this->pathcfg.gamePath);
-  // try {
-  // start with the generic stuff in the Scenario Generator
-  vic3Gen->mapProvinces();
-  vic3Gen->mapRegions();
-  vic3Gen->mapTerrain();
-  vic3Gen->mapContinents();
-  vic3Gen->generateCountries<Vic3::Country>();
-  vic3Gen->evaluateNeighbours();
-  vic3Gen->generateWorldCivilizations();
-  vic3Gen->dumpDebugCountrymap(generator->countryMap);
-  vic3Gen->generateStrategicRegions();
-  // Vic3 specifics:
-  vic3Gen->distributePops();
-  vic3Gen->distributeResources();
-  vic3Gen->mapCountries();
-  vic3Gen->importData(this->pathcfg.gamePath + "//game//");
-  // handle basic development, tech level, policies,
-  vic3Gen->generateCountrySpecifics();
-  vic3Gen->diplomaticRelations();
-  vic3Gen->createMarkets();
-  vic3Gen->calculateNeeds();
-  vic3Gen->distributeBuildings();
+  try {
+    // start with the generic stuff in the Scenario Generator
+    vic3Gen->mapProvinces();
+    vic3Gen->mapRegions();
+    vic3Gen->mapTerrain();
+    vic3Gen->mapContinents();
+    vic3Gen->generateCountries<Vic3::Country>();
+    vic3Gen->evaluateNeighbours();
+    vic3Gen->generateWorldCivilizations();
+    vic3Gen->dumpDebugCountrymap(generator->countryMap);
+    vic3Gen->generateStrategicRegions();
+    // Vic3 specifics:
+    vic3Gen->distributePops();
+    vic3Gen->distributeResources();
+    vic3Gen->mapCountries();
+    vic3Gen->importData(this->pathcfg.gamePath + "//game//");
+    // handle basic development, tech level, policies,
+    vic3Gen->generateCountrySpecifics();
+    vic3Gen->diplomaticRelations();
+    vic3Gen->createMarkets();
+    vic3Gen->calculateNeeds();
+    vic3Gen->distributeBuildings();
 
-  //} catch (std::exception e) {
-  //  std::string error = "Error while generating the Vic3 Module.\n";
-  //  error += "Error is: \n";
-  //  error += e.what();
-  //  throw(std::exception(error.c_str()));
-  //}
+  } catch (std::exception e) {
+    std::string error = "Error while generating the Vic3 Module.\n";
+    error += "Error is: \n";
+    error += e.what();
+    throw(std::exception(error.c_str()));
+  }
   try {
     // now write the files
     writeTextFiles();
