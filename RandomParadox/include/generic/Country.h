@@ -25,7 +25,7 @@ public:
   Country();
   Country(std::string tag, int ID, std::string name, std::string adjective,
           Gfx::Flag flag);
-  ~Country();
+  virtual ~Country() = default;
   // containers
   std::vector<std::shared_ptr<Region>> ownedRegions;
   std::set<std::string> neighbours;

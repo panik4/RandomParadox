@@ -125,8 +125,8 @@ FormatConverter::dumpPackedHeightmap(const Bitmap &heightMap,
   int mapY = heightMap.height();
   int xTiles = mapX / 64;
   int yTiles = mapY / 64;
-  int packedX = (yTiles)*65;
-  int packedY = (xTiles)*65 + 5;
+  int packedX = (yTiles) * 65;
+  int packedY = (xTiles) * 65 + 5;
   if (gameTag == "Vic3") {
     Fwg::Gfx::Bitmap packedHeightMap(packedX, packedY, 24);
     auto basePackedHeightMap = heightMap;
@@ -415,11 +415,11 @@ void FormatConverter::detailMaps(
   using Et = Fwg::ElevationTypeIndex;
   using Clt = Fwg::ClimateGeneration::Detail::ClimateTypeIndex;
   using ft = Fwg::ClimateGeneration::Detail::TreeTypeIndex;
-  std::map<Et, int> elevationMap{{Et::CLIFF, 16},      {Et::DEEPOCEAN, 6},
-                                 {Et::HIGHLANDS, 18},  {Et::HILLS, 16},
-                                 {Et::LOWHILLS, 13},   {Et::MOUNTAINS, 14},
-                                 {Et::OCEAN, 5},       {Et::PEAKS, 15},
-                                 {Et::STEEPPEAKS, 15}, {Et::VALLEY, 12}};
+  std::map<Et, int> elevationMap{
+      {Et::CLIFF, 16},      {Et::DEEPOCEAN, 6}, {Et::LAKE, 6},
+      {Et::HIGHLANDS, 18},  {Et::HILLS, 16},    {Et::LOWHILLS, 13},
+      {Et::MOUNTAINS, 14},  {Et::OCEAN, 5},     {Et::PEAKS, 15},
+      {Et::STEEPPEAKS, 15}, {Et::VALLEY, 12}};
   std::map<Clt, int> climateMap{{Clt::COLDDESERT, 1},
                                 {Clt::COLDSEMIARID, 25},
                                 {Clt::CONTINENTALCOLD, 22},

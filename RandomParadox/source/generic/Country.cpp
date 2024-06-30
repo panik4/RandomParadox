@@ -11,8 +11,6 @@ Country::Country(std::string tag, int ID, std::string name,
   this->flag.flip();
 }
 
-Country::~Country() {}
-
 void Country::assignRegions(
     int maxRegions, std::vector<std::shared_ptr<Region>> &gameRegions,
     std::shared_ptr<Region> startRegion,

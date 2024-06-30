@@ -116,8 +116,7 @@ void Module::generate() {
     eu4Gen->generateCountries<Scenario::Country>();
     eu4Gen->evaluateNeighbours();
     eu4Gen->generateWorld();
-    eu4Gen->dumpDebugCountrymap(Cfg::Values().mapsPath + "countries.png",
-                                generator->countryMap);
+    eu4Gen->dumpDebugCountrymap(generator->countryMap);
     eu4Gen->generateRegions(eu4Gen->gameRegions);
   } catch (std::exception e) {
     std::string error = "Error while generating the Eu4 Module.\n";

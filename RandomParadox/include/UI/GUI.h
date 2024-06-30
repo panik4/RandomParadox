@@ -62,13 +62,21 @@ class GUI : Fwg::fwgUI {
                       std::shared_ptr<Scenario::GenericModule> genericModule);
   int showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture);
 
-  // HOI stuff
-  int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
   int showModuleGeneric(Fwg::Cfg &cfg,
                         std::shared_ptr<Scenario::GenericModule> genericModule);
-  int showStrategicRegionTab(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
+  int showStrategicRegionTab(Fwg::Cfg &cfg,
+                             std::shared_ptr<Scenario::Generator> generator);
+  // HOI stuff
+  int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
   int showHoi4Finalise(Fwg::Cfg &cfg,
                        std::shared_ptr<Scenario::Hoi4::Hoi4Module> hoi4Module);
+  // Vic3 stuff
+  int showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator);
+  int showVic3Finalise(Fwg::Cfg &cfg,
+                       std::shared_ptr<Scenario::Vic3::Module> vic3Module);
+
+
+  // generic stuff
   int showStatisticsTab();
 
 public:

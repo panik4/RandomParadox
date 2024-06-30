@@ -52,5 +52,5 @@ void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
 // initialize states
 void Generator::initializeStates() {}
 // initialize states
-void Generator::initializeCountries() {}
+void Generator::mapCountries() {}
 } // namespace Scenario::Eu4

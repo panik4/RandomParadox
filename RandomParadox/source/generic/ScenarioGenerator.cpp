@@ -277,7 +277,7 @@ void Generator::cutFromFiles(const std::string &gamePath) {
 // initialize states
 void Generator::initializeStates() {}
 // initialize states
-void Generator::initializeCountries() {}
+void Generator::mapCountries() {}
 
 Fwg::Gfx::Bitmap Generator::mapTerrain() {
   const auto &climateMap = this->climateMap;
@@ -337,93 +337,6 @@ std::shared_ptr<Region> &Generator::findStartRegion() {
   return gameRegions[startRegion->ID];
 }
 
-void Generator::loadCountries(const std::string &countryMapPath,
-                              const std::string &mappingPath) {
-  int counter = 0;
-  std::vector<std::string> mappingFileLines;
-  Fwg::Utils::ColourTMap<std::vector<std::string>> mapOfCountries;
-  try {
-    mappingFileLines = Fwg::Parsing::getLines(mappingPath);
-    for (auto &line : mappingFileLines) {
-      auto tokens = Fwg::Parsing::getTokens(line, ';');
-      auto colour = Fwg::Gfx::Colour(std::stoi(tokens[0]), std::stoi(tokens[1]),
-                                     std::stoi(tokens[2]));
-      mapOfCountries.setValue(colour, tokens);
-    }
-  } catch (std::exception e) {
-    Fwg::Utils::Logging::logLine(
-        "Exception while parsing country input, ", e.what(),
-        " continuing with randomly generated countries");
-  }
-  countryMap =
-      Fwg::IO::Reader::loadAnySupported(countryMapPath, Fwg::Cfg::Values());
-  Fwg::Utils::ColourTMap<std::vector<std::shared_ptr<Scenario::Region>>>
-      mapOfRegions;
-  for (auto &region : gameRegions) {
-    if (region->sea)
-      continue;
-
-    Fwg::Utils::ColourTMap<int> likeliestOwner;
-    Fwg::Gfx::Colour selectedCol;
-
-    for (auto province : region->gameProvinces) {
-      if (!province->baseProvince->sea) {
-        //  we have the colour already
-        auto colour = countryMap[province->baseProvince->pixels[0]];
-
-        if (likeliestOwner.find(colour)) {
-          likeliestOwner[colour] += province->baseProvince->pixels.size();
-
-        } else {
-          likeliestOwner.setValue(colour,
-                                  province->baseProvince->pixels.size());
-        }
-        int max = 0;
-
-        for (auto &potOwner : likeliestOwner.getMap()) {
-          if (potOwner.second > max) {
-            max = potOwner.second;
-            selectedCol = likeliestOwner.getKeyColour(potOwner.first);
-          }
-        }
-      }
-    }
-    if (mapOfRegions.find(selectedCol)) {
-      mapOfRegions[selectedCol].push_back(region);
-    } else {
-      mapOfRegions.setValue(selectedCol, {region});
-    }
-  }
-  for (auto &entry : mapOfRegions.getMap()) {
-    auto entryCol = mapOfRegions.getKeyColour(entry.first);
-    if (mapOfCountries.find(entryCol)) {
-      auto tokens = mapOfCountries[entryCol];
-      auto colour = Fwg::Gfx::Colour(std::stoi(tokens[0]), std::stoi(tokens[1]),
-                                     std::stoi(tokens[2]));
-      Country pdoxC(tokens[3], counter++, tokens[4], tokens[5],
-                    Gfx::Flag(82, 52));
-      pdoxC.colour = colour;
-      for (auto &region : entry.second) {
-        pdoxC.addRegion(region);
-      }
-      countries.emplace(pdoxC.tag, std::make_shared<Country>(pdoxC));
-      nData.tags.insert(pdoxC.tag);
-    } else {
-
-      auto name{NameGeneration::generateName(nData)};
-      Country pdoxC(NameGeneration::generateTag(name, nData), counter++, name,
-                    NameGeneration::generateAdjective(name, nData),
-                    Gfx::Flag(82, 52));
-      pdoxC.colour = mapOfRegions.getKeyColour(entry.first);
-      for (auto &region : entry.second) {
-        pdoxC.addRegion(region);
-      }
-      countries.emplace(pdoxC.tag, std::make_shared<Country>(pdoxC));
-      nData.tags.insert(pdoxC.tag);
-    }
-  }
-}
-
 // generate countries according to given ruleset for each game
 // TODO: rulesets, e.g. naming schemes? tags? country size?
 
@@ -458,6 +371,7 @@ void Generator::generateStrategicRegions() {
       strategicRegions.push_back(stratRegion);
     }
   }
+  visualiseStrategicRegions();
 }
 
 Fwg::Gfx::Bitmap Generator::visualiseStrategicRegions() {
@@ -467,7 +381,7 @@ Fwg::Gfx::Bitmap Generator::visualiseStrategicRegions() {
     for (auto &reg : strat.gameRegions) {
       for (auto &prov : reg->gameProvinces) {
         for (auto &pix : prov->baseProvince->pixels) {
-          stratRegionBMP.setColourAtIndex(pix, reg->colour);
+          stratRegionBMP.setColourAtIndex(pix, strat.colour);
         }
       }
       for (auto &pix : reg->borderPixels) {
@@ -476,6 +390,7 @@ Fwg::Gfx::Bitmap Generator::visualiseStrategicRegions() {
     }
   }
   Bmp::save(stratRegionBMP, Fwg::Cfg::Values().mapsPath + "stratRegions.bmp");
+  stratRegionMap = stratRegionBMP;
   return stratRegionBMP;
 }
 
@@ -490,8 +405,21 @@ void Generator::evaluateNeighbours() {
           c.second->neighbours.insert(gameRegions[neighbourRegion]->owner);
 }
 
-Bitmap Generator::dumpDebugCountrymap(const std::string &path,
-                                      Fwg::Gfx::Bitmap &countryBmp,
+void Generator::printStatistics() {
+  Logging::logLine("Printing Statistics");
+  std::map<std::string, int> countryPop;
+  for (auto &c : countries) {
+    countryPop[c.first] = 0;
+    for (auto &gR : c.second->ownedRegions) {
+      countryPop[c.first] += gR->totalPopulation;
+    }
+  }
+  for (auto &c : countries) {
+    Logging::logLine("Country: ", c.first,
+                     " Population: ", countryPop[c.first]);
+  }
+}
+Bitmap Generator::dumpDebugCountrymap(Fwg::Gfx::Bitmap &countryBmp,
                                       const int ID) {
   Logging::logLine("Drawing borders");
   auto &config = Fwg::Cfg::Values();

@@ -54,7 +54,7 @@ public:
   // initialize states
   //void initializeStates();
   // initialize states
-  void initializeCountries();
+  void mapCountries();
   // give resources to states
   void generateStateResources();
   // industry, development, population, state category

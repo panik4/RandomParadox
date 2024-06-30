@@ -54,7 +54,7 @@ void Generator::cutFromFiles(const std::string &gamePath) {
   // first, cut the heightmap
     auto heightMapPath = gamePath + "//heightMap.bmp";
 }
-void Generator::initializeCountries() {
+void Generator::mapCountries() {
   hoi4Countries.clear();
   for (auto &country : countries) {
     // construct a hoi4country with country from ScenarioGenerator.
@@ -191,7 +191,7 @@ void Generator::generateCountrySpecifics() {
       "southamerican",    "commonwealth",     "asian"};
   const std::vector<std::string> ideologies{"fascism", "democratic",
                                             "communism", "neutrality"};
-  initializeCountries();
+  mapCountries();
   for (auto &country : hoi4Countries) {
     // select a random country ideology
     country.second.gfxCulture = Fwg::Utils::selectRandom(gfxCultures);

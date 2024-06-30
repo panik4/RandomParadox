@@ -32,5 +32,8 @@ public:
   Utils::Pathcfg pathcfg;
   virtual void generate();
   virtual void initNameData(const std::string& path, const std::string& gamePath);
+
+  virtual void writeFiles();
+  virtual void writeImages();
 };
 } // namespace Scenario

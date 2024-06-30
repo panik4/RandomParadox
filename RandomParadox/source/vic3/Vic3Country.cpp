@@ -5,6 +5,14 @@ Country::Country(std::string tag, int ID, std::string name,
                  std::string adjective, Gfx::Flag flag)
     : Scenario::Country(tag, ID, name, adjective, flag) {}
 
+Country::Country(Scenario::Country &country,
+                 std::vector<std::shared_ptr<Vic3::Region>> &regions) {
+  for (auto &region : country.ownedRegions) {
+    this->ownedVic3Regions.push_back(
+        std::reinterpret_pointer_cast<Region>(region));
+  }
+}
+
 Country::~Country() {}
 
 std::vector<std::shared_ptr<Region>>
@@ -14,7 +22,8 @@ Country::getEligibleRegions(const std::string &resourceName) {
 
 void Country::evaluateTechLevel(
     const std::map<std::string, TechnologyLevel> &techLevels) {
-  auto techLevel = std::clamp(1.0 + (1.0 - this->developmentFactor) * 6.0, 1.0, 7.0);
+  auto techLevel =
+      std::clamp(1.0 + (1.0 - this->developmentFactor) * 6.0, 1.0, 7.0);
   this->techLevel = "effect_starting_technology_tier_" +
                     std::to_string((int)techLevel) + "_tech";
   for (const auto &tech : techLevels.at(this->techLevel).technologies) {

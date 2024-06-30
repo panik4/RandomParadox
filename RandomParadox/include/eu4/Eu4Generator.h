@@ -19,7 +19,7 @@ public:
   // initialize states
   virtual void initializeStates();
   // initialize countries
-  virtual void initializeCountries();
+  virtual void mapCountries();
   std::vector<eu4Region> getEu4Regions() { return eu4regions; };
 };
 } // namespace Scenario::Eu4
