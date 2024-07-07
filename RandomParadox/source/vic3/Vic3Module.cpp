@@ -129,7 +129,7 @@ void Module::generate() {
     vic3Gen->generateCountries<Vic3::Country>();
     vic3Gen->evaluateNeighbours();
     vic3Gen->generateWorldCivilizations();
-    vic3Gen->dumpDebugCountrymap(generator->countryMap);
+    vic3Gen->visualiseCountries(generator->countryMap);
     vic3Gen->generateStrategicRegions();
     // Vic3 specifics:
     vic3Gen->distributePops();
@@ -262,7 +262,7 @@ void Module::writeImages() {
                               vic3Gen->heightMap, packedHeightmap);
   vic3Gen->heightMap = temporaryHeightmap;
   temporaryHeightmap.clear();
-  vic3Gen->dumpDebugCountrymap(generator->countryMap);
+  vic3Gen->visualiseCountries(generator->countryMap);
   Fwg::Gfx::Png::save(vic3Gen->countryMap,
                       Cfg::Values().mapsPath + "countries.png");
   using namespace Fwg::Gfx;

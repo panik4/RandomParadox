@@ -27,7 +27,8 @@ public:
   ~FormatConverter();
   // member functions
   void writeBufferPixels(std::vector<unsigned char> &pixels, int index,
-                         Fwg::Gfx::Colour &colour, unsigned char alphaValue);
+                         const Fwg::Gfx::Colour &colour,
+                         unsigned char alphaValue);
   Fwg::Gfx::Bitmap cutBaseMap(const std::string &path,
                               const double factor = 1.0,
                               const int bit = 8) const;
@@ -41,8 +42,7 @@ public:
                       const std::string &path, const std::string &colourMapKey,
                       const bool cut = false) const;
   void dump8BitRivers(const Fwg::ClimateGeneration::ClimateData &climateIn,
-                      const std::string &path,
-                      const std::string &colourMapKey,
+                      const std::string &path, const std::string &colourMapKey,
                       const bool cut = false) const;
   void dump8BitTrees(const Fwg::ClimateGeneration::ClimateData &climateIn,
                      const std::string &path, const std::string &colourMapKey,

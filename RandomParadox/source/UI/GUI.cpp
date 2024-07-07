@@ -113,6 +113,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
   activeModule = std::make_shared<Scenario::Hoi4::Hoi4Module>(
       Scenario::Hoi4::Hoi4Module(rpdConf, configSubFolder, username, false));
   initGameConfigs();
+  this->uiUtils->loadHelpTextsFromFile("resources//uiHelpTexts.txt");
+  uiUtils->setClickOffsets(cfg.width, 1);
   this->pathconfig = activeModule->pathcfg;
   frequency = cfg.overallFrequencyModifier;
   log = std::make_shared<std::stringstream>();
@@ -204,7 +206,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         showAreasTab(cfg, *activeModule->generator);
         showCivilizationTab(cfg, *activeModule->generator);
         showScenarioTab(cfg, activeModule);
-        if (!configuredScenarioGen) {
+        if (!scenarioGenReady()) {
           ImGui::BeginDisabled();
         }
         showCountryTab(cfg, &curtexture);
@@ -227,7 +229,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                                                  Scenario::GenericModule>(
                        activeModule));
         }
-        if (!configuredScenarioGen) {
+        if (!scenarioGenReady()) {
           ImGui::EndDisabled();
         }
         if (!validatedPaths)
@@ -553,7 +555,17 @@ void GUI::showModLoader(
 }
 
 bool GUI::scenarioGenReady() {
-  return configuredScenarioGen && !redoRegions && !redoProvinces;
+  auto ready = configuredScenarioGen && !redoRegions && !redoProvinces;
+  const auto &generator = activeModule->generator;
+  if (!generator->areas.provinces.size() || !generator->areas.regions.size())
+    return false;
+  if (generator->areas.provinces.size() != generator->gameProvinces.size() ||
+      generator->areas.regions.size() != generator->gameRegions.size() ||
+      generator->areas.provinces[0] !=
+          generator->gameProvinces[0]->baseProvince) {
+    ready = false;
+  }
+  return ready;
 }
 
 int GUI::showScenarioTab(
@@ -570,6 +582,7 @@ int GUI::showScenarioTab(
       // auto initialize
       ImGui::SeparatorText(
           "Only remap when you have changed the maps in the previous tabs");
+      uiUtils->showHelpTextPopup("Scenario");
       if (ImGui::Button("Remap areas") ||
           !activeModule->generator->gameProvinces.size()) {
         if (!activeModule->createPaths()) {
@@ -583,6 +596,11 @@ int GUI::showScenarioTab(
         activeModule->generator->mapRegions();
         activeModule->generator->mapTerrain();
         activeModule->generator->mapContinents();
+        // do necessary cleanup so we don't have lingering states
+        activeModule->generator->countryMap.clear();
+        activeModule->generator->countries.clear();
+        activeModule->generator->strategicRegions.clear();
+        activeModule->generator->stratRegionMap.clear();
         configuredScenarioGen = true;
       }
       ImGui::PushItemWidth(200.0f);
@@ -616,7 +634,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     uiUtils->tabSwitchEvent(true);
     // pre-generate simply image even if no countries present
     if (!generator->countryMap.size()) {
-      generator->dumpDebugCountrymap(generator->countryMap);
+      generator->visualiseCountries(generator->countryMap);
     }
     uiUtils->activeImage = &generator->countryMap;
     ImGui::Text(
@@ -628,6 +646,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
                 "inputs//countryMappings.txt as an example. If no file is "
                 "dragged in, this example file is used.");
     ImGui::PushItemWidth(300.0f);
+    uiUtils->showHelpTextPopup("Countries");
     ImGui::InputInt("Number of countries", &generator->numCountries);
     ImGui::InputText("Path to country list: ", &generator->countryMappingPath);
     if (ImGui::Checkbox("Draw-borders", &drawBorders)) {
@@ -650,7 +669,12 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       generator->mapCountries();
       generator->evaluateNeighbours();
       generator->generateWorldCivilizations();
-      generator->dumpDebugCountrymap(generator->countryMap);
+      generator->visualiseCountries(generator->countryMap);
+      uiUtils->resetTexture();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Visualise current countries")) {
+      generator->visualiseCountries(generator->countryMap);
       uiUtils->resetTexture();
     }
     ImGui::SameLine();
@@ -675,7 +699,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
           generator->loadCountries<Scenario::Country>(
               draggedFile, generator->countryMappingPath);
         }
-        generator->dumpDebugCountrymap(generator->countryMap);
+        generator->visualiseCountries(generator->countryMap);
         Fwg::Gfx::Png::save(generator->countryMap,
                             cfg.mapsPath + "countryMap.png");
         // transfer generic states to hoi4states
@@ -726,13 +750,17 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
           }
           if (ImGui::Button("update tag")) {
             std::string &oldTag = selectedCountry->tag;
-            generator->countries.erase(oldTag);
-            selectedCountry->tag = bufferChangedTag;
-            // add country under different tag
-            generator->countries.insert(
-                {selectedCountry->tag, selectedCountry});
-            for (auto &region : selectedCountry->ownedRegions) {
-              region->owner = selectedCountry->tag;
+            if (oldTag == bufferChangedTag) {
+              Fwg::Utils::Logging::logLine("Tag is the same as the old one");
+            } else {
+              generator->countries.erase(oldTag);
+              selectedCountry->tag = bufferChangedTag;
+              // add country under different tag
+              generator->countries.insert(
+                  {selectedCountry->tag, selectedCountry});
+              for (auto &region : selectedCountry->ownedRegions) {
+                region->owner = selectedCountry->tag;
+              }
             }
           }
           ImGui::InputText("Country name", &selectedCountry->name);
@@ -749,7 +777,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
             selectedCountry->colour = Fwg::Gfx::Colour(
                 color.x * 255.0, color.y * 255.0, color.z * 255.0);
             // generator->countryMap =
-            generator->dumpDebugCountrymap(generator->countryMap);
+            generator->visualiseCountries(generator->countryMap);
             uiUtils->resetTexture();
           }
         });
@@ -763,8 +791,8 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
               modifiableState->owner != selectedCountry->tag) {
             // modifiableState->owner = selectedCountry->tag;
             selectedCountry->addRegion(modifiableState);
-            generator->dumpDebugCountrymap(generator->countryMap,
-                                           modifiableState->ID);
+            generator->visualiseCountries(generator->countryMap,
+                                          modifiableState->ID);
             uiUtils->resetTexture();
           }
         }
@@ -836,6 +864,7 @@ int GUI::showStrategicRegionTab(
     uiUtils->activeImage = &generator->stratRegionMap;
     ImGui::SeparatorText(
         "This generates strategic regions, they cannot be loaded");
+    uiUtils->showHelpTextPopup("Strategic Regions");
     if (generator->gameRegions.size()) {
       if (ImGui::Button("Generate strategic regions")) {
         // non-country stuff
@@ -852,6 +881,11 @@ int GUI::showStrategicRegionTab(
                   activeModule->generator);
           // do stuff
         }
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Visualise current strategic regions")) {
+        generator->visualiseStrategicRegions();
+        uiUtils->resetTexture();
       }
       ImGui::Checkbox("Draw strategic regions", &drawBorders);
     } else {
@@ -882,6 +916,7 @@ int GUI::showStrategicRegionTab(
               generator->strategicRegions[selectedStratRegionIndex];
           stratRegion.removeRegion(state);
           rootRegion.addRegion(state);
+          generator->visualiseStrategicRegions(stratRegion.ID);
         } else {
           selectedStratRegionIndex = stratRegion.ID;
         }

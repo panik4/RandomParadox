@@ -60,7 +60,7 @@ readTechLevels(const std::string &inPath,
     for (auto &line : blockLines) {
       if (line.find("add_era_researched") != std::string::npos) {
         // add a fully researched era
-        auto &era = Fwg::Parsing::getValue(line, "add_era_researched");
+        auto era = Fwg::Parsing::getValue(line, "add_era_researched");
         PUS::removeCharacter(era, ' ');
         techLevel.era_researched = era;
         for (auto &tech : techs) {
@@ -70,7 +70,7 @@ readTechLevels(const std::string &inPath,
         }
       } else if (line.find("add_technology_researched") != std::string::npos) {
         // add particular technologies
-        auto &tech = Fwg::Parsing::getValue(line, "add_technology_researched");
+        auto tech = Fwg::Parsing::getValue(line, "add_technology_researched");
         PUS::removeCharacter(tech, ' ');
         if (techs.find(tech) != techs.end()) {
           techLevel.technologies.push_back(techs.at(tech));
@@ -284,7 +284,7 @@ readBuypackages(const std::string &inFolder,
     auto innerblocks = Fwg::Parsing::Scenario::getOuterBlocks(
         Fwg::Parsing::splitLines(block.content));
     for (auto &innerblock : innerblocks) {
-      auto &lines = PU::splitLines(innerblock.content);
+      auto lines = PU::splitLines(innerblock.content);
       for (auto &line : lines) {
         auto popneedname = PUS::getEntrenched(line, "\t", "=");
         PUS::removeSpecials(popneedname);
