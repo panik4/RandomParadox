@@ -56,12 +56,6 @@
 			"tropicalDryDensity" : 0.5,
 			"tropicalMoistDensity" : 0.55
 		},
-		"mountains" :
-		{
-			"peakFactor" : 0.98,
-			"mountainFactor" : 0.95,
-			"hillFactor" : 0.8
-		},
 		"heightmap" : {
 			"complexHeight" : true,
 			"layerAmount" : 11,

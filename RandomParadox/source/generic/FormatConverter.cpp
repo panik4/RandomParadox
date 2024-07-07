@@ -259,7 +259,8 @@ const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
 //  {Cfg::Values().colours["riverEnd"], 1}}},
 
 void FormatConverter::writeBufferPixels(std::vector<unsigned char> &pixels,
-                                        int index, Fwg::Gfx::Colour &colour,
+                                        int index,
+                                        const Fwg::Gfx::Colour &colour,
                                         unsigned char alphaValue) {
   pixels[index] = colour.getRed();
   pixels[index + 1] = colour.getGreen();

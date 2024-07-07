@@ -361,24 +361,46 @@ void Generator::generateStrategicRegions() {
   visualiseStrategicRegions();
 }
 
-Fwg::Gfx::Bitmap Generator::visualiseStrategicRegions() {
-  Bitmap stratRegionBMP(Fwg::Cfg::Values().width, Fwg::Cfg::Values().height,
-                        24);
-  for (auto &strat : strategicRegions) {
+Fwg::Gfx::Bitmap Generator::visualiseStrategicRegions(const int ID) {
+  if (!stratRegionMap.size()) {
+    stratRegionMap =
+        Bitmap(Fwg::Cfg::Values().width, Fwg::Cfg::Values().height, 24);
+  }
+  if (ID > -1) {
+    auto &strat = strategicRegions[ID];
     for (auto &reg : strat.gameRegions) {
       for (auto &prov : reg->gameProvinces) {
         for (auto &pix : prov->baseProvince->pixels) {
-          stratRegionBMP.setColourAtIndex(pix, strat.colour);
+          stratRegionMap.setColourAtIndex(pix, strat.colour);
         }
       }
       for (auto &pix : reg->borderPixels) {
-        stratRegionBMP.setColourAtIndex(pix, strat.colour * 0.5);
+        stratRegionMap.setColourAtIndex(pix, strat.colour * 0.5);
       }
     }
+  } else {
+    auto noBorderMap = Fwg::Gfx::Bitmap(Fwg::Cfg::Values().width,
+                                        Fwg::Cfg::Values().height, 24);
+    for (auto &strat : strategicRegions) {
+      for (auto &reg : strat.gameRegions) {
+        for (auto &prov : reg->gameProvinces) {
+          for (auto &pix : prov->baseProvince->pixels) {
+            stratRegionMap.setColourAtIndex(pix, strat.colour);
+            if (ID == -1) {
+              noBorderMap.setColourAtIndex(pix, strat.colour);
+            }
+          }
+        }
+        for (auto &pix : reg->borderPixels) {
+          stratRegionMap.setColourAtIndex(pix, strat.colour * 0.5);
+        }
+      }
+    }
+    Png::save(noBorderMap,
+              Fwg::Cfg::Values().mapsPath + "stratRegions_no_borders.png");
+    Bmp::save(stratRegionMap, Fwg::Cfg::Values().mapsPath + "stratRegions.bmp");
   }
-  Bmp::save(stratRegionBMP, Fwg::Cfg::Values().mapsPath + "stratRegions.bmp");
-  stratRegionMap = stratRegionBMP;
-  return stratRegionBMP;
+  return stratRegionMap;
 }
 
 void Generator::evaluateNeighbours() {
@@ -406,8 +428,8 @@ void Generator::printStatistics() {
                      " Population: ", countryPop[c.first]);
   }
 }
-Bitmap Generator::dumpDebugCountrymap(Fwg::Gfx::Bitmap &countryBmp,
-                                      const int ID) {
+Bitmap Generator::visualiseCountries(Fwg::Gfx::Bitmap &countryBmp,
+                                     const int ID) {
   Logging::logLine("Drawing borders");
   auto &config = Fwg::Cfg::Values();
   if (!countryBmp.initialised()) {
@@ -429,6 +451,7 @@ Bitmap Generator::dumpDebugCountrymap(Fwg::Gfx::Bitmap &countryBmp,
       }
     }
   } else {
+    Fwg::Gfx::Bitmap noBorderCountries(config.width, config.height, 24);
     for (const auto &region : gameRegions) {
       auto countryColour = Fwg::Gfx::Colour(0, 0, 0);
       // if this tag is assigned, use the colour
@@ -439,12 +462,16 @@ Bitmap Generator::dumpDebugCountrymap(Fwg::Gfx::Bitmap &countryBmp,
         for (const auto &pix : prov->pixels) {
           countryBmp.setColourAtIndex(pix,
                                       countryColour * 0.9 + prov->colour * 0.1);
+          // clean export, for editing outside of the tool, for later loading
+          noBorderCountries.setColourAtIndex(pix, countryColour * 1.0);
         }
       }
       for (auto &pix : region->borderPixels) {
         countryBmp.setColourAtIndex(pix, countryColour * 0.0);
       }
     }
+    Png::save(noBorderCountries,
+              Fwg::Cfg::Values().mapsPath + "countries_no_borders.png");
   }
   return countryBmp;
 }

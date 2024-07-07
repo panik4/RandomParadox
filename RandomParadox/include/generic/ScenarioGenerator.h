@@ -59,7 +59,7 @@ public:
   ~Generator();
   /* member functions*/
   // print a map showing all countries for debug purposes
-  Fwg::Gfx::Bitmap dumpDebugCountrymap(Fwg::Gfx::Bitmap &countryBmp,
+  Fwg::Gfx::Bitmap visualiseCountries(Fwg::Gfx::Bitmap &countryBmp,
                                        const int ID = -1);
   // specific preparations. Used by each game, BUT to create game scenario
   void loadRequiredResources(const std::string &gamePath);
@@ -75,7 +75,7 @@ public:
   void applyRegionInput();
   // build strategic regions from gameregions
   void generateStrategicRegions();
-  Fwg::Gfx::Bitmap visualiseStrategicRegions();
+  Fwg::Gfx::Bitmap visualiseStrategicRegions(const int ID = -1);
   // map base provinces to generic game regions
   void mapProvinces();
   // calculating amount of population in states
@@ -224,7 +224,7 @@ public:
       }
     }
 
-    dumpDebugCountrymap(countryMap);
+    visualiseCountries(countryMap);
     Fwg::Gfx::Png::save(countryMap,
                         Fwg::Cfg::Values().mapsPath + "countries.png");
   }
