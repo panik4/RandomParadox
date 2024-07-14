@@ -57,6 +57,9 @@ bool Module::createPaths() { // prepare folder structure
     for (const auto &path : paths) {
       create_directory(pathcfg.gameModPath + path);
     }
+    // specific debugging path
+    if (Cfg::Values().debugLevel > 0)
+      create_directory(Cfg::Values().mapsPath + "Vic3");
 
     return true;
   } catch (std::exception e) {
@@ -162,6 +165,7 @@ void Module::generate() {
     error += e.what();
     throw(std::exception(error.c_str()));
   }
+  vic3Gen->printStatistics();
 }
 
 void Module::writeTextFiles() {

@@ -456,7 +456,7 @@ void FormatConverter::dumpDDSFiles(const Bitmap &riverMap,
                                    const Bitmap &heightMap,
                                    const std::string &path, const bool cut,
                                    const int maxFactor) const {
-  Utils::Logging::logLine("FormatConverter::Writing DDS files to ", path);
+  Utils::Logging::logLine("FormatConverter::Writing DDS files");
   using namespace DirectX;
   const auto &width = Cfg::Values().width;
 
@@ -491,6 +491,7 @@ void FormatConverter::dumpDDSFiles(const Bitmap &riverMap,
         }
       }
     }
+    Utils::Logging::logLine("FormatConverter::Writing DDS files to ", tempPath);
     writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
              tempPath);
   }

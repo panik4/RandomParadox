@@ -516,19 +516,26 @@ void FormatConverter::detailMaps(
                                       intensities[2] / intensitySum * 255.0f});
   }
 
-  Fwg::Gfx::Png::save(detailIndexBmp,
-                      config.mapsPath + "Vic3//" + "detailIndex.png");
-  Fwg::Gfx::Png::save(detailIntensity,
-                      config.mapsPath + "Vic3//" + "detailIntensity.png");
+  if (Cfg::Values().debugLevel > 0) {
+    Fwg::Gfx::Png::save(detailIndexBmp,
+                        config.mapsPath + "Vic3//" + "detailIndex.png");
+    Fwg::Gfx::Png::save(detailIntensity,
+                        config.mapsPath + "Vic3//" + "detailIntensity.png");
+  }
 
   auto scaledDetailIndex =
       Fwg::Gfx::Bmp::scale(detailIndexBmp, config.width, config.height, false);
-  Fwg::Gfx::Png::save(scaledDetailIndex,
-                      config.mapsPath + "Vic3//" + "sdetailIndex.png");
+
+  if (Cfg::Values().debugLevel > 0) {
+    Fwg::Gfx::Png::save(scaledDetailIndex,
+                        config.mapsPath + "Vic3//" + "sdetailIndex.png");
+  }
   auto scaledDetailIntensity =
       Fwg::Gfx::Bmp::scale(detailIntensity, config.width, config.height, false);
-  Fwg::Gfx::Png::save(scaledDetailIntensity,
-                      config.mapsPath + "Vic3//" + "sdetailIntensity.png");
+  if (Cfg::Values().debugLevel > 0) {
+    Fwg::Gfx::Png::save(scaledDetailIntensity,
+                        config.mapsPath + "Vic3//" + "sdetailIntensity.png");
+  }
 
   const auto &height = scaledDetailIndex.height();
   const auto &width = scaledDetailIndex.width();

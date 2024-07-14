@@ -371,6 +371,7 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
                            ImGui::GetContentRegionAvail().y * 0.1),
                     false, window_flags);
   ImGui::TextUnformatted(log->str().c_str());
+  bool success = true;
   initAllowedInput(cfg, generator);
   if (!ImGui::IsWindowHovered()) {
     // scroll to bottom
@@ -423,10 +424,10 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
         cfg.cut = false;
       }
     }
-    generator.generateWorld();
+    success = generator.generateWorld();
   }
   ImGui::PopItemWidth();
-  return 0;
+  return success;
 }
 // generic configure tab, containing a tab for fwg and rpdx configs
 int GUI::showConfigure(Fwg::Cfg &cfg,

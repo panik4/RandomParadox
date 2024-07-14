@@ -43,9 +43,23 @@
 		"seaLevel" : 94,
 		"accuracy": 100,
 		"sobelFactor": 4,
+		"climate" : 
+		{
+			"fantasyClimate" : false,
+			"fantasyClimateFrequency" : 2.0
+		},
 		"rivers" : 
 		{
 			"riverFactor" : 1.0
+		},
+		"humidity" : 
+		{
+			"latitudeLow" : 0.25,
+			"latitudeHigh" : 1.75,
+			"riverHumidityFactor" : 0.5,
+			"riverEffectRangeFactor" : 0.5,
+			"baseHumidity": 1.0,
+			"baseTemperature": 1.0
 		},
 		"trees" : 
 		{
@@ -56,7 +70,35 @@
 			"tropicalDryDensity" : 0.5,
 			"tropicalMoistDensity" : 0.55
 		},
-		"heightmap" : {
+		"areas" : 
+		{
+			"provinces" : 
+			{
+				"auto" : true,
+				"landProvinceFactor" : 1.0,
+				"seaProvinceFactor" : 1.0,
+				"minProvSize" : 20,
+				"provinceDensityEffects" : 1.0,
+				"maxProvAmount" : 15000
+			},
+			"regions" :
+			{
+				"autoLandRegions" : true,
+				"autoSeaRegions" : true,
+				"minProvPerRegion" : 8,
+				"minProvPerSeaRegion" : 8,
+				"targetLandRegionAmount" : 640,
+				"targetSeaRegionAmount" : 160
+			}
+		},
+		"weather":
+		{
+			"minimumDegCelcius": -20,
+			"deviationFactor": 10,
+			"temperatureRange": 60
+		},
+		"heightmap" : 
+		{
 			"complexHeight" : true,
 			"layerAmount" : 11,
 			"overallFrequencyModifier" : 1.4,
@@ -256,11 +298,11 @@
 				},
 				"10" :
 				{
-					"noiseType" : 5,
+					"noiseType" : 4,
 					"fractalType" : 1,
 					"landLayer" : false,
 					"seaLayer" : true,
-					"fractalFrequency" : 12,
+					"fractalFrequency" : 4,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.4,
 					"seed" : 0,
@@ -274,38 +316,6 @@
 					"tanFactor": 0.0
 				}
 			}
-		},
-		"areas" : {
-			"provinces" : {
-				"auto" : true,
-				"landProvinceFactor" : 1.0,
-				"seaProvinceFactor" : 1.0,
-				"minProvSize" : 20,
-				"provinceDensityEffects" : 1.0,
-				"maxProvAmount" : 15000
-			},
-			"regions" :{
-				"autoLandRegions" : true,
-				"autoSeaRegions" : true,
-				"minProvPerRegion" : 8,
-				"minProvPerSeaRegion" : 8,
-				"targetLandRegionAmount" : 640,
-				"targetSeaRegionAmount" : 160
-			}
-		},
-		"humidity" : {
-			"latitudeLow" : 0.25,
-			"latitudeHigh" : 1.75,
-			"riverHumidityFactor" : 0.5,
-			"riverEffectRangeFactor" : 0.5,
-			"baseHumidity": 1.0,
-			"baseTemperature": 1.0
-		},
-		"weather":
-		{
-			"minimumDegCelcius": -20,
-			"deviationFactor": 10,
-			"temperatureRange": 60
 		}
     }
 }

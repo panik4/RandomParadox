@@ -15,16 +15,14 @@ Generator::Generator(const std::string &configSubFolder)
 }
 
 void Generator::distributePops() {
-  auto overallpopFactor =
-      1000000.0 * worldPopulationFactor * (1.0 / Fwg::Cfg::Values().sizeFactor);
+  auto targetWorldPop = 1'000'000'000.0 * worldPopulationFactor;
   for (auto &region : vic3Regions) {
     if (region->sea)
       continue;
-
-    //// only init this when it hasn't been initialized via text input before
+    // only init this when it hasn't been initialized via text input before
     if (region->totalPopulation < 0) {
       region->totalPopulation =
-          static_cast<int>(region->populationFactor * overallpopFactor);
+          static_cast<int>(targetWorldPop * region->worldPopulationShare);
     }
     worldPop += (long long)region->totalPopulation;
   }
