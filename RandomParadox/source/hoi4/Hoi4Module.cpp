@@ -135,6 +135,8 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   if (config.targetSeaRegionAmount == 0 && config.autoSeaRegionParams)
     config.targetSeaRegionAmount = 160;
   cut = config.cut;
+  config.forceResolutionBase = true;
+  config.resolutionBase = 64;
   // check if config settings are fine
   config.sanityCheck();
 }

@@ -10,6 +10,7 @@ Generator::Generator(const std::string &configSubFolder)
   Gfx::Flag::readFlagTypes();
   Gfx::Flag::readFlagTemplates();
   Gfx::Flag::readSymbolTemplates();
+  stratRegionMap = Bitmap(0, 0, 24);
 }
 
 Generator::~Generator() {}
