@@ -104,10 +104,12 @@ void Module::readVic3Config(const std::string &configSubFolder,
   vic3Gen->numCountries = vic3Conf.get<int>("scenario.numCountries");
   config.seaLevel = 18;
   config.riverFactor = 0.0;
-  config.seaProvFactor *= 0.50;
+  config.seaProvFactor *= 0.10;
   config.landProvFactor *= 1.0;
   config.minProvPerSeaRegion = 1;
   config.autoSeaRegionParams = false;
+  config.forceResolutionBase = false;
+  config.resolutionBase = 1;
   // allow massive images for Vic3
   config.targetMaxImageSize = 160'000'000;
   config.loadMapsPath = vic3Conf.get<std::string>("fastworldgen.loadMapsPath");

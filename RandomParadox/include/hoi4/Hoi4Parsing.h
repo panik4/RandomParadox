@@ -33,7 +33,7 @@ void unitStacks(const std::string &path,
                 const Fwg::Gfx::Bitmap &heightMap);
 void weatherPositions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
-                      const std::vector<StrategicRegion> &strategicRegions);
+                      std::vector<StrategicRegion> &strategicRegions);
 // gfx
 void flags(const std::string &path, const hoiMap &countries);
 
