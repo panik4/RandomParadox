@@ -205,12 +205,25 @@ void unitStacks(const std::string &path,
 
 void weatherPositions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
-                      const std::vector<StrategicRegion> &strategicRegions) {
+                      std::vector<StrategicRegion> &strategicRegions) {
   Logging::logLine("HOI4 Parser: Map: Creating Storms");
   // 1; 2781.24; 9.90; 1571.49; small
   std::string content{""};
   // stateId; pixelX; rotation??; pixelY; rotation??; size
   // 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
+
+  // delete strategic regions that have no gameRegions
+  for (auto i = 0;
+       i < strategicRegions.size();) { // Removed increment from here
+    if (strategicRegions[i].gameRegions.size() == 0) {
+      // do the erase
+      strategicRegions.erase(strategicRegions.begin() + i);
+      // No need to decrement i since we're not incrementing it in the loop
+      // header
+    } else {
+      ++i; // Increment i only if an element is not erased
+    }
+  }
 
   for (auto i = 0; i < strategicRegions.size(); i++) {
     const auto &region =
