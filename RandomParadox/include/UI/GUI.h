@@ -7,6 +7,7 @@
 #include "hoi4/Hoi4Module.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "vic3/Vic3Module.h"
+#include "vic3/Splnet.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <d3d11.h>
@@ -72,9 +73,10 @@ class GUI : Fwg::fwgUI {
                        std::shared_ptr<Scenario::Hoi4::Hoi4Module> hoi4Module);
   // Vic3 stuff
   int showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator);
+  void showSplineTab(Fwg::Cfg &cfg,
+                     std::shared_ptr<Scenario::Vic3::Module> vic3Module);
   int showVic3Finalise(Fwg::Cfg &cfg,
                        std::shared_ptr<Scenario::Vic3::Module> vic3Module);
-
 
   // generic stuff
   int showStatisticsTab();

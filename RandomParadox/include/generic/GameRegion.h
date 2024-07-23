@@ -3,6 +3,14 @@
 #include "GameProvince.h"
 #include <map>
 namespace Scenario {
+enum class LocatorType { NONE, CITY, FARM, MINE, PORT, WOOD };
+struct Locator {
+  LocatorType type = LocatorType::NONE;
+  float xPos;
+  float yPos;
+
+};
+
 class Region : public Fwg::Region {
   std::vector<std::string> cores;
 
@@ -33,6 +41,7 @@ public:
   std::vector<double> dateRange;
   std::map<std::shared_ptr<Scenario::Religion>, double> religions;
   std::map<std::shared_ptr<Scenario::Culture>, double> cultures;
+  std::map<LocatorType, Locator> locators;
 
   Region();
   Region(const Fwg::Region &baseRegion);
@@ -42,5 +51,11 @@ public:
   // average given culture and religion shares of all provinces
   // TODO: calc distinct values for religion and culture mixes
   void sumPopulations();
+
+  void findPortLocator(int maxAmount = 1);
+  void findCityLocator(int maxAmount = 1);
+  void findMineLocator(int maxAmount = 1);
+  void findFarmLocator(int maxAmount = 1);
+  void findWoodLocator(int maxAmount = 1);
 };
 } // namespace Scenario

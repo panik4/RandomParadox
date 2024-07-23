@@ -137,6 +137,7 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   cut = config.cut;
   config.forceResolutionBase = true;
   config.resolutionBase = 64;
+  config.autoSplitProvinces = true;
   // check if config settings are fine
   config.sanityCheck();
 }

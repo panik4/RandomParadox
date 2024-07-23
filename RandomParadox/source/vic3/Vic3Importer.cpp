@@ -110,7 +110,6 @@ std::map<std::string, ProductionmethodGroup> readProdMethodGroups(
       auto innerblocks = Fwg::Parsing::Scenario::getOuterBlocks(
           Fwg::Parsing::splitLines(block.content));
       for (auto &innerblock : innerblocks) {
-        std::cout << innerblock.content << std::endl;
         auto lines = PU::splitLines(innerblock.content);
         for (auto &line : lines) {
           PUS::removeSpecials(line);

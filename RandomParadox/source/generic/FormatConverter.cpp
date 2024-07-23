@@ -293,7 +293,7 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
     int height = heightMap.height();
     //  save the bmp as a png
     auto h2 = Bmp::scale(heightMap, width * 2, height * 2, false);
-    Png::save(h2, path + ".png", true, LCT_GREY, 8);
+    Png::save(h2, path + ".png", true, LCT_GREY, 16);
     heightMap = h2;
   } else {
     Bitmap outputMap(Cfg::Values().width, Cfg::Values().height, 8);
