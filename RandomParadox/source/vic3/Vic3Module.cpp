@@ -42,19 +42,26 @@ bool Module::createPaths() { // prepare folder structure
                                       "//gfx//",
                                       "//gfx//map",
                                       "//gfx//map//masks",
+                                      "//gfx//map//map_object_data",
                                       "//gfx//map//terrain",
                                       "//gfx//map//textures",
                                       "//gfx//map//water",
                                       "//gfx//map//spline_network",
+                                      "//content_source//",
+                                      "//content_source//map_objects",
                                       "//content_source//map_objects//masks",
                                       "//localization//"};
     std::vector<std::string> pathsToRemove = {"//common//", "//localization//",
                                               "//map_data//"};
 
     for (const auto &path : pathsToRemove) {
+      Fwg::Utils::Logging::logLine("Removing path: " + pathcfg.gameModPath +
+                                   path);
       remove_all(pathcfg.gameModPath + path);
     }
     for (const auto &path : paths) {
+      Fwg::Utils::Logging::logLine("Creating path: " + pathcfg.gameModPath +
+                                   path);
       create_directory(pathcfg.gameModPath + path);
     }
     // specific debugging path
@@ -109,6 +116,7 @@ void Module::readVic3Config(const std::string &configSubFolder,
   config.minProvPerSeaRegion = 1;
   config.autoSeaRegionParams = false;
   config.forceResolutionBase = false;
+  config.autoSplitProvinces = false;
   config.resolutionBase = 1;
   // allow massive images for Vic3
   config.targetMaxImageSize = 160'000'000;
@@ -276,6 +284,16 @@ void Module::writeImages() {
   // auto scaledMap = Bmp::scale(vic3Gen->provinceMap, 8192, 3616, false);
   Png::save(vic3Gen->provinceMap,
             pathcfg.gameModPath + "//map_data//provinces.png");
+
+  vic3Gen->createLocators();
+  Parsing::Writing::locators(pathcfg.gameModPath +
+                                 "//gfx//map//map_object_data//",
+                             vic3Gen->vic3Regions);
+
+  Splnet splnet;
+  splnet.constructSplnet(vic3Gen->gameRegions);
+  splnet.writeFile(pathcfg.gameModPath +
+                   "//gfx//map//spline_network//spline_network.splnet");
 }
 
 } // namespace Scenario::Vic3

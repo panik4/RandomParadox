@@ -7,11 +7,12 @@ Generator::Generator() : Scenario::Generator() {}
 
 Generator::Generator(const std::string &configSubFolder)
     : Scenario::Generator(configSubFolder) {
-  //this->terrainTypeToString.at(Fwg::Province::TerrainType::marsh) = "wetlands";
-  //this->terrainTypeToString.at(Fwg::Province::TerrainType::savannah) =
-  //    "savanna";
-  //this->terrainTypeToString.at(Fwg::Province::TerrainType::tundra) = "snow";
-  //this->terrainTypeToString.at(Fwg::Province::TerrainType::arctic) = "snow";
+  // this->terrainTypeToString.at(Fwg::Province::TerrainType::marsh) =
+  // "wetlands";
+  // this->terrainTypeToString.at(Fwg::Province::TerrainType::savannah) =
+  //     "savanna";
+  // this->terrainTypeToString.at(Fwg::Province::TerrainType::tundra) = "snow";
+  // this->terrainTypeToString.at(Fwg::Province::TerrainType::arctic) = "snow";
 }
 
 void Generator::distributePops() {
@@ -402,6 +403,20 @@ void Generator::distributeBuildings() {
         }
       }
     }
+  }
+}
+void Generator::createLocators() {
+  auto &cfg = Fwg::Cfg::Values();
+
+  for (auto &region : vic3Regions) {
+    if (region->sea || region->lake)
+      continue;
+    // create a locator for each building in the region
+    region->findPortLocator();
+    region->findCityLocator();
+    region->findFarmLocator();
+    region->findMineLocator();
+    region->findWoodLocator();
   }
 }
 } // namespace Scenario::Vic3

@@ -52,6 +52,9 @@ void compatReleasable(const std::string &inFolder, const std::string &outPath);
 
 void compatTriggers(const std::string &inFolder, const std::string &outPath);
 
+void locators(const std::string &path,
+    			  const std::vector<std::shared_ptr<Region>> &regions);
+
 } // namespace Writing
 
 namespace History {

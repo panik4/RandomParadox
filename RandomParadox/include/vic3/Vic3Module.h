@@ -5,6 +5,7 @@
 #include "generic/ScenarioGenerator.h"
 #include "vic3/Vic3Generator.h"
 #include "vic3/Vic3Parsing.h"
+#include "vic3/Splnet.h"
 namespace Scenario::Vic3 {
 class Module : public GenericModule {
   std::shared_ptr<Generator> vic3Gen;

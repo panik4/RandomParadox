@@ -263,7 +263,7 @@ class Generator : public Scenario::Generator {
   std::map<std::string, std::vector<BuildingType>> goodToBuildingTypes;
 
 public:
-  std::vector<ResConfig>& getResConfigs() { return this->resConfigs; }
+  std::vector<ResConfig> &getResConfigs() { return this->resConfigs; }
   std::vector<std::shared_ptr<Region>> vic3Regions;
   std::map<std::string, std::shared_ptr<Country>> vic3Countries;
   Generator();
@@ -295,5 +295,8 @@ public:
   void calculateNeeds();
 
   void distributeBuildings();
+
+  // iterates over all states and tries to place locators for all 5 types
+  void createLocators();
 };
 } // namespace Scenario::Vic3

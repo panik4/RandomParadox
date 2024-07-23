@@ -191,6 +191,10 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         uiUtils->freeTexture(&secondaryTexture);
       }
       if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
+        showSplineTab(cfg,
+                      std::reinterpret_pointer_cast<Scenario::Vic3::Module,
+                                                    Scenario::GenericModule>(
+                          activeModule));
         showConfigure(cfg, activeModule);
         if (!validatedPaths)
           ImGui::BeginDisabled();
@@ -1014,6 +1018,25 @@ int GUI::showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator) {
     ImGui::Checkbox("Random", &resourceConfigs[i].random);
   }
   return 0;
+}
+
+void GUI::showSplineTab(Fwg::Cfg &cfg,
+                        std::shared_ptr<Scenario::Vic3::Module> vic3Module) {
+  if (ImGui::BeginTabItem("Splines")) {
+    uiUtils->freeTexture(&curtexture);
+    uiUtils->tabSwitchEvent();
+    const auto &generator = vic3Module->getGenerator();
+
+    // drag event is ignored here
+    if (triggeredDrag) {
+      Scenario::Vic3::Splnet spline;
+      spline.parseFile(draggedFile);
+
+      spline.writeFile(draggedFile + "overwrite");
+      triggeredDrag = false;
+    }
+    ImGui::EndTabItem();
+  }
 }
 
 int GUI::showVic3Finalise(Fwg::Cfg &cfg,

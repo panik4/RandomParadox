@@ -205,7 +205,7 @@ void strategicRegions(const std::string &path,
     std::string states{""};
     std::string capital;
     bool capitalSelected = false;
-    for (const auto& state : region.gameRegions) {
+    for (const auto &state : region.gameRegions) {
       states.append(" STATE_" + state->name);
       if (!capitalSelected) {
         capitalSelected = true;
@@ -442,7 +442,6 @@ void compatStratRegions(const std::string &inFolder, const std::string &outPath,
       content.append(block.name + " = {\n");
       content.append("\tcapital_province = " + hexID + "\n");
       content.append(block.content);
-      std::cout << block.content << std::endl;
       content.append("}\n");
     }
     // for (auto &line : lines) {
@@ -495,6 +494,62 @@ void compatTriggers(const std::string &inFolder, const std::string &outPath) {
     pU::Scenario::removeLines(content, "STATE_");
     pU::writeFile(outPath + filename, content);
   }
+}
+
+void locators(const std::string &path,
+              const std::vector<std::shared_ptr<Region>> &regions) {
+  Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing locators");
+  const auto locatorsTemplate =
+      pU::readFile("resources//vic3//gfx//generated_map_object_locators.txt");
+  const auto singeLocatorTemplate =
+      pU::readFile("resources//vic3//gfx//single_locator_instance.txt");
+  std::string cityContent = locatorsTemplate;
+  pU::replaceOccurence(cityContent, "templateWaterClamp", "no");
+  std::string farmContent = cityContent;
+  std::string mineContent = cityContent;
+  std::string portContent = locatorsTemplate;
+  std::string woodContent = cityContent;
+  pU::replaceOccurence(portContent, "templateWaterClamp", "yes");
+  std::map<LocatorType, std::string> locatorContent;
+  std::map<LocatorType, int> locatorCount;
+
+  for (const auto &region : regions) {
+    for (const auto &locator : region->locators) {
+      auto content = singeLocatorTemplate;
+      pU::replaceOccurence(content, "templateID",
+                           std::to_string(1 + region->ID));
+      pU::replaceOccurence(content, "templateX", std::to_string(locator.second.xPos));
+      pU::replaceOccurence(content, "templateY", std::to_string(locator.second.yPos));
+      locatorContent[locator.second.type].append(content);
+    }
+  }
+  pU::replaceOccurence(cityContent, "templateType", "city");
+  pU::replaceOccurence(farmContent, "templateType", "farm");
+  pU::replaceOccurence(mineContent, "templateType", "mine");
+  pU::replaceOccurence(portContent, "templateType", "port");
+  pU::replaceOccurence(woodContent, "templateType", "wood");
+
+  pU::replaceOccurence(cityContent, "templateLocators",
+                       locatorContent[LocatorType::CITY]);
+  pU::replaceOccurence(farmContent, "templateLocators",
+                       locatorContent[LocatorType::FARM]);
+  pU::replaceOccurence(mineContent, "templateLocators",
+                       locatorContent[LocatorType::MINE]);
+  pU::replaceOccurence(portContent, "templateLocators",
+                       locatorContent[LocatorType::PORT]);
+  pU::replaceOccurence(woodContent, "templateLocators",
+                       locatorContent[LocatorType::WOOD]);
+
+  pU::writeFile(path + "generated_map_object_locators_city.txt", cityContent,
+                true);
+  pU::writeFile(path + "generated_map_object_locators_farm.txt", farmContent,
+                true);
+  pU::writeFile(path + "generated_map_object_locators_mine.txt", mineContent,
+                true);
+  pU::writeFile(path + "generated_map_object_locators_port.txt", portContent,
+                true);
+  pU::writeFile(path + "generated_map_object_locators_wood.txt", woodContent,
+                true);
 }
 
 } // namespace Writing
