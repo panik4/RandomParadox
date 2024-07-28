@@ -24,6 +24,7 @@ public:
   virtual void generate();
   void writeTextFiles();
   void writeImages();
+  void writeSplnet();
   std::shared_ptr<Generator> getGenerator() { return vic3Gen; }
 };
 } // namespace Scenario::Vic3

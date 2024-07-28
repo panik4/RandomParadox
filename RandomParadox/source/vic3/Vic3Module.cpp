@@ -284,7 +284,11 @@ void Module::writeImages() {
   // auto scaledMap = Bmp::scale(vic3Gen->provinceMap, 8192, 3616, false);
   Png::save(vic3Gen->provinceMap,
             pathcfg.gameModPath + "//map_data//provinces.png");
+  writeSplnet();
 
+}
+
+void Module::writeSplnet() {
   vic3Gen->createLocators();
   Parsing::Writing::locators(pathcfg.gameModPath +
                                  "//gfx//map//map_object_data//",

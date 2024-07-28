@@ -115,7 +115,6 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
   initGameConfigs();
   this->uiUtils->loadHelpTextsFromFile("resources//uiHelpTexts.txt");
   uiUtils->setClickOffsets(cfg.width, 1);
-  this->pathconfig = activeModule->pathcfg;
   frequency = cfg.overallFrequencyModifier;
   log = std::make_shared<std::stringstream>();
   *log << Fwg::Utils::Logging::Logger::logInstance.getFullLog();
@@ -191,10 +190,6 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         uiUtils->freeTexture(&secondaryTexture);
       }
       if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
-        showSplineTab(cfg,
-                      std::reinterpret_pointer_cast<Scenario::Vic3::Module,
-                                                    Scenario::GenericModule>(
-                          activeModule));
         showConfigure(cfg, activeModule);
         if (!validatedPaths)
           ImGui::BeginDisabled();
@@ -228,6 +223,12 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               std::reinterpret_pointer_cast<Vic3Gen, Scenario::Generator>(
                   activeModule->generator);
           showStrategicRegionTab(cfg, vic3Gen);
+          if (cfg.debugLevel > 8) {
+            showSplineTab(
+                cfg, std::reinterpret_pointer_cast<Scenario::Vic3::Module,
+                                                   Scenario::GenericModule>(
+                         activeModule));
+          }
           showVic3Finalise(
               cfg, std::reinterpret_pointer_cast<Scenario::Vic3::Module,
                                                  Scenario::GenericModule>(
@@ -963,6 +964,23 @@ int GUI::showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
   return 0;
 }
 
+void GUI::pathWarning(std::exception e) {
+  Fwg::Utils::Logging::logLine(
+      "Error in writing files: ", e.what(),
+      " you probably have misconfigured paths to the mods directory. "
+      "According to you, this is located at the following path: ",
+      activeModule->pathcfg.gameModPath);
+  Fwg::Utils::Logging::logLine("The path to the mod folder is set to ",
+                               activeModule->pathcfg.gameModsDirectory,
+                               " while the path to the game is set to ",
+                               activeModule->pathcfg.gamePath);
+  Fwg::Utils::Logging::logLine(
+      "Please check if the paths are correct, and if the mod folder is "
+      "located in the mods directory of the game. You may now "
+      "reconfigure the paths in the first tab and then try to export "
+      "again.");
+}
+
 int GUI::showHoi4Finalise(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::Hoi4::Hoi4Module> hoi4Module) {
   if (ImGui::BeginTabItem("Finalise")) {
@@ -983,9 +1001,13 @@ int GUI::showHoi4Finalise(
         Scenario::Hoi4::NationalFocus::buildMaps();
         generator->generateFocusTrees();
         generator->generateCountryUnits();
-        hoi4Module->writeImages();
-        hoi4Module->writeTextFiles();
-        generator->printStatistics();
+        try {
+          hoi4Module->writeImages();
+          hoi4Module->writeTextFiles();
+          generator->printStatistics();
+        } catch (std::exception e) {
+          pathWarning(e);
+        }
       }
     } else {
       ImGui::Text("Generate strategic regions first before exporting the mod");
@@ -1060,8 +1082,14 @@ int GUI::showVic3Finalise(Fwg::Cfg &cfg,
         generator->createMarkets();
         generator->calculateNeeds();
         generator->distributeBuildings();
-        vic3Module->writeImages();
-        vic3Module->writeTextFiles();
+        try {
+          vic3Module->writeImages();
+          vic3Module->writeTextFiles();
+          vic3Module->writeSplnet();
+        } catch (std::exception e) {
+          pathWarning(e);
+        }
+
         generator->printStatistics();
       }
     } else {

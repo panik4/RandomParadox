@@ -160,6 +160,8 @@ void Hoi4Module::prepareData() {}
 
 void Hoi4Module::writeTextFiles() {
   using namespace Parsing::Writing;
+  Fwg::Utils::Logging::logLine("Writing Hoi4 mod text files to path: ",
+                               pathcfg.gameModPath);
   ambientObjects(pathcfg.gameModPath + "//map//ambient_object.txt",
                  hoi4Gen->heightMap);
   compatibilityHistory(pathcfg.gameModPath + "//history//countries//",
@@ -210,6 +212,8 @@ void Hoi4Module::writeTextFiles() {
                               pathcfg.modName);
 }
 void Hoi4Module::writeImages() {
+  Fwg::Utils::Logging::logLine("Writing Hoi4 mod image files to path: ",
+                               pathcfg.gameModPath);
   // generate map files. Format must be converted and colours mapped to hoi4
   // compatible colours
   Gfx::FormatConverter formatConverter(pathcfg.gamePath, "Hoi4");

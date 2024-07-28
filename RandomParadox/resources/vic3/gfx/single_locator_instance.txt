@@ -1,0 +1,6 @@
+		{
+			id=templateID
+			position={ templateX 0.000000 templateY }
+			rotation={ -0.000000 -0.000000 -0.000000 0.000000 }
+			scale={ 1.000000 1.000000 1.000000 }
+		}

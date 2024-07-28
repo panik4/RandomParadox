@@ -114,66 +114,67 @@ void Splnet::constructSplnet(
                                                 {LocatorType::PORT, 3},
                                                 {LocatorType::WOOD, 4}};
   for (auto &region : regions) {
-    if (region->ID == 1) {
+    if (true || (region->ID > 0 && region->ID < 5)) {
 
-    // only get as many anchors as we can
-    auto anchorsToFind = 5;
-    // std::min<int>(5, region->provinces.size());
-    // for (auto i = 0; i < anchorsToFind; i++) {
-    //   Anchor anchor;
-    //   anchor.ID = (1 + region->ID) * 100 + i;
-    //   anchor.xPos = region->provinces[i]->position.widthCenter;
-    //   anchor.yPos = region->provinces[i]->position.heightCenter;
-    //   // anchor.xPos = flipFloat(region->provinces[i]->x);
-    //   // anchor.yPos = flipFloat(region->provinces[i]->y);
+      // only get as many anchors as we can
+      auto anchorsToFind = 5;
+      // std::min<int>(5, region->provinces.size());
+      // for (auto i = 0; i < anchorsToFind; i++) {
+      //   Anchor anchor;
+      //   anchor.ID = (1 + region->ID) * 100 + i;
+      //   anchor.xPos = region->provinces[i]->position.widthCenter;
+      //   anchor.yPos = region->provinces[i]->position.heightCenter;
+      //   // anchor.xPos = flipFloat(region->provinces[i]->x);
+      //   // anchor.yPos = flipFloat(region->provinces[i]->y);
 
-    //  anchors.push_back(anchor);
-    //}
-    int stripIdCounter = 0;
-    for (auto &locType : locatorTypeToID) {
+      //  anchors.push_back(anchor);
+      //}
+      int stripIdCounter = 1;
+      int strip2IdCounter = 0;
+      for (auto &locType : locatorTypeToID) {
 
-      if (region->locators.find(locType.first) != region->locators.end()) {
-        Anchor anchor;
-        anchor.ID = (1 + region->ID) * 100 + locType.second;
-        anchor.xPos = region->locators.at(locType.first).xPos;
-        anchor.yPos = region->locators.at(locType.first).yPos;
-        anchors.push_back(anchor);
+        if (region->locators.find(locType.first) != region->locators.end()) {
+          Anchor anchor;
+          anchor.ID = (1 + region->ID) * 100 + locType.second;
+          anchor.xPos = region->locators.at(locType.first).xPos;
+          anchor.yPos = region->locators.at(locType.first).yPos;
+          anchors.push_back(anchor);
+        }
       }
-    }
-      Strip strip;
-      strip.ID = 4;
-      strip.ID2 = 0;
-      strip.unknown11 = 0x04;
-      // get previous to last anchor
-      auto startAnchor = anchors.at(anchors.size() - 2);
-      auto endAnchor = anchors.at(anchors.size() - 1);
+      // Strip strip;
+      // strip.ID = stripIdCounter++;
+      // strip.ID2 = 0;
+      //// get previous to last anchor
+      // auto startAnchor = anchors.at(anchors.size() - 2);
+      // auto endAnchor = anchors.at(anchors.size() - 1);
 
-      strip.startAnchor = startAnchor.ID;
-      strip.targetAnchor = endAnchor.ID;
+      // strip.startAnchor = startAnchor.ID;
+      // strip.targetAnchor = endAnchor.ID;
 
-      strips.push_back(strip);
+      // strips.push_back(strip);
 
-      Strip2 strip2;
-      strip2.ID1 = 0x3280;
-      strip2.ID2 = 0x0660;
-      strip2.refStripId = strip.ID;
-      strip2.refStripId2 = strip.ID2;
-      strip2.unknown13 = 0x04;
-      strips2.push_back(strip2);
+      // Strip2 strip2;
+      ////strip2.ID1 = 0x3280;
+      ////strip2.ID2 = 0x0660;
+      // strip2.refStripId = strip.ID;
+      // strip2.refStripId2 = strip.ID2;
+      // strips2.push_back(strip2);
     }
   }
+  // strips.back().unknown11 = 0x04;
+  // strips2.back().unknown13 = 0x04;
   anchors.back().unknown9 = 4;
   header.anchorAmount = anchors.size();
-  header.splineAmount1 = strips.size();
-  header.splineAmount2 = strips2.size();
+  header.stripAmount = strips.size();
+  header.segmentAmount = strips2.size();
 }
 void Splnet::parseHeader(const std::array<char, 36> &headerData,
                          Header &header) {
   header.anchorAmount = createInt(headerData.data() + 18);
-  header.splineAmount1 = createInt(headerData.data() + 24);
-  std::cout << "Spline amount 1: " << header.splineAmount1 << std::endl;
-  header.splineAmount2 = createInt(headerData.data() + 30);
-  std::cout << "Spline amount 2: " << header.splineAmount2 << std::endl;
+  header.stripAmount = createInt(headerData.data() + 24);
+  std::cout << "Spline amount 1: " << header.stripAmount << std::endl;
+  header.segmentAmount = createInt(headerData.data() + 30);
+  std::cout << "Spline amount 2: " << header.segmentAmount << std::endl;
 }
 void Splnet::parseAnchor(const std::array<char, 34> &anchorData,
                          Anchor &anchor) {
@@ -321,6 +322,7 @@ void Splnet::parseFile(const std::string &path) {
   std::array<char, 36> headerData;
   read_from_stream(stream, headerData);
   parseHeader(headerData, header);
+  header.printHeader();
 
   read_from_stream(stream, anchorHeader);
   for (int i = 0; i < header.anchorAmount; i++) {
@@ -336,6 +338,7 @@ void Splnet::parseFile(const std::string &path) {
   }
   // now, read strip header
   read_from_stream(stream, stripHeader);
+
   std::vector<char> splitPattern = {'\xf6', '\x05', '\x01', '\x00',
                                     '\x03', '\x00', '\x03', '\x00'};
   std::vector<char> stripData1, stripData2;
@@ -361,7 +364,7 @@ void Splnet::parseFile(const std::string &path) {
     Strip strip = vectorToStrip(chunk);
     strips.push_back(strip);
   }
-
+  std::set<int> stripIds;
   //  now read the strip data
   for (auto &chunk : strip2Chunks) {
     if (chunk.size() < sizeof(Strip2)) {
@@ -370,7 +373,11 @@ void Splnet::parseFile(const std::string &path) {
     }
 
     Strip2 strip2 = vectorToStrip2(chunk);
+    // stripIds.insert(strip2.ID);
     strips2.push_back(strip2);
+  }
+  for (auto &strip : stripIds) {
+    std::cout << "Strip ID: " << strip << std::endl;
   }
 }
 

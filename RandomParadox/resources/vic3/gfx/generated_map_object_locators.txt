@@ -1,0 +1,10 @@
+game_object_locator={
+	name="templateType"
+	clamp_to_water_level=templateWaterClamp
+	render_under_water=no
+	generated_content=no
+	layer="locators"
+	instances={
+		templateLocators
+	}
+}

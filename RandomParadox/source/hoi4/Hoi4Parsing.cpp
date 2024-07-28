@@ -37,7 +37,7 @@ void airports(const std::string &path,
 
 void ambientObjects(const std::string &path,
                     const Fwg::Gfx::Bitmap &heightMap) {
-  Logging::logLine("HOI4 Parser: Map: Drawing Strategic Regions");
+  Logging::logLine("HOI4 Parser: Map: editing ambient objects to ", path);
   auto templateContent =
       pU::readFile("resources//hoi4//map//ambient_object.txt");
 
@@ -865,7 +865,9 @@ void foci(const std::string &path, const hoiMap &countries,
 
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
                           const std::vector<Fwg::Region> &regions) {
+  Logging::logLine("HOI4 Parser: History: Writing Compatibility Files");
   const std::filesystem::path hoiDir{hoiPath + "//history//countries//"};
+  Logging::logLine("HOI4 Parser: History: Reading Files from " + hoiDir.string());
   const std::filesystem::path modDir{path};
   for (auto const &dir_entry : std::filesystem::directory_iterator{hoiDir}) {
     std::string pathString = dir_entry.path().string();

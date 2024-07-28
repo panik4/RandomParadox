@@ -37,7 +37,6 @@ class GUI : Fwg::fwgUI {
   bool configuredScenarioGen = false;
   bool validatedPaths = false;
   Fwg::Gfx::Bitmap regionSelectMap;
-  Scenario::Utils::Pathcfg pathconfig;
   std::string activeConfig;
   std::vector<std::string> configSubfolders;
   std::vector<std::string> loadConfigs();
@@ -69,6 +68,7 @@ class GUI : Fwg::fwgUI {
                              std::shared_ptr<Scenario::Generator> generator);
   // HOI stuff
   int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
+  void pathWarning(std::exception e);
   int showHoi4Finalise(Fwg::Cfg &cfg,
                        std::shared_ptr<Scenario::Hoi4::Hoi4Module> hoi4Module);
   // Vic3 stuff
