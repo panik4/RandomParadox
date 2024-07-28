@@ -15,7 +15,6 @@ Note that the underlying world map generation is done in a separate project and 
 It contains a simple GUI built using Dear Imgui (https://github.com/ocornut/imgui)
 
 
-
 ![worldmap](https://github.com/panik4/RandomParadox/blob/main/images/worldMap.png?raw=true)
 A generated fully random world map.
 
@@ -24,22 +23,29 @@ An example of a generated heightmap. The underlying world generation uses a syst
 
 ![provinces](https://github.com/panik4/RandomParadox/blob/main/images/provinces.png?raw=true)
 An visualisation of generated provinces. A province map contains unique colour combinations for every province.
+
 ![regions](https://github.com/panik4/RandomParadox/blob/main/images/regions.png?raw=true)
 An visualisation of generated regions. A province map contains unique colour combinations for every region.
+
 ![climate](https://github.com/panik4/RandomParadox/blob/main/images/climate.png?raw=true)
 The visualisation of generated climate zones.
+
 ![treecoverage](https://github.com/panik4/RandomParadox/blob/main/images/trees.png?raw=true)
 The visualisation of tree coverage overlayed over climate zones.
+
 There are even more files and images being generated, which will not be displayed in the readme.
 
 ## Inputs
 A variety of steps of the generation can take inputs from the user. Examples of using this are:
 ![terrainComplexInput](https://github.com/panik4/RandomParadox/blob/main/images/terrain-complexInput.png?raw=true)
 An input for land forms/elevation types, which the tool the uses to produce a realistic heightmap.
+
 ![terrainComplexOutput](https://github.com/panik4/RandomParadox/blob/main/images/terrain-complexInputResult.png?raw=true)
 The result of the input given above, with both the auto-detected elevation types and the generated heightmap.
+
 ![worldmapFromInput](https://github.com/panik4/RandomParadox/blob/main/images/worldMapFromSimple.png?raw=true)
 A generated fully random world map.
+
 ![climateInput](https://github.com/panik4/RandomParadox/blob/main/images/climateClassification.png?raw=true)
 Loading a climate map and labelling its colours to the tools climate zones
 

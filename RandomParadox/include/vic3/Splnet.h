@@ -18,10 +18,19 @@ struct Header {
   unsigned short unknown9 = 0x0c;
   unsigned int anchorAmount = 0x00;
   unsigned short unknown10 = 0x0c;
-  unsigned int splineAmount1 = 0x00;
+  unsigned int stripAmount = 0x00;
   unsigned short unknown11 = 0x0c;
-  unsigned int splineAmount2 = 0x00;
+  unsigned int segmentAmount = 0x00;
   unsigned short unknown12 = 0x04;
+
+  // print everything in one line with spaces in between
+  void printHeader() {
+	std::cout << unknown1 << " " << unknown2 << " " << unknown3 << " " << unknown4
+			  << " " << unknown5 << " " << unknown6 << " " << unknown7 << " "
+			  << unknown8 << " " << unknown9 << " " << anchorAmount << " "
+			  << unknown10 << " Strips: " << stripAmount << " " << unknown11 << " Segment: "
+			  << segmentAmount << " " << unknown12 << std::endl;
+  }
 };
 struct AnchorHeader {
   // 8 byte magic after adding first anchor
@@ -84,11 +93,15 @@ struct Strip {
   unsigned short unknown11 = 0x03;
 };
 
+
+
 struct Strip2 {
   unsigned short unknown1 = 0x0b;
   unsigned short unknown2 = 0x01;
   unsigned short unknown3 = 0x029c;
-  unsigned int ID1 = 0;
+  // connecting mine with wood = 0x80
+  unsigned char connectionTypeDef = 0x80;
+  //unsigned int ID1 = 0;
   unsigned int ID2 = 0;
   unsigned short unknown7 = 0x05f5;
   unsigned short unknown8 = 0x01;
@@ -99,6 +112,10 @@ struct Strip2 {
   unsigned short unknown11 = 0x04;
   unsigned short unknown12 = 0x04;
   unsigned short unknown13 = 0x03;
+
+  void printStrip2() {
+
+  }
 };
 #pragma pack(pop) // Restore the default packing
 template <typename T>
