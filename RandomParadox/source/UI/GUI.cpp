@@ -106,7 +106,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
   bool done = false;
   //--- prior to main loop:
   DragAcceptFiles(hwnd, TRUE);
-  curtexture = nullptr;
+  primaryTexture = nullptr;
   this->rpdConf = rpdConf;
   this->configSubFolder = configSubFolder;
   this->username = username;
@@ -177,7 +177,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
       }
       if (!validatedPaths)
         ImGui::BeginDisabled();
-      showGeneric(cfg, *activeModule->generator, &curtexture);
+      showGeneric(cfg, *activeModule->generator, &primaryTexture);
       if (!validatedPaths)
         ImGui::EndDisabled();
       ImGui::SameLine();
@@ -187,20 +187,23 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
 
       if (uiUtils->actTxs[1] == UIUtils::ActiveTexture::NONE &&
           secondaryTexture != nullptr) {
-        uiUtils->freeTexture(&secondaryTexture);
       }
       if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
+        // Disable all inputs if computation is running
+        if (computationRunning) {
+          ImGui::BeginDisabled();
+        }
         showConfigure(cfg, activeModule);
         if (!validatedPaths)
           ImGui::BeginDisabled();
         // showModLoader(cfg, activeModule);
-        showHeightmapTab(cfg, *activeModule->generator, &curtexture);
+        showHeightmapTab(cfg, *activeModule->generator, &primaryTexture);
         showLandTab(cfg, *activeModule->generator);
-        showNormalMapTab(cfg, *activeModule->generator, &curtexture);
-        showContinentTab(cfg, *activeModule->generator, &curtexture);
-        showClimateInputTab(cfg, *activeModule->generator, &curtexture);
-        showClimateOverview(cfg, *activeModule->generator, &curtexture);
-        showDensityTab(cfg, *activeModule->generator, &curtexture);
+        showNormalMapTab(cfg, *activeModule->generator, &primaryTexture);
+        showContinentTab(cfg, *activeModule->generator, &primaryTexture);
+        showClimateInputTab(cfg, *activeModule->generator, &primaryTexture);
+        showClimateOverview(cfg, *activeModule->generator, &primaryTexture);
+        showDensityTab(cfg, *activeModule->generator, &primaryTexture);
         showBordersTab(cfg, *activeModule->generator);
         showAreasTab(cfg, *activeModule->generator);
         showCivilizationTab(cfg, *activeModule->generator);
@@ -208,7 +211,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         if (!scenarioGenReady()) {
           ImGui::BeginDisabled();
         }
-        showCountryTab(cfg, &curtexture);
+        showCountryTab(cfg, &primaryTexture);
         if (activeGameConfig.gameName == "Hearts of Iron IV") {
           auto hoi4Gen =
               std::reinterpret_pointer_cast<Hoi4Gen, Scenario::Generator>(
@@ -239,10 +242,112 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         }
         if (!validatedPaths)
           ImGui::EndDisabled();
+        // Re-enable inputs if computation is running
+        if (computationRunning && !computationStarted) {
+          ImGui::EndDisabled();
+        }
+        // Check if the computation is done
+        if (computationRunning &&
+            computationFutureBool.wait_for(std::chrono::seconds(0)) ==
+                std::future_status::ready) {
+          computationRunning = false;
+          uiUtils->resetTexture();
+        }
+
+        if (computationRunning) {
+          computationStarted = false;
+          ImGui::Text("Computation Running...");
+          auto desiredState = uiUtils->actTxs[0];
+          uiUtils->resetTexture();
+          // continuously reset texture during computation
+          uiUtils->switchTexture(*uiUtils->activeImages[0], &primaryTexture, 0,
+                                 desiredState, g_pd3dDevice, w, h);
+        } else {
+          ImGui::Text("Computation Finished!");
+        }
 
         ImGui::EndTabBar();
       }
       static ImVec2 cursorPos;
+      for (auto i = 0; i < uiUtils->activeImages.size(); i++) {
+        // switch to the correct texture, by setting activeImage
+        switch (uiUtils->desiredState[i]) {
+        case UIUtils::ActiveTexture::HEIGHTMAP:
+          uiUtils->activeImages[i] = &activeModule->generator->heightMap;
+          break;
+        case UIUtils::ActiveTexture::LAYER:
+          uiUtils->activeImages[i] = &displayImage;
+          break;
+        case UIUtils::ActiveTexture::TERRAIN:
+          uiUtils->activeImages[i] = &activeModule->generator->landMap;
+          break;
+        case UIUtils::ActiveTexture::NORMALMAP:
+          uiUtils->activeImages[i] = &activeModule->generator->sobelMap;
+          break;
+        case UIUtils::ActiveTexture::CONTINENTS:
+          uiUtils->activeImages[i] = &activeModule->generator->continentMap;
+          break;
+        case UIUtils::ActiveTexture::CLIMATE:
+          uiUtils->activeImages[i] = &activeModule->generator->climateMap;
+          break;
+        case UIUtils::ActiveTexture::HABITABILITY:
+          uiUtils->activeImages[i] = &activeModule->generator->habitabilityMap;
+          break;
+        case UIUtils::ActiveTexture::CONTINENT:
+          uiUtils->activeImages[i] = &activeModule->generator->continentMap;
+          break;
+        case UIUtils::ActiveTexture::TEMPERATURE:
+          uiUtils->activeImages[i] = &displayImage;
+          break;
+        case UIUtils::ActiveTexture::HUMIDITY:
+          uiUtils->activeImages[i] = &activeModule->generator->humidityMap;
+          break;
+        case UIUtils::ActiveTexture::RIVER:
+          uiUtils->activeImages[i] = &activeModule->generator->riverMap;
+          break;
+        case UIUtils::ActiveTexture::WORLD:
+          uiUtils->activeImages[i] = &activeModule->generator->worldMap;
+          break;
+        case UIUtils::ActiveTexture::TREES:
+          uiUtils->activeImages[i] = &activeModule->generator->climateMap;
+          break;
+        case UIUtils::ActiveTexture::BORDERS:
+          uiUtils->activeImages[i] = &activeModule->generator->barrierMap;
+          break;
+        case UIUtils::ActiveTexture::PROVINCES:
+          uiUtils->activeImages[i] = &activeModule->generator->provinceMap;
+          break;
+        case UIUtils::ActiveTexture::REGIONS:
+          uiUtils->activeImages[i] = &activeModule->generator->regionMap;
+          break;
+        case UIUtils::ActiveTexture::DEVELOPMENT:
+          uiUtils->activeImages[i] = &activeModule->generator->developmentMap;
+          break;
+        case UIUtils::ActiveTexture::POPULATION:
+          uiUtils->activeImages[i] = &activeModule->generator->populationMap;
+          break;
+        case UIUtils::ActiveTexture::AGRICULTURE:
+          uiUtils->activeImages[i] = &displayImage;
+          break;
+        case UIUtils::ActiveTexture::URBANISATION:
+          uiUtils->activeImages[i] = &displayImage;
+          break;
+        case UIUtils::ActiveTexture::EXTENDEABLE1:
+          uiUtils->activeImages[i] = &activeModule->generator->countryMap;
+          break;
+        case UIUtils::ActiveTexture::EXTENDEABLE2:
+          uiUtils->activeImages[i] = &activeModule->generator->stratRegionMap;
+          break;
+        default:
+          break;
+        }
+      }
+      uiUtils->switchTexture(*uiUtils->activeImages[0], &primaryTexture, 0,
+                             uiUtils->desiredState[0], g_pd3dDevice, w, h);
+      if (uiUtils->activeImages[1] != nullptr) {
+        uiUtils->switchTexture(*uiUtils->activeImages[1], &secondaryTexture, 1,
+                               uiUtils->desiredState[1], g_pd3dDevice, w, h);
+      }
 
       float modif = 1.0 - (secondaryTexture != nullptr) * 0.5;
       if (w > 0 && h > 0) {
@@ -257,15 +362,14 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         if (io.KeyCtrl) {
           zoom += io.MouseWheel * 0.1f;
         }
-
-        if (curtexture != nullptr &&
+        if (primaryTexture != nullptr &&
             uiUtils->actTxs[0] != UIUtils::ActiveTexture::NONE) {
           // Create a child window with scrollbars
           ImGui::BeginChild("Image", ImVec2(texWidth, texHeight), false,
                             ImGuiWindowFlags_HorizontalScrollbar |
                                 ImGuiWindowFlags_AlwaysVerticalScrollbar);
-
-          ImGui::Image((void *)curtexture,
+          Fwg::Utils::Logging::logLine("Rendering image");
+          ImGui::Image((void *)primaryTexture,
                        ImVec2(texWidth * zoom, texHeight * zoom));
           if (io.KeyCtrl && io.MouseWheel) {
             // Get the mouse position relative to the image
@@ -301,7 +405,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         if (aspectRatio <= 2.0)
           ImGui::SameLine();
         if (secondaryTexture != nullptr &&
-            uiUtils->actTxs[0] != UIUtils::ActiveTexture::NONE) {
+            uiUtils->actTxs[1] != UIUtils::ActiveTexture::NONE) {
           ImGui::Image((void *)secondaryTexture, ImVec2(w * scale, h * scale));
         }
       }
@@ -437,10 +541,13 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
 // generic configure tab, containing a tab for fwg and rpdx configs
 int GUI::showConfigure(Fwg::Cfg &cfg,
                        std::shared_ptr<Scenario::GenericModule> &activeModule) {
+
   if (ImGui::BeginTabItem("Configure")) {
+    uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
+    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     if (ImGui::BeginTabBar("Config tabs", ImGuiTabBarFlags_None)) {
       showRpdxConfigure(cfg, activeModule);
-      showFwgConfigure(cfg, &curtexture);
+      showFwgConfigure(cfg, &primaryTexture);
       ImGui::EndTabBar();
     }
     ImGui::EndTabItem();
@@ -454,7 +561,8 @@ int GUI::showRpdxConfigure(
   // remove the images, and set pretext for them to be auto
   // loaded after switching tabs again
   if (ImGui::BeginTabItem("RandomParadox Configuration")) {
-    uiUtils->freeTexture(&curtexture);
+    uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
+    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     ImGui::PushItemWidth(200.0f);
     uiUtils->tabSwitchEvent();
     // find every subfolder of config folder
@@ -578,7 +686,8 @@ int GUI::showScenarioTab(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> activeModule) {
   int retCode = 0;
   if (ImGui::BeginTabItem("Scenario")) {
-    uiUtils->freeTexture(&curtexture);
+    uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
+    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     uiUtils->tabSwitchEvent();
     if (activeModule->generator->heightMap.initialised() &&
         activeModule->generator->climateMap.initialised() &&
@@ -634,6 +743,8 @@ int GUI::showScenarioTab(
 
 int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
   if (ImGui::BeginTabItem("Countries")) {
+    uiUtils->desiredState[0] = UIUtils::ActiveTexture::EXTENDEABLE1;
+    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     auto &generator = activeModule->generator;
     static int selectedStateIndex = 0;
     static std::string drawCountryTag;
@@ -642,7 +753,6 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     if (!generator->countryMap.size()) {
       generator->visualiseCountries(generator->countryMap);
     }
-    uiUtils->activeImage = &generator->countryMap;
     ImGui::Text(
         "Use auto generated country map or drop it in. You may also first "
         "generate a country map, then edit it in the Maps folder, and then "
@@ -823,9 +933,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       }
     }
     ImGui::Columns(1); // End columns
-    uiUtils->switchTexture(activeModule->generator->countryMap, texture, 0,
-                           UIUtils::ActiveTexture::EXTENDEABLE1, g_pd3dDevice,
-                           w, h);
+
     ImGui::EndTabItem();
     ImGui::PopItemWidth();
   }
@@ -863,11 +971,12 @@ int GUI::showModuleGeneric(
 int GUI::showStrategicRegionTab(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::Generator> generator) {
   if (ImGui::BeginTabItem("Strategic Regions")) {
+    uiUtils->desiredState[0] = UIUtils::ActiveTexture::EXTENDEABLE2;
+    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     static int selectedStratRegionIndex = 0;
     // tab switch setting draw events as accepted
     uiUtils->tabSwitchEvent(true);
 
-    uiUtils->activeImage = &generator->stratRegionMap;
     ImGui::SeparatorText(
         "This generates strategic regions, they cannot be loaded");
     uiUtils->showHelpTextPopup("Strategic Regions");
@@ -929,9 +1038,6 @@ int GUI::showStrategicRegionTab(
       }
       uiUtils->resetTexture();
     }
-    uiUtils->switchTexture(activeModule->generator->stratRegionMap, &curtexture,
-                           0, UIUtils::ActiveTexture::EXTENDEABLE2,
-                           g_pd3dDevice, w, h);
     ImGui::EndTabItem();
   }
   return 0;
@@ -984,7 +1090,8 @@ void GUI::pathWarning(std::exception e) {
 int GUI::showHoi4Finalise(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::Hoi4::Hoi4Module> hoi4Module) {
   if (ImGui::BeginTabItem("Finalise")) {
-    uiUtils->freeTexture(&curtexture);
+    uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
+    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     uiUtils->tabSwitchEvent();
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
@@ -1045,7 +1152,8 @@ int GUI::showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator) {
 void GUI::showSplineTab(Fwg::Cfg &cfg,
                         std::shared_ptr<Scenario::Vic3::Module> vic3Module) {
   if (ImGui::BeginTabItem("Splines")) {
-    uiUtils->freeTexture(&curtexture);
+    uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
+    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     uiUtils->tabSwitchEvent();
     const auto &generator = vic3Module->getGenerator();
 
@@ -1064,7 +1172,8 @@ void GUI::showSplineTab(Fwg::Cfg &cfg,
 int GUI::showVic3Finalise(Fwg::Cfg &cfg,
                           std::shared_ptr<Scenario::Vic3::Module> vic3Module) {
   if (ImGui::BeginTabItem("Finalise")) {
-    uiUtils->freeTexture(&curtexture);
+    uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
+    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     uiUtils->tabSwitchEvent();
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
