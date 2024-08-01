@@ -51,6 +51,11 @@
 		"seaLevel" : 94,
 		"accuracy": 100,
 		"sobelFactor": 4,
+		"climate" : 
+		{
+			"fantasyClimate" : false,
+			"fantasyClimateFrequency" : 2.0
+		},
 		"rivers" : 
 		{
 			"riverFactor" : 1.0
