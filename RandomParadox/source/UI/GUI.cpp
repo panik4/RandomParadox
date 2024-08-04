@@ -77,8 +77,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
   SendMessage(consoleWindow, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
   SendMessage(consoleWindow, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
   ::RegisterClassExW(&wc);
-  HWND hwnd =
-      uiUtils->createAndConfigureWindow(wc, wc.lpszClassName, L"RandomParadox 0.7.2");
+  HWND hwnd = uiUtils->createAndConfigureWindow(wc, wc.lpszClassName,
+                                                L"RandomParadox 0.7.2");
   // Initialize Direct3D
   if (!CreateDeviceD3D(hwnd)) {
     CleanupDeviceD3D();
@@ -952,17 +952,26 @@ int GUI::showModuleGeneric(
     if (ImGui::Button(
             std::string("Generate " + activeGameConfig.gameName + " mod")
                 .c_str())) {
-      genericModule->generate();
-      configuredScenarioGen = true;
+
+      computationFutureBool = runAsyncInitialDisable([genericModule, &cfg, this]() {
+        genericModule->generate();
+        configuredScenarioGen = true;
+        return true;
+      });
     }
   }
   ImGui::SameLine();
   if (ImGui::Button(std::string("Generate world + " +
                                 activeGameConfig.gameName + " mod in one go")
                         .c_str())) {
-    genericModule->generator->generateWorld();
-    genericModule->generate();
-    configuredScenarioGen = true;
+
+    computationFutureBool =
+        runAsyncInitialDisable([genericModule, &cfg, this]() {
+      genericModule->generator->generateWorld();
+      genericModule->generate();
+      configuredScenarioGen = true;
+      return true;
+    });
   }
   if (!validatedPaths)
     ImGui::EndDisabled();
