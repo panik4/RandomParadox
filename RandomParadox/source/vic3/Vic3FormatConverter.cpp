@@ -101,9 +101,8 @@ void FormatConverter::writeTile(int xTiles, int yTiles,
       for (auto x = 0; x < tileMap2.size(); x++) {
         auto baseX = tilex * scaledTilesize;
         auto baseIndex =
-                baseX +
-                ((((tiley * 2 + tilex / (xTiles/2)) * (tilesize + 1)) +
-                  x / (tilesize + 1)) -
+            baseX + ((((tiley * 2 + tilex / (xTiles / 2)) * (tilesize + 1)) +
+                      x / (tilesize + 1)) -
                      tilex / (xTiles / 2)) *
                         packedX;
         // auto xIndex = tilex * (scaledTilesize) + x % scaledTilesize;
@@ -180,12 +179,12 @@ void FormatConverter::dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
   for (int i = 0; i < indirectionMap.size(); i++) {
     indirectionMap.setColourAtIndex(i, {i % (xTiles / 2), i / (xTiles / 2), 1});
   }
-  //for (int h = 0; h < indirectionMap.height(); h++) {
-  //  for (int w = 0; w < indirectionMap.width(); w++) {
-  //    indirectionMap.setColourAtIndex(h * indirectionMap.width() + w,
-  //                                    {w%, h, 1});
-  //  }
-  //}
+  // for (int h = 0; h < indirectionMap.height(); h++) {
+  //   for (int w = 0; w < indirectionMap.width(); w++) {
+  //     indirectionMap.setColourAtIndex(h * indirectionMap.width() + w,
+  //                                     {w%, h, 1});
+  //   }
+  // }
   Fwg::Gfx::Png::save(indirectionMap, path, false, LCT_RGBA, 8U, 0);
 }
 void FormatConverter::Vic3ColourMaps(

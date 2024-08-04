@@ -440,7 +440,7 @@ void Generator::generateLogistics() {
     std::map<int, bool> navalBases;
     std::set<int> gProvIDs;
     for (auto &region : country.second.hoi4Regions) {
-      if ((region->stateCategory > 6 &&
+      if ((region->stateCategory > 4 &&
            region->ID != country.second.capitalRegionID)
           // if we're nearing the end of our region std::vector, and don't
           // have more than 25% of our regions as supply bases generate
@@ -449,6 +449,8 @@ void Generator::generateLogistics() {
               (region->ID == (*(country.second.hoi4Regions.end() - 2))->ID) &&
               supplyHubProvinces.size() <
                   (country.second.hoi4Regions.size() / 4))) {
+        if (region->sea || region->lake)
+          continue;
         // select a random gameprovince of the state
         int lakeCounter = 0;
         auto hubProvince{Fwg::Utils::selectRandom(region->gameProvinces)};
@@ -536,8 +538,10 @@ void Generator::generateLogistics() {
         // destinationNode
         for (auto &neighbourGProvince :
              gameProvinces[sourceNodeID]->neighbours) {
-          // check if this belongs to us
-          if (gProvIDs.find(neighbourGProvince.ID) == gProvIDs.end())
+          // check if this belongs to us and is an eligible province
+          if (gProvIDs.find(neighbourGProvince.ID) == gProvIDs.end() ||
+              neighbourGProvince.baseProvince->isLake ||
+              neighbourGProvince.baseProvince->sea)
             continue;
           bool cont = false;
           for (auto passThroughID : passthroughProvinceIDs) {
@@ -593,6 +597,17 @@ void Generator::generateLogistics() {
   }
   for (auto &connection : supplyNodeConnections) {
     for (int i = 0; i < connection.size(); i++) {
+      // check if we accidentally added a sea province or lake province to the
+      // connection
+      if (gameProvinces[connection[i]]->baseProvince->sea ||
+          gameProvinces[connection[i]]->baseProvince->isLake) {
+        Fwg::Utils::Logging::logLine(
+            "Error: Skipping an invalid connection due to sea or lake province "
+            "in it in logistics");
+        connection.erase(connection.begin() + i);
+        i--;
+        continue;
+      }
       for (auto pix : gameProvinces[connection[i]]->baseProvince->pixels) {
         // don't overwrite capitals and supply nodes
         if (logistics[pix] == Colour{255, 255, 0} ||

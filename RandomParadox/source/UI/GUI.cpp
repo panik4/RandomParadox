@@ -78,7 +78,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
   SendMessage(consoleWindow, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
   ::RegisterClassExW(&wc);
   HWND hwnd =
-      uiUtils->createAndConfigureWindow(wc, wc.lpszClassName, L"RandomParadox");
+      uiUtils->createAndConfigureWindow(wc, wc.lpszClassName, L"RandomParadox 0.7.2");
   // Initialize Direct3D
   if (!CreateDeviceD3D(hwnd)) {
     CleanupDeviceD3D();
