@@ -138,6 +138,7 @@ void Splnet::constructSplnet(
           anchor.ID = (1 + region->ID) * 100 + locType.second;
           anchor.xPos = region->locators.at(locType.first).xPos;
           anchor.yPos = region->locators.at(locType.first).yPos;
+          std::cout << anchor.xPos << " " << anchor.yPos << std::endl;
           anchors.push_back(anchor);
         }
       }
@@ -395,18 +396,20 @@ void Splnet::writeFile(const std::string &path) {
   for (int i = 0; i < header.anchorAmount; i++) {
     stream.write(reinterpret_cast<const char *>(&anchors[i]), sizeof(Anchor));
   }
-  stream.write(reinterpret_cast<const char *>(&stripHeader),
-               sizeof(stripHeader));
-  for (auto &strip : strips) {
-    stream.write(reinterpret_cast<const char *>(&strip), sizeof(Strip));
-  }
-  stripEndHeader = stripHeader;
-  stripEndHeader.unknown1 = 0x05f6;
+  if (strips.size()) {
+    stream.write(reinterpret_cast<const char *>(&stripHeader),
+                 sizeof(stripHeader));
+    for (auto &strip : strips) {
+      stream.write(reinterpret_cast<const char *>(&strip), sizeof(Strip));
+    }
+    stripEndHeader = stripHeader;
+    stripEndHeader.unknown1 = 0x05f6;
 
-  stream.write(reinterpret_cast<const char *>(&stripEndHeader),
-               sizeof(stripHeader));
-  for (auto &strip2 : strips2) {
-    stream.write(reinterpret_cast<const char *>(&strip2), sizeof(Strip2));
+    stream.write(reinterpret_cast<const char *>(&stripEndHeader),
+                 sizeof(stripHeader));
+    for (auto &strip2 : strips2) {
+      stream.write(reinterpret_cast<const char *>(&strip2), sizeof(Strip2));
+    }
   }
 
   stream.close();

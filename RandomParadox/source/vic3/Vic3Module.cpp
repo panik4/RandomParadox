@@ -148,7 +148,11 @@ void Module::generate() {
     vic3Gen->distributePops();
     vic3Gen->distributeResources();
     vic3Gen->mapCountries();
-    vic3Gen->importData(this->pathcfg.gamePath + "//game//");
+    if (!vic3Gen->importData(this->pathcfg.gamePath + "//game//")) {
+      Fwg::Utils::Logging::logLine("ERROR: Could not import data from game folder. The generation has FAILED");
+      return;
+    }
+
     // handle basic development, tech level, policies,
     vic3Gen->generateCountrySpecifics();
     vic3Gen->diplomaticRelations();
@@ -285,7 +289,6 @@ void Module::writeImages() {
   Png::save(vic3Gen->provinceMap,
             pathcfg.gameModPath + "//map_data//provinces.png");
   writeSplnet();
-
 }
 
 void Module::writeSplnet() {

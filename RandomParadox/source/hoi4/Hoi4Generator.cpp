@@ -221,12 +221,14 @@ void Generator::generateStateSpecifics() {
       continue;
 
     // state level is calculated from population and development
-    hoi4State->stateCategory = std::clamp(
-        (int)(hoi4State->worldEconomicActivityShare / averageEconomicActivity),
-        0, 9);
-    hoi4State->infrastructure = std::clamp(
-        (int)(hoi4State->worldEconomicActivityShare / averageEconomicActivity),
-        0, 5);
+    hoi4State->stateCategory =
+        std::clamp((int)(2.0 + 3.0 * hoi4State->worldEconomicActivityShare /
+                                   averageEconomicActivity),
+                   0, 9);
+    hoi4State->infrastructure =
+        std::clamp((int)(1.0 + hoi4State->worldEconomicActivityShare /
+                                   averageEconomicActivity),
+                   1, 5);
     // one province state? Must be an island state
     if (hoi4State->gameProvinces.size() == 1) {
       // if only one province, should be an island. Make it an island state,

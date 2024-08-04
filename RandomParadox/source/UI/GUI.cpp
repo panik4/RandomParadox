@@ -256,14 +256,14 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
 
         if (computationRunning) {
           computationStarted = false;
-          ImGui::Text("Computation Running...");
+          ImGui::Text("Working, please be patient");
           auto desiredState = uiUtils->actTxs[0];
           uiUtils->resetTexture();
           // continuously reset texture during computation
           uiUtils->switchTexture(*uiUtils->activeImages[0], &primaryTexture, 0,
                                  desiredState, g_pd3dDevice, w, h);
         } else {
-          ImGui::Text("Computation Finished!");
+          ImGui::Text("Ready!");
         }
 
         ImGui::EndTabBar();
@@ -368,7 +368,6 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
           ImGui::BeginChild("Image", ImVec2(texWidth, texHeight), false,
                             ImGuiWindowFlags_HorizontalScrollbar |
                                 ImGuiWindowFlags_AlwaysVerticalScrollbar);
-          Fwg::Utils::Logging::logLine("Rendering image");
           ImGui::Image((void *)primaryTexture,
                        ImVec2(texWidth * zoom, texHeight * zoom));
           if (io.KeyCtrl && io.MouseWheel) {
@@ -533,7 +532,9 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
         cfg.cut = false;
       }
     }
-    success = generator.generateWorld();
+    // run the generation async
+    computationFutureBool = runAsyncInitialDisable(
+        &Fwg::FastWorldGenerator::generateWorld, generator);
   }
   ImGui::PopItemWidth();
   return success;
@@ -619,10 +620,14 @@ int GUI::showRpdxConfigure(
       activeModule->findGame(activeModule->pathcfg.gamePath,
                              activeGameConfig.gameName);
     }
+    ImGui::InputText("Game Path", &activeModule->pathcfg.gamePath);
     if (ImGui::Button("Try to find mod folder")) {
       activeModule->autoLocateGameModFolder(activeGameConfig.gameName);
     }
-    ImGui::InputText("Game Path", &activeModule->pathcfg.gamePath);
+
+    ImGui::InputText("Mod Path", &activeModule->pathcfg.gameModPath);
+    ImGui::InputText("Mods Directory",
+                     &activeModule->pathcfg.gameModsDirectory);
     if (ImGui::Button("Validate all paths")) {
       validatedPaths = activeModule->findGame(activeModule->pathcfg.gamePath,
                                               activeGameConfig.gameName);
@@ -633,10 +638,6 @@ int GUI::showRpdxConfigure(
         validatedPaths =
             activeModule->validateModFolder(activeGameConfig.gameName);
     }
-    ImGui::InputText("Mod Path", &activeModule->pathcfg.gameModPath);
-    ImGui::InputText("Mods Directory",
-                     &activeModule->pathcfg.gameModsDirectory);
-
     ImGui::PopItemWidth();
     ImGui::EndTabItem();
   }
@@ -1098,23 +1099,28 @@ int GUI::showHoi4Finalise(
     auto &generator = hoi4Module->hoi4Gen;
     if (generator->strategicRegions.size()) {
       if (ImGui::Button("Export mod")) {
-        // now generate hoi4 specific stuff
-        generator->generateCountrySpecifics();
-        generator->generateStateSpecifics();
-        generator->generateStateResources();
-        // should work with countries = 0
-        generator->evaluateCountries();
-        generator->generateLogistics();
-        Scenario::Hoi4::NationalFocus::buildMaps();
-        generator->generateFocusTrees();
-        generator->generateCountryUnits();
-        try {
-          hoi4Module->writeImages();
-          hoi4Module->writeTextFiles();
-          generator->printStatistics();
-        } catch (std::exception e) {
-          pathWarning(e);
-        }
+
+        computationFutureBool =
+            runAsync([generator, &hoi4Module, &cfg, this]() {
+              // now generate hoi4 specific stuff
+              generator->generateCountrySpecifics();
+              generator->generateStateSpecifics();
+              generator->generateStateResources();
+              // should work with countries = 0
+              generator->evaluateCountries();
+              generator->generateLogistics();
+              Scenario::Hoi4::NationalFocus::buildMaps();
+              generator->generateFocusTrees();
+              generator->generateCountryUnits();
+              try {
+                hoi4Module->writeImages();
+                hoi4Module->writeTextFiles();
+                generator->printStatistics();
+              } catch (std::exception e) {
+                pathWarning(e);
+              }
+              return true;
+            });
       }
     } else {
       ImGui::Text("Generate strategic regions first before exporting the mod");
@@ -1180,26 +1186,36 @@ int GUI::showVic3Finalise(Fwg::Cfg &cfg,
     const auto &generator = vic3Module->getGenerator();
     if (generator->strategicRegions.size()) {
       if (ImGui::Button("Export mod")) {
-        // Vic3 specifics:
-        generator->distributePops();
-        generator->distributeResources();
-        generator->mapCountries();
-        generator->importData(vic3Module->pathcfg.gamePath + "//game//");
-        // handle basic development, tech level, policies,
-        generator->generateCountrySpecifics();
-        generator->diplomaticRelations();
-        generator->createMarkets();
-        generator->calculateNeeds();
-        generator->distributeBuildings();
-        try {
-          vic3Module->writeImages();
-          vic3Module->writeTextFiles();
-          vic3Module->writeSplnet();
-        } catch (std::exception e) {
-          pathWarning(e);
-        }
-
-        generator->printStatistics();
+        computationFutureBool =
+            runAsync([generator, &vic3Module, &cfg, this]() {
+              // Vic3 specifics:
+              generator->distributePops();
+              generator->distributeResources();
+              generator->mapCountries();
+              if (!generator->importData(vic3Module->pathcfg.gamePath +
+                                         "//game//")) {
+                Fwg::Utils::Logging::logLine(
+                    "ERROR: Could not import data from game "
+                    "folder. The export has FAILED. You "
+                    "must fix the path to the game, then try again");
+              } else {
+                // handle basic development, tech level, policies,
+                generator->generateCountrySpecifics();
+                generator->diplomaticRelations();
+                generator->createMarkets();
+                generator->calculateNeeds();
+                generator->distributeBuildings();
+                try {
+                  vic3Module->writeImages();
+                  vic3Module->writeTextFiles();
+                  vic3Module->writeSplnet();
+                } catch (std::exception e) {
+                  pathWarning(e);
+                }
+                generator->printStatistics();
+              }
+              return true;
+            });
       }
     } else {
       ImGui::Text("Generate strategic regions first before exporting the mod");

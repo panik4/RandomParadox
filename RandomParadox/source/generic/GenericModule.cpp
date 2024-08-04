@@ -27,19 +27,19 @@ bool GenericModule::findGame(std::string &path, const std::string &game) {
   for (const auto &drive : drives) {
     for (auto &commonPath : commonPaths) {
       if (exists(drive + commonPath + game)) {
-        path = drive + commonPath + game;
+        path = drive + commonPath + game + "//";
         Logging::logLine("Located game under ", path);
         return true;
       } else if (exists(drive + commonPath + game)) {
-        path = drive + commonPath + game;
+        path = drive + commonPath + game + "//";
         Logging::logLine("Located game under ", path);
         return true;
       } else if (exists(drive + commonPath + game)) {
-        path = drive + commonPath + game;
+        path = drive + commonPath + game + "//";
         Logging::logLine("Located game under ", path);
         return true;
       } else if (exists(drive + commonPath + game)) {
-        path = drive + commonPath + game;
+        path = drive + commonPath + game + "//";
         Logging::logLine("Located game under ", path);
         return true;
       }
