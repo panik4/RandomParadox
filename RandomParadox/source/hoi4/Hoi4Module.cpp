@@ -83,8 +83,6 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   try {
     // Read the basic settings
     std::ifstream f(configSubFolder + "//Hearts of Iron IVModule.json");
-    std::cout << configSubFolder + "//Hearts of Iron IVModule.json"
-              << std::endl;
     std::stringstream buffer;
     if (!f.good())
       Fwg::Utils::Logging::logLine("Config could not be loaded");
