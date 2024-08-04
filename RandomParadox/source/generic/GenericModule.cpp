@@ -28,18 +28,14 @@ bool GenericModule::findGame(std::string &path, const std::string &game) {
     for (auto &commonPath : commonPaths) {
       if (exists(drive + commonPath + game)) {
         path = drive + commonPath + game + "//";
-        Logging::logLine("Located game under ", path);
-        return true;
-      } else if (exists(drive + commonPath + game)) {
-        path = drive + commonPath + game + "//";
-        Logging::logLine("Located game under ", path);
-        return true;
-      } else if (exists(drive + commonPath + game)) {
-        path = drive + commonPath + game + "//";
-        Logging::logLine("Located game under ", path);
-        return true;
-      } else if (exists(drive + commonPath + game)) {
-        path = drive + commonPath + game + "//";
+        // now check if the executable is in the game folder
+        if (!exists(path + executableSubPath)) {
+          Logging::logLine("Couldn't locate executable under ",
+                           path + executableSubPath,
+                           " are you sure this is the game folder?");
+          return false;
+        }
+
         Logging::logLine("Located game under ", path);
         return true;
       }

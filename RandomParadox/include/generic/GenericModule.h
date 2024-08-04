@@ -1,6 +1,6 @@
 #pragma once
-#include "generic/ScenarioGenerator.h"
 #include "generic/ParserUtils.h"
+#include "generic/ScenarioGenerator.h"
 #include "generic/ScenarioUtils.h"
 #include "utils/Logging.h"
 #include <boost/property_tree/json_parser.hpp>
@@ -15,9 +15,11 @@ protected:
   void configurePaths(const std::string &username, const std::string &gameName,
                       const boost::property_tree::ptree &gamesConf);
 
+  // optional for every game
+  std::string executableSubPath = "";
 
 public:
-  virtual bool createPaths() =0;
+  virtual bool createPaths() = 0;
   std::shared_ptr<Scenario::Generator> generator;
   // try to locate hoi4 at configured path, if not found, try other
   // standard locations
@@ -28,10 +30,11 @@ public:
   // check if configured mod location directory is correct
   bool validateModFolder(const std::string &game);
   // replace slash type and append slashes
-  void sanitizePath(std::string& path);
+  void sanitizePath(std::string &path);
   Utils::Pathcfg pathcfg;
   virtual void generate();
-  virtual void initNameData(const std::string& path, const std::string& gamePath);
+  virtual void initNameData(const std::string &path,
+                            const std::string &gamePath);
 
   virtual void writeFiles();
   virtual void writeImages();

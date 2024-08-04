@@ -10,6 +10,9 @@ Module::Module(const boost::property_tree::ptree &gamesConf,
                                          Scenario::Generator>(generator);
   // read eu4 configs and potentially overwrite settings for fwg
   readEu4Config(configSubFolder, username, gamesConf);
+
+  // set the executable subpath
+  this->executableSubPath = "eu4.exe";
 }
 
 Module::~Module() {}

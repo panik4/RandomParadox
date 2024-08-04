@@ -15,6 +15,107 @@ Generator::Generator(const std::string &configSubFolder)
   // this->terrainTypeToString.at(Fwg::Province::TerrainType::arctic) = "snow";
 }
 
+/* a visualisation of the final terrain types. This is not vic3 specific yet, a
+ * TODO*/
+Fwg::Gfx::Bitmap Generator::mapTerrain() {
+  const auto &climateMap = this->climateMap;
+  Bitmap typeMap(climateMap.width(), climateMap.height(), 24);
+  auto &colours = Fwg::Cfg::Values().colours;
+  auto &climateColours = Fwg::Cfg::Values().climateColours;
+  auto &elevationColours = Fwg::Cfg::Values().elevationColours;
+  typeMap.fill(colours.at("sea"));
+  Fwg::Utils::Logging::logLine("Mapping Terrain");
+  const auto &landForms = climateData.landForms;
+  const auto &climates = climateData.climates;
+  const auto &forests = climateData.dominantForest;
+  for (auto &gameRegion : gameRegions) {
+    for (auto &gameProv : gameRegion->gameProvinces) {
+      gameProv->terrainType = "plains";
+      const auto &baseProv = gameProv->baseProvince;
+      if (baseProv->isLake) {
+        gameProv->terrainType = "lake";
+        for (auto &pix : baseProv->pixels) {
+          typeMap.setColourAtIndex(pix, colours.at("lake"));
+        }
+      } else if (baseProv->sea) {
+        gameProv->terrainType = "sea";
+        for (auto &pix : baseProv->pixels) {
+          typeMap.setColourAtIndex(pix, climateColours.at("ocean"));
+        }
+      } else {
+        int forestPixels = 0;
+        std::map<ClimateGeneration::Detail::ClimateTypeIndex, int>
+            climateScores;
+        std::map<Fwg::ElevationTypeIndex, int> terrainTypeScores;
+        // get the dominant climate of the province
+        for (auto &pix : baseProv->pixels) {
+          climateScores[climates[pix].getChances(0).second]++;
+          terrainTypeScores[landForms[pix].landForm]++;
+          if (forests[pix]) {
+            forestPixels++;
+          }
+        }
+        auto dominantClimate =
+            std::max_element(climateScores.begin(), climateScores.end(),
+                             [](const auto &l, const auto &r) {
+                               return l.second < r.second;
+                             })
+                ->first;
+        auto dominantTerrain =
+            std::max_element(terrainTypeScores.begin(), terrainTypeScores.end(),
+                             [](const auto &l, const auto &r) {
+                               return l.second < r.second;
+                             })
+                ->first;
+        // now first check the terrains, if e.g. mountains or peaks are too
+        // dominant, this is a mountainous province
+        if (dominantTerrain == Fwg::ElevationTypeIndex::MOUNTAINS ||
+            dominantTerrain == Fwg::ElevationTypeIndex::PEAKS ||
+            dominantTerrain == Fwg::ElevationTypeIndex::STEEPPEAKS) {
+          gameProv->terrainType = "mountain";
+          for (auto &pix : baseProv->pixels) {
+            typeMap.setColourAtIndex(pix, elevationColours.at("mountains"));
+          }
+        } else if (dominantTerrain == Fwg::ElevationTypeIndex::HILLS) {
+          gameProv->terrainType = "hills";
+          for (auto &pix : baseProv->pixels) {
+            typeMap.setColourAtIndex(pix, elevationColours.at("hills"));
+          }
+        } else if ((double)forestPixels / baseProv->pixels.size() > 0.5) {
+          gameProv->terrainType = "forest";
+          for (auto &pix : baseProv->pixels) {
+            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour(16, 40, 8));
+          }
+        } else {
+          using CTI = ClimateGeneration::Detail::ClimateTypeIndex;
+          // now, if this is a more flat land, check the climate type
+          if (dominantClimate == CTI::TROPICSMONSOON ||
+              dominantClimate == CTI::TROPICSRAINFOREST) {
+            gameProv->terrainType = "jungle";
+            for (auto &pix : baseProv->pixels) {
+              typeMap.setColourAtIndex(pix,
+                                       climateColours.at("tropicsrainforest"));
+            }
+          } else if (dominantClimate == CTI::COLDDESERT ||
+                     dominantClimate == CTI::DESERT) {
+            gameProv->terrainType = "desert";
+            for (auto &pix : baseProv->pixels) {
+              typeMap.setColourAtIndex(pix, climateColours.at("desert"));
+            }
+          } else {
+            gameProv->terrainType = "plains";
+            for (auto &pix : baseProv->pixels) {
+              typeMap.setColourAtIndex(pix, elevationColours.at("plains"));
+            }
+          }
+        }
+      }
+    }
+  }
+  Png::save(typeMap, "Maps/typeMap.png");
+  return typeMap;
+}
+
 void Generator::distributePops() {
   auto targetWorldPop = 1'000'000'000.0 * worldPopulationFactor;
   for (auto &region : vic3Regions) {
@@ -193,26 +294,25 @@ void Generator::generateCountrySpecifics() {
 }
 bool Generator::importData(const std::string &path) {
   try {
-  techs =
-      Vic3::Importing::readTechs(path + "common//technology//technologies//");
-  techLevels = Vic3::Importing::readTechLevels(
-      path + "common//scripted_effects//00_starting_inventions.txt", techs);
-  goods = Vic3::Importing::readGoods(path + "common//goods//00_goods.txt");
-  productionmethods = Vic3::Importing::readProdMethods(
-      path + "common//production_methods//", goods, techs);
-  productionmethodGroups = Vic3::Importing::readProdMethodGroups(
-      path + "common//production_method_groups//", productionmethods);
-  buildingsTypes = Vic3::Importing::readBuildings(
-      path + "common//buildings//", productionmethodGroups, techs);
-  popNeeds = Vic3::Importing::readPopNeeds(
-      path + "common//pop_needs//00_pop_needs.txt", goods);
-  buypackages = Vic3::Importing::readBuypackages(
-      path + "//common//buy_packages//00_buy_packages.txt", popNeeds);
-  nData.disallowedTokens =
-      Vic3::Importing::readTags(path + "common//history//countries//");
-  }
-  catch (std::exception e) {
-	Fwg::Utils::Logging::logLine("Error: ", e.what());
+    techs =
+        Vic3::Importing::readTechs(path + "common//technology//technologies//");
+    techLevels = Vic3::Importing::readTechLevels(
+        path + "common//scripted_effects//00_starting_inventions.txt", techs);
+    goods = Vic3::Importing::readGoods(path + "common//goods//00_goods.txt");
+    productionmethods = Vic3::Importing::readProdMethods(
+        path + "common//production_methods//", goods, techs);
+    productionmethodGroups = Vic3::Importing::readProdMethodGroups(
+        path + "common//production_method_groups//", productionmethods);
+    buildingsTypes = Vic3::Importing::readBuildings(
+        path + "common//buildings//", productionmethodGroups, techs);
+    popNeeds = Vic3::Importing::readPopNeeds(
+        path + "common//pop_needs//00_pop_needs.txt", goods);
+    buypackages = Vic3::Importing::readBuypackages(
+        path + "//common//buy_packages//00_buy_packages.txt", popNeeds);
+    nData.disallowedTokens =
+        Vic3::Importing::readTags(path + "common//history//countries//");
+  } catch (std::exception e) {
+    Fwg::Utils::Logging::logLine("Error: ", e.what());
     return false;
   }
   // now map goods to building types

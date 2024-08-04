@@ -8,6 +8,8 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   hoi4Gen = std::reinterpret_pointer_cast<Scenario::Hoi4::Generator,
                                           Scenario::Generator>(generator);
   const auto &config = Fwg::Cfg::Values();
+  // set the executable subpath
+  this->executableSubPath = "hoi4.exe";
 
   // read hoi configs and potentially overwrite settings for fwg
   readHoiConfig(configSubFolder, username, gamesConf);

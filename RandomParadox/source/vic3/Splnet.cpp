@@ -115,9 +115,6 @@ void Splnet::constructSplnet(
                                                 {LocatorType::WOOD, 4}};
   for (auto &region : regions) {
     if (true || (region->ID > 0 && region->ID < 5)) {
-
-      // only get as many anchors as we can
-      auto anchorsToFind = 5;
       // std::min<int>(5, region->provinces.size());
       // for (auto i = 0; i < anchorsToFind; i++) {
       //   Anchor anchor;
@@ -138,7 +135,6 @@ void Splnet::constructSplnet(
           anchor.ID = (1 + region->ID) * 100 + locType.second;
           anchor.xPos = region->locators.at(locType.first).xPos;
           anchor.yPos = region->locators.at(locType.first).yPos;
-          std::cout << anchor.xPos << " " << anchor.yPos << std::endl;
           anchors.push_back(anchor);
         }
       }
