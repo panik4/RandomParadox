@@ -16,7 +16,7 @@ class Hoi4Module : public GenericModule {
   void readHoiConfig(const std::string &configSubFolder,
                      const std::string &username,
                      const boost::property_tree::ptree &rpdConf);
-
+  
 public:
   // Hoi4::Generator generator;
   std::shared_ptr<Hoi4::Generator> hoi4Gen;

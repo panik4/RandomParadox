@@ -268,7 +268,7 @@ public:
   std::map<std::string, std::shared_ptr<Country>> vic3Countries;
   Generator();
   Generator(const std::string &configSubFolder);
-
+  virtual Fwg::Gfx::Bitmap mapTerrain();
   virtual void mapRegions();
   void distributePops();
   void totalArableLand(const std::vector<float> &arableLand);
