@@ -191,8 +191,8 @@ void Generator::generateCountrySpecifics() {
     }
   }
 }
-void Generator::importData(const std::string &path) {
-
+bool Generator::importData(const std::string &path) {
+  try {
   techs =
       Vic3::Importing::readTechs(path + "common//technology//technologies//");
   techLevels = Vic3::Importing::readTechLevels(
@@ -210,6 +210,11 @@ void Generator::importData(const std::string &path) {
       path + "//common//buy_packages//00_buy_packages.txt", popNeeds);
   nData.disallowedTokens =
       Vic3::Importing::readTags(path + "common//history//countries//");
+  }
+  catch (std::exception e) {
+	Fwg::Utils::Logging::logLine("Error: ", e.what());
+    return false;
+  }
   // now map goods to building types
   for (auto &good : goods) {
     std::vector<Productionmethod> prodMethods;
@@ -246,6 +251,7 @@ void Generator::importData(const std::string &path) {
       }
     }
   }
+  return true;
 }
 void Generator::diplomaticRelations() {}
 void Generator::createMarkets() {}

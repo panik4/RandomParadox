@@ -283,7 +283,7 @@ public:
   // details of countries
   virtual void generateCountrySpecifics();
   // read buildings, techs, etc from the game files
-  void importData(const std::string &path);
+  bool importData(const std::string &path);
 
   // figure out how countries stand towards each other - colonies,
   // protectorates, vassals, allies, customs union etc

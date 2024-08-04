@@ -68,12 +68,12 @@ std::string modifyWithIdeology(const std::string &ideology,
 NameData prepare(const std::string &path, const std::string &gamePath) {
   Fwg::Utils::Logging::logLine("Preparing name generation from path", path);
   NameData nameData;
-  if (std::filesystem::exists(gamePath)) {
+  if (std::filesystem::exists(path)) {
     nameData.nameRules = Fwg::Parsing::getLines(path + "//name_rules.txt");
     Detail::readMap(path + "//token_groups.txt", nameData.groups);
     Detail::readMap(path + "//state_types.txt", nameData.ideologyNames);
     Detail::readMap(path + "//faction_names.txt", nameData.factionNames);
-    if (gamePath.size()) {
+    if (gamePath.size() && std::filesystem::exists(gamePath)) {
       const auto forbiddenTags = ResourceLoading::loadForbiddenTags(gamePath);
       for (const auto &tag : forbiddenTags)
         nameData.disallowedTokens.insert(tag);
