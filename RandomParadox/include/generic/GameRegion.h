@@ -8,7 +8,6 @@ struct Locator {
   LocatorType type = LocatorType::NONE;
   float xPos;
   float yPos;
-
 };
 
 class Region : public Fwg::Region {
@@ -41,7 +40,8 @@ public:
   std::vector<double> dateRange;
   std::map<std::shared_ptr<Scenario::Religion>, double> religions;
   std::map<std::shared_ptr<Scenario::Culture>, double> cultures;
-  std::map<LocatorType, Locator> locators;
+  std::vector<std::shared_ptr<Fwg::Civilization::Location>>
+      significantLocations;
 
   Region();
   Region(const Fwg::Region &baseRegion);
@@ -51,6 +51,8 @@ public:
   // average given culture and religion shares of all provinces
   // TODO: calc distinct values for religion and culture mixes
   void sumPopulations();
+
+  void findLocator(Fwg::Civilization::LocationType locationType, int maxAmount);
 
   void findPortLocator(int maxAmount = 1);
   void findCityLocator(int maxAmount = 1);

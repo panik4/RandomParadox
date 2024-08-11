@@ -510,17 +510,20 @@ void locators(const std::string &path,
   std::string portContent = locatorsTemplate;
   std::string woodContent = cityContent;
   pU::replaceOccurence(portContent, "templateWaterClamp", "yes");
-  std::map<LocatorType, std::string> locatorContent;
-  std::map<LocatorType, int> locatorCount;
+  using namespace Fwg::Civilization;
+  std::map<LocationType, std::string> locatorContent;
+  std::map<LocationType, int> locatorCount;
 
   for (const auto &region : regions) {
-    for (const auto &locator : region->locators) {
+    for (const auto &locator : region->significantLocations) {
       auto content = singeLocatorTemplate;
       pU::replaceOccurence(content, "templateID",
                            std::to_string(1 + region->ID));
-      pU::replaceOccurence(content, "templateX", std::to_string(locator.second.xPos));
-      pU::replaceOccurence(content, "templateY", std::to_string(locator.second.yPos));
-      locatorContent[locator.second.type].append(content);
+      pU::replaceOccurence(content, "templateX",
+                           std::to_string(locator->position.widthCenter));
+      pU::replaceOccurence(content, "templateY",
+                           std::to_string(locator->position.heightCenter));
+      locatorContent[locator->type].append(content);
     }
   }
   pU::replaceOccurence(cityContent, "templateType", "city");
@@ -530,15 +533,15 @@ void locators(const std::string &path,
   pU::replaceOccurence(woodContent, "templateType", "wood");
 
   pU::replaceOccurence(cityContent, "templateLocators",
-                       locatorContent[LocatorType::CITY]);
+                       locatorContent[LocationType::City]);
   pU::replaceOccurence(farmContent, "templateLocators",
-                       locatorContent[LocatorType::FARM]);
+                       locatorContent[LocationType::Farm]);
   pU::replaceOccurence(mineContent, "templateLocators",
-                       locatorContent[LocatorType::MINE]);
+                       locatorContent[LocationType::Mine]);
   pU::replaceOccurence(portContent, "templateLocators",
-                       locatorContent[LocatorType::PORT]);
+                       locatorContent[LocationType::Port]);
   pU::replaceOccurence(woodContent, "templateLocators",
-                       locatorContent[LocatorType::WOOD]);
+                       locatorContent[LocationType::Forest]);
 
   pU::writeFile(path + "generated_map_object_locators_city.txt", cityContent,
                 true);

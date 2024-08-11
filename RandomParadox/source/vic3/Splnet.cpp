@@ -107,63 +107,101 @@ void splitStreamByPattern(std::istream &stream,
 // GameProvinces
 void Splnet::constructSplnet(
     const std::vector<std::shared_ptr<Region>> &regions) {
+  using namespace Fwg::Civilization;
+  std::map<LocationType, int> locatorTypeToID = {{LocationType::City, 0},
+                                                 {LocationType::Farm, 1},
+                                                 {LocationType::Mine, 2},
+                                                 {LocationType::Port, 3},
+                                                 {LocationType::Forest, 4}};
 
-  std::map<LocatorType, int> locatorTypeToID = {{LocatorType::CITY, 0},
-                                                {LocatorType::FARM, 1},
-                                                {LocatorType::MINE, 2},
-                                                {LocatorType::PORT, 3},
-                                                {LocatorType::WOOD, 4}};
+  int stripIdCounter = 0;
   for (auto &region : regions) {
-    if (true || (region->ID > 0 && region->ID < 5)) {
-      // std::min<int>(5, region->provinces.size());
-      // for (auto i = 0; i < anchorsToFind; i++) {
-      //   Anchor anchor;
-      //   anchor.ID = (1 + region->ID) * 100 + i;
-      //   anchor.xPos = region->provinces[i]->position.widthCenter;
-      //   anchor.yPos = region->provinces[i]->position.heightCenter;
-      //   // anchor.xPos = flipFloat(region->provinces[i]->x);
-      //   // anchor.yPos = flipFloat(region->provinces[i]->y);
+    if (/*!region->sea && !region->lake || */ (region->ID < 3)) {
+      // pairs of src and destination of already used connections
+      std::set<std::pair<std::shared_ptr<Location>, std::shared_ptr<Location>>>
+          usedConnections;
+      for (auto &location : region->significantLocations) {
+        Anchor anchor;
+        anchor.ID = (1 + region->ID) * 100 + locatorTypeToID.at(location->type);
+        anchor.xPos = location->position.widthCenter;
+        anchor.yPos = location->position.heightCenter;
+        anchors.push_back(anchor);
+        // create a strip for every connection of this location, if not already
+        // in usedConnections
+        for (auto &connection : location->connections) {
+          // if the destination we're currently trying to reach, has not created
+          // a connection to us yet
+          if (usedConnections.find({connection.second.destination, location}) ==
+              usedConnections.end()) {
+            Strip strip;
+            strip.ID = stripIdCounter++;
+            strip.ID2 = 0;
+            strip.startAnchor = anchor.ID;
+            strip.targetAnchor =
+                (1 + region->ID) * 100 +
+                locatorTypeToID.at(connection.second.destination->type);
+            strips.push_back(strip);
+            // push a new connection from us to the destination
+            usedConnections.insert({location, connection.second.destination});
 
-      //  anchors.push_back(anchor);
-      //}
-      int stripIdCounter = 1;
-      int strip2IdCounter = 0;
-      for (auto &locType : locatorTypeToID) {
-
-        if (region->locators.find(locType.first) != region->locators.end()) {
-          Anchor anchor;
-          anchor.ID = (1 + region->ID) * 100 + locType.second;
-          anchor.xPos = region->locators.at(locType.first).xPos;
-          anchor.yPos = region->locators.at(locType.first).yPos;
-          anchors.push_back(anchor);
+            Segment segment;
+            int typeAdditive = 0;
+            if (location->type == LocationType::City) {
+              typeAdditive = 0;
+            }
+            if (location->type == LocationType::Farm) {
+              typeAdditive = 0x40;
+            }
+            if (location->type == LocationType::Mine) {
+              typeAdditive = 0x80;
+            }
+            if (location->type == LocationType::Port) {
+              typeAdditive = 0xc0;
+            }
+            if (location->type == LocationType::Forest) {
+              typeAdditive = 0x80;
+            }
+            if (connection.second.destination->type == LocationType::City) {
+              std::cout << "SHOULDN'T HAPPEN" << std::endl;
+            }
+            int idmult800Additive = 0;
+            if (connection.second.destination->type == LocationType::Farm) {
+              idmult800Additive = 8;
+            }
+            if (connection.second.destination->type == LocationType::Mine) {
+              idmult800Additive = 16;
+            }
+            if (connection.second.destination->type == LocationType::Port) {
+              idmult800Additive = 24;
+            }
+            if (connection.second.destination->type == LocationType::Forest) {
+              idmult800Additive = 32;
+            }
+            segment.Idblock0 = (region->ID + 1) * 6400 + typeAdditive;
+            segment.IDmult800 = (region->ID + 1) * 800 + idmult800Additive;
+            segment.refStripId = strip.ID;
+            segment.refStripId2 = strip.ID2;
+            segments.push_back(segment);
+          }
         }
       }
-      // Strip strip;
-      // strip.ID = stripIdCounter++;
-      // strip.ID2 = 0;
-      //// get previous to last anchor
-      // auto startAnchor = anchors.at(anchors.size() - 2);
-      // auto endAnchor = anchors.at(anchors.size() - 1);
-
-      // strip.startAnchor = startAnchor.ID;
-      // strip.targetAnchor = endAnchor.ID;
-
-      // strips.push_back(strip);
-
-      // Strip2 strip2;
-      ////strip2.ID1 = 0x3280;
-      ////strip2.ID2 = 0x0660;
-      // strip2.refStripId = strip.ID;
-      // strip2.refStripId2 = strip.ID2;
-      // strips2.push_back(strip2);
     }
   }
-  // strips.back().unknown11 = 0x04;
-  // strips2.back().unknown13 = 0x04;
-  anchors.back().unknown9 = 4;
+  // sort all segments by IDmult800
+  std::sort(segments.begin(), segments.end(),
+            [](const Segment &a, const Segment &b) {
+              return a.IDmult800 < b.IDmult800;
+            });
+
+  if (strips.size())
+    strips.back().unknown11 = 0x04;
+  if (segments.size())
+    segments.back().unknown13 = 0x04;
+  if (anchors.size())
+    anchors.back().unknown9 = 4;
   header.anchorAmount = anchors.size();
   header.stripAmount = strips.size();
-  header.segmentAmount = strips2.size();
+  header.segmentAmount = segments.size();
 }
 void Splnet::parseHeader(const std::array<char, 36> &headerData,
                          Header &header) {
@@ -238,16 +276,16 @@ void Splnet::parseAnchor(const std::array<char, 34> &anchorData,
   offset += sizeof(unsigned short);
 }
 
-Strip2 vectorToStrip2(const std::vector<char> &data) {
-  Strip2 strip2;
-  if (data.size() < sizeof(Strip2)) {
+Segment vectorToStrip2(const std::vector<char> &data) {
+  Segment strip2;
+  if (data.size() < sizeof(Segment)) {
     std::cerr << "Data vector is too small to convert to Strip2" << std::endl;
     return strip2; // Return default-initialized strip2 or handle error
                    // appropriately
   }
 
   // Directly copy the data into strip2
-  std::memcpy(&strip2, data.data(), sizeof(Strip2));
+  std::memcpy(&strip2, data.data(), sizeof(Segment));
 
   return strip2;
 }
@@ -364,14 +402,14 @@ void Splnet::parseFile(const std::string &path) {
   std::set<int> stripIds;
   //  now read the strip data
   for (auto &chunk : strip2Chunks) {
-    if (chunk.size() < sizeof(Strip2)) {
+    if (chunk.size() < sizeof(Segment)) {
       std::cerr << "Chunk is too small to be a Strip2" << std::endl;
       continue;
     }
 
-    Strip2 strip2 = vectorToStrip2(chunk);
+    Segment strip2 = vectorToStrip2(chunk);
     // stripIds.insert(strip2.ID);
-    strips2.push_back(strip2);
+    segments.push_back(strip2);
   }
   for (auto &strip : stripIds) {
     std::cout << "Strip ID: " << strip << std::endl;
@@ -403,8 +441,8 @@ void Splnet::writeFile(const std::string &path) {
 
     stream.write(reinterpret_cast<const char *>(&stripEndHeader),
                  sizeof(stripHeader));
-    for (auto &strip2 : strips2) {
-      stream.write(reinterpret_cast<const char *>(&strip2), sizeof(Strip2));
+    for (auto &strip2 : segments) {
+      stream.write(reinterpret_cast<const char *>(&strip2), sizeof(Segment));
     }
   }
 

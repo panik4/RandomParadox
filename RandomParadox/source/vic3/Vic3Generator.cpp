@@ -517,11 +517,12 @@ void Generator::createLocators() {
   for (auto &region : vic3Regions) {
     if (region->sea || region->lake)
       continue;
+    region->significantLocations.clear();
     // create a locator for each building in the region
-    region->findPortLocator();
     region->findCityLocator();
     region->findFarmLocator();
     region->findMineLocator();
+    region->findPortLocator();
     region->findWoodLocator();
   }
 }
