@@ -215,6 +215,7 @@ void Generator::mapRegions() {
                 return (*a < *b);
               });
     auto gameRegion = std::make_shared<Region>(region);
+
     // generate random name for region
     gameRegion->name = NameGeneration::generateName(nData);
 
@@ -511,19 +512,38 @@ void Generator::distributeBuildings() {
     }
   }
 }
+
 void Generator::createLocators() {
   auto &cfg = Fwg::Cfg::Values();
 
   for (auto &region : vic3Regions) {
-    if (region->sea || region->lake)
-      continue;
     region->significantLocations.clear();
-    // create a locator for each building in the region
-    region->findCityLocator();
-    region->findFarmLocator();
-    region->findMineLocator();
-    region->findPortLocator();
-    region->findWoodLocator();
+    if (!region->sea && !region->lake) {
+      // create a locator for each building in the region
+      region->findCityLocator();
+      region->findFarmLocator();
+      region->findMineLocator();
+      region->findPortLocator();
+      region->findWaterPortLocator();
+      region->findWoodLocator();
+    } else if (region->sea) {
+      region->findWaterLocator();
+    }
   }
 }
+
+void Generator::calculateNavalExits() {
+  for (auto &region : vic3Regions) {
+    if (!region->sea) {
+      //  check if we have a port locator, and take its naval exit ID
+      for (auto &location : region->significantLocations) {
+        if (location->type == Fwg::Civilization::LocationType::Port) {
+          region->navalExit = location->portExitProvinceID;
+          break;
+        }
+      }
+    }
+  }
+}
+
 } // namespace Scenario::Vic3

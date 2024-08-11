@@ -70,4 +70,10 @@ void Region::findFarmLocator(int maxAmount) {
 void Region::findWoodLocator(int maxAmount) {
   findLocator(Fwg::Civilization::LocationType::Forest, maxAmount);
 }
+void Region::findWaterLocator(int maxAmount) {
+  findLocator(Fwg::Civilization::LocationType::WaterNode, maxAmount);
+}
+void Region::findWaterPortLocator(int maxAmount) {
+  findLocator(Fwg::Civilization::LocationType::WaterPort, maxAmount);
+}
 } // namespace Scenario
