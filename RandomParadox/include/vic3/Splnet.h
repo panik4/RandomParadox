@@ -79,7 +79,8 @@ struct Strip {
   unsigned short unknown1 = 0x0b;
   unsigned short unknown2 = 0x01;
   unsigned short unknown3 = 0x029c;
-  unsigned int ID = 0;
+  unsigned short ID = 0;
+  unsigned short someType = 0;
   unsigned int ID2 = 0;
   unsigned short unknown4 = 0x05f7;
   unsigned short unknown5 = 0x01;
@@ -95,19 +96,32 @@ struct Strip {
 
 
 
-struct Strip2 {
+struct Segment {
   unsigned short unknown1 = 0x0b;
   unsigned short unknown2 = 0x01;
   unsigned short unknown3 = 0x029c;
-  // connecting mine with wood = 0x80
-  unsigned char connectionTypeDef = 0x80;
+  // city with anything 0x00
+  // wood - farm: 0x40
+  // wood - mine: 0x80
+  // farm - mine: 0x40
+  // 
+
+  //unsigned char connectionTypeDef = 0;
+  //unsigned short IDmult25 = 0x00;
+  //unsigned char buffer1 = 0x00;
+  // contains connection type, as well as the ID of the connection * 6400
+  unsigned int Idblock0;
+
   //unsigned int ID1 = 0;
-  unsigned int ID2 = 0;
+  // some type of multiplier? seems to be ID * 800 +  some value
+  // some value depends on connection type: woodd-mine + 32, 
+  unsigned int IDmult800 = 0;
   unsigned short unknown7 = 0x05f5;
   unsigned short unknown8 = 0x01;
   unsigned short unknown9 = 0x03;
   unsigned short unknown10 = 0x029c;
-  unsigned int refStripId = 0x00;
+  unsigned short refStripId = 0x00;
+  unsigned short unknown = 0x00;
   unsigned int refStripId2 = 0x00;
   unsigned short unknown11 = 0x04;
   unsigned short unknown12 = 0x04;
@@ -130,7 +144,7 @@ class Splnet {
 
   std::vector<Anchor> anchors;
   std::vector<Strip> strips;
-  std::vector<Strip2> strips2;
+  std::vector<Segment> segments;
 
 public:
   void constructSplnet(
