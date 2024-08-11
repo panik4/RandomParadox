@@ -126,7 +126,13 @@ void stateFiles(const std::string &path,
                                           prov->toHexString());
         }
       }
-      pU::Scenario::replaceOccurences(content, "template_naval_exit", "");
+      if (region->navalExit != -1) {
+        pU::Scenario::replaceOccurences(content, "template_naval_exit",
+                                        "naval_exit_id = " +
+                                            std::to_string(region->navalExit));
+      } else {
+        pU::Scenario::replaceOccurences(content, "template_naval_exit", "");
+      }
 
       std::string agriResString = "";
       std::string cappedResString = "";
@@ -156,7 +162,7 @@ void stateFiles(const std::string &path,
       pU::Scenario::replaceOccurences(content, "template_farm", "");
       pU::Scenario::replaceOccurences(content, "template_mine", "");
       pU::Scenario::replaceOccurences(content, "template_wood", "");
-      pU::Scenario::replaceOccurences(content, "template_naval_exit", "");
+        pU::Scenario::replaceOccurences(content, "template_naval_exit", "");
     }
 
     file.append(content);

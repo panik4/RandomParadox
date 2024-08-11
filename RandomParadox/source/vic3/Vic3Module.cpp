@@ -139,6 +139,7 @@ void Module::generate() {
     // start with the generic stuff in the Scenario Generator
     vic3Gen->mapProvinces();
     vic3Gen->mapRegions();
+
     vic3Gen->mapTerrain();
     vic3Gen->mapContinents();
     vic3Gen->generateCountries<Vic3::Country>();
@@ -169,6 +170,8 @@ void Module::generate() {
     throw(std::exception(error.c_str()));
   }
   try {
+
+    writeSplnet();
     // now write the files
     writeTextFiles();
     //  generate map files. Format must be converted and colours mapped to vic3
@@ -181,7 +184,6 @@ void Module::generate() {
     error += e.what();
     throw(std::exception(error.c_str()));
   }
-  writeSplnet();
   vic3Gen->printStatistics();
 }
 
@@ -226,7 +228,6 @@ void Module::writeTextFiles() {
               vic3Gen->vic3Regions);
   countryHistory(pathcfg.gameModPath + "//common//history//countries",
                  vic3Gen->vic3Countries);
-  splineNetwork(pathcfg.gameModPath + "//gfx//map//spline_network//");
   compatFile(pathcfg.gameModPath + "//common//decisions//canal_decisions.txt");
   compatFile(pathcfg.gameModPath + "//events//canal_events.txt");
   compatFile(pathcfg.gameModPath +
@@ -298,6 +299,7 @@ void Module::writeSplnet() {
   Parsing::Writing::locators(pathcfg.gameModPath +
                                  "//gfx//map//map_object_data//",
                              vic3Gen->vic3Regions);
+  vic3Gen->calculateNavalExits();
 
   Splnet splnet;
   splnet.constructSplnet(vic3Gen->gameRegions);

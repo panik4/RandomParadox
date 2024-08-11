@@ -59,5 +59,8 @@ public:
   void findMineLocator(int maxAmount = 1);
   void findFarmLocator(int maxAmount = 1);
   void findWoodLocator(int maxAmount = 1);
+  void findWaterLocator(int maxAmount = 1);
+
+  void findWaterPortLocator(int maxAmount = 1);
 };
 } // namespace Scenario

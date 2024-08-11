@@ -1215,9 +1215,9 @@ int GUI::showVic3Finalise(Fwg::Cfg &cfg,
                 generator->calculateNeeds();
                 generator->distributeBuildings();
                 try {
+                  vic3Module->writeSplnet();
                   vic3Module->writeImages();
                   vic3Module->writeTextFiles();
-                  vic3Module->writeSplnet();
                 } catch (std::exception e) {
                   pathWarning(e);
                 }

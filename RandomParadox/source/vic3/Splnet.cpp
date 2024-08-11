@@ -108,21 +108,30 @@ void splitStreamByPattern(std::istream &stream,
 void Splnet::constructSplnet(
     const std::vector<std::shared_ptr<Region>> &regions) {
   using namespace Fwg::Civilization;
-  std::map<LocationType, int> locatorTypeToID = {{LocationType::City, 0},
-                                                 {LocationType::Farm, 1},
-                                                 {LocationType::Mine, 2},
-                                                 {LocationType::Port, 3},
-                                                 {LocationType::Forest, 4}};
-
+  std::map<LocationType, int> locatorTypeToID = {
+      {LocationType::City, 0},      {LocationType::Farm, 1},
+      {LocationType::Mine, 2},      {LocationType::Port, 3},
+      {LocationType::WaterPort, 0}, {LocationType::Forest, 4}};
   int stripIdCounter = 0;
   for (auto &region : regions) {
-    if (/*!region->sea && !region->lake || */ (region->ID < 3)) {
+    if (true) {
       // pairs of src and destination of already used connections
       std::set<std::pair<std::shared_ptr<Location>, std::shared_ptr<Location>>>
           usedConnections;
       for (auto &location : region->significantLocations) {
         Anchor anchor;
-        anchor.ID = (1 + region->ID) * 100 + locatorTypeToID.at(location->type);
+        if (location->type == LocationType::WaterNode) {
+          anchor.ID = (1 + region->ID) * 1000;
+          // now shift bit 23 to 1
+          anchor.ID |= 0x800000;
+        } else if (location->type == LocationType::WaterPort) {
+          anchor.ID =
+              (1 + region->ID) * 100 + locatorTypeToID.at(location->type);
+          anchor.ID |= 0x800000;
+        } else {
+          anchor.ID =
+              (1 + region->ID) * 100 + locatorTypeToID.at(location->type);
+        }
         anchor.xPos = location->position.widthCenter;
         anchor.yPos = location->position.heightCenter;
         anchors.push_back(anchor);

@@ -296,7 +296,12 @@ public:
 
   void distributeBuildings();
 
+
   // iterates over all states and tries to place locators for all 5 types
   void createLocators();
+
+  // calculate naval exits
+  void calculateNavalExits();
+
 };
 } // namespace Scenario::Vic3
