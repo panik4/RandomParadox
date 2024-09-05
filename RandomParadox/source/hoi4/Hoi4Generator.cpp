@@ -622,41 +622,41 @@ void Generator::generateLogistics() {
 
 void Generator::evaluateCountries() {
   Fwg::Utils::Logging::logLine("HOI4: Evaluating Country Strength");
-  strengthScores.clear();
+  countryImportanceScores.clear();
   double maxScore = 0.0;
   for (auto &c : hoi4Countries) {
     c.second.capitalRegionID = 0;
     auto totalIndustry = 0.0;
     auto totalPop = 0.0;
-    auto maxIndustryLevel = 0;
     for (auto &ownedRegion : c.second.hoi4Regions) {
       auto regionIndustry = ownedRegion->civilianFactories +
                             ownedRegion->dockyards + ownedRegion->armsFactories;
-      // always make the most industrious region the capital
-      if (regionIndustry > maxIndustryLevel)
-        c.second.capitalRegionID = ownedRegion->ID;
+      // always make the most important location the capital
+      c.second.selectCapital();
+
       totalIndustry += regionIndustry;
       totalPop += (int)ownedRegion->totalPopulation;
     }
-    strengthScores[(int)(totalIndustry + totalPop / 1'000'000.0)].push_back(
-        c.first);
-    c.second.strengthScore = totalIndustry + totalPop / 1'000'000.0;
-    if (c.second.strengthScore > maxScore) {
-      maxScore = c.second.strengthScore;
+    countryImportanceScores[(int)(totalIndustry + totalPop / 1'000'000.0)]
+        .push_back(c.first);
+    c.second.importanceScore = totalIndustry + totalPop / 1'000'000.0;
+    if (c.second.importanceScore > maxScore) {
+      maxScore = c.second.importanceScore;
     }
     // global
     totalWorldIndustry += (int)totalIndustry;
   }
 
-  int totalDeployedCountries =
-      numCountries - strengthScores.size() ? (int)strengthScores[0].size() : 0;
+  int totalDeployedCountries = numCountries - countryImportanceScores.size()
+                                   ? (int)countryImportanceScores[0].size()
+                                   : 0;
   int numMajorPowers = totalDeployedCountries / 10;
   int numRegionalPowers = totalDeployedCountries / 3;
   int numWeakStates =
       totalDeployedCountries - numMajorPowers - numRegionalPowers;
-  for (const auto &scores : strengthScores) {
+  for (const auto &scores : countryImportanceScores) {
     for (const auto &entry : scores.second) {
-      if (hoi4Countries.at(entry).strengthScore > 0.0) {
+      if (hoi4Countries.at(entry).importanceScore > 0.0) {
         hoi4Countries.at(entry).relativeScore = (double)scores.first / maxScore;
         if (numWeakStates > weakPowers.size()) {
           weakPowers.insert(entry);
@@ -734,7 +734,7 @@ void Generator::generateCountryUnits() {
     // now compose the army from the templates
     std::map<int, int> unitCount;
     c.second.unitCount.resize(100);
-    auto totalUnits = c.second.strengthScore / 5;
+    auto totalUnits = c.second.importanceScore / 5;
     while (totalUnits-- > 0) {
       // now randomly add units
       auto unit = Fwg::Utils::selectRandom(c.second.units);
@@ -759,7 +759,7 @@ void Generator::printStatistics() {
 
   Fwg::Utils::Logging::logLine("World Population: ", worldPop);
 
-  for (auto &scores : strengthScores) {
+  for (auto &scores : countryImportanceScores) {
     for (auto &entry : scores.second) {
       Fwg::Utils::Logging::logLine("Strength: ", scores.first, " ",
                                    hoi4Countries.at(entry).fullName, " ",
@@ -769,6 +769,52 @@ void Generator::printStatistics() {
 }
 
 void Generator::loadStates() {}
+
+void Generator::distributeVictoryPoints() {
+  double baseVPs = 10000;
+  double assignedVPs = 0;
+  for (auto &region : hoi4States) {
+    if (region->sea || region->lake)
+      continue;
+    region->totalVictoryPoints =
+        std::max<int>(region->relativeImportance * baseVPs, 1);
+    std::map<int, double> provinceImportance;
+    // also a map of province to std::vector locations
+    std::map<int, std::vector<std::shared_ptr<Fwg::Civilization::Location>>>
+        provinceLocations;
+
+    double totalImportance = 0;
+    for (auto &location : region->locations) {
+      // ignore waterports
+      if (location->type == Fwg::Civilization::LocationType::WaterPort)
+        continue;
+      provinceImportance[location->provinceID] += location->importance;
+      provinceLocations[location->provinceID].push_back(location);
+      totalImportance += location->importance;
+    }
+    // now distribute the victory points according to province importance
+    for (auto &province : provinceImportance) {
+      auto vps =
+          (int)(province.second / totalImportance * region->totalVictoryPoints);
+      VictoryPoint vp{vps};
+      // find the most significant location in this province, with a custom
+      // comparator using the location importance
+      auto mostImportantLocation =
+          std::max_element(provinceLocations[province.first].begin(),
+                           provinceLocations[province.first].end(),
+                           [](const auto &l, const auto &r) {
+                             return l->importance < r->importance;
+                           });
+      vp.position = (*mostImportantLocation)->position;
+      vp.name = NameGeneration::generateCityName(nData);
+      if ((int)vps > 0) {
+        region->victoryPointsMap[province.first] = vp;
+        assignedVPs += region->victoryPointsMap[province.first].amount;
+      }
+    }
+  }
+  std::cout << "Assigned VPs: " << assignedVPs << std::endl;
+}
 
 bool Generator::unitFulfillsRequirements(
     std::vector<std::string> unitRequirements, Hoi4Country &country) {

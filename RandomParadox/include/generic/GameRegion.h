@@ -23,6 +23,8 @@ public:
   double worldPopulationShare;
   double developmentFactor;
   double worldDevelopmentShare;
+  double importanceScore;
+  double relativeImportance;
   // calculate this in every module
   int totalPopulation;
   // this calculated in every module, usually by taking both population and

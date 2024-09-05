@@ -112,82 +112,142 @@ void Splnet::constructSplnet(
       {LocationType::City, 0},      {LocationType::Farm, 1},
       {LocationType::Mine, 2},      {LocationType::Port, 3},
       {LocationType::WaterPort, 0}, {LocationType::Forest, 4}};
+
+  // a map from the location to an anchor ID
+  std::map<std::shared_ptr<Location>, unsigned int> locationToAnchorID;
+  int regToDO = 50000;
+  int subAnchorCounter = 0;
   int stripIdCounter = 0;
+  auto width = Fwg::Cfg::Values().width;
   for (auto &region : regions) {
-    if (true) {
-      // pairs of src and destination of already used connections
-      std::set<std::pair<std::shared_ptr<Location>, std::shared_ptr<Location>>>
-          usedConnections;
-      for (auto &location : region->significantLocations) {
-        Anchor anchor;
-        if (location->type == LocationType::WaterNode) {
-          anchor.ID = (1 + region->ID) * 1000;
-          // now shift bit 23 to 1
-          anchor.ID |= 0x800000;
-        } else if (location->type == LocationType::WaterPort) {
-          anchor.ID =
-              (1 + region->ID) * 100 + locatorTypeToID.at(location->type);
-          anchor.ID |= 0x800000;
-        } else {
-          anchor.ID =
-              (1 + region->ID) * 100 + locatorTypeToID.at(location->type);
-        }
-        anchor.xPos = location->position.widthCenter;
-        anchor.yPos = location->position.heightCenter;
-        anchors.push_back(anchor);
-        // create a strip for every connection of this location, if not already
-        // in usedConnections
-        for (auto &connection : location->connections) {
-          // if the destination we're currently trying to reach, has not created
-          // a connection to us yet
-          if (usedConnections.find({connection.second.destination, location}) ==
+    // pairs of src and destination of already used connections
+    std::set<std::pair<std::shared_ptr<Location>, std::shared_ptr<Location>>>
+        usedConnections;
+    for (auto &location : region->significantLocations) {
+      Anchor anchor;
+      if (location->type == LocationType::WaterNode) {
+        anchor.ID = (1 + region->ID) * 1000;
+        // now shift bit 23 to 1
+        anchor.ID |= 0x800000;
+      } else if (location->type == LocationType::WaterPort) {
+        anchor.ID = (1 + region->ID) * 100 + locatorTypeToID.at(location->type);
+        anchor.ID |= 0x800000;
+      } else {
+        anchor.ID = (1 + region->ID) * 100 + locatorTypeToID.at(location->type);
+      }
+      anchor.xPos = location->position.widthCenter;
+      anchor.yPos = location->position.heightCenter;
+      locationToAnchorID[location] = anchor.ID;
+      anchors.push_back(anchor);
+    }
+  }
+  // now create the strips
+  for (auto &region :
+       regions) { // pairs of src and destination of already used connections
+    if (region->ID >= regToDO) {
+      continue;
+    }
+    std::set<std::pair<std::shared_ptr<Location>, std::shared_ptr<Location>>>
+        usedConnections;
+    for (auto &source : region->significantLocations) {
+      // create a strip for every connection of this location, if not already
+      // in usedConnections
+      if (!region->sea) {
+        for (auto &connection : source->connections) {
+          const auto &destination = connection.second.destination;
+          // if the destination we're currently trying to reach, has not
+          // created a connection to us yet
+          if (usedConnections.find({destination, source}) ==
               usedConnections.end()) {
             Strip strip;
-            strip.ID = stripIdCounter++;
+
             strip.ID2 = 0;
-            strip.startAnchor = anchor.ID;
-            strip.targetAnchor =
-                (1 + region->ID) * 100 +
-                locatorTypeToID.at(connection.second.destination->type);
+            auto startID = locationToAnchorID.at(source);
+            auto targetID = locationToAnchorID.at(destination);
+            strip.anchorEntries.push_back(
+                StripAnchorEntry{0x14, locationToAnchorID.at(source)});
+            // if the startAnchor is higher than the targetAnchor, swap them
+            if (startID > targetID || startID == targetID ||
+                source->land != destination->land) {
+              // int temp = strip.startAnchor;
+              // strip.startAnchor = strip.targetAnchor;
+              // strip.targetAnchor = temp;
+              continue;
+            }
+            strip.ID = stripIdCounter++ * 256;
+            // now add all connecting pixels as subanchors to the anchors list
+            // and as a subanchor to the strip
+            for (auto &pixel : connection.second.connectingPixels) {
+              Anchor anchor;
+              anchor.ID = subAnchorCounter++;
+
+              // now shift bit 28 to 1
+              anchor.ID |= 0x10000000;
+              anchor.xPos = pixel % width;
+              anchor.yPos = pixel / width;
+              anchors.push_back(anchor);
+              strip.anchorEntries.push_back(StripAnchorEntry{0x14, anchor.ID});
+            }
+
+            strip.anchorEntries.push_back(
+                StripAnchorEntry{0x14, locationToAnchorID.at(destination)});
             strips.push_back(strip);
             // push a new connection from us to the destination
-            usedConnections.insert({location, connection.second.destination});
+            usedConnections.insert({source, destination});
 
             Segment segment;
             int typeAdditive = 0;
-            if (location->type == LocationType::City) {
-              typeAdditive = 0;
-            }
-            if (location->type == LocationType::Farm) {
-              typeAdditive = 0x40;
-            }
-            if (location->type == LocationType::Mine) {
-              typeAdditive = 0x80;
-            }
-            if (location->type == LocationType::Port) {
-              typeAdditive = 0xc0;
-            }
-            if (location->type == LocationType::Forest) {
-              typeAdditive = 0x80;
-            }
-            if (connection.second.destination->type == LocationType::City) {
-              std::cout << "SHOULDN'T HAPPEN" << std::endl;
-            }
-            int idmult800Additive = 0;
-            if (connection.second.destination->type == LocationType::Farm) {
-              idmult800Additive = 8;
-            }
-            if (connection.second.destination->type == LocationType::Mine) {
-              idmult800Additive = 16;
-            }
-            if (connection.second.destination->type == LocationType::Port) {
-              idmult800Additive = 24;
-            }
-            if (connection.second.destination->type == LocationType::Forest) {
-              idmult800Additive = 32;
-            }
-            segment.Idblock0 = (region->ID + 1) * 6400 + typeAdditive;
-            segment.IDmult800 = (region->ID + 1) * 800 + idmult800Additive;
+            // if (source->type == LocationType::City) {
+            //   typeAdditive = 0;
+            // }
+            //// we only ever should connect source water nodes with other
+            //// destination water nodes? a source water node will always
+            /// connect / to a water node, as the other way around is impossible
+            /// as land / anchors and water port anchors are always lower ID
+            /// than sea / anchors
+            // if (source->type == LocationType::WaterNode) {
+            //   typeAdditive = 2;
+            // }
+            // if (source->type == LocationType::WaterPort) {
+            //   typeAdditive = 3;
+            // }
+            // if (source->type == LocationType::Farm) {
+            //   typeAdditive = 0x40;
+            // }
+            // if (source->type == LocationType::Mine) {
+            //   typeAdditive = 0x80;
+            // }
+            // if (source->type == LocationType::Port) {
+            //   typeAdditive = 0xc0;
+            // }
+            // if (source->type == LocationType::Forest) {
+            //   typeAdditive = 256;
+            // }
+            // int idmult800Additive = 0;
+            // if (destination->type == LocationType::City) {
+            //   idmult800Additive = 0;
+            // }
+            // if (destination->type == LocationType::Farm) {
+            //   idmult800Additive = 8;
+            // }
+            // if (destination->type == LocationType::Mine) {
+            //   idmult800Additive = 16;
+            // }
+            // if (destination->type == LocationType::Port) {
+            //   idmult800Additive = 24;
+            // }
+            // if (destination->type == LocationType::Forest) {
+            //   idmult800Additive = 32;
+            // }
+            // if (destination->type == LocationType::WaterNode) {
+            //   idmult800Additive = 64;
+            // }
+            // segment.Idblock0 = (region->ID + 1) * 6400 + typeAdditive;
+            // segment.IDmult800 =
+            //     (destination->regionID + 1) * 800 + idmult800Additive;
+            segment.Idblock0 = startID * 64 + typeAdditive;
+
+            segment.IDmult800 = targetID * 8 /*+ idmult800Additive*/;
             segment.refStripId = strip.ID;
             segment.refStripId2 = strip.ID2;
             segments.push_back(segment);
@@ -196,9 +256,20 @@ void Splnet::constructSplnet(
       }
     }
   }
-  // sort all segments by IDmult800
+
+  // sort all segments by IDmult800, and secondly by Idblock0
+  // std::sort(segments.begin(), segments.end(),
+  //          [](const Segment &a, const Segment &b) {
+  //            if (a.IDmult800 != b.IDmult800) {
+  //              return a.IDmult800 < b.IDmult800;
+  //            }
+  //            return a.Idblock0 < b.Idblock0;
+  //          });
   std::sort(segments.begin(), segments.end(),
             [](const Segment &a, const Segment &b) {
+              if (a.Idblock0 != b.Idblock0) {
+                return a.Idblock0 < b.Idblock0;
+              }
               return a.IDmult800 < b.IDmult800;
             });
 
@@ -332,17 +403,17 @@ Strip vectorToStrip(const std::vector<char> &data) {
   strip.unknown6 = *reinterpret_cast<const unsigned short *>(&data[offset]);
   offset += sizeof(unsigned short);
 
-  strip.unknown7 = *reinterpret_cast<const unsigned short *>(&data[offset]);
-  offset += sizeof(unsigned short);
+  // strip.unknown7 = *reinterpret_cast<const unsigned short *>(&data[offset]);
+  // offset += sizeof(unsigned short);
 
-  strip.startAnchor = createInt(data.data() + offset);
-  offset += sizeof(unsigned int);
+  // strip.startAnchor = createInt(data.data() + offset);
+  // offset += sizeof(unsigned int);
 
-  strip.unknown8 = *reinterpret_cast<const unsigned short *>(&data[offset]);
-  offset += sizeof(unsigned short);
+  // strip.unknown8 = *reinterpret_cast<const unsigned short *>(&data[offset]);
+  // offset += sizeof(unsigned short);
 
-  strip.targetAnchor = createInt(data.data() + offset);
-  offset += sizeof(unsigned int);
+  // strip.targetAnchor = createInt(data.data() + offset);
+  // offset += sizeof(unsigned int);
 
   strip.unknown9 = *reinterpret_cast<const unsigned short *>(&data[offset]);
   offset += sizeof(unsigned short);
@@ -443,8 +514,40 @@ void Splnet::writeFile(const std::string &path) {
     stream.write(reinterpret_cast<const char *>(&stripHeader),
                  sizeof(stripHeader));
     for (auto &strip : strips) {
-      stream.write(reinterpret_cast<const char *>(&strip), sizeof(Strip));
+      // Write the Strip structure up to the anchorEntries vector
+      stream.write(reinterpret_cast<const char *>(&strip.unknown1),
+                   sizeof(strip.unknown1));
+      stream.write(reinterpret_cast<const char *>(&strip.unknown2),
+                   sizeof(strip.unknown2));
+      stream.write(reinterpret_cast<const char *>(&strip.unknown3),
+                   sizeof(strip.unknown3));
+      stream.write(reinterpret_cast<const char *>(&strip.ID), sizeof(strip.ID));
+      stream.write(reinterpret_cast<const char *>(&strip.someType),
+                   sizeof(strip.someType));
+      stream.write(reinterpret_cast<const char *>(&strip.ID2),
+                   sizeof(strip.ID2));
+      stream.write(reinterpret_cast<const char *>(&strip.unknown4),
+                   sizeof(strip.unknown4));
+      stream.write(reinterpret_cast<const char *>(&strip.unknown5),
+                   sizeof(strip.unknown5));
+      stream.write(reinterpret_cast<const char *>(&strip.unknown6),
+                   sizeof(strip.unknown6));
+
+      // Write each StripAnchorEntry in the vector
+      for (const auto &entry : strip.anchorEntries) {
+        stream.write(reinterpret_cast<const char *>(&entry),
+                     sizeof(StripAnchorEntry));
+      }
+
+      // Write the remaining fields of the Strip structure
+      stream.write(reinterpret_cast<const char *>(&strip.unknown9),
+                   sizeof(strip.unknown9));
+      stream.write(reinterpret_cast<const char *>(&strip.unknown10),
+                   sizeof(strip.unknown10));
+      stream.write(reinterpret_cast<const char *>(&strip.unknown11),
+                   sizeof(strip.unknown11));
     }
+
     stripEndHeader = stripHeader;
     stripEndHeader.unknown1 = 0x05f6;
 

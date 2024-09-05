@@ -159,6 +159,7 @@ void rocketSites(const std::string &path,
 
 void unitStacks(const std::string &path,
                 const std::vector<Province *> provinces,
+                const std::vector<std::shared_ptr<Region>> regions,
                 const Fwg::Gfx::Bitmap &heightMap) {
   Logging::logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
   // 1;0;3359.00;9.50;1166.00;0.00;0.08
@@ -168,34 +169,90 @@ void unitStacks(const std::string &path,
   // stand still
   std::string content{""};
   for (const auto &prov : provinces) {
-    int position = 0;
+    int unitstackIndex = 0;
     auto pix = Fwg::Utils::selectRandom(prov->pixels);
     auto widthPos = pix % Cfg::Values().width;
     auto heightPos = pix / Cfg::Values().width;
     std::vector<std::string> arguments{
         std::to_string(prov->ID + 1),
-        std::to_string(position),
+        std::to_string(unitstackIndex),
         std::to_string(widthPos),
         std::to_string((double)heightMap[pix].getRed() / 10.0),
         std::to_string(heightPos),
         std::to_string(0.0),
         "0.0"};
     content.append(pU::csvFormat(arguments, ';', false));
+    // attacking
+    arguments[1] = "9";
+    content.append(pU::csvFormat(arguments, ';', false));
+    // defending
+    arguments[1] = "10";
+    content.append(pU::csvFormat(arguments, ';', false));
+    // standstill RG
+    arguments[1] = "21";
+    content.append(pU::csvFormat(arguments, ';', false));
+    unitstackIndex++;
     for (const auto &neighbour : prov->neighbours) {
-      position++;
-      double angle;
-      auto nextPos = prov->getPositionBetweenProvinces(
-          *neighbour, Cfg::Values().width, angle);
-      angle += 1.57;
-      auto widthPos = nextPos % Cfg::Values().width;
-      auto heightPos = nextPos / Cfg::Values().width;
+      if (unitstackIndex < 9) {
+        double angle;
+        auto nextPos = prov->getPositionBetweenProvinces(
+            *neighbour, Cfg::Values().width, angle);
+        angle += 1.57;
+        auto widthPos = nextPos % Cfg::Values().width;
+        auto heightPos = nextPos / Cfg::Values().width;
+        std::vector<std::string> arguments{
+            std::to_string(prov->ID + 1),
+            std::to_string(unitstackIndex),
+            std::to_string(widthPos),
+            std::to_string((double)heightMap[pix].getRed() / 10.0),
+            std::to_string(heightPos),
+            std::to_string(angle),
+            "0.0"};
+        content.append(pU::csvFormat(arguments, ';', false));
+        // regroup equivalent
+        arguments[1] = std::to_string(21 + unitstackIndex);
+        content.append(pU::csvFormat(arguments, ';', false));
+        unitstackIndex++;
+      }
+    }
+
+    if (prov->coastal) {
+      unitstackIndex = 11;
+      for (const auto &neighbour : prov->neighbours) {
+        if (prov->sea) {
+          if (unitstackIndex < 19) {
+            double angle;
+            auto nextPos = prov->getPositionBetweenProvinces(
+                *neighbour, Cfg::Values().width, angle);
+            angle += 1.57;
+            auto widthPos = nextPos % Cfg::Values().width;
+            auto heightPos = nextPos / Cfg::Values().width;
+            std::vector<std::string> arguments{
+                std::to_string(prov->ID + 1),
+                std::to_string(unitstackIndex),
+                std::to_string(widthPos),
+                std::to_string((double)heightMap[pix].getRed() / 10.0),
+                std::to_string(heightPos),
+                std::to_string(angle),
+                "0.0"};
+            content.append(pU::csvFormat(arguments, ';', false));
+            unitstackIndex++;
+          }
+        }
+      }
+    }
+  }
+  for (auto &region : regions) {
+    for (auto &vp : region->victoryPointsMap) {
       std::vector<std::string> arguments{
-          std::to_string(prov->ID + 1),
-          std::to_string(position),
-          std::to_string(widthPos),
-          std::to_string((double)heightMap[pix].getRed() / 10.0),
-          std::to_string(heightPos),
-          std::to_string(angle),
+          std::to_string(vp.first + 1),
+          std::to_string(38),
+          std::to_string(vp.second.position.widthCenter),
+          std::to_string(
+              (double)heightMap[vp.second.position.weightedCenter].getRed() /
+              10.0),
+          std::to_string(vp.second.position.heightCenter),
+          std::to_string(0.0),
           "0.0"};
       content.append(pU::csvFormat(arguments, ';', false));
     }
@@ -359,15 +416,23 @@ void states(const std::string &path,
     if (region->sea || region->lake) {
       continue;
     }
+    std::string victoryPoints{""};
     std::string provString{""};
     for (const auto &prov : region->provinces) {
       provString.append(std::to_string(prov->ID + 1));
       provString.append(" ");
     }
+    for (auto &vp : region->victoryPointsMap) {
+      victoryPoints.append("victory_points = { " +
+                           std::to_string(vp.first + 1) + " " +
+                           std::to_string(vp.second.amount) + "}\n\t\t");
+    }
     auto content{templateContent};
     pU::Scenario::replaceOccurences(content, "templateID",
                                     std::to_string(region->ID + 1));
     pU::Scenario::replaceOccurences(content, "template_provinces", provString);
+    pU::Scenario::replaceOccurences(content, "templateVictoryPoints",
+                                    victoryPoints);
     if (region->owner.size())
       pU::Scenario::replaceOccurences(content, "templateOwner", region->owner);
     else {
@@ -445,12 +510,10 @@ void historyCountries(const std::string &path, const hoiMap &countries) {
   for (const auto &country : countries) {
     auto tempPath = path + country.first + " - " + country.second.name + ".txt";
     auto countryText{content};
-    auto capitalID = 1;
-    if (country.second.hoi4Regions.size())
-      capitalID =
-          (Fwg::Utils::selectRandom(country.second.hoi4Regions))->ID + 1;
-    pU::Scenario::replaceOccurences(countryText, "templateCapital",
-                                    std::to_string(capitalID));
+
+    pU::Scenario::replaceOccurences(
+        countryText, "templateCapital",
+        std::to_string(country.second.capitalRegionID));
     pU::Scenario::replaceOccurences(countryText, "templateTag", country.first);
     pU::Scenario::replaceOccurences(countryText, "templateParty",
                                     country.second.rulingParty);
@@ -534,7 +597,8 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
     // for (int i = 0; i < country.second.attributeVectors.at("units").size();
     // i++) {
     //
-    //	for (int x = 0; x < country.second.attributeVectors.at("unitCount")[i];
+    //	for (int x = 0; x <
+    // country.second.attributeVectors.at("unitCount")[i];
     // x++) {
     // Logging::logLine(country.second.attributeVectors.at("units")[i]);
     // auto
@@ -544,7 +608,8 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
     // Logging::logLine(IDMap.at(i));
     // Fwg::Parsing::Scenario::replaceOccurences(tempUnit,
     //"templateLocation",
-    // std::to_string(country.second.ownedRegions[0].gameProvinces[0].ID + 1));
+    // std::to_string(country.second.ownedRegions[0].gameProvinces[0].ID +
+    // 1));
     //		totalUnits += tempUnit;
     //	}
     //}
@@ -692,6 +757,19 @@ void strategicRegionNames(
                                         strategicRegions[i].name, "\"\n");
   }
   pU::writeFile(path + "//strategic_region_names_l_english.yml", content, true);
+}
+
+void victoryPointNames(const std::string &path,
+                       const std::vector<std::shared_ptr<Region>> &regions) {
+  Logging::logLine("HOI4 Parser: Map: Naming the Regions");
+  std::string content = "l_english:\n";
+  for (auto region : regions) {
+    for (auto vp : region->victoryPointsMap) {
+      content += Fwg::Utils::varsToString(
+          " VICTORY_POINTS_", vp.first, ":0 \"", vp.second.name, "\"\n");
+    }
+  }
+  pU::writeFile(path + "//victory_points_l_english.yml", content, true);
 }
 
 void tutorials(const std::string &path) {
@@ -867,7 +945,8 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
                           const std::vector<Fwg::Region> &regions) {
   Logging::logLine("HOI4 Parser: History: Writing Compatibility Files");
   const std::filesystem::path hoiDir{hoiPath + "//history//countries//"};
-  Logging::logLine("HOI4 Parser: History: Reading Files from " + hoiDir.string());
+  Logging::logLine("HOI4 Parser: History: Reading Files from " +
+                   hoiDir.string());
   const std::filesystem::path modDir{path};
   for (auto const &dir_entry : std::filesystem::directory_iterator{hoiDir}) {
     std::string pathString = dir_entry.path().string();
@@ -891,8 +970,8 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
         pU::Scenario::removeBracketBlockFromKey(content, m[0]);
     } while (m.size());
     // remove tokens that crash the mod, as in country history states are
-    // referenced by IDs. If there is no state with such an ID in game, the game
-    // crashes otherwise
+    // referenced by IDs. If there is no state with such an ID in game, the
+    // game crashes otherwise
     auto lines = pU::getTokens(content, '\n');
     for (auto &line : lines) {
       auto tokens = pU::getTokens(line, '=');

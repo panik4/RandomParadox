@@ -30,6 +30,7 @@ std::string modifyWithIdeology(const std::string &ideology,
                                const std::string name,
                                const std::string adjective,
                                const NameData &nameData);
+std::string generateCityName(NameData &nameData);
 NameData prepare(const std::string &path, const std::string &gamePath = "");
 namespace Detail {
 

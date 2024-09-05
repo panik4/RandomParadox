@@ -46,4 +46,25 @@ void Country::addRegion(std::shared_ptr<Region> region) {
     gameProvince->owner = tag;
   ownedRegions.push_back(region);
 }
+void Country::selectCapital() {
+  // select the region with the highest population
+  double max = 0;
+    std::shared_ptr<Region> capitalRegion;
+
+  for (const auto &region : ownedRegions) {
+    if (region->populationFactor > max) {
+      max = region->populationFactor;
+      capitalRegionID = region->ID;
+      capitalRegion = region;
+    }
+  }
+  // in this region, select the single most significant location
+  max = 0;
+  for (const auto &location : capitalRegion->locations) {
+    if (location->importance > max) {
+      max = location->importance;
+      capitalProvinceID = location->provinceID;
+    }
+  }
+}
 } // namespace Scenario

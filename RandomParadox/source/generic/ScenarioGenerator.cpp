@@ -203,6 +203,18 @@ void Generator::generateEconomicActivity() {
         region->economicActivity / worldEconomicActivitySum;
   }
 }
+void Generator::generateImportance() {
+  double worldImportanceSum = 0.0;
+  for (auto &region : gameRegions) {
+    region->importanceScore = region->worldEconomicActivityShare +
+                              region->worldPopulationShare +
+                              region->worldDevelopmentShare;
+    worldImportanceSum += region->importanceScore;
+  }
+  for (auto &region : gameRegions) {
+    region->relativeImportance = region->importanceScore / worldImportanceSum;
+  }
+}
 void Generator::generateReligions() {
   auto &config = Fwg::Cfg::Values();
   religions.clear();
@@ -415,6 +427,7 @@ void Generator::evaluateNeighbours() {
           c.second->neighbours.insert(gameRegions[neighbourRegion]->owner);
 }
 
+void Generator::evaluateCountries() {}
 void Generator::printStatistics() {
   Logging::logLine("Printing Statistics");
   std::map<std::string, int> countryPop;

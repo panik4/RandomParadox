@@ -74,6 +74,11 @@ struct StripHeader {
   unsigned short unknown4 = 0x03;
 };
 
+struct StripAnchorEntry {
+  unsigned short prefix = 0x14;
+  unsigned int anchorID = 0;
+};
+
 // 38 byte minimum size, + subanchor IDs
 struct Strip {
   unsigned short unknown1 = 0x0b;
@@ -85,10 +90,7 @@ struct Strip {
   unsigned short unknown4 = 0x05f7;
   unsigned short unknown5 = 0x01;
   unsigned short unknown6 = 0x03;
-  unsigned short unknown7 = 0x14;
-  unsigned int startAnchor = 0;
-  unsigned short unknown8 = 0x14;
-  unsigned int targetAnchor = 0;
+  std::vector<StripAnchorEntry> anchorEntries;
   unsigned short unknown9 = 0x04;
   unsigned short unknown10 = 0x04;
   unsigned short unknown11 = 0x03;
@@ -112,7 +114,6 @@ struct Segment {
   // contains connection type, as well as the ID of the connection * 6400
   unsigned int Idblock0;
 
-  //unsigned int ID1 = 0;
   // some type of multiplier? seems to be ID * 800 +  some value
   // some value depends on connection type: woodd-mine + 32, 
   unsigned int IDmult800 = 0;

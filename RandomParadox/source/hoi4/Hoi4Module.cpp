@@ -185,7 +185,7 @@ void Hoi4Module::writeTextFiles() {
   definition(pathcfg.gameModPath + "//map//definition.csv",
              hoi4Gen->gameProvinces);
   unitStacks(pathcfg.gameModPath + "//map//unitstacks.txt",
-             hoi4Gen->areas.provinces, hoi4Gen->heightMap);
+             hoi4Gen->areas.provinces, hoi4Gen->hoi4States, hoi4Gen->heightMap);
   rocketSites(pathcfg.gameModPath + "//map//rocketsites.txt",
               hoi4Gen->areas.regions);
   strategicRegions(pathcfg.gameModPath + "//map//strategicregions",
@@ -202,10 +202,12 @@ void Hoi4Module::writeTextFiles() {
                hoi4Gen->hoi4Countries, hoi4Gen->nData);
   strategicRegionNames(pathcfg.gameModPath + "//localisation//english//",
                        hoi4Gen->strategicRegions);
+  victoryPointNames(pathcfg.gameModPath + "//localisation//english//",
+                    hoi4Gen->hoi4States);
   foci(pathcfg.gameModPath + "//common//national_focus//",
        hoi4Gen->hoi4Countries, hoi4Gen->nData);
   commonBookmarks(pathcfg.gameModPath + "//common//bookmarks//",
-                  hoi4Gen->hoi4Countries, hoi4Gen->strengthScores);
+                  hoi4Gen->hoi4Countries, hoi4Gen->countryImportanceScores);
   tutorials(pathcfg.gameModPath + "//tutorial//tutorial.txt");
   Parsing::copyDescriptorFile("resources//hoi4//descriptor.mod",
                               pathcfg.gameModPath, pathcfg.gameModsDirectory,
@@ -340,6 +342,8 @@ void Hoi4Module::generate() {
     NationalFocus::buildMaps();
     hoi4Gen->generateFocusTrees();
     hoi4Gen->generateCountryUnits();
+    hoi4Gen->generateImportance();
+    hoi4Gen->distributeVictoryPoints();
   } catch (std::exception e) {
     std::string error = "Error while generating the Hoi4 Module.\n";
     error += "Error is: \n";
