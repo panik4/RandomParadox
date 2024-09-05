@@ -54,6 +54,7 @@ public:
   std::vector<StrategicRegion> strategicRegions;
   std::vector<std::shared_ptr<Religion>> religions;
   std::vector<std::shared_ptr<Culture>> cultures;
+  std::map<int, std::vector<std::string>> countryImportanceScores;
   // constructors/destructors
   Generator(Fwg::FastWorldGenerator &fwg);
   ~Generator();
@@ -84,6 +85,9 @@ public:
   void generateDevelopment();
   // determine development from habitability, population density and randomness
   virtual void generateEconomicActivity();
+  // determine importance from population, development and economicActivity
+  void generateImportance();
+
 
   void generateReligions();
   void generateCultures();
@@ -230,7 +234,8 @@ public:
   }
   // see which country neighbours which
   void evaluateNeighbours();
-
+  // calculate how strong each country is
+  virtual void evaluateCountries();
   virtual void printStatistics();
 
 }; // namespace Scenario

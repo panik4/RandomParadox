@@ -65,6 +65,10 @@ std::string modifyWithIdeology(const std::string &ideology,
   return stateName;
 }
 
+std::string generateCityName(NameData &nameData) {
+  return generateName(nameData);
+}
+
 NameData prepare(const std::string &path, const std::string &gamePath) {
   Fwg::Utils::Logging::logLine("Preparing name generation from path", path);
   NameData nameData;

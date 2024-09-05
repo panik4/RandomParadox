@@ -30,8 +30,7 @@ public:
   std::string rulingParty;
   bool allowElections;
   double bully;
-  double strengthScore;
-  double relativeScore;
+  int victoryPoints;
   // typedef doctrineType mytype;
   std::vector<doctrineType> doctrines;
   std::vector<int> units;
@@ -40,5 +39,6 @@ public:
   std::vector<std::shared_ptr<Region>> hoi4Regions;
   //std::vector<std::vector<NationalFocus>> foci;
   std::vector<FocusBranch> focusBranches;
+
 };
 } // namespace Scenario::Hoi4

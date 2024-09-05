@@ -4,6 +4,12 @@
 #include "generic/ScenarioUtils.h"
 
 namespace Scenario::Hoi4 {
+struct VictoryPoint {
+  int amount;
+  Fwg::Position position;
+  std::string name;
+};
+
 class Region : public Scenario::Region {
   const std::vector<std::string> buildingTypes{
       "arms_factory",    "industrial_complex", "air_base",
@@ -22,10 +28,12 @@ public:
   int stateCategory;
   int stratID;
   int airport, rocketsite, supplyNode;
+  double totalVictoryPoints;
   Scenario::Utils::WeatherPosition weatherPosition;
   // Containers
   std::vector<Scenario::Utils::Building> buildings;
   std::map<std::string, int> resources;
+  std::map<int, VictoryPoint> victoryPointsMap;
   // Constructors/Destructors
   Region();
   Region(const Scenario::Region &gameRegion);

@@ -1,8 +1,8 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "generic/Country.h"
-#include "generic/ScenarioGenerator.h"
 #include "generic/GenericParsing.h"
+#include "generic/ScenarioGenerator.h"
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4FocusGen.h"
 #include "hoi4/Hoi4Region.h"
@@ -32,10 +32,8 @@ class Generator : public Scenario::Generator {
       {4, "armored"}, {5, "mass"},     {6, "support"}, {7, "defensive"}};
 
 public:
-
   // containers
   std::vector<std::shared_ptr<Region>> hoi4States;
-  std::map<int, std::vector<std::string>> strengthScores;
   std::map<std::string, Hoi4Country> hoi4Countries;
   // a list of connections: {sourceHub, destHub, provinces the rails go through}
   std::vector<std::vector<int>> supplyNodeConnections;
@@ -52,7 +50,7 @@ public:
   virtual Fwg::Gfx::Bitmap mapTerrain();
   void cutFromFiles(const std::string &gamePath);
   // initialize states
-  //void initializeStates();
+  // void initializeStates();
   // initialize states
   void mapCountries();
   // give resources to states
@@ -67,6 +65,9 @@ public:
   void generateLogistics();
   // calculate how strong each country is
   void evaluateCountries();
+  // determine the total amount of VPs per country, and distribute them in a
+  // country
+  void distributeVictoryPoints();
   bool unitFulfillsRequirements(std::vector<std::string> unitRequirements,
                                 Hoi4Country &country);
   // determine unit composition, templates

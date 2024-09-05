@@ -30,6 +30,7 @@ void supply(const std::string &path,
             const std::vector<std::vector<int>> &supplyNodeConnections);
 void unitStacks(const std::string &path,
                 const std::vector<Fwg::Province *> provinces,
+                const std::vector<std::shared_ptr<Region>> regions,
                 const Fwg::Gfx::Bitmap &heightMap);
 void weatherPositions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
@@ -59,6 +60,8 @@ void countryNames(const std::string &path, const hoiMap &countries,
 void stateNames(const std::string &path, const hoiMap &countries);
 void strategicRegionNames(const std::string &path,
                           const std::vector<StrategicRegion> &strategicRegions);
+void victoryPointNames(const std::string &path,
+                       const std::vector<std::shared_ptr<Region>> &regions);
 void tutorials(const std::string &path);
 // copy base game countries and remove certain lines to reduce crashes
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
