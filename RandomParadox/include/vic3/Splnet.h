@@ -84,8 +84,7 @@ struct Strip {
   unsigned short unknown1 = 0x0b;
   unsigned short unknown2 = 0x01;
   unsigned short unknown3 = 0x029c;
-  unsigned short ID = 0;
-  unsigned short someType = 0;
+  unsigned int ID = 0;
   unsigned int ID2 = 0;
   unsigned short unknown4 = 0x05f7;
   unsigned short unknown5 = 0x01;
@@ -121,8 +120,7 @@ struct Segment {
   unsigned short unknown8 = 0x01;
   unsigned short unknown9 = 0x03;
   unsigned short unknown10 = 0x029c;
-  unsigned short refStripId = 0x00;
-  unsigned short unknown = 0x00;
+  unsigned int refStripId = 0x00;
   unsigned int refStripId2 = 0x00;
   unsigned short unknown11 = 0x04;
   unsigned short unknown12 = 0x04;

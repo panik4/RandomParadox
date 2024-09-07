@@ -214,6 +214,19 @@ void Generator::generateStateSpecifics() {
     hoi4State->armsFactories = 0;
   }
 
+  // go through all states and figure out the importance of the largest port
+  // in the state
+  auto maxImportance = 0.0;
+  for (auto &hoi4State : hoi4States) {
+    // create naval bases for all port locations
+    for (auto &location : hoi4State->locations) {
+      if (location->type == Fwg::Civilization::LocationType::Port ||
+          location->secondaryType == Fwg::Civilization::LocationType::Port) {
+        maxImportance = std::max<double>(maxImportance, location->importance);
+      }
+    }
+  }
+
   Fwg::Utils::Logging::logLine(config.landPercentage);
   for (auto &hoi4State : hoi4States) {
     // skip sea and lake states
@@ -243,53 +256,59 @@ void Generator::generateStateSpecifics() {
     }
     worldPop += (long long)hoi4State->totalPopulation;
 
+    // create naval bases for all port locations
+    for (auto &location : hoi4State->locations) {
+      if (location->type == Fwg::Civilization::LocationType::Port ||
+          location->secondaryType == Fwg::Civilization::LocationType::Port) {
+        hoi4State->navalBases[location->provinceID] =
+            std::max<double>(location->importance / maxImportance, 1.0);
+        std::cout << "Naval base in " << hoi4State->name << " at "
+				  << location->provinceID << " with importance "
+				  << location->importance << std::endl;
+      }
+    }
+
     // count the total coastal provinces of this state
     auto totalCoastal = 0;
     for (auto &gameProv : hoi4State->gameProvinces) {
       if (gameProv->baseProvince->coastal) {
         totalCoastal++;
-        // only create a naval base, if a coastal supply hub was determined
-        // in this province
-        if (gameProv->attributeDoubles["naval_bases"] == 1)
-          gameProv->attributeDoubles["naval_bases"] = RandNum::getRandom(1, 5);
-      } else {
-        gameProv->attributeDoubles["naval_bases"] = 0;
       }
-    }
-    // calculate total industry in this state
-    if (targetWorldIndustry != 0) {
-      auto stateIndustry = std::min<double>(
-          hoi4State->worldEconomicActivityShare * targetWorldIndustry, 18.0);
-      // if we're below one, randomize if this state gets a actory or not
-      if (stateIndustry < 1.0) {
-        stateIndustry =
-            RandNum::getRandom(0.0, 1.0) < stateIndustry ? 1.0 : 0.0;
-      }
-      double dockChance = 0.25;
-      double civChance = 0.5;
-      // distribute it to military, civilian and naval factories
-      if (!totalCoastal) {
-        dockChance = 0.0;
-        civChance = 0.6;
-      }
-      while (--stateIndustry >= 0) {
-        auto choice = RandNum::getRandom(0.0, 1.0);
-        if (choice < dockChance) {
-          hoi4State->dockyards++;
-        } else if (Fwg::Utils::inRange(dockChance, dockChance + civChance,
-                                       choice)) {
-          hoi4State->civilianFactories++;
+      // calculate total industry in this state
+      if (targetWorldIndustry != 0) {
+        auto stateIndustry = std::min<double>(
+            hoi4State->worldEconomicActivityShare * targetWorldIndustry, 18.0);
+        // if we're below one, randomize if this state gets a actory or not
+        if (stateIndustry < 1.0) {
+          stateIndustry =
+              RandNum::getRandom(0.0, 1.0) < stateIndustry ? 1.0 : 0.0;
+        }
+        double dockChance = 0.25;
+        double civChance = 0.5;
+        // distribute it to military, civilian and naval factories
+        if (!totalCoastal) {
+          dockChance = 0.0;
+          civChance = 0.6;
+        }
+        while (--stateIndustry >= 0) {
+          auto choice = RandNum::getRandom(0.0, 1.0);
+          if (choice < dockChance) {
+            hoi4State->dockyards++;
+          } else if (Fwg::Utils::inRange(dockChance, dockChance + civChance,
+                                         choice)) {
+            hoi4State->civilianFactories++;
 
-        } else {
-          hoi4State->armsFactories++;
+          } else {
+            hoi4State->armsFactories++;
+          }
         }
       }
+      militaryIndustry += (int)hoi4State->armsFactories;
+      civilianIndustry += (int)hoi4State->civilianFactories;
+      navalIndustry += (int)hoi4State->dockyards;
+      // get potential building positions
+      hoi4State->calculateBuildingPositions(this->heightMap, typeMap);
     }
-    militaryIndustry += (int)hoi4State->armsFactories;
-    civilianIndustry += (int)hoi4State->civilianFactories;
-    navalIndustry += (int)hoi4State->dockyards;
-    // get potential building positions
-    hoi4State->calculateBuildingPositions(this->heightMap, typeMap);
   }
   dumpRegions(hoi4States);
 }
@@ -463,15 +482,17 @@ void Generator::generateLogistics() {
                                        "as it only contains lakes");
           continue;
         }
-        for (auto &prov : region->gameProvinces) {
-          if (prov->baseProvince->coastal && !prov->baseProvince->isLake) {
-            // if this is a coastal region, the supply hub is a naval base
-            // as well, so we overwrite y
-            hubProvince = prov;
-            prov->attributeDoubles["naval_bases"] = 1;
+        // search for a port location in this region. If we have one, overwrtie
+        // hubProvince with the location province
+        for (auto &location : region->locations) {
+          if (location->type == Fwg::Civilization::LocationType::Port ||
+              location->secondaryType ==
+                  Fwg::Civilization::LocationType::Port) {
+            hubProvince = gameProvinces[location->provinceID];
             break;
           }
         }
+
         // save the province under the provinces ID
         supplyHubProvinces[hubProvince->ID] = hubProvince;
         navalBases[hubProvince->ID] = hubProvince->baseProvince->coastal;
@@ -601,9 +622,9 @@ void Generator::generateLogistics() {
       // connection
       if (gameProvinces[connection[i]]->baseProvince->sea ||
           gameProvinces[connection[i]]->baseProvince->isLake) {
-        Fwg::Utils::Logging::logLine(
-            "Error: Skipping an invalid connection due to sea or lake province "
-            "in it in logistics");
+        Fwg::Utils::Logging::logLine("Error: Skipping an invalid connection "
+                                     "due to sea or lake province "
+                                     "in it in logistics");
         connection.erase(connection.begin() + i);
         i--;
         continue;
@@ -813,7 +834,6 @@ void Generator::distributeVictoryPoints() {
       }
     }
   }
-  std::cout << "Assigned VPs: " << assignedVPs << std::endl;
 }
 
 bool Generator::unitFulfillsRequirements(

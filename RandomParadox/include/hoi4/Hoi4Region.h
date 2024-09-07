@@ -23,7 +23,7 @@ public:
   int armsFactories;
   int civilianFactories;
   int dockyards;
-  int navalBases;
+  
   int infrastructure;
   int stateCategory;
   int stratID;
@@ -34,6 +34,7 @@ public:
   std::vector<Scenario::Utils::Building> buildings;
   std::map<std::string, int> resources;
   std::map<int, VictoryPoint> victoryPointsMap;
+  std::map<int, int> navalBases;
   // Constructors/Destructors
   Region();
   Region(const Scenario::Region &gameRegion);
