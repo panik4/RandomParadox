@@ -15,6 +15,7 @@ state={
 	}
 
 	history={
+		templateVictoryPoints
 		owner = templateOwner
 		buildings = {
 			infrastructure = templateInfrastructure

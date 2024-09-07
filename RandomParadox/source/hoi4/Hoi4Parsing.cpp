@@ -458,15 +458,21 @@ void states(const std::string &path,
         content, "templateStateCategory",
         stateCategories[(int)region->stateCategory]);
     std::string navalBaseContent = "";
-    for (const auto &gameProv : region->gameProvinces) {
-      if (gameProv->attributeDoubles.find("naval_bases") !=
-              gameProv->attributeDoubles.end() &&
-          gameProv->attributeDoubles.at("naval_bases") > 0) {
-        navalBaseContent +=
-            std::to_string(gameProv->ID + 1) + " = {\n\t\t\t\tnaval_base = " +
-            std::to_string((int)gameProv->attributeDoubles.at("naval_bases")) +
-            "\n\t\t\t}\n\t\t\t";
-      }
+    //for (const auto &gameProv : region->gameProvinces) {
+    //  if (gameProv->attributeDoubles.find("naval_bases") !=
+    //          gameProv->attributeDoubles.end() &&
+    //      gameProv->attributeDoubles.at("naval_bases") > 0) {
+    //    navalBaseContent +=
+    //        std::to_string(gameProv->ID + 1) + " = {\n\t\t\t\tnaval_base = " +
+    //        std::to_string((int)gameProv->attributeDoubles.at("naval_bases")) +
+    //        "\n\t\t\t}\n\t\t\t";
+    //  }
+    //}
+    for (auto &[provID, navalBase] : region->navalBases) {
+      navalBaseContent +=
+          std::to_string(provID + 1) +
+          " = {\n\t\t\t\tnaval_base = " + std::to_string(navalBase) +
+          "\n\t\t\t}\n\t\t\t";
     }
     pU::Scenario::replaceOccurences(content, "templateNavalBases",
                                     navalBaseContent);
@@ -765,8 +771,8 @@ void victoryPointNames(const std::string &path,
   std::string content = "l_english:\n";
   for (auto region : regions) {
     for (auto vp : region->victoryPointsMap) {
-      content += Fwg::Utils::varsToString(
-          " VICTORY_POINTS_", vp.first, ":0 \"", vp.second.name, "\"\n");
+      content += Fwg::Utils::varsToString(" VICTORY_POINTS_", vp.first, ":0 \"",
+                                          vp.second.name, "\"\n");
     }
   }
   pU::writeFile(path + "//victory_points_l_english.yml", content, true);

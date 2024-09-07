@@ -197,57 +197,9 @@ void Splnet::constructSplnet(
 
             Segment segment;
             int typeAdditive = 0;
-            // if (source->type == LocationType::City) {
-            //   typeAdditive = 0;
-            // }
-            //// we only ever should connect source water nodes with other
-            //// destination water nodes? a source water node will always
-            /// connect / to a water node, as the other way around is impossible
-            /// as land / anchors and water port anchors are always lower ID
-            /// than sea / anchors
-            // if (source->type == LocationType::WaterNode) {
-            //   typeAdditive = 2;
-            // }
-            // if (source->type == LocationType::WaterPort) {
-            //   typeAdditive = 3;
-            // }
-            // if (source->type == LocationType::Farm) {
-            //   typeAdditive = 0x40;
-            // }
-            // if (source->type == LocationType::Mine) {
-            //   typeAdditive = 0x80;
-            // }
-            // if (source->type == LocationType::Port) {
-            //   typeAdditive = 0xc0;
-            // }
-            // if (source->type == LocationType::Forest) {
-            //   typeAdditive = 256;
-            // }
-            // int idmult800Additive = 0;
-            // if (destination->type == LocationType::City) {
-            //   idmult800Additive = 0;
-            // }
-            // if (destination->type == LocationType::Farm) {
-            //   idmult800Additive = 8;
-            // }
-            // if (destination->type == LocationType::Mine) {
-            //   idmult800Additive = 16;
-            // }
-            // if (destination->type == LocationType::Port) {
-            //   idmult800Additive = 24;
-            // }
-            // if (destination->type == LocationType::Forest) {
-            //   idmult800Additive = 32;
-            // }
-            // if (destination->type == LocationType::WaterNode) {
-            //   idmult800Additive = 64;
-            // }
-            // segment.Idblock0 = (region->ID + 1) * 6400 + typeAdditive;
-            // segment.IDmult800 =
-            //     (destination->regionID + 1) * 800 + idmult800Additive;
             segment.Idblock0 = startID * 64 + typeAdditive;
 
-            segment.IDmult800 = targetID * 8 /*+ idmult800Additive*/;
+            segment.IDmult800 = targetID * 8;
             segment.refStripId = strip.ID;
             segment.refStripId2 = strip.ID2;
             segments.push_back(segment);
@@ -257,14 +209,6 @@ void Splnet::constructSplnet(
     }
   }
 
-  // sort all segments by IDmult800, and secondly by Idblock0
-  // std::sort(segments.begin(), segments.end(),
-  //          [](const Segment &a, const Segment &b) {
-  //            if (a.IDmult800 != b.IDmult800) {
-  //              return a.IDmult800 < b.IDmult800;
-  //            }
-  //            return a.Idblock0 < b.Idblock0;
-  //          });
   std::sort(segments.begin(), segments.end(),
             [](const Segment &a, const Segment &b) {
               if (a.Idblock0 != b.Idblock0) {
@@ -282,6 +226,10 @@ void Splnet::constructSplnet(
   header.anchorAmount = anchors.size();
   header.stripAmount = strips.size();
   header.segmentAmount = segments.size();
+  if (segments.size() != strips.size()) {
+	std::cerr << "Segments and strips size mismatch" << std::endl;
+  }
+
 }
 void Splnet::parseHeader(const std::array<char, 36> &headerData,
                          Header &header) {
@@ -522,8 +470,6 @@ void Splnet::writeFile(const std::string &path) {
       stream.write(reinterpret_cast<const char *>(&strip.unknown3),
                    sizeof(strip.unknown3));
       stream.write(reinterpret_cast<const char *>(&strip.ID), sizeof(strip.ID));
-      stream.write(reinterpret_cast<const char *>(&strip.someType),
-                   sizeof(strip.someType));
       stream.write(reinterpret_cast<const char *>(&strip.ID2),
                    sizeof(strip.ID2));
       stream.write(reinterpret_cast<const char *>(&strip.unknown4),
