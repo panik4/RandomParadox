@@ -529,6 +529,16 @@ void Generator::createLocators() {
     } else if (region->sea) {
       region->findWaterLocator();
     }
+    //if (!region->significantLocations.size()) {
+
+    //  Fwg::Utils::Logging::logLine(
+    //      "Warning: No significant locations found in ", region->name);
+    //  // print more region information: type, size, province amount, etc.
+    //  Fwg::Utils::Logging::logLine("Region sea?: ", region->sea);
+    //  Fwg::Utils::Logging::logLine("Region lake?: ", region->lake);
+    //  Fwg::Utils::Logging::logLine("Region size: ", region->provinces.size());
+
+    //}
   }
 }
 

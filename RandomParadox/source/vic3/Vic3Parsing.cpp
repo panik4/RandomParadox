@@ -162,7 +162,7 @@ void stateFiles(const std::string &path,
       pU::Scenario::replaceOccurences(content, "template_farm", "");
       pU::Scenario::replaceOccurences(content, "template_mine", "");
       pU::Scenario::replaceOccurences(content, "template_wood", "");
-        pU::Scenario::replaceOccurences(content, "template_naval_exit", "");
+      pU::Scenario::replaceOccurences(content, "template_naval_exit", "");
     }
 
     file.append(content);
@@ -384,6 +384,33 @@ void countryHistory(
     pU::writeFile(path + "//" + filename, cString, true);
   }
 }
+void staticModifiers(const std::string &path,
+                     const std::vector<std::shared_ptr<Culture>> &cultures,
+                     const std::vector<std::shared_ptr<Religion>> &religions) {
+  Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing static modifiers");
+  const auto cultureTemplateFile =
+      pU::readFile("resources//vic3//common//static_modifiers//"
+                   "culture_standard_of_living.txt");
+  std::string cultureContent = "";
+  for (const auto &culture : cultures) {
+    auto content = cultureTemplateFile;
+    pU::Scenario::replaceOccurences(content, "templateCulture", culture->name);
+    cultureContent.append(content);
+  }
+  pU::writeFile(path + "//07_culture_standard_of_living.txt", cultureContent);
+  // now the same for the religions
+  const auto religionTemplateFile =
+      pU::readFile("resources//vic3//common//static_modifiers//"
+                   "religion_standard_of_living.txt");
+  std::string religionContent = "";
+  for (const auto &religion : religions) {
+    auto content = religionTemplateFile;
+    pU::Scenario::replaceOccurences(content, "templateReligion",
+                                    religion->name);
+    religionContent.append(content);
+  }
+  pU::writeFile(path + "//08_religion_standard_of_living.txt", religionContent);
+}
 void splineNetwork(const std::string &path) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Gfx: Writing splines");
   pU::writeFile(path + "//spline_network.splnet", "");
@@ -398,6 +425,7 @@ void compatFile(const std::string &path) {
 std::string compatRegions(const std::string &inFolder,
                           const std::string &outPath,
                           const std::vector<std::shared_ptr<Region>> &regions) {
+  return "";
   Fwg::Utils::Logging::logLine(
       "Vic3 Parser: Map: Reading compatibility Regions from ", inFolder);
   int counter = regions.size() + 1;
@@ -431,6 +459,7 @@ std::string compatRegions(const std::string &inFolder,
 void compatStratRegions(const std::string &inFolder, const std::string &outPath,
                         const std::vector<std::shared_ptr<Region>> &regions,
                         std::string &baseGameRegions) {
+  return;
   Fwg::Utils::Logging::logLine(
       "Vic3 Parser: Map: Generating compatibility Strategic Regions from ",
       inFolder);

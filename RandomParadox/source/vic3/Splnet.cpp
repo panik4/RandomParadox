@@ -115,7 +115,6 @@ void Splnet::constructSplnet(
 
   // a map from the location to an anchor ID
   std::map<std::shared_ptr<Location>, unsigned int> locationToAnchorID;
-  int regToDO = 50000;
   int subAnchorCounter = 0;
   int stripIdCounter = 0;
   auto width = Fwg::Cfg::Values().width;
@@ -142,68 +141,72 @@ void Splnet::constructSplnet(
     }
   }
   // now create the strips
-  for (auto &region :
-       regions) { // pairs of src and destination of already used connections
-    if (region->ID >= regToDO) {
-      continue;
-    }
+  for (auto &region : regions) {
+    // pairs of src and destination of already used connections
     std::set<std::pair<std::shared_ptr<Location>, std::shared_ptr<Location>>>
         usedConnections;
     for (auto &source : region->significantLocations) {
       // create a strip for every connection of this location, if not already
       // in usedConnections
-      if (!region->sea) {
-        for (auto &connection : source->connections) {
-          const auto &destination = connection.second.destination;
-          // if the destination we're currently trying to reach, has not
-          // created a connection to us yet
-          if (usedConnections.find({destination, source}) ==
-              usedConnections.end()) {
-            Strip strip;
+      for (auto &connection : source->connections) {
+        const auto &destination = connection.second.destination;
+        // if the destination we're currently trying to reach, has not
+        // created a connection to us yet
+        if (usedConnections.find({destination, source}) ==
+            usedConnections.end()) {
+          Strip strip;
 
-            strip.ID2 = 0;
-            auto startID = locationToAnchorID.at(source);
-            auto targetID = locationToAnchorID.at(destination);
-            strip.anchorEntries.push_back(
-                StripAnchorEntry{0x14, locationToAnchorID.at(source)});
-            // if the startAnchor is higher than the targetAnchor, swap them
-            if (startID > targetID || startID == targetID ||
-                source->land != destination->land) {
-              // int temp = strip.startAnchor;
-              // strip.startAnchor = strip.targetAnchor;
-              // strip.targetAnchor = temp;
-              continue;
-            }
-            strip.ID = stripIdCounter++ * 256;
-            // now add all connecting pixels as subanchors to the anchors list
-            // and as a subanchor to the strip
-            for (auto &pixel : connection.second.connectingPixels) {
-              Anchor anchor;
-              anchor.ID = subAnchorCounter++;
-
-              // now shift bit 28 to 1
-              anchor.ID |= 0x10000000;
-              anchor.xPos = pixel % width;
-              anchor.yPos = pixel / width;
-              anchors.push_back(anchor);
-              strip.anchorEntries.push_back(StripAnchorEntry{0x14, anchor.ID});
-            }
-
-            strip.anchorEntries.push_back(
-                StripAnchorEntry{0x14, locationToAnchorID.at(destination)});
-            strips.push_back(strip);
-            // push a new connection from us to the destination
-            usedConnections.insert({source, destination});
-
-            Segment segment;
-            int typeAdditive = 0;
-            segment.Idblock0 = startID * 64 + typeAdditive;
-
-            segment.IDmult800 = targetID * 8;
-            segment.refStripId = strip.ID;
-            segment.refStripId2 = strip.ID2;
-            segments.push_back(segment);
+          strip.ID2 = 0;
+          auto startID = locationToAnchorID.at(source);
+          auto targetID = locationToAnchorID.at(destination);
+          strip.anchorEntries.push_back(
+              StripAnchorEntry{0x14, locationToAnchorID.at(source)});
+          // if the startAnchor is higher than the targetAnchor, swap them
+          if (startID > targetID || startID == targetID ||
+              source->land != destination->land) {
+            // int temp = strip.startAnchor;
+            // strip.startAnchor = strip.targetAnchor;
+            // strip.targetAnchor = temp;
+            continue;
           }
+          strip.ID = stripIdCounter++ * 256;
+          // now add all connecting pixels as subanchors to the anchors list
+          // and as a subanchor to the strip
+          for (auto &pixel : connection.second.connectingPixels) {
+            Anchor anchor;
+            anchor.ID = subAnchorCounter++;
+
+            // now shift bit 28 to 1
+            anchor.ID |= 0x10000000;
+            anchor.xPos = pixel % width;
+            anchor.yPos = pixel / width;
+            anchors.push_back(anchor);
+            strip.anchorEntries.push_back(StripAnchorEntry{0x14, anchor.ID});
+          }
+
+          strip.anchorEntries.push_back(
+              StripAnchorEntry{0x14, locationToAnchorID.at(destination)});
+          strips.push_back(strip);
+          // push a new connection from us to the destination
+          usedConnections.insert({source, destination});
+
+          Segment segment;
+          int typeAdditive = 0;
+          if (source->type == LocationType::WaterNode &&
+              destination->type == LocationType::WaterNode) {
+            typeAdditive = 2;
+          } else if ((source->type == LocationType::WaterPort &&
+                      destination->type == LocationType::WaterNode) ||
+                     (source->type == LocationType::WaterPort &&
+                      destination->type == LocationType::WaterNode)) {
+            typeAdditive = 3;
+          }
+          segment.Idblock0 = startID * 64 + typeAdditive;
+
+          segment.IDmult800 = targetID * 8;
+          segment.refStripId = strip.ID;
+          segment.refStripId2 = strip.ID2;
+          segments.push_back(segment);
         }
       }
     }
@@ -227,9 +230,8 @@ void Splnet::constructSplnet(
   header.stripAmount = strips.size();
   header.segmentAmount = segments.size();
   if (segments.size() != strips.size()) {
-	std::cerr << "Segments and strips size mismatch" << std::endl;
+    std::cerr << "Segments and strips size mismatch" << std::endl;
   }
-
 }
 void Splnet::parseHeader(const std::array<char, 36> &headerData,
                          Header &header) {
@@ -393,10 +395,7 @@ void Splnet::parseFile(const std::string &path) {
     Anchor anchor;
     std::array<char, 34> anchorData;
     read_from_stream(stream, anchorData);
-
     parseAnchor(anchorData, anchor);
-
-    // anchor.printAnchor();
     anchors.push_back(anchor);
   }
   // now, read strip header

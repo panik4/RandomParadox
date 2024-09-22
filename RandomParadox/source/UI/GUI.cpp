@@ -204,7 +204,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         showClimateInputTab(cfg, *activeModule->generator, &primaryTexture);
         showClimateOverview(cfg, *activeModule->generator, &primaryTexture);
         showDensityTab(cfg, *activeModule->generator, &primaryTexture);
-        showBordersTab(cfg, *activeModule->generator);
+        showSegmentTab(cfg, *activeModule->generator);
         showAreasTab(cfg, *activeModule->generator);
         showCivilizationTab(cfg, *activeModule->generator);
         showScenarioTab(cfg, activeModule);
@@ -311,8 +311,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         case UIUtils::ActiveTexture::TREES:
           uiUtils->activeImages[i] = &activeModule->generator->climateMap;
           break;
-        case UIUtils::ActiveTexture::BORDERS:
-          uiUtils->activeImages[i] = &activeModule->generator->barrierMap;
+        case UIUtils::ActiveTexture::SEGMENTS:
+          uiUtils->activeImages[i] = &activeModule->generator->segmentMap;
           break;
         case UIUtils::ActiveTexture::PROVINCES:
           uiUtils->activeImages[i] = &activeModule->generator->provinceMap;

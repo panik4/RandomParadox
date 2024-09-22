@@ -458,16 +458,6 @@ void states(const std::string &path,
         content, "templateStateCategory",
         stateCategories[(int)region->stateCategory]);
     std::string navalBaseContent = "";
-    //for (const auto &gameProv : region->gameProvinces) {
-    //  if (gameProv->attributeDoubles.find("naval_bases") !=
-    //          gameProv->attributeDoubles.end() &&
-    //      gameProv->attributeDoubles.at("naval_bases") > 0) {
-    //    navalBaseContent +=
-    //        std::to_string(gameProv->ID + 1) + " = {\n\t\t\t\tnaval_base = " +
-    //        std::to_string((int)gameProv->attributeDoubles.at("naval_bases")) +
-    //        "\n\t\t\t}\n\t\t\t";
-    //  }
-    //}
     for (auto &[provID, navalBase] : region->navalBases) {
       navalBaseContent +=
           std::to_string(provID + 1) +
@@ -1229,9 +1219,9 @@ void readProvinces(ClimateGeneration::ClimateData &climateData,
     }
   }
   // call it with special idsort bool to make sure we sort by ID only this time
-  Fwg::Areas::Provinces::readProvinceBMP(climateData, provMap, heightMap,
-                                         areaData.provinces,
-                                         areaData.provinceColourMap, true);
+  Fwg::Areas::Provinces::readProvinceBMP(
+      climateData, provMap, heightMap, areaData.provinces,
+      areaData.provinceColourMap, areaData.segments, true);
 }
 void readRocketSites(const std::string &path,
                      std::vector<std::shared_ptr<Region>> &regions) {

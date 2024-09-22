@@ -222,6 +222,8 @@ void Generator::generateReligions() {
   for (int i = 0; i < 8; i++) {
     Religion r;
     r.name = NameGeneration::generateName(this->nData);
+    std::transform(r.name.begin(), r.name.end(), r.name.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
     do {
       r.centerOfReligion = Fwg::Utils::selectRandom(gameProvinces)->ID;
     } while (!gameProvinces[r.centerOfReligion]->baseProvince->isLand());
@@ -260,6 +262,8 @@ void Generator::generateCultures() {
   for (int i = 0; i < 200; i++) {
     Culture r;
     r.name = NameGeneration::generateName(this->nData);
+    std::transform(r.name.begin(), r.name.end(), r.name.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
     do {
       r.centerOfCulture = Fwg::Utils::selectRandom(gameProvinces)->ID;
     } while (!gameProvinces[r.centerOfCulture]->baseProvince->isLand());

@@ -30,6 +30,7 @@ bool Module::createPaths() { // prepare folder structure
                                       "//common//cultures",
                                       "//common//religions",
                                       "//common//country_definitions",
+                                      "//common//country_formation",
                                       "//common//history",
                                       "//common//history//buildings",
                                       "//common//history//countries",
@@ -38,6 +39,7 @@ bool Module::createPaths() { // prepare folder structure
                                       "//common//country_creation",
                                       "//common//journal_entries",
                                       "//common//scripted_triggers",
+                                      "//common//static_modifiers",
                                       "//common//decisions",
                                       "//events",
                                       "//events//agitators_events",
@@ -167,6 +169,7 @@ void Module::generate() {
     std::string error = "Error while generating the Vic3 Module.\n";
     error += "Error is: \n";
     error += e.what();
+    Fwg::Utils::Logging::logLine(error);
     throw(std::exception(error.c_str()));
   }
   try {
@@ -182,6 +185,7 @@ void Module::generate() {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";
     error += e.what();
+    Fwg::Utils::Logging::logLine(error);
     throw(std::exception(error.c_str()));
   }
   vic3Gen->printStatistics();
@@ -196,8 +200,8 @@ void Module::writeTextFiles() {
   compatStratRegions(pathcfg.gamePath + "//game//common//strategic_regions//",
                      pathcfg.gameModPath + "//common//strategic_regions//",
                      vic3Gen->vic3Regions, foundRegions);
-  compatReleasable(pathcfg.gamePath + "//game//common//country_creation//",
-                   pathcfg.gameModPath + "//common//country_creation//");
+  //compatReleasable(pathcfg.gamePath + "//game//common//country_creation//",
+  //                 pathcfg.gameModPath + "//common//country_creation//");
   adj(pathcfg.gameModPath + "//map_data//adjacencies.csv");
   defaultMap(pathcfg.gameModPath + "//map_data//default.map",
              vic3Gen->gameProvinces);
@@ -215,13 +219,28 @@ void Module::writeTextFiles() {
           "//common//strategic_regions//randVic_strategic_regions.txt",
       vic3Gen->strategicRegions, vic3Gen->vic3Regions);
   cultureCommon(pathcfg.gameModPath +
-                    "//common//cultures//01_additional_cultures.txt",
+                    "//common//cultures//00_cultures.txt",
                 vic3Gen->cultures);
   religionCommon(pathcfg.gameModPath + "//common//religions//religions.txt",
                  vic3Gen->religions);
+  staticModifiers(pathcfg.gameModPath + "//common//static_modifiers//",
+      				  vic3Gen->cultures, vic3Gen->religions);
   countryCommon(pathcfg.gameModPath +
-                    "//common//country_definitions//02_custom.txt",
+                    "//common//country_definitions//00_countries.txt",
                 vic3Gen->vic3Countries, vic3Gen->vic3Regions);
+
+  compatFile(pathcfg.gameModPath +
+             "//common//country_creation//00_releasable_countries.txt");
+  compatFile(pathcfg.gameModPath +
+             "//common//cultures//00_additional_cultures.txt");
+  compatFile(pathcfg.gameModPath +
+             "//common//country_definitions//01_africa.txt");
+  compatFile(pathcfg.gameModPath +
+             "//common//country_definitions//01_pacific_and_australasia.txt");
+  compatFile(pathcfg.gameModPath +
+             "//common//country_formation//00_formable_countries.txt");
+  compatFile(pathcfg.gameModPath +
+             "//common//country_formation//00_major_formables.txt");
   stateHistory(pathcfg.gameModPath + "//common//history//states//00_states.txt",
                vic3Gen->vic3Regions);
   popsHistory(pathcfg.gameModPath + "//common//history//pops//00_world.txt",

@@ -38,6 +38,10 @@ void countryHistory(
     const std::string &path,
     const std::map<std::string, std::shared_ptr<Country>> &countries);
 
+void staticModifiers(const std::string &path,
+                     const std::vector<std::shared_ptr<Culture>> &cultures,
+                     const std::vector<std::shared_ptr<Religion>> &religions);
+
 void splineNetwork(const std::string &path);
 
 void compatFile(const std::string &path);
@@ -53,7 +57,7 @@ void compatReleasable(const std::string &inFolder, const std::string &outPath);
 void compatTriggers(const std::string &inFolder, const std::string &outPath);
 
 void locators(const std::string &path,
-    			  const std::vector<std::shared_ptr<Region>> &regions);
+              const std::vector<std::shared_ptr<Region>> &regions);
 
 } // namespace Writing
 
