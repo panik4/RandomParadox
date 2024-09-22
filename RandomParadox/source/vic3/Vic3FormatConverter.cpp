@@ -359,28 +359,28 @@ void FormatConverter::dynamicMasks(
       Fwg::Gfx::Bmp::scale(
           Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask),
           config.width, config.height, false),
-      path + "mask_dynamic_mining.png");
+      path + "mask_dynamic_mining.png", true, LCT_GREY);
   for (int i = 0; i < civLayer.agriculture.size(); i++) {
     auto val = civLayer.agriculture[i];
-    dynamicMask[i] = val * 255.0;
+    dynamicMask[i] = val;
   }
   Fwg::Gfx::Png::save(
       Fwg::Gfx::Bmp::scale(
           Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask),
           config.width, config.height, false),
-      path + "mask_dynamic_farmland.png");
+      path + "mask_dynamic_farmland.png", true, LCT_GREY);
   for (int i = 0; i < climateData.treeCoverage.size(); i++) {
     dynamicMask[i] = 0;
     auto val = climateData.treeCoverage[i];
     if (val != Fwg::ClimateGeneration::Detail::TreeTypeIndex::NONE)
-      dynamicMask[i] = 255.0;
+      dynamicMask[i] = climateData.treeDensity[i] * 255.0;
   }
 
   Fwg::Gfx::Png::save(
       Fwg::Gfx::Bmp::scale(
           Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask),
           config.width, config.height, false),
-      path + "mask_dynamic_forestry.png");
+      path + "mask_dynamic_forestry.png", true, LCT_GREY);
 }
 void FormatConverter::contentSource(
     const std::string &path,
@@ -423,8 +423,9 @@ void FormatConverter::contentSource(
                                         "sparse_rainforest_01"};
 
   Fwg::Gfx::Bitmap emptyMap(config.width / 2, config.height / 2, 24);
+  emptyMap.fill({0, 0, 0});
   for (const auto &maskName : maskNames) {
-    Fwg::Gfx::Png::save(emptyMap, path + "mask_" + maskName + ".png");
+    Fwg::Gfx::Png::save(emptyMap, path + "mask_" + maskName + ".png", true, LCT_GREY, 8);
   }
 }
 void FormatConverter::detailMaps(

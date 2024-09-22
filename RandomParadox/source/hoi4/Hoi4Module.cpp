@@ -65,6 +65,7 @@ bool Hoi4Module::createPaths() {
         "Configured paths seem to be messed up, check Hoi4Module.json\n";
     error += "You can try fixing it yourself. Error is:\n ";
     error += e.what();
+    Fwg::Utils::Logging::logLine(error);
     throw(std::exception(error.c_str()));
     return false;
   }
@@ -271,6 +272,7 @@ void Hoi4Module::readHoi(std::string &gamePath) {
   try {
     hoi4Gen->mapRegions();
   } catch (std::exception e) {
+    Fwg::Utils::Logging::logLine("Error while mapping regions, ", e.what());
   };
   // read the colour codes from the game/mod files
   hoi4Gen->countryColourMap =
@@ -348,6 +350,7 @@ void Hoi4Module::generate() {
     std::string error = "Error while generating the Hoi4 Module.\n";
     error += "Error is: \n";
     error += e.what();
+    Fwg::Utils::Logging::logLine(error);
     throw(std::exception(error.c_str()));
   }
   // now start writing game files
@@ -358,6 +361,7 @@ void Hoi4Module::generate() {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";
     error += e.what();
+    Fwg::Utils::Logging::logLine(error);
     throw(std::exception(error.c_str()));
   }
   // now if everything worked, print info about world and pause for user to
