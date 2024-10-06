@@ -49,7 +49,6 @@ int main() {
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or search for \"json validator\"");
     dumpInfo(e.what(), "");
-    system("pause");
     return -1;
   }
   std::string username = metaConf.get<std::string>("config.username");
@@ -75,7 +74,6 @@ int main() {
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or search for \"json validator\"");
     dumpInfo(e.what(), configSubFolder);
-    system("pause");
     return -1;
   }
 
@@ -93,7 +91,6 @@ int main() {
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or \"search for json validator\"");
     dumpInfo(e.what(), configSubFolder);
-    system("pause");
     return -1;
   }
   try {
@@ -105,7 +102,6 @@ int main() {
   } catch (std::exception e) {
     Utils::Logging::logLine(e.what());
     dumpInfo(e.what(), configSubFolder);
-    system("pause");
     return -1;
   }
   Utils::Logging::logLine("Done with the generation");

@@ -78,6 +78,7 @@ bool Module::createPaths() { // prepare folder structure
                         "IIIModule.json\n";
     error += "You can try fixing it yourself. Error is:\n ";
     error += e.what();
+    Fwg::Utils::Logging::logLine(error);
     throw(std::exception(error.c_str()));
     return false;
   }
@@ -109,7 +110,6 @@ void Module::readVic3Config(const std::string &configSubFolder,
     Fwg::Utils::Logging::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or search for \"json validator\"");
-    system("pause");
   }
   //  passed to generic ScenarioGenerator
   vic3Gen->numCountries = vic3Conf.get<int>("scenario.numCountries");
@@ -127,6 +127,11 @@ void Module::readVic3Config(const std::string &configSubFolder,
   config.loadMapsPath = vic3Conf.get<std::string>("fastworldgen.loadMapsPath");
   config.heightmapIn = config.loadMapsPath +
                        vic3Conf.get<std::string>("fastworldgen.heightMapName");
+  config.miningPerRegion = 1;
+  config.forestryPerRegion = 1;
+  config.citiesPerRegion = 1;
+  config.portsPerRegion = 1;
+  config.agriculturePerRegion = 1;
   cut = config.cut;
   // check if config settings are fine
   config.sanityCheck();
@@ -154,7 +159,8 @@ void Module::generate() {
     vic3Gen->distributeResources();
     vic3Gen->mapCountries();
     if (!vic3Gen->importData(this->pathcfg.gamePath + "//game//")) {
-      Fwg::Utils::Logging::logLine("ERROR: Could not import data from game folder. The generation has FAILED");
+      Fwg::Utils::Logging::logLine("ERROR: Could not import data from game "
+                                   "folder. The generation has FAILED");
       return;
     }
 
@@ -173,7 +179,6 @@ void Module::generate() {
     throw(std::exception(error.c_str()));
   }
   try {
-
     writeSplnet();
     // now write the files
     writeTextFiles();
@@ -200,8 +205,8 @@ void Module::writeTextFiles() {
   compatStratRegions(pathcfg.gamePath + "//game//common//strategic_regions//",
                      pathcfg.gameModPath + "//common//strategic_regions//",
                      vic3Gen->vic3Regions, foundRegions);
-  //compatReleasable(pathcfg.gamePath + "//game//common//country_creation//",
-  //                 pathcfg.gameModPath + "//common//country_creation//");
+  // compatReleasable(pathcfg.gamePath + "//game//common//country_creation//",
+  //                  pathcfg.gameModPath + "//common//country_creation//");
   adj(pathcfg.gameModPath + "//map_data//adjacencies.csv");
   defaultMap(pathcfg.gameModPath + "//map_data//default.map",
              vic3Gen->gameProvinces);
@@ -218,13 +223,12 @@ void Module::writeTextFiles() {
       pathcfg.gameModPath +
           "//common//strategic_regions//randVic_strategic_regions.txt",
       vic3Gen->strategicRegions, vic3Gen->vic3Regions);
-  cultureCommon(pathcfg.gameModPath +
-                    "//common//cultures//00_cultures.txt",
+  cultureCommon(pathcfg.gameModPath + "//common//cultures//00_cultures.txt",
                 vic3Gen->cultures);
   religionCommon(pathcfg.gameModPath + "//common//religions//religions.txt",
                  vic3Gen->religions);
   staticModifiers(pathcfg.gameModPath + "//common//static_modifiers//",
-      				  vic3Gen->cultures, vic3Gen->religions);
+                  vic3Gen->cultures, vic3Gen->religions);
   countryCommon(pathcfg.gameModPath +
                     "//common//country_definitions//00_countries.txt",
                 vic3Gen->vic3Countries, vic3Gen->vic3Regions);
@@ -318,6 +322,7 @@ void Module::writeSplnet() {
   Parsing::Writing::locators(pathcfg.gameModPath +
                                  "//gfx//map//map_object_data//",
                              vic3Gen->vic3Regions);
+  vic3Gen->genNavmesh(Fwg::Cfg::Values());
   vic3Gen->calculateNavalExits();
 
   Splnet splnet;

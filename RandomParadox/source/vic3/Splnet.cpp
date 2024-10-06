@@ -119,9 +119,6 @@ void Splnet::constructSplnet(
   int stripIdCounter = 0;
   auto width = Fwg::Cfg::Values().width;
   for (auto &region : regions) {
-    // pairs of src and destination of already used connections
-    std::set<std::pair<std::shared_ptr<Location>, std::shared_ptr<Location>>>
-        usedConnections;
     for (auto &location : region->significantLocations) {
       Anchor anchor;
       if (location->type == LocationType::WaterNode) {
@@ -197,12 +194,11 @@ void Splnet::constructSplnet(
             typeAdditive = 2;
           } else if ((source->type == LocationType::WaterPort &&
                       destination->type == LocationType::WaterNode) ||
-                     (source->type == LocationType::WaterPort &&
-                      destination->type == LocationType::WaterNode)) {
+                     (source->type == LocationType::WaterNode &&
+                      destination->type == LocationType::WaterPort)) {
             typeAdditive = 3;
           }
           segment.Idblock0 = startID * 64 + typeAdditive;
-
           segment.IDmult800 = targetID * 8;
           segment.refStripId = strip.ID;
           segment.refStripId2 = strip.ID2;
@@ -212,13 +208,13 @@ void Splnet::constructSplnet(
     }
   }
 
+  // sort the anchors, strips and segments
+  std::sort(anchors.begin(), anchors.end(),
+      			[](const Anchor &a, const Anchor &b) { return a.ID < b.ID; });
+  std::sort(strips.begin(), strips.end(),
+      			[](const Strip &a, const Strip &b) { return a.ID < b.ID; });
   std::sort(segments.begin(), segments.end(),
-            [](const Segment &a, const Segment &b) {
-              if (a.Idblock0 != b.Idblock0) {
-                return a.Idblock0 < b.Idblock0;
-              }
-              return a.IDmult800 < b.IDmult800;
-            });
+      	  			[](const Segment &a, const Segment &b) { return a.Idblock0 < b.Idblock0; });
 
   if (strips.size())
     strips.back().unknown11 = 0x04;

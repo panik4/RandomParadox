@@ -107,7 +107,6 @@ getRandomMapElement(const std::string key,
     auto str = "Error in Name Generation. Make sure the key: \"" + key +
                "\" of the namegroup or token group is present";
     throw(std::exception(str.c_str()));
-    return "";
   }
 }
 

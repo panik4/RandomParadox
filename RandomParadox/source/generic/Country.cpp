@@ -49,14 +49,22 @@ void Country::addRegion(std::shared_ptr<Region> region) {
 void Country::selectCapital() {
   // select the region with the highest population
   double max = 0;
-    std::shared_ptr<Region> capitalRegion;
-
+  std::shared_ptr<Region> capitalRegion;
+  if (ownedRegions.empty()) {
+    Fwg::Utils::Logging::logLine("No regions found for country " + name);
+    return;
+  }
   for (const auto &region : ownedRegions) {
     if (region->populationFactor > max) {
       max = region->populationFactor;
       capitalRegionID = region->ID;
       capitalRegion = region;
     }
+  }
+  // if none found, take only region
+  if (capitalRegion == nullptr) {
+    capitalRegion = ownedRegions[0];
+    capitalRegionID = capitalRegion->ID;
   }
   // in this region, select the single most significant location
   max = 0;
