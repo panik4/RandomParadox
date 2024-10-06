@@ -205,7 +205,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         showClimateOverview(cfg, *activeModule->generator, &primaryTexture);
         showDensityTab(cfg, *activeModule->generator, &primaryTexture);
         showSegmentTab(cfg, *activeModule->generator);
-        showAreasTab(cfg, *activeModule->generator);
+        showProvincesTab(cfg, *activeModule->generator, &primaryTexture);
+        showRegionTab(cfg, *activeModule->generator, &primaryTexture);
         showCivilizationTab(cfg, *activeModule->generator);
         showScenarioTab(cfg, activeModule);
         if (!scenarioGenReady()) {
@@ -226,12 +227,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               std::reinterpret_pointer_cast<Vic3Gen, Scenario::Generator>(
                   activeModule->generator);
           showStrategicRegionTab(cfg, vic3Gen);
-          if (cfg.debugLevel > 8) {
-            showSplineTab(
-                cfg, std::reinterpret_pointer_cast<Scenario::Vic3::Module,
-                                                   Scenario::GenericModule>(
-                         activeModule));
-          }
+          showNavmeshTab(cfg, *activeModule->generator);
           showVic3Finalise(
               cfg, std::reinterpret_pointer_cast<Scenario::Vic3::Module,
                                                  Scenario::GenericModule>(
@@ -257,11 +253,21 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         if (computationRunning) {
           computationStarted = false;
           ImGui::Text("Working, please be patient");
-          auto desiredState = uiUtils->actTxs[0];
-          uiUtils->resetTexture();
-          // continuously reset texture during computation
-          uiUtils->switchTexture(*uiUtils->activeImages[0], &primaryTexture, 0,
-                                 desiredState, g_pd3dDevice, w, h);
+          static auto lastTime = std::chrono::steady_clock::now();
+
+          auto currentTime = std::chrono::steady_clock::now();
+          auto elapsedTime = std::chrono::duration_cast<std::chrono::seconds>(
+                                 currentTime - lastTime)
+                                 .count();
+
+          if (elapsedTime >= 1) {
+            auto desiredState = uiUtils->actTxs[0];
+            uiUtils->resetTexture();
+            // Reset texture every second during computation
+            uiUtils->switchTexture(*uiUtils->activeImages[0], &primaryTexture,
+                                   0, desiredState, g_pd3dDevice, w, h);
+            lastTime = currentTime;
+          }
         } else {
           ImGui::Text("Ready!");
         }
@@ -325,6 +331,12 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
           break;
         case UIUtils::ActiveTexture::POPULATION:
           uiUtils->activeImages[i] = &activeModule->generator->populationMap;
+          break;
+        case UIUtils::ActiveTexture::LOCATIONS:
+          uiUtils->activeImages[i] = &activeModule->generator->locationMap;
+          break;
+        case UIUtils::ActiveTexture::NAVMESH:
+          uiUtils->activeImages[i] = &activeModule->generator->navmeshMap;
           break;
         case UIUtils::ActiveTexture::AGRICULTURE:
           uiUtils->activeImages[i] = &displayImage;
@@ -457,7 +469,6 @@ void GUI::loadGameConfig(Fwg::Cfg &cfg) {
     Fwg::Utils::Logging::logLine(
         "Otherwise try running it through a json validator, e.g. "
         "\"https://jsonlint.com/\" or search for \"json validator\"");
-    system("pause");
   }
 }
 // hardcoded init of some game configs
@@ -499,6 +510,11 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
   }
   ImGui::SameLine();
   if (cfg.debugLevel > 5 && ImGui::Button("Display size")) {
+    std::cout << generator.size() << std::endl;
+  }
+  ImGui::SameLine();
+  if (cfg.debugLevel > 5 && ImGui::Button("Clear")) {
+    generator.resetData();
     std::cout << generator.size() << std::endl;
   }
   ImGui::SameLine();
@@ -953,11 +969,12 @@ int GUI::showModuleGeneric(
             std::string("Generate " + activeGameConfig.gameName + " mod")
                 .c_str())) {
 
-      computationFutureBool = runAsyncInitialDisable([genericModule, &cfg, this]() {
-        genericModule->generate();
-        configuredScenarioGen = true;
-        return true;
-      });
+      computationFutureBool =
+          runAsyncInitialDisable([genericModule, &cfg, this]() {
+            genericModule->generate();
+            configuredScenarioGen = true;
+            return true;
+          });
     }
   }
   ImGui::SameLine();
@@ -967,11 +984,11 @@ int GUI::showModuleGeneric(
 
     computationFutureBool =
         runAsyncInitialDisable([genericModule, &cfg, this]() {
-      genericModule->generator->generateWorld();
-      genericModule->generate();
-      configuredScenarioGen = true;
-      return true;
-    });
+          genericModule->generator->generateWorld();
+          genericModule->generate();
+          configuredScenarioGen = true;
+          return true;
+        });
   }
   if (!validatedPaths)
     ImGui::EndDisabled();
@@ -1109,27 +1126,26 @@ int GUI::showHoi4Finalise(
     if (generator->strategicRegions.size()) {
       if (ImGui::Button("Export mod")) {
 
-        computationFutureBool =
-            runAsync([generator, &hoi4Module, &cfg, this]() {
-              // now generate hoi4 specific stuff
-              generator->generateCountrySpecifics();
-              generator->generateStateSpecifics();
-              generator->generateStateResources();
-              // should work with countries = 0
-              generator->evaluateCountries();
-              generator->generateLogistics();
-              Scenario::Hoi4::NationalFocus::buildMaps();
-              generator->generateFocusTrees();
-              generator->generateCountryUnits();
-              try {
-                hoi4Module->writeImages();
-                hoi4Module->writeTextFiles();
-                generator->printStatistics();
-              } catch (std::exception e) {
-                pathWarning(e);
-              }
-              return true;
-            });
+        computationFutureBool = runAsync([generator, hoi4Module, &cfg, this]() {
+          // now generate hoi4 specific stuff
+          generator->generateCountrySpecifics();
+          generator->generateStateSpecifics();
+          generator->generateStateResources();
+          // should work with countries = 0
+          generator->evaluateCountries();
+          generator->generateLogistics();
+          Scenario::Hoi4::NationalFocus::buildMaps();
+          generator->generateFocusTrees();
+          generator->generateCountryUnits();
+          try {
+            hoi4Module->writeImages();
+            hoi4Module->writeTextFiles();
+            generator->printStatistics();
+          } catch (std::exception e) {
+            pathWarning(e);
+          }
+          return true;
+        });
       }
     } else {
       ImGui::Text("Generate strategic regions first before exporting the mod");
@@ -1195,36 +1211,35 @@ int GUI::showVic3Finalise(Fwg::Cfg &cfg,
     const auto &generator = vic3Module->getGenerator();
     if (generator->strategicRegions.size()) {
       if (ImGui::Button("Export mod")) {
-        computationFutureBool =
-            runAsync([generator, &vic3Module, &cfg, this]() {
-              // Vic3 specifics:
-              generator->distributePops();
-              generator->distributeResources();
-              generator->mapCountries();
-              if (!generator->importData(vic3Module->pathcfg.gamePath +
-                                         "//game//")) {
-                Fwg::Utils::Logging::logLine(
-                    "ERROR: Could not import data from game "
-                    "folder. The export has FAILED. You "
-                    "must fix the path to the game, then try again");
-              } else {
-                // handle basic development, tech level, policies,
-                generator->generateCountrySpecifics();
-                generator->diplomaticRelations();
-                generator->createMarkets();
-                generator->calculateNeeds();
-                generator->distributeBuildings();
-                try {
-                  vic3Module->writeSplnet();
-                  vic3Module->writeImages();
-                  vic3Module->writeTextFiles();
-                } catch (std::exception e) {
-                  pathWarning(e);
-                }
-                generator->printStatistics();
-              }
-              return true;
-            });
+        computationFutureBool = runAsync([generator, vic3Module, &cfg, this]() {
+          // Vic3 specifics:
+          generator->distributePops();
+          generator->distributeResources();
+          generator->mapCountries();
+          if (!generator->importData(vic3Module->pathcfg.gamePath +
+                                     "//game//")) {
+            Fwg::Utils::Logging::logLine(
+                "ERROR: Could not import data from game "
+                "folder. The export has FAILED. You "
+                "must fix the path to the game, then try again");
+          } else {
+            // handle basic development, tech level, policies,
+            generator->generateCountrySpecifics();
+            generator->diplomaticRelations();
+            generator->createMarkets();
+            generator->calculateNeeds();
+            generator->distributeBuildings();
+            try {
+              vic3Module->writeSplnet();
+              vic3Module->writeImages();
+              vic3Module->writeTextFiles();
+            } catch (std::exception e) {
+              pathWarning(e);
+            }
+            generator->printStatistics();
+          }
+          return true;
+        });
       }
     } else {
       ImGui::Text("Generate strategic regions first before exporting the mod");

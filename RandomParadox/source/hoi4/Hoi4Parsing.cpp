@@ -509,7 +509,7 @@ void historyCountries(const std::string &path, const hoiMap &countries) {
 
     pU::Scenario::replaceOccurences(
         countryText, "templateCapital",
-        std::to_string(country.second.capitalRegionID));
+        std::to_string(country.second.capitalRegionID + 1));
     pU::Scenario::replaceOccurences(countryText, "templateTag", country.first);
     pU::Scenario::replaceOccurences(countryText, "templateParty",
                                     country.second.rulingParty);

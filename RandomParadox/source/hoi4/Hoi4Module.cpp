@@ -139,6 +139,11 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   config.forceResolutionBase = true;
   config.resolutionBase = 64;
   config.autoSplitProvinces = true;
+  config.miningPerRegion = 0;
+  config.forestryPerRegion = 0;
+  config.citiesPerRegion = 5;
+  config.portsPerRegion = 1;
+  config.agriculturePerRegion = 3;
   // check if config settings are fine
   config.sanityCheck();
 }
@@ -351,7 +356,6 @@ void Hoi4Module::generate() {
     error += "Error is: \n";
     error += e.what();
     Fwg::Utils::Logging::logLine(error);
-    throw(std::exception(error.c_str()));
   }
   // now start writing game files
   try {
@@ -362,7 +366,6 @@ void Hoi4Module::generate() {
     error += "Error is: \n";
     error += e.what();
     Fwg::Utils::Logging::logLine(error);
-    throw(std::exception(error.c_str()));
   }
   // now if everything worked, print info about world and pause for user to
   // see
