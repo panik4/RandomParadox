@@ -184,9 +184,10 @@ void Hoi4Module::writeTextFiles() {
                   hoi4Gen->hoi4Countries);
   adj(pathcfg.gameModPath + "//map//adjacencies.csv");
   airports(pathcfg.gameModPath + "//map//airports.txt", hoi4Gen->areas.regions);
+  aiStrategy(pathcfg.gameModPath + "//common//", hoi4Gen->hoi4Countries);
   buildings(pathcfg.gameModPath + "//map//buildings.txt", hoi4Gen->hoi4States,
             hoi4Gen->heightMap);
-  continents(pathcfg.gameModPath + "//map//continents.txt",
+  continents(pathcfg.gameModPath + "//map//continent.txt",
              hoi4Gen->areas.continents);
   definition(pathcfg.gameModPath + "//map//definition.csv",
              hoi4Gen->gameProvinces);
@@ -224,7 +225,7 @@ void Hoi4Module::writeImages() {
                                pathcfg.gameModPath);
   // generate map files. Format must be converted and colours mapped to hoi4
   // compatible colours
-  Gfx::FormatConverter formatConverter(pathcfg.gamePath, "Hoi4");
+  Gfx::Hoi4::FormatConverter formatConverter(pathcfg.gamePath, "Hoi4");
   formatConverter.dump8BitTerrain(hoi4Gen->climateData, hoi4Gen->civLayer,
                                   pathcfg.gameModPath + "//map//terrain.bmp",
                                   "terrain", cut);

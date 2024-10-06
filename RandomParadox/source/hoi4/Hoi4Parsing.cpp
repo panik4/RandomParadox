@@ -35,6 +35,30 @@ void airports(const std::string &path,
   pU::writeFile(path, content);
 }
 
+void aiStrategy(const std::string &path, const hoiMap &countries) {
+  // copy folders ai_areas and ai_strategy from resources//hoi4//common// to
+  // path//common//
+  Logging::logLine("HOI4 Parser: Map: Writing AI Strategies");
+
+  std::filesystem::path sourceAiAreas = "resources//hoi4//common//ai_areas";
+  std::filesystem::path sourceAiStrategy =
+      "resources//hoi4//common//ai_strategy";
+
+  try {
+
+    // Copy ai_areas folder
+    std::filesystem::copy(sourceAiAreas, path + "//ai_areas",
+                          std::filesystem::copy_options::recursive);
+
+    // Copy ai_strategy folder
+    std::filesystem::copy(sourceAiStrategy, path + "//ai_strategy",
+                          std::filesystem::copy_options::recursive);
+  } catch (const std::filesystem::filesystem_error &e) {
+    Logging::logLine("HOI4 Parser: Error copying AI Strategies: " +
+                     std::string(e.what()));
+  }
+}
+
 void ambientObjects(const std::string &path,
                     const Fwg::Gfx::Bitmap &heightMap) {
   Logging::logLine("HOI4 Parser: Map: editing ambient objects to ", path);
@@ -76,15 +100,15 @@ void buildings(const std::string &path,
 void continents(const std::string &path,
                 const std::vector<Continent> &continents) {
   Logging::logLine("HOI4 Parser: Map: Writing Continents");
-  std::string content{"continents = {\n"};
-
-  for (const auto &continent : continents) {
-    content.append("\t");
-    content.append(std::to_string(continent.ID + 1));
-    content.append("\n");
+  // copy continents file from resources//hoi4//map// to path//map//
+  std::filesystem::path source = "resources//hoi4//map//continent.txt";
+  try {
+    // Copy continents file
+    std::filesystem::copy(source, path);
+  } catch (const std::filesystem::filesystem_error &e) {
+    Logging::logLine("HOI4 Parser: Error copying Continents: " +
+                     std::string(e.what()));
   }
-  content.append("}\n");
-  pU::writeFile(path, content);
 }
 
 void definition(const std::string &path,
@@ -539,6 +563,7 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
       pU::readFile("resources//hoi4//history//divisionTemplates.txt");
   // now tokenize by : character to get single
   const auto unitTemplates = pU::getTokens(unitTemplateFile, ':');
+
   // auto IDMapFile =
   // pU::getLines("resources//hoi4//history//divisionIDMapper.txt");
   std::map<int, std::string> IDMap;
@@ -549,6 +574,14 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
           }
   }*/
   for (const auto &country : countries) {
+    std::vector<int> allowedProvinces;
+    for (auto &region : country.second.hoi4Regions) {
+      for (auto &prov : region->gameProvinces) {
+        if (!prov->baseProvince->isLake)
+          allowedProvinces.push_back(prov->ID);
+      }
+    }
+
     // get the template file
     std::string unitFile = defaultTemplate;
     std::string divisionTemplates = "";
@@ -584,8 +617,7 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
         // now deploy the unit in a random province
         Fwg::Parsing::Scenario::replaceOccurences(
             tempUnit, "templateLocation",
-            std::to_string(country.second.hoi4Regions[0]->gameProvinces[0]->ID +
-                           1));
+            std::to_string(Fwg::Utils::selectRandom(allowedProvinces) + 1));
         totalUnits += tempUnit;
       }
     }
@@ -613,7 +645,8 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
                                               totalUnits);
     // units
     auto tempPath = path + country.first + "_1936.txt";
-    pU::writeFile(tempPath, unitFile);
+    pU::writeFile(path + country.first + "_1936.txt", unitFile);
+    pU::writeFile(path + country.first + "_1936_nsb.txt", unitFile);
 
     // navies
     tempPath = path + country.first + "_1936_naval.txt";

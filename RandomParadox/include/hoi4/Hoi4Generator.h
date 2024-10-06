@@ -68,6 +68,8 @@ public:
   // determine the total amount of VPs per country, and distribute them in a
   // country
   void distributeVictoryPoints();
+  // determine urbanisation
+  void generateUrbanisation();
   bool unitFulfillsRequirements(std::vector<std::string> unitRequirements,
                                 Hoi4Country &country);
   // determine unit composition, templates

@@ -143,6 +143,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
     }
   }
   Png::save(typeMap, "Maps/typeMap.png");
+  generateUrbanisation();
   return typeMap;
 }
 
@@ -261,7 +262,7 @@ void Generator::generateStateSpecifics() {
     for (auto &location : hoi4State->locations) {
       if (location->type == Fwg::Civilization::LocationType::Port ||
           location->secondaryType == Fwg::Civilization::LocationType::Port) {
-        hoi4State->navalBases[location->portExitProvinceID] =
+        hoi4State->navalBases[location->provinceID] =
             std::max<double>(location->importance / maxImportance, 1.0);
         std::cout << "Naval base in " << hoi4State->name << " at "
                   << location->provinceID << " with importance "
@@ -279,7 +280,7 @@ void Generator::generateStateSpecifics() {
     // calculate total industry in this state
     if (targetWorldIndustry != 0) {
       auto stateIndustry = std::min<double>(
-          hoi4State->worldEconomicActivityShare * targetWorldIndustry, 18.0);
+          hoi4State->worldEconomicActivityShare * targetWorldIndustry, 12.0);
       genInd += stateIndustry;
       // if we're below one, randomize if this state gets a actory or not
       if (stateIndustry < 1.0) {
@@ -827,6 +828,19 @@ void Generator::distributeVictoryPoints() {
       if ((int)vps > 0) {
         region->victoryPointsMap[province.first] = vp;
         assignedVPs += region->victoryPointsMap[province.first].amount;
+      }
+    }
+  }
+}
+
+void Generator::generateUrbanisation() {
+  for (auto &region : hoi4States) {
+    for (auto &location : region->locations) {
+      if (location->type == Fwg::Civilization::LocationType::City ||
+          location->type == Fwg::Civilization::LocationType::Port) {
+        for (auto &pix : location->pixels) {
+          this->civLayer.urbanisation[pix] = 255;
+        }
       }
     }
   }

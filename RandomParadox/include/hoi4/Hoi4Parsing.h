@@ -13,6 +13,7 @@ namespace Writing {
 void adj(const std::string &path);
 void adjacencyRules(const std::string &path);
 void airports(const std::string &path, const std::vector<Fwg::Region> &regions);
+void aiStrategy(const std::string &path, const hoiMap &countries);
 void ambientObjects(const std::string &path, const Fwg::Gfx::Bitmap &heightMap);
 void buildings(const std::string &path,
                const std::vector<std::shared_ptr<Region>> &regions,
