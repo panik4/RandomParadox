@@ -1,5 +1,5 @@
 COUNTRIES = {
-	c:templateTag = {
+	c:templateTag ?= {
 		set_next_election_date = 1837.11.4
 		
 		template_techlevel = yes

@@ -4,8 +4,8 @@ version="v1"
 user_dir="templateName"
 replace_path="history/states"
 replace_path="map/strategicregions"
-replace_path="map/supplyareas"
 replace_path="history/units"
+replace_path="common/ai_strategy"
 
 tags={
 	"Gameplay"

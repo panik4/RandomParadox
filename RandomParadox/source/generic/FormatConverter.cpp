@@ -242,22 +242,6 @@ const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
 
 };
 
-//{"riversHoi4",
-// {{Cfg::Values().colours["land"], 255},
-//  {Cfg::Values().colours["river"], 3},
-//  {Cfg::Values().colours["river"] * 0.9, 3},
-//  {Cfg::Values().colours["river"] * 0.8, 6},
-//  {Cfg::Values().colours["river"] * 0.7, 6},
-//  {Cfg::Values().colours["river"] * 0.6, 10},
-//  {Cfg::Values().colours["river"] * 0.5, 11},
-//  {Cfg::Values().colours["river"] * 0.3, 11},
-//  {Cfg::Values().colours["river"] * 0.2, 11},
-//  {Cfg::Values().colours["river"] * 0.1, 11},
-//  {Cfg::Values().colours["sea"], 254},
-//  {Cfg::Values().colours["riverStart"], 0},
-//  {Cfg::Values().colours["riverStartTributary"], 3},
-//  {Cfg::Values().colours["riverEnd"], 1}}},
-
 void FormatConverter::writeBufferPixels(std::vector<unsigned char> &pixels,
                                         int index,
                                         const Fwg::Gfx::Colour &colour,

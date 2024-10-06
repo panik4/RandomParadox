@@ -1,7 +1,7 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include "generic/FormatConverter.h"
 #include "generic/GenericModule.h"
+#include "hoi4/Hoi4FormatConverter.h"
 #include "hoi4/Hoi4Generator.h"
 #include "hoi4/Hoi4Parsing.h"
 #include "hoi4/NationalFocus.h"
@@ -16,7 +16,7 @@ class Hoi4Module : public GenericModule {
   void readHoiConfig(const std::string &configSubFolder,
                      const std::string &username,
                      const boost::property_tree::ptree &rpdConf);
-  
+
 public:
   // Hoi4::Generator generator;
   std::shared_ptr<Hoi4::Generator> hoi4Gen;
@@ -30,7 +30,7 @@ public:
   void mapCountries(bool multiCore, bool stateExport,
                     const std::string &inputMap);
   void mapEdit();
-  //void modEdit(std::string &path);
+  // void modEdit(std::string &path);
   void writeTextFiles();
   void writeImages();
   // clear and create all the mod paths at each run
