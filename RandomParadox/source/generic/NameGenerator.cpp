@@ -72,6 +72,13 @@ std::string generateCityName(NameData &nameData) {
 NameData prepare(const std::string &path, const std::string &gamePath) {
   Fwg::Utils::Logging::logLine("Preparing name generation from path", path);
   NameData nameData;
+
+  auto additionalForbidden =
+      Fwg::Parsing::getLines("resources//hoi4//history//forbidden_tags.txt");
+  for (const auto &tag : additionalForbidden)
+    nameData.disallowedTokens.insert(tag);
+
+
   if (std::filesystem::exists(path)) {
     nameData.nameRules = Fwg::Parsing::getLines(path + "//name_rules.txt");
     Detail::readMap(path + "//token_groups.txt", nameData.groups);

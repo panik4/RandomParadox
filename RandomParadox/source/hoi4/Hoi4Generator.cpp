@@ -200,7 +200,6 @@ void Generator::generateStateSpecifics() {
   auto &config = Cfg::Values();
   // calculate the target industry amount
   auto targetWorldIndustry = 1248.0 * worldIndustryFactor;
-  std::cout << targetWorldIndustry << std::endl;
   auto targetWorldPop = 3'000'000'000.0 * worldPopulationFactor;
   // we need a reference to determine how industrious a state is
   double averageEconomicActivity = 1.0 / areas.landRegions;
@@ -228,7 +227,6 @@ void Generator::generateStateSpecifics() {
       }
     }
   }
-  int genInd = 0;
   Fwg::Utils::Logging::logLine(config.landPercentage);
   for (auto &hoi4State : hoi4States) {
     // skip sea and lake states
@@ -251,11 +249,8 @@ void Generator::generateStateSpecifics() {
       hoi4State->stateCategory = std::max<int>(1, hoi4State->stateCategory);
     }
 
-    // only init this when it hasn't been initialized via text input before
-    if (hoi4State->totalPopulation < 0) {
-      hoi4State->totalPopulation =
-          static_cast<int>(targetWorldPop * hoi4State->worldPopulationShare);
-    }
+    hoi4State->totalPopulation =
+        static_cast<int>(targetWorldPop * hoi4State->worldPopulationShare);
     worldPop += (long long)hoi4State->totalPopulation;
 
     // create naval bases for all port locations
@@ -281,7 +276,6 @@ void Generator::generateStateSpecifics() {
     if (targetWorldIndustry != 0) {
       auto stateIndustry = std::min<double>(
           hoi4State->worldEconomicActivityShare * targetWorldIndustry, 12.0);
-      genInd += stateIndustry;
       // if we're below one, randomize if this state gets a actory or not
       if (stateIndustry < 1.0) {
         stateIndustry =

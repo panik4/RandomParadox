@@ -57,6 +57,7 @@ bool Hoi4Module::createPaths() {
     create_directory(pathcfg.gameModPath + "//common//countries//");
     create_directory(pathcfg.gameModPath + "//common//bookmarks//");
     create_directory(pathcfg.gameModPath + "//common//country_tags//");
+    // create_directory(pathcfg.gameModPath + "//common//scripted_triggers//");
     //
     create_directory(pathcfg.gameModPath + "//tutorial//");
     return true;
@@ -166,12 +167,15 @@ void Hoi4Module::prepareData() {}
 
 void Hoi4Module::writeTextFiles() {
   using namespace Parsing::Writing;
-  Fwg::Utils::Logging::logLine("Writing Hoi4 mod text files to path: ",
-                               pathcfg.gameModPath);
+  Fwg::Utils::Logging::logLine(
+      "Writing Hoi4 mod text files to path: ",
+      Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
   ambientObjects(pathcfg.gameModPath + "//map//ambient_object.txt",
                  hoi4Gen->heightMap);
   compatibilityHistory(pathcfg.gameModPath + "//history//countries//",
                        pathcfg.gamePath, hoi4Gen->areas.regions);
+  /*scriptedTriggers(pathcfg.gamePath + "//common//scripted_triggers//",
+                   pathcfg.gameModPath + "//common//scripted_triggers//");*/
   historyCountries(pathcfg.gameModPath + "//history//countries//",
                    hoi4Gen->hoi4Countries);
   historyUnits(pathcfg.gameModPath + "//history//units//",
@@ -222,7 +226,7 @@ void Hoi4Module::writeTextFiles() {
 }
 void Hoi4Module::writeImages() {
   Fwg::Utils::Logging::logLine("Writing Hoi4 mod image files to path: ",
-                               pathcfg.gameModPath);
+                               Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
   // generate map files. Format must be converted and colours mapped to hoi4
   // compatible colours
   Gfx::Hoi4::FormatConverter formatConverter(pathcfg.gamePath, "Hoi4");
@@ -331,27 +335,32 @@ void Hoi4Module::generate() {
     hoi4Gen->mapRegions();
     hoi4Gen->mapContinents();
     hoi4Gen->mapTerrain();
+    // generate generic world data
+    hoi4Gen->generateWorldCivilizations();
+    // generate state information
+    hoi4Gen->generateStateSpecifics();
+    hoi4Gen->generateStateResources();
+    hoi4Gen->generateImportance();
+
+    // generate country data
     hoi4Gen->generateCountries<Hoi4::Hoi4Country>();
     // build hoi4 countries out of basic countries
     hoi4Gen->mapCountries();
-    hoi4Gen->evaluateNeighbours();
-    hoi4Gen->generateWorldCivilizations();
-
-    // non-country stuff
-    hoi4Gen->generateStrategicRegions();
-    hoi4Gen->generateWeather();
-    // now generate hoi4 specific stuff
+    hoi4Gen->evaluateCountryNeighbours();
+    // politics, etc
     hoi4Gen->generateCountrySpecifics();
-    hoi4Gen->generateStateSpecifics();
-    hoi4Gen->generateStateResources();
+
     // should work with countries = 0
     hoi4Gen->evaluateCountries();
     hoi4Gen->generateLogistics();
     NationalFocus::buildMaps();
     hoi4Gen->generateFocusTrees();
     hoi4Gen->generateCountryUnits();
-    hoi4Gen->generateImportance();
     hoi4Gen->distributeVictoryPoints();
+
+    // non-country stuff
+    hoi4Gen->generateStrategicRegions();
+    hoi4Gen->generateWeather();
   } catch (std::exception e) {
     std::string error = "Error while generating the Hoi4 Module.\n";
     error += "Error is: \n";

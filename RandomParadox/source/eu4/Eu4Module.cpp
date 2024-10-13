@@ -117,7 +117,7 @@ void Module::generate() {
     eu4Gen->mapRegions();
     eu4Gen->mapContinents();
     eu4Gen->generateCountries<Scenario::Country>();
-    eu4Gen->evaluateNeighbours();
+    eu4Gen->evaluateCountryNeighbours();
     eu4Gen->generateWorld();
     eu4Gen->visualiseCountries(generator->countryMap);
     eu4Gen->generateRegions(eu4Gen->gameRegions);

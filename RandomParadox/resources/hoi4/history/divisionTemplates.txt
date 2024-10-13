@@ -200,34 +200,4 @@ requirements{templateName{Motorised Division};rank{major};focus{any};doctrine{bl
 		motorized = { x = 2 y = 1 }
 	}
 }
-:
-#ARMORED
-division_template = {
-requirements{templateName{Motorised Light Tank};rank{major};focus{any};doctrine{blitz}};
-	name = "Motorised Light Tank"
-	division_names_group = SPAN_CAV_01
 
-	regiments = {
-		motorized = { x = 0 y = 0 }
-		motorized = { x = 0 y = 1 }
-		motorized = { x = 1 y = 0 }
-		motorized = { x = 1 y = 1 }
-		light_armor = { x = 2 y = 0 }
-		light_armor = { x = 2 y = 1 }
-	}
-}
-:
-division_template = {
-requirements{templateName{Armored Heavy Tank};rank{major};focus{any};doctrine{armored}};
-	name = "Armored Heavy Tank"
-	division_names_group = SPAN_CAV_01
-
-	regiments = {
-		motorized = { x = 0 y = 0 }
-		motorized = { x = 0 y = 1 }
-		motorized = { x = 1 y = 0 }
-		motorized = { x = 1 y = 1 }
-		heavy_armor = { x = 2 y = 0 }
-		heavy_armor = { x = 2 y = 1 }
-	}
-}
