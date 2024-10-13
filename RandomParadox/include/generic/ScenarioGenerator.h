@@ -193,6 +193,7 @@ public:
   // and countries are always created the same way
   template <typename T> void generateCountries() {
     countries.clear();
+    countryMap.clear();
     for (auto &region : gameRegions) {
       region->assigned = false;
       region->religions.clear();
@@ -233,7 +234,7 @@ public:
                         Fwg::Cfg::Values().mapsPath + "countries.png");
   }
   // see which country neighbours which
-  void evaluateNeighbours();
+  void evaluateCountryNeighbours();
   // calculate how strong each country is
   virtual void evaluateCountries();
   virtual void printStatistics();

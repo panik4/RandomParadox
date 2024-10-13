@@ -61,7 +61,8 @@ void aiStrategy(const std::string &path, const hoiMap &countries) {
 
 void ambientObjects(const std::string &path,
                     const Fwg::Gfx::Bitmap &heightMap) {
-  Logging::logLine("HOI4 Parser: Map: editing ambient objects to ", path);
+  Logging::logLine("HOI4 Parser: Map: editing ambient objects to ",
+                   Fwg::Utils::userFilter(path, Fwg::Cfg::Values().username));
   auto templateContent =
       pU::readFile("resources//hoi4//map//ambient_object.txt");
 
@@ -764,6 +765,24 @@ void countryNames(const std::string &path, const hoiMap &countries,
   pU::writeFile(path + "countries_l_english.yml", content, true);
 }
 
+void scriptedTriggers(std::string gamePath, std::string modPath) {
+  Fwg::Utils::Logging::logLine("HOI4 Parser: Scripted Triggers: Copying Files");
+  // copy files from gamePath to modPath
+  std::vector<std::string> filenames{"00_diplo_action_valid_triggers.txt",
+                                     "00_resistance_initiate_triggers.txt",
+                                     "00_scripted_triggers.txt",
+                                     "debug_triggers.txt",
+                                     "diplomacy_scripted_triggers.txt",
+                                     "Elections_scripted_triggers.txt",
+                                     "ideology_scripted_triggers.txt",
+                                     "laws_war_support.txt",
+                                     "unit_medals_scripted_triggers.txt"};
+  for (const auto &filename : filenames) {
+    std::filesystem::copy(gamePath + filename, modPath + filename,
+                          std::filesystem::copy_options::overwrite_existing);
+  }
+}
+
 void stateNames(const std::string &path, const hoiMap &countries) {
   Logging::logLine("HOI4 Parser: Localisation: Writing State Names");
   std::string content = "l_english:\n";
@@ -794,8 +813,8 @@ void victoryPointNames(const std::string &path,
   std::string content = "l_english:\n";
   for (auto region : regions) {
     for (auto vp : region->victoryPointsMap) {
-      content += Fwg::Utils::varsToString(" VICTORY_POINTS_", vp.first, ":0 \"",
-                                          vp.second.name, "\"\n");
+      content += Fwg::Utils::varsToString(" VICTORY_POINTS_", vp.first + 1,
+                                          ":0 \"", vp.second.name, "\"\n");
     }
   }
   pU::writeFile(path + "//victory_points_l_english.yml", content, true);
@@ -990,6 +1009,8 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
     }
     pU::Scenario::replaceLine(content,
                               "capital =", "capital = " + std::to_string(1));
+    pU::Scenario::replaceLine(content,
+                              "SWI_find_biggest_fascist_neighbor = yes", "");
     std::smatch m;
     do {
       if (std::regex_search(

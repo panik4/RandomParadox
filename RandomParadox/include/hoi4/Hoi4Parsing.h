@@ -67,6 +67,7 @@ void tutorials(const std::string &path);
 // copy base game countries and remove certain lines to reduce crashes
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
                           const std::vector<Fwg::Region> &regions);
+void scriptedTriggers(std::string gamePath, std::string modPath);
 
 } // namespace Writing
 

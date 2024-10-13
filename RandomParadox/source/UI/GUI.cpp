@@ -78,7 +78,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
   SendMessage(consoleWindow, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
   ::RegisterClassExW(&wc);
   HWND hwnd = uiUtils->createAndConfigureWindow(wc, wc.lpszClassName,
-                                                L"RandomParadox 0.7.2");
+                                                L"RandomParadox 0.8.0");
   // Initialize Direct3D
   if (!CreateDeviceD3D(hwnd)) {
     CleanupDeviceD3D();
@@ -728,11 +728,7 @@ int GUI::showScenarioTab(
         activeModule->generator->mapRegions();
         activeModule->generator->mapTerrain();
         activeModule->generator->mapContinents();
-        // do necessary cleanup so we don't have lingering states
-        activeModule->generator->countryMap.clear();
-        activeModule->generator->countries.clear();
-        activeModule->generator->strategicRegions.clear();
-        activeModule->generator->stratRegionMap.clear();
+        activeModule->generator->generateWorldCivilizations();
         configuredScenarioGen = true;
       }
       ImGui::PushItemWidth(200.0f);
@@ -758,13 +754,126 @@ int GUI::showScenarioTab(
   return retCode;
 }
 
+void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
+  static int selectedStateIndex = 0;
+  static std::string drawCountryTag;
+  if (!drawBorders) {
+    drawCountryTag = "";
+  }
+  auto &clickEvents = uiUtils->clickEvents;
+  if (clickEvents.size()) {
+    auto pix = clickEvents.front();
+    clickEvents.pop();
+    const auto &colour = generator->provinceMap[pix.pixel];
+    if (generator->areas.provinceColourMap.find(colour)) {
+      const auto &prov = generator->areas.provinceColourMap[colour];
+      if (prov->regionID < generator->gameRegions.size()) {
+        auto &state = generator->gameRegions[prov->regionID];
+        selectedStateIndex = state->ID;
+      }
+    }
+  }
+  ImGui::Columns(3, "Edit"); // Start columns
+  if (generator->gameRegions.size()) {
+    auto &modifiableState = generator->gameRegions[selectedStateIndex];
+
+    if ((modifiableState->owner.size() &&
+             generator->countries.find(modifiableState->owner) !=
+                 generator->countries.end() ||
+         (drawCountryTag.size()) && generator->countries.find(drawCountryTag) !=
+                                        generator->countries.end())) {
+      std::shared_ptr selectedCountry = generator->countries.at(
+          modifiableState->owner.size() ? modifiableState->owner
+                                        : drawCountryTag);
+      if (!drawBorders) {
+        drawCountryTag = selectedCountry->tag;
+      }
+      std::string tempTag = selectedCountry->tag;
+      static std::string bufferChangedTag = "";
+      Elements::borderChild("CountryEdit", [&]() {
+        if (ImGui::InputText("Country tag", &tempTag)) {
+          bufferChangedTag = tempTag;
+        }
+        if (ImGui::Button("update tag")) {
+          if (bufferChangedTag.size() != 3) {
+            Fwg::Utils::Logging::logLine("Tag must be 3 characters long");
+          } else {
+            std::string &oldTag = selectedCountry->tag;
+            if (oldTag == bufferChangedTag) {
+              Fwg::Utils::Logging::logLine("Tag is the same as the old one");
+            } else {
+              generator->countries.erase(oldTag);
+              selectedCountry->tag = bufferChangedTag;
+              // add country under different tag
+              generator->countries.insert(
+                  {selectedCountry->tag, selectedCountry});
+              for (auto &region : selectedCountry->ownedRegions) {
+                region->owner = selectedCountry->tag;
+              }
+            }
+            generator->visualiseCountries(generator->countryMap);
+          }
+        }
+        ImGui::InputText("Country name", &selectedCountry->name);
+        ImGui::InputText("Country adjective", &selectedCountry->adjective);
+        ImVec4 color =
+            ImVec4(((float)selectedCountry->colour.getRed()) / 255.0f,
+                   ((float)selectedCountry->colour.getGreen()) / 255.0f,
+                   ((float)selectedCountry->colour.getBlue()) / 255.0f, 1.0f);
+
+        if (ImGui::ColorEdit3("Country Colour", (float *)&color,
+                              ImGuiColorEditFlags_NoInputs |
+                                  ImGuiColorEditFlags_NoLabel |
+                                  ImGuiColorEditFlags_HDR)) {
+          selectedCountry->colour = Fwg::Gfx::Colour(
+              color.x * 255.0, color.y * 255.0, color.z * 255.0);
+          generator->visualiseCountries(generator->countryMap);
+          uiUtils->resetTexture();
+        }
+      });
+
+      if (drawBorders && drawCountryTag.size()) {
+        if (generator->countries.find(drawCountryTag) !=
+            generator->countries.end()) {
+          selectedCountry = generator->countries.at(drawCountryTag);
+        }
+        if (!modifiableState->sea &&
+            modifiableState->owner != selectedCountry->tag) {
+          // modifiableState->owner = selectedCountry->tag;
+          selectedCountry->addRegion(modifiableState);
+          generator->visualiseCountries(generator->countryMap,
+                                        modifiableState->ID);
+          uiUtils->resetTexture();
+        }
+      }
+    }
+    ImGui::NextColumn();
+    Elements::borderChild("StateEdit", [&]() {
+      ImGui::InputText("State name", &modifiableState->name);
+      ImGui::InputText("State owner", &modifiableState->owner);
+      ImGui::InputInt("Population", &modifiableState->totalPopulation);
+    });
+    ImGui::NextColumn();
+    if (isRelevantModuleActive("hoi4")) {
+      const auto &hoi4Region =
+          std::reinterpret_pointer_cast<Scenario::Hoi4::Region,
+                                        Scenario::Region>(modifiableState);
+      Elements::borderChild("StateEdit2", [&]() {
+        ImGui::InputInt("Arms Industry", &hoi4Region->armsFactories);
+        ImGui::InputInt("Civilian Industry", &hoi4Region->civilianFactories);
+        ImGui::InputInt("Naval Industry", &hoi4Region->dockyards);
+        ImGui::InputInt("State Category", &hoi4Region->stateCategory);
+      });
+    }
+  }
+  ImGui::Columns(1); // End columns
+}
+
 int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
   if (ImGui::BeginTabItem("Countries")) {
     uiUtils->desiredState[0] = UIUtils::ActiveTexture::EXTENDEABLE1;
     uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     auto &generator = activeModule->generator;
-    static int selectedStateIndex = 0;
-    static std::string drawCountryTag;
     uiUtils->tabSwitchEvent(true);
     // pre-generate simply image even if no countries present
     if (!generator->countryMap.size()) {
@@ -781,27 +890,39 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     ImGui::PushItemWidth(300.0f);
     uiUtils->showHelpTextPopup("Countries");
     ImGui::InputInt("Number of countries", &generator->numCountries);
-    ImGui::InputText("Path to country list: ", &generator->countryMappingPath);
-    if (ImGui::Checkbox("Draw-borders", &drawBorders)) {
-      if (!drawBorders) {
-        drawCountryTag = "";
-      }
-    }
-    if (ImGui::Button("Generate countries")) {
+    // ImGui::InputText("Path to country list: ",
+    // &generator->countryMappingPath); ImGui::InputText("Path to state list: ",
+    // &generator->regionMappingPath);
+    ImGui::Checkbox("Draw-borders", &drawBorders);
+
+    if (ImGui::Button("Generate state data")) {
       if (isRelevantModuleActive("hoi4")) {
         auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
-        generator->generateCountries<Scenario::Hoi4::Hoi4Country>();
+        hoi4Gen->generateStateSpecifics();
+        hoi4Gen->generateStateResources();
+        hoi4Gen->generateImportance();
+      }
+    }
+
+    if (ImGui::Button("Randomly distribute countries")) {
+      if (isRelevantModuleActive("hoi4")) {
+        auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
+        hoi4Gen->generateCountries<Scenario::Hoi4::Hoi4Country>();
+        hoi4Gen->evaluateCountries();
+        hoi4Gen->generateCountrySpecifics();
+        hoi4Gen->generateLogistics();
+        Scenario::Hoi4::NationalFocus::buildMaps();
+        hoi4Gen->generateFocusTrees();
+        hoi4Gen->generateCountryUnits();
+        hoi4Gen->distributeVictoryPoints();
       } else if (isRelevantModuleActive("vic3")) {
         generator->generateCountries<Scenario::Vic3::Country>();
       } else if (isRelevantModuleActive("eu4")) {
         generator->generateCountries<Scenario::Country>();
       }
-      // transfer generic states to hoi4states
-      generator->initializeStates();
-      // build hoi4 countries out of basic countries
+      // build module specific countries out of basic countries
       generator->mapCountries();
-      generator->evaluateNeighbours();
-      generator->generateWorldCivilizations();
+      generator->evaluateCountryNeighbours();
       generator->visualiseCountries(generator->countryMap);
       uiUtils->resetTexture();
     }
@@ -816,8 +937,27 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     ImGui::Text(str.c_str());
     // drag event
     if (triggeredDrag) {
-      if (draggedFile.find(".txt") != std::string::npos) {
-        generator->countryMappingPath = draggedFile;
+      if (draggedFile.contains(".txt")) {
+        if (draggedFile.contains("states.txt") ||
+            draggedFile.contains("stateMappings.txt")) {
+          Fwg::Utils::Logging::logLine(
+              "Applying state input from file: ",
+              Fwg::Utils::userFilter(draggedFile, cfg.username));
+          generator->regionMappingPath = draggedFile;
+          generator->applyRegionInput();
+
+        } else if (draggedFile.contains("countries.txt") ||
+                   draggedFile.contains("countryMappings.txt")) {
+          Fwg::Utils::Logging::logLine(
+              "Applying country input from file: ",
+              Fwg::Utils::userFilter(draggedFile, cfg.username));
+          generator->countryMappingPath = draggedFile;
+        } else {
+          Fwg::Utils::Logging::logLine(
+              "No valid file dragged in, the filename must either be "
+              "states.txt, stateMappings.txt, countries.txt or "
+              "countryMappings.txt");
+        }
       } else {
         // load countries with correct type, dependent on the gamemodule that is
         // active
@@ -835,121 +975,32 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
         generator->visualiseCountries(generator->countryMap);
         Fwg::Gfx::Png::save(generator->countryMap,
                             cfg.mapsPath + "countryMap.png");
-        // transfer generic states to hoi4states
-        generator->initializeStates();
-        // build hoi4 countries out of basic countries
+        // build module specific countries out of basic countries
         generator->mapCountries();
-        generator->evaluateNeighbours();
-        generator->generateWorldCivilizations();
+        generator->evaluateCountryNeighbours();
+        generator->visualiseCountries(generator->countryMap);
         uiUtils->resetTexture();
       }
       triggeredDrag = false;
     }
 
-    auto &clickEvents = uiUtils->clickEvents;
-    if (clickEvents.size()) {
-      auto pix = clickEvents.front();
-      clickEvents.pop();
-      const auto &colour = generator->provinceMap[pix.pixel];
-      if (generator->areas.provinceColourMap.find(colour)) {
-        const auto &prov = generator->areas.provinceColourMap[colour];
-        if (prov->regionID < generator->gameRegions.size()) {
-          auto &state = generator->gameRegions[prov->regionID];
-          selectedStateIndex = state->ID;
-        }
-      }
-    }
-    ImGui::Columns(3, "Edit"); // Start columns
-    if (generator->gameRegions.size()) {
-      auto &modifiableState = generator->gameRegions[selectedStateIndex];
-
-      if ((modifiableState->owner.size() &&
-               generator->countries.find(modifiableState->owner) !=
-                   generator->countries.end() ||
-           (drawCountryTag.size()) &&
-               generator->countries.find(drawCountryTag) !=
-                   generator->countries.end())) {
-        std::shared_ptr selectedCountry = generator->countries.at(
-            modifiableState->owner.size() ? modifiableState->owner
-                                          : drawCountryTag);
-        if (!drawBorders) {
-          drawCountryTag = selectedCountry->tag;
-        }
-        std::string tempTag = selectedCountry->tag;
-        static std::string bufferChangedTag = "";
-        Elements::borderChild("CountryEdit", [&]() {
-          if (ImGui::InputText("Country tag", &tempTag)) {
-            bufferChangedTag = tempTag;
-          }
-          if (ImGui::Button("update tag")) {
-            std::string &oldTag = selectedCountry->tag;
-            if (oldTag == bufferChangedTag) {
-              Fwg::Utils::Logging::logLine("Tag is the same as the old one");
-            } else {
-              generator->countries.erase(oldTag);
-              selectedCountry->tag = bufferChangedTag;
-              // add country under different tag
-              generator->countries.insert(
-                  {selectedCountry->tag, selectedCountry});
-              for (auto &region : selectedCountry->ownedRegions) {
-                region->owner = selectedCountry->tag;
-              }
-            }
-          }
-          ImGui::InputText("Country name", &selectedCountry->name);
-          ImGui::InputText("Country adjective", &selectedCountry->adjective);
-          ImVec4 color =
-              ImVec4(((float)selectedCountry->colour.getRed()) / 255.0f,
-                     ((float)selectedCountry->colour.getGreen()) / 255.0f,
-                     ((float)selectedCountry->colour.getBlue()) / 255.0f, 1.0f);
-
-          if (ImGui::ColorEdit3("Country Colour", (float *)&color,
-                                ImGuiColorEditFlags_NoInputs |
-                                    ImGuiColorEditFlags_NoLabel |
-                                    ImGuiColorEditFlags_HDR)) {
-            selectedCountry->colour = Fwg::Gfx::Colour(
-                color.x * 255.0, color.y * 255.0, color.z * 255.0);
-            // generator->countryMap =
-            generator->visualiseCountries(generator->countryMap);
-            uiUtils->resetTexture();
-          }
-        });
-
-        if (drawBorders && drawCountryTag.size()) {
-          if (generator->countries.find(drawCountryTag) !=
-              generator->countries.end()) {
-            selectedCountry = generator->countries.at(drawCountryTag);
-          }
-          if (!modifiableState->sea &&
-              modifiableState->owner != selectedCountry->tag) {
-            // modifiableState->owner = selectedCountry->tag;
-            selectedCountry->addRegion(modifiableState);
-            generator->visualiseCountries(generator->countryMap,
-                                          modifiableState->ID);
-            uiUtils->resetTexture();
-          }
-        }
-      }
-      ImGui::NextColumn();
-      Elements::borderChild("StateEdit", [&]() {
-        ImGui::InputText("State name", &modifiableState->name);
-        ImGui::InputText("State owner", &modifiableState->owner);
-        ImGui::InputInt("Population", &modifiableState->totalPopulation);
-      });
-      ImGui::NextColumn();
+    if (ImGui::Button("Generate country data")) {
       if (isRelevantModuleActive("hoi4")) {
-        const auto &hoi4Region =
-            std::reinterpret_pointer_cast<Scenario::Hoi4::Region,
-                                          Scenario::Region>(modifiableState);
-        Elements::borderChild("StateEdit2", [&]() {
-          ImGui::InputInt("Arms Industry", &hoi4Region->armsFactories);
-          ImGui::InputInt("Civilian Industry", &hoi4Region->civilianFactories);
-          ImGui::InputInt("Naval Industry", &hoi4Region->dockyards);
-          ImGui::InputInt("State Category", &hoi4Region->stateCategory);
-        });
+        auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
+        hoi4Gen->evaluateCountryNeighbours();
+        hoi4Gen->generateCountrySpecifics();
+        hoi4Gen->evaluateCountries();
+        hoi4Gen->generateLogistics();
+        Scenario::Hoi4::NationalFocus::buildMaps();
+        hoi4Gen->generateFocusTrees();
+        hoi4Gen->generateCountryUnits();
+      } else if (isRelevantModuleActive("vic3")) {
+      } else if (isRelevantModuleActive("eu4")) {
       }
+      uiUtils->resetTexture();
     }
-    ImGui::Columns(1); // End columns
+
+    countryEdit(generator);
 
     ImGui::EndTabItem();
     ImGui::PopItemWidth();
@@ -1035,7 +1086,7 @@ int GUI::showStrategicRegionTab(
       generator->initializeStates();
       // build hoi4 countries out of basic countries
       generator->mapCountries();
-      generator->evaluateNeighbours();
+      generator->evaluateCountryNeighbours();
       generator->generateWorldCivilizations();
     }
     // drag event is ignored here
@@ -1128,16 +1179,9 @@ int GUI::showHoi4Finalise(
 
         computationFutureBool = runAsync([generator, hoi4Module, &cfg, this]() {
           // now generate hoi4 specific stuff
-          generator->generateCountrySpecifics();
-          generator->generateStateSpecifics();
-          generator->generateStateResources();
-          // should work with countries = 0
-          generator->evaluateCountries();
-          generator->generateLogistics();
-          Scenario::Hoi4::NationalFocus::buildMaps();
-          generator->generateFocusTrees();
-          generator->generateCountryUnits();
           try {
+            // to recalc if state data was changed after country generation
+            generator->evaluateCountries();
             hoi4Module->writeImages();
             hoi4Module->writeTextFiles();
             generator->printStatistics();

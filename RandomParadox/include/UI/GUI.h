@@ -60,6 +60,7 @@ class GUI : Fwg::fwgUI {
   // generic scenario stuff
   int showScenarioTab(Fwg::Cfg &cfg,
                       std::shared_ptr<Scenario::GenericModule> genericModule);
+  void countryEdit(std::shared_ptr<Scenario::Generator> generator);
   int showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture);
 
   int showModuleGeneric(Fwg::Cfg &cfg,

@@ -348,6 +348,7 @@ void Generator::generateStrategicRegions() {
   Fwg::Utils::Logging::logLine(
       "Scenario: Dividing world into strategic regions");
   strategicRegions.clear();
+  stratRegionMap.clear();
   std::set<int> assignedIDs;
   auto idcounter = 0;
   for (auto &region : gameRegions) {
@@ -420,7 +421,7 @@ Fwg::Gfx::Bitmap Generator::visualiseStrategicRegions(const int ID) {
   return stratRegionMap;
 }
 
-void Generator::evaluateNeighbours() {
+void Generator::evaluateCountryNeighbours() {
   Logging::logLine("Evaluating Country Neighbours");
   for (auto &c : countries)
     for (const auto &gR : c.second->ownedRegions)

@@ -295,7 +295,8 @@ void FormatConverter::dump8BitTerrain(
     const Fwg::Civilization::CivilizationLayer &civLayer,
     const std::string &path, const std::string &colourMapKey,
     const bool cut) const {
-  Utils::Logging::logLine("FormatConverter::Writing terrain to ", path);
+  Utils::Logging::logLine("FormatConverter::Writing terrain to ",
+                          Fwg::Utils::userFilter(path, Cfg::Values().username));
   auto &conf = Cfg::Values();
   Bitmap hoi4terrain(conf.width, conf.height, 8);
   hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
@@ -475,7 +476,9 @@ void FormatConverter::dumpDDSFiles(const Bitmap &riverMap,
         }
       }
     }
-    Utils::Logging::logLine("FormatConverter::Writing DDS files to ", tempPath);
+    Utils::Logging::logLine(
+        "FormatConverter::Writing DDS files to ",
+        Fwg::Utils::userFilter(tempPath, Cfg::Values().username));
     writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
              tempPath);
   }
@@ -486,9 +489,9 @@ void FormatConverter::dumpTerrainColourmap(
     const Fwg::Civilization::CivilizationLayer &civLayer,
     const std::string &modPath, const std::string &mapName,
     const DXGI_FORMAT format, int scaleFactor, const bool cut) const {
-  Utils::Logging::logLine("FormatConverter::Writing terrain colourmap to ",
-                          modPath + mapName);
   auto &cfg = Cfg::Values();
+  Utils::Logging::logLine("FormatConverter::Writing terrain colourmap to ",
+                          Utils::userFilter(modPath + mapName, cfg.username));
   const auto &height = climateMap.height();
   const auto &width = climateMap.width();
   int factor = scaleFactor;
@@ -546,7 +549,8 @@ void FormatConverter::dumpTerrainColourmap(
 void FormatConverter::dumpWorldNormal(const Bitmap &sobelMap,
                                       const std::string &path,
                                       const bool cut) const {
-  Utils::Logging::logLine("FormatConverter::Writing normalMap to ", path);
+  Utils::Logging::logLine("FormatConverter::Writing normalMap to ",
+                          Fwg::Utils::userFilter(path, Cfg::Values().username));
   auto height = Cfg::Values().height;
   auto width = Cfg::Values().width;
 
