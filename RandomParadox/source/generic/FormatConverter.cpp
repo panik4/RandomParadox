@@ -333,10 +333,12 @@ void FormatConverter::dump8BitTerrain(
                    indexMaps.at("tree" + colourMapKey + gameTag).at(treeType)));
       }
 
-      if (civLayer.urbanisation[i]) {
+      if (conf.bitmapSize == civLayer.urbanisation.size() &&
+          civLayer.urbanisation[i]) {
         // urban texture
         hoi4terrain.setColourAtIndex(i, hoi4terrain.lookUp(13));
-      } else if (civLayer.agriculture[i]) {
+      } else if (conf.bitmapSize == civLayer.agriculture.size() &&
+                 civLayer.agriculture[i]) {
         // farm texture
         hoi4terrain.setColourAtIndex(i, hoi4terrain.lookUp(5));
       }
@@ -463,10 +465,10 @@ void FormatConverter::dumpDDSFiles(const Bitmap &riverMap,
         auto imageIndex =
             imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
         imageIndex *= 4;
-        if (riverMap[referenceIndex] == Cfg::Values().colours["sea"]) {
-          pixels[imageIndex] = static_cast<unsigned char>(49.0 * depth);
-          pixels[imageIndex + 1] = static_cast<unsigned char>(24.0 * depth);
-          pixels[imageIndex + 2] = static_cast<unsigned char>(16.0 * depth);
+        if (heightMap[referenceIndex].getBlue() <= Cfg::Values().seaLevel) {
+          pixels[imageIndex] = static_cast<unsigned char>(200.0 * depth);
+          pixels[imageIndex + 1] = static_cast<unsigned char>(150.0 * depth);
+          pixels[imageIndex + 2] = static_cast<unsigned char>(100.0 * depth);
           pixels[imageIndex + 3] = 255;
         } else {
           pixels[imageIndex] = 100;
@@ -514,7 +516,8 @@ void FormatConverter::dumpTerrainColourmap(
           pixels[imageIndex + 3] = 255;
         } else
           // alpha for city lights
-          pixels[imageIndex + 3] = civLayer.urbanisation[colourmapIndex];
+          if (civLayer.urbanisation.size() == cfg.bitmapSize)
+            pixels[imageIndex + 3] = civLayer.urbanisation[colourmapIndex];
       }
     }
   } else {

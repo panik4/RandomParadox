@@ -56,7 +56,7 @@ class GUI : Fwg::fwgUI {
       Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> &genericModule);
   void showModLoader(Fwg::Cfg &cfg,
                      std::shared_ptr<Scenario::GenericModule> &genericModule);
-  bool scenarioGenReady();
+  bool scenarioGenReady(bool printIssue);
   // generic scenario stuff
   int showScenarioTab(Fwg::Cfg &cfg,
                       std::shared_ptr<Scenario::GenericModule> genericModule);

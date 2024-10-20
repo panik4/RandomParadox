@@ -259,9 +259,9 @@ void Generator::generateStateSpecifics() {
           location->secondaryType == Fwg::Civilization::LocationType::Port) {
         hoi4State->navalBases[location->provinceID] =
             std::max<double>(location->importance / maxImportance, 1.0);
-        std::cout << "Naval base in " << hoi4State->name << " at "
-                  << location->provinceID << " with importance "
-                  << location->importance << std::endl;
+        Fwg::Utils::Logging::logLine("Naval base in ", hoi4State->name, " at ",
+                                     location->provinceID, " with importance ",
+                                     location->importance);
       }
     }
     double dockChance = 0.25;
@@ -879,5 +879,36 @@ bool Generator::unitFulfillsRequirements(
     }
   }
   return true;
+}
+bool Generator::loadRivers(Fwg::Cfg &config, Fwg::Gfx::Bitmap &riverInput) {
+
+  // replace a few colours by the colours understood by FWG
+  std::map<Fwg::Gfx::Colour, Fwg::Gfx::Colour> colourMapping{
+      {{0, 255, 0}, config.colours.at("riverStart")},
+      {{255, 0, 0}, config.colours.at("riverEnd")},
+      {{255, 252, 0}, config.colours.at("riverStartTributary")},
+      {{0, 225, 255}, config.colours.at("river")},
+      {{0, 200, 255}, config.colours.at("river")},
+      {{0, 150, 255}, config.colours.at("river")},
+      {{0, 100, 255}, config.colours.at("river")},
+      {{0, 0, 255}, config.colours.at("river")},
+      {{0, 0, 225}, config.colours.at("river")},
+      {{0, 0, 200}, config.colours.at("river")},
+      {{0, 0, 150}, config.colours.at("river")},
+      {{0, 0, 100}, config.colours.at("river")},
+      {{0, 85, 0}, config.colours.at("riverStart")},
+      {{0, 125, 0}, config.colours.at("riverStart")},
+      {{0, 158, 0}, config.colours.at("riverStart")},
+      {{24, 206, 0}, config.colours.at("riverStart")}};
+  // now replace the colours
+  for (auto &pix : riverInput.imageData) {
+    if (colourMapping.find(pix) != colourMapping.end()) {
+      pix = colourMapping.at(pix);
+    }
+  }
+
+  // Call the base class method from FastWorldGenerator, to load the now mapped
+  // river input
+  return FastWorldGenerator::loadRivers(config, riverInput);
 }
 } // namespace Scenario::Hoi4

@@ -112,6 +112,10 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
   this->username = username;
   activeModule = std::make_shared<Scenario::Hoi4::Hoi4Module>(
       Scenario::Hoi4::Hoi4Module(rpdConf, configSubFolder, username, false));
+  activeModule->generator->climateData.addSecondaryColours(
+      Fwg::Parsing::getLines("resources/hoi4/colourMappings.txt"));
+  initAllowedInput(cfg, activeModule->generator->climateData,
+                   activeModule->generator->terrainGenerator.elevationTypes);
   initGameConfigs();
   this->uiUtils->loadHelpTextsFromFile("resources//uiHelpTexts.txt");
   uiUtils->setClickOffsets(cfg.width, 1);
@@ -209,7 +213,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         showRegionTab(cfg, *activeModule->generator, &primaryTexture);
         showCivilizationTab(cfg, *activeModule->generator);
         showScenarioTab(cfg, activeModule);
-        if (!scenarioGenReady()) {
+        if (!scenarioGenReady(false)) {
           ImGui::BeginDisabled();
         }
         showCountryTab(cfg, &primaryTexture);
@@ -233,7 +237,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                                                  Scenario::GenericModule>(
                        activeModule));
         }
-        if (!scenarioGenReady()) {
+        if (!scenarioGenReady(false)) {
           ImGui::EndDisabled();
         }
         if (!validatedPaths)
@@ -292,6 +296,9 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
           break;
         case UIUtils::ActiveTexture::CONTINENTS:
           uiUtils->activeImages[i] = &activeModule->generator->continentMap;
+          break;
+        case UIUtils::ActiveTexture::CLIMATEINPUT:
+          uiUtils->activeImages[i] = &activeModule->generator->climateInputMap;
           break;
         case UIUtils::ActiveTexture::CLIMATE:
           uiUtils->activeImages[i] = &activeModule->generator->climateMap;
@@ -491,7 +498,8 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
                     false, window_flags);
   ImGui::TextUnformatted(log->str().c_str());
   bool success = true;
-  initAllowedInput(cfg, generator);
+  initAllowedInput(cfg, generator.climateData,
+                   generator.terrainGenerator.elevationTypes);
   if (!ImGui::IsWindowHovered()) {
     // scroll to bottom
     ImGui::SetScrollHereY(1.0f);
@@ -510,12 +518,12 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
   }
   ImGui::SameLine();
   if (cfg.debugLevel > 5 && ImGui::Button("Display size")) {
-    std::cout << generator.size() << std::endl;
+    Fwg::Utils::Logging::logLine(generator.size());
   }
   ImGui::SameLine();
   if (cfg.debugLevel > 5 && ImGui::Button("Clear")) {
     generator.resetData();
-    std::cout << generator.size() << std::endl;
+    Fwg::Utils::Logging::logLine(generator.size());
   }
   ImGui::SameLine();
   if (ImGui::Button(("Save current image to " + cfg.mapsPath).c_str())) {
@@ -599,6 +607,8 @@ int GUI::showRpdxConfigure(
         activeModule = std::make_shared<Scenario::Hoi4::Hoi4Module>(
             Scenario::Hoi4::Hoi4Module(rpdConf, configSubFolder, username,
                                        false));
+        activeModule->generator->climateData.addSecondaryColours(
+            Fwg::Parsing::getLines("resources/hoi4/colourMappings.txt"));
       } else if (gameConfigs[selectedGame].gameName ==
                  "Europa Universalis IV") {
         activeModule = std::make_shared<Scenario::Eu4::Module>(
@@ -685,7 +695,7 @@ void GUI::showModLoader(
   }
 }
 
-bool GUI::scenarioGenReady() {
+bool GUI::scenarioGenReady(bool printIssue) {
   auto ready = configuredScenarioGen && !redoRegions && !redoProvinces;
   const auto &generator = activeModule->generator;
   if (!generator->areas.provinces.size() || !generator->areas.regions.size())
@@ -696,6 +706,16 @@ bool GUI::scenarioGenReady() {
           generator->gameProvinces[0]->baseProvince) {
     ready = false;
   }
+  auto &cfg = Fwg::Cfg::Values();
+  if (generator->civLayer.urbanisation.size() != cfg.bitmapSize ||
+      generator->civLayer.agriculture.size() != cfg.bitmapSize) {
+    if (printIssue) {
+      Fwg::Utils::Logging::logLine("You seem to not have generated data in the "
+                                   "civilisation tab, or it is "
+                                   "of the wrong size");
+    }
+    ready = false;
+  }
   return ready;
 }
 
@@ -703,6 +723,8 @@ int GUI::showScenarioTab(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> activeModule) {
   int retCode = 0;
   if (ImGui::BeginTabItem("Scenario")) {
+    // allow printing why the scenario generation is not ready
+    scenarioGenReady(true);
     uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
     uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     uiUtils->tabSwitchEvent();
@@ -927,11 +949,6 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       uiUtils->resetTexture();
     }
     ImGui::SameLine();
-    if (ImGui::Button("Visualise current countries")) {
-      generator->visualiseCountries(generator->countryMap);
-      uiUtils->resetTexture();
-    }
-    ImGui::SameLine();
     auto str =
         "Generated countries: " + std::to_string(generator->countries.size());
     ImGui::Text(str.c_str());
@@ -997,6 +1014,11 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
       } else if (isRelevantModuleActive("vic3")) {
       } else if (isRelevantModuleActive("eu4")) {
       }
+      uiUtils->resetTexture();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Export current countries as image after editing")) {
+      generator->visualiseCountries(generator->countryMap);
       uiUtils->resetTexture();
     }
 

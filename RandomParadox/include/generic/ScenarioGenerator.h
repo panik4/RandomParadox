@@ -239,5 +239,6 @@ public:
   virtual void evaluateCountries();
   virtual void printStatistics();
 
+
 }; // namespace Scenario
 } // namespace Scenario

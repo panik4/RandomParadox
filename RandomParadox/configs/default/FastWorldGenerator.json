@@ -1,13 +1,13 @@
 {
 	"module": 
 	{
-		"debugLevel": 9,
+		"debugLevel": 0,
 		"loadMaps" : false,
 		"writeMaps" : true,
 		"cut" : false,
 		"scale" : false,
 		"scaleFactor" : 1,
-		"seed" : 1706965480
+		"seed" : 1
 	},
 	"paths":
 	{
@@ -76,17 +76,18 @@
 			{
 				"auto" : true,
 				"landProvinceFactor" : 1.0,
+				"landProvinceFactor" : 1.0,
 				"seaProvinceFactor" : 1.0,
 				"minProvSize" : 20,
 				"provinceDensityEffects" : 1.0,
-				"maxProvAmount" : 15000
+				"maxProvAmount" : 20000
 			},
 			"regions" :
 			{
 				"autoLandRegions" : true,
 				"autoSeaRegions" : true,
 				"minProvPerRegion" : 8,
-				"minProvPerSeaRegion" : 8,
+				"minProvPerSeaRegion" : 0,
 				"targetLandRegionAmount" : 640,
 				"targetSeaRegionAmount" : 160
 			}
@@ -308,7 +309,7 @@
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 1.0,
+					"weight" : 0.5,
 					"altitudeWeightStart" : 0.0,
 					"altitudeWeightEnd" : 0.0,
 					"maxHeight" : 255,
