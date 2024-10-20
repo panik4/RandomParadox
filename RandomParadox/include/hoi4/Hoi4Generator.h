@@ -87,5 +87,7 @@ public:
   void printStatistics();
 
   void loadStates();
+  virtual bool loadRivers(Fwg::Cfg &config,
+                          Fwg::Gfx::Bitmap &riverInput) override;
 };
 } // namespace Scenario::Hoi4

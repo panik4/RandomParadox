@@ -52,7 +52,8 @@ bool GenericModule::validateGameModFolder(const std::string &game) {
   // find the usermod directory of the relevant game
   if (exists(pathcfg.gameModsDirectory)) {
     Logging::logLine("Located mods directory folder under ",
-                     pathcfg.gameModsDirectory);
+                     Fwg::Utils::userFilter(pathcfg.gameModsDirectory,
+                                            Fwg::Cfg::Values().username));
     return true;
   } else {
     Logging::logLine(
@@ -73,10 +74,13 @@ bool GenericModule::autoLocateGameModFolder(const std::string &game) {
     pathcfg.gameModsDirectory = autoPath;
     sanitizePath(pathcfg.gameModsDirectory);
     Logging::logLine("Auto located game mod directory is ",
-                     pathcfg.gameModsDirectory);
+                     Fwg::Utils::userFilter(pathcfg.gameModsDirectory,
+                                            Fwg::Cfg::Values().username));
     pathcfg.gameModPath = autoPath + pathcfg.modName;
     sanitizePath(pathcfg.gameModPath);
-    Logging::logLine("Auto located mod directory is ", pathcfg.gameModPath);
+    Logging::logLine("Auto located mod directory is ",
+                     Fwg::Utils::userFilter(pathcfg.gameModPath,
+                                            Fwg::Cfg::Values().username));
   }
 
   return false;
@@ -87,20 +91,21 @@ bool GenericModule::validateModFolder(const std::string &game) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
   std::string tempPath = pathcfg.gameModPath;
-  while (tempPath.back() == '//')
-    tempPath.pop_back();
   while (tempPath.back() == '/')
     tempPath.pop_back();
   path modDestinationDir(tempPath);
   if (exists(modDestinationDir.parent_path())) {
-    Logging::logLine("Located mod folder under ",
-                     modDestinationDir.parent_path());
+    Logging::logLine(
+        "Located mod folder under ",
+        Fwg::Utils::userFilter(modDestinationDir.parent_path().string(),
+                               Fwg::Cfg::Values().username));
     return true;
   } else {
     Logging::logLine(
         "Could not find parent directory of mod directory under configured "
         "path ",
-        modDestinationDir.parent_path(),
+        Fwg::Utils::userFilter(modDestinationDir.parent_path().string(),
+                               Fwg::Cfg::Values().username),
         " it doesn't exist or is malformed. Please correct the path");
     return false;
   }

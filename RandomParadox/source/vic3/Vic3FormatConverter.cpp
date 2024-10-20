@@ -425,7 +425,8 @@ void FormatConverter::contentSource(
   Fwg::Gfx::Bitmap emptyMap(config.width / 2, config.height / 2, 24);
   emptyMap.fill({0, 0, 0});
   for (const auto &maskName : maskNames) {
-    Fwg::Gfx::Png::save(emptyMap, path + "mask_" + maskName + ".png", true, LCT_GREY, 8);
+    Fwg::Gfx::Png::save(emptyMap, path + "mask_" + maskName + ".png", true,
+                        LCT_GREY, 8);
   }
 }
 void FormatConverter::detailMaps(
@@ -592,7 +593,7 @@ void FormatConverter::detailMaps(
         }
         intensityPixels[imageIndex + 4] = 0;
       } catch (std::exception e) {
-        std::cout << c << std::endl;
+        Fwg::Utils::Logging::logLine("Invalid colour: ", c);
       }
     }
   }

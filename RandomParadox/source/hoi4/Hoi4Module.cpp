@@ -225,8 +225,9 @@ void Hoi4Module::writeTextFiles() {
                               pathcfg.modName);
 }
 void Hoi4Module::writeImages() {
-  Fwg::Utils::Logging::logLine("Writing Hoi4 mod image files to path: ",
-                               Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
+  Fwg::Utils::Logging::logLine(
+      "Writing Hoi4 mod image files to path: ",
+      Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
   // generate map files. Format must be converted and colours mapped to hoi4
   // compatible colours
   Gfx::Hoi4::FormatConverter formatConverter(pathcfg.gamePath, "Hoi4");
@@ -246,9 +247,7 @@ void Hoi4Module::writeImages() {
                                     pathcfg.gameModPath + "//map//heightmap",
                                     "heightmap");
   formatConverter.dumpTerrainColourmap(
-      Fwg::Gfx::MapMerging::mergeTerrain(
-          hoi4Gen->heightMap, hoi4Gen->climateMap, hoi4Gen->sobelMap),
-      hoi4Gen->civLayer, pathcfg.gameModPath,
+      hoi4Gen->worldMap, hoi4Gen->civLayer, pathcfg.gameModPath,
       "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
       DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
   formatConverter.dumpDDSFiles(
