@@ -76,4 +76,13 @@ void Region::findWaterLocator(int maxAmount) {
 void Region::findWaterPortLocator(int maxAmount) {
   findLocator(Fwg::Civilization::LocationType::WaterPort, maxAmount);
 }
+std::shared_ptr<Fwg::Civilization::Location>
+Region::getLocation(Fwg::Civilization::LocationType type) {
+  for (auto &location : locations) {
+    if (location->type == type) {
+      return location;
+    }
+  }
+  return nullptr;
+}
 } // namespace Scenario

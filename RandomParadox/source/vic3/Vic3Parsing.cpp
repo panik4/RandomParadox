@@ -435,11 +435,9 @@ std::string compatRegions(const std::string &inFolder,
     if (pathString.find(".txt") == std::string::npos)
       continue;
 
-    Fwg::Utils::Logging::logLine("Working with: ", pathString);
     std::string filename =
         pathString.substr(pathString.find_last_of("//") + 1,
                           pathString.back() - pathString.find_last_of("//"));
-    Fwg::Utils::Logging::logLine("Determined filename: ", filename);
     std::string content = "";
     auto lines = pU::getLines(pathString);
     for (auto &line : lines) {
@@ -569,8 +567,11 @@ void locators(const std::string &path,
 
   pU::replaceOccurence(cityContent, "templateLocators",
                        locatorContent[LocationType::City]);
-  pU::replaceOccurence(farmContent, "templateLocators",
-                       locatorContent[LocationType::Farm]);
+  pU::replaceOccurence(farmContent, "templateLocators", "");
+  /* Until figured out why farm locators close to the coast crash the game, this
+  is removed */
+  // pU::replaceOccurence(farmContent, "templateLocators",
+  //                      locatorContent[LocationType::Farm]);
   pU::replaceOccurence(mineContent, "templateLocators",
                        locatorContent[LocationType::Mine]);
   pU::replaceOccurence(portContent, "templateLocators",

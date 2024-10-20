@@ -154,10 +154,30 @@ void Splnet::constructSplnet(
           Strip strip;
 
           strip.ID2 = 0;
-          auto startID = locationToAnchorID.at(source);
-          auto targetID = locationToAnchorID.at(destination);
-          strip.anchorEntries.push_back(
-              StripAnchorEntry{0x14, locationToAnchorID.at(source)});
+          if (source == nullptr) {
+            std::cout << "NULL" << std::endl;
+          }
+
+          try {
+            if (locationToAnchorID.find(source) == locationToAnchorID.end()) {
+
+              std::cerr << "Source not found in locationToAnchorID"
+                        << std::endl;
+              continue;
+            }
+          } catch (const std::exception &e) {
+            continue;
+          }
+          auto startID = 0;
+          auto targetID = 0;
+          try {
+            startID = locationToAnchorID.at(source);
+            targetID = locationToAnchorID.at(destination);
+            strip.anchorEntries.push_back(
+                StripAnchorEntry{0x14, locationToAnchorID.at(source)});
+          } catch (const std::exception &e) {
+            continue;
+          }
           // if the startAnchor is higher than the targetAnchor, swap them
           if (startID > targetID || startID == targetID ||
               source->land != destination->land) {
@@ -210,11 +230,13 @@ void Splnet::constructSplnet(
 
   // sort the anchors, strips and segments
   std::sort(anchors.begin(), anchors.end(),
-      			[](const Anchor &a, const Anchor &b) { return a.ID < b.ID; });
+            [](const Anchor &a, const Anchor &b) { return a.ID < b.ID; });
   std::sort(strips.begin(), strips.end(),
-      			[](const Strip &a, const Strip &b) { return a.ID < b.ID; });
+            [](const Strip &a, const Strip &b) { return a.ID < b.ID; });
   std::sort(segments.begin(), segments.end(),
-      	  			[](const Segment &a, const Segment &b) { return a.Idblock0 < b.Idblock0; });
+            [](const Segment &a, const Segment &b) {
+              return a.Idblock0 < b.Idblock0;
+            });
 
   if (strips.size())
     strips.back().unknown11 = 0x04;

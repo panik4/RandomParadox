@@ -4,12 +4,6 @@
 #include <map>
 namespace Scenario {
 enum class LocatorType { NONE, CITY, FARM, MINE, PORT, WOOD };
-struct Locator {
-  LocatorType type = LocatorType::NONE;
-  float xPos;
-  float yPos;
-};
-
 class Region : public Fwg::Region {
   std::vector<std::string> cores;
 
@@ -64,5 +58,8 @@ public:
   void findWaterLocator(int maxAmount = 1);
 
   void findWaterPortLocator(int maxAmount = 1);
+
+  std::shared_ptr<Fwg::Civilization::Location>
+  getLocation(Fwg::Civilization::LocationType type);
 };
 } // namespace Scenario

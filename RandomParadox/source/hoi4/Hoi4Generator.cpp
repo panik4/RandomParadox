@@ -259,7 +259,7 @@ void Generator::generateStateSpecifics() {
           location->secondaryType == Fwg::Civilization::LocationType::Port) {
         hoi4State->navalBases[location->provinceID] =
             std::max<double>(location->importance / maxImportance, 1.0);
-        Fwg::Utils::Logging::logLine("Naval base in ", hoi4State->name, " at ",
+        Fwg::Utils::Logging::logLineLevel(5,"Naval base in ", hoi4State->name, " at ",
                                      location->provinceID, " with importance ",
                                      location->importance);
       }

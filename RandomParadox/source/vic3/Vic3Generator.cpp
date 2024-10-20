@@ -510,11 +510,41 @@ void Generator::distributeBuildings() {
         }
       }
     }
+    // now distribute ports
+    for (auto &region : country->ownedVic3Regions) {
+      if (Cfg::Values().debugLevel > 9) {
+        if (region->coastal) {
+          // try to find a port location
+          auto portLocator =
+              region->getLocation(Fwg::Civilization::LocationType::Port);
+          if (portLocator != nullptr) {
+            // find the building in buildingsTypes with the name building_port.
+            // This is a vector we search in
+            auto portBuilding =
+                std::find_if(buildingsTypes.begin(), buildingsTypes.end(),
+                             [](BuildingType &building) {
+                               return building.name == "building_port";
+                             });
+            region->buildings.emplace(
+                "building_port",
+                Building{*portBuilding, 1,
+                         portBuilding->productionMethods.at("pm_basic_port")});
+          }
+        }
+      }
+    }
   }
 }
 
 void Generator::createLocators() {
-  auto &cfg = Fwg::Cfg::Values();
+  auto &config = Fwg::Cfg::Values();
+  std::vector<bool> binaryLandMap(config.width * config.height);
+  Fwg::Gfx::Bitmap debugImage = heightMap;
+
+  for (auto i = 0; i < heightMap.size(); i++) {
+    binaryLandMap[i] = detailedHeightMap[i] <= config.seaLevel ? false : true;
+  }
+  auto searchVector = Fwg::Utils::getCircularOffsets(config.width, 10);
 
   for (auto &region : vic3Regions) {
     region->significantLocations.clear();
@@ -529,17 +559,67 @@ void Generator::createLocators() {
     } else if (region->sea) {
       region->findWaterLocator();
     }
-    //if (!region->significantLocations.size()) {
+    //// now overwrite the locator position for the farm - we want to find the
+    //// point most distant to the coast, if this is a coastal region
+    // if (region->coastal) {
+    //   // get the farm locator
+    //   auto farmLocator =
+    //       region->getLocation(Fwg::Civilization::LocationType::Farm);
+    //   if (farmLocator != nullptr) {
+    //     // gather all region pixels
+    //     std::vector<int> regionPixels;
+    //     for (auto &prov : region->provinces) {
+    //       for (auto &pix : prov->pixels) {
+    //         regionPixels.push_back(pix);
+    //       }
+    //     }
 
-    //  Fwg::Utils::Logging::logLine(
-    //      "Warning: No significant locations found in ", region->name);
-    //  // print more region information: type, size, province amount, etc.
-    //  Fwg::Utils::Logging::logLine("Region sea?: ", region->sea);
-    //  Fwg::Utils::Logging::logLine("Region lake?: ", region->lake);
-    //  Fwg::Utils::Logging::logLine("Region size: ", region->provinces.size());
-
+    //    auto ogPosition = farmLocator->position.weightedCenter;
+    //    auto circDistance = Fwg::HeightGeneration::circularDistance(
+    //        binaryLandMap, config.width, farmLocator->position.weightedCenter,
+    //        config.seaLevel, searchVector, 10, true);
+    //    if (circDistance < 5) {
+    //      // now try to find the most distant point in this whole region
+    //      auto maxDistance = 0;
+    //      auto maxIndex = 0;
+    //      for (auto &pix : regionPixels) {
+    //        auto distance = Fwg::HeightGeneration::circularDistance(
+    //            binaryLandMap, config.width, pix, config.seaLevel,
+    //            searchVector, 10, true);
+    //        if (distance > maxDistance) {
+    //          maxDistance = distance;
+    //          maxIndex = pix;
+    //        }
+    //        debugImage.setColourAtIndex(
+    //            pix, Fwg::Gfx::Colour(static_cast<int>(25.0 * distance), 0,
+    //            0));
+    //      }
+    //      farmLocator->position.weightedCenter = maxIndex;
+    //      farmLocator->position.widthCenter = maxIndex % config.width;
+    //      farmLocator->position.heightCenter = maxIndex / config.width;
+    //      if (maxDistance < 5) {
+    //        std::cout << "Warning: Farm locator still too close to coast"
+    //                  << std::endl;
+    //        debugImage.setColourAtIndex(ogPosition,
+    //                                    Fwg::Gfx::Colour(128, 0, 255));
+    //        debugImage.setColourAtIndex(maxIndex,
+    //                                    Fwg::Gfx::Colour(0, 255, 255));
+    //        // we must delete it
+    //        region->significantLocations.erase(
+    //            std::remove(region->significantLocations.begin(),
+    //                        region->significantLocations.end(), farmLocator),
+    //            region->significantLocations.end());
+    //        // also clear it from region locations
+    //        region->locations.erase(std::remove(region->locations.begin(),
+    //                                            region->locations.end(),
+    //                                            farmLocator),
+    //                                region->locations.end());
+    //      }
+    //    }
+    //  }
     //}
   }
+  // Png::save(debugImage, "Maps/debugImage.png", false);
 }
 
 void Generator::calculateNavalExits() {
