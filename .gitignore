@@ -4,12 +4,6 @@
 /RandomParadox/FastWorldGen.*
 /RandomParadox/Release
 /RandomParadox/.vs/
-/FastWorldGen/Debug*
-/FastWorldGen/FastWorldGen.*
-/FastWorldGen/Release
-/FastWorldGen/FastNoiseLite
-/FastWorldGen/.vs/
-*FastWorldGen
 *.vcxproj*
 *libtga
 */Maps/*
