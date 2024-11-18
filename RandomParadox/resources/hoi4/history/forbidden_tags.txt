@@ -1,3 +1,8 @@
 # Most tags are read from the baser game anyway, these are ones that pop up randomly in the files somewhere
 # found in localisation, no history counterpart
 MAE
+AND
+NOT
+NUL
+SOU
+BLT

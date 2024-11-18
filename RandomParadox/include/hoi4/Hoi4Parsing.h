@@ -7,13 +7,14 @@
 #include "hoi4/Hoi4Generator.h"
 #include <array>
 namespace Scenario::Hoi4::Parsing {
-using hoiMap = std::map<std::string, Hoi4::Hoi4Country>;
+using CountryMap = std::map<std::string, Hoi4::Hoi4Country>;
 
 namespace Writing {
 void adj(const std::string &path);
 void adjacencyRules(const std::string &path);
 void airports(const std::string &path, const std::vector<Fwg::Region> &regions);
-void aiStrategy(const std::string &path, const hoiMap &countries);
+void aiStrategy(const std::string &path, const CountryMap &countries);
+void events(const std::string &path, const CountryMap &countries);
 void ambientObjects(const std::string &path, const Fwg::Gfx::Bitmap &heightMap);
 void buildings(const std::string &path,
                const std::vector<std::shared_ptr<Region>> &regions,
@@ -37,28 +38,28 @@ void weatherPositions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
                       std::vector<StrategicRegion> &strategicRegions);
 // gfx
-void flags(const std::string &path, const hoiMap &countries);
+void flags(const std::string &path, const CountryMap &countries);
 
 // history
 void states(const std::string &path,
             const std::vector<std::shared_ptr<Region>> &regions);
-void historyCountries(const std::string &path, const hoiMap &countries);
-void historyUnits(const std::string &path, const hoiMap &countries);
-void foci(const std::string &path, const hoiMap &countries,
+void historyCountries(const std::string &path, const CountryMap &countries);
+void historyUnits(const std::string &path, const CountryMap &countries);
+void foci(const std::string &path, const CountryMap &countries,
           const NameGeneration::NameData &nData);
 
 // common
 void commonBookmarks(
-    const std::string &path, const hoiMap &countries,
+    const std::string &path, const CountryMap &countries,
     const std::map<int, std::vector<std::string>> &strengthScores);
 void commonCountries(const std::string &path, const std::string &hoiPath,
-                     const hoiMap &countries);
-void commonCountryTags(const std::string &path, const hoiMap &countries);
+                     const CountryMap &countries);
+void commonCountryTags(const std::string &path, const CountryMap &countries);
 
 // localisation
-void countryNames(const std::string &path, const hoiMap &countries,
+void countryNames(const std::string &path, const CountryMap &countries,
                   const NameGeneration::NameData &nData);
-void stateNames(const std::string &path, const hoiMap &countries);
+void stateNames(const std::string &path, const CountryMap &countries);
 void strategicRegionNames(const std::string &path,
                           const std::vector<StrategicRegion> &strategicRegions);
 void victoryPointNames(const std::string &path,
@@ -68,6 +69,8 @@ void tutorials(const std::string &path);
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
                           const std::vector<Fwg::Region> &regions);
 void scriptedTriggers(std::string gamePath, std::string modPath);
+
+void commonFiltering(const std::string& gamePath, const std::string& modPath);
 
 } // namespace Writing
 

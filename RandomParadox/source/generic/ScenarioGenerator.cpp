@@ -350,6 +350,37 @@ void Generator::generateStrategicRegions() {
   strategicRegions.clear();
   stratRegionMap.clear();
   std::set<int> assignedIDs;
+  // gather all non contiguous regions
+  std::vector<std::shared_ptr<Region>> nonContiguousRegions;
+  for (auto &region : gameRegions) {
+    if (!region->isContiguos()) {
+      nonContiguousRegions.push_back(region);
+    }
+  }
+  //// assign each non contiguous region to a strategic region
+  // for (auto &region : nonContiguousRegions) {
+  //   StrategicRegion stratRegion;
+  //   stratRegion.ID = strategicRegions.size();
+  //   stratRegion.addRegion(region);
+  //   assignedIDs.insert(region->ID);
+  //   for (auto &neighbourID : region->neighbours) {
+  //     // should be equal in sea/land
+  //     if (neighbourID > gameRegions.size())
+  //       continue;
+  //     auto neighbourRegion = gameRegions[neighbourID];
+  //     if (assignedIDs.find(neighbourID) == assignedIDs.end()) {
+  //       stratRegion.addRegion(neighbourRegion);
+  //       assignedIDs.insert(neighbourID);
+  //     }
+  //   }
+  //   stratRegion.name = NameGeneration::generateName(nData);
+  //   Colour c{static_cast<unsigned char>(RandNum::getRandom(255)),
+  //            static_cast<unsigned char>(RandNum::getRandom(255)),
+  //            static_cast<unsigned char>(region->sea ? 255 : 0)};
+  //   stratRegion.colour = c;
+  //   strategicRegions.push_back(stratRegion);
+  // }
+
   auto idcounter = 0;
   for (auto &region : gameRegions) {
     if (assignedIDs.find(region->ID) == assignedIDs.end()) {

@@ -1,0 +1,15 @@
+{
+	"fastworldgen":
+	{
+		"loadMapsPath": "",
+		"heightMapName": ""
+	},
+	"vic3":
+	{
+
+	},
+	"scenario":
+	{
+		"numCountries" : 20
+	}
+}

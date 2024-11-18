@@ -122,15 +122,21 @@ void Region::calculateBuildingPositions(const Fwg::Gfx::Bitmap &heightmap,
           buildings.push_back(getBuilding(type, *this, false, heightmap));
         }
       }
+    } else if (type == "special_project_facility_spawn") {
+      for (const auto &prov : provinces) {
+        if (!prov->isLake && !prov->sea) {
+          buildings.push_back(getBuilding(type, *this, false, heightmap));
+        }
+      }
     } else if (type == "anti_air_building") {
       for (auto i = 0; i < 3; i++)
         buildings.push_back(getBuilding(type, *this, false, heightmap));
-    } else if (type == "coastal_bunker" || type == "naval_base") {
+    } else if (type == "coastal_bunker" || type == "naval_base_spawn") {
       for (const auto &prov : provinces) {
         if (prov->coastal) {
           auto pix = Fwg::Utils::selectRandom(prov->coastalPixels);
           int ID = 0;
-          if (type == "naval_base") {
+          if (type == "naval_base_spawn") {
             // find the ocean province this coastal building is next to
             for (const auto &neighbour : prov->neighbours)
               if (neighbour->sea && !neighbour->isLake)

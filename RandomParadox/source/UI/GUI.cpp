@@ -115,7 +115,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
   activeModule->generator->climateData.addSecondaryColours(
       Fwg::Parsing::getLines("resources/hoi4/colourMappings.txt"));
   initAllowedInput(cfg, activeModule->generator->climateData,
-                   activeModule->generator->terrainGenerator.elevationTypes);
+                   activeModule->generator->terrainData.elevationTypes);
   initGameConfigs();
   this->uiUtils->loadHelpTextsFromFile("resources//uiHelpTexts.txt");
   uiUtils->setClickOffsets(cfg.width, 1);
@@ -499,7 +499,7 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
   ImGui::TextUnformatted(log->str().c_str());
   bool success = true;
   initAllowedInput(cfg, generator.climateData,
-                   generator.terrainGenerator.elevationTypes);
+                   generator.terrainData.elevationTypes);
   if (!ImGui::IsWindowHovered()) {
     // scroll to bottom
     ImGui::SetScrollHereY(1.0f);
@@ -713,6 +713,14 @@ bool GUI::scenarioGenReady(bool printIssue) {
       Fwg::Utils::Logging::logLine("You seem to not have generated data in the "
                                    "civilisation tab, or it is "
                                    "of the wrong size");
+    }
+    ready = false;
+  }
+  if (!generator->developmentMap.size() || !generator->populationMap.size() ||
+      !generator->locationMap.size()) {
+    if (printIssue) {
+      Fwg::Utils::Logging::logLine("You seem to not have generated data in the "
+                                   "locations tab");
     }
     ready = false;
   }
@@ -954,17 +962,18 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     ImGui::Text(str.c_str());
     // drag event
     if (triggeredDrag) {
-      if (draggedFile.contains(".txt")) {
-        if (draggedFile.contains("states.txt") ||
-            draggedFile.contains("stateMappings.txt")) {
+      if (draggedFile.find(".txt") != std::string::npos) {
+        if (draggedFile.find("states.txt") != std::string::npos ||
+            draggedFile.find("stateMappings.txt") != std::string::npos) {
           Fwg::Utils::Logging::logLine(
               "Applying state input from file: ",
               Fwg::Utils::userFilter(draggedFile, cfg.username));
           generator->regionMappingPath = draggedFile;
           generator->applyRegionInput();
 
-        } else if (draggedFile.contains("countries.txt") ||
-                   draggedFile.contains("countryMappings.txt")) {
+        } else if (draggedFile.find("countries.txt") != std::string::npos ||
+                   draggedFile.find("countryMappings.txt") !=
+                       std::string::npos) {
           Fwg::Utils::Logging::logLine(
               "Applying country input from file: ",
               Fwg::Utils::userFilter(draggedFile, cfg.username));
