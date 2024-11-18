@@ -257,7 +257,7 @@ Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
   auto &conf = Cfg::Values();
   std::string sourceMap{conf.loadMapsPath + path};
   Fwg::Utils::Logging::logLine("CUTTING mode: Cutting Map from ", sourceMap);
-  Bitmap baseMap = Bmp::load24Bit(sourceMap, "");
+  Bitmap baseMap = Fwg::IO::Reader::readGenericImage(sourceMap, conf);
   auto cutBase = Bmp::cut(baseMap, conf.minX * factor, conf.maxX * factor,
                           conf.minY * factor, conf.maxY * factor, factor);
   if (conf.scale) {
@@ -270,7 +270,8 @@ Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
 void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
                                         const std::string &path,
                                         const std::string &colourMapKey) const {
-  Utils::Logging::logLine("FormatConverter::Copying heightmap to ", path);
+  Utils::Logging::logLine("FormatConverter::Copying heightmap to ",
+                          Fwg::Utils::userFilter(path, Cfg::Values().username));
   if (gameTag == "Vic3") {
     // need to scale to default vic3 map sizes, due to their compression
     int width = heightMap.width();
@@ -308,17 +309,17 @@ void FormatConverter::dump8BitTerrain(
     for (auto i = 0; i < conf.bitmapSize; i++) {
       int elevationMod = 0;
       auto elevationType = climateIn.landForms[i].landForm;
-      if (elevationType == ElevationTypeIndex::HILLS) {
+      if (elevationType == Terrain::ElevationTypeIndex::HILLS) {
         elevationMod = 100;
-      } else if (elevationType == ElevationTypeIndex::MOUNTAINS) {
+      } else if (elevationType == Terrain::ElevationTypeIndex::MOUNTAINS) {
         elevationMod = 200;
-      } else if (elevationType == ElevationTypeIndex::PEAKS) {
+      } else if (elevationType == Terrain::ElevationTypeIndex::PEAKS) {
         elevationMod = 300;
-      } else if (elevationType == ElevationTypeIndex::STEEPPEAKS) {
+      } else if (elevationType == Terrain::ElevationTypeIndex::STEEPPEAKS) {
         elevationMod = 300;
-      } else if (elevationType == ElevationTypeIndex::CLIFF) {
+      } else if (elevationType == Terrain::ElevationTypeIndex::CLIFF) {
         elevationMod = 200;
-      } else if (elevationType == ElevationTypeIndex::LOWHILLS) {
+      } else if (elevationType == Terrain::ElevationTypeIndex::LOWHILLS) {
         elevationMod = 100;
       }
 
@@ -351,7 +352,9 @@ void FormatConverter::dump8BitCities(const Bitmap &climateIn,
                                      const std::string &path,
                                      const std::string &colourMapKey,
                                      const bool cut) const {
-  Utils::Logging::logLine("FormatConverter::Writing cities to ", path);
+  Utils::Logging::logLine(
+      "FormatConverter::Writing cities to ",
+      Fwg::Utils::userFilter(path, Cfg::Values().username));
   Bitmap cities(Cfg::Values().width, Cfg::Values().height, 8);
   cities.colourtable = colourTables.at(colourMapKey + gameTag);
   if (!cut) {
@@ -370,7 +373,8 @@ void FormatConverter::dump8BitRivers(
     const Fwg::ClimateGeneration::ClimateData &climateIn,
     const std::string &path, const std::string &colourMapKey,
     const bool cut) const {
-  Utils::Logging::logLine("FormatConverter::Writing rivers to ", path);
+  Utils::Logging::logLine("FormatConverter::Writing rivers to ",
+                          Fwg::Utils::userFilter(path, Cfg::Values().username));
 
   Bitmap riverMap(Cfg::Values().width, Cfg::Values().height, 8);
   riverMap.colourtable = colourTables.at(colourMapKey + gameTag);
@@ -410,12 +414,26 @@ void FormatConverter::dump8BitTrees(
     const Fwg::ClimateGeneration::ClimateData &climateIn,
     const std::string &path, const std::string &colourMapKey,
     const bool cut) const {
-  Utils::Logging::logLine("FormatConverter::Writing trees to ", path);
-  const double width = Cfg::Values().width;
+  auto &conf = Cfg::Values();
+  Utils::Logging::logLine("FormatConverter::Writing trees to ",
+                          Fwg::Utils::userFilter(path, conf.username));
+  const double width = conf.width;
   constexpr auto factor = 3.4133333333333333333333333333333;
-  Bitmap trees(((double)Cfg::Values().width / factor),
-               ((double)Cfg::Values().height / factor), 8);
+  Bitmap trees(((double)conf.width / factor), ((double)conf.height / factor),
+               8);
   trees.colourtable = colourTables.at(colourMapKey + gameTag);
+  // we have to remove all coastal trees, as the downscaling can cause trees to appear in the water
+  auto treeCoverage = climateIn.treeCoverage;
+  std::vector<int> offsets = {1, -1, conf.width, -conf.width, 2, -2, 2*conf.width, -2*conf.width};
+  for (auto i = 0; i < treeCoverage.size(); i++) {
+    for (auto offset : offsets) {
+      if (i + offset < treeCoverage.size() && i + offset >= 0) {
+        if (climateIn.landForms[i + offset].altitude <= 0.0) {
+          treeCoverage[i] = Fwg::ClimateGeneration::Detail::TreeTypeIndex::NONE;
+        }
+      }
+    }
+  }
 
   if (!cut) {
     for (auto i = 0; i < trees.height(); i++) {
@@ -424,7 +442,7 @@ void FormatConverter::dump8BitTrees(
         double refWidth =
             std::clamp((double)w * factor, 0.0, (double)Cfg::Values().width);
         auto treeType =
-            (int)climateIn.treeCoverage[refHeight * width + refWidth];
+            (int)treeCoverage[refHeight * width + refWidth];
         if (climateIn.dominantForest[refHeight * width + refWidth]) {
           // map the colour from
           trees.setColourAtIndex(
@@ -575,6 +593,7 @@ void FormatConverter::dumpWorldNormal(const Bitmap &sobelMap,
 FormatConverter::FormatConverter(const std::string &gamePath,
                                  const std::string &gameTag)
     : gamePath{gamePath}, gameTag{gameTag} {
+  auto &conf = Cfg::Values();
   std::string mapFolderName = "//map";
   if (gameTag == "Vic3") {
     mapFolderName.append("_data");
@@ -582,23 +601,27 @@ FormatConverter::FormatConverter(const std::string &gamePath,
   }
   std::string terrainsourceString =
       (gamePath + mapFolderName + "//terrain.bmp");
-  Bitmap terrain = Bmp::load24Bit(terrainsourceString, "terrain");
+  Bitmap terrain =
+      Fwg::IO::Reader::readGenericImage(terrainsourceString, conf);
   colourTables["terrain" + gameTag] = terrain.colourtable;
 
   std::string citySource = (gamePath + mapFolderName + "//terrain.bmp");
-  Bitmap cities = Bmp::load24Bit(citySource, "cities");
+  Bitmap cities = Fwg::IO::Reader::readGenericImage(citySource, conf);
   colourTables["cities" + gameTag] = cities.colourtable;
 
   std::string riverSource = (gamePath + mapFolderName + "//rivers.bmp");
-  Bitmap rivers = Bmp::load24Bit(riverSource, "rivers");
+  Bitmap rivers = Fwg::IO::Reader::readGenericImage(riverSource, conf);
   colourTables["rivers" + gameTag] = rivers.colourtable;
 
   std::string treeSource = (gamePath + mapFolderName + "//trees.bmp");
-  Bitmap trees = Bmp::load24Bit(treeSource, "trees");
+  auto cut = conf.cut;
+  conf.cut = false;
+  Bitmap trees = Fwg::IO::Reader::readGenericImage(treeSource, conf, false);
+  conf.cut = cut;
   colourTables["trees" + gameTag] = trees.colourtable;
 
   std::string heightmapSource = (gamePath + mapFolderName + "//heightmap.bmp");
-  Bitmap heightmap = Bmp::load24Bit(heightmapSource, "heightmap");
+  Bitmap heightmap = Fwg::IO::Reader::readGenericImage(heightmapSource, conf);
   colourTables["heightmap" + gameTag] = heightmap.colourtable;
 }
 

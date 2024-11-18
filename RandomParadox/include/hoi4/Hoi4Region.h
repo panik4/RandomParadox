@@ -12,18 +12,21 @@ struct VictoryPoint {
 
 class Region : public Scenario::Region {
   const std::vector<std::string> buildingTypes{
-      "arms_factory",    "industrial_complex", "air_base",
-      "bunker",          "coastal_bunker",     "dockyard",
-      "naval_base",      "anti_air_building",  "synthetic_refinery",
-      "nuclear_reactor", "rocket_site",        "radar_station",
-      "fuel_silo",       "floating_harbor"};
+      "arms_factory",       "industrial_complex",
+      "air_base",           "bunker",
+      "coastal_bunker",     "dockyard",
+      "naval_base_spawn",   "anti_air_building",
+      "synthetic_refinery", "nuclear_reactor_spawn",
+      "rocket_site_spawn",  "radar_station",
+      "fuel_silo",          "floating_harbor",
+      "stronghold_network", "special_project_facility_spawn"};
 
 public:
   // member variables
   int armsFactories;
   int civilianFactories;
   int dockyards;
-  
+
   int infrastructure;
   int stateCategory;
   int stratID;

@@ -27,6 +27,7 @@ bool Hoi4Module::createPaths() {
     // map
     remove_all(pathcfg.gameModPath + "//map//");
     remove_all(pathcfg.gameModPath + "//gfx");
+    remove_all(pathcfg.gameModPath + "//events//");
     remove_all(pathcfg.gameModPath + "//history");
     remove_all(pathcfg.gameModPath + "//common//");
     remove_all(pathcfg.gameModPath + "//localisation//");
@@ -57,7 +58,7 @@ bool Hoi4Module::createPaths() {
     create_directory(pathcfg.gameModPath + "//common//countries//");
     create_directory(pathcfg.gameModPath + "//common//bookmarks//");
     create_directory(pathcfg.gameModPath + "//common//country_tags//");
-    // create_directory(pathcfg.gameModPath + "//common//scripted_triggers//");
+    create_directory(pathcfg.gameModPath + "//common//scripted_triggers//");
     //
     create_directory(pathcfg.gameModPath + "//tutorial//");
     return true;
@@ -176,6 +177,7 @@ void Hoi4Module::writeTextFiles() {
                        pathcfg.gamePath, hoi4Gen->areas.regions);
   /*scriptedTriggers(pathcfg.gamePath + "//common//scripted_triggers//",
                    pathcfg.gameModPath + "//common//scripted_triggers//");*/
+  commonFiltering(pathcfg.gamePath, pathcfg.gameModPath);
   historyCountries(pathcfg.gameModPath + "//history//countries//",
                    hoi4Gen->hoi4Countries);
   historyUnits(pathcfg.gameModPath + "//history//units//",
@@ -195,6 +197,7 @@ void Hoi4Module::writeTextFiles() {
              hoi4Gen->areas.continents);
   definition(pathcfg.gameModPath + "//map//definition.csv",
              hoi4Gen->gameProvinces);
+  events(pathcfg.gameModPath + "//", hoi4Gen->hoi4Countries);
   unitStacks(pathcfg.gameModPath + "//map//unitstacks.txt",
              hoi4Gen->areas.provinces, hoi4Gen->hoi4States, hoi4Gen->heightMap);
   rocketSites(pathcfg.gameModPath + "//map//rocketsites.txt",

@@ -12,8 +12,10 @@ using namespace Fwg;
 void dumpInfo(const std::string &error, const std::string &configSubFolder) {
   std::string dump = "";
   std::string path = configSubFolder;
-  for (const auto &entry : std::filesystem::directory_iterator(path)) {
-    dump += Fwg::Parsing::readFile(entry.path().string());
+  if (path.length() > 0) {
+    for (const auto &entry : std::filesystem::directory_iterator(path)) {
+      dump += Fwg::Parsing::readFile(entry.path().string());
+    }
   }
   dump += std::to_string(Cfg::Values().seed);
   dump += "\n";
@@ -27,17 +29,19 @@ void dumpInfo(const std::string &error, const std::string &configSubFolder) {
 }
 
 int main() {
-
+  Fwg::Utils::Logging::logLine("Starting the config loading");
   // Short alias for this namespace
   namespace pt = boost::property_tree;
   // Create a root
+
   pt::ptree metaConf;
   try {
-    // Read the basic settings
+    Fwg::Utils::Logging::logLine("Starting the loading of MetaConf.json");
     std::ifstream f("MetaConf.json");
     std::stringstream buffer;
-    if (!f.good())
+    if (!f.good()) {
       Utils::Logging::logLine("Config could not be loaded");
+    }
     buffer << f.rdbuf();
     Parsing::replaceInStringStream(buffer, "\\", "//");
     pt::read_json(buffer, metaConf);
@@ -57,6 +61,8 @@ int main() {
   // Create a ptree
   pt::ptree rpdConf;
   try {
+    Fwg::Utils::Logging::logLine(
+        "Starting the loading of configs//RandomParadox.json");
     // Read the basic settings
     std::ifstream f("configs//RandomParadox.json");
     std::stringstream buffer;
@@ -82,6 +88,8 @@ int main() {
   auto &config = Cfg::Values();
   // check if we can read the config
   try {
+    Fwg::Utils::Logging::logLine("Starting the loading of ",
+                                 configSubFolder + "FastWorldGenerator.json");
     config.readConfig(configSubFolder + "FastWorldGenerator.json");
   } catch (std::exception e) {
     Utils::Logging::logLine("Incorrect config \"FastWorldGenerator.json\"");
@@ -94,10 +102,13 @@ int main() {
     return -1;
   }
   try {
+    Fwg::Utils::Logging::logLine("Creating the exports folder");
     // make sure we always have the default exports directory
     std::filesystem::create_directory("exports//");
     GUI gui2;
+    Fwg::Utils::Logging::logLine("Starting the GUI");
     gui2.shiny(rpdConf, configSubFolder, username);
+    Fwg::Utils::Logging::logLine("Exited the GUI");
     dumpInfo("", configSubFolder);
   } catch (std::exception e) {
     Utils::Logging::logLine(e.what());

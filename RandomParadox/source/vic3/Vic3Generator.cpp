@@ -46,7 +46,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
         int forestPixels = 0;
         std::map<ClimateGeneration::Detail::ClimateTypeIndex, int>
             climateScores;
-        std::map<Fwg::ElevationTypeIndex, int> terrainTypeScores;
+        std::map<Fwg::Terrain::ElevationTypeIndex, int> terrainTypeScores;
         // get the dominant climate of the province
         for (auto &pix : baseProv->pixels) {
           climateScores[climates[pix].getChances(0).second]++;
@@ -69,14 +69,14 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
                 ->first;
         // now first check the terrains, if e.g. mountains or peaks are too
         // dominant, this is a mountainous province
-        if (dominantTerrain == Fwg::ElevationTypeIndex::MOUNTAINS ||
-            dominantTerrain == Fwg::ElevationTypeIndex::PEAKS ||
-            dominantTerrain == Fwg::ElevationTypeIndex::STEEPPEAKS) {
+        if (dominantTerrain == Fwg::Terrain::ElevationTypeIndex::MOUNTAINS ||
+            dominantTerrain == Fwg::Terrain::ElevationTypeIndex::PEAKS ||
+            dominantTerrain == Fwg::Terrain::ElevationTypeIndex::STEEPPEAKS) {
           gameProv->terrainType = "mountain";
           for (auto &pix : baseProv->pixels) {
             typeMap.setColourAtIndex(pix, elevationColours.at("mountains"));
           }
-        } else if (dominantTerrain == Fwg::ElevationTypeIndex::HILLS) {
+        } else if (dominantTerrain == Fwg::Terrain::ElevationTypeIndex::HILLS) {
           gameProv->terrainType = "hills";
           for (auto &pix : baseProv->pixels) {
             typeMap.setColourAtIndex(pix, elevationColours.at("hills"));

@@ -433,7 +433,7 @@ void FormatConverter::detailMaps(
     const Fwg::ClimateGeneration::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer,
     const std::string &path) {
-  using Et = Fwg::ElevationTypeIndex;
+  using Et = Fwg::Terrain::ElevationTypeIndex;
   using Clt = Fwg::ClimateGeneration::Detail::ClimateTypeIndex;
   using ft = Fwg::ClimateGeneration::Detail::TreeTypeIndex;
   std::map<Et, int> elevationMap{
@@ -517,8 +517,8 @@ void FormatConverter::detailMaps(
     }
 
     auto elevType = climateData.landForms[i].landForm;
-    if (elevType != ElevationTypeIndex::PLAINS &&
-        elevType != ElevationTypeIndex::HIGHLANDS) {
+    if (elevType != Terrain::ElevationTypeIndex::PLAINS &&
+        elevType != Terrain::ElevationTypeIndex::HIGHLANDS) {
       colour[2] = elevationMap.at(elevType);
       intensities[2] =
           std::clamp(climateData.landForms[i].inclination * 0.5f, 0.0f, 1.0f);

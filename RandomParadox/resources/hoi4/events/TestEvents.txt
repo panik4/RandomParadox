@@ -1,0 +1,436 @@
+﻿###########################
+# Test Events
+###########################
+
+add_namespace = test
+
+# Test Event 1
+country_event = {
+	id = test.1
+	title = test.1.t
+	desc = test.1.d
+	
+	immediate = {
+		set_variable = { testio = deployed_airforce_manpower_k }
+		set_variable = { testio1 = deployed_navy_manpower_k }
+		set_variable = { testio2 = deployed_army_manpower_k }
+		set_variable = { testio3 = deployed_total_manpower_k }
+	}
+	trigger = {
+	}
+
+	is_triggered_only = yes
+	
+	option = {
+		name = test.1.a
+		add_manpower = var:testio
+		add_manpower = var:testio1
+		add_manpower = var:testio2
+		add_manpower = var:testio3
+	}
+}
+
+add_namespace = test_state
+# Test Event 1
+state_event = {
+	id = test_state.1
+	title = test_state.1.t
+	desc = test_state.1.d
+	
+	trigger = {
+
+	}
+
+	is_triggered_only = yes
+	
+	option = {
+		name = test_state.1.a		
+	}
+}
+
+# Test Event 1
+country_event = {
+	id = test.2
+	title = test.1.t
+	desc = test.2.d
+	
+	trigger = {
+	}
+
+	is_triggered_only = yes
+	
+	option = {
+		name = test.1.a
+		
+	}
+}
+
+# Test Event 3
+country_event = {
+	id = test.3
+	title = test.3.t
+	desc = test.3.d
+	
+	is_triggered_only = yes
+
+	immediate = {
+		add_autonomy_score = {
+			value = 10
+			localization = "TEST_EVENT_3_IMMEDIATE: $VAL|+=2$"
+		}
+	}
+	
+	option = {
+		name = test.3.a
+		RAJ = {
+			add_autonomy_score = {
+				value = 5
+				localization = "TEST_EVENT_3_OPTION: $VAL|+=2$"
+			}
+		}
+	}
+}
+
+country_event = { 
+	id = test.4
+	title = test.4.t
+	desc = test.4.d
+	
+	immediate = {
+		
+	}
+	trigger = {
+		any_country_division = {
+			unit_organization > 80
+		}
+	}
+
+	is_triggered_only = yes
+	
+	option = {
+		name = test.1.a
+		random_country_division = {
+			limit = {
+				unit_organization > 1
+			}
+			save_global_event_target_as = a_dude
+		}
+	}
+	
+	option = {
+		name = test.1.b
+		event_target:a_dude = {
+			change_division_template = {
+				division_template = "Panzer-Division"
+			}
+		}
+	}
+}
+
+country_event = {
+	id = generic.1011
+	title = generic.1011.t
+	desc = test_border_war_loc
+	
+	picture = GFX_report_event_physics_lab_01
+
+	is_triggered_only = yes
+
+	immediate = {
+		ROOT = { save_event_target_as = our_country }
+		FROM = { save_event_target_as = our_state }
+		FROM.FROM = { save_event_target_as = their_country }
+		FROM.FROM.FROM = { save_event_target_as = their_state }
+	}
+	
+	option = {
+		name = generic.10.a
+
+		event_target:our_country = {
+			add_political_power = 100
+		}
+		event_target:their_country = { add_political_power = 100 }
+
+		FROM = {
+			add_building_construction = {
+				type = air_base
+				level = 2
+				instant_build = yes
+			}
+		}
+		FROM.FROM.FROM = {
+			add_building_construction = {
+				type = air_base
+				level = 2
+				instant_build = yes
+			}
+		}
+
+	}	
+}
+country_event = {
+	id = generic.1012
+	title = generic.1012.t
+	desc = test_border_war_loc
+	
+	picture = GFX_report_event_physics_lab_01
+
+	is_triggered_only = yes
+	
+	option = {
+		name = generic.10.a
+		add_political_power = 200
+	}	
+}
+
+country_event = {
+	id = generic.1013
+	title = generic.1013.t
+	desc = tanktest
+	
+	picture = GFX_report_event_physics_lab_01
+
+	is_triggered_only = yes
+	
+	option = {
+		name = generic.1013.a
+		GER = {
+			if = {
+				limit = { has_dlc = "Death or Dishonor" }
+				create_production_license = {
+					target = ROOT
+					equipment = {
+						type = light_tank_chassis_2						
+					}
+					cost_factor = 0
+				}
+			}
+			ROOT = {
+				add_equipment_to_stockpile = {
+					type = light_tank_chassis_2
+					amount = 360
+					producer = PREV
+				} 
+			}
+		}
+	}	
+}
+
+country_event = {
+	id = test.200
+	title = test.200.t
+	desc = test.200.d
+	
+	immediate = {
+		
+	} 
+	trigger = {
+		manpower_per_military_factory >  5000
+	} 
+
+	is_triggered_only = yes
+	
+	option = {
+		name = test.200.a
+	}
+}
+
+add_namespace = performance_test
+
+
+country_event = {
+	id = performance_test.1
+	title = "Performance Test Event"
+	desc = "The tooltip lies."
+	
+	picture = GFX_report_event_physics_lab_01
+
+	is_triggered_only = yes
+	
+	option = {
+		name = "Cry Havoc!"
+		every_country = { #setup techs 
+			set_technology = {
+				gw_artillery = 1
+				tech_support = 1
+				fighter1 = 1
+				CAS1 = 1
+				interwar_artillery = 1
+				interwar_antitank = 1
+				interwar_antiair = 1
+				artillery1 = 1
+				artillery2 = 1
+				artillery3 = 1
+				artillery4 = 1
+				infantry_weapons1 = 1
+				infantry_weapons2 = 1
+				improved_infantry_weapons = 1
+				improved_infantry_weapons_2 = 1
+				infantry_at = 1
+				support_weapons = 1
+				support_weapons2 = 1
+				support_weapons3 = 1
+				support_weapons4 = 1
+				tech_engineers = 1
+				tech_engineers2 = 1
+				tech_engineers3 = 1
+				tech_recon = 1
+				tech_recon2 = 1
+				tech_recon3 = 1
+			}
+		}
+		ITA = {
+			annex_country = { target = ETH }
+		}
+		GER = {
+			annex_country = { target = CZE }
+			annex_country = { target = AUS }
+		}
+		USA = {
+			remove_ideas = {
+				great_depression
+				undisturbed_isolation
+			}
+			add_ideas = {
+				civilian_economy
+			}
+
+		}
+		every_country = { #setup units
+			division_template = {
+			name = "Legion of the Damned"
+			priority = 1
+			is_locked = yes
+				regiments = {
+					infantry = { x = 0 y = 0 }
+					infantry = { x = 0 y = 1 }
+					infantry = { x = 0 y = 2 }
+				
+					infantry = { x = 1 y = 0 }
+					infantry = { x = 1 y = 1 }
+					infantry = { x = 1 y = 2 }
+		
+					artillery_brigade = { x = 2 y = 0 }
+					artillery_brigade = { x = 2 y = 1 }
+					infantry = { x = 2 y = 2 }
+				}
+				support = {
+					artillery = { x = 0 y = 0 }
+					engineer = { x = 0 y = 1 }
+					recon = { x = 0 y = 2 }
+				}
+			}
+			set_variable = { div_number = num_of_factories }
+			multiply_variable = { div_number = 7 } #countries get 7 times their factory count in divisions
+			set_temp_variable = { count_index = 1 }
+			while_loop_effect = {
+				limit = {
+					check_variable = { count_index < div_number }
+				}
+				capital_scope = {
+					create_unit = { 
+						division = "name = \"Legion\" division_template = \"Legion of the Damned\" start_experience_factor = 0.5" 
+						owner = PREV
+					}
+				}
+				add_to_temp_variable = { count_index = 1 }
+			}
+		}
+		every_country = { #setup countries manpower etc.
+			set_variable = { div_number_mp = div_number }
+			multiply_variable = { div_number_mp = 30000 } #every country gets 30k MP per new division spawned
+			if = {
+				limit = {
+					check_variable = { div_number_mp > 0 } #guard against overflow
+				}
+				add_manpower = div_number_mp
+			}
+			else = {
+				multiply_variable = { div_number_mp = -1 } #hehehehehe
+				add_manpower = div_number_mp
+			}
+			set_variable = { div_number_eq_rifles = div_number }
+			multiply_variable = { div_number_eq_rifles = 2000 } #2000 rifles per new division
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = div_number_eq_rifles
+			}
+			set_variable = { div_number_eq_fighters = div_number }
+			multiply_variable = { div_number_eq_fighters = 50 } #50 fighters per new division
+			add_equipment_to_stockpile = {
+				type = fighter_equipment_1
+				amount = div_number_eq_fighters
+			}
+			add_equipment_to_stockpile = {
+				type = CAS_equipment_1
+				amount = div_number_eq_fighters
+			}
+			army_experience = 500
+			air_experience = 500
+			add_political_power = 1200
+			add_command_power = 100
+			set_variable = { factory_target = num_of_factories }
+			multiply_variable = { factory_target = 3 }
+			set_variable = { cycle_count = factory_target }
+			divide_variable = { cycle_count = 3 }
+			set_temp_variable = { cycle_index = 0 }
+			while_loop_effect = {
+				limit = { 
+					check_variable = { cycle_index < cycle_count }
+				}
+				random_owned_state = {
+					limit = {
+						free_building_slots = {
+							building = arms_factory
+							size > 2
+							include_locked = yes
+						}
+					}
+					add_extra_state_shared_building_slots = 3
+					add_building_construction = {
+						type = arms_factory
+						level = 2
+						instant_build = yes
+					}
+					add_building_construction = {
+						type = industrial_complex
+						level = 1
+						instant_build = yes
+					}
+				}
+				add_to_temp_variable = { cycle_index = 1 }
+			}
+		}
+
+
+		every_country = {
+			limit = {
+				has_government = democratic
+			}
+			ENG = { add_to_faction = PREV }
+		}
+		every_country = {
+			limit = {
+				OR = {
+					has_government = fascism
+					has_government = neutrality
+				}
+				NOT = {
+					TAG = RAJ
+				}
+			}
+			GER = { add_to_faction = PREV }
+		}
+		every_country = {
+			limit = { has_government = communism }
+			SOV = { add_to_faction = PREV }
+		}
+		GER = {
+			declare_war_on = { target = SOV type = annex_everything }
+			declare_war_on = { target = ENG type = annex_everything }
+		}
+		SOV = {
+			declare_war_on = { target = ENG type = annex_everything }
+		}
+	}	
+}

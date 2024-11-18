@@ -123,7 +123,7 @@ public:
           " continuing with randomly generated countries");
     }
     countryMap =
-        Fwg::IO::Reader::loadAnySupported(countryMapPath, Fwg::Cfg::Values());
+        Fwg::IO::Reader::readGenericImage(countryMapPath, Fwg::Cfg::Values());
     Fwg::Utils::ColourTMap<std::vector<std::shared_ptr<Scenario::Region>>>
         mapOfRegions;
     for (auto &region : gameRegions) {

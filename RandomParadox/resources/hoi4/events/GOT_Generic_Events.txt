@@ -1,0 +1,154 @@
+add_namespace = GOT_guarantee_events
+add_namespace = GOT_newsevents
+
+#### GUARANTEE EVENTS ###
+
+country_event = { #Guarantee Poland
+	id = GOT_guarantee_events.1
+	title = GOT_guarantee_events.01.t
+	desc = GOT_guarantee_events.01.desc
+	picture = GFX_report_event_british_inspect_troops
+
+	trigger = {
+		OR = {
+			AND = {
+				original_tag = ENG
+				has_government = democratic
+				is_subject = no
+				NOT = { 
+					has_guaranteed = POL
+					is_in_faction_with = POL
+					has_war_with = POL
+					surrender_progress > 0.25
+					is_in_faction_with = GER
+					has_guaranteed = GER
+					has_war_with = GER
+				}
+				GER = {
+					has_added_tension_amount > 14
+					NOT = { #Don't guarantee Poland if they're budding up to the Germans
+						focus_progress = {
+						    focus = GER_danzig_for_slovakia
+						    progress > 0
+						}
+						is_in_faction_with = POL
+						has_subject = POL
+						has_war_with = POL
+					}
+					OR = {
+						has_completed_focus = GER_integrate_czechoslovakia
+						has_completed_focus = GER_fate_of_czechoslovakia
+						has_completed_focus = GER_reassert_eastern_claims
+					}
+				}
+			}
+			AND = {
+				NOT = {
+					ENG = { #France gotta step up if Britain faulters
+						has_government = democratic
+					}
+				}
+				original_tag = FRA
+				has_government = democratic
+				is_subject = no
+				NOT = { 
+					has_guaranteed = POL
+					is_in_faction_with = POL
+					has_war_with = POL
+					surrender_progress > 0.25
+					is_in_faction_with = GER
+					has_guaranteed = GER
+					has_war_with = GER
+				}
+				GER = {
+					has_added_tension_amount > 14
+					NOT = { #Don't guarantee Poland if they're budding up to the Germans
+						focus_progress = {
+						    focus = GER_danzig_for_slovakia
+						    progress > 0
+						}
+						is_in_faction_with = POL
+						has_subject = POL
+						has_war_with = POL
+					}
+					OR = {
+						has_completed_focus = GER_integrate_czechoslovakia
+						has_completed_focus = GER_fate_of_czechoslovakia
+						has_completed_focus = GER_reassert_eastern_claims
+					}
+				}
+			}
+		}
+	}
+
+	fire_only_once = yes
+
+	mean_time_to_happen = {
+		days = 20
+	}
+
+	option = { #We must protect them
+		name = GOT_guarantee_events.01.a
+		ai_chance = {
+			base = 10
+			modifier = {
+				factor = 2
+				is_faction_leader = yes
+			}
+		}
+
+		add_political_power = -50
+				
+		give_guarantee = POL
+	}
+	option = { #They're on their own
+		name = GOT_guarantee_events.01.b
+		ai_chance = {
+			base = 5
+			modifier = {
+				factor = 2
+				has_government = FROM
+			}
+			modifier = {
+				factor = 2
+				has_government = FROM
+				has_opinion = {
+					target = FROM
+					value > 49
+				}
+			}
+		}
+	}
+}
+
+
+
+# Formation of Greater Proletarian State
+news_event = {
+	id = GOT_newsevents.1
+	title = GOT_newsevents.1.t
+	desc = GOT_newsevents.1.desc
+	picture = GFX_news_event_generic_parliament
+
+	is_triggered_only = yes
+	major = yes
+	
+	option = {
+		name = GOT_newsevents.1.a
+		trigger = {
+			OR = {
+				original_tag = FROM
+				is_in_faction_with = FROM
+			}
+		}
+	}
+	option = {
+		name = GOT_newsevents.1.b
+		trigger = {
+			NOT = {
+				original_tag = FROM
+				is_in_faction_with = FROM
+			}
+		}
+	}
+}

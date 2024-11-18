@@ -35,7 +35,7 @@ void airports(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void aiStrategy(const std::string &path, const hoiMap &countries) {
+void aiStrategy(const std::string &path, const CountryMap &countries) {
   // copy folders ai_areas and ai_strategy from resources//hoi4//common// to
   // path//common//
   Logging::logLine("HOI4 Parser: Map: Writing AI Strategies");
@@ -55,6 +55,21 @@ void aiStrategy(const std::string &path, const hoiMap &countries) {
                           std::filesystem::copy_options::recursive);
   } catch (const std::filesystem::filesystem_error &e) {
     Logging::logLine("HOI4 Parser: Error copying AI Strategies: " +
+                     std::string(e.what()));
+  }
+}
+
+void events(const std::string &path, const CountryMap &countries) {
+
+  Logging::logLine("HOI4 Parser: Map: Writing events");
+  std::filesystem::path sourceEvents = "resources//hoi4//events";
+  try {
+
+    // Copy ai_areas folder
+    std::filesystem::copy(sourceEvents, path + "//events",
+                          std::filesystem::copy_options::recursive);
+  } catch (const std::filesystem::filesystem_error &e) {
+    Logging::logLine("HOI4 Parser: Error copying Events: " +
                      std::string(e.what()));
   }
 }
@@ -509,7 +524,7 @@ void states(const std::string &path,
                   content);
   }
 }
-void flags(const std::string &path, const hoiMap &countries) {
+void flags(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: Gfx: Printing Flags");
   using namespace Gfx::Textures;
   for (const auto &country : countries) {
@@ -524,7 +539,7 @@ void flags(const std::string &path, const hoiMap &countries) {
   }
 }
 
-void historyCountries(const std::string &path, const hoiMap &countries) {
+void historyCountries(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: History: Writing Country History");
   const auto content =
       pU::readFile("resources//hoi4//history//country_template.txt");
@@ -553,7 +568,7 @@ void historyCountries(const std::string &path, const hoiMap &countries) {
   }
 }
 
-void historyUnits(const std::string &path, const hoiMap &countries) {
+void historyUnits(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: History: Deploying the Troops");
   const auto defaultTemplate =
       pU::readFile("resources//hoi4//history//default_unit_template.txt");
@@ -658,7 +673,7 @@ void historyUnits(const std::string &path, const hoiMap &countries) {
 }
 
 void commonBookmarks(
-    const std::string &path, const hoiMap &countries,
+    const std::string &path, const CountryMap &countries,
     const std::map<int, std::vector<std::string>> &strengthScores) {
   auto bookmarkTemplate = pU::readFile(
       "resources//hoi4//common//bookmarks//the_gathering_storm.txt");
@@ -706,7 +721,7 @@ void commonBookmarks(
 }
 
 void commonCountries(const std::string &path, const std::string &hoiPath,
-                     const hoiMap &countries) {
+                     const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: Common: Writing Countries");
   const auto content =
       pU::readFile("resources//hoi4//common//country_default.txt");
@@ -732,7 +747,7 @@ void commonCountries(const std::string &path, const std::string &hoiPath,
   pU::writeFile(path + "colors.txt", colorsTxt);
 }
 
-void commonCountryTags(const std::string &path, const hoiMap &countries) {
+void commonCountryTags(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: Common: Writing Country Tags");
   std::string content = "";
   for (const auto &country : countries)
@@ -741,7 +756,7 @@ void commonCountryTags(const std::string &path, const hoiMap &countries) {
   pU::writeFile(path, content);
 }
 
-void countryNames(const std::string &path, const hoiMap &countries,
+void countryNames(const std::string &path, const CountryMap &countries,
                   const NameGeneration::NameData &nData) {
   Logging::logLine("HOI4 Parser: Localisation: Writing Country Names");
   std::string content = "l_english:\n";
@@ -782,8 +797,28 @@ void scriptedTriggers(std::string gamePath, std::string modPath) {
                           std::filesystem::copy_options::overwrite_existing);
   }
 }
+// filter out simple to filter blocks from the common folder, removing potential
+// error sources from vanilla countries
+void commonFiltering(const std::string &gamePath, const std::string &modPath) {
+  Logging::logLine("HOI4 Parser: Common: Filtering Files");
+  std::vector<std::string> filenames{
+      "common//scripted_triggers//00_scripted_triggers.txt"};
+  for (const auto &filename : filenames) {
+    auto content = pU::readFile(gamePath + filename);
+    auto blocks =
+        pU::Scenario::getOuterBlocks(pU::getLines(gamePath + filename));
+    for (const auto &block : blocks) {
+      //if (block.content.contains("JAP")) {
+      //  pU::Scenario::removeSurroundingBracketBlockFromLineBreak(content,
+      //                                                           block.content);
+      //  std::cout << "Removing: " << block.content << std::endl;
+      //}
+    }
+    pU::writeFile(modPath + filename, content);
+  }
+}
 
-void stateNames(const std::string &path, const hoiMap &countries) {
+void stateNames(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: Localisation: Writing State Names");
   std::string content = "l_english:\n";
 
@@ -824,7 +859,7 @@ void tutorials(const std::string &path) {
   pU::writeFile(path, "tutorial = { }");
 }
 
-void foci(const std::string &path, const hoiMap &countries,
+void foci(const std::string &path, const CountryMap &countries,
           const NameGeneration::NameData &nData) {
   Logging::logLine("HOI4 Parser: History: Demanding Danzig");
   const auto focusTypes =
@@ -1011,6 +1046,18 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
                               "capital =", "capital = " + std::to_string(1));
     pU::Scenario::replaceLine(content,
                               "SWI_find_biggest_fascist_neighbor = yes", "");
+    auto blocks = pU::Scenario::getOuterBlocks(pU::getLines(pathString));
+    for (auto &block : blocks) {
+      if (block.content.contains("declare_war_on")) {
+        pU::Scenario::removeSurroundingBracketBlockFromLineBreak(content,
+                                                                 block.content);
+      }
+      if (block.content.contains("random_list")) {
+        pU::Scenario::removeSurroundingBracketBlockFromLineBreak(content,
+                                                                 block.content);
+      }
+    }
+    // pU::Scenario::removeSurroundingBracketBlock(content, "give_guarantee");
     std::smatch m;
     do {
       if (std::regex_search(
@@ -1157,8 +1204,9 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
 // get the bmp file info and extract the respective IDs from definition.csv
 std::vector<Fwg::Province> readProvinceMap(const std::string &path) {
   using namespace Fwg::Parsing::Scenario;
+  auto &cfg = Fwg::Cfg::Values();
   auto provMap =
-      Fwg::Gfx::Bmp::load24Bit(path + "map/provinces.bmp", "provinces");
+      Fwg::IO::Reader::readGenericImage(path + "map/provinces.bmp", cfg);
   auto definition = pU::getLines(path + "map/definition.csv");
   Fwg::Utils::ColourTMap<Fwg::Province> provinces;
   for (const auto &line : definition) {
@@ -1244,10 +1292,10 @@ void readProvinces(ClimateGeneration::ClimateData &climateData,
                    const std::string &inPath, const std::string &mapName,
                    Fwg::Areas::AreaData &areaData) {
   Logging::logLine("HOI4 Parser: Map: Studying the land");
-  auto provMap =
-      Fwg::Gfx::Bmp::load24Bit(inPath + "map//" + mapName, "provinces");
-  auto heightMap = Fwg::Gfx::Bmp::load24Bit(
-      inPath + "map//" + "heightmap" + ".bmp", "heightmap");
+  auto provMap = Fwg::IO::Reader::readGenericImage(inPath + "map//" + mapName,
+                                                   Fwg::Cfg::Values());
+  auto heightMap = Fwg::IO::Reader::readGenericImage(
+      inPath + "map//" + "heightmap" + ".bmp", Fwg::Cfg::Values());
   auto list = readDefinitions(inPath + "map//definition.csv");
   // now map definitions to read in IDs
   for (auto &line : list) {

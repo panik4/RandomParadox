@@ -218,10 +218,16 @@ std::vector<Block> getOuterBlocks(const std::vector<std::string> &lines) {
   int bracketSurplus = 0;
   Block currentBlock;
   for (auto &line : lines) {
-    // ignore this case, don't know how to handle it yet, TODO
     if (line.find('{') != std::string::npos &&
-        line.find('}') != std::string::npos)
-      continue;
+        line.find('}') != std::string::npos) {
+      if (bracketSurplus) {
+        currentBlock.content += line + '\n';
+        continue;
+      } else {
+      // ignore this case, don't know how to handle it yet, TODO
+        continue;
+      }
+    }
     if (line.find('{') != std::string::npos) {
       // open a new block here, if we're not in a block
       if (!bracketSurplus && line.find('=') != std::string::npos) {
