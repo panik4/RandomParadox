@@ -1,0 +1,3 @@
+[submodule "RandomParadox/FastWorldGen"]
+	path = RandomParadox/FastWorldGen
+	url = git@github.com:panik4/FastWorldGen.git
