@@ -200,7 +200,9 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
         showConfigure(cfg, activeModule);
         if (!validatedPaths)
           ImGui::BeginDisabled();
-        // showModLoader(cfg, activeModule);
+        if (cfg.debugLevel == 9) {
+          showModLoader(cfg, activeModule);
+        }
         showHeightmapTab(cfg, *activeModule->generator, &primaryTexture);
         showLandTab(cfg, *activeModule->generator);
         showNormalMapTab(cfg, *activeModule->generator, &primaryTexture);
@@ -687,7 +689,7 @@ void GUI::showModLoader(
       auto hoi4Module =
           std::reinterpret_pointer_cast<Scenario::Hoi4::Hoi4Module,
                                         Scenario::GenericModule>(genericModule);
-      // hoi4Module->modEdit(draggedFile);
+      hoi4Module->readHoi(draggedFile);
       triggeredDrag = false;
       uiUtils->resetTexture();
     }

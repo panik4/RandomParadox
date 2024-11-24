@@ -1033,10 +1033,8 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
   const std::filesystem::path modDir{path};
   for (auto const &dir_entry : std::filesystem::directory_iterator{hoiDir}) {
     std::string pathString = dir_entry.path().string();
-
     std::string filename =
-        pathString.substr(pathString.find_last_of("//") + 1,
-                          pathString.back() - pathString.find_last_of("//"));
+        dir_entry.path().filename().string();
     auto content = pU::readFile(pathString);
     while (content.find("start_resistance = yes") != std::string::npos) {
       pU::Scenario::removeSurroundingBracketBlockFromLineBreak(
@@ -1057,7 +1055,6 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
                                                                  block.content);
       }
     }
-    // pU::Scenario::removeSurroundingBracketBlock(content, "give_guarantee");
     std::smatch m;
     do {
       if (std::regex_search(
@@ -1151,13 +1148,13 @@ Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
 }
 // states are where tags are written down, expressing ownership of the map
 // read them in from path, map province IDs against states
-void readStates(const std::string &path, Generator &hoi4Gen) {
+void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen) {
   using namespace Fwg::Parsing::Scenario;
   auto states = pU::readFilesInDirectory(path + "/history/states");
 
   Fwg::Utils::ColourTMap<Fwg::Region> stateColours;
-  hoi4Gen.gameRegions.clear();
-  hoi4Gen.countries.clear();
+  hoi4Gen->gameRegions.clear();
+  hoi4Gen->countries.clear();
   stateColours.clear();
 
   for (auto &state : states) {
@@ -1169,7 +1166,7 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
     auto readIDs = getNumberBlockMultiDelim(state, "provinces");
     for (auto id : readIDs) {
       // reg->gameProvinces.push_back(hoi4Gen.gameProvinces[id - 1]);
-      reg.provinces.push_back(hoi4Gen.gameProvinces[id - 1]->baseProvince);
+      reg.provinces.push_back(hoi4Gen->gameProvinces[id - 1]->baseProvince);
       // hoi4Gen.gameProvinces[id - 1]->baseProvince->regionID = reg.ID;
     }
 
@@ -1181,11 +1178,13 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
     reg.colour = colour;
     // hoi4Gen.gameRegions.push_back(reg);
     stateColours.setValue(reg.colour, reg);
-    hoi4Gen.areas.regions.push_back(reg);
+    hoi4Gen->areas.regions.push_back(reg);
   }
 
-  std::sort(hoi4Gen.areas.regions.begin(), hoi4Gen.areas.regions.end(),
+  std::sort(hoi4Gen->areas.regions.begin(), hoi4Gen->areas.regions.end(),
             [](auto l, auto r) { return l < r; });
+  Fwg::Gfx::regionMap(hoi4Gen->areas.regions, hoi4Gen->areas.provinces,
+                      hoi4Gen->regionMap);
   // for (auto &region : hoi4Gen.gameRegions) {
   //   if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end()) {
   //     hoi4Gen.countries.at(region->owner)->ownedRegions.push_back(region);
@@ -1196,10 +1195,10 @@ void readStates(const std::string &path, Generator &hoi4Gen) {
   //     hoi4Gen.countries.insert({c.tag, std::make_shared<Country>(c)});
   //   }
   // }
-  Fwg::Gfx::Bitmap regionMap(5632, 2048, 24);
-  Fwg::Gfx::regionMap(hoi4Gen.areas.regions, hoi4Gen.areas.provinces,
-                      regionMap);
-  Fwg::Gfx::Bmp::save(regionMap, path + "/map/regions.bmp");
+  //Fwg::Gfx::Bitmap regionMap(5632, 2048, 24);
+  //Fwg::Gfx::regionMap(hoi4Gen->areas.regions, hoi4Gen->areas.provinces,
+  //                    regionMap);
+  //Fwg::Gfx::Bmp::save(regionMap, path + "/map/regions.bmp");
 }
 // get the bmp file info and extract the respective IDs from definition.csv
 std::vector<Fwg::Province> readProvinceMap(const std::string &path) {

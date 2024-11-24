@@ -79,7 +79,7 @@ namespace Reading {
 struct ChangeHolder;
 
 Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path);
-void readStates(const std::string &path, Generator &hoi4Gen);
+void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen);
 
 std::vector<Fwg::Province> readProvinceMap(const std::string &path);
 void readAirports(const std::string &path,

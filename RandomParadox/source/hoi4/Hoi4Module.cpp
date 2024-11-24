@@ -264,57 +264,95 @@ void Hoi4Module::writeImages() {
                       (pathcfg.gameModPath + ("//map//provinces.bmp")).c_str());
 }
 
-void Hoi4Module::readHoi(std::string &gamePath) {
-  initNameData("resources//names", gamePath);
+void Hoi4Module::readHoi(std::string &path) {
+  path.append("//");
+  initNameData("resources//names", path);
   auto &config = Fwg::Cfg::Values();
   bool bufferedCut = config.cut;
   config.cut = false;
-  hoi4Gen->provinceMap = Fwg::IO::Reader::readProvinceImage(
-      gamePath + "map//provinces.bmp", config);
-  hoi4Gen->heightMap = Fwg::IO::Reader::readGenericImage(
-      gamePath + "map//heightmap.bmp", config);
-  // read in game or mod files
+  config.loadHeight = true;
+  hoi4Gen->loadHeight(config, path + "map//heightmap.bmp");
+  hoi4Gen->genSobelMap(config);
+  hoi4Gen->genLand();
+
+    config.loadClimate = true;
+  hoi4Gen->loadClimate(config, path + "map//terrain.bmp");
+  config.loadClimate = false;
+  hoi4Gen->provinceMap =
+      Fwg::IO::Reader::readProvinceImage(path + "map//provinces.bmp", config);
+  //// read in game or mod files
   hoi4Gen->climateData.habitabilities.resize(hoi4Gen->provinceMap.size());
-  Hoi4::Parsing::Reading::readProvinces(hoi4Gen->climateData, gamePath,
+  Hoi4::Parsing::Reading::readProvinces(hoi4Gen->climateData, path,
                                         "provinces.bmp", hoi4Gen->areas);
+  hoi4Gen->wrapupProvinces(config);
   // get the provinces into GameProvinces
   hoi4Gen->mapProvinces();
-  // get the states from files to initialize gameRegions
-  Hoi4::Parsing::Reading::readStates(gamePath, *hoi4Gen);
-  try {
-    hoi4Gen->mapRegions();
-  } catch (std::exception e) {
-    Fwg::Utils::Logging::logLine("Error while mapping regions, ", e.what());
-  };
-  // read the colour codes from the game/mod files
-  hoi4Gen->countryColourMap =
-      Hoi4::Parsing::Reading::readColourMapping(pathcfg.gamePath);
-  // now initialize hoi4 states from the gameRegions
-  hoi4Gen->mapTerrain();
-  for (auto &c : hoi4Gen->countries) {
-    auto fCol = hoi4Gen->countryColourMap.valueSearch(c.first);
-    if (fCol != Fwg::Gfx::Colour{0, 0, 0}) {
-      c.second->colour = fCol;
-    } else {
-      do {
-        // generate random colour as long as we have a duplicate
-        c.second->colour = Fwg::Gfx::Colour(RandNum::getRandom(1, 254),
-                                            RandNum::getRandom(1, 254),
-                                            RandNum::getRandom(1, 254));
-      } while (hoi4Gen->countryColourMap.find(c.second->colour));
-      hoi4Gen->countryColourMap.setValue(c.second->colour, c.first);
+  // load existing states: we first get all the state files and parse their
+  // provinces for land regions (including lakes) then we need to get the
+  // strategic region files, and for every strategic region that is a sea state,
+  // we create a sea region?
+  Hoi4::Parsing::Reading::readStates(path, hoi4Gen);
+
+  // ensure continents are created via the details in definition.csv.
+  // Which means we also need to load the existing continents file to match
+  // those with each other, so another export does not overwrite the continents
+  std::map<int, Continent> continents;
+  for (auto &prov : hoi4Gen->areas.provinces) {
+    if (prov->continentID != -1) {
+      if (continents.find(prov->continentID) == continents.end()) {
+        Continent continent("", prov->continentID);
+        continents.insert({prov->continentID, continent});
+      } else {
+        continents.at(prov->continentID).provinces.push_back(prov);
+      }
     }
   }
-  hoi4Gen->mapCountries();
-  // read in further state details from map files
-  Hoi4::Parsing::Reading::readAirports(pathcfg.gamePath, hoi4Gen->hoi4States);
-  Hoi4::Parsing::Reading::readRocketSites(pathcfg.gamePath,
-                                          hoi4Gen->hoi4States);
-  Hoi4::Parsing::Reading::readBuildings(pathcfg.gamePath, hoi4Gen->hoi4States);
-  Hoi4::Parsing::Reading::readSupplyNodes(pathcfg.gamePath,
-                                          hoi4Gen->hoi4States);
-  Hoi4::Parsing::Reading::readWeatherPositions(pathcfg.gamePath,
-                                               hoi4Gen->hoi4States);
+  hoi4Gen->areas.continents.clear();
+  for (auto &c : continents) {
+    hoi4Gen->areas.continents.push_back(c.second);
+  }
+  
+
+  // get the provinces into GameProvinces
+  // hoi4Gen->mapProvinces();
+  // get the states from files to initialize gameRegions
+  // Hoi4::Parsing::Reading::readStates(gamePath, *hoi4Gen);
+  // try {
+  //  hoi4Gen->mapRegions();
+  //} catch (std::exception e) {
+  //  Fwg::Utils::Logging::logLine("Error while mapping regions, ", e.what());
+  //};
+  //// read the colour codes from the game/mod files
+  // hoi4Gen->countryColourMap =
+  //     Hoi4::Parsing::Reading::readColourMapping(pathcfg.gamePath);
+  //// now initialize hoi4 states from the gameRegions
+  // hoi4Gen->mapTerrain();
+  // for (auto &c : hoi4Gen->countries) {
+  //   auto fCol = hoi4Gen->countryColourMap.valueSearch(c.first);
+  //   if (fCol != Fwg::Gfx::Colour{0, 0, 0}) {
+  //     c.second->colour = fCol;
+  //   } else {
+  //     do {
+  //       // generate random colour as long as we have a duplicate
+  //       c.second->colour = Fwg::Gfx::Colour(RandNum::getRandom(1, 254),
+  //                                           RandNum::getRandom(1, 254),
+  //                                           RandNum::getRandom(1, 254));
+  //     } while (hoi4Gen->countryColourMap.find(c.second->colour));
+  //     hoi4Gen->countryColourMap.setValue(c.second->colour, c.first);
+  //   }
+  // }
+  // hoi4Gen->mapCountries();
+  //// read in further state details from map files
+  // Hoi4::Parsing::Reading::readAirports(pathcfg.gamePath,
+  // hoi4Gen->hoi4States);
+  // Hoi4::Parsing::Reading::readRocketSites(pathcfg.gamePath,
+  //                                         hoi4Gen->hoi4States);
+  // Hoi4::Parsing::Reading::readBuildings(pathcfg.gamePath,
+  // hoi4Gen->hoi4States);
+  // Hoi4::Parsing::Reading::readSupplyNodes(pathcfg.gamePath,
+  //                                         hoi4Gen->hoi4States);
+  // Hoi4::Parsing::Reading::readWeatherPositions(pathcfg.gamePath,
+  //                                              hoi4Gen->hoi4States);
   config.cut = bufferedCut;
 }
 
