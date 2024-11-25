@@ -47,403 +47,426 @@ GUI::GUI() : fwgUI() {}
 int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                const std::string &username) {
 
-  //  Create application window
-  //  ImGui_ImplWin32_EnableDpiAwareness();
-  WNDCLASSEXW wc = {sizeof(wc),
-                    CS_CLASSDC,
-                    WndProc,
-                    0L,
-                    0L,
-                    GetModuleHandle(nullptr),
-                    nullptr,
-                    nullptr,
-                    nullptr,
-                    nullptr,
-                    L"RandomParadox",
-                    nullptr};
-  HICON hIcon = (HICON)LoadImage(NULL, "resources//worldMap.ico", IMAGE_ICON, 0,
-                                 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-  if (hIcon) {
-    // Icon loaded successfully, set it to the window class
-    wc.hIcon = hIcon;
-  } else {
-    // Icon failed to load, handle error
-    DWORD error = GetLastError();
-    // handle error...
-  }
-
-  HWND consoleWindow = GetConsoleWindow();
-
-  SendMessage(consoleWindow, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
-  SendMessage(consoleWindow, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
-  ::RegisterClassExW(&wc);
-  HWND hwnd = uiUtils->createAndConfigureWindow(wc, wc.lpszClassName,
-                                                L"RandomParadox 0.8.0");
-  // Initialize Direct3D
-  if (!CreateDeviceD3D(hwnd)) {
-    CleanupDeviceD3D();
-    ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
-    return 1;
-  }
-
-  // Show the window
-  ::ShowWindow(hwnd, SW_SHOWDEFAULT);
-  ::UpdateWindow(hwnd);
-
-  // Setup Dear ImGui context
-  uiUtils->setupImGuiContextAndStyle();
-  auto &io = ImGui::GetIO();
-  // Setup Dear ImGui style
-  ImGui::StyleColorsDark();
-  // ImGui::StyleColorsLight();
-
-  // Setup Platform/Renderer backends
-  uiUtils->setupImGuiBackends(hwnd, g_pd3dDevice, g_pd3dDeviceContext);
-
-  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-  auto &cfg = Fwg::Cfg::Values();
-  // Main loop
-  bool done = false;
-  //--- prior to main loop:
-  DragAcceptFiles(hwnd, TRUE);
-  primaryTexture = nullptr;
-  this->rpdConf = rpdConf;
-  this->configSubFolder = configSubFolder;
-  this->username = username;
-  activeModule = std::make_shared<Scenario::Hoi4::Hoi4Module>(
-      Scenario::Hoi4::Hoi4Module(rpdConf, configSubFolder, username, false));
-  activeModule->generator->climateData.addSecondaryColours(
-      Fwg::Parsing::getLines("resources/hoi4/colourMappings.txt"));
-  initAllowedInput(cfg, activeModule->generator->climateData,
-                   activeModule->generator->terrainData.elevationTypes);
-  initGameConfigs();
-  this->uiUtils->loadHelpTextsFromFile("resources//uiHelpTexts.txt");
-  uiUtils->setClickOffsets(cfg.width, 1);
-  frequency = cfg.overallFrequencyModifier;
-  log = std::make_shared<std::stringstream>();
-  *log << Fwg::Utils::Logging::Logger::logInstance.getFullLog();
-  Fwg::Utils::Logging::Logger::logInstance.attachStream(log);
-  while (!done) {
-    // reset dragging all the time in case it wasn't handled in a tab on purpose
-    triggeredDrag = false;
-    // Poll and handle messages (inputs, window resize, etc.)
-    // See the WndProc() function below for our to dispatch events to the Win32
-    // backend.
-    MSG msg;
-    while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
-      ::TranslateMessage(&msg);
-      ::DispatchMessage(&msg);
-      if (msg.message == WM_QUIT)
-        done = true;
-      else if (msg.message == WM_DROPFILES) {
-        HDROP hDrop = reinterpret_cast<HDROP>(msg.wParam);
-
-        // extract files here
-        std::vector<std::string> files;
-        char filename[MAX_PATH];
-
-        UINT count = DragQueryFileA(hDrop, -1, NULL, 0);
-        for (UINT i = 0; i < count; ++i) {
-          if (DragQueryFileA(hDrop, i, filename, MAX_PATH)) {
-            files.push_back(filename);
-            // Fwg::Utils::Logging::logLine("Loaded file ", filename);
-          }
-        }
-        draggedFile = files.back();
-        triggeredDrag = true;
-        DragFinish(hDrop);
-      }
-    }
-    if (done)
-      break;
-
-    // Handle window resize (we don't resize directly in the WM_SIZE handler)
-    if (g_ResizeWidth != 0 && g_ResizeHeight != 0) {
-      CleanupRenderTarget();
-      g_pSwapChain->ResizeBuffers(0, g_ResizeWidth, g_ResizeHeight,
-                                  DXGI_FORMAT_UNKNOWN, 0);
-      g_ResizeWidth = g_ResizeHeight = 0;
-      CreateRenderTarget();
+  try {
+    //  Create application window
+    //  ImGui_ImplWin32_EnableDpiAwareness();
+    WNDCLASSEXW wc = {sizeof(wc),
+                      CS_CLASSDC,
+                      WndProc,
+                      0L,
+                      0L,
+                      GetModuleHandle(nullptr),
+                      nullptr,
+                      nullptr,
+                      nullptr,
+                      nullptr,
+                      L"RandomParadox",
+                      nullptr};
+    HICON hIcon = (HICON)LoadImage(NULL, "resources//worldMap.ico", IMAGE_ICON,
+                                   0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+    if (hIcon) {
+      // Icon loaded successfully, set it to the window class
+      wc.hIcon = hIcon;
+    } else {
+      // Icon failed to load, handle error
+      DWORD error = GetLastError();
+      // handle error...
     }
 
-    // Start the Dear ImGui frame
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-    {
-      ImGui::SetNextWindowPos({0, 0});
-      ImGui::SetNextWindowSize({io.DisplaySize.x, io.DisplaySize.y});
-      ImGui::Begin("RandomParadox");
-      if (!validatedPaths) {
-        ImGui::TextColored({255, 0, 100, 255},
-                           "You need to validate paths successfully before "
-                           "being able to do anything else");
-      }
-      if (!validatedPaths)
-        ImGui::BeginDisabled();
-      showGeneric(cfg, *activeModule->generator, &primaryTexture);
-      if (!validatedPaths)
-        ImGui::EndDisabled();
-      ImGui::SameLine();
-      showModuleGeneric(cfg, activeModule);
-      ImGui::SeparatorText(
-          "Different Steps of the generation, usually go from left to right");
+    HWND consoleWindow = GetConsoleWindow();
 
-      if (uiUtils->actTxs[1] == UIUtils::ActiveTexture::NONE &&
-          secondaryTexture != nullptr) {
-      }
-      if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
-        // Disable all inputs if computation is running
-        if (computationRunning) {
-          ImGui::BeginDisabled();
-        }
-        showConfigure(cfg, activeModule);
-        if (!validatedPaths)
-          ImGui::BeginDisabled();
-        if (cfg.debugLevel == 9) {
-          showModLoader(cfg, activeModule);
-        }
-        showHeightmapTab(cfg, *activeModule->generator, &primaryTexture);
-        showLandTab(cfg, *activeModule->generator);
-        showNormalMapTab(cfg, *activeModule->generator, &primaryTexture);
-        showContinentTab(cfg, *activeModule->generator, &primaryTexture);
-        showClimateInputTab(cfg, *activeModule->generator, &primaryTexture);
-        showClimateOverview(cfg, *activeModule->generator, &primaryTexture);
-        showDensityTab(cfg, *activeModule->generator, &primaryTexture);
-        showSegmentTab(cfg, *activeModule->generator);
-        showProvincesTab(cfg, *activeModule->generator, &primaryTexture);
-        showRegionTab(cfg, *activeModule->generator, &primaryTexture);
-        showCivilizationTab(cfg, *activeModule->generator);
-        showScenarioTab(cfg, activeModule);
-        if (!scenarioGenReady(false)) {
-          ImGui::BeginDisabled();
-        }
-        showCountryTab(cfg, &primaryTexture);
-        if (activeGameConfig.gameName == "Hearts of Iron IV") {
-          auto hoi4Gen =
-              std::reinterpret_pointer_cast<Hoi4Gen, Scenario::Generator>(
-                  activeModule->generator);
-          showStrategicRegionTab(cfg, hoi4Gen);
-          showHoi4Finalise(
-              cfg, std::reinterpret_pointer_cast<Scenario::Hoi4::Hoi4Module,
-                                                 Scenario::GenericModule>(
-                       activeModule));
-        } else if (activeGameConfig.gameName == "Victoria 3") {
-          auto vic3Gen =
-              std::reinterpret_pointer_cast<Vic3Gen, Scenario::Generator>(
-                  activeModule->generator);
-          showStrategicRegionTab(cfg, vic3Gen);
-          showNavmeshTab(cfg, *activeModule->generator);
-          showVic3Finalise(
-              cfg, std::reinterpret_pointer_cast<Scenario::Vic3::Module,
-                                                 Scenario::GenericModule>(
-                       activeModule));
-        }
-        if (!scenarioGenReady(false)) {
-          ImGui::EndDisabled();
-        }
-        if (!validatedPaths)
-          ImGui::EndDisabled();
-        // Re-enable inputs if computation is running
-        if (computationRunning && !computationStarted) {
-          ImGui::EndDisabled();
-        }
-        // Check if the computation is done
-        if (computationRunning &&
-            computationFutureBool.wait_for(std::chrono::seconds(0)) ==
-                std::future_status::ready) {
-          computationRunning = false;
-          uiUtils->resetTexture();
-        }
+    SendMessage(consoleWindow, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+    SendMessage(consoleWindow, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+    ::RegisterClassExW(&wc);
+    HWND hwnd = uiUtils->createAndConfigureWindow(wc, wc.lpszClassName,
+                                                  L"RandomParadox 0.8.0");
+    // Initialize Direct3D
+    if (!CreateDeviceD3D(hwnd)) {
+      CleanupDeviceD3D();
+      ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
+      return 1;
+    }
 
-        if (computationRunning) {
-          computationStarted = false;
-          ImGui::Text("Working, please be patient");
-          static auto lastTime = std::chrono::steady_clock::now();
+    // Show the window
+    ::ShowWindow(hwnd, SW_SHOWDEFAULT);
+    ::UpdateWindow(hwnd);
 
-          auto currentTime = std::chrono::steady_clock::now();
-          auto elapsedTime = std::chrono::duration_cast<std::chrono::seconds>(
-                                 currentTime - lastTime)
-                                 .count();
+    // Setup Dear ImGui context
+    uiUtils->setupImGuiContextAndStyle();
+    auto &io = ImGui::GetIO();
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    // ImGui::StyleColorsLight();
 
-          if (elapsedTime >= 1) {
-            auto desiredState = uiUtils->actTxs[0];
-            uiUtils->resetTexture();
-            // Reset texture every second during computation
-            uiUtils->switchTexture(*uiUtils->activeImages[0], &primaryTexture,
-                                   0, desiredState, g_pd3dDevice, w, h);
-            lastTime = currentTime;
+    // Setup Platform/Renderer backends
+    uiUtils->setupImGuiBackends(hwnd, g_pd3dDevice, g_pd3dDeviceContext);
+
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    auto &cfg = Fwg::Cfg::Values();
+    // Main loop
+    bool done = false;
+    //--- prior to main loop:
+    DragAcceptFiles(hwnd, TRUE);
+    primaryTexture = nullptr;
+    this->rpdConf = rpdConf;
+    this->configSubFolder = configSubFolder;
+    this->username = username;
+    activeModule = std::make_shared<Scenario::Hoi4::Hoi4Module>(
+        Scenario::Hoi4::Hoi4Module(rpdConf, configSubFolder, username, false));
+    activeModule->generator->climateData.addSecondaryColours(
+        Fwg::Parsing::getLines("resources/hoi4/colourMappings.txt"));
+    initAllowedInput(cfg, activeModule->generator->climateData,
+                     activeModule->generator->terrainData.elevationTypes);
+    initGameConfigs();
+    this->uiUtils->loadHelpTextsFromFile("resources//uiHelpTexts.txt");
+    uiUtils->setClickOffsets(cfg.width, 1);
+    frequency = cfg.overallFrequencyModifier;
+    log = std::make_shared<std::stringstream>();
+    *log << Fwg::Utils::Logging::Logger::logInstance.getFullLog();
+    Fwg::Utils::Logging::Logger::logInstance.attachStream(log);
+    activeModule->generator->configure(cfg);
+    initAllowedInput(cfg, activeModule->generator->climateData,
+                     activeModule->generator->terrainData.elevationTypes);
+    while (!done) {
+      try {
+        // reset dragging all the time in case it wasn't handled in a tab on
+        // purpose
+        triggeredDrag = false;
+        // Poll and handle messages (inputs, window resize, etc.)
+        // See the WndProc() function below for our to dispatch events to the
+        // Win32 backend.
+        MSG msg;
+        while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE)) {
+          ::TranslateMessage(&msg);
+          ::DispatchMessage(&msg);
+          if (msg.message == WM_QUIT)
+            done = true;
+          else if (msg.message == WM_DROPFILES) {
+            HDROP hDrop = reinterpret_cast<HDROP>(msg.wParam);
+
+            // extract files here
+            std::vector<std::string> files;
+            char filename[MAX_PATH];
+
+            UINT count = DragQueryFileA(hDrop, -1, NULL, 0);
+            for (UINT i = 0; i < count; ++i) {
+              if (DragQueryFileA(hDrop, i, filename, MAX_PATH)) {
+                files.push_back(filename);
+                // Fwg::Utils::Logging::logLine("Loaded file ", filename);
+              }
+            }
+            draggedFile = files.back();
+            triggeredDrag = true;
+            DragFinish(hDrop);
           }
-        } else {
-          ImGui::Text("Ready!");
+        }
+        if (done)
+          break;
+
+        // Handle window resize (we don't resize directly in the WM_SIZE
+        // handler)
+        if (g_ResizeWidth != 0 && g_ResizeHeight != 0) {
+          CleanupRenderTarget();
+          g_pSwapChain->ResizeBuffers(0, g_ResizeWidth, g_ResizeHeight,
+                                      DXGI_FORMAT_UNKNOWN, 0);
+          g_ResizeWidth = g_ResizeHeight = 0;
+          CreateRenderTarget();
         }
 
-        ImGui::EndTabBar();
-      }
-      static ImVec2 cursorPos;
-      for (auto i = 0; i < uiUtils->activeImages.size(); i++) {
-        // switch to the correct texture, by setting activeImage
-        switch (uiUtils->desiredState[i]) {
-        case UIUtils::ActiveTexture::HEIGHTMAP:
-          uiUtils->activeImages[i] = &activeModule->generator->heightMap;
-          break;
-        case UIUtils::ActiveTexture::LAYER:
-          uiUtils->activeImages[i] = &displayImage;
-          break;
-        case UIUtils::ActiveTexture::TERRAIN:
-          uiUtils->activeImages[i] = &activeModule->generator->landMap;
-          break;
-        case UIUtils::ActiveTexture::NORMALMAP:
-          uiUtils->activeImages[i] = &activeModule->generator->sobelMap;
-          break;
-        case UIUtils::ActiveTexture::CONTINENTS:
-          uiUtils->activeImages[i] = &activeModule->generator->continentMap;
-          break;
-        case UIUtils::ActiveTexture::CLIMATEINPUT:
-          uiUtils->activeImages[i] = &activeModule->generator->climateInputMap;
-          break;
-        case UIUtils::ActiveTexture::CLIMATE:
-          uiUtils->activeImages[i] = &activeModule->generator->climateMap;
-          break;
-        case UIUtils::ActiveTexture::HABITABILITY:
-          uiUtils->activeImages[i] = &activeModule->generator->habitabilityMap;
-          break;
-        case UIUtils::ActiveTexture::CONTINENT:
-          uiUtils->activeImages[i] = &activeModule->generator->continentMap;
-          break;
-        case UIUtils::ActiveTexture::TEMPERATURE:
-          uiUtils->activeImages[i] = &displayImage;
-          break;
-        case UIUtils::ActiveTexture::HUMIDITY:
-          uiUtils->activeImages[i] = &activeModule->generator->humidityMap;
-          break;
-        case UIUtils::ActiveTexture::RIVER:
-          uiUtils->activeImages[i] = &activeModule->generator->riverMap;
-          break;
-        case UIUtils::ActiveTexture::WORLD:
-          uiUtils->activeImages[i] = &activeModule->generator->worldMap;
-          break;
-        case UIUtils::ActiveTexture::TREES:
-          uiUtils->activeImages[i] = &activeModule->generator->climateMap;
-          break;
-        case UIUtils::ActiveTexture::SEGMENTS:
-          uiUtils->activeImages[i] = &activeModule->generator->segmentMap;
-          break;
-        case UIUtils::ActiveTexture::PROVINCES:
-          uiUtils->activeImages[i] = &activeModule->generator->provinceMap;
-          break;
-        case UIUtils::ActiveTexture::REGIONS:
-          uiUtils->activeImages[i] = &activeModule->generator->regionMap;
-          break;
-        case UIUtils::ActiveTexture::DEVELOPMENT:
-          uiUtils->activeImages[i] = &activeModule->generator->developmentMap;
-          break;
-        case UIUtils::ActiveTexture::POPULATION:
-          uiUtils->activeImages[i] = &activeModule->generator->populationMap;
-          break;
-        case UIUtils::ActiveTexture::LOCATIONS:
-          uiUtils->activeImages[i] = &activeModule->generator->locationMap;
-          break;
-        case UIUtils::ActiveTexture::NAVMESH:
-          uiUtils->activeImages[i] = &activeModule->generator->navmeshMap;
-          break;
-        case UIUtils::ActiveTexture::AGRICULTURE:
-          uiUtils->activeImages[i] = &displayImage;
-          break;
-        case UIUtils::ActiveTexture::URBANISATION:
-          uiUtils->activeImages[i] = &displayImage;
-          break;
-        case UIUtils::ActiveTexture::EXTENDEABLE1:
-          uiUtils->activeImages[i] = &activeModule->generator->countryMap;
-          break;
-        case UIUtils::ActiveTexture::EXTENDEABLE2:
-          uiUtils->activeImages[i] = &activeModule->generator->stratRegionMap;
-          break;
-        default:
-          break;
-        }
-      }
-      uiUtils->switchTexture(*uiUtils->activeImages[0], &primaryTexture, 0,
-                             uiUtils->desiredState[0], g_pd3dDevice, w, h);
-      if (uiUtils->activeImages[1] != nullptr) {
-        uiUtils->switchTexture(*uiUtils->activeImages[1], &secondaryTexture, 1,
-                               uiUtils->desiredState[1], g_pd3dDevice, w, h);
-      }
-
-      float modif = 1.0 - (secondaryTexture != nullptr) * 0.5;
-      if (w > 0 && h > 0) {
-        float aspectRatio = (float)w / (float)h;
-        auto scale =
-            std::min<float>((ImGui::GetContentRegionAvail().y) / h,
-                            (ImGui::GetContentRegionAvail().x) * modif / w);
-        auto texWidth = w * scale;
-        auto texHeight = h * scale;
-
-        // Handle zooming
-        if (io.KeyCtrl) {
-          zoom += io.MouseWheel * 0.1f;
-        }
-        if (primaryTexture != nullptr &&
-            uiUtils->actTxs[0] != UIUtils::ActiveTexture::NONE) {
-          // Create a child window with scrollbars
-          ImGui::BeginChild("Image", ImVec2(texWidth, texHeight), false,
-                            ImGuiWindowFlags_HorizontalScrollbar |
-                                ImGuiWindowFlags_AlwaysVerticalScrollbar);
-          ImGui::Image((void *)primaryTexture,
-                       ImVec2(texWidth * zoom, texHeight * zoom));
-          if (io.KeyCtrl && io.MouseWheel) {
-            // Get the mouse position relative to the image
-            ImVec2 mouse_pos = ImGui::GetMousePos();
-            ImVec2 image_pos = ImGui::GetItemRectMin();
-            auto itemsize = ImGui::GetItemRectSize();
-            ImVec2 mouse_pos_relative =
-                ImVec2(mouse_pos.x - image_pos.x, mouse_pos.y - image_pos.y);
-            // Calculate the pixel position in the texture
-            float pixel_x = ((mouse_pos_relative.x / itemsize.x));
-            float pixel_y = ((mouse_pos_relative.y / itemsize.y));
-            ImGui::SetScrollHereY(std::clamp(pixel_y, 0.0f, 1.0f));
-            ImGui::SetScrollHereX(std::clamp(pixel_x, 0.0f, 1.0f));
+        // Start the Dear ImGui frame
+        ImGui_ImplDX11_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
+        {
+          ImGui::SetNextWindowPos({0, 0});
+          ImGui::SetNextWindowSize({io.DisplaySize.x, io.DisplaySize.y});
+          ImGui::Begin("RandomParadox");
+          if (!validatedPaths) {
+            ImGui::TextColored({255, 0, 100, 255},
+                               "You need to validate paths successfully before "
+                               "being able to do anything else");
           }
-
-          // Handle dragging
-          if (io.KeyCtrl && ImGui::IsMouseDragging(0, 0.0f)) {
-            ImVec2 drag_delta = ImGui::GetMouseDragDelta(0, 0.0f);
-            ImGui::ResetMouseDragDelta(0);
-            ImGui::SetScrollX(ImGui::GetScrollX() - drag_delta.x);
-            ImGui::SetScrollY(ImGui::GetScrollY() - drag_delta.y);
-          }
-          if (!io.KeyCtrl) {
-            uiUtils->imageClick(scale, io);
-          }
-
-          // End the child window
-          ImGui::EndChild();
-        }
-
-        // images are less wide, on a usual 16x9 monitor, it is better to place
-        // them besides each other
-        if (aspectRatio <= 2.0)
+          if (!validatedPaths)
+            ImGui::BeginDisabled();
+          showGeneric(cfg, *activeModule->generator, &primaryTexture);
+          if (!validatedPaths)
+            ImGui::EndDisabled();
           ImGui::SameLine();
-        if (secondaryTexture != nullptr &&
-            uiUtils->actTxs[1] != UIUtils::ActiveTexture::NONE) {
-          ImGui::Image((void *)secondaryTexture, ImVec2(w * scale, h * scale));
+          showModuleGeneric(cfg, activeModule);
+          ImGui::SeparatorText("Different Steps of the generation, usually go "
+                               "from left to right");
+
+          if (uiUtils->actTxs[1] == UIUtils::ActiveTexture::NONE &&
+              secondaryTexture != nullptr) {
+          }
+          if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
+            // Disable all inputs if computation is running
+            if (computationRunning) {
+              ImGui::BeginDisabled();
+            }
+            showConfigure(cfg, activeModule);
+            if (!validatedPaths)
+              ImGui::BeginDisabled();
+            if (cfg.debugLevel == 9) {
+              showModLoader(cfg, activeModule);
+            }
+            showHeightmapTab(cfg, *activeModule->generator, &primaryTexture);
+            showLandTab(cfg, *activeModule->generator);
+            showNormalMapTab(cfg, *activeModule->generator, &primaryTexture);
+            showContinentTab(cfg, *activeModule->generator, &primaryTexture);
+            showClimateInputTab(cfg, *activeModule->generator, &primaryTexture);
+            showClimateOverview(cfg, *activeModule->generator, &primaryTexture);
+            showDensityTab(cfg, *activeModule->generator, &primaryTexture);
+            showSegmentTab(cfg, *activeModule->generator);
+            showProvincesTab(cfg, *activeModule->generator, &primaryTexture);
+            showRegionTab(cfg, *activeModule->generator, &primaryTexture);
+            showCivilizationTab(cfg, *activeModule->generator);
+            showScenarioTab(cfg, activeModule);
+            if (!scenarioGenReady(false)) {
+              ImGui::BeginDisabled();
+            }
+            showCountryTab(cfg, &primaryTexture);
+            if (activeGameConfig.gameName == "Hearts of Iron IV") {
+              auto hoi4Gen =
+                  std::reinterpret_pointer_cast<Hoi4Gen, Scenario::Generator>(
+                      activeModule->generator);
+              showStrategicRegionTab(cfg, hoi4Gen);
+              showHoi4Finalise(
+                  cfg, std::reinterpret_pointer_cast<Scenario::Hoi4::Hoi4Module,
+                                                     Scenario::GenericModule>(
+                           activeModule));
+            } else if (activeGameConfig.gameName == "Victoria 3") {
+              auto vic3Gen =
+                  std::reinterpret_pointer_cast<Vic3Gen, Scenario::Generator>(
+                      activeModule->generator);
+              showStrategicRegionTab(cfg, vic3Gen);
+              showNavmeshTab(cfg, *activeModule->generator);
+              showVic3Finalise(
+                  cfg, std::reinterpret_pointer_cast<Scenario::Vic3::Module,
+                                                     Scenario::GenericModule>(
+                           activeModule));
+            }
+            if (!scenarioGenReady(false)) {
+              ImGui::EndDisabled();
+            }
+            if (!validatedPaths)
+              ImGui::EndDisabled();
+            // Re-enable inputs if computation is running
+            if (computationRunning && !computationStarted) {
+              ImGui::EndDisabled();
+            }
+            // Check if the computation is done
+            if (computationRunning &&
+                computationFutureBool.wait_for(std::chrono::seconds(0)) ==
+                    std::future_status::ready) {
+              computationRunning = false;
+              uiUtils->resetTexture();
+            }
+
+            if (computationRunning) {
+              computationStarted = false;
+              ImGui::Text("Working, please be patient");
+              static auto lastTime = std::chrono::steady_clock::now();
+
+              auto currentTime = std::chrono::steady_clock::now();
+              auto elapsedTime =
+                  std::chrono::duration_cast<std::chrono::seconds>(currentTime -
+                                                                   lastTime)
+                      .count();
+
+              if (elapsedTime >= 1) {
+                auto desiredState = uiUtils->actTxs[0];
+                uiUtils->resetTexture();
+                // Reset texture every second during computation
+                uiUtils->switchTexture(*uiUtils->activeImages[0],
+                                       &primaryTexture, 0, desiredState,
+                                       g_pd3dDevice, w, h);
+                lastTime = currentTime;
+              }
+            } else {
+              ImGui::Text("Ready!");
+            }
+
+            ImGui::EndTabBar();
+          }
+          static ImVec2 cursorPos;
+          for (auto i = 0; i < uiUtils->activeImages.size(); i++) {
+            // switch to the correct texture, by setting activeImage
+            switch (uiUtils->desiredState[i]) {
+            case UIUtils::ActiveTexture::HEIGHTMAP:
+              uiUtils->activeImages[i] = &activeModule->generator->heightMap;
+              break;
+            case UIUtils::ActiveTexture::LAYER:
+              uiUtils->activeImages[i] = &displayImage;
+              break;
+            case UIUtils::ActiveTexture::TERRAIN:
+              uiUtils->activeImages[i] = &activeModule->generator->landMap;
+              break;
+            case UIUtils::ActiveTexture::NORMALMAP:
+              uiUtils->activeImages[i] = &activeModule->generator->sobelMap;
+              break;
+            case UIUtils::ActiveTexture::CONTINENTS:
+              uiUtils->activeImages[i] = &activeModule->generator->continentMap;
+              break;
+            case UIUtils::ActiveTexture::CLIMATEINPUT:
+              uiUtils->activeImages[i] =
+                  &activeModule->generator->climateInputMap;
+              break;
+            case UIUtils::ActiveTexture::CLIMATE:
+              uiUtils->activeImages[i] = &activeModule->generator->climateMap;
+              break;
+            case UIUtils::ActiveTexture::HABITABILITY:
+              uiUtils->activeImages[i] =
+                  &activeModule->generator->habitabilityMap;
+              break;
+            case UIUtils::ActiveTexture::CONTINENT:
+              uiUtils->activeImages[i] = &activeModule->generator->continentMap;
+              break;
+            case UIUtils::ActiveTexture::TEMPERATURE:
+              uiUtils->activeImages[i] = &displayImage;
+              break;
+            case UIUtils::ActiveTexture::HUMIDITY:
+              uiUtils->activeImages[i] = &activeModule->generator->humidityMap;
+              break;
+            case UIUtils::ActiveTexture::RIVER:
+              uiUtils->activeImages[i] = &activeModule->generator->riverMap;
+              break;
+            case UIUtils::ActiveTexture::WORLD:
+              uiUtils->activeImages[i] = &activeModule->generator->worldMap;
+              break;
+            case UIUtils::ActiveTexture::TREES:
+              uiUtils->activeImages[i] = &activeModule->generator->climateMap;
+              break;
+            case UIUtils::ActiveTexture::SEGMENTS:
+              uiUtils->activeImages[i] = &activeModule->generator->segmentMap;
+              break;
+            case UIUtils::ActiveTexture::PROVINCES:
+              uiUtils->activeImages[i] = &activeModule->generator->provinceMap;
+              break;
+            case UIUtils::ActiveTexture::REGIONS:
+              uiUtils->activeImages[i] = &activeModule->generator->regionMap;
+              break;
+            case UIUtils::ActiveTexture::DEVELOPMENT:
+              uiUtils->activeImages[i] =
+                  &activeModule->generator->developmentMap;
+              break;
+            case UIUtils::ActiveTexture::POPULATION:
+              uiUtils->activeImages[i] =
+                  &activeModule->generator->populationMap;
+              break;
+            case UIUtils::ActiveTexture::LOCATIONS:
+              uiUtils->activeImages[i] = &activeModule->generator->locationMap;
+              break;
+            case UIUtils::ActiveTexture::NAVMESH:
+              uiUtils->activeImages[i] = &activeModule->generator->navmeshMap;
+              break;
+            case UIUtils::ActiveTexture::AGRICULTURE:
+              uiUtils->activeImages[i] = &displayImage;
+              break;
+            case UIUtils::ActiveTexture::URBANISATION:
+              uiUtils->activeImages[i] = &displayImage;
+              break;
+            case UIUtils::ActiveTexture::EXTENDEABLE1:
+              uiUtils->activeImages[i] = &activeModule->generator->countryMap;
+              break;
+            case UIUtils::ActiveTexture::EXTENDEABLE2:
+              uiUtils->activeImages[i] =
+                  &activeModule->generator->stratRegionMap;
+              break;
+            default:
+              break;
+            }
+          }
+          uiUtils->switchTexture(*uiUtils->activeImages[0], &primaryTexture, 0,
+                                 uiUtils->desiredState[0], g_pd3dDevice, w, h);
+          if (uiUtils->activeImages[1] != nullptr) {
+            uiUtils->switchTexture(*uiUtils->activeImages[1], &secondaryTexture,
+                                   1, uiUtils->desiredState[1], g_pd3dDevice, w,
+                                   h);
+          }
+
+          float modif = 1.0 - (secondaryTexture != nullptr) * 0.5;
+          if (w > 0 && h > 0) {
+            float aspectRatio = (float)w / (float)h;
+            auto scale =
+                std::min<float>((ImGui::GetContentRegionAvail().y) / h,
+                                (ImGui::GetContentRegionAvail().x) * modif / w);
+            auto texWidth = w * scale;
+            auto texHeight = h * scale;
+
+            // Handle zooming
+            if (io.KeyCtrl) {
+              zoom += io.MouseWheel * 0.1f;
+            }
+            if (primaryTexture != nullptr &&
+                uiUtils->actTxs[0] != UIUtils::ActiveTexture::NONE) {
+              // Create a child window with scrollbars
+              ImGui::BeginChild("Image", ImVec2(texWidth, texHeight), false,
+                                ImGuiWindowFlags_HorizontalScrollbar |
+                                    ImGuiWindowFlags_AlwaysVerticalScrollbar);
+              ImGui::Image((void *)primaryTexture,
+                           ImVec2(texWidth * zoom, texHeight * zoom));
+              if (io.KeyCtrl && io.MouseWheel) {
+                // Get the mouse position relative to the image
+                ImVec2 mouse_pos = ImGui::GetMousePos();
+                ImVec2 image_pos = ImGui::GetItemRectMin();
+                auto itemsize = ImGui::GetItemRectSize();
+                ImVec2 mouse_pos_relative = ImVec2(mouse_pos.x - image_pos.x,
+                                                   mouse_pos.y - image_pos.y);
+                // Calculate the pixel position in the texture
+                float pixel_x = ((mouse_pos_relative.x / itemsize.x));
+                float pixel_y = ((mouse_pos_relative.y / itemsize.y));
+                ImGui::SetScrollHereY(std::clamp(pixel_y, 0.0f, 1.0f));
+                ImGui::SetScrollHereX(std::clamp(pixel_x, 0.0f, 1.0f));
+              }
+
+              // Handle dragging
+              if (io.KeyCtrl && ImGui::IsMouseDragging(0, 0.0f)) {
+                ImVec2 drag_delta = ImGui::GetMouseDragDelta(0, 0.0f);
+                ImGui::ResetMouseDragDelta(0);
+                ImGui::SetScrollX(ImGui::GetScrollX() - drag_delta.x);
+                ImGui::SetScrollY(ImGui::GetScrollY() - drag_delta.y);
+              }
+              if (!io.KeyCtrl) {
+                uiUtils->imageClick(scale, io);
+              }
+
+              // End the child window
+              ImGui::EndChild();
+            }
+
+            // images are less wide, on a usual 16x9 monitor, it is better to
+            // place them besides each other
+            if (aspectRatio <= 2.0)
+              ImGui::SameLine();
+            if (secondaryTexture != nullptr &&
+                uiUtils->actTxs[1] != UIUtils::ActiveTexture::NONE) {
+              ImGui::Image((void *)secondaryTexture,
+                           ImVec2(w * scale, h * scale));
+            }
+          }
+          ImGui::End();
         }
+
+        // Rendering
+        uiUtils->renderImGui(g_pd3dDeviceContext, g_mainRenderTargetView,
+                             clear_color, g_pSwapChain);
+      } catch (std::exception e) {
+        Fwg::Utils::Logging::logLine("Error in GUI main loop: ", e.what());
       }
-      ImGui::End();
     }
 
-    // Rendering
-    uiUtils->renderImGui(g_pd3dDeviceContext, g_mainRenderTargetView,
-                         clear_color, g_pSwapChain);
+    // Cleanup
+    uiUtils->shutdownImGui();
+
+    CleanupDeviceD3D();
+    ::DestroyWindow(hwnd);
+    ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
+    return 0;
+  } catch (std::exception e) {
+    Fwg::Utils::Logging::logLine("Error in GUI startup: ", e.what());
+    return -1;
   }
-
-  // Cleanup
-  uiUtils->shutdownImGui();
-
-  CleanupDeviceD3D();
-  ::DestroyWindow(hwnd);
-  ::UnregisterClassW(wc.lpszClassName, wc.hInstance);
-  return 0;
 }
 
 std::vector<std::string> GUI::loadConfigs() {
@@ -500,8 +523,6 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
                     false, window_flags);
   ImGui::TextUnformatted(log->str().c_str());
   bool success = true;
-  initAllowedInput(cfg, generator.climateData,
-                   generator.terrainData.elevationTypes);
   if (!ImGui::IsWindowHovered()) {
     // scroll to bottom
     ImGui::SetScrollHereY(1.0f);
@@ -621,6 +642,7 @@ int GUI::showRpdxConfigure(
       }
       activeGameConfig = gameConfigs[selectedGame];
       validatedPaths = false;
+      activeModule->generator->configure(cfg);
     }
     std::vector<const char *> items;
     for (auto &item : configSubfolders)
@@ -634,6 +656,7 @@ int GUI::showRpdxConfigure(
                                    "//FastWorldGenerator.json");
       cfg.readConfig(activeConfig);
       loadGameConfig(cfg);
+      activeModule->generator->configure(cfg);
     }
 
     ImGui::PopItemWidth();
