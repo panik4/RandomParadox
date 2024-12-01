@@ -166,6 +166,10 @@ void Hoi4Module::prepareData() {}
 //   }
 // }
 
+void Hoi4Module::initFormatConverter() {
+  formatConverter = Gfx::Hoi4::FormatConverter(pathcfg.gamePath, "Hoi4");
+}
+
 void Hoi4Module::writeTextFiles() {
   using namespace Parsing::Writing;
   Fwg::Utils::Logging::logLine(
@@ -177,7 +181,7 @@ void Hoi4Module::writeTextFiles() {
                        pathcfg.gamePath, hoi4Gen->areas.regions);
   /*scriptedTriggers(pathcfg.gamePath + "//common//scripted_triggers//",
                    pathcfg.gameModPath + "//common//scripted_triggers//");*/
-  commonFiltering(pathcfg.gamePath, pathcfg.gameModPath);
+  // commonFiltering(pathcfg.gamePath, pathcfg.gameModPath);
   historyCountries(pathcfg.gameModPath + "//history//countries//",
                    hoi4Gen->hoi4Countries);
   historyUnits(pathcfg.gameModPath + "//history//units//",
@@ -210,14 +214,7 @@ void Hoi4Module::writeTextFiles() {
                    hoi4Gen->areas.regions, hoi4Gen->strategicRegions);
   adjacencyRules(pathcfg.gameModPath + "//map//adjacency_rules.txt");
   supply(pathcfg.gameModPath + "//map//", hoi4Gen->supplyNodeConnections);
-  stateNames(pathcfg.gameModPath + "//localisation//english//",
-             hoi4Gen->hoi4Countries);
-  countryNames(pathcfg.gameModPath + "//localisation//english//",
-               hoi4Gen->hoi4Countries, hoi4Gen->nData);
-  strategicRegionNames(pathcfg.gameModPath + "//localisation//english//",
-                       hoi4Gen->strategicRegions);
-  victoryPointNames(pathcfg.gameModPath + "//localisation//english//",
-                    hoi4Gen->hoi4States);
+
   foci(pathcfg.gameModPath + "//common//national_focus//",
        hoi4Gen->hoi4Countries, hoi4Gen->nData);
   commonBookmarks(pathcfg.gameModPath + "//common//bookmarks//",
@@ -227,13 +224,23 @@ void Hoi4Module::writeTextFiles() {
                               pathcfg.gameModPath, pathcfg.gameModsDirectory,
                               pathcfg.modName);
 }
+void Hoi4Module::writeLocalisation() {
+
+  using namespace Parsing::Writing;
+  stateNames(pathcfg.gameModPath + "//localisation//english//",
+             hoi4Gen->hoi4Countries);
+  countryNames(pathcfg.gameModPath + "//localisation//english//",
+               hoi4Gen->hoi4Countries, hoi4Gen->nData);
+  strategicRegionNames(pathcfg.gameModPath + "//localisation//english//",
+                       hoi4Gen->strategicRegions);
+  victoryPointNames(pathcfg.gameModPath + "//localisation//english//",
+                    hoi4Gen->hoi4States);
+}
 void Hoi4Module::writeImages() {
   Fwg::Utils::Logging::logLine(
       "Writing Hoi4 mod image files to path: ",
       Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
-  // generate map files. Format must be converted and colours mapped to hoi4
-  // compatible colours
-  Gfx::Hoi4::FormatConverter formatConverter(pathcfg.gamePath, "Hoi4");
+
   formatConverter.dump8BitTerrain(hoi4Gen->climateData, hoi4Gen->civLayer,
                                   pathcfg.gameModPath + "//map//terrain.bmp",
                                   "terrain", cut);
@@ -275,7 +282,7 @@ void Hoi4Module::readHoi(std::string &path) {
   hoi4Gen->genSobelMap(config);
   hoi4Gen->genLand();
 
-    config.loadClimate = true;
+  config.loadClimate = true;
   hoi4Gen->loadClimate(config, path + "map//terrain.bmp");
   config.loadClimate = false;
   hoi4Gen->provinceMap =
@@ -311,7 +318,6 @@ void Hoi4Module::readHoi(std::string &path) {
   for (auto &c : continents) {
     hoi4Gen->areas.continents.push_back(c.second);
   }
-  
 
   // get the provinces into GameProvinces
   // hoi4Gen->mapProvinces();
@@ -411,6 +417,7 @@ void Hoi4Module::generate() {
   try {
     writeImages();
     writeTextFiles();
+    writeLocalisation();
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";

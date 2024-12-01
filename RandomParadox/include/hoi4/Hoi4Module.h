@@ -20,6 +20,7 @@ class Hoi4Module : public GenericModule {
 public:
   // Hoi4::Generator generator;
   std::shared_ptr<Hoi4::Generator> hoi4Gen;
+  Gfx::Hoi4::FormatConverter formatConverter;
   Hoi4Module(const boost::property_tree::ptree &rpdConf,
              const std::string &configSubFolder, const std::string &username,
              const bool editMode);
@@ -31,7 +32,9 @@ public:
                     const std::string &inputMap);
   void mapEdit();
   // void modEdit(std::string &path);
+  void initFormatConverter();
   void writeTextFiles();
+  void writeLocalisation();
   void writeImages();
   // clear and create all the mod paths at each run
   virtual bool createPaths();
