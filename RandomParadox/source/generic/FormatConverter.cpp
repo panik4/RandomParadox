@@ -272,6 +272,15 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
                                         const std::string &colourMapKey) const {
   Utils::Logging::logLine("FormatConverter::Copying heightmap to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
+  auto &conf = Cfg::Values();
+  if (!heightMap.initialised()) {
+    Utils::Logging::logLine("FormatConverter::Heightmap not yet initialised");
+    return;
+  }
+  if (heightMap.size() != conf.bitmapSize) {
+    Utils::Logging::logLine("FormatConverter::Heightmap size mismatch");
+    return;
+  }
   if (gameTag == "Vic3") {
     // need to scale to default vic3 map sizes, due to their compression
     int width = heightMap.width();
@@ -299,6 +308,31 @@ void FormatConverter::dump8BitTerrain(
   Utils::Logging::logLine("FormatConverter::Writing terrain to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
   auto &conf = Cfg::Values();
+  if (climateIn.climates.size() != conf.bitmapSize ||
+      climateIn.treeCoverage.size() != conf.bitmapSize ||
+      climateIn.dominantForest.size() != conf.bitmapSize ||
+      climateIn.landForms.size() != conf.bitmapSize) {
+    Utils::Logging::logLine("FormatConverter::Climate data size mismatch");
+    // print all the sizes
+    Utils::Logging::logLine("Climates size: ", climateIn.climates.size());
+    Utils::Logging::logLine("TreeCoverage size: ",
+                            climateIn.treeCoverage.size());
+    Utils::Logging::logLine("Dominant Forest size: ",
+                            climateIn.dominantForest.size());
+    Utils::Logging::logLine("Landforms size: ", climateIn.landForms.size());
+
+    return;
+  }
+  if (civLayer.urbanisation.size() != conf.bitmapSize ||
+      civLayer.agriculture.size() != conf.bitmapSize) {
+    Utils::Logging::logLine(
+        "FormatConverter::Urbanisation/agriculture size mismatch");
+    // print all the sizes
+    Utils::Logging::logLine("Urbanisation size: ",
+                            civLayer.urbanisation.size());
+    Utils::Logging::logLine("Agriculture size: ", civLayer.agriculture.size());
+    return;
+  }
   Bitmap hoi4terrain(conf.width, conf.height, 8);
   hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
   // hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
@@ -352,9 +386,8 @@ void FormatConverter::dump8BitCities(const Bitmap &climateIn,
                                      const std::string &path,
                                      const std::string &colourMapKey,
                                      const bool cut) const {
-  Utils::Logging::logLine(
-      "FormatConverter::Writing cities to ",
-      Fwg::Utils::userFilter(path, Cfg::Values().username));
+  Utils::Logging::logLine("FormatConverter::Writing cities to ",
+                          Fwg::Utils::userFilter(path, Cfg::Values().username));
   Bitmap cities(Cfg::Values().width, Cfg::Values().height, 8);
   cities.colourtable = colourTables.at(colourMapKey + gameTag);
   if (!cut) {
@@ -422,9 +455,23 @@ void FormatConverter::dump8BitTrees(
   Bitmap trees(((double)conf.width / factor), ((double)conf.height / factor),
                8);
   trees.colourtable = colourTables.at(colourMapKey + gameTag);
-  // we have to remove all coastal trees, as the downscaling can cause trees to appear in the water
+  // we have to remove all coastal trees, as the downscaling can cause trees to
+  // appear in the water
   auto treeCoverage = climateIn.treeCoverage;
-  std::vector<int> offsets = {1, -1, conf.width, -conf.width, 2, -2, 2*conf.width, -2*conf.width};
+
+  // check if treeCoverage is valid
+  if (treeCoverage.size() != conf.bitmapSize) {
+    Utils::Logging::logLine("FormatConverter::Tree coverage size mismatch");
+    return;
+  }
+  // check if dominantForest is valid
+  if (climateIn.dominantForest.size() != conf.bitmapSize) {
+    Utils::Logging::logLine("FormatConverter::Dominant forest size mismatch");
+    return;
+  }
+
+  std::vector<int> offsets = {1, -1, conf.width,     -conf.width,
+                              2, -2, 2 * conf.width, -2 * conf.width};
   for (auto i = 0; i < treeCoverage.size(); i++) {
     for (auto offset : offsets) {
       if (i + offset < treeCoverage.size() && i + offset >= 0) {
@@ -441,8 +488,7 @@ void FormatConverter::dump8BitTrees(
         double refHeight = ceil((double)i * factor);
         double refWidth =
             std::clamp((double)w * factor, 0.0, (double)Cfg::Values().width);
-        auto treeType =
-            (int)treeCoverage[refHeight * width + refWidth];
+        auto treeType = (int)treeCoverage[refHeight * width + refWidth];
         if (climateIn.dominantForest[refHeight * width + refWidth]) {
           // map the colour from
           trees.setColourAtIndex(
@@ -512,6 +558,17 @@ void FormatConverter::dumpTerrainColourmap(
   auto &cfg = Cfg::Values();
   Utils::Logging::logLine("FormatConverter::Writing terrain colourmap to ",
                           Utils::userFilter(modPath + mapName, cfg.username));
+
+  // check if all inputs are valid
+  if (climateMap.size() != cfg.bitmapSize) {
+    Utils::Logging::logLine("FormatConverter::Climate map size mismatch");
+    return;
+  }
+  if (civLayer.urbanisation.size() != cfg.bitmapSize) {
+    Utils::Logging::logLine("FormatConverter::Urbanisation size mismatch");
+    return;
+  }
+
   const auto &height = climateMap.height();
   const auto &width = climateMap.width();
   int factor = scaleFactor;
@@ -590,40 +647,11 @@ void FormatConverter::dumpWorldNormal(const Bitmap &sobelMap,
   Bmp::save(normalMap, (path).c_str());
 }
 
+FormatConverter::FormatConverter() {}
+
 FormatConverter::FormatConverter(const std::string &gamePath,
                                  const std::string &gameTag)
-    : gamePath{gamePath}, gameTag{gameTag} {
-  auto &conf = Cfg::Values();
-  std::string mapFolderName = "//map";
-  if (gameTag == "Vic3") {
-    mapFolderName.append("_data");
-    mapFolderName = "game" + mapFolderName;
-  }
-  std::string terrainsourceString =
-      (gamePath + mapFolderName + "//terrain.bmp");
-  Bitmap terrain =
-      Fwg::IO::Reader::readGenericImage(terrainsourceString, conf);
-  colourTables["terrain" + gameTag] = terrain.colourtable;
-
-  std::string citySource = (gamePath + mapFolderName + "//terrain.bmp");
-  Bitmap cities = Fwg::IO::Reader::readGenericImage(citySource, conf);
-  colourTables["cities" + gameTag] = cities.colourtable;
-
-  std::string riverSource = (gamePath + mapFolderName + "//rivers.bmp");
-  Bitmap rivers = Fwg::IO::Reader::readGenericImage(riverSource, conf);
-  colourTables["rivers" + gameTag] = rivers.colourtable;
-
-  std::string treeSource = (gamePath + mapFolderName + "//trees.bmp");
-  auto cut = conf.cut;
-  conf.cut = false;
-  Bitmap trees = Fwg::IO::Reader::readGenericImage(treeSource, conf, false);
-  conf.cut = cut;
-  colourTables["trees" + gameTag] = trees.colourtable;
-
-  std::string heightmapSource = (gamePath + mapFolderName + "//heightmap.bmp");
-  Bitmap heightmap = Fwg::IO::Reader::readGenericImage(heightmapSource, conf);
-  colourTables["heightmap" + gameTag] = heightmap.colourtable;
-}
+    : gamePath{gamePath}, gameTag{gameTag} {}
 
 FormatConverter::~FormatConverter() {}
 } // namespace Scenario::Gfx

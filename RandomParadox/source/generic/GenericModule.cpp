@@ -123,6 +123,8 @@ void GenericModule::initNameData(const std::string &path,
   generator->nData = NameGeneration::prepare(path, gamePath);
 }
 
+void GenericModule::initFormatConverter() {}
+
 void GenericModule::writeFiles() {}
 
 void GenericModule::writeImages() {}

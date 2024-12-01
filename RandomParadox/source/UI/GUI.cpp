@@ -688,6 +688,7 @@ int GUI::showRpdxConfigure(
       if (validatedPaths)
         validatedPaths =
             activeModule->validateModFolder(activeGameConfig.gameName);
+      activeModule->initFormatConverter();
     }
     ImGui::PopItemWidth();
     ImGui::EndTabItem();
@@ -1231,7 +1232,7 @@ int GUI::showHoi4Finalise(
                 "configured paths");
     auto &generator = hoi4Module->hoi4Gen;
     if (generator->strategicRegions.size()) {
-      if (ImGui::Button("Export mod")) {
+      if (ImGui::Button("Export complete mod")) {
 
         computationFutureBool = runAsync([generator, hoi4Module, &cfg, this]() {
           // now generate hoi4 specific stuff
@@ -1240,6 +1241,7 @@ int GUI::showHoi4Finalise(
             generator->evaluateCountries();
             hoi4Module->writeImages();
             hoi4Module->writeTextFiles();
+            hoi4Module->writeLocalisation();
             generator->printStatistics();
           } catch (std::exception e) {
             pathWarning(e);
@@ -1247,6 +1249,55 @@ int GUI::showHoi4Finalise(
           return true;
         });
       }
+
+      //     formatConverter.dump8BitCities(hoi4Gen->climateMap,
+      //                                    pathcfg.gameModPath +
+      //                                    "//map//cities.bmp", "cities", cut);
+      //     formatConverter.dump8BitRivers(hoi4Gen->climateData,
+      //                                    pathcfg.gameModPath +
+      //                                    "//map//rivers", "rivers", cut);
+
+      //     formatConverter.dumpDDSFiles(
+      //         hoi4Gen->riverMap, hoi4Gen->heightMap,
+      //         pathcfg.gameModPath + "//map//terrain//colormap_water_", cut,
+      //         8);
+
+      if (ImGui::Button("Export heightmap.bmp")) {
+        hoi4Module->formatConverter.dump8BitHeightmap(
+            hoi4Module->generator->heightMap,
+            hoi4Module->pathcfg.gameModPath + "//map//heightmap", "heightmap");
+      }
+      if (ImGui::Button("Export world_normal.bmp")) {
+        hoi4Module->formatConverter.dumpWorldNormal(
+            hoi4Module->generator->sobelMap,
+            hoi4Module->pathcfg.gameModPath + "//map//world_normal.bmp", false);
+      }
+      if (ImGui::Button("Export terrain.bmp")) {
+        hoi4Module->formatConverter.dump8BitTerrain(
+            hoi4Module->generator->climateData, hoi4Module->generator->civLayer,
+            hoi4Module->pathcfg.gameModPath + "//map//terrain.bmp", "terrain",
+            false);
+      }
+      if (ImGui::Button("Export provinces.bmp")) {
+        Fwg::Gfx::Bmp::save(
+            hoi4Module->generator->provinceMap,
+            (hoi4Module->pathcfg.gameModPath + ("//map//provinces.bmp"))
+                .c_str());
+      }
+      if (ImGui::Button("Export treemap.bmp")) {
+        hoi4Module->formatConverter.dump8BitTrees(
+            hoi4Module->generator->climateData,
+            hoi4Module->pathcfg.gameModPath + "//map//trees.bmp", "trees",
+            false);
+      }
+      if (ImGui::Button("Export colormap_rgb_cityemissivemask_a.dds")) {
+        hoi4Module->formatConverter.dumpTerrainColourmap(
+            hoi4Module->generator->worldMap, hoi4Module->generator->civLayer,
+            hoi4Module->pathcfg.gameModPath,
+            "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
+            DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
+      }
+
     } else {
       ImGui::Text("Generate strategic regions first before exporting the mod");
     }

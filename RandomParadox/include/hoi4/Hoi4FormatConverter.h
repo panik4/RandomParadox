@@ -11,6 +11,7 @@ class FormatConverter : public Scenario::Gfx::FormatConverter {
 
 public:
   // constructor/destructor
+  FormatConverter();
   FormatConverter(const std::string &gamePath, const std::string &gameTag);
   ~FormatConverter();
   // member functions

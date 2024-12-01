@@ -36,6 +36,7 @@ public:
   virtual void initNameData(const std::string &path,
                             const std::string &gamePath);
 
+  virtual void initFormatConverter();
   virtual void writeFiles();
   virtual void writeImages();
 };

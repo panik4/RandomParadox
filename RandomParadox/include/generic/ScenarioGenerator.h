@@ -61,7 +61,7 @@ public:
   /* member functions*/
   // print a map showing all countries for debug purposes
   Fwg::Gfx::Bitmap visualiseCountries(Fwg::Gfx::Bitmap &countryBmp,
-                                       const int ID = -1);
+                                      const int ID = -1);
   // specific preparations. Used by each game, BUT to create game scenario
   void loadRequiredResources(const std::string &gamePath);
   // generic preparations. However, if desired, there are necessary preparations
@@ -87,7 +87,6 @@ public:
   virtual void generateEconomicActivity();
   // determine importance from population, development and economicActivity
   void generateImportance();
-
 
   void generateReligions();
   void generateCultures();
@@ -239,6 +238,9 @@ public:
   virtual void evaluateCountries();
   virtual void printStatistics();
 
+  virtual void writeTextFiles();
+  virtual void writeLocalisation();
+  virtual void writeImages();
 
 }; // namespace Scenario
 } // namespace Scenario

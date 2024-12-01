@@ -452,32 +452,6 @@ Fwg::Gfx::Bitmap Generator::visualiseStrategicRegions(const int ID) {
   return stratRegionMap;
 }
 
-void Generator::evaluateCountryNeighbours() {
-  Logging::logLine("Evaluating Country Neighbours");
-  for (auto &c : countries)
-    for (const auto &gR : c.second->ownedRegions)
-      for (const auto &neighbourRegion : gR->neighbours)
-        // TO DO: Investigate rare crash issue with index being out of range
-        if (neighbourRegion < gameRegions.size() &&
-            gameRegions[neighbourRegion]->owner != c.first)
-          c.second->neighbours.insert(gameRegions[neighbourRegion]->owner);
-}
-
-void Generator::evaluateCountries() {}
-void Generator::printStatistics() {
-  Logging::logLine("Printing Statistics");
-  std::map<std::string, int> countryPop;
-  for (auto &c : countries) {
-    countryPop[c.first] = 0;
-    for (auto &gR : c.second->ownedRegions) {
-      countryPop[c.first] += gR->totalPopulation;
-    }
-  }
-  for (auto &c : countries) {
-    Logging::logLine("Country: ", c.first,
-                     " Population: ", countryPop[c.first]);
-  }
-}
 Bitmap Generator::visualiseCountries(Fwg::Gfx::Bitmap &countryBmp,
                                      const int ID) {
   Logging::logLine("Drawing borders");
@@ -525,4 +499,33 @@ Bitmap Generator::visualiseCountries(Fwg::Gfx::Bitmap &countryBmp,
   }
   return countryBmp;
 }
+void Generator::evaluateCountryNeighbours() {
+  Logging::logLine("Evaluating Country Neighbours");
+  for (auto &c : countries)
+    for (const auto &gR : c.second->ownedRegions)
+      for (const auto &neighbourRegion : gR->neighbours)
+        // TO DO: Investigate rare crash issue with index being out of range
+        if (neighbourRegion < gameRegions.size() &&
+            gameRegions[neighbourRegion]->owner != c.first)
+          c.second->neighbours.insert(gameRegions[neighbourRegion]->owner);
+}
+
+void Generator::evaluateCountries() {}
+void Generator::printStatistics() {
+  Logging::logLine("Printing Statistics");
+  std::map<std::string, int> countryPop;
+  for (auto &c : countries) {
+    countryPop[c.first] = 0;
+    for (auto &gR : c.second->ownedRegions) {
+      countryPop[c.first] += gR->totalPopulation;
+    }
+  }
+  for (auto &c : countries) {
+    Logging::logLine("Country: ", c.first,
+                     " Population: ", countryPop[c.first]);
+  }
+}
+void Generator::writeTextFiles() {}
+void Generator::writeLocalisation() {}
+void Generator::writeImages() {}
 } // namespace Scenario

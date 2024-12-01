@@ -802,7 +802,7 @@ void scriptedTriggers(std::string gamePath, std::string modPath) {
 void commonFiltering(const std::string &gamePath, const std::string &modPath) {
   Logging::logLine("HOI4 Parser: Common: Filtering Files");
   std::vector<std::string> filenames{
-      "common//scripted_triggers//00_scripted_triggers.txt"};
+      "//common//scripted_triggers//00_scripted_triggers.txt"};
   for (const auto &filename : filenames) {
     auto content = pU::readFile(gamePath + filename);
     auto blocks =
