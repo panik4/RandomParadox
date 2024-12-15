@@ -151,7 +151,7 @@ std::vector<uint8_t> Flag::resize(const int width, const int height,
 }
 
 void Flag::readColourGroups() {
-  auto lines = PU::getLines("resources//flags//colour_groups.txt");
+  auto lines = PU::getLines(Fwg::Cfg::Values().resourcePath + "flags//colour_groups.txt");
   for (const auto &line : lines) {
     if (!line.size())
       continue;
@@ -166,7 +166,7 @@ void Flag::readColourGroups() {
 }
 
 void Flag::readFlagTypes() {
-  auto lines = PU::getLines("resources//flags//flag_types.txt");
+  auto lines = PU::getLines(Fwg::Cfg::Values().resourcePath + "flags//flag_types.txt");
   for (const auto &line : lines) {
     if (!line.size())
       continue;
@@ -190,13 +190,13 @@ void Flag::readFlagTypes() {
 
 void Flag::readFlagTemplates() {
   for (auto i = 0; i < 100; i++) {
-    if (std::filesystem::exists("resources//flags//flag_presets//" +
+    if (std::filesystem::exists(Fwg::Cfg::Values().resourcePath + "flags//flag_presets//" +
                                 std::to_string(i) + ".tga")) {
       flagTemplates.push_back(Gfx::Textures::readTGA(
-          "resources//flags//flag_presets//" + std::to_string(i) + ".tga"));
+          Fwg::Cfg::Values().resourcePath + "flags//flag_presets//" + std::to_string(i) + ".tga"));
       // get line and immediately tokenize it
       auto tokens =
-          PU::getTokens(PU::getLines("resources//flags//flag_presets//" +
+          PU::getTokens(PU::getLines(Fwg::Cfg::Values().resourcePath + "flags//flag_presets//" +
                                      std::to_string(i) + ".txt")[0],
                         ';');
       flagMetadata.push_back({PU::getTokens(tokens[0], ','),
@@ -207,13 +207,13 @@ void Flag::readFlagTemplates() {
 }
 void Flag::readSymbolTemplates() {
   for (int i = 0; i < 100; i++) {
-    if (std::filesystem::exists("resources//flags//symbol_presets//" +
+    if (std::filesystem::exists(Fwg::Cfg::Values().resourcePath + "flags//symbol_presets//" +
                                 std::to_string(i) + ".tga")) {
       symbolTemplates.push_back(Gfx::Textures::readTGA(
-          "resources//flags//symbol_presets//" + std::to_string(i) + ".tga"));
+          Fwg::Cfg::Values().resourcePath + "flags//symbol_presets//" + std::to_string(i) + ".tga"));
       // get line and immediately tokenize it
       auto tokens =
-          PU::getTokens(PU::getLines("resources//flags//symbol_presets//" +
+          PU::getTokens(PU::getLines(Fwg::Cfg::Values().resourcePath + "flags//symbol_presets//" +
                                      std::to_string(i) + ".txt")[0],
                         ';');
       symbolMetadata.push_back({tokens[0] == "true"});

@@ -52,3 +52,8 @@ sysinfo.txt
 *.apk
 *.unitypackage
 
+
+#CMake
+CMakeFiles/*
+*.cmake*
+x64*

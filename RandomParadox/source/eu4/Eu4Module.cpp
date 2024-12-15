@@ -110,7 +110,7 @@ void Module::generate() {
   if (!createPaths())
     return;
 
-  initNameData("resources//names", this->pathcfg.gamePath);
+  initNameData(this->pathcfg.resourcePath + "//names", this->pathcfg.gamePath);
   try {
     // start with the generic stuff in the Scenario Generator
     eu4Gen->mapProvinces();
@@ -205,7 +205,7 @@ void Module::generate() {
       writeTradewinds(pathcfg.gameModPath + "//map//trade_winds.txt",
                       eu4Gen->gameProvinces);
 
-      copyDescriptorFile("resources//eu4//descriptor.mod", pathcfg.gameModPath,
+      copyDescriptorFile(this->pathcfg.resourcePath + "//eu4//descriptor.mod", pathcfg.gameModPath,
                          pathcfg.gameModsDirectory, pathcfg.modName);
 
       writeProvinces(pathcfg.gameModPath + "//history//provinces//",

@@ -62,7 +62,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                       nullptr,
                       L"RandomParadox",
                       nullptr};
-    HICON hIcon = (HICON)LoadImage(NULL, "resources//worldMap.ico", IMAGE_ICON,
+    HICON hIcon = (HICON)LoadImage(NULL, (Fwg::Cfg::Values().resourcePath + "worldMap.ico").c_str(), IMAGE_ICON,
                                    0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
     if (hIcon) {
       // Icon loaded successfully, set it to the window class
@@ -114,11 +114,11 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
     activeModule = std::make_shared<Scenario::Hoi4::Hoi4Module>(
         Scenario::Hoi4::Hoi4Module(rpdConf, configSubFolder, username, false));
     activeModule->generator->climateData.addSecondaryColours(
-        Fwg::Parsing::getLines("resources/hoi4/colourMappings.txt"));
+        Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath + "hoi4/colourMappings.txt"));
     initAllowedInput(cfg, activeModule->generator->climateData,
                      activeModule->generator->terrainData.elevationTypes);
     initGameConfigs();
-    this->uiUtils->loadHelpTextsFromFile("resources//uiHelpTexts.txt");
+    this->uiUtils->loadHelpTextsFromFile(Fwg::Cfg::Values().resourcePath + "uiHelpTexts.txt");
     uiUtils->setClickOffsets(cfg.width, 1);
     frequency = cfg.overallFrequencyModifier;
     log = std::make_shared<std::stringstream>();
@@ -631,7 +631,7 @@ int GUI::showRpdxConfigure(
             Scenario::Hoi4::Hoi4Module(rpdConf, configSubFolder, username,
                                        false));
         activeModule->generator->climateData.addSecondaryColours(
-            Fwg::Parsing::getLines("resources/hoi4/colourMappings.txt"));
+            Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath + "hoi4/colourMappings.txt"));
       } else if (gameConfigs[selectedGame].gameName ==
                  "Europa Universalis IV") {
         activeModule = std::make_shared<Scenario::Eu4::Module>(
@@ -700,7 +700,7 @@ int GUI::showRpdxConfigure(
     cfg.heightmapIn = cfg.loadMapsPath + "heightmap.bmp";
   }
   if (cfg.loadClimate) {
-    cfg.climateMappingPath = "resources//" + activeGameConfig.gameShortName +
+    cfg.climateMappingPath = Fwg::Cfg::Values().resourcePath + "" + activeGameConfig.gameShortName +
                              "//climateMapping.txt ";
   }
   return 0;
@@ -777,7 +777,7 @@ int GUI::showScenarioTab(
           Fwg::Utils::Logging::logLine("ERROR: Couldn't create paths");
           retCode = -1;
         }
-        activeModule->initNameData("resources//names",
+        activeModule->initNameData(Fwg::Cfg::Values().resourcePath + "names",
                                    activeModule->pathcfg.gamePath);
         // start with the generic stuff in the Scenario Generator
         activeModule->generator->mapProvinces();

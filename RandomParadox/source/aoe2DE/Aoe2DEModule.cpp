@@ -27,8 +27,8 @@ void Module::genAoe2() {
   Fwg::Utils::Logging::logLine("AAAA");
   const auto &conf = Fwg::Cfg::Values();
   const auto &colours = conf.colours;
-  const auto &templateFile =
-      Parsing::readFile("resources/aoe2/base_skeleton.txt");
+  const auto &templateFile = Parsing::readFile(Fwg::Cfg::Values().resourcePath +
+                                               "aoe2/base_skeleton.txt");
   try {
     std::string file = templateFile;
     std::string playerPos{""};

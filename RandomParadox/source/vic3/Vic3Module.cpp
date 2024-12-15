@@ -141,7 +141,7 @@ void Module::generate() {
   if (!createPaths())
     return;
 
-  initNameData("resources//names", this->pathcfg.gamePath);
+  initNameData(Fwg::Cfg::Values().resourcePath + "names", this->pathcfg.gamePath);
   try {
     // start with the generic stuff in the Scenario Generator
     vic3Gen->mapProvinces();

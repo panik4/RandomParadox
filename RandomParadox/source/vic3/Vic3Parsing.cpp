@@ -16,7 +16,7 @@ void adj(const std::string &path) {
 
 void defaultMap(const std::string &path,
                 const std::vector<std::shared_ptr<GameProvince>> &provinces) {
-  auto templateContent = pU::readFile("resources//vic3//map_data//default.map");
+  auto templateContent = pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//map_data//default.map");
   Logging::logLine("Vic3 Parser: Map: Default Map");
   std::string content = templateContent;
   std::string seaStarts{""};
@@ -44,7 +44,7 @@ void defaultMap(const std::string &path,
 void defines(const std::string &pathOut) {
   const auto &cfg = Cfg::Values();
   auto templateContent =
-      pU::readFile("resources//vic3//common//defines//01_defines.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//defines//01_defines.txt");
   pU::Scenario::replaceOccurences(templateContent, "template_mapX",
                                   std::to_string(cfg.width));
   pU::Scenario::replaceOccurences(templateContent, "template_mapY",
@@ -54,7 +54,7 @@ void defines(const std::string &pathOut) {
 
 void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap,
                const Fwg::Gfx::Bitmap &packedHeightmap) {
-  auto content = pU::readFile("resources//vic3//map_data//heightmap.heightmap");
+  auto content = pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//map_data//heightmap.heightmap");
   Logging::logLine("Vic3 Parser: Map: Writing heightmap.heightmap");
   pU::Scenario::replaceOccurences(content, "template_mapX",
                                   std::to_string(heightMap.width()));
@@ -70,9 +70,9 @@ void stateFiles(const std::string &path,
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing state files");
 
   const auto templateFile =
-      pU::readFile("resources//vic3//map_data//state_template.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//map_data//state_template.txt");
   const auto seaTemplateFile =
-      pU::readFile("resources//vic3//map_data//sea_state_template.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//map_data//sea_state_template.txt");
   std::string file = "";
   for (const auto &region : regions) {
     auto content = region->sea ? seaTemplateFile : templateFile;
@@ -194,7 +194,7 @@ void provinceTerrains(
 }
 void writeMetadata(const std::string &path) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Mod: Writing metadata.json");
-  const auto templateFile = pU::readFile("resources//vic3//metadata.json");
+  const auto templateFile = pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//metadata.json");
 
   pU::writeFile(path, templateFile);
 }
@@ -204,7 +204,7 @@ void strategicRegions(const std::string &path,
 
   Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Strategig Regions");
   const auto templateFile =
-      pU::readFile("resources//vic3//common//strategic_regions//template.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//strategic_regions//template.txt");
   std::string file = "";
   for (const auto &region : strategicRegions) {
     auto content = templateFile;
@@ -230,7 +230,7 @@ void cultureCommon(const std::string &path,
                    const std::vector<std::shared_ptr<Culture>> &cultures) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing cultures");
   const auto culturesTemplate =
-      pU::readFile("resources//vic3//common//cultureTemplate.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//cultureTemplate.txt");
   std::string cultureFile{""};
   for (const auto &culture : cultures) {
     auto cultString = culturesTemplate;
@@ -253,9 +253,9 @@ void religionCommon(const std::string &path,
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing religions");
 
   const auto religionTemplate =
-      pU::readFile("resources//vic3//common//singleReligionTemplate.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//singleReligionTemplate.txt");
   auto religionFile =
-      pU::readFile("resources//vic3//common//religionTemplate.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//religionTemplate.txt");
   for (const auto &religion : religions) {
     auto relString = religionTemplate;
 
@@ -271,7 +271,7 @@ void countryCommon(
     const std::vector<std::shared_ptr<Region>> &regions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing countries");
   const auto countryTemplate =
-      pU::readFile("resources//vic3//common//countryDefinitionTemplate.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//countryDefinitionTemplate.txt");
   std::string countryDefinition{""};
   for (const auto &country : countries) {
     auto cString = countryTemplate;
@@ -304,12 +304,12 @@ void popsHistory(const std::string &path,
                  const std::vector<std::shared_ptr<Region>> &regions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing pops");
   auto popsFile =
-      pU::readFile("resources//vic3//common//history//popsTemplate.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//history//popsTemplate.txt");
   // std::string statePops = "";
   const auto popsSingleTemplate =
-      pU::readFile("resources//vic3//common//history//popsSingleTemplate.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//history//popsSingleTemplate.txt");
   const auto popsStateTemplate =
-      pU::readFile("resources//vic3//common//history//popsStateTemplate.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//history//popsStateTemplate.txt");
   std::string listOfStates{""};
   for (const auto &region : regions) {
     if (region->sea)
@@ -339,10 +339,10 @@ void popsHistory(const std::string &path,
 void stateHistory(const std::string &path,
                   const std::vector<std::shared_ptr<Region>> &regions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing state history");
-  auto file = pU::readFile("resources//vic3//common//history//states.txt");
+  auto file = pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//history//states.txt");
   std::string stateContent = "";
   const auto stateTemplate =
-      pU::readFile("resources//vic3//common//history//stateTemplate.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//history//stateTemplate.txt");
   for (const auto &region : regions) {
     if (region->sea)
       continue;
@@ -371,7 +371,7 @@ void countryHistory(
     const std::map<std::string, std::shared_ptr<Country>> &countries) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing country history");
   const auto countryTemplate = pU::readFile(
-      "resources//vic3//common//history//countryHistoryTemplate.txt");
+      Fwg::Cfg::Values().resourcePath + "vic3//common//history//countryHistoryTemplate.txt");
   for (const auto &country : countries) {
     auto cString = countryTemplate;
 
@@ -389,7 +389,7 @@ void staticModifiers(const std::string &path,
                      const std::vector<std::shared_ptr<Religion>> &religions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing static modifiers");
   const auto cultureTemplateFile =
-      pU::readFile("resources//vic3//common//static_modifiers//"
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//static_modifiers//"
                    "culture_standard_of_living.txt");
   std::string cultureContent = "";
   for (const auto &culture : cultures) {
@@ -400,7 +400,7 @@ void staticModifiers(const std::string &path,
   pU::writeFile(path + "//07_culture_standard_of_living.txt", cultureContent);
   // now the same for the religions
   const auto religionTemplateFile =
-      pU::readFile("resources//vic3//common//static_modifiers//"
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//static_modifiers//"
                    "religion_standard_of_living.txt");
   std::string religionContent = "";
   for (const auto &religion : religions) {
@@ -533,9 +533,9 @@ void locators(const std::string &path,
               const std::vector<std::shared_ptr<Region>> &regions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing locators");
   const auto locatorsTemplate =
-      pU::readFile("resources//vic3//gfx//generated_map_object_locators.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//gfx//generated_map_object_locators.txt");
   const auto singeLocatorTemplate =
-      pU::readFile("resources//vic3//gfx//single_locator_instance.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//gfx//single_locator_instance.txt");
   std::string cityContent = locatorsTemplate;
   pU::replaceOccurence(cityContent, "templateWaterClamp", "no");
   std::string farmContent = cityContent;
@@ -602,11 +602,11 @@ void Scenario::Vic3::Parsing::History::writeBuildings(
 
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Constructing economy");
   auto buildingsTemplate =
-      pU::readFile("resources//vic3//common//history//buildingsTemplate.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//history//buildingsTemplate.txt");
   const auto buildingsStateTemplate = pU::readFile(
-      "resources//vic3//common//history//buildingsStateTemplate.txt");
+      Fwg::Cfg::Values().resourcePath + "vic3//common//history//buildingsStateTemplate.txt");
   const auto buildingsSingleBuildingTemplate = pU::readFile(
-      "resources//vic3//common//history//buildingsSingleBuildingTemplate.txt");
+      Fwg::Cfg::Values().resourcePath + "vic3//common//history//buildingsSingleBuildingTemplate.txt");
   std::string allStateString;
   for (auto &region : regions) {
     if (region->sea)

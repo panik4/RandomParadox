@@ -36,13 +36,13 @@ void airports(const std::string &path,
 }
 
 void aiStrategy(const std::string &path, const CountryMap &countries) {
-  // copy folders ai_areas and ai_strategy from resources//hoi4//common// to
+  // copy folders ai_areas and ai_strategy from cfg::Values().resourcePath + "/hoi4//common// to
   // path//common//
   Logging::logLine("HOI4 Parser: Map: Writing AI Strategies");
 
-  std::filesystem::path sourceAiAreas = "resources//hoi4//common//ai_areas";
+  std::filesystem::path sourceAiAreas = Fwg::Cfg::Values().resourcePath + "hoi4//common//ai_areas";
   std::filesystem::path sourceAiStrategy =
-      "resources//hoi4//common//ai_strategy";
+      Fwg::Cfg::Values().resourcePath + "hoi4//common//ai_strategy";
 
   try {
 
@@ -62,7 +62,7 @@ void aiStrategy(const std::string &path, const CountryMap &countries) {
 void events(const std::string &path, const CountryMap &countries) {
 
   Logging::logLine("HOI4 Parser: Map: Writing events");
-  std::filesystem::path sourceEvents = "resources//hoi4//events";
+  std::filesystem::path sourceEvents = Fwg::Cfg::Values().resourcePath + "hoi4//events";
   try {
 
     // Copy ai_areas folder
@@ -79,7 +79,7 @@ void ambientObjects(const std::string &path,
   Logging::logLine("HOI4 Parser: Map: editing ambient objects to ",
                    Fwg::Utils::userFilter(path, Fwg::Cfg::Values().username));
   auto templateContent =
-      pU::readFile("resources//hoi4//map//ambient_object.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4//map//ambient_object.txt");
 
   pU::Scenario::replaceOccurences(templateContent, "template_yresolution_top",
                                   std::to_string(heightMap.height() + 142));
@@ -116,8 +116,8 @@ void buildings(const std::string &path,
 void continents(const std::string &path,
                 const std::vector<Continent> &continents) {
   Logging::logLine("HOI4 Parser: Map: Writing Continents");
-  // copy continents file from resources//hoi4//map// to path//map//
-  std::filesystem::path source = "resources//hoi4//map//continent.txt";
+  // copy continents file from cfg::Values().resourcePath + "/hoi4//map// to path//map//
+  std::filesystem::path source = Fwg::Cfg::Values().resourcePath + "hoi4//map//continent.txt";
   try {
     // Copy continents file
     std::filesystem::copy(source, path);
@@ -351,7 +351,7 @@ void strategicRegions(const std::string &path,
                                             30, 30, 29, 30, 29, 30};
   Logging::logLine("HOI4 Parser: Map: Drawing Strategic Regions");
   auto templateContent =
-      pU::readFile("resources//hoi4//map//strategic_region.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4//map//strategic_region.txt");
   const auto templateWeather =
       pU::Scenario::getBracketBlock(templateContent, "period");
   for (auto i = 0; i < strategicRegions.size(); i++) {
@@ -447,7 +447,7 @@ void supply(const std::string &path,
 void states(const std::string &path,
             const std::vector<std::shared_ptr<Region>> &regions) {
   Logging::logLine("HOI4 Parser: History: Drawing State Borders");
-  auto templateContent = pU::readFile("resources//hoi4//history//state.txt");
+  auto templateContent = pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4//history//state.txt");
   std::vector<std::string> stateCategories{
       "wasteland",  "small_island", "pastoral",   "rural",      "town",
       "large_town", "city",         "large_city", "metropolis", "megalopolis"};
@@ -542,7 +542,7 @@ void flags(const std::string &path, const CountryMap &countries) {
 void historyCountries(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: History: Writing Country History");
   const auto content =
-      pU::readFile("resources//hoi4//history//country_template.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4//history//country_template.txt");
   for (const auto &country : countries) {
     auto tempPath = path + country.first + " - " + country.second.name + ".txt";
     auto countryText{content};
@@ -571,17 +571,17 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
 void historyUnits(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: History: Deploying the Troops");
   const auto defaultTemplate =
-      pU::readFile("resources//hoi4//history//default_unit_template.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4//history//default_unit_template.txt");
   const auto unitBlock =
-      pU::readFile("resources//hoi4//history//unit_block.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4//history//unit_block.txt");
 
   const auto unitTemplateFile =
-      pU::readFile("resources//hoi4//history//divisionTemplates.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4//history//divisionTemplates.txt");
   // now tokenize by : character to get single
   const auto unitTemplates = pU::getTokens(unitTemplateFile, ':');
 
   // auto IDMapFile =
-  // pU::getLines("resources//hoi4//history//divisionIDMapper.txt");
+  // pU::getLines(Fwg::Cfg::Values().resourcePath + "hoi4//history//divisionIDMapper.txt");
   std::map<int, std::string> IDMap;
   /*for (const auto& line : IDMapFile) {
           if (line.size()) {
@@ -676,7 +676,7 @@ void commonBookmarks(
     const std::string &path, const CountryMap &countries,
     const std::map<int, std::vector<std::string>> &strengthScores) {
   auto bookmarkTemplate = pU::readFile(
-      "resources//hoi4//common//bookmarks//the_gathering_storm.txt");
+      Fwg::Cfg::Values().resourcePath + "hoi4//common//bookmarks//the_gathering_storm.txt");
   int count = 0;
   const auto majorTemplate =
       pU::Scenario::getBracketBlock(bookmarkTemplate, "templateMajorTAG") +
@@ -724,9 +724,9 @@ void commonCountries(const std::string &path, const std::string &hoiPath,
                      const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: Common: Writing Countries");
   const auto content =
-      pU::readFile("resources//hoi4//common//country_default.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4//common//country_default.txt");
   const auto colorsTxtTemplate =
-      pU::readFile("resources//hoi4//common//colors.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4//common//colors.txt");
   std::string colorsTxt = pU::readFile(hoiPath);
   for (const auto &country : countries) {
     auto tempPath = path + country.second.name + ".txt";
@@ -863,13 +863,13 @@ void foci(const std::string &path, const CountryMap &countries,
           const NameGeneration::NameData &nData) {
   Logging::logLine("HOI4 Parser: History: Demanding Danzig");
   const auto focusTypes =
-      pU::getLines("resources//hoi4//ai//national_focus//baseFiles//foci.txt");
+      pU::getLines(Fwg::Cfg::Values().resourcePath + "hoi4//ai//national_focus//baseFiles//foci.txt");
   std::string baseTree = pU::readFile(
-      "resources//hoi4//ai//national_focus//baseFiles//focusBase.txt");
+      Fwg::Cfg::Values().resourcePath + "hoi4//ai//national_focus//baseFiles//focusBase.txt");
   std::vector<std::string> focusTemplates;
   for (const auto &focusType : focusTypes)
     focusTemplates.push_back(
-        pU::readFile("resources//hoi4//ai//national_focus//focusTypes//" +
+        pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4//ai//national_focus//focusTypes//" +
                      focusType + "Focus.txt"));
 
   for (const auto &c : countries) {
@@ -1035,6 +1035,8 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
     std::string pathString = dir_entry.path().string();
     std::string filename =
         dir_entry.path().filename().string();
+    if (filename[0] == '.')
+      continue;
     auto content = pU::readFile(pathString);
     while (content.find("start_resistance = yes") != std::string::npos) {
       pU::Scenario::removeSurroundingBracketBlockFromLineBreak(
@@ -1374,7 +1376,7 @@ void readWeatherPositions(const std::string &path,
 
 std::vector<std::string> readTypeMap() {
   return pU::getLines(
-      "resources//hoi4//ai//national_focus//baseFiles//foci.txt");
+      Fwg::Cfg::Values().resourcePath + "hoi4//ai//national_focus//baseFiles//foci.txt");
 }
 
 std::map<std::string, std::string> readRewardMap(const std::string &path) {

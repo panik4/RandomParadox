@@ -67,6 +67,9 @@ class GUI : Fwg::fwgUI {
                         std::shared_ptr<Scenario::GenericModule> genericModule);
   int showStrategicRegionTab(Fwg::Cfg &cfg,
                              std::shared_ptr<Scenario::Generator> generator);
+  // to display the terrain maps/masks etc
+  int showTerrainTab(Fwg::Cfg &cfg,
+                     std::shared_ptr<Scenario::Generator> generator);
   // HOI stuff
   int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
   void pathWarning(std::exception e);

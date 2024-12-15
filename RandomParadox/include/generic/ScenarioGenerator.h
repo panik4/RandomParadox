@@ -7,7 +7,7 @@
 #include "GameRegion.h"
 #include "NameGenerator.h"
 #include "ParserUtils.h"
-#include "RandNum/RandNum.h"
+#include "RandNum.h"
 #include "Religion.h"
 #include "ResourceLoading.h"
 #include "ScenarioContinent.h"

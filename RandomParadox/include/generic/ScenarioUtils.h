@@ -38,6 +38,7 @@ struct Pathcfg {
   std::string gameModPath;
   std::string gameModsDirectory;
   std::string mappingPath;
+  std::string resourcePath;
 };
 
 }; // namespace Scenario::Utils
