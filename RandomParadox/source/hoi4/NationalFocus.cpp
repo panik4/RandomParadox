@@ -22,11 +22,11 @@ void NationalFocus::buildMaps() {
     typeMapping[types[i]] = (FocusType)i;
   }
   availableMap = Parsing::readRewardMap(
-      "resources//hoi4//ai//national_focus//baseFiles//available.txt");
+      Fwg::Cfg::Values().resourcePath + "hoi4//ai//national_focus//baseFiles//available.txt");
   bypassMap = Parsing::readRewardMap(
-      "resources//hoi4//ai//national_focus//baseFiles//bypass.txt");
+      Fwg::Cfg::Values().resourcePath + "hoi4//ai//national_focus//baseFiles//bypass.txt");
   rewardMap = Parsing::readRewardMap(
-      "resources//hoi4//ai//national_focus//baseFiles//completionRewards.txt");
+      Fwg::Cfg::Values().resourcePath + "hoi4//ai//national_focus//baseFiles//completionRewards.txt");
 }
 
 std::ostream &operator<<(std::ostream &os, const NationalFocus &focus) {

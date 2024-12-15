@@ -220,7 +220,7 @@ void Hoi4Module::writeTextFiles() {
   commonBookmarks(pathcfg.gameModPath + "//common//bookmarks//",
                   hoi4Gen->hoi4Countries, hoi4Gen->countryImportanceScores);
   tutorials(pathcfg.gameModPath + "//tutorial//tutorial.txt");
-  Parsing::copyDescriptorFile("resources//hoi4//descriptor.mod",
+  Parsing::copyDescriptorFile(Fwg::Cfg::Values().resourcePath + "hoi4//descriptor.mod",
                               pathcfg.gameModPath, pathcfg.gameModsDirectory,
                               pathcfg.modName);
 }
@@ -273,7 +273,7 @@ void Hoi4Module::writeImages() {
 
 void Hoi4Module::readHoi(std::string &path) {
   path.append("//");
-  initNameData("resources//names", path);
+  initNameData(Fwg::Cfg::Values().resourcePath + "names", path);
   auto &config = Fwg::Cfg::Values();
   bool bufferedCut = config.cut;
   config.cut = false;
@@ -375,7 +375,7 @@ void Hoi4Module::generate() {
   if (!createPaths())
     return;
   try {
-    initNameData("resources//names", this->pathcfg.gamePath);
+    initNameData(Fwg::Cfg::Values().resourcePath + "names", this->pathcfg.gamePath);
     // start with the generic stuff in the Scenario hoi4Gen
     hoi4Gen->mapProvinces();
     hoi4Gen->mapRegions();

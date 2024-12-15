@@ -74,7 +74,7 @@ NameData prepare(const std::string &path, const std::string &gamePath) {
   NameData nameData;
 
   auto additionalForbidden =
-      Fwg::Parsing::getLines("resources//hoi4//history//forbidden_tags.txt");
+      Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath + "hoi4//history//forbidden_tags.txt");
   for (const auto &tag : additionalForbidden)
     nameData.disallowedTokens.insert(tag);
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include "RandNum/RandNum.h"
+#include "RandNum.h"
 #include "generic/Flag.h"
 #include "generic/GameRegion.h"
 #include <string>

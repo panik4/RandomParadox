@@ -689,7 +689,7 @@ void Generator::generateCountryUnits() {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Unit Files");
   // read in different compositions
   auto unitTemplateFile =
-      Parsing::readFile("resources//hoi4//history//divisionTemplates.txt");
+      Parsing::readFile(Fwg::Cfg::Values().resourcePath + "hoi4//history//divisionTemplates.txt");
   // now tokenize by : character to get single
   auto unitTemplates = Fwg::Parsing::getTokens(unitTemplateFile, ':');
   for (auto &c : hoi4Countries) {

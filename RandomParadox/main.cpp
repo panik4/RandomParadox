@@ -56,15 +56,17 @@ int main() {
     return -1;
   }
   std::string username = metaConf.get<std::string>("config.username");
+  std::string workingDirectory =
+      metaConf.get<std::string>("config.workingDirectory");
   std::string configSubFolder =
-      metaConf.get<std::string>("config.configSubFolder");
+      workingDirectory + metaConf.get<std::string>("config.configSubFolder");
   // Create a ptree
   pt::ptree rpdConf;
   try {
     Fwg::Utils::Logging::logLine(
         "Starting the loading of configs//RandomParadox.json");
     // Read the basic settings
-    std::ifstream f("configs//RandomParadox.json");
+    std::ifstream f(workingDirectory + "configs//RandomParadox.json");
     std::stringstream buffer;
     if (!f.good())
       Utils::Logging::logLine("Config could not be loaded");
@@ -86,6 +88,7 @@ int main() {
   std::string mapName;
 
   auto &config = Cfg::Values();
+  config.workingDirectory = workingDirectory;
   // check if we can read the config
   try {
     Fwg::Utils::Logging::logLine("Starting the loading of ",
@@ -104,7 +107,7 @@ int main() {
   try {
     Fwg::Utils::Logging::logLine("Creating the exports folder");
     // make sure we always have the default exports directory
-    std::filesystem::create_directory("exports//");
+    std::filesystem::create_directory(workingDirectory + "exports//");
     GUI gui2;
     Fwg::Utils::Logging::logLine("Starting the GUI");
     gui2.shiny(rpdConf, configSubFolder, username);
