@@ -60,7 +60,7 @@ Loading a climate map and labelling its colours to the tools climate zones
 ![ingamenc](https://github.com/panik4/RandomParadox/blob/main/images/hoi4/hoi4IngameNoCountries.png?raw=true)
 A map based off of a simple input in-game without generated countries
 ![ingame](https://github.com/panik4/RandomParadox/blob/main/images/hoi4/hoi4Ingame.png?raw=true)
-A map based off of a simple input in-game with generated countries
+A randomly generated worldmap with random countries
 ![terrain](https://github.com/panik4/RandomParadox/blob/main/images/hoi4/terrain.png?raw=true)
 The terrain bitmap required by Hearts of Iron, with the correct colour codes. Note that the game interprets these colours to represent prettier colours in game.
 ![world_normal](https://github.com/panik4/RandomParadox/blob/main/images/hoi4/world_normal.png?raw=true)
