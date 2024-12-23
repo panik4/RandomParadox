@@ -26,3 +26,4 @@
 0,82,82;1;0;jungle
 243,199,147;4;0;desertMountains
 255,0,252;2;0;jungle
+27,27,27;2;0;jungleMountains
