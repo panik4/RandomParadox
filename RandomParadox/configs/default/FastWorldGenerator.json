@@ -7,7 +7,7 @@
 		"cut" : false,
 		"scale" : false,
 		"scaleFactor" : 1,
-		"seed" : 1
+		"seed" : 0
 	},
 	"paths":
 	{
@@ -102,8 +102,8 @@
 		{
 			"complexHeight" : true,
 			"layerAmount" : 11,
-			"overallFrequencyModifier" : 1.4,
-			"removeChunkThreshold": 8,
+			"overallFrequencyModifier" : 1.5,
+			"removeChunkThreshold": 9,
 			"baseSeaLevel": 80,
 			"layers" :
 			{

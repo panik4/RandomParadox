@@ -13,6 +13,7 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
 
   // read hoi configs and potentially overwrite settings for fwg
   readHoiConfig(configSubFolder, username, gamesConf);
+  initNameData(Fwg::Cfg::Values().resourcePath + "names", pathcfg.gamePath);
 }
 
 Hoi4Module::~Hoi4Module() {}
