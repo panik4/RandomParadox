@@ -3,6 +3,7 @@
 #include "RandNum.h"
 #include "generic/Flag.h"
 #include "generic/GameRegion.h"
+#include "generic/Culture.h"
 #include <string>
 #include <vector>
 namespace Scenario {
@@ -24,6 +25,8 @@ public:
   double relativeScore;
   // the gamemodule calculates the total population
   int pop;
+  // the cultures and their populationFactor
+  std::map<std::shared_ptr<Culture>, double> cultures;
   Gfx::Flag flag;
   Fwg::Gfx::Colour colour;
   // constructors/destructors
@@ -43,5 +46,6 @@ public:
   void selectCapital();
   // operators
   bool operator<(const Country &right) const { return ID < right.ID; };
+  std::shared_ptr<Culture> getPrimaryCulture();
 };
 } // namespace Scenario

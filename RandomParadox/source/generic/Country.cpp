@@ -75,4 +75,27 @@ void Country::selectCapital() {
     }
   }
 }
+std::shared_ptr<Culture> Scenario::Country::getPrimaryCulture() {
+  // return the largest culture in the country, by evaluating all gameregions
+  // according to their population multiplied with the share of the culture in
+  // the region
+  cultures.clear();
+  for (const auto &region : ownedRegions) {
+    for (const auto &culture : region->cultures) {
+      if (cultures.find(culture.first) == cultures.end())
+        cultures[culture.first] = 0;
+      cultures[culture.first] += culture.second * region->populationFactor;
+    }
+  }
+  // return maxelement of cultures
+  double max = 0;
+  std::shared_ptr<Culture> primaryCulture;
+  for (const auto &culture : cultures) {
+    if (culture.second > max) {
+      max = culture.second;
+      primaryCulture = culture.first;
+    }
+  }
+  return primaryCulture;
+}
 } // namespace Scenario

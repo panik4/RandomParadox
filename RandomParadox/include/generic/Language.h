@@ -9,8 +9,9 @@
 #include <vector>
 namespace Scenario {
 // Function to get a random letter based on weights
-static std::string getRandomLetter(const std::vector<std::string> &letters,
-                            const std::map<std::string, float> &weights) {
+static std::string
+getRandomLetter(const std::vector<std::string> &letters,
+                const std::map<std::string, float> &weights) {
   // Calculate cumulative weights manually
   std::vector<float> cumulativeWeights;
   float currentSum = 0.0f;
@@ -38,8 +39,8 @@ static std::string getRandomLetter(const std::vector<std::string> &letters,
 
 // Function to generate a hard token
 static std::string generateHardToken(const std::vector<std::string> &letters,
-                              std::map<std::string, float> alphabet,
-                              std::set<std::string> &existingTokens) {
+                                     std::map<std::string, float> alphabet,
+                                     std::set<std::string> &existingTokens) {
   std::string token;
   do {
     token.clear();
@@ -54,8 +55,8 @@ static std::string generateHardToken(const std::vector<std::string> &letters,
 
 // Function to generate a soft token
 static std::string generateSoftToken(const std::vector<std::string> &letters,
-                              std::map<std::string, float> alphabet,
-                              std::set<std::string> &existingTokens) {
+                                     std::map<std::string, float> alphabet,
+                                     std::set<std::string> &existingTokens) {
   std::string token;
   do {
     token.clear();
@@ -78,11 +79,12 @@ static std::string generateSoftToken(const std::vector<std::string> &letters,
   return token;
 }
 
-
 class Language {
 public:
   std::string name;
-  std::vector<std::string> articles; // like the, la, le, der, die, das
+  std::vector<std::string> articles;         // like the, la, le, der, die, das
+  std::vector<std::string> adjectiveEndings; // like -ian, -ese, -ish, -ese,
+                                             // -an, -ese, -ic, -ese, -ish, -ese
   std::string
       port; // like Port, Puerto, Porto, Haven, can be either prefix or suffix
 
@@ -133,5 +135,6 @@ public:
 
   std::string generateGenericWord();
   std::string generateGenericCapitalizedWord();
+  std::string getAdjectiveForm(const std::string &word);
 };
 } // namespace Scenario

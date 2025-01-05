@@ -16,6 +16,7 @@ void Language::vary() {
 
 void Language::fillAllLists() {
   articles.clear();
+  adjectiveEndings.clear();
   citySuffixes.clear();
   cityPrefixes.clear();
   cityNames.clear();
@@ -43,6 +44,27 @@ void Language::fillAllLists() {
       article[rand() % article.size()] = getRandomLetter(vowels, alphabet)[0];
     }
     articles.push_back(article);
+  }
+  // generate adjective endings
+  for (int i = 0; i < 3; i++) {
+    std::string adjectiveEnding;
+    bool hasConsonant = false;
+    int reqSize = 1 + rand() % 3;
+    for (int j = 0; j < reqSize; j++) {
+      std::string letter = "";
+      if ((!hasConsonant && j == reqSize - 1) || rand() % reqSize == 0) {
+        letter = getRandomLetter(consonants, alphabet);
+        hasConsonant = true;
+      } else {
+        letter = getRandomLetter(vowels, alphabet);
+      }
+      adjectiveEnding += letter;
+    }
+    if (!hasConsonant) {
+      adjectiveEnding[rand() % adjectiveEnding.size()] =
+          getRandomLetter(vowels, alphabet)[0];
+    }
+    adjectiveEndings.push_back(adjectiveEnding);
   }
 
   for (int i = 0; i < 2; i++) {
@@ -168,5 +190,8 @@ std::string Language::generateGenericCapitalizedWord() {
   std::string word = generateWord(tokenSet);
   word[0] = toupper(word[0]);
   return word;
+}
+std::string Scenario::Language::getAdjectiveForm(const std::string &word) {
+  return word + Fwg::Utils::selectRandom(adjectiveEndings);
 }
 } // namespace Scenario

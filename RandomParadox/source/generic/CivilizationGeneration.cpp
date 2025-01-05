@@ -26,7 +26,7 @@ void generateReligions(
   Fwg::Gfx::Bitmap religionMap(config.width, config.height, 24);
   for (int i = 0; i < 8; i++) {
     Religion r;
-    r.name = Scenario::NameGeneration::generateName(civData.nData);
+    r.name = "";
     std::transform(r.name.begin(), r.name.end(), r.name.begin(),
                    [](unsigned char c) { return std::tolower(c); });
     do {
@@ -78,8 +78,7 @@ void generateCultures(CivilizationData &civData,
     auto colour = Fwg::Gfx::Colour(0, 0, 0);
     colour.randomize();
 
-    CultureGroup cultureGroup{NameGeneration::generateName(civData.nData),
-                              colour};
+    CultureGroup cultureGroup{"", colour};
 
     // randomly select a reguion to be the center of the culture group
     cultureGroup.setCenter(Fwg::Utils::selectRandom(gameRegions));
@@ -90,7 +89,7 @@ void generateCultures(CivilizationData &civData,
     int numCultures = RandNum::getRandom(y, z);
     for (int j = 0; j < numCultures; j++) {
       Culture culture;
-      culture.name = NameGeneration::generateName(civData.nData);
+      culture.name = "";
       std::transform(culture.name.begin(), culture.name.end(),
                      culture.name.begin(),
                      [](unsigned char c) { return std::tolower(c); });
@@ -185,13 +184,12 @@ void distributeLanguages(CivilizationData &civData) {
     cultureGroup->setLanguageGroup(languageGroup);
     // now generate at least as many languages as we have cultures
     languageGroup->generate(cultureGroup->getCultures().size());
-    //languageGroup->generate(cultureGroup->getCultures().size());
-    // now assign each culture a language
+    // languageGroup->generate(cultureGroup->getCultures().size());
+    //  now assign each culture a language
     for (auto i = 0; i < cultureGroup->getCultures().size(); i++) {
       cultureGroup->getCultures()[i]->language = languageGroup->languages[i];
       // generate a variety of names for the language
-      //languageGroup->languages[i]->fillAllLists();
-
+      languageGroup->languages[i]->fillAllLists();
     }
   }
 }
