@@ -241,8 +241,8 @@ void cultureCommon(const std::string &path,
         (int)culture->colour.getRed(), " ", (int)culture->colour.getGreen(),
         " ", (int)culture->colour.getBlue());
     pU::Scenario::replaceOccurences(cultString, "templateColour", colour);
-    pU::Scenario::replaceOccurences(cultString, "templateReligion",
-                                    culture->primaryReligion->name);
+    //pU::Scenario::replaceOccurences(cultString, "templateReligion",
+    //                                culture->primaryReligion->name);
     cultureFile.append(cultString);
   }
 

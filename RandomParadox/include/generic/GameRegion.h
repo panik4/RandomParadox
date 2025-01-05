@@ -1,6 +1,8 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "GameProvince.h"
+#include "generic/Culture.h"
+#include "generic/Religion.h"
 #include <map>
 namespace Scenario {
 enum class LocatorType { NONE, CITY, FARM, MINE, PORT, WOOD };

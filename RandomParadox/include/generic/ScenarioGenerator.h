@@ -1,6 +1,6 @@
 #pragma once
+#include "CivilizationGeneration.h"
 #include "Country.h"
-#include "Culture.h"
 #include "FastWorldGenerator.h"
 #include "Flag.h"
 #include "GameProvince.h"
@@ -8,7 +8,6 @@
 #include "NameGenerator.h"
 #include "ParserUtils.h"
 #include "RandNum.h"
-#include "Religion.h"
 #include "ResourceLoading.h"
 #include "ScenarioContinent.h"
 #include "SuperRegion.h"
@@ -52,9 +51,8 @@ public:
   Fwg::Gfx::Bitmap countryMap;
   Fwg::Gfx::Bitmap stratRegionMap;
   std::vector<StrategicRegion> strategicRegions;
-  std::vector<std::shared_ptr<Religion>> religions;
-  std::vector<std::shared_ptr<Culture>> cultures;
   std::map<int, std::vector<std::string>> countryImportanceScores;
+  Civilization::CivilizationData civData;
   // constructors/destructors
   Generator(Fwg::FastWorldGenerator &fwg);
   ~Generator();
@@ -64,10 +62,7 @@ public:
                                       const int ID = -1);
   // specific preparations. Used by each game, BUT to create game scenario
   void loadRequiredResources(const std::string &gamePath);
-  // generic preparations. However, if desired, there are necessary preparations
-  // for every game such as reading in the existing worldmap, states, regions,
-  // provinces etc
-  void generateWorldCivilizations();
+
   // map base continents to generic paradox compatible game continents
   void mapContinents();
   // map base regions to generic paradox compatible game regions
@@ -79,17 +74,6 @@ public:
   Fwg::Gfx::Bitmap visualiseStrategicRegions(const int ID = -1);
   // map base provinces to generic game regions
   void mapProvinces();
-  // calculating amount of population in states
-  void generatePopulationFactors();
-  // determine development from habitability, population density and randomness
-  void generateDevelopment();
-  // determine development from habitability, population density and randomness
-  virtual void generateEconomicActivity();
-  // determine importance from population, development and economicActivity
-  void generateImportance();
-
-  void generateReligions();
-  void generateCultures();
 
   virtual void cutFromFiles(const std::string &gamePath);
   // initialize states

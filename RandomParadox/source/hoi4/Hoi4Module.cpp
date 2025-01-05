@@ -221,9 +221,9 @@ void Hoi4Module::writeTextFiles() {
   commonBookmarks(pathcfg.gameModPath + "//common//bookmarks//",
                   hoi4Gen->hoi4Countries, hoi4Gen->countryImportanceScores);
   tutorials(pathcfg.gameModPath + "//tutorial//tutorial.txt");
-  Parsing::copyDescriptorFile(Fwg::Cfg::Values().resourcePath + "hoi4//descriptor.mod",
-                              pathcfg.gameModPath, pathcfg.gameModsDirectory,
-                              pathcfg.modName);
+  Parsing::copyDescriptorFile(
+      Fwg::Cfg::Values().resourcePath + "hoi4//descriptor.mod",
+      pathcfg.gameModPath, pathcfg.gameModsDirectory, pathcfg.modName);
 }
 void Hoi4Module::writeLocalisation() {
 
@@ -376,18 +376,19 @@ void Hoi4Module::generate() {
   if (!createPaths())
     return;
   try {
-    initNameData(Fwg::Cfg::Values().resourcePath + "names", this->pathcfg.gamePath);
+    initNameData(Fwg::Cfg::Values().resourcePath + "names",
+                 this->pathcfg.gamePath);
     // start with the generic stuff in the Scenario hoi4Gen
     hoi4Gen->mapProvinces();
     hoi4Gen->mapRegions();
     hoi4Gen->mapContinents();
     hoi4Gen->mapTerrain();
     // generate generic world data
-    hoi4Gen->generateWorldCivilizations();
+    Civilization::generateWorldCivilizations(
+        hoi4Gen->gameRegions, hoi4Gen->gameProvinces, hoi4Gen->civData);
     // generate state information
     hoi4Gen->generateStateSpecifics();
     hoi4Gen->generateStateResources();
-    hoi4Gen->generateImportance();
 
     // generate country data
     hoi4Gen->generateCountries<Hoi4::Hoi4Country>();

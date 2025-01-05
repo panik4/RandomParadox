@@ -1,8 +1,10 @@
 #pragma once
-#include <string>
+#include "NameGenerator.h"
 #include "entities/Colour.h"
-#include "Religion.h"
+#include <string>
 namespace Scenario {
+class CultureGroup;
+
 class Culture {
 
 public:
@@ -10,7 +12,8 @@ public:
   // ID of the province that is the center
   int centerOfCulture;
   Fwg::Gfx::Colour colour;
-  std::shared_ptr<Religion> primaryReligion;
+  std::shared_ptr<Scenario::Language> language;
+  std::shared_ptr<CultureGroup> cultureGroup;
 };
 
 } // namespace Scenario

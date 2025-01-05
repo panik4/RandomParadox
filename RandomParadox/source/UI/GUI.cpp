@@ -62,8 +62,9 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                       nullptr,
                       L"RandomParadox",
                       nullptr};
-    HICON hIcon = (HICON)LoadImage(NULL, (Fwg::Cfg::Values().resourcePath + "worldMap.ico").c_str(), IMAGE_ICON,
-                                   0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+    HICON hIcon = (HICON)LoadImage(
+        NULL, (Fwg::Cfg::Values().resourcePath + "worldMap.ico").c_str(),
+        IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
     if (hIcon) {
       // Icon loaded successfully, set it to the window class
       wc.hIcon = hIcon;
@@ -79,7 +80,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
     SendMessage(consoleWindow, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
     ::RegisterClassExW(&wc);
     HWND hwnd = uiUtils->createAndConfigureWindow(wc, wc.lpszClassName,
-                                                  L"RandomParadox 0.8.0");
+                                                  L"RandomParadox 0.8.2");
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd)) {
       CleanupDeviceD3D();
@@ -114,11 +115,13 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
     activeModule = std::make_shared<Scenario::Hoi4::Hoi4Module>(
         Scenario::Hoi4::Hoi4Module(rpdConf, configSubFolder, username, false));
     activeModule->generator->climateData.addSecondaryColours(
-        Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath + "hoi4/colourMappings.txt"));
+        Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
+                               "hoi4/colourMappings.txt"));
     initAllowedInput(cfg, activeModule->generator->climateData,
                      activeModule->generator->terrainData.elevationTypes);
     initGameConfigs();
-    this->uiUtils->loadHelpTextsFromFile(Fwg::Cfg::Values().resourcePath + "uiHelpTexts.txt");
+    this->uiUtils->loadHelpTextsFromFile(Fwg::Cfg::Values().resourcePath +
+                                         "uiHelpTexts.txt");
     uiUtils->setClickOffsets(cfg.width, 1);
     frequency = cfg.overallFrequencyModifier;
     log = std::make_shared<std::stringstream>();
@@ -631,7 +634,8 @@ int GUI::showRpdxConfigure(
             Scenario::Hoi4::Hoi4Module(rpdConf, configSubFolder, username,
                                        false));
         activeModule->generator->climateData.addSecondaryColours(
-            Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath + "hoi4/colourMappings.txt"));
+            Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
+                                   "hoi4/colourMappings.txt"));
       } else if (gameConfigs[selectedGame].gameName ==
                  "Europa Universalis IV") {
         activeModule = std::make_shared<Scenario::Eu4::Module>(
@@ -700,7 +704,8 @@ int GUI::showRpdxConfigure(
     cfg.heightmapIn = cfg.loadMapsPath + "heightmap.bmp";
   }
   if (cfg.loadClimate) {
-    cfg.climateMappingPath = Fwg::Cfg::Values().resourcePath + "" + activeGameConfig.gameShortName +
+    cfg.climateMappingPath = Fwg::Cfg::Values().resourcePath + "" +
+                             activeGameConfig.gameShortName +
                              "//climateMapping.txt ";
   }
   return 0;
@@ -784,7 +789,10 @@ int GUI::showScenarioTab(
         activeModule->generator->mapRegions();
         activeModule->generator->mapTerrain();
         activeModule->generator->mapContinents();
-        activeModule->generator->generateWorldCivilizations();
+        Scenario::Civilization::generateWorldCivilizations(
+            activeModule->generator->gameRegions,
+            activeModule->generator->gameProvinces,
+            activeModule->generator->civData);
         configuredScenarioGen = true;
       }
       ImGui::PushItemWidth(200.0f);
@@ -956,7 +964,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
         auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
         hoi4Gen->generateStateSpecifics();
         hoi4Gen->generateStateResources();
-        hoi4Gen->generateImportance();
+        Scenario::Civilization::generateImportance(hoi4Gen->gameRegions);
       }
     }
 
@@ -1144,7 +1152,8 @@ int GUI::showStrategicRegionTab(
       // build hoi4 countries out of basic countries
       generator->mapCountries();
       generator->evaluateCountryNeighbours();
-      generator->generateWorldCivilizations();
+      Scenario::Civilization::generateWorldCivilizations(
+          generator->gameRegions, generator->gameProvinces, generator->civData);
     }
     // drag event is ignored here
     if (triggeredDrag) {

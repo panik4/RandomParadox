@@ -1,7 +1,5 @@
 #pragma once
-#include "Culture.h"
 #include "FastWorldGenerator.h"
-#include "Religion.h"
 namespace Scenario {
 class GameProvince {
 public:
@@ -19,8 +17,6 @@ public:
   std::map<std::string, double> attributeDoubles;
   // TODO: Remove this crap
   std::map<std::string, std::string> attributeStrings;
-  std::map<std::shared_ptr<Scenario::Religion>, double> religions;
-  std::map<std::shared_ptr<Scenario::Culture>, double> cultures;
   // constructors/destructor
   GameProvince(Fwg::Province *province);
   GameProvince();

@@ -141,7 +141,8 @@ void Module::generate() {
   if (!createPaths())
     return;
 
-  initNameData(Fwg::Cfg::Values().resourcePath + "names", this->pathcfg.gamePath);
+  initNameData(Fwg::Cfg::Values().resourcePath + "names",
+               this->pathcfg.gamePath);
   try {
     // start with the generic stuff in the Scenario Generator
     vic3Gen->mapProvinces();
@@ -151,7 +152,8 @@ void Module::generate() {
     vic3Gen->mapContinents();
     vic3Gen->generateCountries<Vic3::Country>();
     vic3Gen->evaluateCountryNeighbours();
-    vic3Gen->generateWorldCivilizations();
+    Civilization::generateWorldCivilizations(
+        vic3Gen->gameRegions, vic3Gen->gameProvinces, vic3Gen->civData);
     vic3Gen->visualiseCountries(generator->countryMap);
     vic3Gen->generateStrategicRegions();
     // Vic3 specifics:
@@ -224,11 +226,11 @@ void Module::writeTextFiles() {
           "//common//strategic_regions//randVic_strategic_regions.txt",
       vic3Gen->strategicRegions, vic3Gen->vic3Regions);
   cultureCommon(pathcfg.gameModPath + "//common//cultures//00_cultures.txt",
-                vic3Gen->cultures);
+                vic3Gen->civData.cultures);
   religionCommon(pathcfg.gameModPath + "//common//religions//religions.txt",
-                 vic3Gen->religions);
+                 vic3Gen->civData.religions);
   staticModifiers(pathcfg.gameModPath + "//common//static_modifiers//",
-                  vic3Gen->cultures, vic3Gen->religions);
+                  vic3Gen->civData.cultures, vic3Gen->civData.religions);
   countryCommon(pathcfg.gameModPath +
                     "//common//country_definitions//00_countries.txt",
                 vic3Gen->vic3Countries, vic3Gen->vic3Regions);
