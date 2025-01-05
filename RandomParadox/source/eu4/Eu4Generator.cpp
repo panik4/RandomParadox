@@ -27,7 +27,6 @@ void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
           assignedIdeas.insert(neighbour);
         }
       }
-      euR.name = NameGeneration::generateName(nData);
       eu4regions.push_back(euR);
     }
   }

@@ -38,8 +38,6 @@ void Generator::mapRegions() {
                 return (*a < *b);
               });
     auto gameRegion = std::make_shared<Region>(region);
-    // generate random name for region
-    gameRegion->name = NameGeneration::generateName(nData);
 
     for (auto &province : gameRegion->provinces) {
       gameRegion->gameProvinces.push_back(gameProvinces[province->ID]);
@@ -122,8 +120,6 @@ void Generator::mapProvinces() {
     // also copy neighbours
     for (auto &baseProvinceNeighbour : gP->baseProvince->neighbours)
       gP->neighbours.push_back(baseProvinceNeighbour);
-    // give name to province
-    gP->name = NameGeneration::generateName(nData);
     gameProvinces.push_back(gP);
   }
   // sort by gameprovince ID
@@ -225,7 +221,6 @@ void Generator::generateStrategicRegions() {
           assignedIDs.insert(neighbourID);
         }
       }
-      stratRegion.name = NameGeneration::generateName(nData);
       Colour c{static_cast<unsigned char>(RandNum::getRandom(255)),
                static_cast<unsigned char>(RandNum::getRandom(255)),
                static_cast<unsigned char>(region->sea ? 255 : 0)};

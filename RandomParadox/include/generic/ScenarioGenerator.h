@@ -159,14 +159,16 @@ public:
         nData.tags.insert(pdoxC.tag);
       } else {
 
-        auto name{NameGeneration::generateName(nData)};
-        T pdoxC(NameGeneration::generateTag(name, nData), counter++, name,
-                NameGeneration::generateAdjective(name, nData),
+        //auto name{NameGeneration::generateName(nData)};
+        T pdoxC("", counter++, "", "",
                 Gfx::Flag(82, 52));
         pdoxC.colour = mapOfRegions.getKeyColour(entry.first);
         for (auto &region : entry.second) {
           pdoxC.addRegion(region);
         }
+
+        auto region = pdoxC.ownedRegions[0];
+        pdoxC.tag = NameGeneration::generateTag(region->name, nData);
         countries.emplace(pdoxC.tag, std::make_shared<T>(pdoxC));
         nData.tags.insert(pdoxC.tag);
       }
@@ -179,27 +181,31 @@ public:
     countryMap.clear();
     for (auto &region : gameRegions) {
       region->assigned = false;
-      region->religions.clear();
-      region->cultures.clear();
       region->owner = "";
     }
     auto &config = Fwg::Cfg::Values();
     Fwg::Utils::Logging::logLine("Generating Countries");
+
     for (auto i = 0; i < numCountries; i++) {
-      auto name{NameGeneration::generateName(nData)};
-      T pdoxC(NameGeneration::generateTag(name, nData), i, name,
-              NameGeneration::generateAdjective(name, nData),
-              Gfx::Flag(82, 52));
-      // randomly set development of countries
-      pdoxC.developmentFactor = RandNum::getRandom(0.1, 1.0);
-      countries.emplace(pdoxC.tag, std::make_shared<T>(pdoxC));
-    }
-    for (auto &pdoxCountry : countries) {
       auto startRegion(findStartRegion());
       if (startRegion->assigned || startRegion->sea)
         continue;
-      pdoxCountry.second->assignRegions(6, gameRegions, startRegion,
+      T country(std::to_string(i), i, "DUMMY", "", Gfx::Flag(82, 52));
+      country.assignRegions(6, gameRegions, startRegion,
                                         gameProvinces);
+      // get the dominant culture in the country by iterating over all regions
+      // and counting the number of provinces with the same culture
+
+      auto culture = country.getPrimaryCulture();
+      auto language = culture->language;
+      country.name = language->generateGenericCapitalizedWord();
+      country.adjective = language->getAdjectiveForm(country.name);
+      country.tag = NameGeneration::generateTag(country.name, nData);
+      for (auto &region : country.ownedRegions) {
+        region->owner = country.tag;
+      }
+      countries.emplace(country.tag, std::make_shared<T>(country));
+      
     }
     // assigns remaining regions to provinces
     if (countries.size()) {
@@ -211,6 +217,8 @@ public:
         }
       }
     }
+    // get the language of the country
+
 
     visualiseCountries(countryMap);
     Fwg::Gfx::Png::save(countryMap,

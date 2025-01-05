@@ -21,7 +21,7 @@ void Generator::mapRegions() {
               });
     auto gameRegion = std::make_shared<Region>(region);
     // generate random name for region
-    gameRegion->name = NameGeneration::generateName(nData);
+    gameRegion->name = "";
 
     for (auto &province : gameRegion->provinces) {
       gameRegion->gameProvinces.push_back(gameProvinces[province->ID]);
@@ -259,9 +259,9 @@ void Generator::generateStateSpecifics() {
           location->secondaryType == Fwg::Civilization::LocationType::Port) {
         hoi4State->navalBases[location->provinceID] =
             std::max<double>(location->importance / maxImportance, 1.0);
-        Fwg::Utils::Logging::logLineLevel(5,"Naval base in ", hoi4State->name, " at ",
-                                     location->provinceID, " with importance ",
-                                     location->importance);
+        Fwg::Utils::Logging::logLineLevel(
+            5, "Naval base in ", hoi4State->name, " at ", location->provinceID,
+            " with importance ", location->importance);
       }
     }
     double dockChance = 0.25;
@@ -688,8 +688,8 @@ void Generator::evaluateCountries() {
 void Generator::generateCountryUnits() {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Unit Files");
   // read in different compositions
-  auto unitTemplateFile =
-      Parsing::readFile(Fwg::Cfg::Values().resourcePath + "hoi4//history//divisionTemplates.txt");
+  auto unitTemplateFile = Parsing::readFile(
+      Fwg::Cfg::Values().resourcePath + "hoi4//history//divisionTemplates.txt");
   // now tokenize by : character to get single
   auto unitTemplates = Fwg::Parsing::getTokens(unitTemplateFile, ':');
   for (auto &c : hoi4Countries) {
@@ -785,43 +785,46 @@ void Generator::loadStates() {}
 void Generator::distributeVictoryPoints() {
   double baseVPs = 10000;
   double assignedVPs = 0;
-  for (auto &region : hoi4States) {
-    if (region->sea || region->lake)
-      continue;
-    region->totalVictoryPoints =
-        std::max<int>(region->relativeImportance * baseVPs, 1);
-    std::map<int, double> provinceImportance;
-    // also a map of province to std::vector locations
-    std::map<int, std::vector<std::shared_ptr<Fwg::Civilization::Location>>>
-        provinceLocations;
-
-    double totalImportance = 0;
-    for (auto &location : region->locations) {
-      // ignore waterports
-      if (location->type == Fwg::Civilization::LocationType::WaterPort)
+  for (auto country : hoi4Countries) {
+    auto language = country.second.getPrimaryCulture()->language;
+    for (auto &region : country.second.hoi4Regions) {
+      if (region->sea || region->lake)
         continue;
-      provinceImportance[location->provinceID] += location->importance;
-      provinceLocations[location->provinceID].push_back(location);
-      totalImportance += location->importance;
-    }
-    // now distribute the victory points according to province importance
-    for (auto &province : provinceImportance) {
-      auto vps =
-          (int)(province.second / totalImportance * region->totalVictoryPoints);
-      VictoryPoint vp{vps};
-      // find the most significant location in this province, with a custom
-      // comparator using the location importance
-      auto mostImportantLocation =
-          std::max_element(provinceLocations[province.first].begin(),
-                           provinceLocations[province.first].end(),
-                           [](const auto &l, const auto &r) {
-                             return l->importance < r->importance;
-                           });
-      vp.position = (*mostImportantLocation)->position;
-      vp.name = NameGeneration::generateCityName(nData);
-      if ((int)vps > 0) {
-        region->victoryPointsMap[province.first] = vp;
-        assignedVPs += region->victoryPointsMap[province.first].amount;
+      region->totalVictoryPoints =
+          std::max<int>(region->relativeImportance * baseVPs, 1);
+      std::map<int, double> provinceImportance;
+      // also a map of province to std::vector locations
+      std::map<int, std::vector<std::shared_ptr<Fwg::Civilization::Location>>>
+          provinceLocations;
+
+      double totalImportance = 0;
+      for (auto &location : region->locations) {
+        // ignore waterports
+        if (location->type == Fwg::Civilization::LocationType::WaterPort)
+          continue;
+        provinceImportance[location->provinceID] += location->importance;
+        provinceLocations[location->provinceID].push_back(location);
+        totalImportance += location->importance;
+      }
+      // now distribute the victory points according to province importance
+      for (auto &province : provinceImportance) {
+        auto vps = (int)(province.second / totalImportance *
+                         region->totalVictoryPoints);
+        VictoryPoint vp{vps};
+        // find the most significant location in this province, with a custom
+        // comparator using the location importance
+        auto mostImportantLocation =
+            std::max_element(provinceLocations[province.first].begin(),
+                             provinceLocations[province.first].end(),
+                             [](const auto &l, const auto &r) {
+                               return l->importance < r->importance;
+                             });
+        vp.position = (*mostImportantLocation)->position;
+        vp.name = Fwg::Utils::selectRandom(language->cityNames);
+        if ((int)vps > 0) {
+          region->victoryPointsMap[province.first] = vp;
+          assignedVPs += region->victoryPointsMap[province.first].amount;
+        }
       }
     }
   }
