@@ -1,27 +1,29 @@
 
 #include "generic/LanguageGroup.h"
 namespace Scenario {
-std::string
-generateHardToken(const std::vector<std::string> &consonants,
-                                 const std::map<std::string, float> &alphabet,
-                                 const std::set<std::string> &existingTokens) {
-  std::string token;
-  do {
-    token = consonants[RandNum::getRandom<int>(0, consonants.size() - 1)];
-  } while (existingTokens.find(token) != existingTokens.end());
-  return token;
-}
-
-std::string
-generateSoftToken(const std::vector<std::string> &vowels,
-                                 const std::map<std::string, float> &alphabet,
-                                 const std::set<std::string> &existingTokens) {
-  std::string token;
-  do {
-    token = vowels[RandNum::getRandom<int>(0, vowels.size() - 1)];
-  } while (existingTokens.find(token) != existingTokens.end());
-  return token;
-}
+// std::string
+// generateHardToken(const std::vector<std::string> &consonants,
+//                                  const std::map<std::string, float>
+//                                  &alphabet, const std::set<std::string>
+//                                  &existingTokens) {
+//   std::string token;
+//   do {
+//     token = consonants[RandNum::getRandom<int>(0, consonants.size() - 1)];
+//   } while (existingTokens.find(token) != existingTokens.end());
+//   return token;
+// }
+//
+// std::string
+// generateSoftToken(const std::vector<std::string> &vowels,
+//                                  const std::map<std::string, float>
+//                                  &alphabet, const std::set<std::string>
+//                                  &existingTokens) {
+//   std::string token;
+//   do {
+//     token = vowels[RandNum::getRandom<int>(0, vowels.size() - 1)];
+//   } while (existingTokens.find(token) != existingTokens.end());
+//   return token;
+// }
 
 std::vector<std::string>
 LanguageGroup::findLikeliestTokens(const std::set<std::string> &tokens,
@@ -64,9 +66,9 @@ void LanguageGroup::generateTokenSets() {
 
     for (int j = 0; j < setLength; j++) {
       if (lastWasHardOrConsonant) {
-        if (!vowels.empty() && (softTokens.empty() || rand() % 5 == 0)) {
+        if (rand() % 2 == 0) {
           tokenSet.push_back("vowel");
-        } else if (!softTokens.empty()) {
+        } else {
           tokenSet.push_back("softToken");
         }
         lastWasHardOrConsonant = false;
@@ -120,11 +122,6 @@ void LanguageGroup::generate(int languageAmount) {
   }
   for (auto &letter : alphabet) {
     letter.second /= sum;
-  }
-
-  for (int i = 0; i < 10; i++) {
-    hardTokens.insert(generateHardToken(consonants, alphabet, hardTokens));
-    softTokens.insert(generateSoftToken(vowels, alphabet, softTokens));
   }
 
   for (int i = 0; i < 1; i++) {

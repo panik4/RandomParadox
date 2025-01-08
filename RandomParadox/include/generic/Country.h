@@ -46,6 +46,7 @@ public:
   void selectCapital();
   // operators
   bool operator<(const Country &right) const { return ID < right.ID; };
+  void evaluatePopulations();
   std::shared_ptr<Culture> getPrimaryCulture();
 };
 } // namespace Scenario

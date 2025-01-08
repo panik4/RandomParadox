@@ -287,9 +287,9 @@ void countryCommon(
     pU::Scenario::replaceOccurences(cString, "templateCapital",
                                     capitalRegion->name);
 
-    using pair_type = decltype(capitalRegion->cultures)::value_type;
-    auto pr = std::max_element(std::begin(capitalRegion->cultures),
-                               std::end(capitalRegion->cultures),
+    using pair_type = decltype(capitalRegion->cultureShares)::value_type;
+    auto pr = std::max_element(std::begin(capitalRegion->cultureShares),
+                               std::end(capitalRegion->cultureShares),
                                [](const pair_type &p1, const pair_type &p2) {
                                  return p1.second < p2.second;
                                });
@@ -320,7 +320,7 @@ void popsHistory(const std::string &path,
     pU::Scenario::replaceOccurences(statePops, "templateTag", region->owner);
 
     std::string listOfPops{""};
-    for (auto &culture : region->cultures) {
+    for (auto &culture : region->cultureShares) {
       std::string pop = popsSingleTemplate;
       pU::Scenario::replaceOccurences(pop, "templateCulture",
                                       culture.first->name);
@@ -356,7 +356,7 @@ void stateHistory(const std::string &path,
     pU::Scenario::replaceOccurences(content, "templateProvinces",
                                     provinceString);
     std::string cultures;
-    for (auto &culture : region->cultures) {
+    for (auto &culture : region->cultureShares) {
       cultures.append("add_homeland = cu:" + culture.first->name + "\n\t\t");
     }
     pU::Scenario::replaceOccurences(content, "templateCulture", cultures);

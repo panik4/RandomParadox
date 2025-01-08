@@ -6,28 +6,7 @@ Region::Region(const Fwg::Region &baseRegion)
     : Fwg::Region(baseRegion), assigned(false), totalPopulation{-1} {}
 
 Region::~Region() {}
-void Region::sumPopulations() {
-  double totalShare = static_cast<double>(gameProvinces.size());
-  for (auto &religion : religions) {
-    // if we don't find the religion, add it to the map
-    if (religions.find(religion.first) == religions.end()) {
-      religions[religion.first] = 0.0;
-    }
-    // now add the share found in this province, but divide it by the amount
-    // of provinces
-    religions[religion.first] += religion.second / totalShare;
-  }
-
-  for (auto &culture : cultures) {
-    // if we don't find the religion, add it to the map
-    if (cultures.find(culture.first) == cultures.end()) {
-      cultures[culture.first] = 0.0;
-    }
-    // now add the share found in this province, but divide it by the amount
-    // of provinces
-    cultures[culture.first] += culture.second / totalShare;
-  }
-}
+void Region::sumPopulations() {}
 void Region::findLocator(Fwg::Civilization::LocationType locationType,
                          int maxAmount) {
   std::shared_ptr<Fwg::Civilization::Location> addLocation;
@@ -80,5 +59,16 @@ Region::getLocation(Fwg::Civilization::LocationType type) {
     }
   }
   return nullptr;
+}
+std::shared_ptr<Scenario::Culture> Scenario::Region::getPrimaryCulture() {
+  if (cultureShares.empty()) {
+    return nullptr;
+  }
+
+  auto primaryCulture = std::max_element(
+      cultureShares.begin(), cultureShares.end(),
+      [](const auto &a, const auto &b) { return a.second < b.second; });
+
+  return primaryCulture->first;
 }
 } // namespace Scenario

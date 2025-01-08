@@ -12,6 +12,12 @@ void Language::vary() {
   for (auto &letter : alphabet) {
     letter.second /= sum;
   }
+  initDistribution(vowels, cumulativeVowelWeights, vowelDis);
+  initDistribution(consonants, cumulativeConsonantWeights, consonantDis);
+  for (int i = 0; i < 10; i++) {
+    hardTokens.insert(generateHardToken(consonants, alphabet, hardTokens));
+    softTokens.insert(generateSoftToken(vowels, alphabet, softTokens));
+  }
 }
 
 void Language::fillAllLists() {
@@ -20,8 +26,9 @@ void Language::fillAllLists() {
   citySuffixes.clear();
   cityPrefixes.clear();
   cityNames.clear();
-  firstNames.clear();
-  lastNames.clear();
+  maleNames.clear();
+  femaleNames.clear();
+  surnames.clear();
   names.clear();
   shipNames.clear();
   airplaneNames.clear();
@@ -33,15 +40,17 @@ void Language::fillAllLists() {
     for (int j = 0; j < reqSize; j++) {
       std::string letter = "";
       if ((!hasVowel && j == reqSize - 1) || rand() % reqSize == 0) {
-        letter = getRandomLetter(vowels, alphabet);
+        letter = getRandomLetter(vowels, cumulativeVowelWeights, vowelDis);
         hasVowel = true;
       } else {
-        letter = getRandomLetter(consonants, alphabet);
+        letter = getRandomLetter(consonants, cumulativeConsonantWeights,
+                                 consonantDis);
       }
       article += letter;
     }
     if (!hasVowel) {
-      article[rand() % article.size()] = getRandomLetter(vowels, alphabet)[0];
+      article[rand() % article.size()] =
+          getRandomLetter(vowels, cumulativeVowelWeights, vowelDis)[0];
     }
     articles.push_back(article);
   }
@@ -53,16 +62,17 @@ void Language::fillAllLists() {
     for (int j = 0; j < reqSize; j++) {
       std::string letter = "";
       if ((!hasConsonant && j == reqSize - 1) || rand() % reqSize == 0) {
-        letter = getRandomLetter(consonants, alphabet);
+        letter = getRandomLetter(consonants, cumulativeConsonantWeights,
+                                 consonantDis);
         hasConsonant = true;
       } else {
-        letter = getRandomLetter(vowels, alphabet);
+        letter = getRandomLetter(vowels, cumulativeVowelWeights, vowelDis);
       }
       adjectiveEnding += letter;
     }
     if (!hasConsonant) {
       adjectiveEnding[rand() % adjectiveEnding.size()] =
-          getRandomLetter(vowels, alphabet)[0];
+          getRandomLetter(vowels, cumulativeVowelWeights, vowelDis)[0];
     }
     adjectiveEndings.push_back(adjectiveEnding);
   }
@@ -91,7 +101,7 @@ void Language::fillAllLists() {
   }
   port = generateWord(2 + rand() % 3);
 
-  for (int i = 0; i < 1000; i++) {
+  for (int i = 0; i < 100; i++) {
     std::string cityName;
     if (rand() % 3 == 0) {
       if (articlesUsed && rand() % 2 == 0) {
@@ -116,25 +126,35 @@ void Language::fillAllLists() {
     cityNames.push_back(cityName);
   }
 
-  std::set<std::string> usedFirstNames;
-  for (int i = 0; i < 1000; i++) {
+  std::set<std::string> usedMaleNames;
+  for (int i = 0; i < 100; i++) {
     std::string firstName = generateGenericCapitalizedWord();
-    if (usedFirstNames.find(firstName) == usedFirstNames.end()) {
-      firstNames.push_back(firstName);
-      usedFirstNames.insert(firstName);
+    if (usedMaleNames.find(firstName) == usedMaleNames.end()) {
+      maleNames.push_back(firstName);
+      usedMaleNames.insert(firstName);
+    }
+  }
+  std::set<std::string> usedFemaleNames;
+  for (int i = 0; i < 100; i++) {
+    std::string firstName = generateGenericCapitalizedWord();
+    if (usedFemaleNames.find(firstName) == usedFemaleNames.end() &&
+        usedMaleNames.find(firstName) == usedMaleNames.end()) {
+      femaleNames.push_back(firstName);
+      usedFemaleNames.insert(firstName);
     }
   }
   std::set<std::string> usedLastNames;
-  for (int i = 0; i < 1000; i++) {
+  for (int i = 0; i < 100; i++) {
     std::string lastName = generateGenericCapitalizedWord();
     if (usedLastNames.find(lastName) == usedLastNames.end() &&
-        usedFirstNames.find(lastName) == usedFirstNames.end()) {
-      lastNames.push_back(lastName);
+        usedMaleNames.find(lastName) == usedMaleNames.end() &&
+        usedFemaleNames.find(lastName) == usedFemaleNames.end()) {
+      surnames.push_back(lastName);
       usedLastNames.insert(lastName);
     }
   }
   std::set<std::string> usedNames;
-  for (int i = 0; i < 1000; i++) {
+  for (int i = 0; i < 100; i++) {
     std::string shipName = generateGenericCapitalizedWord();
     if (usedNames.find(shipName) == usedNames.end()) {
       shipNames.push_back(shipName);
@@ -158,9 +178,10 @@ std::string Language::generateWord(const std::vector<std::string> &tokenSet) {
     } else if (token == "endToken") {
       word += Fwg::Utils::selectRandom(endTokens);
     } else if (token == "consonant") {
-      word += getRandomLetter(consonants, alphabet);
+      word +=
+          getRandomLetter(consonants, cumulativeConsonantWeights, consonantDis);
     } else if (token == "vowel") {
-      word += getRandomLetter(vowels, alphabet);
+      word += getRandomLetter(vowels, cumulativeVowelWeights, vowelDis);
     } else if (token == "softToken") {
       word += Fwg::Utils::selectRandom(softTokens);
     }
@@ -193,5 +214,8 @@ std::string Language::generateGenericCapitalizedWord() {
 }
 std::string Scenario::Language::getAdjectiveForm(const std::string &word) {
   return word + Fwg::Utils::selectRandom(adjectiveEndings);
+}
+std::string Scenario::Language::generateAreaName(const std::string &trait) {
+  return generateGenericCapitalizedWord();
 }
 } // namespace Scenario
