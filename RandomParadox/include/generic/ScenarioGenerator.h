@@ -159,9 +159,8 @@ public:
         nData.tags.insert(pdoxC.tag);
       } else {
 
-        //auto name{NameGeneration::generateName(nData)};
-        T pdoxC("", counter++, "", "",
-                Gfx::Flag(82, 52));
+        // auto name{NameGeneration::generateName(nData)};
+        T pdoxC("", counter++, "", "", Gfx::Flag(82, 52));
         pdoxC.colour = mapOfRegions.getKeyColour(entry.first);
         for (auto &region : entry.second) {
           pdoxC.addRegion(region);
@@ -169,6 +168,7 @@ public:
 
         auto region = pdoxC.ownedRegions[0];
         pdoxC.tag = NameGeneration::generateTag(region->name, nData);
+        pdoxC.evaluatePopulations();
         countries.emplace(pdoxC.tag, std::make_shared<T>(pdoxC));
         nData.tags.insert(pdoxC.tag);
       }
@@ -191,8 +191,7 @@ public:
       if (startRegion->assigned || startRegion->sea)
         continue;
       T country(std::to_string(i), i, "DUMMY", "", Gfx::Flag(82, 52));
-      country.assignRegions(6, gameRegions, startRegion,
-                                        gameProvinces);
+      country.assignRegions(6, gameRegions, startRegion, gameProvinces);
       // get the dominant culture in the country by iterating over all regions
       // and counting the number of provinces with the same culture
 
@@ -205,7 +204,6 @@ public:
         region->owner = country.tag;
       }
       countries.emplace(country.tag, std::make_shared<T>(country));
-      
     }
     // assigns remaining regions to provinces
     if (countries.size()) {
@@ -217,13 +215,14 @@ public:
         }
       }
     }
-    // get the language of the country
-
-
+    for (auto &country : countries) {
+      country.second->evaluatePopulations();
+    }
     visualiseCountries(countryMap);
     Fwg::Gfx::Png::save(countryMap,
                         Fwg::Cfg::Values().mapsPath + "countries.png");
   }
+
   // see which country neighbours which
   void evaluateCountryNeighbours();
   // calculate how strong each country is

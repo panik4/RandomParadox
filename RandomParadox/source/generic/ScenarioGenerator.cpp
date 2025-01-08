@@ -17,8 +17,6 @@ Generator::~Generator() {}
 
 void Generator::loadRequiredResources(const std::string &gamePath) {}
 
-
-
 void Generator::mapContinents() {
   Logging::logLine("Mapping Continents");
   scenContinents.clear();
@@ -126,7 +124,6 @@ void Generator::mapProvinces() {
   std::sort(gameProvinces.begin(), gameProvinces.end(),
             [](auto l, auto r) { return *l < *r; });
 }
-
 
 void Generator::cutFromFiles(const std::string &gamePath) {
   Fwg::Utils::Logging::logLine("Unimplemented cutting");
@@ -320,6 +317,7 @@ Bitmap Generator::visualiseCountries(Fwg::Gfx::Bitmap &countryBmp,
   }
   return countryBmp;
 }
+
 void Generator::evaluateCountryNeighbours() {
   Logging::logLine("Evaluating Country Neighbours");
   for (auto &c : countries)

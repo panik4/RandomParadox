@@ -15,6 +15,7 @@ void generateWorldCivilizations(
   for (auto &region : regions) {
     region->sumPopulations();
   }
+  nameRegions(regions);
   generateImportance(regions);
 }
 
@@ -154,7 +155,7 @@ void generateCultures(CivilizationData &civData,
           closestCulture = x;
         }
       }
-      region->cultures.insert(
+      region->cultureShares.insert(
           {cultureGroup->getCultures()[closestCulture], 1.0});
     }
   }
@@ -163,7 +164,7 @@ void generateCultures(CivilizationData &civData,
   for (auto &gameRegion : gameRegions) {
     if (gameRegion->sea || gameRegion->lake)
       continue;
-    for (auto &culture : gameRegion->cultures) {
+    for (auto &culture : gameRegion->cultureShares) {
       for (auto &province : gameRegion->gameProvinces) {
         for (auto pix : province->baseProvince->pixels) {
           cultureMap.setColourAtIndex(pix, culture.first->colour);
@@ -267,6 +268,19 @@ void generateImportance(std::vector<std::shared_ptr<Region>> &regions) {
   }
   for (auto &region : regions) {
     region->relativeImportance = region->importanceScore / worldImportanceSum;
+  }
+}
+
+void nameRegions(std::vector<std::shared_ptr<Region>> &regions) {
+  // take all regions and name them by taking their dominant cultures language
+  // and generating a name
+  for (auto &region : regions) {
+    auto culture = region->getPrimaryCulture();
+    if (culture == nullptr) {
+      continue;
+    }
+    auto language = culture->language;
+    region->name = language->generateAreaName("");
   }
 }
 

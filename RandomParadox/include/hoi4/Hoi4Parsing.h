@@ -55,8 +55,8 @@ void commonBookmarks(
 void commonCountries(const std::string &path, const std::string &hoiPath,
                      const CountryMap &countries);
 void commonCountryTags(const std::string &path, const CountryMap &countries);
-
-// localisation
+void commonNames(const std::string &path, const CountryMap &countries);
+    // localisation
 void countryNames(const std::string &path, const CountryMap &countries,
                   const NameGeneration::NameData &nData);
 void stateNames(const std::string &path, const CountryMap &countries);

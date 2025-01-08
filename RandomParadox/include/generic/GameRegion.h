@@ -37,7 +37,8 @@ public:
   std::vector<double> temperatureRange;
   std::vector<double> dateRange;
   std::map<std::shared_ptr<Scenario::Religion>, double> religions;
-  std::map<std::shared_ptr<Scenario::Culture>, double> cultures;
+  // the sum here should ALWAYS be 1
+  std::map<std::shared_ptr<Scenario::Culture>, double> cultureShares;
   std::vector<std::shared_ptr<Fwg::Civilization::Location>>
       significantLocations;
 
@@ -63,5 +64,6 @@ public:
 
   std::shared_ptr<Fwg::Civilization::Location>
   getLocation(Fwg::Civilization::LocationType type);
+  std::shared_ptr<Scenario::Culture> getPrimaryCulture();
 };
 } // namespace Scenario

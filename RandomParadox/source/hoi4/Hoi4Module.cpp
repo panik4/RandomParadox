@@ -59,6 +59,7 @@ bool Hoi4Module::createPaths() {
     create_directory(pathcfg.gameModPath + "//common//countries//");
     create_directory(pathcfg.gameModPath + "//common//bookmarks//");
     create_directory(pathcfg.gameModPath + "//common//country_tags//");
+    create_directory(pathcfg.gameModPath + "//common//names//");
     create_directory(pathcfg.gameModPath + "//common//scripted_triggers//");
     //
     create_directory(pathcfg.gameModPath + "//tutorial//");
@@ -193,6 +194,8 @@ void Hoi4Module::writeTextFiles() {
   commonCountries(pathcfg.gameModPath + "//common//countries//",
                   pathcfg.gamePath + "//common//countries//colors.txt",
                   hoi4Gen->hoi4Countries);
+  commonNames(pathcfg.gameModPath + "//common//names//00_names.txt",
+              hoi4Gen->hoi4Countries);
   adj(pathcfg.gameModPath + "//map//adjacencies.csv");
   airports(pathcfg.gameModPath + "//map//airports.txt", hoi4Gen->areas.regions);
   aiStrategy(pathcfg.gameModPath + "//common//", hoi4Gen->hoi4Countries);
