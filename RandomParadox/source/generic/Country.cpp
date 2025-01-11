@@ -82,10 +82,8 @@ void Country::evaluatePopulations() {
     populationFactor += region->populationFactor;
   }
 }
-std::shared_ptr<Culture> Scenario::Country::getPrimaryCulture() {
-  // return the largest culture in the country, by evaluating all gameregions
-  // according to their population multiplied with the share of the culture in
-  // the region
+
+void Country::gatherCultureShares() {
   cultures.clear();
   for (const auto &region : ownedRegions) {
     for (const auto &culture : region->cultureShares) {
@@ -96,6 +94,13 @@ std::shared_ptr<Culture> Scenario::Country::getPrimaryCulture() {
                 << culture.second << " in region " << region->name << std::endl;
     }
   }
+}
+
+std::shared_ptr<Culture> Scenario::Country::getPrimaryCulture() const {
+  // return the largest culture in the country, by evaluating all gameregions
+  // according to their population multiplied with the share of the culture in
+  // the region
+
   // return maxelement of cultures
   double max = 0;
   std::shared_ptr<Culture> primaryCulture;

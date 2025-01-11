@@ -5,6 +5,8 @@
 namespace Scenario {
 class CultureGroup;
 
+enum VisualType { ASIAN, AFRICAN, ARABIC, CAUCASIAN, SOUTH_AMERICAN };
+
 class Culture {
 
 public:
@@ -15,6 +17,7 @@ public:
   Fwg::Gfx::Colour colour;
   std::shared_ptr<Scenario::Language> language;
   std::shared_ptr<CultureGroup> cultureGroup;
+  VisualType visualType;
 };
 
 } // namespace Scenario

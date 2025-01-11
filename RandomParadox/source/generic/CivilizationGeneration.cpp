@@ -159,6 +159,14 @@ void generateCultures(CivilizationData &civData,
           {cultureGroup->getCultures()[closestCulture], 1.0});
     }
   }
+  // now calculate the visual type of the culture groups and set the cultures of
+  // the culture group to it
+  for (auto &cultureGroup : civData.cultureGroups) {
+    cultureGroup->determineVisualType();
+    for (auto &culture : cultureGroup->getCultures()) {
+      culture->visualType = cultureGroup->getVisualType();
+    }
+  }
 
   // now write the cultures to the culture map
   for (auto &gameRegion : gameRegions) {
