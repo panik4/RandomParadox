@@ -1149,6 +1149,10 @@ void portraits(const std::string &path, const CountryMap &countries) {
   // get all the resources from the portraits resources folder
   auto portraitsTemplate = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                         "hoi4//portraits//00_portraits.txt");
+
+  // scientists
+  std::string scientistTemplate = "";
+
   const auto africanTemplate = pU::readFile(
       Fwg::Cfg::Values().resourcePath + "hoi4//portraits//templateAfrican.txt");
   const auto asianTemplate = pU::readFile(Fwg::Cfg::Values().resourcePath +
@@ -1162,27 +1166,53 @@ void portraits(const std::string &path, const CountryMap &countries) {
       pU::readFile(Fwg::Cfg::Values().resourcePath +
                    "hoi4//portraits//templateSouthAmerican.txt");
 
+  const auto africanScientistTemplate =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//portraits//templateAfricanScientist.txt");
+  const auto asianScientistTemplate =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//portraits//templateAsianScientist.txt");
+  const auto caucasianScientistTemplate =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//portraits//templateCaucasianScientist.txt");
+  const auto arabicScientistTemplate =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//portraits//templateArabicScientist.txt");
+  const auto southAmericanScientistTemplate =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//portraits//templateSouthAmericanScientist.txt");
+
   for (auto &country : countries) {
     auto culture = country.second.getPrimaryCulture();
     std::string portraitTemplate;
+    std::string scientistTemplate;
     if (culture->visualType == VisualType::AFRICAN) {
       portraitTemplate = africanTemplate;
+      scientistTemplate = africanScientistTemplate;
     } else if (culture->visualType == VisualType::ASIAN) {
       portraitTemplate = asianTemplate;
+      scientistTemplate = asianScientistTemplate;
     } else if (culture->visualType == VisualType::CAUCASIAN) {
       portraitTemplate = caucasianTemplate;
+      scientistTemplate = caucasianScientistTemplate;
     } else if (culture->visualType == VisualType::ARABIC) {
       portraitTemplate = arabicTemplate;
+      scientistTemplate = arabicScientistTemplate;
     } else if (culture->visualType == VisualType::SOUTH_AMERICAN) {
       portraitTemplate = southAmericanTemplate;
+      scientistTemplate = southAmericanScientistTemplate;
     }
     // replace the tag
     pU::Scenario::replaceOccurences(portraitTemplate, "templateTag",
                                     country.first);
-    // attach to portraitsTemplate
+    pU::Scenario::replaceOccurences(scientistTemplate, "templateTag",
+                                    country.first);
+    // attach to templates
     portraitsTemplate.append(portraitTemplate);
+    scientistTemplate.append(scientistTemplate);
   }
   pU::writeFile(path + "00_portraits.txt", portraitsTemplate);
+  pU::writeFile(path + "998_scientist_portraits.txt", scientistTemplate);
 }
 } // namespace Writing
 
