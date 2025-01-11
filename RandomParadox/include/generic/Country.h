@@ -47,6 +47,7 @@ public:
   // operators
   bool operator<(const Country &right) const { return ID < right.ID; };
   void evaluatePopulations();
-  std::shared_ptr<Culture> getPrimaryCulture();
+  void gatherCultureShares();
+  virtual std::shared_ptr<Culture> getPrimaryCulture() const;
 };
 } // namespace Scenario

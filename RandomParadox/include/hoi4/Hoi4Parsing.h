@@ -72,6 +72,9 @@ void scriptedTriggers(std::string gamePath, std::string modPath);
 
 void commonFiltering(const std::string& gamePath, const std::string& modPath);
 
+// portraits
+void portraits(const std::string &path, const CountryMap &countries);
+
 } // namespace Writing
 
 namespace Reading {

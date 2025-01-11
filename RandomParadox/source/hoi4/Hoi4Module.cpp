@@ -31,6 +31,7 @@ bool Hoi4Module::createPaths() {
     remove_all(pathcfg.gameModPath + "//events//");
     remove_all(pathcfg.gameModPath + "//history");
     remove_all(pathcfg.gameModPath + "//common//");
+    remove_all(pathcfg.gameModPath + "//portraits//");
     remove_all(pathcfg.gameModPath + "//localisation//");
     create_directory(pathcfg.gameModPath + "//map//");
     create_directory(pathcfg.gameModPath + "//map//terrain//");
@@ -41,6 +42,8 @@ bool Hoi4Module::createPaths() {
     create_directory(pathcfg.gameModPath + "//history//");
     // localisation
     create_directory(pathcfg.gameModPath + "//localisation//");
+    // portraits
+    create_directory(pathcfg.gameModPath + "//portraits//");
     // common
     create_directory(pathcfg.gameModPath + "//common//");
     // map
@@ -224,6 +227,7 @@ void Hoi4Module::writeTextFiles() {
   commonBookmarks(pathcfg.gameModPath + "//common//bookmarks//",
                   hoi4Gen->hoi4Countries, hoi4Gen->countryImportanceScores);
   tutorials(pathcfg.gameModPath + "//tutorial//tutorial.txt");
+  portraits(pathcfg.gameModPath + "//portraits//", hoi4Gen->hoi4Countries);
   Parsing::copyDescriptorFile(
       Fwg::Cfg::Values().resourcePath + "hoi4//descriptor.mod",
       pathcfg.gameModPath, pathcfg.gameModsDirectory, pathcfg.modName);

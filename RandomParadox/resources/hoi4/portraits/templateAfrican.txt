@@ -1,0 +1,52 @@
+templateTag = {
+	army = {
+		male = {
+			"GFX_Portrait_Africa_Generic_land_1"
+			"GFX_Portrait_Africa_Generic_land_2"
+			"GFX_Portrait_Africa_Generic_land_3"
+			"GFX_Portrait_South_Africa_Army_Generic"
+			"GFX_Portrait_South_Africa_Army_Generic_2"
+		}
+	}
+	
+	navy = {
+		male = {
+			"GFX_Portrait_Africa_Generic_navy_1"
+			"GFX_Portrait_Africa_Generic_navy_2"
+			"GFX_Portrait_Africa_Generic_navy_3"
+		}
+	}
+	
+	political = {
+		communism = {
+			male = { 
+				"GFX_Portrait_Africa_Generic_1"	
+				"GFX_Portrait_South_Africa_Political_Leader_Generic_2"
+				"GFX_Portrait_South_Africa_Political_Leader_Generic"
+			}
+		}
+		democratic = {
+			male = { 
+				"GFX_Portrait_Africa_Generic_2" 
+				"GFX_Portrait_South_Africa_Political_Leader_Generic"
+				"GFX_Portrait_South_Africa_Political_Leader_Generic_2"		
+			}
+		}
+		fascism = {
+			male = { 
+				"GFX_Portrait_Africa_Generic_3" 
+				"GFX_Portrait_South_Africa_Political_Leader_Generic"
+				"GFX_Portrait_South_Africa_Political_Leader_Generic_2"
+				"GFX_Portrait_South_Africa_Army_Generic"
+				"GFX_Portrait_South_Africa_Army_Generic_2"
+			}
+		}
+		neutrality = {
+			male = { 
+				"GFX_Portrait_Africa_Generic_3" 
+				"GFX_Portrait_South_Africa_Political_Leader_Generic"
+				"GFX_Portrait_South_Africa_Political_Leader_Generic_2"
+			}
+		}
+	}
+}

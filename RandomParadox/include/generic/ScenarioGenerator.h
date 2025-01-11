@@ -194,7 +194,7 @@ public:
       country.assignRegions(6, gameRegions, startRegion, gameProvinces);
       // get the dominant culture in the country by iterating over all regions
       // and counting the number of provinces with the same culture
-
+      country.gatherCultureShares();
       auto culture = country.getPrimaryCulture();
       auto language = culture->language;
       country.name = language->generateGenericCapitalizedWord();
@@ -217,6 +217,7 @@ public:
     }
     for (auto &country : countries) {
       country.second->evaluatePopulations();
+      country.second->gatherCultureShares();
     }
     visualiseCountries(countryMap);
     Fwg::Gfx::Png::save(countryMap,

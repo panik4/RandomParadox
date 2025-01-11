@@ -13,12 +13,11 @@ class CultureGroup {
   std::shared_ptr<Scenario::LanguageGroup> languageGroup;
   std::shared_ptr<Region> center;
   std::vector<std::shared_ptr<Region>> regions;
+  VisualType visualType;
 
 public:
   // Constructor
-  CultureGroup(
-      const std::string &name, const Fwg::Gfx::Colour &colour
-      )
+  CultureGroup(const std::string &name, const Fwg::Gfx::Colour &colour)
       : name(name), colour(colour) {}
 
   // Method to add a culture
@@ -43,8 +42,7 @@ public:
   }
 
   void setCenter(const std::shared_ptr<Region> &region) { center = region; }
-  void setLanguageGroup(
-      const std::shared_ptr<Scenario::LanguageGroup> &group) {
+  void setLanguageGroup(const std::shared_ptr<Scenario::LanguageGroup> &group) {
     languageGroup = group;
   }
   std::shared_ptr<Region> getCenter() { return center; }
@@ -55,6 +53,12 @@ public:
   std::shared_ptr<Scenario::LanguageGroup> getLanguageGroup() {
     return languageGroup;
   }
+
+  // determines the visual looks of the culture group according to their
+  // geographic location
+  void determineVisualType();
+
+  VisualType getVisualType() { return visualType; }
 };
 
 } // namespace Scenario
