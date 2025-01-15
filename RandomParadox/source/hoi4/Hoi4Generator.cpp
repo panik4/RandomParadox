@@ -160,8 +160,28 @@ void Generator::mapCountries() {
   for (auto &country : countries) {
     // construct a hoi4country with country from ScenarioGenerator.
     // We want a copy here
-    Hoi4Country hC(*country.second, this->hoi4States);
-    hoi4Countries.insert({hC.tag, hC});
+    // Hoi4Country hC(*country.second, this->hoi4States);
+    // push back cast to hoi4Country
+    // hoi4Countries.push_back(
+    //    std::make_shared<Hoi4Country>(country.second, hoi4States));
+    // Attempt to cast the shared pointer to Hoi4Country
+    auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country.second);
+    if (hoi4Country) {
+      // Successfully casted, add to hoi4Countries
+      hoi4Countries.push_back(hoi4Country);
+      // now for all ownedRegions, find the equivalent in Hoi4Regions
+      for (auto &region : country.second->ownedRegions) {
+        for (auto &hoi4Region : hoi4States) {
+          if (region->ID == hoi4Region->ID) {
+            hoi4Country->hoi4Regions.push_back(hoi4Region);
+          }
+        }
+      }
+    } else {
+      // Handle the case where the cast fails, if necessary
+      // For example, log an error or throw an exception
+      Fwg::Utils::Logging::logLine("Failed to cast Country to Hoi4Country");
+    }
   }
   std::sort(hoi4States.begin(), hoi4States.end(),
             [](auto l, auto r) { return *l < *r; });
@@ -325,7 +345,7 @@ void Generator::generateCountrySpecifics() {
   mapCountries();
   for (auto &country : hoi4Countries) {
     // select a random country ideology
-    country.second.gfxCulture = Fwg::Utils::selectRandom(gfxCultures);
+    country->gfxCulture = Fwg::Utils::selectRandom(gfxCultures);
     std::vector<double> popularities{};
     double totalPop = 0;
     for (int i = 0; i < 4; i++) {
@@ -341,22 +361,21 @@ void Generator::generateCountrySpecifics() {
       if (i == 3 && sumPop < 100) {
         offset = 100 - sumPop;
       }
-      country.second.parties[i] = (int)popularities[i] + offset;
+      country->parties[i] = (int)popularities[i] + offset;
     }
     // assign a ruling party
-    country.second.rulingParty =
+    country->rulingParty =
         ideologies[RandNum::getRandom(0, (int)ideologies.size())];
     // allow or forbid elections
-    if (country.second.rulingParty == "democratic")
-      country.second.allowElections = 1;
-    else if (country.second.rulingParty == "neutrality")
-      country.second.allowElections = RandNum::getRandom(0, 1);
+    if (country->rulingParty == "democratic")
+      country->allowElections = 1;
+    else if (country->rulingParty == "neutrality")
+      country->allowElections = RandNum::getRandom(0, 1);
     else
-      country.second.allowElections = 0;
+      country->allowElections = 0;
     // now get the full name of the country
-    country.second.fullName = NameGeneration::modifyWithIdeology(
-        country.second.rulingParty, country.second.name,
-        country.second.adjective, nData);
+    country->fullName = NameGeneration::modifyWithIdeology(
+        country->rulingParty, country->name, country->adjective, nData);
   }
 }
 
@@ -440,25 +459,22 @@ void Generator::generateLogistics() {
     // GameProvince ID, distance
     std::map<double, int> supplyHubs;
     // add capital
-    auto capitalPosition =
-        gameRegions[country.second.capitalRegionID]->position;
+    auto capitalPosition = gameRegions[country->capitalRegionID]->position;
     auto &capitalProvince = Fwg::Utils::selectRandom(
-        gameRegions[country.second.capitalRegionID]->gameProvinces);
+        gameRegions[country->capitalRegionID]->gameProvinces);
     std::vector<double> distances;
     // region ID, provinceID
     std::map<int, std::shared_ptr<GameProvince>> supplyHubProvinces;
     std::map<int, bool> navalBases;
     std::set<int> gProvIDs;
-    for (auto &region : country.second.hoi4Regions) {
-      if ((region->stateCategory > 4 &&
-           region->ID != country.second.capitalRegionID)
+    for (auto &region : country->hoi4Regions) {
+      if ((region->stateCategory > 4 && region->ID != country->capitalRegionID)
           // if we're nearing the end of our region std::vector, and don't
           // have more than 25% of our regions as supply bases generate
           // supply bases for the last two regions
-          || (country.second.hoi4Regions.size() > 2 &&
-              (region->ID == (*(country.second.hoi4Regions.end() - 2))->ID) &&
-              supplyHubProvinces.size() <
-                  (country.second.hoi4Regions.size() / 4))) {
+          || (country->hoi4Regions.size() > 2 &&
+              (region->ID == (*(country->hoi4Regions.end() - 2))->ID) &&
+              supplyHubProvinces.size() < (country->hoi4Regions.size() / 4))) {
         if (region->sea || region->lake)
           continue;
         // select a random gameprovince of the state
@@ -636,24 +652,24 @@ void Generator::evaluateCountries() {
   Fwg::Utils::Logging::logLine("HOI4: Evaluating Country Strength");
   countryImportanceScores.clear();
   double maxScore = 0.0;
-  for (auto &c : hoi4Countries) {
-    c.second.capitalRegionID = 0;
+  for (auto &country : hoi4Countries) {
+    country->capitalRegionID = 0;
     auto totalIndustry = 0.0;
     auto totalPop = 0.0;
-    for (auto &ownedRegion : c.second.hoi4Regions) {
+    for (auto &ownedRegion : country->hoi4Regions) {
       auto regionIndustry = ownedRegion->civilianFactories +
                             ownedRegion->dockyards + ownedRegion->armsFactories;
       // always make the most important location the capital
-      c.second.selectCapital();
+      country->selectCapital();
 
       totalIndustry += regionIndustry;
       totalPop += (int)ownedRegion->totalPopulation;
     }
     countryImportanceScores[(int)(totalIndustry + totalPop / 1'000'000.0)]
-        .push_back(c.first);
-    c.second.importanceScore = totalIndustry + totalPop / 1'000'000.0;
-    if (c.second.importanceScore > maxScore) {
-      maxScore = c.second.importanceScore;
+        .push_back(country);
+    country->importanceScore = totalIndustry + totalPop / 1'000'000.0;
+    if (country->importanceScore > maxScore) {
+      maxScore = country->importanceScore;
     }
     // global
     totalWorldIndustry += (int)totalIndustry;
@@ -668,17 +684,17 @@ void Generator::evaluateCountries() {
       totalDeployedCountries - numMajorPowers - numRegionalPowers;
   for (const auto &scores : countryImportanceScores) {
     for (const auto &entry : scores.second) {
-      if (hoi4Countries.at(entry).importanceScore > 0.0) {
-        hoi4Countries.at(entry).relativeScore = (double)scores.first / maxScore;
+      if (entry->importanceScore > 0.0) {
+        entry->relativeScore = (double)scores.first / maxScore;
         if (numWeakStates > weakPowers.size()) {
-          weakPowers.insert(entry);
-          hoi4Countries.at(entry).rank = "weak";
+          weakPowers.push_back(entry);
+          entry->rank = "weak";
         } else if (numRegionalPowers > regionalPowers.size()) {
-          regionalPowers.insert(entry);
-          hoi4Countries.at(entry).rank = "regional";
+          regionalPowers.push_back(entry);
+          entry->rank = "regional";
         } else {
-          majorPowers.insert(entry);
-          hoi4Countries.at(entry).rank = "major";
+          majorPowers.push_back(entry);
+          entry->rank = "major";
         }
       }
     }
@@ -692,44 +708,44 @@ void Generator::generateCountryUnits() {
       Fwg::Cfg::Values().resourcePath + "hoi4//history//divisionTemplates.txt");
   // now tokenize by : character to get single
   auto unitTemplates = Fwg::Parsing::getTokens(unitTemplateFile, ':');
-  for (auto &c : hoi4Countries) {
+  for (auto &country : hoi4Countries) {
     // determine army doctrine
     // defensive vs offensive
     // infantry/milita, infantry+support, mechanized+armored, artillery
     // bully factor? Getting bullied? Infantry+artillery in defensive
     // doctrine bully? Mechanized+armored major nation? more mechanized
     // share
-    auto majorFactor = c.second.relativeScore;
-    auto bullyFactor = 0.05 * c.second.bully / 5.0;
-    if (c.second.rank == "major") {
+    auto majorFactor = country->relativeScore;
+    auto bullyFactor = 0.05 * country->bully / 5.0;
+    if (country->rank == "major") {
       bullyFactor += 0.5;
-    } else if (c.second.rank == "regional") {
+    } else if (country->rank == "regional") {
     }
     // army focus:
     // simply give templates if we qualify for them
     if (majorFactor > 0.5 && bullyFactor > 0.25) {
       // choose one of the mechanised doctrines
       if (RandNum::getRandom(2))
-        c.second.doctrines.push_back(Hoi4Country::doctrineType::blitz);
+        country->doctrines.push_back(Hoi4Country::doctrineType::blitz);
       else
-        c.second.doctrines.push_back(Hoi4Country::doctrineType::armored);
+        country->doctrines.push_back(Hoi4Country::doctrineType::armored);
     }
     if (bullyFactor < 0.25) {
       // will likely get bullied, add defensive doctrines
-      c.second.doctrines.push_back(Hoi4Country::doctrineType::defensive);
+      country->doctrines.push_back(Hoi4Country::doctrineType::defensive);
     }
     // give all stronger powers infantry with support divisions
     if (majorFactor >= 0.2) {
       // any relatively large power has support divisions
-      c.second.doctrines.push_back(Hoi4Country::doctrineType::infantry);
-      c.second.doctrines.push_back(Hoi4Country::doctrineType::artillery);
+      country->doctrines.push_back(Hoi4Country::doctrineType::infantry);
+      country->doctrines.push_back(Hoi4Country::doctrineType::artillery);
       // any relatively large power has support divisions
-      c.second.doctrines.push_back(Hoi4Country::doctrineType::support);
+      country->doctrines.push_back(Hoi4Country::doctrineType::support);
     }
     // give all weaker powers infantry without support
     if (majorFactor < 0.2) {
-      c.second.doctrines.push_back(Hoi4Country::doctrineType::milita);
-      c.second.doctrines.push_back(Hoi4Country::doctrineType::mass);
+      country->doctrines.push_back(Hoi4Country::doctrineType::milita);
+      country->doctrines.push_back(Hoi4Country::doctrineType::mass);
     }
 
     // now evaluate each template and add it if all requirements are
@@ -738,19 +754,19 @@ void Generator::generateCountryUnits() {
       auto requirements = Parsing::Scenario::getBracketBlockContent(
           unitTemplates[i], "requirements");
       auto requirementTokens = Fwg::Parsing::getTokens(requirements, ';');
-      if (unitFulfillsRequirements(requirementTokens, c.second)) {
+      if (unitFulfillsRequirements(requirementTokens, country)) {
         // get the ID and save it for used divison templates
-        c.second.units.push_back(i);
+        country->units.push_back(i);
       }
     }
     // now compose the army from the templates
     std::map<int, int> unitCount;
-    c.second.unitCount.resize(100);
-    auto totalUnits = c.second.importanceScore / 5;
+    country->unitCount.resize(100);
+    auto totalUnits = country->importanceScore / 5;
     while (totalUnits-- > 0) {
       // now randomly add units
-      auto unit = Fwg::Utils::selectRandom(c.second.units);
-      c.second.unitCount[unit]++;
+      auto unit = Fwg::Utils::selectRandom(country->units);
+      country->unitCount[unit]++;
     }
   }
 }
@@ -773,9 +789,13 @@ void Generator::printStatistics() {
 
   for (auto &scores : countryImportanceScores) {
     for (auto &entry : scores.second) {
+      // auto &hoi4Country = hoi4Countries[entry->tag];
+      //  search the corresponding hoi4Country in hoi4COuntries by tag.
+      // reinterpret this country as a shared pointer to Hoi4Country
+      auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(entry);
       Fwg::Utils::Logging::logLine("Strength: ", scores.first, " ",
-                                   hoi4Countries.at(entry).fullName, " ",
-                                   hoi4Countries.at(entry).rulingParty, "");
+                                   hoi4Country->fullName, " ",
+                                   hoi4Country->rulingParty, "");
     }
   }
 }
@@ -786,8 +806,8 @@ void Generator::distributeVictoryPoints() {
   double baseVPs = 10000;
   double assignedVPs = 0;
   for (auto country : hoi4Countries) {
-    auto language = country.second.getPrimaryCulture()->language;
-    for (auto &region : country.second.hoi4Regions) {
+    auto language = country->getPrimaryCulture()->language;
+    for (auto &region : country->hoi4Regions) {
       if (region->sea || region->lake)
         continue;
       region->totalVictoryPoints =
@@ -844,7 +864,8 @@ void Generator::generateUrbanisation() {
 }
 
 bool Generator::unitFulfillsRequirements(
-    std::vector<std::string> unitRequirements, Hoi4Country &country) {
+    std::vector<std::string> unitRequirements,
+    std::shared_ptr<Hoi4Country> &country) {
   // now check if the country fulfills the target requirements
   for (auto &requirement : unitRequirements) {
     // need to check rank, first get the desired value
@@ -852,7 +873,7 @@ bool Generator::unitFulfillsRequirements(
     if (value != "") {
       if (value.find("any") == std::string::npos)
         continue; // fine, may target any ideology
-      if (value.find(country.rank) == std::string::npos)
+      if (value.find(country->rank) == std::string::npos)
         return false; // targets rank is not right
     }
   }
@@ -869,7 +890,7 @@ bool Generator::unitFulfillsRequirements(
       for (const auto &requiredDoctrine : requiredDoctrines) {
         // check if country has that doctrine
         bool found = false;
-        for (const auto doctrine : country.doctrines) {
+        for (const auto doctrine : country->doctrines) {
           // map doctrine ID to a string and compare
           if (requiredDoctrine.find(doctrineMap.at((int)doctrine))) {
             found = true;

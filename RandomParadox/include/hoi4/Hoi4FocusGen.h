@@ -1,6 +1,7 @@
 
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/NationalFocus.h"
+#include "hoi4/goals/GoalGeneration.h"
 
 namespace Scenario::Hoi4 {
 namespace FocusGen {
@@ -25,7 +26,7 @@ bool targetFulfillsRequirements(
     const int level);
 // evaluate the focus chains for each country
 void evaluateCountryGoals(
-    std::map<std::string, Hoi4Country> &hoi4Countries,
+    std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries,
     const std::vector<std::shared_ptr<Scenario::Region>> &gameRegions);
 }; // namespace FocusGen
 } // namespace Scenario::Hoi4

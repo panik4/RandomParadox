@@ -51,7 +51,7 @@ public:
   Fwg::Gfx::Bitmap countryMap;
   Fwg::Gfx::Bitmap stratRegionMap;
   std::vector<StrategicRegion> strategicRegions;
-  std::map<int, std::vector<std::string>> countryImportanceScores;
+  std::map<int, std::vector<std::shared_ptr<Country>>> countryImportanceScores;
   Civilization::CivilizationData civData;
   // constructors/destructors
   Generator(Fwg::FastWorldGenerator &fwg);

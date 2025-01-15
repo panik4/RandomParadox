@@ -7,7 +7,7 @@
 #include "hoi4/Hoi4Generator.h"
 #include <array>
 namespace Scenario::Hoi4::Parsing {
-using CountryMap = std::map<std::string, Hoi4::Hoi4Country>;
+using CountryMap = std::vector<std::shared_ptr<Hoi4Country>>;
 
 namespace Writing {
 void adj(const std::string &path);
@@ -51,12 +51,12 @@ void foci(const std::string &path, const CountryMap &countries,
 // common
 void commonBookmarks(
     const std::string &path, const CountryMap &countries,
-    const std::map<int, std::vector<std::string>> &strengthScores);
+    const std::map<int, std::vector<std::shared_ptr<Country>>> &strengthScores);
 void commonCountries(const std::string &path, const std::string &hoiPath,
                      const CountryMap &countries);
 void commonCountryTags(const std::string &path, const CountryMap &countries);
 void commonNames(const std::string &path, const CountryMap &countries);
-    // localisation
+// localisation
 void countryNames(const std::string &path, const CountryMap &countries,
                   const NameGeneration::NameData &nData);
 void stateNames(const std::string &path, const CountryMap &countries);
@@ -70,7 +70,7 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
                           const std::vector<Fwg::Region> &regions);
 void scriptedTriggers(std::string gamePath, std::string modPath);
 
-void commonFiltering(const std::string& gamePath, const std::string& modPath);
+void commonFiltering(const std::string &gamePath, const std::string &modPath);
 
 // portraits
 void portraits(const std::string &path, const CountryMap &countries);

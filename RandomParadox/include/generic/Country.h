@@ -15,10 +15,11 @@ public:
   std::string tag;
   std::string name;
   std::string adjective;
-  int capitalRegionID;
+  int capitalRegionID = 0;
   int capitalProvinceID;
   double populationFactor;
   double developmentFactor;
+  std::string rank;
   // total importance
   double importanceScore;
   // relative importance to most important country

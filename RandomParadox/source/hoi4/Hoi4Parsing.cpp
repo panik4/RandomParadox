@@ -533,14 +533,14 @@ void flags(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: Gfx: Printing Flags");
   using namespace Gfx::Textures;
   for (const auto &country : countries) {
-    writeTGA(country.second.flag.width, country.second.flag.height,
-             country.second.flag.getFlag(), path + country.first + ".tga");
-    writeTGA(country.second.flag.width / 2, country.second.flag.height / 2,
-             country.second.flag.resize(country.second.flag.width / 2,
-                                        country.second.flag.height / 2),
-             path + "//medium//" + country.first + ".tga");
-    writeTGA(10, 7, country.second.flag.resize(10, 7),
-             path + "//small//" + country.first + ".tga");
+    writeTGA(country->flag.width, country->flag.height, country->flag.getFlag(),
+             path + country->tag + ".tga");
+    writeTGA(
+        country->flag.width / 2, country->flag.height / 2,
+        country->flag.resize(country->flag.width / 2, country->flag.height / 2),
+        path + "//medium//" + country->tag + ".tga");
+    writeTGA(10, 7, country->flag.resize(10, 7),
+             path + "//small//" + country->tag + ".tga");
   }
 }
 
@@ -549,26 +549,26 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
   const auto content = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                     "hoi4//history//country_template.txt");
   for (const auto &country : countries) {
-    auto tempPath = path + country.first + " - " + country.second.name + ".txt";
+    auto tempPath = path + country->tag + " - " + country->name + ".txt";
     auto countryText{content};
 
     pU::Scenario::replaceOccurences(
         countryText, "templateCapital",
-        std::to_string(country.second.capitalRegionID + 1));
-    pU::Scenario::replaceOccurences(countryText, "templateTag", country.first);
+        std::to_string(country->capitalRegionID + 1));
+    pU::Scenario::replaceOccurences(countryText, "templateTag", country->tag);
     pU::Scenario::replaceOccurences(countryText, "templateParty",
-                                    country.second.rulingParty);
-    std::string electAllowed = country.second.allowElections ? "yes" : "no";
+                                    country->rulingParty);
+    std::string electAllowed = country->allowElections ? "yes" : "no";
     pU::Scenario::replaceOccurences(countryText, "templateAllowElections",
                                     electAllowed);
     pU::Scenario::replaceOccurences(countryText, "templateFasPop",
-                                    std::to_string(country.second.parties[0]));
+                                    std::to_string(country->parties[0]));
     pU::Scenario::replaceOccurences(countryText, "templateDemPop",
-                                    std::to_string(country.second.parties[1]));
+                                    std::to_string(country->parties[1]));
     pU::Scenario::replaceOccurences(countryText, "templateComPop",
-                                    std::to_string(country.second.parties[2]));
+                                    std::to_string(country->parties[2]));
     pU::Scenario::replaceOccurences(countryText, "templateNeuPop",
-                                    std::to_string(country.second.parties[3]));
+                                    std::to_string(country->parties[3]));
     pU::writeFile(tempPath, countryText);
   }
 }
@@ -598,7 +598,7 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
   }*/
   for (const auto &country : countries) {
     std::vector<int> allowedProvinces;
-    for (auto &region : country.second.hoi4Regions) {
+    for (auto &region : country->hoi4Regions) {
       for (auto &prov : region->gameProvinces) {
         if (!prov->baseProvince->isLake)
           allowedProvinces.push_back(prov->ID);
@@ -609,7 +609,7 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     std::string unitFile = defaultTemplate;
     std::string divisionTemplates = "";
     // now insert all the unit templates for this country
-    for (const auto ID : country.second.units) {
+    for (const auto ID : country->units) {
       divisionTemplates.append(unitTemplates[ID]);
       // we need to buffer the names of the templates for use in later unit
       // generationm
@@ -629,9 +629,9 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     // templates under the "divisions" key in the unitFile
     std::string totalUnits = "";
     // for every entry in unitCount vector
-    for (int i = 0; i < country.second.unitCount.size(); i++) {
+    for (int i = 0; i < country->unitCount.size(); i++) {
       // run unit generation ("unitCount")[i] times
-      for (int x = 0; x < country.second.unitCount[i]; x++) {
+      for (int x = 0; x < country->unitCount[i]; x++) {
         // copy the template unit file
         auto tempUnit{unitBlock};
         // replace division name with the generic division name
@@ -645,13 +645,13 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
       }
     }
 
-    // for (int i = 0; i < country.second.attributeVectors.at("units").size();
+    // for (int i = 0; i < country->attributeVectors.at("units").size();
     // i++) {
     //
     //	for (int x = 0; x <
-    // country.second.attributeVectors.at("unitCount")[i];
+    // country->attributeVectors.at("unitCount")[i];
     // x++) {
-    // Logging::logLine(country.second.attributeVectors.at("units")[i]);
+    // Logging::logLine(country->attributeVectors.at("units")[i]);
     // auto
     // tempUnit{ unitBlock };
     // Fwg::Parsing::Scenario::replaceOccurences(tempUnit,
@@ -659,7 +659,7 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     // Logging::logLine(IDMap.at(i));
     // Fwg::Parsing::Scenario::replaceOccurences(tempUnit,
     //"templateLocation",
-    // std::to_string(country.second.ownedRegions[0].gameProvinces[0].ID +
+    // std::to_string(country->ownedRegions[0].gameProvinces[0].ID +
     // 1));
     //		totalUnits += tempUnit;
     //	}
@@ -667,21 +667,20 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     Fwg::Parsing::Scenario::replaceOccurences(unitFile, "templateUnitBlock",
                                               totalUnits);
     // units
-    auto tempPath = path + country.first + "_1936.txt";
-    pU::writeFile(path + country.first + "_1936.txt", unitFile);
-    pU::writeFile(path + country.first + "_1936_nsb.txt", unitFile);
+    auto tempPath = path + country->tag + "_1936.txt";
+    pU::writeFile(path + country->tag + "_1936.txt", unitFile);
+    pU::writeFile(path + country->tag + "_1936_nsb.txt", unitFile);
 
     // navies
-    tempPath = path + country.first + "_1936_naval.txt";
+    tempPath = path + country->tag + "_1936_naval.txt";
     pU::writeFile(tempPath, "");
-    tempPath = path + country.first + "_1936_naval_mtg.txt";
+    tempPath = path + country->tag + "_1936_naval_mtg.txt";
     pU::writeFile(tempPath, "");
   }
 }
 
-void commonBookmarks(
-    const std::string &path, const CountryMap &countries,
-    const std::map<int, std::vector<std::string>> &strengthScores) {
+void commonBookmarks(const std::string &path, const CountryMap &countries,
+    const std::map<int, std::vector<std::shared_ptr<Country>>>& strengthScores) {
   auto bookmarkTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
                    "hoi4//common//bookmarks//the_gathering_storm.txt");
@@ -703,21 +702,24 @@ void commonBookmarks(
       if (count < 7) {
         // major power:
         for (const auto &country : iter->second) {
+            // reinterpret this country as a Hoi4Country
+          auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country);
           auto majorString{majorTemplate};
           pU::Scenario::replaceOccurences(majorString, "templateIdeology",
-                                          countries.at(country).rulingParty);
+                                          hoi4Country->rulingParty);
           bookmarkCountries.append(pU::Scenario::replaceOccurences(
-              majorString, "templateMajorTAG", country));
+              majorString, "templateMajorTAG", hoi4Country->tag));
           count++;
         }
       } else if (count < 14) {
         // regional power:
         for (const auto &country : iter->second) {
+          auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country);
           auto minorString{minorTemplate};
           pU::Scenario::replaceOccurences(minorString, "templateIdeology",
-                                          countries.at(country).rulingParty);
+                                          hoi4Country->rulingParty);
           bookmarkCountries.append(pU::Scenario::replaceOccurences(
-              minorString, "templateMinorTAG", country));
+              minorString, "templateMinorTAG", hoi4Country->tag));
           count++;
         }
       }
@@ -737,17 +739,17 @@ void commonCountries(const std::string &path, const std::string &hoiPath,
                                               "hoi4//common//colors.txt");
   std::string colorsTxt = pU::readFile(hoiPath);
   for (const auto &country : countries) {
-    auto tempPath = path + country.second.name + ".txt";
+    auto tempPath = path + country->name + ".txt";
     auto countryText{content};
-    auto col = Fwg::Utils::varsToString(country.second.colour);
+    auto col = Fwg::Utils::varsToString(country->colour);
     auto colourString = pU::Scenario::replaceOccurences(col, ";", " ");
     pU::Scenario::replaceOccurences(countryText, "templateCulture",
-                                    country.second.gfxCulture);
+                                    country->gfxCulture);
     pU::Scenario::replaceOccurences(countryText, "templateColour",
                                     colourString);
     pU::writeFile(tempPath, countryText);
     auto templateCopy{colorsTxtTemplate};
-    pU::Scenario::replaceOccurences(templateCopy, "templateTag", country.first);
+    pU::Scenario::replaceOccurences(templateCopy, "templateTag", country->tag);
     pU::Scenario::replaceOccurences(templateCopy, "templateColour",
                                     colourString);
     colorsTxt.append(templateCopy);
@@ -759,7 +761,7 @@ void commonCountryTags(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: Common: Writing Country Tags");
   std::string content = "";
   for (const auto &country : countries)
-    content.append(country.first + " = \"countries/" + country.second.name +
+    content.append(country->tag + " = \"countries/" + country->name +
                    ".txt\"\n");
   pU::writeFile(path, content);
 }
@@ -781,9 +783,9 @@ void commonNames(const std::string &path, const CountryMap &countries) {
   for (auto &country : countries) {
 
     auto nameTemplate = countryNamesTemplate;
-    for (auto &culture : country.second.cultures) {
+    for (auto &culture : country->cultures) {
       // get the share of the culture in the country
-      auto share = culture.second / country.second.populationFactor;
+      auto share = culture.second / country->populationFactor;
       auto language = culture.first->language;
       // get the names for the culture
       for (int i = 1; i < share * (double)language->maleNames.size(); i++) {
@@ -803,7 +805,7 @@ void commonNames(const std::string &path, const CountryMap &countries) {
       }
       // now replace templateCountryTag
       pU::Scenario::replaceOccurences(nameTemplate, "templateCountryTag",
-                                      country.first);
+                                      country->tag);
       pU::Scenario::replaceOccurences(nameTemplate, "templateMaleNames",
                                       maleNames);
       pU::Scenario::replaceOccurences(nameTemplate, "templateFemaleNames",
@@ -823,17 +825,17 @@ void countryNames(const std::string &path, const CountryMap &countries,
   std::vector<std::string> ideologies{"fascism", "communism", "neutrality",
                                       "democratic"};
 
-  for (const auto &c : countries) {
+  for (const auto &country : countries) {
     for (const auto &ideology : ideologies) {
       auto ideologyName = NameGeneration::modifyWithIdeology(
-          ideology, c.second.name, c.second.adjective, nData);
+          ideology, country->name, country->adjective, nData);
       content +=
-          " " + c.first + "_" + ideology + ":0 \"" + ideologyName + "\"\n";
-      content +=
-          " " + c.first + "_" + ideology + "_DEF:0 \"" + ideologyName + "\"\n";
+          " " + country->tag + "_" + ideology + ":0 \"" + ideologyName + "\"\n";
+      content += " " + country->tag + "_" + ideology + "_DEF:0 \"" +
+                 ideologyName + "\"\n";
       ;
-      content += " " + c.first + "_" + ideology + "_ADJ:0 \"" +
-                 c.second.adjective + "\"\n";
+      content += " " + country->tag + "_" + ideology + "_ADJ:0 \"" +
+                 country->adjective + "\"\n";
       ;
     }
   }
@@ -882,8 +884,8 @@ void stateNames(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: Localisation: Writing State Names");
   std::string content = "l_english:\n";
 
-  for (const auto &c : countries) {
-    for (const auto &region : c.second.hoi4Regions)
+  for (const auto &country : countries) {
+    for (const auto &region : country->hoi4Regions)
       content += " STATE_" + std::to_string(region->ID + 1) + ":0 \"" +
                  region->name + "\"\n";
   }
@@ -934,10 +936,10 @@ void foci(const std::string &path, const CountryMap &countries,
         Fwg::Cfg::Values().resourcePath +
         "hoi4//ai//national_focus//focusTypes//" + focusType + "Focus.txt"));
 
-  for (const auto &c : countries) {
+  for (const auto &country : countries) {
     std::string treeContent = baseTree;
     std::string tempContent = "";
-    for (const auto &focusChain : c.second.focusBranches) {
+    for (const auto &focusChain : country->focusBranches) {
       for (const auto &countryFocus : focusChain.foci) {
         tempContent += focusTemplates[(size_t)countryFocus.fType];
 
@@ -971,16 +973,15 @@ void foci(const std::string &path, const CountryMap &countries,
         Fwg::Parsing::Scenario::replaceOccurences(
             tempContent, "templateChainID",
             std::to_string(countryFocus.chainID));
-        Fwg::Parsing::Scenario::replaceOccurences(tempContent,
-                                                  "templateSourceTag", c.first);
+        Fwg::Parsing::Scenario::replaceOccurences(tempContent, "templateSourceTag", country->tag);
         Fwg::Parsing::Scenario::replaceOccurences(
-            tempContent, "templateSourcename", c.second.name);
+            tempContent, "templateSourcename", country->name);
         Fwg::Parsing::Scenario::replaceOccurences(
             tempContent, "templateDestTag", countryFocus.destTag);
         // need a faction name
         if (tempContent.find("templateFactionname") != std::string::npos) {
           auto facName = NameGeneration::generateFactionName(
-              c.second.rulingParty, c.second.name, c.second.adjective, nData);
+              country->rulingParty, country->name, country->adjective, nData);
           Fwg::Parsing::Scenario::replaceOccurences(
               tempContent, "templateFactionname", facName);
         }
@@ -1035,7 +1036,7 @@ void foci(const std::string &path, const CountryMap &countries,
               preRequisiteBlocks[counter++].push_back(aBlock[0]);
             }
             std::string preName = Fwg::Utils::varsToString(
-                c.first, focusChain[0].chainID, ".", aBlock[0]);
+                country->tag, focusChain[0].chainID, ".", aBlock[0]);
 
             preString += "prerequisite = {";
             preString += " focus = " + preName + " }\n\t\t";
@@ -1045,7 +1046,7 @@ void foci(const std::string &path, const CountryMap &countries,
           preString += "prerequisite = {";
           for (const auto &elem : usedF) {
             std::string preName = Fwg::Utils::varsToString(
-                c.first, focusChain[0].chainID, ".", elem);
+                country->tag, focusChain[0].chainID, ".", elem);
             preString += " focus = " + preName + " ";
           }
           preString += "}\n";
@@ -1068,7 +1069,7 @@ void foci(const std::string &path, const CountryMap &countries,
             if (foc.stepID == exclusive) {
               // derive the name of the preceding focus
               std::string preName = Fwg::Utils::varsToString(
-                  c.first, focusChain[0].chainID, ".", exclusive);
+                  country->tag, focusChain[0].chainID, ".", exclusive);
               preString += " focus = " + preName;
             }
           }
@@ -1081,8 +1082,8 @@ void foci(const std::string &path, const CountryMap &countries,
     Fwg::Parsing::Scenario::replaceOccurences(treeContent, "templateFocusTree",
                                               tempContent);
     Fwg::Parsing::Scenario::replaceOccurences(treeContent, "templateSourceTag",
-                                              c.first);
-    pU::writeFile(path + c.second.name + ".txt", treeContent);
+                                              country->tag);
+    pU::writeFile(path + country->name + ".txt", treeContent);
   }
 }
 
@@ -1183,7 +1184,7 @@ void portraits(const std::string &path, const CountryMap &countries) {
                    "hoi4//portraits//templateSouthAmericanScientist.txt");
 
   for (auto &country : countries) {
-    auto culture = country.second.getPrimaryCulture();
+    auto culture = country->getPrimaryCulture();
     std::string portraitTemplate;
     std::string scientistTemplate;
     if (culture->visualType == VisualType::AFRICAN) {
@@ -1204,9 +1205,9 @@ void portraits(const std::string &path, const CountryMap &countries) {
     }
     // replace the tag
     pU::Scenario::replaceOccurences(portraitTemplate, "templateTag",
-                                    country.first);
+                                    country->tag);
     pU::Scenario::replaceOccurences(scientistTemplate, "templateTag",
-                                    country.first);
+                                    country->tag);
     // attach to templates
     portraitsTemplate.append(portraitTemplate);
     scientistTemplate.append(scientistTemplate);

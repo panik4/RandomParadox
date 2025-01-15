@@ -22,9 +22,9 @@ class Generator : public Scenario::Generator {
   int civilianIndustry = 0;
   std::map<std::string, int> totalResources;
   // containers
-  std::set<std::string> majorPowers;
-  std::set<std::string> regionalPowers;
-  std::set<std::string> weakPowers;
+  std::vector<std::shared_ptr<Country>> majorPowers;
+  std::vector<std::shared_ptr<Country>> regionalPowers;
+  std::vector<std::shared_ptr<Country>> weakPowers;
   std::vector<std::string> wargoalsAttack;
   std::vector<std::string> goalsDefence;
   std::map<int, std::string> doctrineMap{
@@ -34,7 +34,7 @@ class Generator : public Scenario::Generator {
 public:
   // containers
   std::vector<std::shared_ptr<Region>> hoi4States;
-  std::map<std::string, Hoi4Country> hoi4Countries;
+  std::vector<std::shared_ptr<Hoi4Country>> hoi4Countries;
   // a list of connections: {sourceHub, destHub, provinces the rails go through}
   std::vector<std::vector<int>> supplyNodeConnections;
   // container holding the resource configurations
@@ -71,7 +71,7 @@ public:
   // determine urbanisation
   void generateUrbanisation();
   bool unitFulfillsRequirements(std::vector<std::string> unitRequirements,
-                                Hoi4Country &country);
+                                std::shared_ptr<Hoi4Country> &country);
   // determine unit composition, templates
   void generateCountryUnits();
 
