@@ -265,87 +265,87 @@ bool targetFulfillsRequirements(
     const std::vector<std::set<std::string>> &levelTargets,
     const std::vector<std::shared_ptr<Scenario::Region>> &gameRegions,
     const int level) {
-  const auto &cfg = Fwg::Cfg::Values();
-  // now check if the country fulfills the target requirements
-  // need to check rank, first get the desired value
-  auto value = Fwg::Parsing::Scenario::getBracketBlockContent(
-      targetRequirements, "rank");
-  if (value != "" && value != "any") {
-    if (target.rank != value)
-      return false; // targets rank is not right
-  }
-  value = Fwg::Parsing::Scenario::getBracketBlockContent(targetRequirements,
-                                                         "ideology");
-  if (value != "" && value != "any") {
-    if (value == "same") {
-      if (target.rulingParty != source.rulingParty) {
-        return false;
-      }
-    } else if (value == "not") {
-      if (target.rulingParty == source.rulingParty)
-        return false;
-    } else {
-      // for any other value, must be specific ideology
-      if (target.rulingParty != source.rulingParty)
-        return false;
-    }
-  }
-  value = Fwg::Parsing::Scenario::getBracketBlockContent(targetRequirements,
-                                                         "location");
-  if (value != "" && value != "any") {
-    if (value == "neighbour") {
-      if (source.neighbours.find(target.tag) == source.neighbours.end())
-        return false;
-    }
-    if (value == "near") {
-      auto maxDistance = sqrt(cfg.width * cfg.height) * 0.2;
-      if (Fwg::getPositionDistance(
-              gameRegions[source.capitalRegionID]->position,
-              gameRegions[target.capitalRegionID]->position,
-              cfg.width) > maxDistance)
-        return false;
-    }
-    if (value == "far") {
-      auto minDistance = sqrt(cfg.width * cfg.height) * 0.2;
-      if (Fwg::getPositionDistance(
-              gameRegions[source.capitalRegionID]->position,
-              gameRegions[target.capitalRegionID]->position,
-              cfg.width) < minDistance)
-        return false;
-    }
-  }
-  value = Fwg::Parsing::Scenario::getBracketBlockContent(targetRequirements,
-                                                         "target");
-  if (value != "" && value != "any") {
-    if (value == "notlevel") {
-      // don't consider this country if already used on same level
-      if (levelTargets[level].find(target.tag) != levelTargets[level].end())
-        return false;
-    }
-    if (value == "level") {
-      // don't consider this country if NOT used on same level
-      if (levelTargets[level].size() &&
-          levelTargets[level].find(target.tag) == levelTargets[level].end())
-        return false;
-    }
-    if (value == "notchain") {
-      for (int i = 0; i < levelTargets.size(); i++) {
-        // don't consider this country if already used in same chain
-        if (levelTargets[i].find(target.tag) != levelTargets[i].end())
-          return false;
-      }
-    }
-    if (value == "chain") {
-      bool foundUse = false;
-      for (int i = 0; i < levelTargets.size(); i++) {
-        // don't consider this country if NOT used in same chain
-        if (levelTargets[i].find(target.tag) == levelTargets[i].end())
-          foundUse = true;
-      }
-      if (!foundUse)
-        return false;
-    }
-  }
+  // const auto &cfg = Fwg::Cfg::Values();
+  //// now check if the country fulfills the target requirements
+  //// need to check rank, first get the desired value
+  // auto value = Fwg::Parsing::Scenario::getBracketBlockContent(
+  //     targetRequirements, "rank");
+  // if (value != "" && value != "any") {
+  //   if (target.rank != value)
+  //     return false; // targets rank is not right
+  // }
+  // value = Fwg::Parsing::Scenario::getBracketBlockContent(targetRequirements,
+  //                                                        "ideology");
+  // if (value != "" && value != "any") {
+  //   if (value == "same") {
+  //     if (target.rulingParty != source.rulingParty) {
+  //       return false;
+  //     }
+  //   } else if (value == "not") {
+  //     if (target.rulingParty == source.rulingParty)
+  //       return false;
+  //   } else {
+  //     // for any other value, must be specific ideology
+  //     if (target.rulingParty != source.rulingParty)
+  //       return false;
+  //   }
+  // }
+  // value = Fwg::Parsing::Scenario::getBracketBlockContent(targetRequirements,
+  //                                                        "location");
+  // if (value != "" && value != "any") {
+  //   if (value == "neighbour") {
+  //     if (source.neighbours.find(target.tag) == source.neighbours.end())
+  //       return false;
+  //   }
+  //   if (value == "near") {
+  //     auto maxDistance = sqrt(cfg.width * cfg.height) * 0.2;
+  //     if (Fwg::getPositionDistance(
+  //             gameRegions[source.capitalRegionID]->position,
+  //             gameRegions[target.capitalRegionID]->position,
+  //             cfg.width) > maxDistance)
+  //       return false;
+  //   }
+  //   if (value == "far") {
+  //     auto minDistance = sqrt(cfg.width * cfg.height) * 0.2;
+  //     if (Fwg::getPositionDistance(
+  //             gameRegions[source.capitalRegionID]->position,
+  //             gameRegions[target.capitalRegionID]->position,
+  //             cfg.width) < minDistance)
+  //       return false;
+  //   }
+  // }
+  // value = Fwg::Parsing::Scenario::getBracketBlockContent(targetRequirements,
+  //                                                        "target");
+  // if (value != "" && value != "any") {
+  //   if (value == "notlevel") {
+  //     // don't consider this country if already used on same level
+  //     if (levelTargets[level].find(target.tag) != levelTargets[level].end())
+  //       return false;
+  //   }
+  //   if (value == "level") {
+  //     // don't consider this country if NOT used on same level
+  //     if (levelTargets[level].size() &&
+  //         levelTargets[level].find(target.tag) == levelTargets[level].end())
+  //       return false;
+  //   }
+  //   if (value == "notchain") {
+  //     for (int i = 0; i < levelTargets.size(); i++) {
+  //       // don't consider this country if already used in same chain
+  //       if (levelTargets[i].find(target.tag) != levelTargets[i].end())
+  //         return false;
+  //     }
+  //   }
+  //   if (value == "chain") {
+  //     bool foundUse = false;
+  //     for (int i = 0; i < levelTargets.size(); i++) {
+  //       // don't consider this country if NOT used in same chain
+  //       if (levelTargets[i].find(target.tag) == levelTargets[i].end())
+  //         foundUse = true;
+  //     }
+  //     if (!foundUse)
+  //       return false;
+  //   }
+  // }
   return true;
 }
 
@@ -356,15 +356,15 @@ void evaluateCountryGoals(
 
   GoalGeneration goalGen;
   goalGen.parseGoals(Fwg::Cfg::Values().resourcePath + "hoi4/goals/goals.txt");
-
+  goalGen.evaluateGoals(hoi4Countries);
   //
 
-  for (auto &country : hoi4Countries) {
-    // get 1 economic goal
-    auto economicGoals = goalGen.goalsByType.at("economic");
-    // select a random goal
-    auto economicGoal = Fwg::Utils::selectRandom(economicGoals);
-  }
+  //for (auto &country : hoi4Countries) {
+  //  // get 1 economic goal
+  //  auto economicGoals = goalGen.goalsByType.at("cat:economic");
+  //  // select a random goal
+  //  auto economicGoal = Fwg::Utils::selectRandom(economicGoals);
+  //}
 
   // std::vector<int> defDate{1, 1, 1936};
 

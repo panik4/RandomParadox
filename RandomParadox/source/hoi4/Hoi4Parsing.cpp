@@ -478,8 +478,8 @@ void states(const std::string &path,
     pU::Scenario::replaceOccurences(content, "template_provinces", provString);
     pU::Scenario::replaceOccurences(content, "templateVictoryPoints",
                                     victoryPoints);
-    if (region->owner.size())
-      pU::Scenario::replaceOccurences(content, "templateOwner", region->owner);
+    if (region->owner)
+      pU::Scenario::replaceOccurences(content, "templateOwner", region->owner->tag);
     else {
       pU::Scenario::replaceOccurences(content, "owner = templateOwner", "");
       pU::Scenario::replaceOccurences(content, "add_core_of = templateOwner",

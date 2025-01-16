@@ -181,49 +181,39 @@ public:
     countryMap.clear();
     for (auto &region : gameRegions) {
       region->assigned = false;
-      region->owner = "";
+      region->owner = nullptr;
     }
     auto &config = Fwg::Cfg::Values();
     Fwg::Utils::Logging::logLine("Generating Countries");
 
     for (auto i = 0; i < numCountries; i++) {
-      auto startRegion(findStartRegion());
-      if (startRegion->assigned || startRegion->sea)
-        continue;
+
       T country(std::to_string(i), i, "DUMMY", "", Gfx::Flag(82, 52));
-      country.assignRegions(6, gameRegions, startRegion, gameProvinces);
-      // get the dominant culture in the country by iterating over all regions
-      // and counting the number of provinces with the same culture
-      country.gatherCultureShares();
-      auto culture = country.getPrimaryCulture();
-      auto language = culture->language;
-      country.name = language->generateGenericCapitalizedWord();
-      country.adjective = language->getAdjectiveForm(country.name);
-      country.tag = NameGeneration::generateTag(country.name, nData);
-      for (auto &region : country.ownedRegions) {
-        region->owner = country.tag;
-      }
+
+
       countries.emplace(country.tag, std::make_shared<T>(country));
     }
     // assigns remaining regions to provinces
-    if (countries.size()) {
-      for (auto &gameRegion : gameRegions) {
-        if (!gameRegion->sea && !gameRegion->assigned) {
-          auto gR = Fwg::Utils::getNearestAssignedLand(
-              gameRegions, gameRegion, config.width, config.height);
-          countries.at(gR->owner)->addRegion(gameRegion);
-        }
-      }
-    }
-    for (auto &country : countries) {
-      country.second->evaluatePopulations();
-      country.second->gatherCultureShares();
-    }
-    visualiseCountries(countryMap);
-    Fwg::Gfx::Png::save(countryMap,
-                        Fwg::Cfg::Values().mapsPath + "countries.png");
+    //if (countries.size()) {
+    //  for (auto &gameRegion : gameRegions) {
+    //    if (!gameRegion->sea && !gameRegion->assigned) {
+    //      auto gR = Fwg::Utils::getNearestAssignedLand(
+    //          gameRegions, gameRegion, config.width, config.height);
+    //     //gR->owner->addRegion(gameRegion);
+    //    }
+    //  }
+    //}
+    //for (auto &country : countries) {
+    //  country.second->evaluatePopulations();
+    //  country.second->gatherCultureShares();
+    //}
+    //visualiseCountries(countryMap);
+    //Fwg::Gfx::Png::save(countryMap,
+    //                    Fwg::Cfg::Values().mapsPath + "countries.png");
+    distributeCountries();
   }
 
+  void distributeCountries();
   // see which country neighbours which
   void evaluateCountryNeighbours();
   // calculate how strong each country is

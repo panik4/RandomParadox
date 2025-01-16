@@ -112,7 +112,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
       }
     }
   }
-  Png::save(typeMap, "Maps/typeMap.png");
+  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "/typeMap.png");
   return typeMap;
 }
 
