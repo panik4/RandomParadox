@@ -5,13 +5,14 @@
 #include "generic/Religion.h"
 #include <map>
 namespace Scenario {
+class Country;
 enum class LocatorType { NONE, CITY, FARM, MINE, PORT, WOOD };
 class Region : public Fwg::Region {
   std::vector<std::string> cores;
 
 public:
   // member variables
-  std::string owner;
+  std::shared_ptr<Country> owner;
   std::string name;
   int superRegionID;
   // calculate this for the scenario in general

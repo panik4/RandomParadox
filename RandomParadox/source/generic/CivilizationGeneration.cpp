@@ -59,7 +59,8 @@ void generateReligions(
     //                                civData.religions[closestReligion]->colour);
     // }
   }
-  Fwg::Gfx::Png::save(religionMap, "Maps/world/religions.png");
+  Fwg::Gfx::Png::save(religionMap,
+                      config.mapsPath + "world/religions.png");
 }
 
 void generateCultures(CivilizationData &civData,

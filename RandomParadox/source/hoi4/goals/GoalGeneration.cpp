@@ -21,6 +21,12 @@ void Scenario::Hoi4::GoalGeneration::parseGoals(const std::string &path) {
         selectors.push_back(goalParts[i]);
       }
     }
+    std::vector<std::string> effects;
+    for (size_t i = 2; i < goalParts.size(); i++) {
+      if (goalParts[i].find("eff:") != std::string::npos) {
+        effects.push_back(goalParts[i]);
+      }
+    }
     // now go through all prerequisites, and split them into more tokens by &
     for (auto &prerequisite : prerequisites) {
       PrerequisiteGrouping pg;
@@ -58,5 +64,41 @@ void Scenario::Hoi4::GoalGeneration::parseGoals(const std::string &path) {
 
     potentialGoals.push_back(goal);
     goalsByType[type].push_back(goal);
+  }
+}
+
+void Scenario::Hoi4::GoalGeneration::evaluateGoals(
+    std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries) {
+  for (auto &country : hoi4Countries) {
+    auto economicGoals = goalsByType.at("cat:economic");
+    // select a random goal
+    auto economicGoal = Fwg::Utils::selectRandom(economicGoals);
+    for (auto &goal : economicGoals) {
+      // check for each of the prerequisite groups if it is valid
+      bool valid = true;
+      for (auto &prerequisiteGroup : goal.prerequisites) {
+        for (auto &prerequisite : prerequisiteGroup.prerequisites) {
+        }
+      }
+      // run the selector
+      std::shared_ptr<Scenario::Hoi4::Region> targetRegion;
+      std::shared_ptr<Scenario::Hoi4::Hoi4Country> targetCountry;
+
+      for (auto &selectorGroup : goal.selectors) {
+        for (auto &selector : selectorGroup.selectors) {
+          if (selector.name == "get_random_state") {
+            targetRegion = Scenario::Hoi4::Selectors::getRandomRegion(*country);
+          }
+        }
+      }
+      // now check if we found anything
+      if (targetRegion) {
+        // now we can apply the effects
+        for (auto &effect : goal.effects) {
+          auto constructedEffects =
+              Scenario::Hoi4::Effects::constructEffects(effect.effects);
+        }
+      }
+    }
   }
 }

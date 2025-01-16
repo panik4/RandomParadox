@@ -143,7 +143,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
     for (auto &gameProv : gameRegion->gameProvinces) {
     }
   }
-  Png::save(typeMap, "Maps/typeMap.png");
+  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "/typeMap.png");
   return typeMap;
 }
 
@@ -281,8 +281,8 @@ Bitmap Generator::visualiseCountries(Fwg::Gfx::Bitmap &countryBmp,
     for (const auto &prov : gameRegions[ID]->provinces) {
       auto countryColour = Fwg::Gfx::Colour(0, 0, 0);
       const auto &region = gameRegions[ID];
-      if (region->owner.size()) {
-        countryColour = countries.at(region->owner)->colour;
+      if (region->owner) {
+        countryColour = region->owner->colour;
       }
       for (const auto &pix : prov->pixels) {
         countryBmp.setColourAtIndex(pix,
@@ -297,8 +297,8 @@ Bitmap Generator::visualiseCountries(Fwg::Gfx::Bitmap &countryBmp,
     for (const auto &region : gameRegions) {
       auto countryColour = Fwg::Gfx::Colour(0, 0, 0);
       // if this tag is assigned, use the colour
-      if (region->owner.size()) {
-        countryColour = countries.at(region->owner)->colour;
+      if (region->owner) {
+        countryColour = region->owner->colour;
       }
       for (const auto &prov : region->provinces) {
         for (const auto &pix : prov->pixels) {
@@ -318,6 +318,49 @@ Bitmap Generator::visualiseCountries(Fwg::Gfx::Bitmap &countryBmp,
   return countryBmp;
 }
 
+void Generator::distributeCountries() {
+
+  auto &config = Fwg::Cfg::Values();
+
+  Fwg::Utils::Logging::logLine("Distributing Countries");
+  for (auto &countryEntry : countries) {
+    auto &country = countryEntry.second;
+    auto startRegion(findStartRegion());
+    if (startRegion->assigned || startRegion->sea)
+      continue;
+    country->assignRegions(6, gameRegions, startRegion, gameProvinces);
+    // get the dominant culture in the country by iterating over all regions
+    // and counting the number of provinces with the same culture
+    country->gatherCultureShares();
+    auto culture = country->getPrimaryCulture();
+    auto language = culture->language;
+    country->name = language->generateGenericCapitalizedWord();
+    country->adjective = language->getAdjectiveForm(country->name);
+    country->tag = NameGeneration::generateTag(country->name, nData);
+    for (auto &region : country->ownedRegions) {
+      region->owner = country;
+    }
+  }
+
+  if (countries.size()) {
+    for (auto &gameRegion : gameRegions) {
+      if (!gameRegion->sea && !gameRegion->assigned) {
+        auto gR = Fwg::Utils::getNearestAssignedLand(
+            gameRegions, gameRegion, config.width, config.height);
+        gR->owner->addRegion(gameRegion);
+        gameRegion->owner = gR->owner;
+      }
+    }
+  }
+  for (auto &country : countries) {
+    country.second->evaluatePopulations();
+    country.second->gatherCultureShares();
+  }
+  visualiseCountries(countryMap);
+  Fwg::Gfx::Png::save(countryMap,
+                      Fwg::Cfg::Values().mapsPath + "countries.png");
+}
+
 void Generator::evaluateCountryNeighbours() {
   Logging::logLine("Evaluating Country Neighbours");
   for (auto &c : countries)
@@ -325,7 +368,7 @@ void Generator::evaluateCountryNeighbours() {
       for (const auto &neighbourRegion : gR->neighbours)
         // TO DO: Investigate rare crash issue with index being out of range
         if (neighbourRegion < gameRegions.size() &&
-            gameRegions[neighbourRegion]->owner != c.first)
+            gameRegions[neighbourRegion]->owner != c.second)
           c.second->neighbours.insert(gameRegions[neighbourRegion]->owner);
 }
 

@@ -142,7 +142,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
       }
     }
   }
-  Png::save(typeMap, "Maps/typeMap.png");
+  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "Maps/typeMap.png");
   generateUrbanisation();
   return typeMap;
 }
@@ -177,6 +177,9 @@ void Generator::mapCountries() {
           }
         }
       }
+      // print address of both hoi4country and country
+      Fwg::Utils::Logging::logLine("1Country: ", country.second.get());
+      Fwg::Utils::Logging::logLine("2Country: ", hoi4Country.get());
     } else {
       // Handle the case where the cast fails, if necessary
       // For example, log an error or throw an exception
@@ -645,7 +648,7 @@ void Generator::generateLogistics() {
       }
     }
   }
-  Bmp::save(logistics, "Maps//logistics.bmp");
+  Bmp::save(logistics, Fwg::Cfg::Values().mapsPath + "//logistics.bmp");
 }
 
 void Generator::evaluateCountries() {

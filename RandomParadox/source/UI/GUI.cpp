@@ -841,14 +841,14 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
   if (generator->gameRegions.size()) {
     auto &modifiableState = generator->gameRegions[selectedStateIndex];
 
-    if ((modifiableState->owner.size() &&
-             generator->countries.find(modifiableState->owner) !=
+    if ((modifiableState->owner &&
+             generator->countries.find(modifiableState->owner->tag) !=
                  generator->countries.end() ||
          (drawCountryTag.size()) && generator->countries.find(drawCountryTag) !=
                                         generator->countries.end())) {
-      std::shared_ptr selectedCountry = generator->countries.at(
-          modifiableState->owner.size() ? modifiableState->owner
-                                        : drawCountryTag);
+      std::shared_ptr selectedCountry =
+          modifiableState->owner ? modifiableState->owner
+                                 : generator->countries.at(drawCountryTag);
       if (!drawBorders) {
         drawCountryTag = selectedCountry->tag;
       }
@@ -872,7 +872,7 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
               generator->countries.insert(
                   {selectedCountry->tag, selectedCountry});
               for (auto &region : selectedCountry->ownedRegions) {
-                region->owner = selectedCountry->tag;
+                region->owner = selectedCountry;
               }
             }
             generator->visualiseCountries(generator->countryMap);
@@ -902,7 +902,7 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
           selectedCountry = generator->countries.at(drawCountryTag);
         }
         if (!modifiableState->sea &&
-            modifiableState->owner != selectedCountry->tag) {
+            modifiableState->owner != selectedCountry) {
           // modifiableState->owner = selectedCountry->tag;
           selectedCountry->addRegion(modifiableState);
           generator->visualiseCountries(generator->countryMap,
@@ -914,7 +914,7 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
     ImGui::NextColumn();
     Elements::borderChild("StateEdit", [&]() {
       ImGui::InputText("State name", &modifiableState->name);
-      ImGui::InputText("State owner", &modifiableState->owner);
+      ImGui::InputText("State owner", &modifiableState->owner->tag);
       ImGui::InputInt("Population", &modifiableState->totalPopulation);
     });
     ImGui::NextColumn();

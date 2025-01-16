@@ -22,7 +22,7 @@ struct SelectorGrouping {
 };
 
 struct Effect {
-  std::map<std::string, std::string> effects;
+  std::map<std::string, std::vector<std::string>> effects;
 };
 
 class Goal {

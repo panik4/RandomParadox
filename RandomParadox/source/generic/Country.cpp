@@ -41,9 +41,9 @@ void Country::assignRegions(
 
 void Country::addRegion(std::shared_ptr<Region> region) {
   region->assigned = true;
-  region->owner = tag;
+  //region->owner = tag;
   for (auto &gameProvince : region->gameProvinces)
-    gameProvince->owner = tag;
+    gameProvince->owner = this->tag;
   ownedRegions.push_back(region);
 }
 void Country::selectCapital() {

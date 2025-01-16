@@ -317,7 +317,8 @@ void popsHistory(const std::string &path,
     auto statePops = popsStateTemplate;
     pU::Scenario::replaceOccurences(statePops, "templateName", region->name);
     // TODO: real country
-    pU::Scenario::replaceOccurences(statePops, "templateTag", region->owner);
+    pU::Scenario::replaceOccurences(statePops, "templateTag",
+                                    region->owner->tag);
 
     std::string listOfPops{""};
     for (auto &culture : region->cultureShares) {
@@ -348,7 +349,8 @@ void stateHistory(const std::string &path,
       continue;
     auto content = stateTemplate;
     pU::Scenario::replaceOccurences(content, "templateName", region->name);
-    pU::Scenario::replaceOccurences(content, "templateCountry", region->owner);
+    pU::Scenario::replaceOccurences(content, "templateCountry",
+                                    region->owner->tag);
     std::string provinceString{""};
     for (auto prov : region->gameProvinces) {
       provinceString.append("\"" + prov->toHexString() + "\" ");
@@ -614,7 +616,7 @@ void Scenario::Vic3::Parsing::History::writeBuildings(
     auto stateString = buildingsStateTemplate;
     pU::replaceOccurence(stateString, "templateStateName",
                          "STATE_" + region->name);
-    pU::replaceOccurence(stateString, "templateTag", region->owner);
+    pU::replaceOccurence(stateString, "templateTag", region->owner->tag);
     std::string allBuildings;
     for (auto &building : region->buildings) {
       allBuildings.append(buildingsSingleBuildingTemplate);

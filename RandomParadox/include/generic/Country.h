@@ -37,7 +37,7 @@ public:
   virtual ~Country() = default;
   // containers
   std::vector<std::shared_ptr<Region>> ownedRegions;
-  std::set<std::string> neighbours;
+  std::set<std::shared_ptr<Country>> neighbours;
   // member functions
   void assignRegions(int maxRegions,
                      std::vector<std::shared_ptr<Region>> &gameRegions,
