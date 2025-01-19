@@ -23,6 +23,9 @@ class Region : public Scenario::Region {
 
 public:
   // member variables
+  // the identifier the game uses for this state, referred to by localisation,
+  // history, foci, etc
+  std::string identifier;
   int armsFactories;
   int civilianFactories;
   int dockyards;

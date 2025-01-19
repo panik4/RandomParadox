@@ -479,7 +479,8 @@ void states(const std::string &path,
     pU::Scenario::replaceOccurences(content, "templateVictoryPoints",
                                     victoryPoints);
     if (region->owner)
-      pU::Scenario::replaceOccurences(content, "templateOwner", region->owner->tag);
+      pU::Scenario::replaceOccurences(content, "templateOwner",
+                                      region->owner->tag);
     else {
       pU::Scenario::replaceOccurences(content, "owner = templateOwner", "");
       pU::Scenario::replaceOccurences(content, "add_core_of = templateOwner",
@@ -680,7 +681,8 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
 }
 
 void commonBookmarks(const std::string &path, const CountryMap &countries,
-    const std::map<int, std::vector<std::shared_ptr<Country>>>& strengthScores) {
+                     const std::map<int, std::vector<std::shared_ptr<Country>>>
+                         &strengthScores) {
   auto bookmarkTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
                    "hoi4//common//bookmarks//the_gathering_storm.txt");
@@ -702,7 +704,7 @@ void commonBookmarks(const std::string &path, const CountryMap &countries,
       if (count < 7) {
         // major power:
         for (const auto &country : iter->second) {
-            // reinterpret this country as a Hoi4Country
+          // reinterpret this country as a Hoi4Country
           auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country);
           auto majorString{majorTemplate};
           pU::Scenario::replaceOccurences(majorString, "templateIdeology",
@@ -937,153 +939,15 @@ void foci(const std::string &path, const CountryMap &countries,
         "hoi4//ai//national_focus//focusTypes//" + focusType + "Focus.txt"));
 
   for (const auto &country : countries) {
-    std::string treeContent = baseTree;
-    std::string tempContent = "";
-    for (const auto &focusChain : country->focusBranches) {
-      for (const auto &countryFocus : focusChain.foci) {
-        tempContent += focusTemplates[(size_t)countryFocus.fType];
 
-        // build available from available keys
-        std::string available = "";
-        for (const auto &availKey : countryFocus.available) {
-          available += NationalFocus::availableMap.at(availKey);
-        }
-        available += "if = { date > " + std::to_string(countryFocus.date.year) +
-                     "." + std::to_string(countryFocus.date.day) + "." +
-                     std::to_string(countryFocus.date.month) + "}\n";
-        // build bypasses from bypass keys
-        std::string bypasses = "";
-        for (const auto &bypassKey : countryFocus.bypasses) {
-          bypasses += NationalFocus::bypassMap.at(bypassKey);
-        }
-        // build completion rewards from completion reward keys
-        std::string completionReward = "";
-        for (const auto &rewardKey : countryFocus.completionRewards) {
-          completionReward += NationalFocus::rewardMap.at(rewardKey);
-        }
-        Fwg::Parsing::Scenario::replaceOccurences(
-            tempContent, "templateAvailable", available);
-        Fwg::Parsing::Scenario::replaceOccurences(tempContent,
-                                                  "templateBypasses", bypasses);
-        Fwg::Parsing::Scenario::replaceOccurences(
-            tempContent, "templateCompletionRewards", completionReward);
+    pU::writeFile(path + country->name + ".txt", country->focusTree);
+  }
+}
 
-        Fwg::Parsing::Scenario::replaceOccurences(
-            tempContent, "templateStepID", std::to_string(countryFocus.stepID));
-        Fwg::Parsing::Scenario::replaceOccurences(
-            tempContent, "templateChainID",
-            std::to_string(countryFocus.chainID));
-        Fwg::Parsing::Scenario::replaceOccurences(tempContent, "templateSourceTag", country->tag);
-        Fwg::Parsing::Scenario::replaceOccurences(
-            tempContent, "templateSourcename", country->name);
-        Fwg::Parsing::Scenario::replaceOccurences(
-            tempContent, "templateDestTag", countryFocus.destTag);
-        // need a faction name
-        if (tempContent.find("templateFactionname") != std::string::npos) {
-          auto facName = NameGeneration::generateFactionName(
-              country->rulingParty, country->name, country->adjective, nData);
-          Fwg::Parsing::Scenario::replaceOccurences(
-              tempContent, "templateFactionname", facName);
-        }
-        Fwg::Parsing::Scenario::replaceOccurences(
-            tempContent, "templateDestTag", countryFocus.destTag);
-        Fwg::Parsing::Scenario::replaceOccurences(
-            tempContent, "templateXPosition",
-            std::to_string(countryFocus.position[0]));
-        Fwg::Parsing::Scenario::replaceOccurences(
-            tempContent, "templateYPosition",
-            std::to_string(countryFocus.position[1]));
-        // now collect all prerequisites
-        std::string preString = "";
-        std::vector<std::vector<int>> andBlocks;
-        std::set<int> usedF;
-        for (const auto &prerequisite : countryFocus.precedingFoci) {
-          // for every prerequisite, resolve and/or dependencies
-          // first, resolve ands, and put them together
-          // then, resolve or, and put them together
-          // for every or, check if it has an and
-          // if it has an and, resolve it and put in the group
-          for (const auto &foc : focusChain.foci) {
-            // we found the prerequisite
-            // iterate over and block from prerequisites
-            std::vector<int> andBlock;
-            if (foc.stepID == prerequisite) {
-              for (const auto andF : foc.andFoci) {
-                // now, we have found the focus. Now, resolve its and
-                // dependencies
-                if (usedF.find(andF) == usedF.end())
-                  andBlock.push_back(andF);
-                if (usedF.find(foc.stepID) == usedF.end())
-                  andBlock.push_back(foc.stepID);
-                usedF.insert(andF);
-                usedF.insert(foc.stepID);
-              }
-              usedF.insert(foc.stepID);
-            }
-            if (andBlock.size())
-              andBlocks.push_back(andBlock);
-          }
-        }
+void ideas(const std::string &path, const CountryMap &countries) {
+  for (const auto &country : countries) {
 
-        for (auto &andBlock : andBlocks)
-          std::sort(andBlock.begin(), andBlock.end());
-        std::vector<std::vector<int>> preRequisiteBlocks;
-        if (andBlocks.size() > 1) {
-          int counter = 0;
-          for (const auto &aBlock : andBlocks) {
-            if (aBlock.size()) {
-              preRequisiteBlocks.push_back(std::vector<int>{});
-              preRequisiteBlocks[counter++].push_back(aBlock[0]);
-            }
-            std::string preName = Fwg::Utils::varsToString(
-                country->tag, focusChain[0].chainID, ".", aBlock[0]);
-
-            preString += "prerequisite = {";
-            preString += " focus = " + preName + " }\n\t\t";
-          }
-        } else {
-          // no and cases, so just list all potential predecessors
-          preString += "prerequisite = {";
-          for (const auto &elem : usedF) {
-            std::string preName = Fwg::Utils::varsToString(
-                country->tag, focusChain[0].chainID, ".", elem);
-            preString += " focus = " + preName + " ";
-          }
-          preString += "}\n";
-        }
-        /* we now have the main prerequisites. Those prerequisiteBlocks will
-        be placed in the file as prerequisite = { block1.focus1 ... }
-        Now, these might have an OR relation
-        * Now check for alternatives
-        * this means that we check the rest of the and blocks
-
-        */
-
-        Fwg::Parsing::Scenario::replaceOccurences(
-            tempContent, "templatePrerequisite", preString);
-        // now make exclusive
-        preString.clear();
-        preString += "mutually_exclusive = {";
-        for (const auto &exclusive : countryFocus.xorFoci) {
-          for (const auto &foc : focusChain.foci) {
-            if (foc.stepID == exclusive) {
-              // derive the name of the preceding focus
-              std::string preName = Fwg::Utils::varsToString(
-                  country->tag, focusChain[0].chainID, ".", exclusive);
-              preString += " focus = " + preName;
-            }
-          }
-        }
-        preString += " }\n\t\t";
-        Fwg::Parsing::Scenario::replaceOccurences(
-            tempContent, "templateExclusive", preString);
-      }
-    }
-    Fwg::Parsing::Scenario::replaceOccurences(treeContent, "templateFocusTree",
-                                              tempContent);
-    Fwg::Parsing::Scenario::replaceOccurences(treeContent, "templateSourceTag",
-                                              country->tag);
-    pU::writeFile(path + country->name + ".txt", treeContent);
+    pU::writeFile(path + country->name + ".txt", country->ideas);
   }
 }
 

@@ -1,0 +1,30 @@
+	focus = {
+		id = templateFocusId
+		icon = GFX_goal_generic_construct_civ_factory
+		templatePrerequisite
+		x = templateXpos
+		y = templateYpos
+		cost = 10
+
+		search_filters = { FOCUS_FILTER_INDUSTRY  }
+		
+		available_if_capitulated = yes
+
+
+		
+		ai_will_do = {
+			factor = 2
+		}
+
+		bypass = {
+			
+		}
+
+		complete_tooltip = {
+
+		}
+
+		completion_reward = {
+			templateEffectGroup
+		}
+	}

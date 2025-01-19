@@ -1,0 +1,7 @@
+get_random_state;returns a random state;
+get_random_states(x,y);returns a list of x to y random state;
+get_random_coastal_state;returns a random coastal state
+get_random_coastal_states(x,y);returns a list of x to y random coastal state;
+get_underdeveloped_state;returns a list of states with a relative development of <0.5;
+get_underdeveloped_coastal_states(x,y);returns a list of x to y states with a relative development of <0.5;
+get_ideology_neighbour;pass an ideology, returns a random neighbour with this ideology;

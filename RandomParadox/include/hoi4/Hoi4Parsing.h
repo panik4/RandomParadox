@@ -47,6 +47,7 @@ void historyCountries(const std::string &path, const CountryMap &countries);
 void historyUnits(const std::string &path, const CountryMap &countries);
 void foci(const std::string &path, const CountryMap &countries,
           const NameGeneration::NameData &nData);
+void ideas(const std::string &path, const CountryMap &countries);
 
 // common
 void commonBookmarks(

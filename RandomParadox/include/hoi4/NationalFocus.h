@@ -10,6 +10,12 @@ struct Date {
   int year;
 };
 
+
+struct NationalFocus2 {
+  std::string identifier;
+
+};
+
 class NationalFocus {
   static int IDcounter;
 
