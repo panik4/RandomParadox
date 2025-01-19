@@ -22,6 +22,7 @@ void Generator::mapRegions() {
     auto gameRegion = std::make_shared<Region>(region);
     // generate random name for region
     gameRegion->name = "";
+    gameRegion->identifier = "STATE_" + std::to_string(region.ID + 1);
 
     for (auto &province : gameRegion->provinces) {
       gameRegion->gameProvinces.push_back(gameProvinces[province->ID]);

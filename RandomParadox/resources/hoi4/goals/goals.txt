@@ -1,0 +1,33 @@
+# an economic goal, that builds 1-3 or (4 or 5 or 6) infrastructure in a randomly selected state
+#develop_state_civilian;cat:economic;sel:get_random_state;eff:build_infrastructure(1%3);eff:build_infrastructure(4,5,6);
+# an economic goal, that builds 1-3 infrastructure AND 1-3 civilian industry
+#develop_state_civilian_industry;cat:economic;sel:get_random_state;eff:build_infrastructure(1%3)&eff:build_civ_industry(1%3);
+attract_immigrants;cat:economic;sel:self;eff:idea=immigration_bonus(100%1000)
+#random_state_random_development;cat:economic;sel:get_random_state;eff:civ_industry:min:eff:mil_industry:min:
+#develop_country;cat:economic;sel:self;eff:get_random_bonus(1);
+#develop_arms_industry;cat:economic;sel:get_random_state;
+#develop_civilian_industry;cat:economic;sel:get_random_state;
+#develop_naval_industry;cat:economic;sel:get_random_coastal_state;
+#develop_research_sector;cat:research;
+#develop_underdeveloped_state;cat:economic;sel:get_underdeveloped_state;
+#develop_resource_extraction;cat:economic;sel:get_random_state;
+# attacks a fascist country, if we can find a neighbouring fascist state, and are either communist, democratic or neutral
+#attack_fascist;cat:foreign_policy;sel:get_ideology_neighbour;prq:is_communist;prq:is_democratic;prq:is_neutral;
+# found a faction, but only if we are major OR (it is a bit later in the timeline and we are a regional power)
+#found_faction;cat:foreign_policy;prq:is_major;prq:is_middle_goal&prq:is_regional;
+# invite a random country close to us of the same ideology to our faction, but only if we have a found_faction goal, and needs to be after a found_faction goal (therefore forcing a direct dependency between those two)
+#invite_to_faction;cat:foreign_policy;sel:get_close_same_ideology_country;prq:has_found_faction_goal;pos:after(found_faction);
+#add_stability = 0.05
+
+
+#army
+#research bonus:
+
+
+#naval
+#research bonus:
+
+
+#air
+#research bonus:
+

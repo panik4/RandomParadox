@@ -1,0 +1,11 @@
+is_fascist;
+is_communist;
+is_democratic;
+is_neutral;
+is_major;
+is_regional;
+is_minor;
+is_puppet;
+is_late_goal;
+is_middle_goal;
+has_found_faction_goal;

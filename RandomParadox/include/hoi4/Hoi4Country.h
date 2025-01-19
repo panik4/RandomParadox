@@ -36,8 +36,9 @@ public:
   std::vector<int> unitCount;
   std::array<int, 4> parties;
   std::vector<std::shared_ptr<Region>> hoi4Regions;
-  //std::vector<std::vector<NationalFocus>> foci;
+  // std::vector<std::vector<NationalFocus>> foci;
   std::vector<FocusBranch> focusBranches;
-
+  std::string focusTree;
+  std::string ideas;
 };
 } // namespace Scenario::Hoi4

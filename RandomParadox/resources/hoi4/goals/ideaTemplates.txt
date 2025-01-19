@@ -1,0 +1,34 @@
+add_womens_suffrage,
+		templateIdeaName = {
+			picture = generic_constitutional_guarantees
+			allowed = {
+				always = yes
+			}
+
+			allowed_civil_war = {
+			}
+
+			removal_cost = -1
+			
+			modifier = {
+				political_power_gain = 0.25
+			}
+		}
+;
+immigration_bonus,
+		templateIdeaName = {
+			picture = generic_manpower_bonus
+			allowed = {
+				always = yes
+			}
+
+			allowed_civil_war = {
+			}
+
+			removal_cost = -1
+			
+			modifier = {
+				weekly_manpower = templateEffect
+			}
+		}
+;

@@ -13,7 +13,7 @@ public:
   // a sorted representation of the potential goals, sorted by type
   std::map<std::string, std::vector<Goal>> goalsByType;
 
-  std::map<std::string, std::vector<Goal>> goalsByCountry;
+  std::map<std::shared_ptr<Hoi4Country>, std::vector<std::shared_ptr<Goal>>> goalsByCountry;
 
   std::map<std::string, GoalType> goalTypeMap = {
       {"cat:political", GoalType::Political},

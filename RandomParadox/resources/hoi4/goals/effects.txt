@@ -1,0 +1,14 @@
+develop_state_civilian;selector:get_random_state;
+develop_country;selector:get_random_bonus;
+develop_arms_industry;selector:get_random_state;
+develop_civilian_industry;selector:get_random_state;
+develop_naval_industry;selector:get_random_coastal_state;
+develop_research_sector;
+develop_underdeveloped_state;selector:get_underdeveloped_state;
+develop_resource_extraction;selector:get_random_state;
+# attacks a fascist country, if we can find a neighbouring fascist state, and are either communist, democratic or neutral
+attack_fascist;selector:get_ideology_neighbour(fascist);prq:is_communist;prq:is_democratic;prq:is_neutral;
+# found a faction, but only if we are major OR (it is a bit later in the timeline and we are a regional power)
+found_faction;prq:is_major;prq:is_middle_goal&is_regional;
+# invite a random country close to us of the same ideology to our faction, but only if we have a found_faction goal, and needs to be after a found_faction goal (therefore forcing a direct dependency between those two)
+invite_to_faction;selector:get_close_same_ideology_country;prq:has_found_faction_goal;pos:after(found_faction);

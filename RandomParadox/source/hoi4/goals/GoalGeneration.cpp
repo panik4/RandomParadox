@@ -3,6 +3,9 @@
 void Scenario::Hoi4::GoalGeneration::parseGoals(const std::string &path) {
   auto goalLines = Fwg::Parsing::getLines(path);
   for (auto &goalLine : goalLines) {
+    if (goalLine.empty()) {
+      continue;
+    }
     Goal goal;
     auto goalParts = Fwg::Parsing::getTokens(goalLine, ';');
     goal.name = goalParts[0];
@@ -61,6 +64,26 @@ void Scenario::Hoi4::GoalGeneration::parseGoals(const std::string &path) {
       }
       goal.selectors.push_back(sg);
     }
+    // now go through all effects, and split them into more tokens by &
+    for (auto &effect : effects) {
+      EffectGrouping eg;
+      auto effectParts = Fwg::Parsing::getTokens(effect, '&');
+      for (auto &effectPart : effectParts) {
+        Effect e;
+        // check if this contains a (, if so get the content from there on until
+        // excluding the )
+        if (effectPart.find("(") != std::string::npos) {
+          auto start = effectPart.find("(");
+          auto end = effectPart.find(")");
+          e.name = effectPart.substr(0, start).substr(4);
+          e.parameters.push_back(effectPart.substr(start + 1, end - start - 1));
+        } else {
+          e.name = effectPart;
+        }
+        eg.effects.push_back(e);
+      }
+      goal.effects.push_back(eg);
+    }
 
     potentialGoals.push_back(goal);
     goalsByType[type].push_back(goal);
@@ -71,12 +94,13 @@ void Scenario::Hoi4::GoalGeneration::evaluateGoals(
     std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries) {
   for (auto &country : hoi4Countries) {
     auto economicGoals = goalsByType.at("cat:economic");
-    // select a random goal
-    auto economicGoal = Fwg::Utils::selectRandom(economicGoals);
-    for (auto &goal : economicGoals) {
+    for (auto i = 0; i < 20; i++) {
+      // select a random goal from a copy of the goal
+      auto economicGoal = Fwg::Utils::selectRandom(economicGoals);
+      // for (auto &goal : economicGoals) {
       // check for each of the prerequisite groups if it is valid
       bool valid = true;
-      for (auto &prerequisiteGroup : goal.prerequisites) {
+      for (auto &prerequisiteGroup : economicGoal.prerequisites) {
         for (auto &prerequisite : prerequisiteGroup.prerequisites) {
         }
       }
@@ -84,20 +108,46 @@ void Scenario::Hoi4::GoalGeneration::evaluateGoals(
       std::shared_ptr<Scenario::Hoi4::Region> targetRegion;
       std::shared_ptr<Scenario::Hoi4::Hoi4Country> targetCountry;
 
-      for (auto &selectorGroup : goal.selectors) {
+      for (auto &selectorGroup : economicGoal.selectors) {
         for (auto &selector : selectorGroup.selectors) {
           if (selector.name == "get_random_state") {
             targetRegion = Scenario::Hoi4::Selectors::getRandomRegion(*country);
+          }
+          if (selector.name == "self") {
+            targetCountry = country;
           }
         }
       }
       // now check if we found anything
       if (targetRegion) {
-        // now we can apply the effects
-        for (auto &effect : goal.effects) {
-          auto constructedEffects =
-              Scenario::Hoi4::Effects::constructEffects(effect.effects);
-        }
+        // we can now create a RegionGoal from the economicGoal
+        auto regionGoal = std::make_shared<Scenario::Hoi4::Goal>();
+        regionGoal->name = economicGoal.name;
+        regionGoal->type = economicGoal.type;
+        regionGoal->scope = GoalScope::Region;
+        regionGoal->prerequisites = economicGoal.prerequisites;
+        regionGoal->selectors = economicGoal.selectors;
+        regionGoal->effects = economicGoal.effects;
+        regionGoal->regionTarget = targetRegion;
+        // we now modify the goals effects, by selecting from the effects a
+        // random parameter
+        Scenario::Hoi4::Effects::constructEffects(regionGoal->effects);
+        goalsByCountry[country].push_back(regionGoal);
+      }
+      if (targetCountry) {
+        // we can now create a CountryGoal from the economicGoal
+        auto countryGoal = std::make_shared<Scenario::Hoi4::Goal>();
+        countryGoal->name = economicGoal.name;
+        countryGoal->type = economicGoal.type;
+        countryGoal->scope = GoalScope::Country;
+        countryGoal->prerequisites = economicGoal.prerequisites;
+        countryGoal->selectors = economicGoal.selectors;
+        countryGoal->effects = economicGoal.effects;
+        countryGoal->countryTarget = targetCountry;
+        // we now modify the goals effects, by selecting from the effects a
+        // random parameter
+        Scenario::Hoi4::Effects::constructEffects(countryGoal->effects);
+        goalsByCountry[country].push_back(countryGoal);
       }
     }
   }

@@ -233,266 +233,119 @@ void buildFocusTree(Hoi4Country &source) {
   }
 }
 
-bool stepFulfillsRequirements(
-    const std::string stepRequirements,
-    const std::vector<std::set<Hoi4Country>> &stepTargets) {
-
-  const auto predecessors = Fwg::Parsing::Scenario::getBracketBlockContent(
-      stepRequirements, "predecessor");
-  const auto v = Fwg::Parsing::Scenario::getNumbers(
-      Fwg::Parsing::Scenario::getBracketBlockContent(stepRequirements,
-                                                     "skippable"),
-      ',', std::set<int>());
-  std::set<int> skipNumbers(std::make_move_iterator(v.begin()),
-                            std::make_move_iterator(v.end()));
-  const auto requiredPredecessors = Fwg::Parsing::getTokens(predecessors, ',');
-  bool hasRequiredPredecessor = requiredPredecessors.size() ? false : true;
-  for (const auto &predecessor : requiredPredecessors)
-    if (predecessor != "") {
-      if (stepTargets[stoi(predecessors)].size())
-        hasRequiredPredecessor = true;
-      else if (skipNumbers.find(stoi(predecessors)) != skipNumbers.end())
-        hasRequiredPredecessor = true;
-    }
-  return hasRequiredPredecessor;
-}
-
-/* checks all requirements for a national focus. Returns false if any
- * requirement isn't fulfilled, else returns true*/
-bool targetFulfillsRequirements(
-    const std::string &targetRequirements, const Hoi4Country &source,
-    const Hoi4Country &target,
-    const std::vector<std::set<std::string>> &levelTargets,
-    const std::vector<std::shared_ptr<Scenario::Region>> &gameRegions,
-    const int level) {
-  // const auto &cfg = Fwg::Cfg::Values();
-  //// now check if the country fulfills the target requirements
-  //// need to check rank, first get the desired value
-  // auto value = Fwg::Parsing::Scenario::getBracketBlockContent(
-  //     targetRequirements, "rank");
-  // if (value != "" && value != "any") {
-  //   if (target.rank != value)
-  //     return false; // targets rank is not right
-  // }
-  // value = Fwg::Parsing::Scenario::getBracketBlockContent(targetRequirements,
-  //                                                        "ideology");
-  // if (value != "" && value != "any") {
-  //   if (value == "same") {
-  //     if (target.rulingParty != source.rulingParty) {
-  //       return false;
-  //     }
-  //   } else if (value == "not") {
-  //     if (target.rulingParty == source.rulingParty)
-  //       return false;
-  //   } else {
-  //     // for any other value, must be specific ideology
-  //     if (target.rulingParty != source.rulingParty)
-  //       return false;
-  //   }
-  // }
-  // value = Fwg::Parsing::Scenario::getBracketBlockContent(targetRequirements,
-  //                                                        "location");
-  // if (value != "" && value != "any") {
-  //   if (value == "neighbour") {
-  //     if (source.neighbours.find(target.tag) == source.neighbours.end())
-  //       return false;
-  //   }
-  //   if (value == "near") {
-  //     auto maxDistance = sqrt(cfg.width * cfg.height) * 0.2;
-  //     if (Fwg::getPositionDistance(
-  //             gameRegions[source.capitalRegionID]->position,
-  //             gameRegions[target.capitalRegionID]->position,
-  //             cfg.width) > maxDistance)
-  //       return false;
-  //   }
-  //   if (value == "far") {
-  //     auto minDistance = sqrt(cfg.width * cfg.height) * 0.2;
-  //     if (Fwg::getPositionDistance(
-  //             gameRegions[source.capitalRegionID]->position,
-  //             gameRegions[target.capitalRegionID]->position,
-  //             cfg.width) < minDistance)
-  //       return false;
-  //   }
-  // }
-  // value = Fwg::Parsing::Scenario::getBracketBlockContent(targetRequirements,
-  //                                                        "target");
-  // if (value != "" && value != "any") {
-  //   if (value == "notlevel") {
-  //     // don't consider this country if already used on same level
-  //     if (levelTargets[level].find(target.tag) != levelTargets[level].end())
-  //       return false;
-  //   }
-  //   if (value == "level") {
-  //     // don't consider this country if NOT used on same level
-  //     if (levelTargets[level].size() &&
-  //         levelTargets[level].find(target.tag) == levelTargets[level].end())
-  //       return false;
-  //   }
-  //   if (value == "notchain") {
-  //     for (int i = 0; i < levelTargets.size(); i++) {
-  //       // don't consider this country if already used in same chain
-  //       if (levelTargets[i].find(target.tag) != levelTargets[i].end())
-  //         return false;
-  //     }
-  //   }
-  //   if (value == "chain") {
-  //     bool foundUse = false;
-  //     for (int i = 0; i < levelTargets.size(); i++) {
-  //       // don't consider this country if NOT used in same chain
-  //       if (levelTargets[i].find(target.tag) == levelTargets[i].end())
-  //         foundUse = true;
-  //     }
-  //     if (!foundUse)
-  //       return false;
-  //   }
-  // }
-  return true;
-}
-
 void evaluateCountryGoals(
     std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries,
     const std::vector<std::shared_ptr<Scenario::Region>> &gameRegions) {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Goals");
 
+  // get the base focus file
+  const auto focusBaseFile = Fwg::Parsing::readFile(
+      Fwg::Cfg::Values().resourcePath + "hoi4/goals/focusBase.txt");
+  // get the effects file
+  const auto effectDetailsFile = Fwg::Parsing::readFile(
+      Fwg::Cfg::Values().resourcePath + "hoi4/goals/effectDetails.txt");
+  // get the ideas file
+  const auto ideaTemplateFile = Fwg::Parsing::readFile(
+      Fwg::Cfg::Values().resourcePath + "hoi4/goals/ideaTemplates.txt");
+  // tokenize effects file by ;
+  auto effects = Fwg::Parsing::getTokens(effectDetailsFile, ';');
+  // contains the key and the value is the effect which must be written into the
+  // focus
+  std::map<std::string, std::string> effectMap;
+  for (auto &effect : effects) {
+    if (effect.size() < 10)
+      continue;
+    auto parts = Fwg::Parsing::getTokens(effect, ',');
+    // replace any special characters in key
+    Fwg::Parsing::replaceOccurences(parts[0], "\n", "");
+    effectMap[parts[0]] = parts[1];
+  }
+  std::map<std::string, std::string> ideaMap;
+  auto ideaTemplates = Fwg::Parsing::getTokens(ideaTemplateFile, ';');
+  for (auto &idea : ideaTemplates) {
+    if (idea.size() < 10)
+      continue;
+    auto parts = Fwg::Parsing::getTokens(idea, ',');
+    // replace any special characters in key
+    Fwg::Parsing::replaceOccurences(parts[0], "\n", "");
+    ideaMap[parts[0]] = parts[1];
+  }
+
   GoalGeneration goalGen;
   goalGen.parseGoals(Fwg::Cfg::Values().resourcePath + "hoi4/goals/goals.txt");
   goalGen.evaluateGoals(hoi4Countries);
-  //
+  for (auto &countryGoals : goalGen.goalsByCountry) {
+    auto &country = countryGoals.first;
+    int idCounter = 0;
+    std::string ideaBase = "ideas = {\n\tcountry = {\n";
+    std::string focusTreeBase = "focus_tree = {\n";
+    for (auto &goal : countryGoals.second) {
+      focusTreeBase.append("\tid=" + countryGoals.first->tag + "_focus\n");
+      auto focusBase = focusBaseFile;
+      // determine the name of the focus
+      Fwg::Parsing::replaceOccurences(focusBase, "templateFocusId",
+                                      countryGoals.first->tag + "_" +
+                                          goal->name +
+                                          std::to_string(idCounter++));
+      // TODO prerequisites
+      Fwg::Parsing::replaceOccurences(focusBase, "templatePrerequisite", "");
 
-  //for (auto &country : hoi4Countries) {
-  //  // get 1 economic goal
-  //  auto economicGoals = goalGen.goalsByType.at("cat:economic");
-  //  // select a random goal
-  //  auto economicGoal = Fwg::Utils::selectRandom(economicGoals);
-  //}
+      // TODO positions
+      Fwg::Parsing::replaceOccurences(focusBase, "templateXpos",
+                                      std::to_string(2 * idCounter));
+      Fwg::Parsing::replaceOccurences(focusBase, "templateYpos",
+                                      std::to_string(2));
 
-  // std::vector<int> defDate{1, 1, 1936};
+      for (auto &effectGroup : goal->effects) {
+        std::string effectGroupText = "";
+        for (auto &effect : effectGroup.effects) {
+          if (effectMap.find(effect.name) != effectMap.end()) {
+            auto focusEffectText = effectMap.at(effect.name);
+            if (goal->scope == GoalScope::Region) {
+              // we need to replace the region name
+              Fwg::Parsing::replaceOccurences(
+                  focusEffectText, "templateStateID",
+                  std::to_string(goal->regionTarget->ID + 1));
+              // and the templateEffect by the param
+              Fwg::Parsing::replaceOccurences(focusEffectText, "templateEffect",
+                                              effect.parameters[0]);
+              effectGroupText.append(focusEffectText);
+            } else {
+              // in case of ideas, we have an indirection: the idea must first
+              // be constructed for the country with the parameters of the
+              // effect
+              if (effect.name.contains("idea=")) {
+                // remove the idea= part
+                effect.name = effect.name.substr(5);
+                // get the idea template
+                auto ideaTemplate = ideaMap.at(effect.name);
+                std::string ideaName = effect.name + "_" + country->tag + "_" +
+                                       std::to_string(idCounter);
+                Fwg::Parsing::replaceOccurences(ideaTemplate,
+                                                "templateIdeaName", ideaName);
+                Fwg::Parsing::replaceOccurences(ideaTemplate, "templateEffect",
+                                                effect.parameters[0]);
 
-  // std::vector<std::vector<std::vector<std::string>>> chains;
+                ideaBase.append(ideaTemplate);
+                Fwg::Parsing::replaceOccurence(focusEffectText, effect.name,
+                                                ideaName);
+                effectGroupText.append(focusEffectText);
 
-  // chains.push_back(Fwg::Parsing::getLinesByID(
-  //     Fwg::Cfg::Values().resourcePath +
-  //     "hoi4//ai//national_focus//chains//major_chains.txt"));
-
-  // chains.push_back(Fwg::Parsing::getLinesByID(
-  //     Fwg::Cfg::Values().resourcePath +
-  //     "hoi4//ai//national_focus//chains//regional_chains.txt"));
-  // chains.push_back(Fwg::Parsing::getLinesByID(
-  //     Fwg::Cfg::Values().resourcePath +
-  //     "hoi4//ai//national_focus//chains//army_chains.txt"));
-  // auto branchRules = (Fwg::Parsing::getLinesByID(
-  //     Fwg::Cfg::Values().resourcePath +
-  //     "hoi4//ai//national_focus//chains//chain_rules.txt"));
-  // for (auto &source : hoi4Countries) {
-  //   source->bully = 0;
-  //   // sourceCountry.second.defensive = 0;
-  //   for (const auto &chainType : chains) {
-  //     for (const auto &chain : chainType) {
-  //       // evaluate whole chain (chain defined by ID)
-  //       if (!chain.size())
-  //         continue;
-
-  //      // we need to save options for every chain step
-  //      std::vector<std::set<Hoi4Country>> stepTargets;
-  //      stepTargets.resize(100);
-  //      std::vector<std::set<std::string>> levelTargets(chain.size());
-  //      int chainID = 0;
-  //      for (const auto &chainFocus : chain) {
-  //        Fwg::Utils::Logging::logLineLevel(9, chainFocus);
-  //        // evaluate every single focus of that chain
-  //        const auto chainTokens = Fwg::Parsing::getTokens(chainFocus, ';');
-  //        const int chainStep = stoi(chainTokens[1]);
-  //        chainID = stoi(chainTokens[0]);
-  //        const int level = stoi(chainTokens[12]);
-  //        if ((chainTokens[3].find(source->rank) != std::string::npos ||
-  //             chainTokens[3] == "any") &&
-  //            (chainTokens[4].find(source->rulingParty) != std::string::npos
-  //            ||
-  //             chainTokens[4] == "any")) {
-  //          if (stepFulfillsRequirements(chainTokens[2], stepTargets)) {
-  //            const auto &targetRequirements = chainTokens[6];
-  //            // if there are no target requirements, only the country itself
-  //            is
-  //            // a target
-  //            if (!targetRequirements.size())
-  //              stepTargets[chainStep].insert(source);
-  //            else {
-  //              for (auto &destCountry : hoi4Countries) {
-  //                // now check every country if it fulfills the target
-  //                // requirements
-  //                if (targetFulfillsRequirements(
-  //                        targetRequirements,
-  //                        hoi4Countries.at(sourceCountry.first),
-  //                        destCountry, levelTargets, gameRegions,
-  //                        level)) {
-  //                  stepTargets[chainStep].insert(destCountry);
-  //                  // save that we targeted this country on this level
-  //                  already.
-  //                  // Next steps on same level should not consider this tag
-  //                  // anymore
-  //                  levelTargets[level].insert(destCountry->tag);
-  //                }
-  //              }
-  //            }
-  //          }
-  //        }
-  //      }
-  //      // now build the chain from the options
-  //      // for every step of the chain, choose a target
-  //      if (stepTargets.size()) {
-  //        Fwg::Utils::Logging::logLineLevel(5, "Building focus");
-  //        std::map<int, NationalFocus> fulfilledSteps;
-  //        int stepIndex = -1;
-  //        std::vector<NationalFocus> chainFoci;
-
-  //        for (auto &targets : stepTargets) {
-  //          stepIndex++;
-  //          if (!targets.size())
-  //            continue;
-  //          // select random target
-  //          const auto &target = Fwg::Utils::selectRandom(targets);
-  //          auto focus{
-  //              buildFocus(Fwg::Parsing::getTokens(chain[stepIndex], ';'),
-  //                         hoi4Countries.at(sourceCountry.first), target)};
-  //          focus.stepID = stepIndex;
-  //          focus.chainID = chainID;
-  //          Fwg::Utils::Logging::logLineLevel(1, focus);
-  //          if (focus.fType == NationalFocus::FocusType::attack) {
-  //            // country aims to bully
-  //            sourceCountry.second.bully++;
-  //          }
-  //          chainFoci.push_back(focus);
-  //        }
-  //        FocusBranch branch;
-  //        branch.foci = chainFoci;
-  //        branch.ID = chainID;
-
-  //        auto branchRule = branchRules[branch.ID];
-  //        if (branchRule.size()) {
-  //          const auto branchTokens =
-  //              Fwg::Parsing::getTokens(branchRule[0], ';');
-  //          auto branchPredecessors =
-  //              Fwg::Parsing::getTokens(branchTokens[1], ',');
-  //          auto optionalPredecessors =
-  //              Fwg::Parsing::getTokens(branchTokens[2], ',');
-  //          for (auto &branchPredecessor : branchPredecessors) {
-  //            branch.requiredPreceding.push_back(std::stoi(branchPredecessor));
-  //          }
-  //        }
-
-  //        if (branch.foci.size()) {
-
-  //          // used later to determine predecessor if branches are merged
-  //          branch.attachPoint = branch.foci.back().stepID;
-  //          sourceCountry.second.focusBranches.push_back(branch);
-  //        } else {
-  //        }
-  //      }
-  //    }
-  //  }
-  //  // now build a tree out of the focus chains
-  //  buildFocusTree(sourceCountry.second);
-  //}
+              }
+            }
+          }
+        }
+        // replace the effectGroupText in the focusBase
+        Fwg::Parsing::replaceOccurences(focusBase, "templateEffectGroup",
+                                        effectGroupText);
+      }
+      focusTreeBase.append(focusBase);
+    }
+    ideaBase.append("\n}\n}\n");
+    focusTreeBase.append("}\n");
+    country->focusTree = focusTreeBase;
+    country->ideas = ideaBase;
+  }
 }
 
 } // namespace Scenario::Hoi4::FocusGen
