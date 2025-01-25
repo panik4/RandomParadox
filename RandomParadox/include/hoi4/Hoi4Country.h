@@ -26,7 +26,7 @@ public:
   ~Hoi4Country();
   std::string fullName;
   std::string gfxCulture;
-  std::string rulingParty;
+  std::string ideology;
   bool allowElections;
   double bully;
   int victoryPoints;

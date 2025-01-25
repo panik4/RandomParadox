@@ -914,7 +914,8 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
     ImGui::NextColumn();
     Elements::borderChild("StateEdit", [&]() {
       ImGui::InputText("State name", &modifiableState->name);
-      ImGui::InputText("State owner", &modifiableState->owner->tag);
+      if (modifiableState->owner)
+        ImGui::InputText("State owner", &modifiableState->owner->tag);
       ImGui::InputInt("Population", &modifiableState->totalPopulation);
     });
     ImGui::NextColumn();

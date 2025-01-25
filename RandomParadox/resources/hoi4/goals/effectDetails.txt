@@ -39,3 +39,9 @@ idea=add_womens_suffrage,
 idea=immigration_bonus,
 			add_ideas = { immigration_bonus }
 ;
+wargoal_annex,
+			create_wargoal = {
+				type = annex_everything
+				target = templateTarget
+			}
+;

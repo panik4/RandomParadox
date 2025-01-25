@@ -3,8 +3,16 @@
 #include <string>
 #include <vector>
 namespace Scenario::Hoi4 {
-enum class GoalType { Political, Military, Economic, ForeignPolicy, Research };
-enum class GoalScope { Country, Region };
+enum class GoalType {
+  Undefined,
+  Political,
+  Military,
+  Economic,
+  ForeignPolicy,
+  ForeignPolicyOffensive,
+  Research
+};
+enum class GoalScope { Undefined, Country, Region };
 
 struct Prerequisite {
   std::string name;
@@ -34,16 +42,47 @@ struct EffectGrouping {
   std::vector<Effect> effects;
 };
 
+// determines the availability of a goal
+struct Availability {
+  std::string name;
+  std::string parameter;
+};
+
+struct AvailabilityGrouping {
+  std::vector<Availability> availabilities;
+};
+
+// to be able to skip a goal if a certain condition is met
+struct Bypass {
+  std::string name;
+  std::string parameter;
+};
+
+struct BypassGrouping {
+  std::vector<Bypass> bypasses;
+};
+
 class Goal {
 public:
-  std::string name;
-  GoalType type;
-  GoalScope scope;
+  std::string name = "";
+  // to determine ordering of goals
+  int priority = 999;
+  GoalType type = GoalType::Undefined;
+  GoalScope scope = GoalScope::Undefined;
   std::vector<PrerequisiteGrouping> prerequisites;
   std::vector<SelectorGrouping> selectors;
   std::vector<EffectGrouping> effects;
+  std::vector<AvailabilityGrouping> availabilities;
+  std::vector<BypassGrouping> bypasses;
   std::shared_ptr<Region> regionTarget;
   std::shared_ptr<Hoi4Country> countryTarget;
+};
+
+enum class GroupingType { Undefined, Alternatives, Successors };
+struct AlternativeGoalGrouping {
+
+	// std::vector<Goal> goals;
+
 };
 
 } // namespace Scenario::Hoi4

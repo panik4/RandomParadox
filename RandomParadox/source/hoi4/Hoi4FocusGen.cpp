@@ -237,7 +237,9 @@ void evaluateCountryGoals(
     std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries,
     const std::vector<std::shared_ptr<Scenario::Region>> &gameRegions) {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Goals");
-
+  // get the base focus tree file
+  const auto focusTreeBaseFile = Fwg::Parsing::readFile(
+      Fwg::Cfg::Values().resourcePath + "hoi4/goals/focusTreeBase.txt");
   // get the base focus file
   const auto focusBaseFile = Fwg::Parsing::readFile(
       Fwg::Cfg::Values().resourcePath + "hoi4/goals/focusBase.txt");
@@ -278,9 +280,13 @@ void evaluateCountryGoals(
     auto &country = countryGoals.first;
     int idCounter = 0;
     std::string ideaBase = "ideas = {\n\tcountry = {\n";
-    std::string focusTreeBase = "focus_tree = {\n";
+    std::string focusTreeBase = focusTreeBaseFile;
+    Fwg::Parsing::replaceOccurence(focusTreeBase, "templateFocusID",
+                                   countryGoals.first->tag + "_focus");
+    Fwg::Parsing::replaceOccurence(focusTreeBase, "templateCountryTag",
+                                   country->tag);
+    std::string focusList = "";
     for (auto &goal : countryGoals.second) {
-      focusTreeBase.append("\tid=" + countryGoals.first->tag + "_focus\n");
       auto focusBase = focusBaseFile;
       // determine the name of the focus
       Fwg::Parsing::replaceOccurences(focusBase, "templateFocusId",
@@ -311,6 +317,8 @@ void evaluateCountryGoals(
                                               effect.parameters[0]);
               effectGroupText.append(focusEffectText);
             } else {
+
+
               // in case of ideas, we have an indirection: the idea must first
               // be constructed for the country with the parameters of the
               // effect
@@ -331,6 +339,19 @@ void evaluateCountryGoals(
                                                 ideaName);
                 effectGroupText.append(focusEffectText);
 
+              } else {
+                // we need to replace the country tag
+                Fwg::Parsing::replaceOccurences(focusEffectText, "templateTag",
+                                                country->tag);
+                // and the templateEffect by the param
+                Fwg::Parsing::replaceOccurences(
+                    focusEffectText, "templateEffect", effect.parameters[0]);
+                // if the text contains templateTarget, we need to replace it by the goal target
+                if (focusEffectText.contains("templateTarget")) {
+                  Fwg::Parsing::replaceOccurences(
+                      focusEffectText, "templateTarget", goal->countryTarget->tag);
+                }
+                effectGroupText.append(focusEffectText);
               }
             }
           }
@@ -339,10 +360,11 @@ void evaluateCountryGoals(
         Fwg::Parsing::replaceOccurences(focusBase, "templateEffectGroup",
                                         effectGroupText);
       }
-      focusTreeBase.append(focusBase);
+      focusList.append(focusBase);
     }
+    Fwg::Parsing::replaceOccurence(focusTreeBase, "templateFocusList",
+                                   focusList);
     ideaBase.append("\n}\n}\n");
-    focusTreeBase.append("}\n");
     country->focusTree = focusTreeBase;
     country->ideas = ideaBase;
   }
