@@ -401,9 +401,11 @@ void Hoi4Module::generate() {
 
     // generate country data
     hoi4Gen->generateCountries<Hoi4::Hoi4Country>();
+    // first gther generic neighbours, the will be mapped to hoi4 countries in
+    // mapCountries
+    hoi4Gen->evaluateCountryNeighbours();
     // build hoi4 countries out of basic countries
     hoi4Gen->mapCountries();
-    hoi4Gen->evaluateCountryNeighbours();
     // politics, etc
     hoi4Gen->generateCountrySpecifics();
 

@@ -10,10 +10,13 @@ void constructEffects(std::vector<EffectGrouping> &effectGroupings) {
     auto &name = effect.name;
     auto &parameters = effect.parameters;
     std::vector<std::string> newParameters;
-    if (parameters.size() > 1) {
+    if (parameters.size() == 0) {
+      // no parameters, we can keep the effect as is
+    } else if (parameters.size() > 1) {
       Fwg::Utils::Logging::logLine("More than one parameter for effect " +
                                    name);
     } else {
+
       // we have a list of potential parameters
       if (parameters[0].find(",") != std::string::npos) {
         // split the parameter by ,

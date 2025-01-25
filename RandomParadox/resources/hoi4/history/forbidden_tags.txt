@@ -6,3 +6,6 @@ NOT
 NUL
 SOU
 BLT
+SPA
+CHI
+PHI

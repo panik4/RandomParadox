@@ -54,7 +54,7 @@ LanguageGroup::findLikeliestTokens(const std::set<std::string> &tokens,
 }
 
 void LanguageGroup::generateTokenSets() {
-  for (int i = 0; i < 12; i++) {
+  for (int i = 0; i < 6; i++) {
     std::vector<std::string> tokenSet;
 
     bool lastWasHardOrConsonant = RandNum::getRandom<bool>();

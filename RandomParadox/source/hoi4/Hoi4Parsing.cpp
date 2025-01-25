@@ -558,7 +558,7 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
         std::to_string(country->capitalRegionID + 1));
     pU::Scenario::replaceOccurences(countryText, "templateTag", country->tag);
     pU::Scenario::replaceOccurences(countryText, "templateParty",
-                                    country->rulingParty);
+                                    country->ideology);
     std::string electAllowed = country->allowElections ? "yes" : "no";
     pU::Scenario::replaceOccurences(countryText, "templateAllowElections",
                                     electAllowed);
@@ -708,7 +708,7 @@ void commonBookmarks(const std::string &path, const CountryMap &countries,
           auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country);
           auto majorString{majorTemplate};
           pU::Scenario::replaceOccurences(majorString, "templateIdeology",
-                                          hoi4Country->rulingParty);
+                                          hoi4Country->ideology);
           bookmarkCountries.append(pU::Scenario::replaceOccurences(
               majorString, "templateMajorTAG", hoi4Country->tag));
           count++;
@@ -719,7 +719,7 @@ void commonBookmarks(const std::string &path, const CountryMap &countries,
           auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country);
           auto minorString{minorTemplate};
           pU::Scenario::replaceOccurences(minorString, "templateIdeology",
-                                          hoi4Country->rulingParty);
+                                          hoi4Country->ideology);
           bookmarkCountries.append(pU::Scenario::replaceOccurences(
               minorString, "templateMinorTAG", hoi4Country->tag));
           count++;

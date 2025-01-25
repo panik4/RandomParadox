@@ -11,9 +11,29 @@ std::string generateTag(const std::string name, NameData &nameData) {
     int offset = std::clamp(retries - 1, 0, (int)name.size() - 3);
     tag = name.substr(0 + offset, 3);
     std::transform(tag.begin(), tag.end(), tag.begin(), ::toupper);
+    if (tag.size() < 3)
+      tag += "X";
+    std::cout << "offset: " << offset << " tag: " << tag << std::endl;
   } while (nameData.disallowedTokens.find(tag) !=
                nameData.disallowedTokens.end() &&
            retries++ < 10);
+  if (retries >= 10) {
+    std::vector<std::string> letters{"A", "B", "C", "D", "E", "F",
+                                     "G", "H", "I", "J", "K", "L"};
+    do {
+      // add a random letter to the tag
+      tag.resize(3);
+
+      tag[2] = Fwg::Utils::selectRandom(letters)[0];
+    } while (nameData.disallowedTokens.find(tag) !=
+                 nameData.disallowedTokens.end() &&
+             retries++ < 20);
+  }
+  if (tag.size() != 3)
+        throw(std::exception(std::string("Incorrect tag size in generating tag " + tag).c_str()));
+  if (retries >= 20)
+    throw(std::exception(
+        std::string("Too many tries generating tag " + tag).c_str()));
 
   nameData.disallowedTokens.insert(tag);
   return tag;
@@ -38,7 +58,6 @@ std::string modifyWithIdeology(const std::string &ideology,
     Fwg::Parsing::Scenario::replaceOccurences(stateName, "template", name);
   return stateName;
 }
-
 
 NameData prepare(const std::string &path, const std::string &gamePath) {
   Fwg::Utils::Logging::logLine("Preparing name generation from path", path);

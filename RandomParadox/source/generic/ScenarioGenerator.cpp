@@ -363,13 +363,29 @@ void Generator::distributeCountries() {
 
 void Generator::evaluateCountryNeighbours() {
   Logging::logLine("Evaluating Country Neighbours");
-  for (auto &c : countries)
-    for (const auto &gR : c.second->ownedRegions)
-      for (const auto &neighbourRegion : gR->neighbours)
+  Fwg::Areas::Regions::evaluateRegionNeighbours(areas.regions);
+
+  for (auto &c : countries) {
+    for (const auto &gR : c.second->ownedRegions) {
+      if (gR->neighbours.size() != areas.regions[gR->ID].neighbours.size())
+        throw(std::exception("Fatal: Neighbour count mismatch, terminating"));
+      // now compare if all IDs in those neighbour vectors match
+      for (int i = 0; i < gR->neighbours.size(); i++) {
+        if (gR->neighbours[i] != areas.regions[gR->ID].neighbours[i])
+          throw(std::exception("Fatal: Neighbour mismatch, terminating"));
+      }
+
+      for (const auto &neighbourRegion : gR->neighbours) {
         // TO DO: Investigate rare crash issue with index being out of range
+        if (gameRegions[neighbourRegion]->owner == nullptr)
+          continue;
         if (neighbourRegion < gameRegions.size() &&
-            gameRegions[neighbourRegion]->owner != c.second)
+            gameRegions[neighbourRegion]->owner->tag != c.second->tag) {
           c.second->neighbours.insert(gameRegions[neighbourRegion]->owner);
+        }
+      }
+    }
+  }
 }
 
 void Generator::evaluateCountries() {}

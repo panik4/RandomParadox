@@ -178,13 +178,29 @@ void Generator::mapCountries() {
           }
         }
       }
-      // print address of both hoi4country and country
-      Fwg::Utils::Logging::logLine("1Country: ", country.second.get());
-      Fwg::Utils::Logging::logLine("2Country: ", hoi4Country.get());
     } else {
       // Handle the case where the cast fails, if necessary
       // For example, log an error or throw an exception
       Fwg::Utils::Logging::logLine("Failed to cast Country to Hoi4Country");
+    }
+  }
+  // now also map the neighbours by replacing the pointer to the country with
+  // the pointer to the hoi4Country
+  for (auto &country : hoi4Countries) {
+    std::vector<std::shared_ptr<Hoi4Country>> neighboursTemp;
+    for (auto &neighbour : country->neighbours) {
+      if (neighbour) {
+        for (auto &hoi4Country : hoi4Countries) {
+          if (neighbour->ID == hoi4Country->ID) {
+            neighboursTemp.push_back(hoi4Country);
+          }
+        }
+      }
+    }
+
+    country->neighbours.clear();
+    for (auto &neighbour : neighboursTemp) {
+      country->neighbours.insert(neighbour);
     }
   }
   std::sort(hoi4States.begin(), hoi4States.end(),
@@ -368,18 +384,18 @@ void Generator::generateCountrySpecifics() {
       country->parties[i] = (int)popularities[i] + offset;
     }
     // assign a ruling party
-    country->rulingParty =
+    country->ideology =
         ideologies[RandNum::getRandom(0, (int)ideologies.size())];
     // allow or forbid elections
-    if (country->rulingParty == "democratic")
+    if (country->ideology == "democratic")
       country->allowElections = 1;
-    else if (country->rulingParty == "neutrality")
+    else if (country->ideology == "neutrality")
       country->allowElections = RandNum::getRandom(0, 1);
     else
       country->allowElections = 0;
     // now get the full name of the country
     country->fullName = NameGeneration::modifyWithIdeology(
-        country->rulingParty, country->name, country->adjective, nData);
+        country->ideology, country->name, country->adjective, nData);
   }
 }
 
@@ -799,7 +815,7 @@ void Generator::printStatistics() {
       auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(entry);
       Fwg::Utils::Logging::logLine("Strength: ", scores.first, " ",
                                    hoi4Country->fullName, " ",
-                                   hoi4Country->rulingParty, "");
+                                   hoi4Country->ideology, "");
     }
   }
 }
