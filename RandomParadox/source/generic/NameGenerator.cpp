@@ -13,7 +13,6 @@ std::string generateTag(const std::string name, NameData &nameData) {
     std::transform(tag.begin(), tag.end(), tag.begin(), ::toupper);
     if (tag.size() < 3)
       tag += "X";
-    std::cout << "offset: " << offset << " tag: " << tag << std::endl;
   } while (nameData.disallowedTokens.find(tag) !=
                nameData.disallowedTokens.end() &&
            retries++ < 10);
