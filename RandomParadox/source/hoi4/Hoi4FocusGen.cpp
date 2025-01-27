@@ -269,11 +269,52 @@ addAvailableBlocks(std::shared_ptr<Hoi4Country> country,
     }
 
     if (goal->availabilities.size() > 1) {
-      availableBlock = "\n}\n";
+      availableBlock += "\n\t\t}\n";
     }
   }
 
   return availableBlock;
+}
+
+std::string
+addBypassBlocks(std::shared_ptr<Hoi4Country> country,
+                std::shared_ptr<Goal> goal,
+                const std::map<std::string, std::string> &bypassMap) {
+  std::string bypassBlock = "";
+  if (goal->bypasses.size() > 1) {
+    bypassBlock = "OR = {\n";
+  }
+  for (auto &bypassGroup : goal->bypasses) {
+    for (auto bypass : bypassGroup.bypasses) {
+      if (bypassMap.find(bypass.name) != bypassMap.end()) {
+        auto blockText = bypassMap.at(bypass.name);
+
+        // replace the country tag
+        Fwg::Parsing::replaceOccurences(blockText, "templateTag", country->tag);
+        // replace the target country tag
+        if (goal->countryTarget) {
+          Fwg::Parsing::replaceOccurences(blockText, "templateTargetTag",
+                                          goal->countryTarget->tag);
+        }
+        // replace the target region ID
+        if (goal->regionTarget) {
+          Fwg::Parsing::replaceOccurences(
+              blockText, "templateRegionID",
+              std::to_string(goal->regionTarget->ID));
+        }
+        // replace the ideology
+        Fwg::Parsing::replaceOccurences(blockText, "templateIdeology",
+                                        country->ideology);
+
+        bypassBlock.append(blockText);
+      }
+    }
+
+  }
+  if (goal->bypasses.size() > 1) {
+    bypassBlock += "\n\t\t}\n";
+  }
+  return bypassBlock;
 }
 
 void evaluateCountryGoals(
@@ -432,10 +473,15 @@ void evaluateCountryGoals(
         Fwg::Parsing::replaceOccurences(focusBase, "templateEffectGroup",
                                         effectGroupText);
         auto availableBlock = addAvailableBlocks(country, goal, availableMap);
-        availableBlock = "available = { \n" + availableBlock;
-        availableBlock.append("\n\t\t}");
+        //availableBlock = "available = { \n" + availableBlock;
+        //availableBlock.append("\n\t\t}");
         Fwg::Parsing::replaceOccurences(focusBase, "templateAvailable",
                                         availableBlock);
+        auto bypassBlock = addBypassBlocks(country, goal, bypassMap);
+        //bypassBlock = "bypass = { \n" + bypassBlock;
+       // bypassBlock.append("\n\t\t}");
+        Fwg::Parsing::replaceOccurences(focusBase, "templateBypass",
+                                        bypassBlock);
       }
       focusList.append(focusBase);
     }
