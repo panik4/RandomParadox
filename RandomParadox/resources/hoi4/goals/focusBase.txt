@@ -10,14 +10,17 @@
 		
 		available_if_capitulated = yes
 
-
 		
 		ai_will_do = {
 			factor = 2
 		}
+		
+		available = {
+			templateAvailable
+		}
 
 		bypass = {
-			
+			templateBypass
 		}
 
 		complete_tooltip = {

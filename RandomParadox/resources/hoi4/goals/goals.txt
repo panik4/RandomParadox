@@ -13,7 +13,7 @@
 #develop_underdeveloped_state;cat:economic;sel:get_underdeveloped_state;
 #develop_resource_extraction;cat:economic;sel:get_random_state;
 #attacks neighbouring opposing ideology, add available block to insert the root ideology here, so this becomes invalid on ideology change
-attack_opposing_ideology_neighbour;cat:foreign_policy_offensive;prio:1;sel:get_opposing_ideology_neighbour;avail:is_root_ideology;bypass:target_dead;eff:wargoal_annex;
+attack_opposing_ideology_neighbour;cat:foreign_policy_offensive;prio:1;sel:get_opposing_ideology_neighbour;avail:is_root_ideology;bypass:target_dead_or_subjugated;bypass:target_same_ideology;eff:wargoal_annex;
 
 #add_stability = 0.05
 
