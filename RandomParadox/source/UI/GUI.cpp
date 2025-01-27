@@ -474,7 +474,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
 
 std::vector<std::string> GUI::loadConfigs() {
   std::vector<std::string> configSubfolders;
-  for (const auto &entry : std::filesystem::directory_iterator("configs")) {
+  for (const auto &entry : std::filesystem::directory_iterator(Fwg::Cfg::Values().workingDirectory +  "//configs")) {
     if (entry.is_directory()) {
       configSubfolders.push_back(entry.path().string());
       Fwg::Utils::Logging::logLine(entry);

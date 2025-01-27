@@ -233,6 +233,49 @@ void buildFocusTree(Hoi4Country &source) {
   }
 }
 
+std::string
+addAvailableBlocks(std::shared_ptr<Hoi4Country> country,
+                   std::shared_ptr<Goal> goal,
+                   const std::map<std::string, std::string> &availableMap) {
+  std::string availableBlock = "";
+
+  for (auto &availableGroup : goal->availabilities) {
+    if (goal->availabilities.size() > 1) {
+      availableBlock = "OR = {\n";
+    }
+    for (auto avail : availableGroup.availabilities) {
+      if (availableMap.find(avail.name) != availableMap.end()) {
+        auto blockText = availableMap.at(avail.name);
+
+        // replace the country tag
+        Fwg::Parsing::replaceOccurences(blockText, "templateTag", country->tag);
+        // replace the target country tag
+        if (goal->countryTarget) {
+          Fwg::Parsing::replaceOccurences(blockText, "templateTargetTag",
+                                          goal->countryTarget->tag);
+        }
+        // replace the target region ID
+        if (goal->regionTarget) {
+          Fwg::Parsing::replaceOccurences(
+              blockText, "templateRegionID",
+              std::to_string(goal->regionTarget->ID));
+        }
+        // replace the ideology
+        Fwg::Parsing::replaceOccurences(blockText, "templateIdeology",
+                                        country->ideology);
+
+        availableBlock.append(blockText);
+      }
+    }
+
+    if (goal->availabilities.size() > 1) {
+      availableBlock = "\n}\n";
+    }
+  }
+
+  return availableBlock;
+}
+
 void evaluateCountryGoals(
     std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries,
     const std::vector<std::shared_ptr<Scenario::Region>> &gameRegions) {
@@ -249,6 +292,35 @@ void evaluateCountryGoals(
   // get the ideas file
   const auto ideaTemplateFile = Fwg::Parsing::readFile(
       Fwg::Cfg::Values().resourcePath + "hoi4/goals/ideaTemplates.txt");
+  // get the avail file
+  const auto availableBlocksFile = Fwg::Parsing::readFile(
+      Fwg::Cfg::Values().resourcePath + "hoi4/goals/availableBlocks.txt");
+  // get the bypass file
+  const auto bypassBlocksFile = Fwg::Parsing::readFile(
+      Fwg::Cfg::Values().resourcePath + "hoi4/goals/bypassBlocks.txt");
+
+  std::map<std::string, std::string> availableMap;
+  auto availBlocks = Fwg::Parsing::getTokens(availableBlocksFile, ';');
+  for (auto &avail : availBlocks) {
+    if (avail.size() < 10)
+      continue;
+    auto parts = Fwg::Parsing::getTokens(avail, ',');
+    // replace any special characters in key
+    Fwg::Parsing::replaceOccurences(parts[0], "\n", "");
+    availableMap[parts[0]] = parts[1];
+  }
+
+  std::map<std::string, std::string> bypassMap;
+  auto bypassBlocks = Fwg::Parsing::getTokens(bypassBlocksFile, ';');
+  for (auto &bypass : bypassBlocks) {
+    if (bypass.size() < 10)
+      continue;
+    auto parts = Fwg::Parsing::getTokens(bypass, ',');
+    // replace any special characters in key
+    Fwg::Parsing::replaceOccurences(parts[0], "\n", "");
+    bypassMap[parts[0]] = parts[1];
+  }
+
   // tokenize effects file by ;
   auto effects = Fwg::Parsing::getTokens(effectDetailsFile, ';');
   // contains the key and the value is the effect which must be written into the
@@ -317,8 +389,6 @@ void evaluateCountryGoals(
                                               effect.parameters[0]);
               effectGroupText.append(focusEffectText);
             } else {
-
-
               // in case of ideas, we have an indirection: the idea must first
               // be constructed for the country with the parameters of the
               // effect
@@ -336,7 +406,7 @@ void evaluateCountryGoals(
 
                 ideaBase.append(ideaTemplate);
                 Fwg::Parsing::replaceOccurence(focusEffectText, effect.name,
-                                                ideaName);
+                                               ideaName);
                 effectGroupText.append(focusEffectText);
 
               } else {
@@ -346,10 +416,12 @@ void evaluateCountryGoals(
                 // and the templateEffect by the param
                 Fwg::Parsing::replaceOccurences(
                     focusEffectText, "templateEffect", effect.parameters[0]);
-                // if the text contains templateTarget, we need to replace it by the goal target
+                // if the text contains templateTarget, we need to replace it by
+                // the goal target
                 if (focusEffectText.contains("templateTarget")) {
-                  Fwg::Parsing::replaceOccurences(
-                      focusEffectText, "templateTarget", goal->countryTarget->tag);
+                  Fwg::Parsing::replaceOccurences(focusEffectText,
+                                                  "templateTarget",
+                                                  goal->countryTarget->tag);
                 }
                 effectGroupText.append(focusEffectText);
               }
@@ -359,6 +431,11 @@ void evaluateCountryGoals(
         // replace the effectGroupText in the focusBase
         Fwg::Parsing::replaceOccurences(focusBase, "templateEffectGroup",
                                         effectGroupText);
+        auto availableBlock = addAvailableBlocks(country, goal, availableMap);
+        availableBlock = "available = { \n" + availableBlock;
+        availableBlock.append("\n\t\t}");
+        Fwg::Parsing::replaceOccurences(focusBase, "templateAvailable",
+                                        availableBlock);
       }
       focusList.append(focusBase);
     }
