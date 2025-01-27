@@ -1,0 +1,5 @@
+is_root_ideology,
+			templateTag = {
+				has_government = templateIdeology
+			}
+;

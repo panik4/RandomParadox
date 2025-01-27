@@ -1,0 +1,19 @@
+target_same_ideology,
+			templateTargetTag = {
+				has_government = templateIdeology
+			}
+;
+target_dead,
+			templateTargetTag = {
+				exists = no
+			}
+;
+
+target_dead_or_subjugated,
+			templateTargetTag = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+				}
+			}
+;
