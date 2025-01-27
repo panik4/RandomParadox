@@ -473,13 +473,9 @@ void evaluateCountryGoals(
         Fwg::Parsing::replaceOccurences(focusBase, "templateEffectGroup",
                                         effectGroupText);
         auto availableBlock = addAvailableBlocks(country, goal, availableMap);
-        //availableBlock = "available = { \n" + availableBlock;
-        //availableBlock.append("\n\t\t}");
         Fwg::Parsing::replaceOccurences(focusBase, "templateAvailable",
                                         availableBlock);
         auto bypassBlock = addBypassBlocks(country, goal, bypassMap);
-        //bypassBlock = "bypass = { \n" + bypassBlock;
-       // bypassBlock.append("\n\t\t}");
         Fwg::Parsing::replaceOccurences(focusBase, "templateBypass",
                                         bypassBlock);
       }

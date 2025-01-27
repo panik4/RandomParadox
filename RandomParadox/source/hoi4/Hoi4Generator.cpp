@@ -366,26 +366,39 @@ void Generator::generateCountrySpecifics() {
   for (auto &country : hoi4Countries) {
     // select a random country ideology
     country->gfxCulture = Fwg::Utils::selectRandom(gfxCultures);
-    std::vector<double> popularities{};
     double totalPop = 0;
-    for (int i = 0; i < 4; i++) {
-      popularities.push_back(RandNum::getRandom(1, 100));
-      totalPop += popularities[i];
+    std::vector<double> popularities(4);
+
+    // Generate random popularities and calculate the total
+    for (auto &popularity : popularities) {
+      popularity = RandNum::getRandom(1, 100);
+      totalPop += popularity;
     }
-    auto sumPop = 0;
-    for (int i = 0; i < 4; i++) {
-      popularities[i] = popularities[i] / totalPop * 100;
-      sumPop += (int)popularities[i];
+
+    // Normalize popularities to ensure they sum up to 100
+    double sumPop = 0;
+    for (int i = 0; i < 4; ++i) {
+      popularities[i] = (popularities[i] / totalPop) * 100;
+      sumPop += popularities[i];
       int offset = 0;
-      // to ensure a total of 100 as the sum for all ideologies
+      // Ensure the total sum is exactly 100
       if (i == 3 && sumPop < 100) {
-        offset = 100 - sumPop;
+        offset = 100 - static_cast<int>(sumPop);
       }
-      country->parties[i] = (int)popularities[i] + offset;
+      country->parties[i] = static_cast<int>(popularities[i]) + offset;
     }
-    // assign a ruling party
+
+    // Assign a ideology from strongest popularity
     country->ideology =
-        ideologies[RandNum::getRandom(0, (int)ideologies.size())];
+        ideologies[std::max_element(country->parties.begin(), country->parties.end()) -
+        country->parties.begin()];
+    // in randomly 1 of 5 cases, take the second strongest ideology
+    if (RandNum::getRandom(0, 5) == 0) {
+      country->ideology = ideologies[std::max_element(country->parties.begin(),
+                                           country->parties.end() - 1) -
+                          country->parties.begin()];
+    }
+
     // allow or forbid elections
     if (country->ideology == "democratic")
       country->allowElections = 1;
