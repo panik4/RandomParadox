@@ -1,0 +1,16 @@
+units= {
+	##### NAVAL UNITS #####
+	
+	templateFleets
+}
+
+
+#########################
+## STARTING PRODUCTION ##
+#########################
+
+instant_effect = {
+
+}
+
+#####################

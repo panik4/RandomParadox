@@ -389,14 +389,15 @@ void Generator::generateCountrySpecifics() {
     }
 
     // Assign a ideology from strongest popularity
-    country->ideology =
-        ideologies[std::max_element(country->parties.begin(), country->parties.end()) -
-        country->parties.begin()];
+    country->ideology = ideologies[std::max_element(country->parties.begin(),
+                                                    country->parties.end()) -
+                                   country->parties.begin()];
     // in randomly 1 of 5 cases, take the second strongest ideology
     if (RandNum::getRandom(0, 5) == 0) {
-      country->ideology = ideologies[std::max_element(country->parties.begin(),
-                                           country->parties.end() - 1) -
-                          country->parties.begin()];
+      country->ideology =
+          ideologies[std::max_element(country->parties.begin(),
+                                      country->parties.end() - 1) -
+                     country->parties.begin()];
     }
 
     // allow or forbid elections
@@ -409,6 +410,41 @@ void Generator::generateCountrySpecifics() {
     // now get the full name of the country
     country->fullName = NameGeneration::modifyWithIdeology(
         country->ideology, country->name, country->adjective, nData);
+
+    // military focus: first gather info about position of the country, taking
+    // coastline into account
+    auto coastalRegions = 0.0;
+    for (auto &region : country->hoi4Regions) {
+      if (region->coastal) {
+        coastalRegions++;
+      }
+    }
+    // naval focus goes from 0-50%. If we have a lot of coastal regions, we
+    // focus on naval
+    country->navalFocus = std::clamp(
+        (coastalRegions / country->hoi4Regions.size() * 100.0), 0.0, 50.0);
+    // gather all naval bases from all regions
+    std::vector<int> navalBases;
+    for (auto &region : country->hoi4Regions) {
+      for (auto &navBase : region->navalBases) {
+        navalBases.push_back(navBase.first);
+      }
+    }
+
+    // check if this country has a navalfocus larger 0, but no port
+    if (country->navalFocus > 0 && navalBases.size() == 0) {
+      // if we have a naval focus, but no port, we need to reduce the naval
+      // focus
+      country->landFocus += country->navalFocus;
+      country->navalFocus = 0;
+    }
+
+    // TODO: Increase if our position is very remote?
+    // now let's get the air focus, which primarily depends on randomness,
+    // should be between 5 and 35%
+    country->airFocus = RandNum::getRandom(5.0, 35.0);
+    // land focus is the rest
+    country->landFocus = 100.0 - country->navalFocus - country->airFocus;
   }
 }
 
@@ -687,17 +723,22 @@ void Generator::evaluateCountries() {
   double maxScore = 0.0;
   for (auto &country : hoi4Countries) {
     country->capitalRegionID = 0;
+    country->civilianIndustry = 0;
+    country->dockyards = 0;
+    country->armsFactories = 0;
     auto totalIndustry = 0.0;
     auto totalPop = 0.0;
     for (auto &ownedRegion : country->hoi4Regions) {
-      auto regionIndustry = ownedRegion->civilianFactories +
-                            ownedRegion->dockyards + ownedRegion->armsFactories;
-      // always make the most important location the capital
-      country->selectCapital();
+      country->civilianIndustry += ownedRegion->civilianFactories;
+      country->dockyards += ownedRegion->dockyards;
+      country->armsFactories += ownedRegion->armsFactories;
 
-      totalIndustry += regionIndustry;
+      totalIndustry += ownedRegion->civilianFactories + ownedRegion->dockyards +
+                       ownedRegion->armsFactories;
       totalPop += (int)ownedRegion->totalPopulation;
     }
+    // always make the most important location the capital
+    country->selectCapital();
     countryImportanceScores[(int)(totalIndustry + totalPop / 1'000'000.0)]
         .push_back(country);
     country->importanceScore = totalIndustry + totalPop / 1'000'000.0;
@@ -801,6 +842,157 @@ void Generator::generateCountryUnits() {
       auto unit = Fwg::Utils::selectRandom(country->units);
       country->unitCount[unit]++;
     }
+  }
+  // navy:
+  std::map<ShipClassType, int> tonnages = {
+      {ShipClassType::Destroyer, 2000},
+      {ShipClassType::LightCruiser, 5000},
+      {ShipClassType::HeavyCruiser, 10000},
+      {ShipClassType::BattleCruiser, 30000},
+      {ShipClassType::BattleShip, 30000},
+      {ShipClassType::Carrier, 20000},
+      {ShipClassType::Submarine, 1500},
+      {ShipClassType::Transport, 1000}};
+  // vector of all ShipClassTypes
+  std::vector<ShipClassType> shipClassTypes = {
+      ShipClassType::Destroyer,    ShipClassType::LightCruiser,
+      ShipClassType::HeavyCruiser, ShipClassType::BattleCruiser,
+      ShipClassType::BattleShip,   ShipClassType::Carrier,
+      ShipClassType::Submarine,    ShipClassType::Transport};
+  // vector of all ShipClassEras
+  std::vector<ShipClassEra> shipEras = {
+      ShipClassEra::GreatWar, ShipClassEra::Interwar, ShipClassEra::Buildup};
+
+  for (auto &country : hoi4Countries) {
+    // first generate the different ship classes, in each ShipclassType, we have
+    // three: GreatWar, Interwar, Buildup
+    for (const auto &shipclassType : shipClassTypes) {
+      country->shipClasses.insert({shipclassType, {}});
+
+      for (const auto &shipera : shipEras) {
+        ShipClass shipClass;
+        shipClass.type = shipclassType;
+        shipClass.era = shipera;
+        shipClass.name = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->shipNames);
+        shipClass.tonnage = tonnages[shipclassType];
+        country->shipClasses.at(shipClass.type).push_back(shipClass);
+      }
+    }
+
+    // determine the total tonnage by taking the naval focus times the countries
+    // naval industry
+    auto totalTonnage = country->navalFocus * country->dockyards * 100.0;
+    std::cout << totalTonnage << std::endl;
+    // now determine the composition of the navy, first the share of carriers,
+    // battleships and screens
+    auto carrierShare = 0.0;
+    auto battleshipShare = 0.0;
+    auto screenShare = 0.0;
+    // carriers are only built by major powers
+    if (country->rank == "major") {
+      carrierShare = 0.1;
+      battleshipShare = 0.2;
+      screenShare = 0.7;
+    } else if (country->rank == "regional") {
+      carrierShare = 0.05;
+      battleshipShare = 0.2;
+      screenShare = 0.75;
+    } else {
+      carrierShare = 0.0;
+      battleshipShare = 0.1;
+      screenShare = 0.9;
+    }
+    // let's evaluate if the carrier tonnage is enough to spawn one carrier
+    int carrierTargetTonnage = totalTonnage * carrierShare;
+    const std::vector<ShipClass> &carrierClasses =
+        country->shipClasses.at(ShipClassType::Carrier);
+    auto randomCarrierShipClass = Fwg::Utils::selectRandom(carrierClasses);
+    // as long as we have enough tonnage for a carrier, spawn one
+    while (carrierTargetTonnage > randomCarrierShipClass.tonnage) {
+      // create a carrier ship
+      Ship carrier;
+      carrier.shipClass = randomCarrierShipClass;
+      carrier.name = Fwg::Utils::selectRandom(
+          country->getPrimaryCulture()->language->shipNames);
+      // push shared pointer to new ship
+      country->ships.push_back(std::make_shared<Ship>(carrier));
+      carrierTargetTonnage -= randomCarrierShipClass.tonnage;
+    }
+    int heavyShipTargetTonnage =
+        carrierTargetTonnage + totalTonnage * battleshipShare;
+    // we randomly select Ship Classes Battleship and Heavy Cruiser
+    const std::vector<ShipClass> &battleshipClasses =
+        country->shipClasses.at(ShipClassType::BattleShip);
+    const std::vector<ShipClass> &battleCruiserClasses =
+        country->shipClasses.at(ShipClassType::BattleCruiser);
+
+    const std::vector<ShipClass> &heavyCruiserClasses =
+        country->shipClasses.at(ShipClassType::HeavyCruiser);
+    // as long as we have enough tonnage for a heavy ship, spawn one
+    while (heavyShipTargetTonnage > 0) {
+      // create a heavy ship
+      Ship heavyShip;
+      if (RandNum::getRandom(0, 1)) {
+        heavyShip.shipClass = Fwg::Utils::selectRandom(heavyCruiserClasses);
+      } else if (RandNum::getRandom(0, 1)) {
+        heavyShip.shipClass = Fwg::Utils::selectRandom(battleCruiserClasses);
+      } else {
+        heavyShip.shipClass = Fwg::Utils::selectRandom(battleshipClasses);
+      }
+      heavyShip.name = Fwg::Utils::selectRandom(
+          country->getPrimaryCulture()->language->shipNames);
+      // push shared pointer to new ship
+      country->ships.push_back(std::make_shared<Ship>(heavyShip));
+      heavyShipTargetTonnage -= heavyShip.shipClass.tonnage;
+    }
+
+    // now we have to distribute the remaining tonnage to screens
+    int screenTargetTonnage =
+        heavyShipTargetTonnage + totalTonnage * screenShare;
+    const std::vector<ShipClass> &destroyerClasses =
+        country->shipClasses.at(ShipClassType::Destroyer);
+    const std::vector<ShipClass> &lightCruiserClasses =
+        country->shipClasses.at(ShipClassType::LightCruiser);
+    // as long as we have enough tonnage for a screen, spawn one
+    while (screenTargetTonnage > 0) {
+      // create a screen ship
+      Ship screenShip;
+      if (RandNum::getRandom(0, 2)) {
+        screenShip.shipClass = Fwg::Utils::selectRandom(destroyerClasses);
+      } else {
+        screenShip.shipClass = Fwg::Utils::selectRandom(lightCruiserClasses);
+      }
+      screenShip.name = Fwg::Utils::selectRandom(
+          country->getPrimaryCulture()->language->shipNames);
+      // push shared pointer to new ship
+      country->ships.push_back(std::make_shared<Ship>(screenShip));
+      screenTargetTonnage -= screenShip.shipClass.tonnage;
+    }
+  }
+  // put all ships in one fleet
+  for (auto &country : hoi4Countries) {
+    Fleet fleet;
+    fleet.name = country->name + " Fleet";
+    for (auto &ship : country->ships) {
+      fleet.ships.push_back(ship);
+    }
+    // find some random port location
+    for (auto &region : country->hoi4Regions) {
+      for (auto &navalbase : region->navalBases) {
+        if (navalbase.second > 0) {
+          fleet.startingPort = gameProvinces.at(navalbase.first);
+          break;
+        }
+      }
+    }
+    // check if no port was found
+    if (fleet.startingPort == nullptr) {
+      // just take the capital
+      fleet.startingPort = gameProvinces.at(country->capitalRegionID);
+    }
+
+    country->fleets.push_back(fleet);
   }
 }
 

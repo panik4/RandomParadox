@@ -672,11 +672,109 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     pU::writeFile(path + country->tag + "_1936.txt", unitFile);
     pU::writeFile(path + country->tag + "_1936_nsb.txt", unitFile);
 
-    // navies
+    // ############# NAVIES #############
+    const auto baseNavyFile =
+        pU::readFile(Fwg::Cfg::Values().resourcePath +
+                     "hoi4//history//navy//baseNavyFile.txt");
+    const auto baseFleetFile =
+        pU::readFile(Fwg::Cfg::Values().resourcePath +
+                     "hoi4//history//navy//baseFleetFile.txt");
+    const std::string baseShipString =
+        "\t\t\tship = { name = \"templateShipName\" definition = "
+        "templateShipType "
+        "equipment = { templateShipEquipment = { amount = 1 owner = "
+        "templateCountryTag version_name = "
+        "\"templateClassName Class\" } }	}\n";
+    const std::string mtgShipString =
+        "\t\t\tship = { name = \"templateShipName\" definition = "
+        "templateShipType "
+        "equipment = { templateShipEquipment = { amount = 1 owner = "
+        "templateCountryTag version_name = "
+        "\"templateClassName Class\" } }	}\n";
+
+    std::map<ShipClassType, std::string> ShipClassTypeDefinitions = {
+        {ShipClassType::Destroyer, "destroyer"},
+        {ShipClassType::LightCruiser, "light_cruiser"},
+        {ShipClassType::HeavyCruiser, "heavy_cruiser"},
+        {ShipClassType::BattleShip, "battleship"},
+        {ShipClassType::Carrier, "carrier"},
+        {ShipClassType::Submarine, "submarine"}};
+    std::map<ShipClassType, std::string> shipEquipmentDefinitions = {
+        {ShipClassType::Destroyer, "destroyer_1"},
+        {ShipClassType::LightCruiser, "light_cruiser_1"},
+        {ShipClassType::HeavyCruiser, "heavy_cruiser_1"},
+        {ShipClassType::BattleShip, "battleship_1"},
+        {ShipClassType::Carrier, "carrier_1"},
+        {ShipClassType::Submarine, "submarine_1"}};
+    // for mtg
+    std::map<ShipClassType, std::string> shipHullDefinitions = {
+        {ShipClassType::Destroyer, "ship_hull_light_1"},
+        {ShipClassType::LightCruiser, "ship_hull_light_1"},
+        {ShipClassType::HeavyCruiser, "heavy_cruiser_1"},
+        {ShipClassType::BattleShip, "battleship_1"},
+        {ShipClassType::Carrier, "carrier_1"},
+        {ShipClassType::Submarine, "submarine_1"}};
+
+    auto navyFile = baseNavyFile;
+    auto mtgNavyFile = baseNavyFile;
+    std::string fleets = "";
+    std::string mtgFleets = "";
+    for (auto &fleet : country->fleets) {
+      std::string fleetString = baseFleetFile;
+      std::string ships = "";
+      std::string mtgShips = "";
+      for (int i = 0; i < 2; i++) {
+        for (auto &ship : fleet.ships) {
+          auto shipString = i ? mtgShipString : baseShipString;
+          Fwg::Parsing::Scenario::replaceOccurences(
+              shipString, "templateShipName", ship->name);
+          Fwg::Parsing::Scenario::replaceOccurences(
+              shipString, "templateShipType",
+              ShipClassTypeDefinitions.at(ship->shipClass.type));
+          Fwg::Parsing::Scenario::replaceOccurences(
+              shipString, "templateCountryTag", country->tag);
+          Fwg::Parsing::Scenario::replaceOccurences(
+              shipString, "templateClassName", ship->shipClass.name);
+
+          // legacy
+          if (i == 0) {
+            Fwg::Parsing::Scenario::replaceOccurences(
+                shipString, "templateShipEquipment",
+                shipEquipmentDefinitions.at(ship->shipClass.type));
+            ships.append(shipString);
+          }
+          // mtg
+          else {
+            Fwg::Parsing::Scenario::replaceOccurences(
+                shipString, "templateShipEquipment",
+                shipHullDefinitions.at(ship->shipClass.type));
+            mtgShips.append(shipString);
+          }
+        }
+      }
+      Fwg::Parsing::Scenario::replaceOccurences(
+          fleetString, "templateFleetName", fleet.name);
+      Fwg::Parsing::Scenario::replaceOccurences(
+          fleetString, "templateTaskForceName", fleet.name);
+      Fwg::Parsing::Scenario::replaceOccurences(
+          fleetString, "templateLocation",
+          std::to_string(fleet.startingPort->ID + 1));
+      auto mtgFleetString = fleetString;
+      Fwg::Parsing::Scenario::replaceOccurences(fleetString, "templateShips",
+                                                ships);
+      Fwg::Parsing::Scenario::replaceOccurences(mtgFleetString, "templateShips",
+                                                mtgShips);
+      fleets.append(fleetString);
+      mtgFleets.append(fleetString);
+    }
+    Fwg::Parsing::Scenario::replaceOccurences(navyFile, "templateFleets",
+                                              fleets);
+    Fwg::Parsing::Scenario::replaceOccurences(mtgNavyFile, "templateFleets",
+                                              mtgFleets);
     tempPath = path + country->tag + "_1936_naval.txt";
-    pU::writeFile(tempPath, "");
+    pU::writeFile(tempPath, navyFile);
     tempPath = path + country->tag + "_1936_naval_mtg.txt";
-    pU::writeFile(tempPath, "");
+    pU::writeFile(tempPath, mtgNavyFile);
   }
 }
 
@@ -861,8 +959,8 @@ void scriptedTriggers(std::string gamePath, std::string modPath) {
                           std::filesystem::copy_options::overwrite_existing);
   }
 }
-// filter out simple to filter blocks from the common folder, removing potential
-// error sources from vanilla countries
+// filter out simple to filter blocks from the common folder, removing
+// potential error sources from vanilla countries
 void commonFiltering(const std::string &gamePath, const std::string &modPath) {
   Logging::logLine("HOI4 Parser: Common: Filtering Files");
   std::vector<std::string> filenames{
