@@ -7,6 +7,39 @@
 #include <vector>
 
 namespace Scenario::Hoi4 {
+
+enum class ShipClassEra { GreatWar, Interwar, Buildup };
+
+enum class ShipClassType {
+  Destroyer,
+  LightCruiser,
+  HeavyCruiser,
+  BattleCruiser,
+  BattleShip,
+  Carrier,
+  Submarine,
+  Transport
+};
+
+struct ShipClass {
+  ShipClassType type;
+  ShipClassEra era;
+  std::string name;
+  int tonnage;
+  // TODO: Equipment
+};
+
+struct Ship {
+  ShipClass shipClass;
+  std::string name;
+};
+
+struct Fleet {
+  std::string name;
+  std::shared_ptr<GameProvince> startingPort;
+  std::vector<std::shared_ptr<Ship>> ships;
+};
+
 class Hoi4Country : public Scenario::Country {
 public:
   enum class doctrineType {
@@ -34,11 +67,21 @@ public:
   std::vector<doctrineType> doctrines;
   std::vector<int> units;
   std::vector<int> unitCount;
+
+
+  std::map<ShipClassType, std::vector<ShipClass>> shipClasses;
+  std::vector<std::shared_ptr<Ship>> ships;
+  std::vector<Fleet> fleets;
   std::array<int, 4> parties;
   std::vector<std::shared_ptr<Region>> hoi4Regions;
-  // std::vector<std::vector<NationalFocus>> foci;
   std::vector<FocusBranch> focusBranches;
   std::string focusTree;
   std::string ideas;
+  double navalFocus;
+  double airFocus;
+  double landFocus;
+  int civilianIndustry;
+  int armsFactories;
+  int dockyards;
 };
 } // namespace Scenario::Hoi4

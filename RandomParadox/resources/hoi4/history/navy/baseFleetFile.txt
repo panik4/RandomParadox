@@ -1,0 +1,10 @@
+	fleet = {
+		name = "templateFleetName"			
+		naval_base = templateLocation
+		task_force = {
+			name = "templateTaskForceName"
+			location = templateLocation
+			
+			templateShips
+		}
+	}
