@@ -168,7 +168,7 @@ public:
 
         auto region = pdoxC.ownedRegions[0];
         pdoxC.tag = NameGeneration::generateTag(region->name, nData);
-        pdoxC.evaluatePopulations();
+        pdoxC.evaluatePopulations(worldPopulationFactor);
         countries.emplace(pdoxC.tag, std::make_shared<T>(pdoxC));
         nData.tags.insert(pdoxC.tag);
       }

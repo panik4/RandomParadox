@@ -150,7 +150,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
 std::shared_ptr<Region> &Generator::findStartRegion() {
   std::vector<std::shared_ptr<Region>> freeRegions;
   for (const auto &gameRegion : gameRegions)
-    if (!gameRegion->assigned && !gameRegion->sea)
+    if (!gameRegion->assigned && !gameRegion->sea && !gameRegion->lake)
       freeRegions.push_back(gameRegion);
 
   if (freeRegions.size() == 0)
@@ -281,6 +281,7 @@ Bitmap Generator::visualiseCountries(Fwg::Gfx::Bitmap &countryBmp,
     for (const auto &prov : gameRegions[ID]->provinces) {
       auto countryColour = Fwg::Gfx::Colour(0, 0, 0);
       const auto &region = gameRegions[ID];
+
       if (region->owner) {
         countryColour = region->owner->colour;
       }
@@ -326,7 +327,7 @@ void Generator::distributeCountries() {
   for (auto &countryEntry : countries) {
     auto &country = countryEntry.second;
     auto startRegion(findStartRegion());
-    if (startRegion->assigned || startRegion->sea)
+    if (startRegion->assigned || startRegion->sea || startRegion->lake)
       continue;
     country->assignRegions(6, gameRegions, startRegion, gameProvinces);
     // get the dominant culture in the country by iterating over all regions
@@ -344,7 +345,7 @@ void Generator::distributeCountries() {
 
   if (countries.size()) {
     for (auto &gameRegion : gameRegions) {
-      if (!gameRegion->sea && !gameRegion->assigned) {
+      if (!gameRegion->sea && !gameRegion->assigned && !gameRegion->lake) {
         auto gR = Fwg::Utils::getNearestAssignedLand(
             gameRegions, gameRegion, config.width, config.height);
         gR->owner->addRegion(gameRegion);
@@ -353,7 +354,7 @@ void Generator::distributeCountries() {
     }
   }
   for (auto &country : countries) {
-    country.second->evaluatePopulations();
+    country.second->evaluatePopulations(civData.worldPopulationFactorSum);
     country.second->gatherCultureShares();
   }
   visualiseCountries(countryMap);

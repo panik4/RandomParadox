@@ -6,9 +6,9 @@ void generateWorldCivilizations(
     std::vector<std::shared_ptr<Region>> &regions,
     std::vector<std::shared_ptr<GameProvince>> &gameProvinces,
     CivilizationData &civData) {
-  generatePopulationFactors(regions);
+  generatePopulationFactors(civData, regions);
   generateDevelopment(regions);
-  generateEconomicActivity(regions);
+  generateEconomicActivity(civData, regions);
   generateReligions(civData, gameProvinces);
   generateCultures(civData, regions);
   distributeLanguages(civData);
@@ -59,8 +59,7 @@ void generateReligions(
     //                                civData.religions[closestReligion]->colour);
     // }
   }
-  Fwg::Gfx::Png::save(religionMap,
-                      config.mapsPath + "world/religions.png");
+  Fwg::Gfx::Png::save(religionMap, config.mapsPath + "world/religions.png");
 }
 
 void generateCultures(CivilizationData &civData,
@@ -204,7 +203,8 @@ void distributeLanguages(CivilizationData &civData) {
   }
 }
 
-void generatePopulationFactors(std::vector<std::shared_ptr<Region>> &regions) {
+void generatePopulationFactors(CivilizationData &civData,
+                               std::vector<std::shared_ptr<Region>> &regions) {
   Fwg::Utils::Logging::logLine("Generating Population");
   double worldPopulationFactorSum = 0.0;
   for (auto &gR : regions) {
@@ -226,53 +226,56 @@ void generatePopulationFactors(std::vector<std::shared_ptr<Region>> &regions) {
   for (auto &gR : regions) {
     gR->worldPopulationShare = gR->populationFactor / worldPopulationFactorSum;
   }
+  civData.worldPopulationFactorSum = worldPopulationFactorSum;
 }
 void generateDevelopment(std::vector<std::shared_ptr<Region>> &regions) {
   Fwg::Utils::Logging::logLine("Generating State Development");
   auto &config = Fwg::Cfg::Values();
-  double worldDevelopmentFactorSum = 0.0;
   Fwg::Gfx::Bitmap developmentFactor(config.width, config.height, 24);
   for (auto &region : regions) {
+    auto totalPop = region->populationFactor;
     region->developmentFactor = 0.0;
-    for (auto &gameProv : region->gameProvinces) {
-      // calculate the development of a province. We use both the size of the
-      // province and the development average
-      gameProv->devFactor = gameProv->baseProvince->developmentFactor *
-                            gameProv->baseProvince->pixels.size();
-      // the game region has its population increased by the development
-      // factor of the province, therefore a product of the size of all
-      // provinces and their respective development factors
-      region->developmentFactor += gameProv->devFactor;
+    if (region->sea || region->lake)
+      continue;
+    // we want to calculate the average development of the region, by taking the
+    // average of the development of the provinces weighted by the popFactor
+    // share of the totalPop
+    for (auto &province : region->gameProvinces) {
+      auto popFactor = province->popFactor;
+      region->developmentFactor +=
+          province->baseProvince->developmentFactor * popFactor / totalPop;
     }
-    worldDevelopmentFactorSum += region->developmentFactor;
-  }
-  // calculate the share of the world development for each region
-  for (auto &region : regions) {
-    region->worldDevelopmentShare =
-        region->developmentFactor / worldDevelopmentFactorSum;
   }
 }
 /* Very simple calculation of economic activity. The modules can override this
  * to implement their own, more complex calculations
  */
-void generateEconomicActivity(std::vector<std::shared_ptr<Region>> &regions) {
+void generateEconomicActivity(CivilizationData &civData,
+                              std::vector<std::shared_ptr<Region>> &regions) {
   double worldEconomicActivitySum = 0.0;
   for (auto &region : regions) {
     region->economicActivity =
-        region->worldDevelopmentShare * region->worldPopulationShare;
+        region->developmentFactor * region->worldPopulationShare;
+    // print calculation
+    Fwg::Utils::Logging::logLine(
+        "Region " + region->name + " has economic activity " +
+        std::to_string(region->economicActivity) + " and development " +
+        std::to_string(region->developmentFactor) + " and population " +
+        std::to_string(region->worldPopulationShare));
+    
     worldEconomicActivitySum += region->economicActivity;
   }
   for (auto &region : regions) {
     region->worldEconomicActivityShare =
         region->economicActivity / worldEconomicActivitySum;
   }
+  civData.worldEconomicActivitySum = worldEconomicActivitySum;
 }
 void generateImportance(std::vector<std::shared_ptr<Region>> &regions) {
   double worldImportanceSum = 0.0;
   for (auto &region : regions) {
-    region->importanceScore = region->worldEconomicActivityShare +
-                              region->worldPopulationShare +
-                              region->worldDevelopmentShare;
+    region->importanceScore =
+        region->worldEconomicActivityShare + region->worldPopulationShare;
     worldImportanceSum += region->importanceScore;
   }
   for (auto &region : regions) {

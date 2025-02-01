@@ -29,7 +29,7 @@ void Country::assignRegions(
         auto &nextRegion = Fwg::Utils::selectRandom(gameRegion->neighbours);
         if (nextRegion < gameRegions.size()) {
           if (!gameRegions[nextRegion]->assigned &&
-              !gameRegions[nextRegion]->sea) {
+              !gameRegions[nextRegion]->sea && !gameRegions[nextRegion]->lake) {
             gameRegions[nextRegion]->assigned = true;
             addRegion(gameRegions[nextRegion]);
           }
@@ -41,7 +41,7 @@ void Country::assignRegions(
 
 void Country::addRegion(std::shared_ptr<Region> region) {
   region->assigned = true;
-  //region->owner = tag;
+  // region->owner = tag;
   for (auto &gameProvince : region->gameProvinces)
     gameProvince->owner = this->tag;
   ownedRegions.push_back(region);
@@ -75,12 +75,31 @@ void Country::selectCapital() {
     }
   }
 }
-void Country::evaluatePopulations() {
+void Country::evaluatePopulations(const double worldPopulationFactor) {
   // gather all population factors of the regions
   populationFactor = 0.0;
   for (const auto &region : ownedRegions) {
     populationFactor += region->populationFactor;
   }
+  worldPopulationShare = populationFactor / worldPopulationFactor;
+}
+
+void Country::evaluateDevelopment() {
+  for (auto &state : this->ownedRegions) {
+    // development should be weighed by the pop in the state
+    averageDevelopment +=
+        state->developmentFactor *
+        (state->worldPopulationShare / this->worldPopulationShare);
+  }
+  this->averageDevelopment = averageDevelopment;
+}
+
+void Country::evaluateEconomicActivity(const double worldEconomicActivity) {
+  double economicActivity = 0.0;
+  for (const auto &region : ownedRegions) {
+    economicActivity += region->economicActivity;
+  }
+  worldEconomicActivityShare = economicActivity / worldEconomicActivity;
 }
 
 void Country::gatherCultureShares() {
@@ -90,8 +109,6 @@ void Country::gatherCultureShares() {
       if (cultures.find(culture.first) == cultures.end())
         cultures[culture.first] = 0;
       cultures[culture.first] += culture.second * region->populationFactor;
-      std::cout << "Culture " << culture.first->name << " has "
-                << culture.second << " in region " << region->name << std::endl;
     }
   }
 }

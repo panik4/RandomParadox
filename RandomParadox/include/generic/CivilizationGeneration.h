@@ -14,6 +14,8 @@ struct CivilizationData {
   std::vector<std::shared_ptr<CultureGroup>> cultureGroups;
   std::vector<std::shared_ptr<Scenario::LanguageGroup>> languageGroups;
   std::map<std::string, std::shared_ptr<Scenario::Language>> languages;
+  double worldPopulationFactorSum = 0.0;
+  double worldEconomicActivitySum = 0.0;
 };
 // generic preparations. However, if desired, there are necessary preparations
 // for every game such as reading in the existing worldmap, states, regions,
@@ -29,11 +31,13 @@ void generateCultures(CivilizationData &civData,
                       std::vector<std::shared_ptr<Region>> &gameRegions);
 void distributeLanguages(CivilizationData &civData);
 // calculating amount of population in states
-void generatePopulationFactors(std::vector<std::shared_ptr<Region>> &regions);
+void generatePopulationFactors(CivilizationData &civData,
+                               std::vector<std::shared_ptr<Region>> &regions);
 // determine development from habitability, population density and randomness
 void generateDevelopment(std::vector<std::shared_ptr<Region>> &regions);
 // determine development from habitability, population density and randomness
-void generateEconomicActivity(std::vector<std::shared_ptr<Region>> &regions);
+void generateEconomicActivity(CivilizationData &civData,
+                              std::vector<std::shared_ptr<Region>> &regions);
 // determine importance from population, development and economicActivity
 void generateImportance(std::vector<std::shared_ptr<Region>> &regions);
 // after having generated cultures, generate names for the regions

@@ -63,6 +63,9 @@ public:
   void generateWeather();
   // supply hubs and railroads
   void generateLogistics();
+  // generate tech levels
+  void generateTechLevels();
+
   // calculate how strong each country is
   void evaluateCountries();
   // determine the total amount of VPs per country, and distribute them in a

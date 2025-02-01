@@ -19,7 +19,6 @@ public:
   double populationFactor;
   double worldPopulationShare;
   double developmentFactor;
-  double worldDevelopmentShare;
   double importanceScore;
   double relativeImportance;
   // calculate this in every module

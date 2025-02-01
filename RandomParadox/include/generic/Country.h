@@ -18,7 +18,10 @@ public:
   int capitalRegionID = 0;
   int capitalProvinceID;
   double populationFactor;
-  double developmentFactor;
+  double averageDevelopment;
+  double worldPopulationShare;
+  double worldEconomicActivityShare;
+
   std::string rank;
   // total importance
   double importanceScore;
@@ -47,7 +50,10 @@ public:
   void selectCapital();
   // operators
   bool operator<(const Country &right) const { return ID < right.ID; };
-  void evaluatePopulations();
+  void evaluatePopulations(const double worldPopulationFactor);
+  void evaluateDevelopment();
+  void evaluateEconomicActivity(const double worldEconomicActivity);
+
   void gatherCultureShares();
   virtual std::shared_ptr<Culture> getPrimaryCulture() const;
 };

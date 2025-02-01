@@ -286,7 +286,7 @@ void Generator::generateCountrySpecifics() {
       averageDevelopment += state->developmentFactor *
                             ((double)state->totalPopulation / (double)totalPop);
     }
-    // c->developmentFactor = averageDevelopment;
+    c->averageDevelopment = averageDevelopment;
     c->evaluateTechLevel(techLevels);
     if (cfg.debugLevel > 5) {
       Fwg::Utils::Logging::logLine(c->tag, " has a population of ", c->pop);
@@ -361,7 +361,7 @@ void Generator::calculateNeeds() {
 
   for (auto &country : vic3Countries) {
     std::map<std::string, double> summedPopNeeds;
-    auto wealth = country.second->developmentFactor;
+    auto wealth = country.second->averageDevelopment;
     // guesstimate size of wealth groups from development
     auto wealthDispersion = shiftedGaussian(wealth);
     double pop = country.second->pop;
