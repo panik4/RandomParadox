@@ -2,43 +2,13 @@
 #include "Hoi4Region.h"
 #include "NationalFocus.h"
 #include "generic/Country.h"
+#include "hoi4/Hoi4Navies.h"
 #include <array>
 #include <string>
 #include <vector>
 
 namespace Scenario::Hoi4 {
 
-enum class ShipClassEra { GreatWar, Interwar, Buildup };
-
-enum class ShipClassType {
-  Destroyer,
-  LightCruiser,
-  HeavyCruiser,
-  BattleCruiser,
-  BattleShip,
-  Carrier,
-  Submarine,
-  Transport
-};
-
-struct ShipClass {
-  ShipClassType type;
-  ShipClassEra era;
-  std::string name;
-  int tonnage;
-  // TODO: Equipment
-};
-
-struct Ship {
-  ShipClass shipClass;
-  std::string name;
-};
-
-struct Fleet {
-  std::string name;
-  std::shared_ptr<GameProvince> startingPort;
-  std::vector<std::shared_ptr<Ship>> ships;
-};
 
 class Hoi4Country : public Scenario::Country {
 public:
@@ -78,6 +48,7 @@ public:
   std::string focusTree;
   std::string ideas;
   double navalFocus;
+  std::map<NavalHullTypes, std::vector<TechEras>> hullTech;
   double airFocus;
   double landFocus;
   int civilianIndustry;

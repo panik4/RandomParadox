@@ -6,6 +6,7 @@
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4Generator.h"
 #include <array>
+#include <map>
 namespace Scenario::Hoi4::Parsing {
 using CountryMap = std::vector<std::shared_ptr<Hoi4Country>>;
 

@@ -549,6 +549,12 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: History: Writing Country History");
   const auto content = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                     "hoi4//history//country_template.txt");
+
+  const auto navyTemplateFile =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//history//navy//baseVariantFile.txt");
+  const auto navyTechFile = pU::readFile(Fwg::Cfg::Values().resourcePath +
+                                         "hoi4//history//navy//navyTechs.txt");
   for (const auto &country : countries) {
     auto tempPath = path + country->tag + " - " + country->name + ".txt";
     auto countryText{content};
@@ -556,6 +562,8 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
     pU::Scenario::replaceOccurences(
         countryText, "templateCapital",
         std::to_string(country->capitalRegionID + 1));
+    pU::Scenario::replaceOccurences(countryText, "templateNavalBlock",
+                                    navyTemplateFile);
     pU::Scenario::replaceOccurences(countryText, "templateTag", country->tag);
     pU::Scenario::replaceOccurences(countryText, "templateParty",
                                     country->ideology);
@@ -570,10 +578,81 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
                                     std::to_string(country->parties[2]));
     pU::Scenario::replaceOccurences(countryText, "templateNeuPop",
                                     std::to_string(country->parties[3]));
+
+    // map from shipclassType to string
+    std::map<ShipClassType, std::string> shipClassTypeMap{
+        {ShipClassType::Destroyer, "Destroyer"},
+        {ShipClassType::LightCruiser, "LightCruiser"},
+        {ShipClassType::HeavyCruiser, "HeavyCruiser"},
+        {ShipClassType::BattleCruiser, "BattleCruiser"},
+        {ShipClassType::BattleShip, "BattleShip"},
+        {ShipClassType::Carrier, "Carrier"},
+        {ShipClassType::Submarine, "Submarine"}};
+
+    std::string navyTechs = "";
+    std::string mtgNavyTechs = "";
+    std::set<std::string> ownedVanillaTechs;
+    std::set<std::string> ownedMtgTechs;
+    // now replace all class names
+    for (auto &shipclass : country->shipClasses) {
+      for (auto &eraType : shipclass.second) {
+
+        // search key build: first for vanilla: vanilla,0 for Interwar, 1 for
+        // Buildup, shipClassTypeMap value
+        std::string searchKey = ",";
+        if (eraType.era == TechEras::Interwar) {
+          searchKey += "0,";
+        } else if (eraType.era == TechEras::Buildup) {
+          searchKey += "1,";
+        }
+        searchKey += shipClassTypeMap[shipclass.first];
+        ownedVanillaTechs.insert(
+            pU::getValue(navyTechFile, "vanilla" + searchKey));
+        ownedMtgTechs.insert(
+            pU::getValue(navyTechFile, "mtg" + searchKey));
+
+
+        // this writes the names for the variants
+        std::string replaceString = "template";
+        if (eraType.era == TechEras::Interwar) {
+          replaceString += "InterWar";
+        } else if (eraType.era == TechEras::Buildup) {
+          replaceString += "War";
+        }
+        if (shipclass.first == ShipClassType::Destroyer) {
+          replaceString += "Destroyer";
+        } else if (shipclass.first == ShipClassType::LightCruiser) {
+          replaceString += "LightCruiser";
+        } else if (shipclass.first == ShipClassType::HeavyCruiser) {
+          replaceString += "HeavyCruiser";
+        } else if (shipclass.first == ShipClassType::BattleCruiser) {
+          replaceString += "BattleCruiser";
+        } else if (shipclass.first == ShipClassType::BattleShip) {
+          replaceString += "BattleShip";
+        } else if (shipclass.first == ShipClassType::Carrier) {
+          replaceString += "Carrier";
+        } else if (shipclass.first == ShipClassType::Submarine) {
+          replaceString += "Submarine";
+        }
+        replaceString += "Class";
+        pU::Scenario::replaceOccurences(countryText, replaceString,
+                                        eraType.name);
+      }
+    }
+    for (auto &tech : ownedVanillaTechs) {
+      navyTechs += tech + " = 1\n";
+    }
+    for (auto &tech : ownedMtgTechs) {
+      mtgNavyTechs += tech + " = 1\n";
+    }
+    pU::Scenario::replaceOccurences(countryText, "templateNavyTech",
+                                    navyTechs);
+    pU::Scenario::replaceOccurences(countryText, "templateMtgNavyTech",
+                                    mtgNavyTechs);
+
     pU::writeFile(tempPath, countryText);
   }
 }
-
 void historyUnits(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: History: Deploying the Troops");
   const auto defaultTemplate =
@@ -612,8 +691,8 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     // now insert all the unit templates for this country
     for (const auto ID : country->units) {
       divisionTemplates.append(unitTemplates[ID]);
-      // we need to buffer the names of the templates for use in later unit
-      // generationm
+      // we need to buffer the names of the templates for use in later
+      // unit generationm
       auto requirements = Fwg::Parsing::Scenario::getBracketBlockContent(
           unitTemplates[ID], "requirements");
       auto value = Fwg::Parsing::Scenario::getBracketBlockContent(
@@ -626,8 +705,8 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     Fwg::Parsing::Scenario::replaceOccurences(unitFile, "templateTemplateBlock",
                                               divisionTemplates);
 
-    // now that we have the templates written down, we deploy units of these
-    // templates under the "divisions" key in the unitFile
+    // now that we have the templates written down, we deploy units of
+    // these templates under the "divisions" key in the unitFile
     std::string totalUnits = "";
     // for every entry in unitCount vector
     for (int i = 0; i < country->unitCount.size(); i++) {
@@ -696,21 +775,24 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
         {ShipClassType::Destroyer, "destroyer"},
         {ShipClassType::LightCruiser, "light_cruiser"},
         {ShipClassType::HeavyCruiser, "heavy_cruiser"},
+        {ShipClassType::BattleCruiser, "battle_cruiser"},
         {ShipClassType::BattleShip, "battleship"},
         {ShipClassType::Carrier, "carrier"},
         {ShipClassType::Submarine, "submarine"}};
     std::map<ShipClassType, std::string> shipEquipmentDefinitions = {
-        {ShipClassType::Destroyer, "destroyer_1"},
-        {ShipClassType::LightCruiser, "light_cruiser_1"},
-        {ShipClassType::HeavyCruiser, "heavy_cruiser_1"},
-        {ShipClassType::BattleShip, "battleship_1"},
-        {ShipClassType::Carrier, "carrier_1"},
-        {ShipClassType::Submarine, "submarine_1"}};
+        {ShipClassType::Destroyer, "destroyer_"},
+        {ShipClassType::LightCruiser, "light_cruiser_"},
+        {ShipClassType::HeavyCruiser, "heavy_cruiser_"},
+        {ShipClassType::BattleCruiser, "battle_cruiser_"},
+        {ShipClassType::BattleShip, "battleship_"},
+        {ShipClassType::Carrier, "carrier_"},
+        {ShipClassType::Submarine, "submarine_"}};
     // for mtg
     std::map<ShipClassType, std::string> shipHullDefinitions = {
         {ShipClassType::Destroyer, "ship_hull_light_1"},
         {ShipClassType::LightCruiser, "ship_hull_light_1"},
         {ShipClassType::HeavyCruiser, "heavy_cruiser_1"},
+        {ShipClassType::BattleCruiser, "heavy_cruiser_1"},
         {ShipClassType::BattleShip, "battleship_1"},
         {ShipClassType::Carrier, "carrier_1"},
         {ShipClassType::Submarine, "submarine_1"}};
@@ -726,6 +808,9 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
       for (int i = 0; i < 2; i++) {
         for (auto &ship : fleet.ships) {
           auto shipString = i ? mtgShipString : baseShipString;
+          if (!ShipClassTypeDefinitions.contains(ship->shipClass.type)) {
+            std::cout << "Ship class type not found: " << std::endl;
+          }
           Fwg::Parsing::Scenario::replaceOccurences(
               shipString, "templateShipName", ship->name);
           Fwg::Parsing::Scenario::replaceOccurences(
@@ -738,9 +823,11 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
 
           // legacy
           if (i == 0) {
+            // get the suffix level, 1 for interwar, 2 for buildup
+            auto suffix = ship->shipClass.era == TechEras::Interwar ? "1" : "2";
             Fwg::Parsing::Scenario::replaceOccurences(
                 shipString, "templateShipEquipment",
-                shipEquipmentDefinitions.at(ship->shipClass.type));
+                shipEquipmentDefinitions.at(ship->shipClass.type) + suffix);
             ships.append(shipString);
           }
           // mtg
@@ -874,8 +961,8 @@ void commonNames(const std::string &path, const CountryMap &countries) {
                    "hoi4//common//names//countryNamesTemplate.txt");
   auto content = pU::readFile(Fwg::Cfg::Values().resourcePath +
                               "hoi4//common//names//00_names.txt");
-  // gather a list of male, female and surnames, dependent on the cultures and
-  // their share in the country
+  // gather a list of male, female and surnames, dependent on the cultures
+  // and their share in the country
   std::map<std::string, std::vector<std::string>> names;
   std::string maleNames = "";
   std::string femaleNames = "";
@@ -1090,8 +1177,8 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
         pU::Scenario::removeBracketBlockFromKey(content, m[0]);
     } while (m.size());
     // remove tokens that crash the mod, as in country history states are
-    // referenced by IDs. If there is no state with such an ID in game, the
-    // game crashes otherwise
+    // referenced by IDs. If there is no state with such an ID in game,
+    // the game crashes otherwise
     auto lines = pU::getTokens(content, '\n');
     for (auto &line : lines) {
       auto tokens = pU::getTokens(line, '=');
@@ -1281,7 +1368,8 @@ void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen) {
   Fwg::Gfx::regionMap(hoi4Gen->areas.regions, hoi4Gen->areas.provinces,
                       hoi4Gen->regionMap);
   // for (auto &region : hoi4Gen.gameRegions) {
-  //   if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end()) {
+  //   if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end())
+  //   {
   //     hoi4Gen.countries.at(region->owner)->ownedRegions.push_back(region);
   //   } else {
   //     Country c;
@@ -1414,7 +1502,8 @@ void readProvinces(ClimateGeneration::ClimateData &climateData,
       areaData.provinces.push_back(p);
     }
   }
-  // call it with special idsort bool to make sure we sort by ID only this time
+  // call it with special idsort bool to make sure we sort by ID only this
+  // time
   Fwg::Areas::Provinces::readProvinceBMP(
       climateData, provMap, heightMap, areaData.provinces,
       areaData.provinceColourMap, areaData.segments, true);
