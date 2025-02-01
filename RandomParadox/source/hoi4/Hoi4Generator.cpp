@@ -724,17 +724,15 @@ void Generator::generateLogistics() {
 
 void Generator::generateTechLevels() {
   // vector for all hull types
-  const std::vector<NavalHullTypes> navalHullTypes{
-      NavalHullTypes::Light, NavalHullTypes::Heavy, NavalHullTypes::Cruiser,
-      NavalHullTypes::Carrier, NavalHullTypes::Submarine};
+  const std::vector<NavalHullType> navalHullTypes{
+      NavalHullType::Light, NavalHullType::Heavy, NavalHullType::Cruiser,
+      NavalHullType::Carrier, NavalHullType::Submarine};
 
   for (auto &country : hoi4Countries) {
     // lets start with the navy. The higher our development and the more focues
     // we are on navy, the more advanced our navy#
     auto development = country->averageDevelopment;
-    std::cout << "Development: " << development << std::endl;
     auto navyTechLevel = development * country->navalFocus / 10.0;
-    std::cout << "Navy tech level: " << navyTechLevel << std::endl;
 
     // generate a tech level for each hull type, either Interwar or BuildUp. The
     // higher the navy tech level, the more likely we are to get BuildUp
@@ -742,9 +740,46 @@ void Generator::generateTechLevels() {
     for (auto &hull : navalHullTypes) {
       auto randomVal = RandNum::getRandom(0.0, 1.0) * navyTechLevel;
       if (randomVal > 0.8) {
-        country->hullTech[hull].push_back(TechEras::Buildup);
+        country->hullTech[hull].push_back(TechEra::Interwar);
+        country->hullTech[hull].push_back(TechEra::Buildup);
       } else if (randomVal > 0.2) {
-        country->hullTech[hull].push_back(TechEras::Interwar);
+        country->hullTech[hull].push_back(TechEra::Interwar);
+      }
+    }
+    country->moduleTech = {
+        {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
+    // now randomly assign the module techs. Go through each era of the techs
+    // and gather all the technology names that we have in a set.
+    for (auto &moduleTech : moduleTech.at(TechEra::Interwar)) {
+      auto randomVal = RandNum::getRandom(0.0, 1.0) * navyTechLevel;
+      if (randomVal > 0.2) {
+        country->moduleTech.at(TechEra::Interwar).push_back(moduleTech);
+      }
+    }
+    for (auto &moduleTech : moduleTech.at(TechEra::Buildup)) {
+      auto randomVal = RandNum::getRandom(0.0, 1.0) * navyTechLevel;
+      if (randomVal > 0.8) {
+        // check if any of the previous era tech modules have the name of the
+        // predecessor
+        for (auto &module : country->moduleTech.at(TechEra::Interwar)) {
+          if (module.name == moduleTech.predecessor) {
+            country->moduleTech.at(TechEra::Buildup).push_back(moduleTech);
+            break;
+          }
+        }
+      }
+    }
+    for (auto &moduleTech : moduleTech.at(TechEra::Early)) {
+      auto randomVal = RandNum::getRandom(0.0, 1.0) * navyTechLevel;
+      if (randomVal > 1.5) {
+        // check if any of the previous era tech modules have the name of the
+        // predecessor
+        for (auto &module : country->moduleTech.at(TechEra::Buildup)) {
+          if (module.name == moduleTech.predecessor) {
+            country->moduleTech.at(TechEra::Early).push_back(moduleTech);
+            break;
+          }
+        }
       }
     }
   }
@@ -877,14 +912,14 @@ void Generator::generateCountryUnits() {
     }
   }
   // map from the ShipClassType to the required NavalHullType
-  std::map<ShipClassType, NavalHullTypes> shipClassToHullType = {
-      {ShipClassType::Destroyer, NavalHullTypes::Light},
-      {ShipClassType::LightCruiser, NavalHullTypes::Light},
-      {ShipClassType::HeavyCruiser, NavalHullTypes::Cruiser},
-      {ShipClassType::BattleCruiser, NavalHullTypes::Cruiser},
-      {ShipClassType::BattleShip, NavalHullTypes::Heavy},
-      {ShipClassType::Carrier, NavalHullTypes::Carrier},
-      {ShipClassType::Submarine, NavalHullTypes::Submarine}};
+  std::map<ShipClassType, NavalHullType> shipClassToHullType = {
+      {ShipClassType::Destroyer, NavalHullType::Light},
+      {ShipClassType::LightCruiser, NavalHullType::Cruiser},
+      {ShipClassType::HeavyCruiser, NavalHullType::Cruiser},
+      {ShipClassType::BattleCruiser, NavalHullType::Heavy},
+      {ShipClassType::BattleShip, NavalHullType::Heavy},
+      {ShipClassType::Carrier, NavalHullType::Carrier},
+      {ShipClassType::Submarine, NavalHullType::Submarine}};
 
   // navy:
   std::map<ShipClassType, int> tonnages = {
@@ -902,7 +937,7 @@ void Generator::generateCountryUnits() {
       ShipClassType::BattleShip,   ShipClassType::Carrier,
       ShipClassType::Submarine};
   // vector of all ShipClassEras
-  std::vector<TechEras> shipEras = {TechEras::Interwar, TechEras::Buildup};
+  std::vector<TechEra> shipEras = {TechEra::Interwar, TechEra::Buildup};
 
   for (auto &country : hoi4Countries) {
     // first generate the different ship classes, in each ShipclassType, we have
@@ -926,6 +961,7 @@ void Generator::generateCountryUnits() {
         shipClass.name = Fwg::Utils::selectRandom(
             country->getPrimaryCulture()->language->shipNames);
         shipClass.tonnage = tonnages[shipclassType];
+        addShipClassModules(shipClass, country->moduleTech, country->armyTech);
         country->shipClasses.at(shipClass.type).push_back(shipClass);
       }
     }
@@ -935,7 +971,8 @@ void Generator::generateCountryUnits() {
     auto totalTonnage = country->navalFocus * country->dockyards * 100.0;
     // print complete calc of totalTonnage
     std::cout << "Total Tonnage: " << totalTonnage
-              << "naval focus: " << country->navalFocus << " dockyars" << country->dockyards << std::endl;
+              << "naval focus: " << country->navalFocus << " dockyars"
+              << country->dockyards << std::endl;
 
     // now determine the composition of the navy, first the share of carriers,
     // battleships and screens

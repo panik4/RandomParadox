@@ -600,23 +600,21 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
         // search key build: first for vanilla: vanilla,0 for Interwar, 1 for
         // Buildup, shipClassTypeMap value
         std::string searchKey = ",";
-        if (eraType.era == TechEras::Interwar) {
+        if (eraType.era == TechEra::Interwar) {
           searchKey += "0,";
-        } else if (eraType.era == TechEras::Buildup) {
+        } else if (eraType.era == TechEra::Buildup) {
           searchKey += "1,";
         }
         searchKey += shipClassTypeMap[shipclass.first];
         ownedVanillaTechs.insert(
             pU::getValue(navyTechFile, "vanilla" + searchKey));
-        ownedMtgTechs.insert(
-            pU::getValue(navyTechFile, "mtg" + searchKey));
-
+        ownedMtgTechs.insert(pU::getValue(navyTechFile, "mtg" + searchKey));
 
         // this writes the names for the variants
         std::string replaceString = "template";
-        if (eraType.era == TechEras::Interwar) {
+        if (eraType.era == TechEra::Interwar) {
           replaceString += "InterWar";
-        } else if (eraType.era == TechEras::Buildup) {
+        } else if (eraType.era == TechEra::Buildup) {
           replaceString += "War";
         }
         if (shipclass.first == ShipClassType::Destroyer) {
@@ -645,8 +643,7 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
     for (auto &tech : ownedMtgTechs) {
       mtgNavyTechs += tech + " = 1\n";
     }
-    pU::Scenario::replaceOccurences(countryText, "templateNavyTech",
-                                    navyTechs);
+    pU::Scenario::replaceOccurences(countryText, "templateNavyTech", navyTechs);
     pU::Scenario::replaceOccurences(countryText, "templateMtgNavyTech",
                                     mtgNavyTechs);
 
@@ -779,14 +776,6 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
         {ShipClassType::BattleShip, "battleship"},
         {ShipClassType::Carrier, "carrier"},
         {ShipClassType::Submarine, "submarine"}};
-    std::map<ShipClassType, std::string> shipEquipmentDefinitions = {
-        {ShipClassType::Destroyer, "destroyer_"},
-        {ShipClassType::LightCruiser, "light_cruiser_"},
-        {ShipClassType::HeavyCruiser, "heavy_cruiser_"},
-        {ShipClassType::BattleCruiser, "battle_cruiser_"},
-        {ShipClassType::BattleShip, "battleship_"},
-        {ShipClassType::Carrier, "carrier_"},
-        {ShipClassType::Submarine, "submarine_"}};
     // for mtg
     std::map<ShipClassType, std::string> shipHullDefinitions = {
         {ShipClassType::Destroyer, "ship_hull_light_1"},
@@ -808,9 +797,6 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
       for (int i = 0; i < 2; i++) {
         for (auto &ship : fleet.ships) {
           auto shipString = i ? mtgShipString : baseShipString;
-          if (!ShipClassTypeDefinitions.contains(ship->shipClass.type)) {
-            std::cout << "Ship class type not found: " << std::endl;
-          }
           Fwg::Parsing::Scenario::replaceOccurences(
               shipString, "templateShipName", ship->name);
           Fwg::Parsing::Scenario::replaceOccurences(
@@ -824,10 +810,11 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
           // legacy
           if (i == 0) {
             // get the suffix level, 1 for interwar, 2 for buildup
-            auto suffix = ship->shipClass.era == TechEras::Interwar ? "1" : "2";
+            auto suffix = ship->shipClass.era == TechEra::Interwar ? "1" : "2";
             Fwg::Parsing::Scenario::replaceOccurences(
                 shipString, "templateShipEquipment",
-                shipEquipmentDefinitions.at(ship->shipClass.type) + suffix);
+                ShipClassTypeDefinitions.at(ship->shipClass.type) + "_" +
+                    suffix);
             ships.append(shipString);
           }
           // mtg
