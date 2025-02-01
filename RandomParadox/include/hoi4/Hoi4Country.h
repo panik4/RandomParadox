@@ -9,7 +9,6 @@
 
 namespace Scenario::Hoi4 {
 
-
 class Hoi4Country : public Scenario::Country {
 public:
   enum class doctrineType {
@@ -38,7 +37,6 @@ public:
   std::vector<int> units;
   std::vector<int> unitCount;
 
-
   std::map<ShipClassType, std::vector<ShipClass>> shipClasses;
   std::vector<std::shared_ptr<Ship>> ships;
   std::vector<Fleet> fleets;
@@ -48,7 +46,9 @@ public:
   std::string focusTree;
   std::string ideas;
   double navalFocus;
-  std::map<NavalHullTypes, std::vector<TechEras>> hullTech;
+  std::map<NavalHullType, std::vector<TechEra>> hullTech;
+  std::map<TechEra, std::vector<Module>> moduleTech;
+  std::map<TechEra, std::vector<ArmyTech>> armyTech;
   double airFocus;
   double landFocus;
   int civilianIndustry;
