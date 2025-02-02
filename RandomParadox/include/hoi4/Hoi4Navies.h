@@ -84,7 +84,8 @@ struct ShipClass {
   TechEra era;
   std::string name;
   int tonnage;
-  std::string hullname;
+  std::string vanillaShipType;
+  std::string mtgHullname;
   std::map<std::string, std::string> mtgModules;
   // this is the level between two major upgrades, and determines for mtgModules
   // if we take some of the modules from the next era, and for vanilla how many

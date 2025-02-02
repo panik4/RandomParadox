@@ -618,16 +618,20 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
         std::string mtgHullType = pU::getValue(navyTechFile, "mtg" + searchKey);
         ownedMtgTechs.insert(mtgHullType);
         std::string vanillaVariant =
-            "\t\tcreate_equipment_variant = {\n\t\t\tname = \"" + shipClass.name + "\"\n";
+            "\t\tcreate_equipment_variant = {\n\t\t\tname = \"" +
+            shipClass.name + "\"\n";
         std::string mtgVariant = vanillaVariant;
-        vanillaVariant += "\t\t\ttype = " + vanillaHullType + "\n";
+        vanillaVariant += "\t\t\ttype = " + shipClass.vanillaShipType + "\n";
         vanillaVariant += "\t\t\tupgrades = {\n";
         vanillaVariant += "\t\t\t\tship_reliability_upgrade = 1\n";
         vanillaVariant += "\t\t\t\t\ship_engine_upgrade = 1\n";
         vanillaVariant += "\t\t\t\t\ship_gun_upgrade = 1\n";
-        vanillaVariant += "\t\t\t\t\ship_anti_air_upgrade = 1\n\t\t\t}\n\t\t}\n";
+        vanillaVariant +=
+            "\t\t\t\t\ship_anti_air_upgrade = 1\n\t\t\t}\n\t\t}\n";
 
-        mtgVariant += "\t\t\ttype = " + mtgHullType + "\n";
+        mtgVariant += "\t\t\ttype = " + shipClass.mtgHullname + "\n";
+        mtgVariant += "\t\t\tparent_version = 0\n";
+        
         mtgVariant += "\t\t\tmodules = {\n";
         for (auto &mtgModule : shipClass.mtgModules) {
           mtgVariant +=
@@ -636,31 +640,6 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
         mtgVariant += "\t\t\t}\n\t\t}\n";
         vanillaVariants.push_back(vanillaVariant);
         mtgVariants.push_back(mtgVariant);
-        //// this writes the names for the variants
-        // std::string replaceString = "template";
-        // if (eraType.era == TechEra::Interwar) {
-        //   replaceString += "InterWar";
-        // } else if (eraType.era == TechEra::Buildup) {
-        //   replaceString += "War";
-        // }
-        // if (shipclass.first == ShipClassType::Destroyer) {
-        //   replaceString += "Destroyer";
-        // } else if (shipclass.first == ShipClassType::LightCruiser) {
-        //   replaceString += "LightCruiser";
-        // } else if (shipclass.first == ShipClassType::HeavyCruiser) {
-        //   replaceString += "HeavyCruiser";
-        // } else if (shipclass.first == ShipClassType::BattleCruiser) {
-        //   replaceString += "BattleCruiser";
-        // } else if (shipclass.first == ShipClassType::BattleShip) {
-        //   replaceString += "BattleShip";
-        // } else if (shipclass.first == ShipClassType::Carrier) {
-        //   replaceString += "Carrier";
-        // } else if (shipclass.first == ShipClassType::Submarine) {
-        //   replaceString += "Submarine";
-        // }
-        // replaceString += "Class";
-        //pU::Scenario::replaceOccurences(countryText, replaceString,
-        //                                shipClass.name);
       }
     }
     for (auto &tech : ownedVanillaTechs) {
@@ -677,7 +656,6 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
     for (auto &variant : mtgVariants) {
       mtgVariantsString += variant;
     }
-
 
     pU::Scenario::replaceOccurences(countryText, "templateNavyTech", navyTechs);
     pU::Scenario::replaceOccurences(countryText, "templateMtgNavyTech",
@@ -800,13 +778,13 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
         "templateShipType "
         "equipment = { templateShipEquipment = { amount = 1 owner = "
         "templateCountryTag version_name = "
-        "\"templateClassName Class\" } }	}\n";
+        "\"templateClassName\" } }	}\n";
     const std::string mtgShipString =
         "\t\t\tship = { name = \"templateShipName\" definition = "
         "templateShipType "
         "equipment = { templateShipEquipment = { amount = 1 owner = "
         "templateCountryTag version_name = "
-        "\"templateClassName Class\" } }	}\n";
+        "\"templateClassName\" } }	}\n";
 
     std::map<ShipClassType, std::string> ShipClassTypeDefinitions = {
         {ShipClassType::Destroyer, "destroyer"},
@@ -849,19 +827,16 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
 
           // legacy
           if (i == 0) {
-            // get the suffix level, 1 for interwar, 2 for buildup
-            auto suffix = ship->shipClass.era == TechEra::Interwar ? "1" : "2";
             Fwg::Parsing::Scenario::replaceOccurences(
                 shipString, "templateShipEquipment",
-                ShipClassTypeDefinitions.at(ship->shipClass.type) + "_" +
-                    suffix);
+                ship->shipClass.vanillaShipType);
             ships.append(shipString);
           }
           // mtg
           else {
             Fwg::Parsing::Scenario::replaceOccurences(
                 shipString, "templateShipEquipment",
-                shipHullDefinitions.at(ship->shipClass.type));
+                ship->shipClass.mtgHullname);
             mtgShips.append(shipString);
           }
         }
@@ -879,7 +854,7 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
       Fwg::Parsing::Scenario::replaceOccurences(mtgFleetString, "templateShips",
                                                 mtgShips);
       fleets.append(fleetString);
-      mtgFleets.append(fleetString);
+      mtgFleets.append(mtgFleetString);
     }
     Fwg::Parsing::Scenario::replaceOccurences(navyFile, "templateFleets",
                                               fleets);
