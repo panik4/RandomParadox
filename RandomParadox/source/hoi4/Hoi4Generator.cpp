@@ -746,8 +746,19 @@ void Generator::generateTechLevels() {
         country->hullTech[hull].push_back(TechEra::Interwar);
       }
     }
+    // guarantee we have at least a destroyer tech
+    if (country->hullTech[NavalHullType::Light].size() == 0) {
+      country->hullTech[NavalHullType::Light].push_back(TechEra::Interwar);
+    }
+
     country->moduleTech = {
         {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
+    // gurantee we have sonar and basic_battery
+    country->moduleTech.at(TechEra::Interwar)
+        .push_back({"sonar", "", TechEra::Interwar});
+    country->moduleTech.at(TechEra::Interwar)
+        .push_back({"basic_battery", "", TechEra::Interwar});
+
     // now randomly assign the module techs. Go through each era of the techs
     // and gather all the technology names that we have in a set.
     for (auto &moduleTech : moduleTech.at(TechEra::Interwar)) {

@@ -86,6 +86,10 @@ struct ShipClass {
   int tonnage;
   std::string hullname;
   std::map<std::string, std::string> mtgModules;
+  // this is the level between two major upgrades, and determines for mtgModules
+  // if we take some of the modules from the next era, and for vanilla how many
+  // upgrades have happened. Range between 0.0 and 1.0
+  double upgradeLevel = 0.0;
 };
 
 struct Ship {
@@ -100,7 +104,7 @@ struct Fleet {
 };
 
 void addShipClassModules(
-    ShipClass shipClass,
+    ShipClass& shipClass,
     const std::map<TechEra, std::vector<Module>> &availableModuleTech,
     const std::map<TechEra, std::vector<ArmyTech>> &availableArmyTech);
 
