@@ -950,6 +950,24 @@ void Generator::generateCountryUnits() {
   // vector of all ShipClassEras
   std::vector<TechEra> shipEras = {TechEra::Interwar, TechEra::Buildup};
 
+  std::map<ShipClassType, std::string> ShipClassTypeDefinitions = {
+      {ShipClassType::Destroyer, "destroyer"},
+      {ShipClassType::LightCruiser, "light_cruiser"},
+      {ShipClassType::HeavyCruiser, "heavy_cruiser"},
+      {ShipClassType::BattleCruiser, "battle_cruiser"},
+      {ShipClassType::BattleShip, "battleship"},
+      {ShipClassType::Carrier, "carrier"},
+      {ShipClassType::Submarine, "submarine"}};
+  // for mtg
+  std::map<ShipClassType, std::string> shipHullDefinitions = {
+      {ShipClassType::Destroyer, "ship_hull_light"},
+      {ShipClassType::LightCruiser, "ship_hull_cruiser"},
+      {ShipClassType::HeavyCruiser, "ship_hull_cruiser"},
+      {ShipClassType::BattleCruiser, "ship_hull_heavy"},
+      {ShipClassType::BattleShip, "ship_hull_heavy"},
+      {ShipClassType::Carrier, "ship_hull_carrier"},
+      {ShipClassType::Submarine, "ship_hull_submarine"}};
+
   for (auto &country : hoi4Countries) {
     // first generate the different ship classes, in each ShipclassType, we have
     // three: Interwar, Buildup
@@ -969,9 +987,19 @@ void Generator::generateCountryUnits() {
         ShipClass shipClass;
         shipClass.type = shipclassType;
         shipClass.era = shipera;
-        shipClass.name = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->shipNames);
+        shipClass.name =
+            Fwg::Utils::selectRandom(
+                country->getPrimaryCulture()->language->shipNames) +
+            " Class";
+        shipClass.vanillaShipType =
+            ShipClassTypeDefinitions[shipclassType] +
+            (shipClass.era == TechEra::Interwar ? "_1" : "_2");
+
+        shipClass.mtgHullname =
+            shipHullDefinitions[shipclassType] +
+            (shipClass.era == TechEra::Interwar ? "_1" : "_2");
         shipClass.tonnage = tonnages[shipclassType];
+
         addShipClassModules(shipClass, country->moduleTech, country->armyTech);
         country->shipClasses.at(shipClass.type).push_back(shipClass);
       }
@@ -1004,6 +1032,7 @@ void Generator::generateCountryUnits() {
       battleshipShare = 0.1;
       screenShare = 0.9;
     }
+
     // let's evaluate if the carrier tonnage is enough to spawn one carrier
     int carrierTargetTonnage = totalTonnage * carrierShare;
     const std::vector<ShipClass> &carrierClasses =
@@ -1013,11 +1042,8 @@ void Generator::generateCountryUnits() {
       // as long as we have enough tonnage for a carrier, spawn one
       while (carrierTargetTonnage > randomCarrierShipClass.tonnage) {
         // create a carrier ship
-        std::cout << 1;
         Ship carrier;
         carrier.shipClass = randomCarrierShipClass;
-        carrier.name = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->shipNames);
         // push shared pointer to new ship
         country->ships.push_back(std::make_shared<Ship>(carrier));
         carrierTargetTonnage -= randomCarrierShipClass.tonnage;
@@ -1037,7 +1063,6 @@ void Generator::generateCountryUnits() {
       // as long as we have enough tonnage for a heavy ship, spawn one
       while (heavyShipTargetTonnage > 0) {
         // create a heavy ship
-        std::cout << 2;
         Ship heavyShip;
         if (RandNum::getRandom(0, 2)) {
           if (!heavyCruiserClasses.size())
@@ -1052,8 +1077,6 @@ void Generator::generateCountryUnits() {
             continue;
           heavyShip.shipClass = Fwg::Utils::selectRandom(battleshipClasses);
         }
-        heavyShip.name = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->shipNames);
         // push shared pointer to new ship
         country->ships.push_back(std::make_shared<Ship>(heavyShip));
         heavyShipTargetTonnage -= heavyShip.shipClass.tonnage;
@@ -1070,7 +1093,6 @@ void Generator::generateCountryUnits() {
     if (destroyerClasses.size() || lightCruiserClasses.size()) {
       // as long as we have enough tonnage for a screen, spawn one
       while (screenTargetTonnage > 0) {
-        std::cout << 3;
         // create a screen ship
         Ship screenShip;
         if (RandNum::getRandom(0, 2)) {
@@ -1082,8 +1104,6 @@ void Generator::generateCountryUnits() {
             continue;
           screenShip.shipClass = Fwg::Utils::selectRandom(lightCruiserClasses);
         }
-        screenShip.name = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->shipNames);
         // push shared pointer to new ship
         country->ships.push_back(std::make_shared<Ship>(screenShip));
         screenTargetTonnage -= screenShip.shipClass.tonnage;
@@ -1092,9 +1112,18 @@ void Generator::generateCountryUnits() {
   }
   // put all ships in one fleet
   for (auto &country : hoi4Countries) {
+    std::map<std::string, int> utilisedShipNames;
     Fleet fleet;
     fleet.name = country->name + " Fleet";
     for (auto &ship : country->ships) {
+      ship->name = Fwg::Utils::selectRandom(
+          country->getPrimaryCulture()->language->shipNames);
+      if (utilisedShipNames.find(ship->name) != utilisedShipNames.end()) {
+        utilisedShipNames[ship->name]++;
+        ship->name += " " + std::to_string(utilisedShipNames[ship->name]);
+      } else {
+        utilisedShipNames[ship->name] = 1;
+      }
       fleet.ships.push_back(ship);
     }
     // find some random port location
