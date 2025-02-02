@@ -34,7 +34,54 @@ getBestSuitedGun(const std::map<TechEra, std::vector<Module>> &availableModules,
       }
     }
   } else if (shipClass.type == ShipClassType::LightCruiser ||
-             shipClass.type == ShipClassType::HeavyCruiser)
+             shipClass.type == ShipClassType::HeavyCruiser) {
+    // check if we have the basic_medium_battery module
+    if (shipClass.era == TechEra::Buildup) {
+      if (availableModules.find(TechEra::Buildup) != availableModules.end()) {
+        for (auto module : availableModules.at(TechEra::Buildup)) {
+          if (module.name == "basic_medium_battery") {
+            return shipClass.type == ShipClassType::LightCruiser
+                       ? "ship_Light_medium_battery_2"
+                       : "ship_medium_battery_2";
+          }
+        }
+      }
+    }
+    // check if we have the basic_battery module
+    else if (shipClass.era == TechEra::Interwar ||
+             shipClass.era == TechEra::Buildup) {
+      if (availableModules.find(TechEra::Interwar) != availableModules.end()) {
+        for (auto module : availableModules.at(TechEra::Interwar)) {
+          if (module.name == "basic_battery") {
+            return "ship_medium_battery_1";
+          }
+        }
+      }
+    }
+  } else if (shipClass.type == ShipClassType::BattleCruiser ||
+             shipClass.type == ShipClassType::BattleShip) {
+    // check if we have the basic_heavy_battery module
+    if (shipClass.era == TechEra::Buildup) {
+      if (availableModules.find(TechEra::Buildup) != availableModules.end()) {
+        for (auto module : availableModules.at(TechEra::Buildup)) {
+          if (module.name == "basic_heavy_battery") {
+            return "ship_heavy_battery_2";
+          }
+        }
+      }
+    }
+    // check if we have the basic_battery module
+    if (shipClass.era == TechEra::Interwar ||
+        shipClass.era == TechEra::Buildup) {
+      if (availableModules.find(TechEra::Interwar) != availableModules.end()) {
+        for (auto module : availableModules.at(TechEra::Interwar)) {
+          if (module.name == "basic_battery") {
+            return "ship_heavy_battery_1";
+          }
+        }
+      }
+    }
+  }
   return "empty";
 }
 
@@ -44,8 +91,8 @@ std::string getBestSuitedAntiAir(
   if (era == TechEra::Buildup) {
     if (availableArmyTech.find(TechEra::Buildup) != availableArmyTech.end()) {
       for (auto module : availableArmyTech.at(TechEra::Buildup)) {
-        if (module.name == "basic_anti_air") {
-          return "ship_anti_air_1";
+        if (module.name == "improved_anti_air") {
+          return "ship_anti_air_2";
         }
       }
     }
@@ -53,8 +100,8 @@ std::string getBestSuitedAntiAir(
   if (era == TechEra::Interwar || era == TechEra::Buildup) {
     if (availableArmyTech.find(TechEra::Interwar) != availableArmyTech.end()) {
       for (auto module : availableArmyTech.at(TechEra::Interwar)) {
-        if (module.name == "improved_anti_air") {
-          return "ship_anti_air_2";
+        if (module.name == "basic_anti_air") {
+          return "ship_anti_air_1";
         }
       }
     }
@@ -63,8 +110,8 @@ std::string getBestSuitedAntiAir(
 }
 
 std::string findBestSuitedFireControlSystem(
-    const std::map<TechEra, std::vector<Module>> &availableModules,
-    TechEra era) {
+    const std::map<TechEra, std::vector<Module>> &availableModules, TechEra era,
+    const ShipClass &shipClass) {
   if (era == TechEra::Buildup) {
     if (availableModules.find(TechEra::Buildup) != availableModules.end()) {
       for (auto module : availableModules.at(TechEra::Buildup)) {
@@ -78,10 +125,18 @@ std::string findBestSuitedFireControlSystem(
     if (availableModules.find(TechEra::Interwar) != availableModules.end()) {
       for (auto module : availableModules.at(TechEra::Interwar)) {
         if (module.name == "basic_fire_control_methods") {
-          return "ship_fire_control_system_2";
+          return "ship_fire_control_system_0";
         }
       }
     }
+  }
+  if (shipClass.type == ShipClassType::BattleCruiser ||
+      shipClass.type == ShipClassType::BattleShip ||
+      shipClass.type == ShipClassType::LightCruiser ||
+      shipClass.type == ShipClassType::HeavyCruiser) {
+    // always return the ship_sonar_1 if no fire control system is available, as
+    // heavier ships need them
+    return "ship_sonar_1";
   }
   return "empty";
 }
@@ -96,12 +151,13 @@ std::string findBestSuitedEngine(TechEra era, const ShipClass &shipClass) {
     engineType = "cruiser_";
   } else if (shipClass.type == ShipClassType::BattleShip ||
              shipClass.type == ShipClassType::BattleCruiser) {
-    engineType = "battleship_";
+    engineType = "heavy_";
   } else if (shipClass.type == ShipClassType::Carrier) {
     engineType = "carrier_";
   } else if (shipClass.type == ShipClassType::Submarine) {
-    engineType = "submarine_";
+    engineType = "sub_";
   }
+  engineType += "ship_engine_";
   if (era == TechEra::Interwar) {
     return engineType + "1";
   }
@@ -113,13 +169,17 @@ std::string findBestSuitedEngine(TechEra era, const ShipClass &shipClass) {
 }
 
 std::string findBestSuitedTorpedoLauncher(
-    const std::map<TechEra, std::vector<Module>> &availableModules,
-    TechEra era) {
+    const std::map<TechEra, std::vector<Module>> &availableModules, TechEra era,
+    const ShipClass &shipClass) {
+
   if (era == TechEra::Buildup) {
     if (availableModules.find(TechEra::Buildup) != availableModules.end()) {
       for (auto module : availableModules.at(TechEra::Buildup)) {
         if (module.name == "improved_ship_torpedo_launcher") {
-          return "ship_torpedo_launcher_2";
+          if (shipClass.type == ShipClassType::Submarine) {
+            return "ship_torpedo_sub_2";
+          }
+          return "ship_torpedo_2";
         }
       }
     }
@@ -128,7 +188,10 @@ std::string findBestSuitedTorpedoLauncher(
     if (availableModules.find(TechEra::Interwar) != availableModules.end()) {
       for (auto module : availableModules.at(TechEra::Interwar)) {
         if (module.name == "basic_torpedo") {
-          return "ship_torpedo_launcher_1";
+          if (shipClass.type == ShipClassType::Submarine) {
+            return "ship_torpedo_sub_1";
+          }
+          return "ship_torpedo_1";
         }
       }
     }
@@ -143,7 +206,7 @@ std::string findBestSuitedDepthCharges(
     if (availableModules.find(TechEra::Buildup) != availableModules.end()) {
       for (auto module : availableModules.at(TechEra::Buildup)) {
         if (module.name == "improved_depth_charges") {
-          return "ship_depth_charges_2";
+          return "ship_depth_charge_2";
         }
       }
     }
@@ -152,7 +215,7 @@ std::string findBestSuitedDepthCharges(
     if (availableModules.find(TechEra::Interwar) != availableModules.end()) {
       for (auto module : availableModules.at(TechEra::Interwar)) {
         if (module.name == "basic_depth_charges") {
-          return "ship_depth_charges_1";
+          return "ship_depth_charge_1";
         }
       }
     }
@@ -180,6 +243,7 @@ std::string findBestSuitedArmor(
             return "ship_armor_bb_2";
           case ShipClassType::Carrier:
             return "ship_armor_cruiser_2";
+          default:
             return "empty";
           }
         }
@@ -203,8 +267,59 @@ std::string findBestSuitedArmor(
             return "ship_armor_bb_1";
           case ShipClassType::Carrier:
             return "ship_armor_cruiser_1";
+          default:
             return "empty";
           }
+        }
+      }
+    }
+  }
+  return "empty";
+}
+
+std::string findBestSuitedSecondaryGun(
+    const std::map<TechEra, std::vector<Module>> &availableModules,
+    TechEra era) {
+  if (era == TechEra::Buildup) {
+    if (availableModules.find(TechEra::Buildup) != availableModules.end()) {
+      for (auto module : availableModules.at(TechEra::Buildup)) {
+        if (module.name == "basic_medium_battery") {
+          return "ship_secondaries_2";
+        }
+      }
+    } else if (era == TechEra::Interwar) {
+      if (availableModules.find(TechEra::Interwar) != availableModules.end()) {
+        for (auto module : availableModules.at(TechEra::Interwar)) {
+          if (module.name == "basic_battery") {
+            return "ship_secondaries_1";
+          }
+        }
+      }
+    }
+  }
+  return "empty";
+}
+
+std::string findBestSuitedMineLayer(
+    const std::map<TechEra, std::vector<Module>> &availableModules, TechEra era,
+    const ShipClass &shipClass) {
+
+  if (shipClass.type == ShipClassType::Submarine) {
+    if (availableModules.find(TechEra::Buildup) != availableModules.end()) {
+      for (auto module : availableModules.at(TechEra::Buildup)) {
+        if (module.name == "submarine_mine_laying") {
+          return "ship_mine_layer_sub";
+        }
+      }
+    }
+    return "empty";
+  }
+
+  if (era == TechEra::Interwar || era == TechEra::Buildup) {
+    if (availableModules.find(TechEra::Interwar) != availableModules.end()) {
+      for (auto module : availableModules.at(TechEra::Interwar)) {
+        if (module.name == "basic_naval_mines") {
+          return "ship_mine_layer_1";
         }
       }
     }
@@ -217,7 +332,8 @@ std::string selectRandomCustomSlot(
     const std::map<TechEra, std::vector<ArmyTech>> &availableArmyTech,
     ShipClass &shipClass, bool aaAllowed, bool gunAllowed,
     bool rapidFireAllowed, bool secondaryBatteryAllowed, bool minesAllowed,
-    bool torpedosAllowed, bool depthChargesAllowed) {
+    bool torpedosAllowed, bool depthChargesAllowed, bool deckArmorAllowed,
+    bool hangarSpaceAllowed) {
 
   // first gather all the available modules for the slot
   std::set<std::string> availableModulesForSlot;
@@ -233,41 +349,35 @@ std::string selectRandomCustomSlot(
     // availableModulesForSlot.insert("ship_rapid_fire_1");
   }
   if (secondaryBatteryAllowed) {
-    // availableModulesForSlot.insert("ship_secondary_battery_1");
+    availableModulesForSlot.insert(
+        findBestSuitedSecondaryGun(availableModules, era));
   }
   if (minesAllowed) {
-    // availableModulesForSlot.insert("ship_mines_1");
+    availableModulesForSlot.insert(
+        findBestSuitedMineLayer(availableModules, era, shipClass));
   }
   if (torpedosAllowed) {
     availableModulesForSlot.insert(
-        findBestSuitedTorpedoLauncher(availableModules, era));
+        findBestSuitedTorpedoLauncher(availableModules, era, shipClass));
   }
   if (depthChargesAllowed) {
     availableModulesForSlot.insert(
         findBestSuitedDepthCharges(availableModules, era));
+  }
+  if (deckArmorAllowed) {
+    availableModulesForSlot.insert("ship_armor_carrier_deck");
+  }
+  if (hangarSpaceAllowed) {
+    availableModulesForSlot.insert("ship_deck_space");
   }
   // select one random string
   return Fwg::Utils::selectRandom(availableModulesForSlot);
 }
 
 void addShipClassModules(
-    ShipClass shipClass,
+    ShipClass& shipClass,
     const std::map<TechEra, std::vector<Module>> &availableModuleTech,
     const std::map<TechEra, std::vector<ArmyTech>> &availableArmyTech) {
-
-  /* destroyers:
-* light battery + aa + sonar/fire control + sonar/radar + torpedo + engine
-* Slots:
-* 		fixed_ship_battery_slot =
-                    fixed_ship_anti_air_slot =
-                    fixed_ship_fire_control_system_slot =
-                    fixed_ship_radar_slot =
-                    fixed_ship_engine_slot =
-                    fixed_ship_torpedo_slot =
-* + 2x custom(AA, Mines, light battery, torpedo launcher, depth charges)
-*		mid_1_custom_slot =
-        rear_1_custom_slot =
-        */
 
   // all ships have an engine
   // fixed_ship_engine_slot
@@ -280,7 +390,8 @@ void addShipClassModules(
         availableModuleTech, shipClass.era, availableArmyTech);
     // fixed_ship_fire_control_system_slot
     shipClass.mtgModules["fixed_ship_fire_control_system_slot"] =
-        findBestSuitedFireControlSystem(availableModuleTech, shipClass.era);
+        findBestSuitedFireControlSystem(availableModuleTech, shipClass.era,
+                                        shipClass);
     // fixed_ship_radar_slot
     shipClass.mtgModules["fixed_ship_radar_slot"] = "empty";
   }
@@ -297,7 +408,7 @@ void addShipClassModules(
       shipClass.type == ShipClassType::Submarine) {
     // fixed_ship_torpedo_slot
     shipClass.mtgModules["fixed_ship_torpedo_slot"] =
-        findBestSuitedTorpedoLauncher(availableModuleTech, shipClass.era);
+        findBestSuitedTorpedoLauncher(availableModuleTech, shipClass.era, shipClass);
   }
 
   // ships except for submarines and destroyers have armor
@@ -316,45 +427,68 @@ void addShipClassModules(
     // mid_1_custom_slot
     shipClass.mtgModules["mid_1_custom_slot"] = selectRandomCustomSlot(
         availableModuleTech, shipClass.era, availableArmyTech, shipClass, true,
-        false, false, false, true, true, true);
+        false, false, false, true, true, true, false, false);
     // rear_1_custom_slot
     shipClass.mtgModules["rear_1_custom_slot"] = selectRandomCustomSlot(
         availableModuleTech, shipClass.era, availableArmyTech, shipClass, true,
-        false, false, false, true, true, true);
+        false, false, false, true, true, true, false, false);
   }
 
-  /*
-* cruisers: distinguished mainly by battery size: light battery for light
-* cruisers, medium battery for heavy cruisers:
-* battery + aa + sonar/fire control + sonar/radar + engine + cruiser armor
-* Slots:
-* 		fixed_ship_battery_slot =
-                    fixed_ship_fire_control_system_slot =
-                    fixed_ship_radar_slot =
-                    fixed_ship_engine_slot =
-                    fixed_ship_armor_slot =
-                    fixed_ship_secondaries_slot =
-* 3x custom(AA, Mines, light battery, torpedo launcher, depth charges)
-* 		mid_1_custom_slot =
-                    mid_2_custom_slot =
-                    rear_1_custom_slot =
-*
-*
-*
-*/
-  else if (shipClass.type == ShipClassType::LightCruiser) {
+  else if (shipClass.type == ShipClassType::LightCruiser ||
+           shipClass.type == ShipClassType::HeavyCruiser) {
     // mid_1_custom_slot
     shipClass.mtgModules["mid_1_custom_slot"] = selectRandomCustomSlot(
-        availableModuleTech, shipClass.era, availableArmyTech, shipClass, true, true, true, true, true, true, true);
+        availableModuleTech, shipClass.era, availableArmyTech, shipClass, true,
+        true, true, true, true, true, true, false, false);
     // mid_2_custom_slot
-    shipClass.mtgModules["mid_1_custom_slot"] = selectRandomCustomSlot(
-        availableModuleTech, shipClass.era, availableArmyTech, shipClass,
-        true, true, true, true, true, true, true);
+    shipClass.mtgModules["mid_2_custom_slot"] = selectRandomCustomSlot(
+        availableModuleTech, shipClass.era, availableArmyTech, shipClass, true,
+        true, true, true, true, true, true, false, false);
     // rear_1_custom_slot
     shipClass.mtgModules["rear_1_custom_slot"] = selectRandomCustomSlot(
-        availableModuleTech, shipClass.era, availableArmyTech, shipClass, true, true, true, false, true, false, true);
+        availableModuleTech, shipClass.era, availableArmyTech, shipClass, true,
+        true, true, false, true, false, true, false, false);
+  } else if (shipClass.type == ShipClassType::BattleCruiser ||
+             shipClass.type == ShipClassType::BattleShip) {
+    // front_1_custom_slot
+    shipClass.mtgModules["front_1_custom_slot"] = selectRandomCustomSlot(
+        availableModuleTech, shipClass.era, availableArmyTech, shipClass, true,
+        true, false, false, false, false, false, false, false);
+    // mid_1_custom_slot
+    shipClass.mtgModules["mid_1_custom_slot"] = selectRandomCustomSlot(
+        availableModuleTech, shipClass.era, availableArmyTech, shipClass, true,
+        true, false, true, false, false, false, false, false);
+    // mid_2_custom_slot
+    shipClass.mtgModules["mid_2_custom_slot"] = selectRandomCustomSlot(
+        availableModuleTech, shipClass.era, availableArmyTech, shipClass, true,
+        true, false, true, false, false, false, false, false);
+    // rear_1_custom_slot
+    shipClass.mtgModules["rear_1_custom_slot"] = selectRandomCustomSlot(
+        availableModuleTech, shipClass.era, availableArmyTech, shipClass, true,
+        true, false, true, false, false, false, false, false);
   }
-
+  // carriers: distinguished by hangar space
+  else if (shipClass.type == ShipClassType::Carrier) {
+    // front_1_custom_slot
+    shipClass.mtgModules["front_1_custom_slot"] = selectRandomCustomSlot(
+        availableModuleTech, shipClass.era, availableArmyTech, shipClass, true,
+        false, false, false, false, false, false, true, true);
+    // mid_1_custom_slot
+    shipClass.mtgModules["mid_1_custom_slot"] = selectRandomCustomSlot(
+        availableModuleTech, shipClass.era, availableArmyTech, shipClass, false,
+        false, false, true, false, false, false, true, true);
+    // fixed_ship_deck_slot_1 = ship_deck_space
+    shipClass.mtgModules["fixed_ship_deck_slot_1"] = "ship_deck_space";
+    // fixed_ship_deck_slot_2 = ship_deck_space
+    shipClass.mtgModules["fixed_ship_deck_slot_2"] = "ship_deck_space";
+    // fixed_ship_secondaries_slot =
+    shipClass.mtgModules["fixed_ship_secondaries_slot"] = "ship_secondaries_1";
+  } else if (shipClass.type == ShipClassType::Submarine) {
+    // rear_1_custom_slot
+    shipClass.mtgModules["rear_1_custom_slot"] = selectRandomCustomSlot(
+        availableModuleTech, shipClass.era, availableArmyTech, shipClass, false,
+        false, false, false, true, true, false, false, false);
+  }
   // print all slots of the ship
   for (auto &slot : shipClass.mtgModules) {
     std::cout << slot.first << ": " << slot.second << std::endl;
