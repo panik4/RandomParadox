@@ -390,6 +390,7 @@ void Generator::evaluateCountryNeighbours() {
 }
 
 void Generator::evaluateCountries() {}
+void Generator::generateCountrySpecifics(){};
 void Generator::printStatistics() {
   Logging::logLine("Printing Statistics");
   std::map<std::string, int> countryPop;

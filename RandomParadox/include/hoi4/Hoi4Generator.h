@@ -15,11 +15,6 @@ namespace Scenario::Hoi4 {
 class Generator : public Scenario::Generator {
   // vars
   int focusID = 0;
-  // vars - track industry statistics
-  int totalWorldIndustry = 0;
-  int militaryIndustry = 0;
-  int navalIndustry = 0;
-  int civilianIndustry = 0;
   std::map<std::string, int> totalResources;
   // containers
   std::vector<std::shared_ptr<Country>> majorPowers;
@@ -40,6 +35,12 @@ public:
   // container holding the resource configurations
   std::map<std::string, std::vector<double>> resources;
   std::map<std::string, double> weatherChances;
+  // vars - track industry statistics
+  int totalWorldIndustry = 0;
+  int militaryIndustry = 0;
+  int navalIndustry = 0;
+  int civilianIndustry = 0;
+  bool statesInitialised = false;
 
   // member functions
   // constructors/destructors

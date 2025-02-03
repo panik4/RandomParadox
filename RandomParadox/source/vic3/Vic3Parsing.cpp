@@ -345,7 +345,7 @@ void stateHistory(const std::string &path,
   const auto stateTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//common//history//stateTemplate.txt");
   for (const auto &region : regions) {
-    if (region->sea)
+    if (region->sea || region->lake)
       continue;
     auto content = stateTemplate;
     pU::Scenario::replaceOccurences(content, "templateName", region->name);
@@ -611,11 +611,12 @@ void Scenario::Vic3::Parsing::History::writeBuildings(
       Fwg::Cfg::Values().resourcePath + "vic3//common//history//buildingsSingleBuildingTemplate.txt");
   std::string allStateString;
   for (auto &region : regions) {
-    if (region->sea)
+    if (region->sea || region->lake)
       continue;
     auto stateString = buildingsStateTemplate;
     pU::replaceOccurence(stateString, "templateStateName",
                          "STATE_" + region->name);
+
     pU::replaceOccurence(stateString, "templateTag", region->owner->tag);
     std::string allBuildings;
     for (auto &building : region->buildings) {
