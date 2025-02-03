@@ -494,10 +494,6 @@ void addShipClassModules(
         availableModuleTech, shipClass.era, availableArmyTech, shipClass, false,
         false, false, false, true, true, false, false, false);
   }
-  // print all slots of the ship
-  for (auto &slot : shipClass.mtgModules) {
-    std::cout << slot.first << ": " << slot.second << std::endl;
-  }
 }
 
 } // namespace Scenario::Hoi4

@@ -474,7 +474,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
 
 std::vector<std::string> GUI::loadConfigs() {
   std::vector<std::string> configSubfolders;
-  for (const auto &entry : std::filesystem::directory_iterator(Fwg::Cfg::Values().workingDirectory +  "//configs")) {
+  for (const auto &entry : std::filesystem::directory_iterator(
+           Fwg::Cfg::Values().workingDirectory + "//configs")) {
     if (entry.is_directory()) {
       configSubfolders.push_back(entry.path().string());
       Fwg::Utils::Logging::logLine(entry);
@@ -960,38 +961,48 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     // &generator->regionMappingPath);
     ImGui::Checkbox("Draw-borders", &drawBorders);
 
-    if (ImGui::Button("Generate state data")) {
-      if (isRelevantModuleActive("hoi4")) {
-        auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
+    if (isRelevantModuleActive("hoi4")) {
+      auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
+      if (ImGui::Button("Generate state data")) {
         hoi4Gen->generateStateSpecifics();
         hoi4Gen->generateStateResources();
+        // generate generic world data
+        Scenario::Civilization::generateWorldCivilizations(
+            hoi4Gen->gameRegions, hoi4Gen->gameProvinces, hoi4Gen->civData);
         Scenario::Civilization::generateImportance(hoi4Gen->gameRegions);
+      }
+      if (!hoi4Gen->statesInitialised) {
+        ImGui::Text("Generate state data first");
+      } else {
+        if (ImGui::Button("Randomly distribute countries")) {
+          hoi4Gen->generateCountries<Scenario::Hoi4::Hoi4Country>();
+
+          // first gather generic neighbours, they will be mapped to hoi4
+          // countries in mapCountries
+          hoi4Gen->evaluateCountryNeighbours();
+          // build hoi4 countries out of basic countries
+          hoi4Gen->mapCountries();
+          generator->visualiseCountries(generator->countryMap);
+          uiUtils->resetTexture();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Generate country data")) {
+          hoi4Gen->evaluateCountryNeighbours();
+          hoi4Gen->generateCountrySpecifics();
+          hoi4Gen->evaluateCountries();
+          hoi4Gen->generateLogistics();
+          Scenario::Hoi4::NationalFocus::buildMaps();
+          hoi4Gen->generateFocusTrees();
+          hoi4Gen->generateCountryUnits();
+          hoi4Gen->distributeVictoryPoints();
+        }
       }
     }
 
-    if (ImGui::Button("Randomly distribute countries")) {
-      if (isRelevantModuleActive("hoi4")) {
-        auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
-        hoi4Gen->generateCountries<Scenario::Hoi4::Hoi4Country>();
-        hoi4Gen->evaluateCountries();
-        hoi4Gen->generateCountrySpecifics();
-        hoi4Gen->generateLogistics();
-        Scenario::Hoi4::NationalFocus::buildMaps();
-        hoi4Gen->generateFocusTrees();
-        hoi4Gen->generateCountryUnits();
-        hoi4Gen->distributeVictoryPoints();
-      } else if (isRelevantModuleActive("vic3")) {
-        generator->generateCountries<Scenario::Vic3::Country>();
-      } else if (isRelevantModuleActive("eu4")) {
-        generator->generateCountries<Scenario::Country>();
-      }
-      // build module specific countries out of basic countries
-      generator->mapCountries();
-      generator->evaluateCountryNeighbours();
-      generator->visualiseCountries(generator->countryMap);
-      uiUtils->resetTexture();
+    else if (isRelevantModuleActive("vic3")) {
+    } else if (isRelevantModuleActive("eu4")) {
     }
-    ImGui::SameLine();
+
     auto str =
         "Generated countries: " + std::to_string(generator->countries.size());
     ImGui::Text(str.c_str());
@@ -1024,7 +1035,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
         // active
         if (isRelevantModuleActive("hoi4")) {
           auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
-          generator->loadCountries<Scenario::Hoi4::Hoi4Country>(
+          hoi4Gen->loadCountries<Scenario::Hoi4::Hoi4Country>(
               draggedFile, generator->countryMappingPath);
         } else if (isRelevantModuleActive("vic3")) {
           generator->loadCountries<Scenario::Vic3::Country>(
@@ -1033,33 +1044,17 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
           generator->loadCountries<Scenario::Country>(
               draggedFile, generator->countryMappingPath);
         }
+        generator->evaluateCountryNeighbours();
+        // build module specific countries out of basic countries
+        generator->mapCountries();
         generator->visualiseCountries(generator->countryMap);
         Fwg::Gfx::Png::save(generator->countryMap,
                             cfg.mapsPath + "countryMap.png");
-        // build module specific countries out of basic countries
-        generator->mapCountries();
-        generator->evaluateCountryNeighbours();
-        generator->visualiseCountries(generator->countryMap);
         uiUtils->resetTexture();
       }
       triggeredDrag = false;
     }
 
-    if (ImGui::Button("Generate country data")) {
-      if (isRelevantModuleActive("hoi4")) {
-        auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
-        hoi4Gen->evaluateCountryNeighbours();
-        hoi4Gen->generateCountrySpecifics();
-        hoi4Gen->evaluateCountries();
-        hoi4Gen->generateLogistics();
-        Scenario::Hoi4::NationalFocus::buildMaps();
-        hoi4Gen->generateFocusTrees();
-        hoi4Gen->generateCountryUnits();
-      } else if (isRelevantModuleActive("vic3")) {
-      } else if (isRelevantModuleActive("eu4")) {
-      }
-      uiUtils->resetTexture();
-    }
     ImGui::SameLine();
     if (ImGui::Button("Export current countries as image after editing")) {
       generator->visualiseCountries(generator->countryMap);
@@ -1241,7 +1236,9 @@ int GUI::showHoi4Finalise(
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
     auto &generator = hoi4Module->hoi4Gen;
-    if (generator->strategicRegions.size()) {
+    if (generator->strategicRegions.size() && generator->provinceMap.size() &&
+        generator->statesInitialised) {
+
       if (ImGui::Button("Export complete mod")) {
 
         computationFutureBool = runAsync([generator, hoi4Module, &cfg, this]() {

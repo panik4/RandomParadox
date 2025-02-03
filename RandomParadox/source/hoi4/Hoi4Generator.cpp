@@ -13,7 +13,12 @@ void Generator::mapRegions() {
   Fwg::Utils::Logging::logLine("Mapping Regions");
   gameRegions.clear();
   hoi4States.clear();
-
+  worldPop = 0;
+  militaryIndustry = 0;
+  civilianIndustry = 0;
+  navalIndustry = 0;
+  totalWorldIndustry = 0;
+  statesInitialised = false;
   for (auto &region : this->areas.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
               [](const Fwg::Province *a, const Fwg::Province *b) {
@@ -248,6 +253,7 @@ void Generator::generateStateSpecifics() {
   militaryIndustry = 0;
   civilianIndustry = 0;
   navalIndustry = 0;
+  totalWorldIndustry = 0;
   // cleanup work
   for (auto &hoi4State : hoi4States) {
     hoi4State->dockyards = 0;
@@ -341,6 +347,8 @@ void Generator::generateStateSpecifics() {
     // get potential building positions
     hoi4State->calculateBuildingPositions(this->heightMap, typeMap);
   }
+  totalWorldIndustry = militaryIndustry + civilianIndustry + navalIndustry;
+  statesInitialised = true;
   dumpRegions(hoi4States);
 }
 

@@ -90,6 +90,7 @@ public:
   void loadCountries(const std::string &countryMapPath,
                      const std::string &mappingPath) {
     int counter = 0;
+    countries.clear();
     std::vector<std::string> mappingFileLines;
     Fwg::Utils::ColourTMap<std::vector<std::string>> mapOfCountries;
     try {
@@ -110,7 +111,7 @@ public:
     Fwg::Utils::ColourTMap<std::vector<std::shared_ptr<Scenario::Region>>>
         mapOfRegions;
     for (auto &region : gameRegions) {
-      if (region->sea)
+      if (region->sea || region->lake)
         continue;
 
       Fwg::Utils::ColourTMap<int> likeliestOwner;
@@ -150,28 +151,39 @@ public:
         auto tokens = mapOfCountries[entryCol];
         auto colour = Fwg::Gfx::Colour(
             std::stoi(tokens[0]), std::stoi(tokens[1]), std::stoi(tokens[2]));
-        T pdoxC(tokens[3], counter++, tokens[4], tokens[5], Gfx::Flag(82, 52));
-        pdoxC.colour = colour;
+        T country(tokens[3], counter++, tokens[4], tokens[5],
+                  Gfx::Flag(82, 52));
+        country.colour = colour;
         for (auto &region : entry.second) {
-          pdoxC.addRegion(region);
+          country.addRegion(region);
         }
-        countries.emplace(pdoxC.tag, std::make_shared<T>(pdoxC));
-        nData.tags.insert(pdoxC.tag);
+        countries.insert({country.tag, std::make_shared<T>(country)});
       } else {
-
-        // auto name{NameGeneration::generateName(nData)};
-        T pdoxC("", counter++, "", "", Gfx::Flag(82, 52));
-        pdoxC.colour = mapOfRegions.getKeyColour(entry.first);
+        T country(std::to_string(counter), counter++, "DUMMY", "",
+                  Gfx::Flag(82, 52));
+        country.colour = mapOfRegions.getKeyColour(entry.first);
         for (auto &region : entry.second) {
-          pdoxC.addRegion(region);
+          country.addRegion(region);
         }
 
-        auto region = pdoxC.ownedRegions[0];
-        pdoxC.tag = NameGeneration::generateTag(region->name, nData);
-        pdoxC.evaluatePopulations(worldPopulationFactor);
-        countries.emplace(pdoxC.tag, std::make_shared<T>(pdoxC));
-        nData.tags.insert(pdoxC.tag);
+        auto region = country.ownedRegions[0];
+        countries.insert({country.tag, std::make_shared<T>(country)});
       }
+    }
+    for (auto &country : countries) {
+      country.second->gatherCultureShares();
+      auto culture = country.second->getPrimaryCulture();
+      auto language = culture->language;
+      country.second->name = language->generateGenericCapitalizedWord();
+      country.second->adjective =
+          language->getAdjectiveForm(country.second->name);
+      country.second->tag =
+          NameGeneration::generateTag(country.second->name, nData);
+      for (auto &region : country.second->ownedRegions) {
+        region->owner = country.second;
+      }
+      country.second->evaluatePopulations(civData.worldPopulationFactorSum);
+      country.second->gatherCultureShares();
     }
   }
 
@@ -190,32 +202,15 @@ public:
 
       T country(std::to_string(i), i, "DUMMY", "", Gfx::Flag(82, 52));
 
-
       countries.emplace(country.tag, std::make_shared<T>(country));
     }
-    // assigns remaining regions to provinces
-    //if (countries.size()) {
-    //  for (auto &gameRegion : gameRegions) {
-    //    if (!gameRegion->sea && !gameRegion->assigned) {
-    //      auto gR = Fwg::Utils::getNearestAssignedLand(
-    //          gameRegions, gameRegion, config.width, config.height);
-    //     //gR->owner->addRegion(gameRegion);
-    //    }
-    //  }
-    //}
-    //for (auto &country : countries) {
-    //  country.second->evaluatePopulations();
-    //  country.second->gatherCultureShares();
-    //}
-    //visualiseCountries(countryMap);
-    //Fwg::Gfx::Png::save(countryMap,
-    //                    Fwg::Cfg::Values().mapsPath + "countries.png");
     distributeCountries();
   }
 
   void distributeCountries();
   // see which country neighbours which
   void evaluateCountryNeighbours();
+  virtual void generateCountrySpecifics();
   // calculate how strong each country is
   virtual void evaluateCountries();
   virtual void printStatistics();

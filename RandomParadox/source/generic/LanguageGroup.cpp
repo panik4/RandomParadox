@@ -92,14 +92,8 @@ void LanguageGroup::generateTokenSets() {
         lastWasHardOrConsonant = true;
       }
     }
-
-    for (const auto &token : tokenSet) {
-      std::cout << token << " ";
-    }
-    std::cout << "\n";
     tokenSets.push_back(tokenSet);
   }
-  std::cout << "\n";
 }
 void LanguageGroup::generate(int languageAmount) {
   vowelShare = RandNum::getRandom(0.2, 0.6);

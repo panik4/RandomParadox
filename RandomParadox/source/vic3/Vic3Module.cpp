@@ -150,10 +150,10 @@ void Module::generate() {
 
     vic3Gen->mapTerrain();
     vic3Gen->mapContinents();
-    vic3Gen->generateCountries<Vic3::Country>();
-    vic3Gen->evaluateCountryNeighbours();
     Civilization::generateWorldCivilizations(
         vic3Gen->gameRegions, vic3Gen->gameProvinces, vic3Gen->civData);
+    vic3Gen->generateCountries<Vic3::Country>();
+    vic3Gen->evaluateCountryNeighbours();
     vic3Gen->visualiseCountries(generator->countryMap);
     vic3Gen->generateStrategicRegions();
     // Vic3 specifics:
