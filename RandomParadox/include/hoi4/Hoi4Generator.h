@@ -78,6 +78,8 @@ public:
                                 std::shared_ptr<Hoi4Country> &country);
   // determine unit composition, templates
   void generateCountryUnits();
+  // determine unit composition, templates
+  void generateCountryNavies();
 
   void generateFocusTrees();
 

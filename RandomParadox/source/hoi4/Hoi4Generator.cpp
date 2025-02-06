@@ -372,14 +372,11 @@ void Generator::generateCountrySpecifics() {
                                             "communism", "neutrality"};
   mapCountries();
   for (auto &country : hoi4Countries) {
-    country->evaluatePopulations(civData.worldPopulationFactorSum);
-    country->evaluateDevelopment();
-    country->evaluateEconomicActivity(worldEconomicActivity);
 
     // select a random country ideology
     country->gfxCulture = Fwg::Utils::selectRandom(gfxCultures);
     double totalPopularity = 0;
-    std::vector<double> popularities(4);
+    std::vector<int> popularities(4);
 
     // Generate random popularities and calculate the total
     for (auto &popularity : popularities) {
@@ -388,16 +385,16 @@ void Generator::generateCountrySpecifics() {
     }
 
     // Normalize popularities to ensure they sum up to 100
-    double sumPop = 0;
+    int sumPop = 0;
     for (int i = 0; i < 4; ++i) {
       popularities[i] = (popularities[i] / totalPopularity) * 100;
       sumPop += popularities[i];
       int offset = 0;
       // Ensure the total sum is exactly 100
       if (i == 3 && sumPop < 100) {
-        offset = 100 - static_cast<int>(sumPop);
+        offset = 100 - sumPop;
       }
-      country->parties[i] = static_cast<int>(popularities[i]) + offset;
+      country->parties[i] = popularities[i] + offset;
     }
 
     // Assign a ideology from strongest popularity
@@ -419,6 +416,38 @@ void Generator::generateCountrySpecifics() {
       country->allowElections = RandNum::getRandom(0, 1);
     else
       country->allowElections = 0;
+
+    // randomly gather the date of the last election, up to a maximum of 48
+    // months back, except for non-democratic countries
+    std::string electionYear = std::to_string(
+        RandNum::getRandom(country->allowElections ? 1932 : 1880, 1935));
+    std::string electionMonth = std::to_string(RandNum::getRandom(1, 12));
+    std::string electionDay = std::to_string(RandNum::getRandom(1, 28));
+    country->lastElection =
+        electionYear + "." + electionMonth + "." + electionDay;
+
+    // random stability between 0 and 100
+    country->stability = RandNum::getRandom(0, 100);
+    // random war support between 0 and 100, higher for fascist and communist
+    // countries
+    if (country->ideology == "fascism" || country->ideology == "communism") {
+      country->warSupport = RandNum::getRandom(40, 80);
+    } else {
+      country->warSupport = RandNum::getRandom(0, 60);
+    }
+
+    // amount of research slots between 3 and 6, depending on average
+    // development of the country and strength rank
+    auto rankModifier = 0.0;
+    if (country->rank == "regional") {
+      rankModifier = 0.5;
+    } else if (country->rank == "major") {
+      rankModifier = 1.0;
+    }
+    // rounded to the nearest integer
+    country->researchSlots =
+        std::round(3.0 + 2.0 * country->averageDevelopment + rankModifier);
+
     // now get the full name of the country
     country->fullName = NameGeneration::modifyWithIdeology(
         country->ideology, country->name, country->adjective, nData);
@@ -459,6 +488,8 @@ void Generator::generateCountrySpecifics() {
     country->landFocus = 100.0 - country->navalFocus - country->airFocus;
   }
   generateTechLevels();
+  generateCountryUnits();
+  generateCountryNavies();
 }
 
 void Generator::generateWeather() {
@@ -759,43 +790,43 @@ void Generator::generateTechLevels() {
       country->hullTech[NavalHullType::Light].push_back(TechEra::Interwar);
     }
 
-    country->moduleTech = {
+    country->navyTechs = {
         {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
     // gurantee we have sonar and basic_battery
-    country->moduleTech.at(TechEra::Interwar)
+    country->navyTechs.at(TechEra::Interwar)
         .push_back({"sonar", "", TechEra::Interwar});
-    country->moduleTech.at(TechEra::Interwar)
+    country->navyTechs.at(TechEra::Interwar)
         .push_back({"basic_battery", "", TechEra::Interwar});
 
     // now randomly assign the module techs. Go through each era of the techs
     // and gather all the technology names that we have in a set.
-    for (auto &moduleTech : moduleTech.at(TechEra::Interwar)) {
+    for (auto &moduleTech : navyTechs.at(TechEra::Interwar)) {
       auto randomVal = RandNum::getRandom(0.0, 1.0) * navyTechLevel;
       if (randomVal > 0.2) {
-        country->moduleTech.at(TechEra::Interwar).push_back(moduleTech);
+        country->navyTechs.at(TechEra::Interwar).push_back(moduleTech);
       }
     }
-    for (auto &moduleTech : moduleTech.at(TechEra::Buildup)) {
+    for (auto &moduleTech : navyTechs.at(TechEra::Buildup)) {
       auto randomVal = RandNum::getRandom(0.0, 1.0) * navyTechLevel;
       if (randomVal > 0.8) {
         // check if any of the previous era tech modules have the name of the
         // predecessor
-        for (auto &module : country->moduleTech.at(TechEra::Interwar)) {
+        for (auto &module : country->navyTechs.at(TechEra::Interwar)) {
           if (module.name == moduleTech.predecessor) {
-            country->moduleTech.at(TechEra::Buildup).push_back(moduleTech);
+            country->navyTechs.at(TechEra::Buildup).push_back(moduleTech);
             break;
           }
         }
       }
     }
-    for (auto &moduleTech : moduleTech.at(TechEra::Early)) {
+    for (auto &moduleTech : navyTechs.at(TechEra::Early)) {
       auto randomVal = RandNum::getRandom(0.0, 1.0) * navyTechLevel;
       if (randomVal > 1.5) {
         // check if any of the previous era tech modules have the name of the
         // predecessor
-        for (auto &module : country->moduleTech.at(TechEra::Buildup)) {
+        for (auto &module : country->navyTechs.at(TechEra::Buildup)) {
           if (module.name == moduleTech.predecessor) {
-            country->moduleTech.at(TechEra::Early).push_back(moduleTech);
+            country->navyTechs.at(TechEra::Early).push_back(moduleTech);
             break;
           }
         }
@@ -809,6 +840,9 @@ void Generator::evaluateCountries() {
   countryImportanceScores.clear();
   double maxScore = 0.0;
   for (auto &country : hoi4Countries) {
+    country->evaluatePopulations(civData.worldPopulationFactorSum);
+    country->evaluateDevelopment();
+    country->evaluateEconomicActivity(worldEconomicActivity);
     country->capitalRegionID = 0;
     country->civilianIndustry = 0;
     country->dockyards = 0;
@@ -930,6 +964,9 @@ void Generator::generateCountryUnits() {
       country->unitCount[unit]++;
     }
   }
+}
+
+void Generator::generateCountryNavies() {
   // map from the ShipClassType to the required NavalHullType
   std::map<ShipClassType, NavalHullType> shipClassToHullType = {
       {ShipClassType::Destroyer, NavalHullType::Light},
@@ -1008,7 +1045,7 @@ void Generator::generateCountryUnits() {
             (shipClass.era == TechEra::Interwar ? "_1" : "_2");
         shipClass.tonnage = tonnages[shipclassType];
 
-        addShipClassModules(shipClass, country->moduleTech, country->armyTech);
+        addShipClassModules(shipClass, country->navyTechs, country->armyTechs);
         country->shipClasses.at(shipClass.type).push_back(shipClass);
       }
     }
@@ -1020,6 +1057,9 @@ void Generator::generateCountryUnits() {
     std::cout << "Total Tonnage: " << totalTonnage
               << "naval focus: " << country->navalFocus << " dockyars"
               << country->dockyards << std::endl;
+
+    // calculate amount of convoys based on tonnage
+    country->convoyAmount = totalTonnage / 500;
 
     // now determine the composition of the navy, first the share of carriers,
     // battleships and screens

@@ -28,31 +28,47 @@ public:
   ~Hoi4Country();
   std::string fullName;
   std::string gfxCulture;
+  // politics
   std::string ideology;
   bool allowElections;
   double bully;
-  int victoryPoints;
-  // typedef doctrineType mytype;
-  std::vector<doctrineType> doctrines;
-  std::vector<int> units;
-  std::vector<int> unitCount;
-
-  std::map<ShipClassType, std::vector<ShipClass>> shipClasses;
-  std::vector<std::shared_ptr<Ship>> ships;
-  std::vector<Fleet> fleets;
   std::array<int, 4> parties;
+  std::string lastElection;
+  int warSupport;
+  int stability;
+
+
+  // mapdata
+  int victoryPoints;
   std::vector<std::shared_ptr<Region>> hoi4Regions;
+  // typedef doctrineType mytype;
+  // national focus
   std::vector<FocusBranch> focusBranches;
   std::string focusTree;
   std::string ideas;
+  // navy
   double navalFocus;
   std::map<NavalHullType, std::vector<TechEra>> hullTech;
-  std::map<TechEra, std::vector<Module>> moduleTech;
-  std::map<TechEra, std::vector<ArmyTech>> armyTech;
-  double airFocus;
+  std::map<TechEra, std::vector<Module>> navyTechs;
+  std::map<ShipClassType, std::vector<ShipClass>> shipClasses;
+  std::vector<std::shared_ptr<Ship>> ships;
+  std::vector<Fleet> fleets;
+  int convoyAmount;
+
+  // army
   double landFocus;
+  std::vector<doctrineType> doctrines;
+  std::vector<int> units;
+  std::vector<int> unitCount;
+  std::map<TechEra, std::vector<Module>> armyTechs;
+
+  // airforce
+  double airFocus;
+
+  // industry
   int civilianIndustry;
   int armsFactories;
   int dockyards;
+  int researchSlots;
 };
 } // namespace Scenario::Hoi4

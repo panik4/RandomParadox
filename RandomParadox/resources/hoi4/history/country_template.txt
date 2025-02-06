@@ -52,14 +52,14 @@ if = {
 		armored_car1 = 1
 	}
 }
-set_research_slots = 4
-set_convoys = 200
-set_stability = 0.75 
-set_war_support = 0.3
+set_research_slots = templateResearchSlots
+set_convoys = templateConvoys
+set_stability = templateStability
+set_war_support = templateWarSupport
 
 set_politics = {
 	ruling_party = templateParty
-	last_election = "1933.3.5"
+	last_election = "templateLastElection"
 	election_frequency = 48
 	elections_allowed = templateAllowElections
 }

@@ -988,12 +988,11 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
         ImGui::SameLine();
         if (ImGui::Button("Generate country data")) {
           hoi4Gen->evaluateCountryNeighbours();
-          hoi4Gen->generateCountrySpecifics();
           hoi4Gen->evaluateCountries();
           hoi4Gen->generateLogistics();
+          hoi4Gen->generateCountrySpecifics();
           Scenario::Hoi4::NationalFocus::buildMaps();
           hoi4Gen->generateFocusTrees();
-          hoi4Gen->generateCountryUnits();
           hoi4Gen->distributeVictoryPoints();
         }
       }
