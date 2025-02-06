@@ -88,7 +88,7 @@ getBestSuitedGun(const std::map<TechEra, std::vector<Module>> &availableModules,
 
 std::string getBestSuitedAntiAir(
     const std::map<TechEra, std::vector<Module>> &availableModules, TechEra era,
-    const std::map<TechEra, std::vector<ArmyTech>> &availableArmyTech) {
+    const std::map<TechEra, std::vector<Module>> &availableArmyTech) {
   if (era == TechEra::Buildup) {
     if (availableArmyTech.find(TechEra::Buildup) != availableArmyTech.end()) {
       for (auto module : availableArmyTech.at(TechEra::Buildup)) {
@@ -333,7 +333,7 @@ std::string findBestSuitedMineLayer(
 
 std::string selectRandomCustomSlot(
     const std::map<TechEra, std::vector<Module>> &availableModules, TechEra era,
-    const std::map<TechEra, std::vector<ArmyTech>> &availableArmyTech,
+    const std::map<TechEra, std::vector<Module>> &availableArmyTech,
     ShipClass &shipClass, bool aaAllowed, bool gunAllowed,
     bool rapidFireAllowed, bool secondaryBatteryAllowed, bool minesAllowed,
     bool torpedosAllowed, bool depthChargesAllowed, bool deckArmorAllowed,
@@ -381,7 +381,7 @@ std::string selectRandomCustomSlot(
 void addShipClassModules(
     ShipClass &shipClass,
     const std::map<TechEra, std::vector<Module>> &availableModuleTech,
-    const std::map<TechEra, std::vector<ArmyTech>> &availableArmyTech) {
+    const std::map<TechEra, std::vector<Module>> &availableArmyTech) {
 
   // all ships have an engine
   // fixed_ship_engine_slot

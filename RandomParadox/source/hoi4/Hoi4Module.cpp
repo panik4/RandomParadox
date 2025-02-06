@@ -406,15 +406,14 @@ void Hoi4Module::generate() {
     hoi4Gen->evaluateCountryNeighbours();
     // build hoi4 countries out of basic countries
     hoi4Gen->mapCountries();
-    // politics, etc
-    hoi4Gen->generateCountrySpecifics();
-
     // should work with countries = 0
     hoi4Gen->evaluateCountries();
     hoi4Gen->generateLogistics();
+    // politics, etc
+    hoi4Gen->generateCountrySpecifics();
+
     NationalFocus::buildMaps();
     hoi4Gen->generateFocusTrees();
-    hoi4Gen->generateCountryUnits();
     hoi4Gen->distributeVictoryPoints();
 
     // non-country stuff

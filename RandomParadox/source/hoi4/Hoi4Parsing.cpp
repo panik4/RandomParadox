@@ -562,14 +562,28 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
     pU::Scenario::replaceOccurences(
         countryText, "templateCapital",
         std::to_string(country->capitalRegionID + 1));
+
+    pU::Scenario::replaceOccurences(countryText, "templateResearchSlots",
+                                    std::to_string(country->researchSlots));
+    pU::Scenario::replaceOccurences(countryText, "templateConvoys",
+                                    std::to_string(country->convoyAmount));
+
+    pU::Scenario::replaceOccurences(countryText, "templateStability",
+                                    std::to_string(country->stability));
+    pU::Scenario::replaceOccurences(countryText, "templateWarSupport",
+                                    std::to_string(country->warSupport));
+
     pU::Scenario::replaceOccurences(countryText, "templateNavalBlock",
                                     navyTemplateFile);
     pU::Scenario::replaceOccurences(countryText, "templateTag", country->tag);
     pU::Scenario::replaceOccurences(countryText, "templateParty",
                                     country->ideology);
+
     std::string electAllowed = country->allowElections ? "yes" : "no";
     pU::Scenario::replaceOccurences(countryText, "templateAllowElections",
                                     electAllowed);
+    pU::Scenario::replaceOccurences(countryText, "templateLastElection",
+                                    country->lastElection);
     pU::Scenario::replaceOccurences(countryText, "templateFasPop",
                                     std::to_string(country->parties[0]));
     pU::Scenario::replaceOccurences(countryText, "templateDemPop",
@@ -593,7 +607,7 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
     std::string mtgNavyTechs = "";
     std::set<std::string> ownedVanillaTechs;
     std::set<std::string> ownedMtgTechs;
-    for (auto &navyTechEra : country->moduleTech) {
+    for (auto &navyTechEra : country->navyTechs) {
       for (auto &navyTech : navyTechEra.second)
         ownedMtgTechs.insert(navyTech.name);
     }
