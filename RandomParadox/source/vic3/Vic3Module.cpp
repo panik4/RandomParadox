@@ -151,7 +151,7 @@ void Module::generate() {
     vic3Gen->mapTerrain();
     vic3Gen->mapContinents();
     Civilization::generateWorldCivilizations(
-        vic3Gen->gameRegions, vic3Gen->gameProvinces, vic3Gen->civData);
+        vic3Gen->gameRegions, vic3Gen->gameProvinces, vic3Gen->civData, vic3Gen->scenContinents);
     vic3Gen->generateCountries<Vic3::Country>();
     vic3Gen->evaluateCountryNeighbours();
     vic3Gen->visualiseCountries(generator->countryMap);

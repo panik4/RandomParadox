@@ -116,19 +116,38 @@ void buildings(const std::string &path,
 }
 
 void continents(const std::string &path,
-                const std::vector<Continent> &continents) {
+                const std::vector<ScenarioContinent> &continents,
+                const std::string &hoiPath, const std::string &localisationPath) {
   Logging::logLine("HOI4 Parser: Map: Writing Continents");
   // copy continents file from cfg::Values().resourcePath + "/hoi4//map// to
   // path//map//
-  std::filesystem::path source =
-      Fwg::Cfg::Values().resourcePath + "hoi4//map//continent.txt";
+  std::string content = pU::readFile(Fwg::Cfg::Values().resourcePath +
+                                     "hoi4//map//continent.txt");
   try {
-    // Copy continents file
-    std::filesystem::copy(source, path);
+    std::string continentList;
+    for (auto &continent : continents) {
+      continentList.append(continent.name + "\n\t");
+    }
+    pU::replaceOccurences(content, "templateContinents", continentList);
+    pU::writeFile(path, content);
   } catch (const std::filesystem::filesystem_error &e) {
-    Logging::logLine("HOI4 Parser: Error copying Continents: " +
+    Logging::logLine("HOI4 Parser: Error writing continents.txt: " +
                      std::string(e.what()));
   }
+  // read the localisation file  from the gamePath+ "/localisation// to
+  // localisation//
+  auto continentLocalisation =
+      pU::readFile(hoiPath + "//localisation//english//province_names_l_english.yml");
+  // add the continents to the localisation file
+  for (auto &continent : continents) {
+    continentLocalisation.append(" "+ continent.name + ":0 \"" + continent.name +
+                                 "\"\n");
+    continentLocalisation.append(" " + continent.name + "_adj:0 \"" +
+                                 continent.adjective +
+                                 "\"\n");
+  }
+  pU::writeFile(localisationPath,
+                continentLocalisation);
 }
 
 void definition(const std::string &path,
@@ -645,7 +664,7 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
 
         mtgVariant += "\t\t\ttype = " + shipClass.mtgHullname + "\n";
         mtgVariant += "\t\t\tparent_version = 0\n";
-        
+
         mtgVariant += "\t\t\tmodules = {\n";
         for (auto &mtgModule : shipClass.mtgModules) {
           mtgVariant +=

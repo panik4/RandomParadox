@@ -206,7 +206,9 @@ void Hoi4Module::writeTextFiles() {
   buildings(pathcfg.gameModPath + "//map//buildings.txt", hoi4Gen->hoi4States,
             hoi4Gen->heightMap);
   continents(pathcfg.gameModPath + "//map//continent.txt",
-             hoi4Gen->areas.continents);
+             hoi4Gen->scenContinents, pathcfg.gamePath,
+             pathcfg.gameModPath +
+                 "//localisation//english//province_names_l_english.yml");
   definition(pathcfg.gameModPath + "//map//definition.csv",
              hoi4Gen->gameProvinces);
   events(pathcfg.gameModPath + "//", hoi4Gen->hoi4Countries);
@@ -394,7 +396,8 @@ void Hoi4Module::generate() {
     hoi4Gen->mapTerrain();
     // generate generic world data
     Civilization::generateWorldCivilizations(
-        hoi4Gen->gameRegions, hoi4Gen->gameProvinces, hoi4Gen->civData);
+        hoi4Gen->gameRegions, hoi4Gen->gameProvinces, hoi4Gen->civData,
+        hoi4Gen->scenContinents);
     // generate state information
     hoi4Gen->generateStateSpecifics();
     hoi4Gen->generateStateResources();

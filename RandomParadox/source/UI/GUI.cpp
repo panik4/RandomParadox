@@ -793,7 +793,8 @@ int GUI::showScenarioTab(
         Scenario::Civilization::generateWorldCivilizations(
             activeModule->generator->gameRegions,
             activeModule->generator->gameProvinces,
-            activeModule->generator->civData);
+            activeModule->generator->civData,
+            activeModule->generator->scenContinents);
         configuredScenarioGen = true;
       }
       ImGui::PushItemWidth(200.0f);
@@ -968,7 +969,8 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
         hoi4Gen->generateStateResources();
         // generate generic world data
         Scenario::Civilization::generateWorldCivilizations(
-            hoi4Gen->gameRegions, hoi4Gen->gameProvinces, hoi4Gen->civData);
+            hoi4Gen->gameRegions, hoi4Gen->gameProvinces, hoi4Gen->civData,
+            hoi4Gen->scenContinents);
         Scenario::Civilization::generateImportance(hoi4Gen->gameRegions);
       }
       if (!hoi4Gen->statesInitialised) {
@@ -1148,7 +1150,7 @@ int GUI::showStrategicRegionTab(
       generator->mapCountries();
       generator->evaluateCountryNeighbours();
       Scenario::Civilization::generateWorldCivilizations(
-          generator->gameRegions, generator->gameProvinces, generator->civData);
+          generator->gameRegions, generator->gameProvinces, generator->civData, generator->scenContinents);
     }
     // drag event is ignored here
     if (triggeredDrag) {

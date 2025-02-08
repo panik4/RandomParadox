@@ -23,6 +23,7 @@ void Generator::mapContinents() {
   for (const auto &continent : this->areas.continents) {
     // we copy the fwg continents by choice, to leave them untouched
     scenContinents.push_back(ScenarioContinent(continent));
+
   }
 }
 

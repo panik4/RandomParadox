@@ -173,6 +173,7 @@ void Generator::mapCountries() {
     // Attempt to cast the shared pointer to Hoi4Country
     auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country.second);
     if (hoi4Country) {
+
       // Successfully casted, add to hoi4Countries
       hoi4Countries.push_back(hoi4Country);
       // now for all ownedRegions, find the equivalent in Hoi4Regions
@@ -370,7 +371,6 @@ void Generator::generateCountrySpecifics() {
       "southamerican",    "commonwealth",     "asian"};
   const std::vector<std::string> ideologies{"fascism", "democratic",
                                             "communism", "neutrality"};
-  mapCountries();
   for (auto &country : hoi4Countries) {
 
     // select a random country ideology
