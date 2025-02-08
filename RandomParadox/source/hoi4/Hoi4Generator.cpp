@@ -872,6 +872,12 @@ void Generator::generateTechLevels() {
   std::map<TechEra, std::vector<Technology>> airTechs;
   createTech(airTechsFile, airTechs);
 
+  auto navyTechsFile =
+      Parsing::getLines(Fwg::Cfg::Values().resourcePath +
+                        "//hoi4//common//technologies//navyTechs.txt");
+  std::map<TechEra, std::vector<Technology>> navyTechs;
+  createTech(navyTechsFile, navyTechs);
+
   for (auto &country : hoi4Countries) {
     // clear all techs
     country->industryElectronicTechs = {
@@ -882,11 +888,17 @@ void Generator::generateTechLevels() {
         {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
     country->airTechs = {
         {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
+    country->navyTechs = {
+        {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
 
     // a few techs are guranteed, such as infantry_weapons
     country->infantryTechs.insert(
         {TechEra::Interwar, {{"infantry_weapons", "", TechEra::Interwar}}});
-
+    // gurantee we have sonar and basic_battery
+    country->navyTechs.at(TechEra::Interwar)
+        .push_back({"sonar", "", TechEra::Interwar});
+    country->navyTechs.at(TechEra::Interwar)
+        .push_back({"basic_battery", "", TechEra::Interwar});
     auto development = country->averageDevelopment;
     auto navyTechLevel = development * country->navalFocus / 10.0;
     auto infantryTechLevel = development * country->landFocus / 10.0;
@@ -901,6 +913,7 @@ void Generator::generateTechLevels() {
     assignTechsRandomly(infantryTechs, country->infantryTechs,
                         infantryTechLevel, 1.0);
     assignTechsRandomly(armorTechs, country->armorTechs, armorTechLevel, 1.0);
+    assignTechsRandomly(navyTechs, country->navyTechs, navyTechLevel, 1.0);
   }
 
   for (auto &country : hoi4Countries) {
@@ -923,49 +936,6 @@ void Generator::generateTechLevels() {
     // guarantee we have at least a destroyer tech
     if (country->hullTech[NavalHullType::Light].size() == 0) {
       country->hullTech[NavalHullType::Light].push_back(TechEra::Interwar);
-    }
-
-    country->navyTechs = {
-        {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
-    // gurantee we have sonar and basic_battery
-    country->navyTechs.at(TechEra::Interwar)
-        .push_back({"sonar", "", TechEra::Interwar});
-    country->navyTechs.at(TechEra::Interwar)
-        .push_back({"basic_battery", "", TechEra::Interwar});
-
-    // now randomly assign the module techs. Go through each era of the techs
-    // and gather all the technology names that we have in a set.
-    for (auto &moduleTech : navyTechs.at(TechEra::Interwar)) {
-      auto randomVal = RandNum::getRandom(0.0, 1.0) * navyTechLevel;
-      if (randomVal > 0.2) {
-        country->navyTechs.at(TechEra::Interwar).push_back(moduleTech);
-      }
-    }
-    for (auto &moduleTech : navyTechs.at(TechEra::Buildup)) {
-      auto randomVal = RandNum::getRandom(0.0, 1.0) * navyTechLevel;
-      if (randomVal > 0.8) {
-        // check if any of the previous era tech modules have the name of the
-        // predecessor
-        for (auto &module : country->navyTechs.at(TechEra::Interwar)) {
-          if (module.name == moduleTech.predecessor) {
-            country->navyTechs.at(TechEra::Buildup).push_back(moduleTech);
-            break;
-          }
-        }
-      }
-    }
-    for (auto &moduleTech : navyTechs.at(TechEra::Early)) {
-      auto randomVal = RandNum::getRandom(0.0, 1.0) * navyTechLevel;
-      if (randomVal > 1.5) {
-        // check if any of the previous era tech modules have the name of the
-        // predecessor
-        for (auto &module : country->navyTechs.at(TechEra::Buildup)) {
-          if (module.name == moduleTech.predecessor) {
-            country->navyTechs.at(TechEra::Early).push_back(moduleTech);
-            break;
-          }
-        }
-      }
     }
   }
 }
