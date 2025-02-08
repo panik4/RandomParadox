@@ -44,7 +44,7 @@ struct Fleet {
 
 void addShipClassModules(
     ShipClass& shipClass,
-    const std::map<TechEra, std::vector<Module>> &availableModuleTech,
-    const std::map<TechEra, std::vector<Module>> &availableArmyTech);
+    const std::map<TechEra, std::vector<Technology>> &availableModuleTech,
+    const std::map<TechEra, std::vector<Technology>> &availableArmyTech);
 
 } // namespace Scenario::Hoi4

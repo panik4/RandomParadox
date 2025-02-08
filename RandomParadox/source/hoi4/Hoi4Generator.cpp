@@ -761,18 +761,153 @@ void Generator::generateLogistics() {
   Bmp::save(logistics, Fwg::Cfg::Values().mapsPath + "//logistics.bmp");
 }
 
+void createTech(const std::vector<std::string> &fileLines,
+                std::map<TechEra, std::vector<Technology>> &techMap) {
+  for (const auto &line : fileLines) {
+    if (line.size()) {
+      auto parts = Parsing::getTokens(line, ';');
+      if (parts.size() == 3) {
+        Technology tech;
+        if (parts[2] == "interwar") {
+          tech.era = TechEra::Interwar;
+        } else if (parts[2] == "buildup") {
+          tech.era = TechEra::Buildup;
+        } else if (parts[2] == "early") {
+          tech.era = TechEra::Early;
+        }
+        tech.name = parts[0];
+        tech.predecessor = parts[1];
+        techMap[tech.era].push_back(tech);
+      }
+    }
+  }
+}
+
+void assignTechsRandomly(
+    const std::map<TechEra, std::vector<Technology>> &techsToAssign,
+    std::map<TechEra, std::vector<Technology>> &countryCategoryTechs,
+    double techLevel, double modifier) {
+  // now randomly assign the module techs. Go through each era of the techs
+  // and gather all the technology names that we have in a set.
+  if (techsToAssign.find(TechEra::Interwar) != techsToAssign.end()) {
+    for (auto &moduleTech : techsToAssign.at(TechEra::Interwar)) {
+      // check if we already have that tech
+      bool alreadyHas = false;
+      for (auto &module : countryCategoryTechs.at(TechEra::Interwar)) {
+        if (module.name == moduleTech.name) {
+          alreadyHas = true;
+          break;
+        }
+      }
+      if (alreadyHas) {
+        continue;
+      }
+
+      auto randomVal = RandNum::getRandom(0.0, 1.0) * techLevel;
+      if (randomVal > 0.5) {
+        countryCategoryTechs.at(TechEra::Interwar).push_back(moduleTech);
+      }
+    }
+  }
+  if (techsToAssign.find(TechEra::Buildup) != techsToAssign.end()) {
+    for (auto &moduleTech : techsToAssign.at(TechEra::Buildup)) {
+      auto randomVal = RandNum::getRandom(0.0, 1.0) * techLevel;
+      if (randomVal > 1.0) {
+        // check if any of the previous era tech modules have the name of the
+        // predecessor
+        for (auto &module : countryCategoryTechs.at(TechEra::Interwar)) {
+          if (module.name == moduleTech.predecessor) {
+            countryCategoryTechs.at(TechEra::Buildup).push_back(moduleTech);
+            break;
+          }
+        }
+      }
+    }
+  }
+  if (techsToAssign.find(TechEra::Early) != techsToAssign.end()) {
+    for (auto &moduleTech : techsToAssign.at(TechEra::Early)) {
+      auto randomVal = RandNum::getRandom(0.0, 1.0) * techLevel;
+      if (randomVal > 1.5) {
+        // check if any of the previous era tech modules have the name of the
+        // predecessor
+        for (auto &module : countryCategoryTechs.at(TechEra::Buildup)) {
+          if (module.name == moduleTech.predecessor) {
+            countryCategoryTechs.at(TechEra::Early).push_back(moduleTech);
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
 void Generator::generateTechLevels() {
   // vector for all hull types
   const std::vector<NavalHullType> navalHullTypes{
       NavalHullType::Light, NavalHullType::Heavy, NavalHullType::Cruiser,
       NavalHullType::Carrier, NavalHullType::Submarine};
 
+  // read in the techs from the files
+  auto industryElectronicTechsFile = Parsing::getLines(
+      Fwg::Cfg::Values().resourcePath +
+      "//hoi4//common//technologies//industryElectronicTechs.txt");
+  std::map<TechEra, std::vector<Technology>> industryElectronicTechs;
+  createTech(industryElectronicTechsFile, industryElectronicTechs);
+
+  auto infantryTechsFile =
+      Parsing::getLines(Fwg::Cfg::Values().resourcePath +
+                        "//hoi4//common//technologies//infantryTechs.txt");
+  std::map<TechEra, std::vector<Technology>> infantryTechs;
+  createTech(infantryTechsFile, infantryTechs);
+
+  auto armorTechsFile =
+      Parsing::getLines(Fwg::Cfg::Values().resourcePath +
+                        "//hoi4//common//technologies//armorTechs.txt");
+  std::map<TechEra, std::vector<Technology>> armorTechs;
+  createTech(armorTechsFile, armorTechs);
+
+  auto airTechsFile =
+      Parsing::getLines(Fwg::Cfg::Values().resourcePath +
+                        "//hoi4//common//technologies//airTechs.txt");
+  std::map<TechEra, std::vector<Technology>> airTechs;
+  createTech(airTechsFile, airTechs);
+
+  for (auto &country : hoi4Countries) {
+    // clear all techs
+    country->industryElectronicTechs = {
+        {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
+    country->infantryTechs = {
+        {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
+    country->armorTechs = {
+        {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
+    country->airTechs = {
+        {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
+
+    // a few techs are guranteed, such as infantry_weapons
+    country->infantryTechs.insert(
+        {TechEra::Interwar, {{"infantry_weapons", "", TechEra::Interwar}}});
+
+    auto development = country->averageDevelopment;
+    auto navyTechLevel = development * country->navalFocus / 10.0;
+    auto infantryTechLevel = development * country->landFocus / 10.0;
+    auto armorTechLevel = development * country->landFocus / 10.0;
+    auto airTechLevel = development * country->airFocus / 10.0;
+    auto industryTechLevel = development * 5.0;
+
+    assignTechsRandomly(airTechs, country->airTechs, airTechLevel, 1.0);
+    assignTechsRandomly(industryElectronicTechs,
+                        country->industryElectronicTechs, industryTechLevel,
+                        1.0);
+    assignTechsRandomly(infantryTechs, country->infantryTechs,
+                        infantryTechLevel, 1.0);
+    assignTechsRandomly(armorTechs, country->armorTechs, armorTechLevel, 1.0);
+  }
+
   for (auto &country : hoi4Countries) {
     // lets start with the navy. The higher our development and the more focues
     // we are on navy, the more advanced our navy#
     auto development = country->averageDevelopment;
     auto navyTechLevel = development * country->navalFocus / 10.0;
-
     // generate a tech level for each hull type, either Interwar or BuildUp. The
     // higher the navy tech level, the more likely we are to get BuildUp
     // technology. Tech levels usually range between 0 and 5.
@@ -1045,7 +1180,8 @@ void Generator::generateCountryNavies() {
             (shipClass.era == TechEra::Interwar ? "_1" : "_2");
         shipClass.tonnage = tonnages[shipclassType];
 
-        addShipClassModules(shipClass, country->navyTechs, country->armyTechs);
+        addShipClassModules(shipClass, country->navyTechs,
+                            country->infantryTechs);
         country->shipClasses.at(shipClass.type).push_back(shipClass);
       }
     }

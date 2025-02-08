@@ -1,0 +1,13 @@
+if = {
+	limit = { has_dlc = "By Blood Alone" }
+		set_air_oob = "templateTag_1936_air_bba"
+		set_technology = {
+			templateBbaAirTechs
+		}
+	else = {
+		set_air_oob = "templateTag_1936_air_legacy"
+		set_technology = {
+			templateVanillaAirTechs
+		}
+	}
+}
