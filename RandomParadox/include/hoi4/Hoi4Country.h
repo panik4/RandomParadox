@@ -3,6 +3,7 @@
 #include "NationalFocus.h"
 #include "generic/Country.h"
 #include "hoi4/Hoi4Navies.h"
+#include "hoi4/Hoi4Armor.h"
 #include <array>
 #include <string>
 #include <vector>
@@ -62,6 +63,7 @@ public:
   std::vector<int> unitCount;
   std::map<TechEra, std::vector<Technology>> infantryTechs;
   std::map<TechEra, std::vector<Technology>> armorTechs;
+  std::vector<TankVariant> tankVariants;
 
   // airforce
   double airFocus;

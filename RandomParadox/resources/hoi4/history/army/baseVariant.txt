@@ -1,0 +1,14 @@
+	create_equipment_variant = {
+		name = "templateVariantName"
+		type = templateChassisType
+		parent_version = 1
+		show_position = no
+		modules = {
+templateModules
+		}
+		icon = "GFX_ENG_basic_light_tank_medium"
+		upgrades = {
+			tank_nsb_engine_upgrade = 0
+			tank_nsb_armor_upgrade = 0
+		}
+	}

@@ -488,6 +488,7 @@ void Generator::generateCountrySpecifics() {
     country->landFocus = 100.0 - country->navalFocus - country->airFocus;
   }
   generateTechLevels();
+  generateArmorVariants();
   generateCountryUnits();
   generateCountryNavies();
 }
@@ -1001,6 +1002,93 @@ void Generator::evaluateCountries() {
   }
 }
 
+void Generator::generateArmorVariants() {
+  struct TankType {
+    ArmorType type;
+    ArmorSubType subType;
+  };
+  Fwg::Utils::Logging::logLine("HOI4: Generating Armor Variants");
+  for (auto &country : hoi4Countries) {
+    // first check if we have any armor techs
+    if (hasTechnology(country->armorTechs, "gwtank_chassis")) {
+      auto combinedTech = country->armorTechs;
+      // add all landTechs for the different weapon types
+      for (auto &techEra : country->infantryTechs) {
+        for (auto &tech : techEra.second) {
+          combinedTech.at(techEra.first).push_back(tech);
+        }
+      }
+      std::map<std::string, TankType> chassisToGenerate;
+      chassisToGenerate["light_tank_chassis_0"] = {ArmorType::LightArmor,
+                                                   ArmorSubType::Tank};
+      chassisToGenerate["medium_tank_chassis_0"] = {ArmorType::MediumArmor,
+                                                    ArmorSubType::Tank};
+      if (hasTechnology(country->armorTechs, "interwar_antitank")) {
+        chassisToGenerate["light_tank_chassis_0"] = {
+            ArmorType::LightArmor, ArmorSubType::TankDestroyer};
+        chassisToGenerate["medium_tank_chassis_0"] = {
+            ArmorType::MediumArmor, ArmorSubType::TankDestroyer};
+      }
+      if (hasTechnology(country->armorTechs, "interwar_artillery")) {
+        chassisToGenerate["light_tank_chassis_0"] = {ArmorType::LightArmor,
+                                                     ArmorSubType::Artillery};
+        chassisToGenerate["medium_tank_chassis_0"] = {ArmorType::MediumArmor,
+                                                      ArmorSubType::Artillery};
+      }
+      chassisToGenerate["heavy_tank_chassis_0"] = {ArmorType::HeavyArmor,
+                                                   ArmorSubType::Tank};
+      if (hasTechnology(country->armorTechs, "basic_light_tank_chassis")) {
+        chassisToGenerate["light_tank_chassis_1"] = {ArmorType::LightArmor,
+                                                     ArmorSubType::Tank};
+        if (hasTechnology(country->armorTechs, "interwar_antitank")) {
+          chassisToGenerate["light_tank_chassis_1"] = {
+              ArmorType::LightArmor, ArmorSubType::TankDestroyer};
+        }
+        if (hasTechnology(country->armorTechs, "interwar_artillery")) {
+          chassisToGenerate["light_tank_chassis_1"] = {ArmorType::LightArmor,
+                                                       ArmorSubType::Artillery};
+        }
+      }
+      if (hasTechnology(country->armorTechs, "improved_light_tank_chassis")) {
+        chassisToGenerate["light_tank_chassis_2"] = {ArmorType::LightArmor,
+                                                     ArmorSubType::Tank};
+
+        if (hasTechnology(country->armorTechs, "interwar_antitank")) {
+          chassisToGenerate["light_tank_chassis_2"] = {
+              ArmorType::LightArmor, ArmorSubType::TankDestroyer};
+        }
+        if (hasTechnology(country->armorTechs, "interwar_artillery")) {
+          chassisToGenerate["light_tank_chassis_2"] = {ArmorType::LightArmor,
+                                                       ArmorSubType::Artillery};
+        }
+      }
+
+      if (hasTechnology(country->armorTechs, "basic_heavy_tank_chassis")) {
+        chassisToGenerate["heavy_tank_chassis_1"] = {ArmorType::HeavyArmor,
+                                                     ArmorSubType::Tank};
+        if (hasTechnology(country->armorTechs, "interwar_antitank")) {
+          chassisToGenerate["heavy_tank_chassis_1"] = {
+              ArmorType::HeavyArmor, ArmorSubType::TankDestroyer};
+        }
+      }
+
+      for (auto &chassis : chassisToGenerate) {
+        // we can create a tank variant
+        TankVariant tankVariant;
+        tankVariant.type = chassis.second.type;
+        tankVariant.subType = chassis.second.subType;
+        tankVariant.bbaArmorName = chassis.first;
+        tankVariant.era = TechEra::Interwar;
+        tankVariant.name =
+            country->getPrimaryCulture()->language->generateGenericCapitalizedWord() +
+            " Mk " + std::to_string(RandNum::getRandom(0, 3));
+
+        addArmorModules(tankVariant, combinedTech);
+        country->tankVariants.push_back(tankVariant);
+      }
+    }
+  }
+}
 void Generator::generateCountryUnits() {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Unit Files");
   // read in different compositions

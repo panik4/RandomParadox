@@ -686,6 +686,28 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
     pU::Scenario::replaceOccurences(countryText, "templateNsbArmorTechs",
                                     nsbArmorTechs);
 
+    const auto armorVariantTemplate =
+        pU::readFile(Fwg::Cfg::Values().resourcePath +
+                     "hoi4//history//army//baseVariant.txt");
+    std::string armorVariants = "";
+    for (const auto &tankVariant : country->tankVariants) {
+      std::string variantString = armorVariantTemplate;
+      std::string moduleString;
+      for (auto &tankModule : tankVariant.bbaModules) {
+        moduleString.append("\t\t\t" + tankModule.first + " = " +
+                            tankModule.second + "\n");
+      }
+      pU::Scenario::replaceOccurences(variantString, "templateModules",
+                                      moduleString);
+      pU::Scenario::replaceOccurences(variantString, "templateVariantName",
+                                      tankVariant.name);
+      pU::Scenario::replaceOccurences(variantString, "templateChassisType",
+                                      tankVariant.bbaArmorName);
+      armorVariants.append(variantString);
+    }
+    pU::Scenario::replaceOccurences(countryText, "templateTankVariants",
+                                    armorVariants);
+
     // map from shipclassType to string
     std::map<ShipClassType, std::string> shipClassTypeMap{
         {ShipClassType::Destroyer, "Destroyer"},
