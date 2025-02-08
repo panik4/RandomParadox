@@ -117,7 +117,8 @@ void buildings(const std::string &path,
 
 void continents(const std::string &path,
                 const std::vector<ScenarioContinent> &continents,
-                const std::string &hoiPath, const std::string &localisationPath) {
+                const std::string &hoiPath,
+                const std::string &localisationPath) {
   Logging::logLine("HOI4 Parser: Map: Writing Continents");
   // copy continents file from cfg::Values().resourcePath + "/hoi4//map// to
   // path//map//
@@ -136,18 +137,16 @@ void continents(const std::string &path,
   }
   // read the localisation file  from the gamePath+ "/localisation// to
   // localisation//
-  auto continentLocalisation =
-      pU::readFile(hoiPath + "//localisation//english//province_names_l_english.yml");
+  auto continentLocalisation = pU::readFile(
+      hoiPath + "//localisation//english//province_names_l_english.yml");
   // add the continents to the localisation file
   for (auto &continent : continents) {
-    continentLocalisation.append(" "+ continent.name + ":0 \"" + continent.name +
-                                 "\"\n");
+    continentLocalisation.append(" " + continent.name + ":0 \"" +
+                                 continent.name + "\"\n");
     continentLocalisation.append(" " + continent.name + "_adj:0 \"" +
-                                 continent.adjective +
-                                 "\"\n");
+                                 continent.adjective + "\"\n");
   }
-  pU::writeFile(localisationPath,
-                continentLocalisation);
+  pU::writeFile(localisationPath, continentLocalisation);
 }
 
 void definition(const std::string &path,
@@ -656,11 +655,50 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
         std::string mtgVariant = vanillaVariant;
         vanillaVariant += "\t\t\ttype = " + shipClass.vanillaShipType + "\n";
         vanillaVariant += "\t\t\tupgrades = {\n";
-        vanillaVariant += "\t\t\t\tship_reliability_upgrade = 1\n";
-        vanillaVariant += "\t\t\t\t\ship_engine_upgrade = 1\n";
-        vanillaVariant += "\t\t\t\t\ship_gun_upgrade = 1\n";
-        vanillaVariant +=
-            "\t\t\t\t\ship_anti_air_upgrade = 1\n\t\t\t}\n\t\t}\n";
+        if (shipClass.type != ShipClassType::Destroyer) {
+          vanillaVariant += "\t\t\t\tship_reliability_upgrade = 1\n";
+        }
+        if (shipClass.type != ShipClassType::Destroyer &&
+            shipClass.type != ShipClassType::Submarine &&
+            shipClass.type != ShipClassType::LightCruiser &&
+            shipClass.type != ShipClassType::Carrier) {
+          vanillaVariant += "\t\t\t\tship_armor_upgrade = 1\n";
+        }
+        if (shipClass.type == ShipClassType::LightCruiser ||
+            shipClass.type == ShipClassType::Destroyer) {
+          vanillaVariant += "\t\t\t\tship_anti_air_upgrade = 1\n";
+        }
+        if (shipClass.type == ShipClassType::Destroyer) {
+          vanillaVariant += "\t\t\t\tship_torpedo_upgrade = 1\n";
+        }
+        if (shipClass.type == ShipClassType::Submarine) {
+          vanillaVariant += "\t\t\t\tsub_torpedo_upgrade = 1\n";
+        }
+        if (shipClass.type != ShipClassType::Submarine &&
+            shipClass.type != ShipClassType::Destroyer &&
+            shipClass.type != ShipClassType::Carrier) {
+          vanillaVariant += "\t\t\t\tship_gun_upgrade = 1\n";
+        }
+        if (shipClass.type == ShipClassType::Destroyer) {
+          vanillaVariant += "\t\t\t\tdestroyer_engine_upgrade = 1\n";
+        } else if (shipClass.type == ShipClassType::Submarine) {
+          vanillaVariant += "\t\t\t\tsub_engine_upgrade = 1\n";
+        } else {
+          vanillaVariant += "\t\t\t\tship_engine_upgrade = 1\n";
+        }
+        // stealth for submarines only
+        if (shipClass.type == ShipClassType::Submarine) {
+          vanillaVariant += "\t\t\t\tsub_stealth_upgrade = 1\n";
+        }
+        // ASW for destroyers only
+        if (shipClass.type == ShipClassType::Destroyer) {
+          vanillaVariant += "\t\t\t\tship_ASW_upgrade = 1\n";
+        }
+        // deck space for carriers only
+        if (shipClass.type == ShipClassType::Carrier) {
+          vanillaVariant += "\t\t\t\tship_deckspace_upgrade = 1\n";
+        }
+        vanillaVariant += "\t\t\t}\n\t\t}\n";
 
         mtgVariant += "\t\t\ttype = " + shipClass.mtgHullname + "\n";
         mtgVariant += "\t\t\tparent_version = 0\n";
