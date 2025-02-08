@@ -16,3 +16,11 @@ if = {
 		templateNsbArmorTechs
 	}
 }
+
+if = {
+	limit = {
+		has_dlc = "No Step Back"
+	}
+	templateTankVariants
+
+}

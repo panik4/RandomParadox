@@ -2,8 +2,9 @@
 #include <array>
 #include <string>
 #include <vector>
-
+#include <map>
 namespace Scenario::Hoi4 {
+
 
 enum class TechEra { Interwar, Buildup, Early };
 
@@ -14,4 +15,9 @@ struct Technology {
   std::string predecessor;
   TechEra era;
 };
+
+
+bool hasTechnology(const std::map<TechEra, std::vector<Technology>> &techs,
+                   const std::string &techName);
+
 } // namespace Scenario::Hoi4
