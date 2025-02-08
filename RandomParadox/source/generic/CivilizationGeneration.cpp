@@ -5,7 +5,7 @@ namespace Scenario::Civilization {
 void generateWorldCivilizations(
     std::vector<std::shared_ptr<Region>> &regions,
     std::vector<std::shared_ptr<GameProvince>> &gameProvinces,
-    CivilizationData &civData) {
+    CivilizationData &civData, std::vector<ScenarioContinent> &continents) {
   generatePopulationFactors(civData, regions);
   generateDevelopment(regions);
   generateEconomicActivity(civData, regions);
@@ -17,6 +17,7 @@ void generateWorldCivilizations(
   }
   nameRegions(regions);
   generateImportance(regions);
+  nameContinents(continents, regions);
 }
 
 void generateReligions(
@@ -262,7 +263,7 @@ void generateEconomicActivity(CivilizationData &civData,
         std::to_string(region->economicActivity) + " and development " +
         std::to_string(region->developmentFactor) + " and population " +
         std::to_string(region->worldPopulationShare));
-    
+
     worldEconomicActivitySum += region->economicActivity;
   }
   for (auto &region : regions) {
@@ -293,6 +294,22 @@ void nameRegions(std::vector<std::shared_ptr<Region>> &regions) {
     }
     auto language = culture->language;
     region->name = language->generateAreaName("");
+  }
+}
+
+void nameContinents(std::vector<ScenarioContinent> &continents,
+                    std::vector<std::shared_ptr<Region>> &regions) {
+  // take all continents and name them by taking their dominant cultures
+  // language and generating a name
+  for (auto &continent : continents) {
+    auto ID = continent.regions[0]->ID;
+    auto culture = regions[ID]->getPrimaryCulture();
+    if (culture == nullptr) {
+      continue;
+    }
+    auto language = culture->language;
+    continent.name = language->generateAreaName("");
+    continent.adjective = language->getAdjectiveForm(continent.name);
   }
 }
 

@@ -21,7 +21,9 @@ void buildings(const std::string &path,
                const std::vector<std::shared_ptr<Region>> &regions,
                const Fwg::Gfx::Bitmap &heightMap);
 void continents(const std::string &path,
-                const std::vector<Fwg::Continent> &continents);
+                const std::vector<ScenarioContinent> &continents,
+                const std::string &hoiPath,
+                const std::string &localisationPath);
 void definition(const std::string &path,
                 const std::vector<std::shared_ptr<GameProvince>> &provinces);
 void rocketSites(const std::string &path,

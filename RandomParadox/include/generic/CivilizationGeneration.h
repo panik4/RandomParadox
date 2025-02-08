@@ -4,6 +4,7 @@
 #include "NameGenerator.h"
 #include "Religion.h"
 #include "generic/GameRegion.h"
+#include "generic/ScenarioContinent.h"
 
 namespace Scenario::Civilization {
 
@@ -23,7 +24,7 @@ struct CivilizationData {
 void generateWorldCivilizations(
     std::vector<std::shared_ptr<Region>> &regions,
     std::vector<std::shared_ptr<GameProvince>> &gameProvinces,
-    CivilizationData &civData);
+    CivilizationData &civData, std::vector<ScenarioContinent> &continents);
 void generateReligions(
     CivilizationData &civData,
     std::vector<std::shared_ptr<GameProvince>> &gameProvinces);
@@ -42,4 +43,7 @@ void generateEconomicActivity(CivilizationData &civData,
 void generateImportance(std::vector<std::shared_ptr<Region>> &regions);
 // after having generated cultures, generate names for the regions
 void nameRegions(std::vector<std::shared_ptr<Region>> &regions);
+// after having generated cultures, generate names for the continents
+void nameContinents(std::vector<ScenarioContinent> &continents,
+                    std::vector<std::shared_ptr<Region>> &regions);
 } // namespace Scenario::Civilization
