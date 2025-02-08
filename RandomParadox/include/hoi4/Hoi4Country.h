@@ -49,7 +49,7 @@ public:
   // navy
   double navalFocus;
   std::map<NavalHullType, std::vector<TechEra>> hullTech;
-  std::map<TechEra, std::vector<Module>> navyTechs;
+  std::map<TechEra, std::vector<Technology>> navyTechs;
   std::map<ShipClassType, std::vector<ShipClass>> shipClasses;
   std::vector<std::shared_ptr<Ship>> ships;
   std::vector<Fleet> fleets;
@@ -60,12 +60,15 @@ public:
   std::vector<doctrineType> doctrines;
   std::vector<int> units;
   std::vector<int> unitCount;
-  std::map<TechEra, std::vector<Module>> armyTechs;
+  std::map<TechEra, std::vector<Technology>> infantryTechs;
+  std::map<TechEra, std::vector<Technology>> armorTechs;
 
   // airforce
   double airFocus;
+  std::map<TechEra, std::vector<Technology>> airTechs;
 
   // industry
+  std::map<TechEra, std::vector<Technology>> industryElectronicTechs;
   int civilianIndustry;
   int armsFactories;
   int dockyards;

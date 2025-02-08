@@ -573,6 +573,13 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
                    "hoi4//history//navy//baseVariantFile.txt");
   const auto navyTechFile = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                          "hoi4//history//navy//navyTechs.txt");
+  const auto airTemplateFile =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//history//airforce//baseVariantFile.txt");
+  const auto armorTemplateFile =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//history//army//baseVariantFile.txt");
+
   for (const auto &country : countries) {
     auto tempPath = path + country->tag + " - " + country->name + ".txt";
     auto countryText{content};
@@ -580,6 +587,32 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
     pU::Scenario::replaceOccurences(
         countryText, "templateCapital",
         std::to_string(country->capitalRegionID + 1));
+
+    // technologies
+    std::string techs = "";
+    for (auto &techEra : country->infantryTechs) {
+      for (auto &tech : techEra.second) {
+        techs += tech.name + "= 1\n\t";
+      }
+    }
+    for (auto &techEra : country->industryElectronicTechs) {
+      for (auto &tech : techEra.second) {
+        techs += tech.name + "= 1\n\t";
+      }
+    }
+    // replace
+    pU::Scenario::replaceOccurences(countryText, "templateGenericTechBlock",
+                                    techs);
+
+    // variants for armor, airforce and navy are predetermined strings, as their
+    // assembly is rather difficult due to vanilla/dlc variations
+
+    pU::Scenario::replaceOccurences(countryText, "templateNavalBlock",
+                                    navyTemplateFile);
+    pU::Scenario::replaceOccurences(countryText, "templateAirBlock",
+                                    airTemplateFile);
+    pU::Scenario::replaceOccurences(countryText, "templateArmorBlock",
+                                    armorTemplateFile);
 
     pU::Scenario::replaceOccurences(countryText, "templateResearchSlots",
                                     std::to_string(country->researchSlots));
@@ -590,9 +623,6 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
                                     std::to_string(country->stability));
     pU::Scenario::replaceOccurences(countryText, "templateWarSupport",
                                     std::to_string(country->warSupport));
-
-    pU::Scenario::replaceOccurences(countryText, "templateNavalBlock",
-                                    navyTemplateFile);
     pU::Scenario::replaceOccurences(countryText, "templateTag", country->tag);
     pU::Scenario::replaceOccurences(countryText, "templateParty",
                                     country->ideology);
@@ -610,6 +640,51 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
                                     std::to_string(country->parties[2]));
     pU::Scenario::replaceOccurences(countryText, "templateNeuPop",
                                     std::to_string(country->parties[3]));
+
+    // to map from bba techs to vanilla air techs
+    std::map<std::string, std::string> airTechMap{
+        {"bba_early_transport_plane", "early_transport_plane"},
+        {"iw_small_airframe", "early_fighter"},
+        {"iw_medium_airframe", "early_bomber"},
+        {"iw_large_airframe", "strategic_bomber1"},
+        {"air_torpedoe_1", "naval_bomber1"},
+        {"photo_reconnaisance", "scout_plane1"},
+        {"early_bombs", "CAS1"}};
+    std::string vanillaAirTechs = "";
+    std::string bbaAirTechs = "";
+    for (auto &techEra : country->airTechs) {
+      for (auto &tech : techEra.second) {
+        bbaAirTechs += tech.name + " = 1\n\t\t\t";
+        if (airTechMap.find(tech.name) != airTechMap.end()) {
+          vanillaAirTechs += airTechMap[tech.name] + " = 1\n\t\t\t";
+        }
+      }
+    }
+    pU::Scenario::replaceOccurences(countryText, "templateVanillaAirTechs",
+                                    vanillaAirTechs);
+    pU::Scenario::replaceOccurences(countryText, "templateBbaAirTechs",
+                                    bbaAirTechs);
+
+    // same for armor
+    std::map<std::string, std::string> armorTechMap{
+        {"gwtank_chassis", "gwtank"},
+        {"basic_light_tank_chassis", "basic_light_tank"},
+        {"basic_heavy_tank_chassis", "basic_heavy_tank"},
+        {"improved_light_tank_chassis", "improved_light_tank"}};
+    std::string vanillaArmorTechs = "";
+    std::string nsbArmorTechs = "";
+    for (auto &techEra : country->armorTechs) {
+      for (auto &tech : techEra.second) {
+        nsbArmorTechs += tech.name + " = 1\n\t\t";
+        if (armorTechMap.find(tech.name) != armorTechMap.end()) {
+          vanillaArmorTechs += armorTechMap[tech.name] + " = 1\n\t\t";
+        }
+      }
+    }
+    pU::Scenario::replaceOccurences(countryText, "templateVanillaArmorTechs",
+                                    vanillaArmorTechs);
+    pU::Scenario::replaceOccurences(countryText, "templateNsbArmorTechs",
+                                    nsbArmorTechs);
 
     // map from shipclassType to string
     std::map<ShipClassType, std::string> shipClassTypeMap{
@@ -836,6 +911,12 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     auto tempPath = path + country->tag + "_1936.txt";
     pU::writeFile(path + country->tag + "_1936.txt", unitFile);
     pU::writeFile(path + country->tag + "_1936_nsb.txt", unitFile);
+
+    // ############# AIRFORCES #############
+    tempPath = path + country->tag + "_1936_air.txt";
+    pU::writeFile(tempPath, "");
+    tempPath = path + country->tag + "_1936_air_bba.txt";
+    pU::writeFile(tempPath, "");
 
     // ############# NAVIES #############
     const auto baseNavyFile =

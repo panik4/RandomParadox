@@ -2,15 +2,15 @@
 
 namespace Scenario::Hoi4 {
 
-Module getBestSuitedModule(
-    const std::map<TechEra, std::vector<Module>> &availableModules,
+Technology getBestSuitedModule(
+    const std::map<TechEra, std::vector<Technology>> &availableModules,
     TechEra era) {
-  return Module();
+  return Technology();
 }
 
-std::string
-getBestSuitedGun(const std::map<TechEra, std::vector<Module>> &availableModules,
-                 TechEra era, const ShipClass &shipClass) {
+std::string getBestSuitedGun(
+    const std::map<TechEra, std::vector<Technology>> &availableModules,
+    TechEra era, const ShipClass &shipClass) {
 
   if (shipClass.type == ShipClassType::Destroyer) {
     if (shipClass.era == TechEra::Buildup) {
@@ -87,8 +87,9 @@ getBestSuitedGun(const std::map<TechEra, std::vector<Module>> &availableModules,
 }
 
 std::string getBestSuitedAntiAir(
-    const std::map<TechEra, std::vector<Module>> &availableModules, TechEra era,
-    const std::map<TechEra, std::vector<Module>> &availableArmyTech) {
+    const std::map<TechEra, std::vector<Technology>> &availableModules,
+    TechEra era,
+    const std::map<TechEra, std::vector<Technology>> &availableArmyTech) {
   if (era == TechEra::Buildup) {
     if (availableArmyTech.find(TechEra::Buildup) != availableArmyTech.end()) {
       for (auto module : availableArmyTech.at(TechEra::Buildup)) {
@@ -111,8 +112,8 @@ std::string getBestSuitedAntiAir(
 }
 
 std::string findBestSuitedFireControlSystem(
-    const std::map<TechEra, std::vector<Module>> &availableModules, TechEra era,
-    const ShipClass &shipClass) {
+    const std::map<TechEra, std::vector<Technology>> &availableModules,
+    TechEra era, const ShipClass &shipClass) {
   if (era == TechEra::Buildup) {
     if (availableModules.find(TechEra::Buildup) != availableModules.end()) {
       for (auto module : availableModules.at(TechEra::Buildup)) {
@@ -168,8 +169,8 @@ std::string findBestSuitedEngine(TechEra era, const ShipClass &shipClass) {
 }
 
 std::string findBestSuitedTorpedoLauncher(
-    const std::map<TechEra, std::vector<Module>> &availableModules, TechEra era,
-    const ShipClass &shipClass) {
+    const std::map<TechEra, std::vector<Technology>> &availableModules,
+    TechEra era, const ShipClass &shipClass) {
   // we always have the torpedo equivalent of the submarine hull tech already
   if (shipClass.type == ShipClassType::Submarine) {
     if (era == TechEra::Buildup) {
@@ -203,7 +204,7 @@ std::string findBestSuitedTorpedoLauncher(
 }
 
 std::string findBestSuitedDepthCharges(
-    const std::map<TechEra, std::vector<Module>> &availableModules,
+    const std::map<TechEra, std::vector<Technology>> &availableModules,
     TechEra era) {
   if (era == TechEra::Buildup) {
     if (availableModules.find(TechEra::Buildup) != availableModules.end()) {
@@ -227,8 +228,8 @@ std::string findBestSuitedDepthCharges(
 }
 
 std::string findBestSuitedArmor(
-    const std::map<TechEra, std::vector<Module>> &availableModules, TechEra era,
-    const ShipClass &shipClass) {
+    const std::map<TechEra, std::vector<Technology>> &availableModules,
+    TechEra era, const ShipClass &shipClass) {
   if (era == TechEra::Buildup) {
     if (availableModules.find(TechEra::Buildup) != availableModules.end()) {
       for (auto module : availableModules.at(TechEra::Buildup)) {
@@ -281,7 +282,7 @@ std::string findBestSuitedArmor(
 }
 
 std::string findBestSuitedSecondaryGun(
-    const std::map<TechEra, std::vector<Module>> &availableModules,
+    const std::map<TechEra, std::vector<Technology>> &availableModules,
     TechEra era) {
   if (era == TechEra::Buildup) {
     if (availableModules.find(TechEra::Buildup) != availableModules.end()) {
@@ -305,8 +306,8 @@ std::string findBestSuitedSecondaryGun(
 }
 
 std::string findBestSuitedMineLayer(
-    const std::map<TechEra, std::vector<Module>> &availableModules, TechEra era,
-    const ShipClass &shipClass) {
+    const std::map<TechEra, std::vector<Technology>> &availableModules,
+    TechEra era, const ShipClass &shipClass) {
 
   if (shipClass.type == ShipClassType::Submarine) {
     if (availableModules.find(TechEra::Buildup) != availableModules.end()) {
@@ -332,8 +333,9 @@ std::string findBestSuitedMineLayer(
 }
 
 std::string selectRandomCustomSlot(
-    const std::map<TechEra, std::vector<Module>> &availableModules, TechEra era,
-    const std::map<TechEra, std::vector<Module>> &availableArmyTech,
+    const std::map<TechEra, std::vector<Technology>> &availableModules,
+    TechEra era,
+    const std::map<TechEra, std::vector<Technology>> &availableArmyTech,
     ShipClass &shipClass, bool aaAllowed, bool gunAllowed,
     bool rapidFireAllowed, bool secondaryBatteryAllowed, bool minesAllowed,
     bool torpedosAllowed, bool depthChargesAllowed, bool deckArmorAllowed,
@@ -380,8 +382,8 @@ std::string selectRandomCustomSlot(
 
 void addShipClassModules(
     ShipClass &shipClass,
-    const std::map<TechEra, std::vector<Module>> &availableModuleTech,
-    const std::map<TechEra, std::vector<Module>> &availableArmyTech) {
+    const std::map<TechEra, std::vector<Technology>> &availableModuleTech,
+    const std::map<TechEra, std::vector<Technology>> &availableArmyTech) {
 
   // all ships have an engine
   // fixed_ship_engine_slot
@@ -478,10 +480,15 @@ void addShipClassModules(
     shipClass.mtgModules["front_1_custom_slot"] = selectRandomCustomSlot(
         availableModuleTech, shipClass.era, availableArmyTech, shipClass, true,
         false, false, false, false, false, false, true, true);
-    // mid_1_custom_slot
+    // mid_1_custom_slot, only allow deck armor if we don't have it in the
+    // front_custom_slot
     shipClass.mtgModules["mid_1_custom_slot"] = selectRandomCustomSlot(
         availableModuleTech, shipClass.era, availableArmyTech, shipClass, false,
-        false, false, true, false, false, false, true, true);
+        false, false, true, false, false, false,
+        shipClass.mtgModules["front_1_custom_slot"] == "ship_armor_carrier_deck"
+            ? false
+            : true,
+        true);
     // fixed_ship_deck_slot_1 = ship_deck_space
     shipClass.mtgModules["fixed_ship_deck_slot_1"] = "ship_deck_space";
     // fixed_ship_deck_slot_2 = ship_deck_space
