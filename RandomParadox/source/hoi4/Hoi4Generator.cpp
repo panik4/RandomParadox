@@ -1247,10 +1247,6 @@ void Generator::generateCountryNavies() {
     // determine the total tonnage by taking the naval focus times the countries
     // naval industry
     auto totalTonnage = country->navalFocus * country->dockyards * 100.0;
-    // print complete calc of totalTonnage
-    std::cout << "Total Tonnage: " << totalTonnage
-              << "naval focus: " << country->navalFocus << " dockyars"
-              << country->dockyards << std::endl;
 
     // calculate amount of convoys based on tonnage
     country->convoyAmount = totalTonnage / 500;

@@ -62,9 +62,14 @@ struct BypassGrouping {
   std::vector<Bypass> bypasses;
 };
 
+struct AiModifier {
+  std::string name;
+};
+
 class Goal {
 public:
   std::string name = "";
+  std::string uniqueName = "";
   // to determine ordering of goals
   int priority = 999;
   GoalType type = GoalType::Undefined;
@@ -73,16 +78,20 @@ public:
   std::vector<SelectorGrouping> selectors;
   std::vector<EffectGrouping> effects;
   std::vector<AvailabilityGrouping> availabilities;
+  std::vector<AiModifier> aiModifiers;
   std::vector<BypassGrouping> bypasses;
   std::shared_ptr<Region> regionTarget;
   std::shared_ptr<Hoi4Country> countryTarget;
+  std::vector<std::shared_ptr<Goal>> prerequisitesGoals;
+  std::vector<std::shared_ptr<Goal>> successorsGoals;
+  int xPosition = 0;
+  int yPosition = 0;
 };
 
 enum class GroupingType { Undefined, Alternatives, Successors };
 struct AlternativeGoalGrouping {
 
-	// std::vector<Goal> goals;
-
+  // std::vector<Goal> goals;
 };
 
 } // namespace Scenario::Hoi4

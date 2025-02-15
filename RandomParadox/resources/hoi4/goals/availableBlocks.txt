@@ -3,3 +3,16 @@ is_root_ideology,
 				has_government = templateIdeology
 			}
 ;
+is_controlled_by_root,
+			templateStateID = {
+				is_controlled_by = ROOT
+			}
+;
+faction_joineable,
+			is_in_faction = no
+			not = { has_war_with = templateTargetTag }
+;
+faction_inviteable,
+			is_in_faction = no
+			not = { has_war_with = templateTargetTag }
+;

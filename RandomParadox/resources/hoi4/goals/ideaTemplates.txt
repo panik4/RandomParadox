@@ -28,7 +28,7 @@ immigration_bonus,
 			removal_cost = -1
 			
 			modifier = {
-				weekly_manpower = templateEffect
+				weekly_manpower = templateEffect0
 			}
 		}
 ;

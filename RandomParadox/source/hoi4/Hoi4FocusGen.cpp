@@ -257,8 +257,8 @@ addAvailableBlocks(std::shared_ptr<Hoi4Country> country,
         // replace the target region ID
         if (goal->regionTarget) {
           Fwg::Parsing::replaceOccurences(
-              blockText, "templateRegionID",
-              std::to_string(goal->regionTarget->ID));
+              blockText, "templateStateID",
+              std::to_string(goal->regionTarget->ID + 1));
         }
         // replace the ideology
         Fwg::Parsing::replaceOccurences(blockText, "templateIdeology",
@@ -299,8 +299,8 @@ addBypassBlocks(std::shared_ptr<Hoi4Country> country,
         // replace the target region ID
         if (goal->regionTarget) {
           Fwg::Parsing::replaceOccurences(
-              blockText, "templateRegionID",
-              std::to_string(goal->regionTarget->ID));
+              blockText, "templateStateID",
+              std::to_string(goal->regionTarget->ID + 1));
         }
         // replace the ideology
         Fwg::Parsing::replaceOccurences(blockText, "templateIdeology",
@@ -309,12 +309,42 @@ addBypassBlocks(std::shared_ptr<Hoi4Country> country,
         bypassBlock.append(blockText);
       }
     }
-
   }
   if (goal->bypasses.size() > 1) {
     bypassBlock += "\n\t\t}\n";
   }
   return bypassBlock;
+}
+
+std::string addAiModifierBlocks(std::shared_ptr<Hoi4Country> country,
+                    std::shared_ptr<Goal> goal,
+                    const std::map<std::string, std::string> &aiModifierMap) {
+  std::string aiModifierBlock = "";
+  for (auto &aiModifier : goal->aiModifiers) {
+    if (aiModifierMap.find(aiModifier.name) != aiModifierMap.end()) {
+      auto blockText = aiModifierMap.at(aiModifier.name);
+
+      // replace the country tag
+      Fwg::Parsing::replaceOccurences(blockText, "templateTag", country->tag);
+      // replace the target country tag
+      if (goal->countryTarget) {
+        Fwg::Parsing::replaceOccurences(blockText, "templateTargetTag",
+                                        goal->countryTarget->tag);
+      }
+      // replace the target region ID
+      if (goal->regionTarget) {
+        Fwg::Parsing::replaceOccurences(
+            blockText, "templateStateID",
+            std::to_string(goal->regionTarget->ID + 1));
+      }
+      // replace the ideology
+      Fwg::Parsing::replaceOccurences(blockText, "templateIdeology",
+                                      country->ideology);
+
+      aiModifierBlock.append(blockText);
+    }
+  }
+  return aiModifierBlock;
 }
 
 void evaluateCountryGoals(
@@ -339,7 +369,11 @@ void evaluateCountryGoals(
   // get the bypass file
   const auto bypassBlocksFile = Fwg::Parsing::readFile(
       Fwg::Cfg::Values().resourcePath + "hoi4/goals/bypassBlocks.txt");
+  // get the ai modifier file
+  const auto aiModifierFile = Fwg::Parsing::readFile(
+      Fwg::Cfg::Values().resourcePath + "hoi4/goals/aiModifiers.txt");
 
+  Fwg::Utils::Logging::logLineLevel(5, "HOI4: Parsing availableMap");
   std::map<std::string, std::string> availableMap;
   auto availBlocks = Fwg::Parsing::getTokens(availableBlocksFile, ';');
   for (auto &avail : availBlocks) {
@@ -351,6 +385,7 @@ void evaluateCountryGoals(
     availableMap[parts[0]] = parts[1];
   }
 
+  Fwg::Utils::Logging::logLineLevel(5, "HOI4: Parsing bypassMap");
   std::map<std::string, std::string> bypassMap;
   auto bypassBlocks = Fwg::Parsing::getTokens(bypassBlocksFile, ';');
   for (auto &bypass : bypassBlocks) {
@@ -362,6 +397,19 @@ void evaluateCountryGoals(
     bypassMap[parts[0]] = parts[1];
   }
 
+  Fwg::Utils::Logging::logLineLevel(5, "HOI4: Parsing aiModifierMap");
+  std::map<std::string, std::string> aiModifierMap;
+  auto aiModifierBlocks = Fwg::Parsing::getTokens(aiModifierFile, ';');
+  for (auto &aiModifier : aiModifierBlocks) {
+    if (aiModifier.size() < 10)
+      continue;
+    auto parts = Fwg::Parsing::getTokens(aiModifier, ',');
+    // replace any special characters in key
+    Fwg::Parsing::replaceOccurences(parts[0], "\n", "");
+    aiModifierMap[parts[0]] = parts[1];
+  }
+
+  Fwg::Utils::Logging::logLineLevel(5, "HOI4: Tokenizing effects");
   // tokenize effects file by ;
   auto effects = Fwg::Parsing::getTokens(effectDetailsFile, ';');
   // contains the key and the value is the effect which must be written into the
@@ -375,6 +423,7 @@ void evaluateCountryGoals(
     Fwg::Parsing::replaceOccurences(parts[0], "\n", "");
     effectMap[parts[0]] = parts[1];
   }
+  Fwg::Utils::Logging::logLineLevel(5, "HOI4: Tokenizing ideas");
   std::map<std::string, std::string> ideaMap;
   auto ideaTemplates = Fwg::Parsing::getTokens(ideaTemplateFile, ';');
   for (auto &idea : ideaTemplates) {
@@ -389,7 +438,10 @@ void evaluateCountryGoals(
   GoalGeneration goalGen;
   goalGen.parseGoals(Fwg::Cfg::Values().resourcePath + "hoi4/goals/goals.txt");
   goalGen.evaluateGoals(hoi4Countries);
+  goalGen.structureGoals(hoi4Countries);
   for (auto &countryGoals : goalGen.goalsByCountry) {
+    Fwg::Utils::Logging::logLineLevel(
+        5, "Evaluating country goals for country: ", countryGoals.first);
     auto &country = countryGoals.first;
     int idCounter = 0;
     std::string ideaBase = "ideas = {\n\tcountry = {\n";
@@ -402,32 +454,37 @@ void evaluateCountryGoals(
     for (auto &goal : countryGoals.second) {
       auto focusBase = focusBaseFile;
       // determine the name of the focus
-      Fwg::Parsing::replaceOccurences(focusBase, "templateFocusId",
-                                      countryGoals.first->tag + "_" +
-                                          goal->name +
-                                          std::to_string(idCounter++));
-      // TODO prerequisites
-      Fwg::Parsing::replaceOccurences(focusBase, "templatePrerequisite", "");
+      Fwg::Parsing::replaceOccurences(focusBase, "templateFocusId", goal->uniqueName);
+      std::string prereqBlock = "";
+      for (auto &prereq : goal->prerequisitesGoals) {
+        prereqBlock.append("prerequisite = { focus = " + prereq->uniqueName +
+                           " }\n\t\t");
+      }
+      Fwg::Parsing::replaceOccurences(focusBase, "templatePrerequisite",
+                                      prereqBlock);
 
       // TODO positions
+
       Fwg::Parsing::replaceOccurences(focusBase, "templateXpos",
-                                      std::to_string(2 * idCounter));
+                                      std::to_string(goal->xPosition));
       Fwg::Parsing::replaceOccurences(focusBase, "templateYpos",
-                                      std::to_string(2));
+                                      std::to_string(goal->yPosition));
 
       for (auto &effectGroup : goal->effects) {
         std::string effectGroupText = "";
         for (auto &effect : effectGroup.effects) {
           if (effectMap.find(effect.name) != effectMap.end()) {
             auto focusEffectText = effectMap.at(effect.name);
+            for (auto i = 0; i < effect.parameters.size(); i++) {
+              Fwg::Parsing::replaceOccurences(
+                  focusEffectText, "templateEffect" + std::to_string(i),
+                  effect.parameters[i]);
+            }
             if (goal->scope == GoalScope::Region) {
               // we need to replace the region name
               Fwg::Parsing::replaceOccurences(
                   focusEffectText, "templateStateID",
                   std::to_string(goal->regionTarget->ID + 1));
-              // and the templateEffect by the param
-              Fwg::Parsing::replaceOccurences(focusEffectText, "templateEffect",
-                                              effect.parameters[0]);
               effectGroupText.append(focusEffectText);
             } else {
               // in case of ideas, we have an indirection: the idea must first
@@ -439,12 +496,15 @@ void evaluateCountryGoals(
                 // get the idea template
                 auto ideaTemplate = ideaMap.at(effect.name);
                 std::string ideaName = effect.name + "_" + country->tag + "_" +
-                                       std::to_string(idCounter);
+                                       std::to_string(idCounter++);
                 Fwg::Parsing::replaceOccurences(ideaTemplate,
                                                 "templateIdeaName", ideaName);
-                Fwg::Parsing::replaceOccurences(ideaTemplate, "templateEffect",
-                                                effect.parameters[0]);
 
+                for (auto i = 0; i < effect.parameters.size(); i++) {
+                  Fwg::Parsing::replaceOccurences(
+                      ideaTemplate, "templateEffect" + std::to_string(i),
+                      effect.parameters[i]);
+                }
                 ideaBase.append(ideaTemplate);
                 Fwg::Parsing::replaceOccurence(focusEffectText, effect.name,
                                                ideaName);
@@ -454,9 +514,6 @@ void evaluateCountryGoals(
                 // we need to replace the country tag
                 Fwg::Parsing::replaceOccurences(focusEffectText, "templateTag",
                                                 country->tag);
-                // and the templateEffect by the param
-                Fwg::Parsing::replaceOccurences(
-                    focusEffectText, "templateEffect", effect.parameters[0]);
                 // if the text contains templateTarget, we need to replace it by
                 // the goal target
                 if (focusEffectText.contains("templateTarget")) {
@@ -464,9 +521,15 @@ void evaluateCountryGoals(
                                                   "templateTarget",
                                                   goal->countryTarget->tag);
                 }
+                for (auto i = 0; i < effect.parameters.size(); i++) {
+                  Fwg::Parsing::replaceOccurences(
+                      focusEffectText, "templateEffect" + std::to_string(i),
+                      effect.parameters[i]);
+                }
                 effectGroupText.append(focusEffectText);
               }
             }
+
           }
         }
         // replace the effectGroupText in the focusBase
@@ -478,6 +541,11 @@ void evaluateCountryGoals(
         auto bypassBlock = addBypassBlocks(country, goal, bypassMap);
         Fwg::Parsing::replaceOccurences(focusBase, "templateBypass",
                                         bypassBlock);
+        auto aiModifierBlock =
+            addAiModifierBlocks(country, goal, aiModifierMap);
+        Fwg::Parsing::replaceOccurences(focusBase, "templateAiModifiers",
+                                        aiModifierBlock);
+
       }
       focusList.append(focusBase);
     }
