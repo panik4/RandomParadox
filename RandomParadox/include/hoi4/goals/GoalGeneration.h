@@ -32,9 +32,14 @@ public:
   void constructGoal(std::shared_ptr<Hoi4Country> sourceCountry,
                      std::shared_ptr<Scenario::Hoi4::Region> targetRegion,
                      std::shared_ptr<Scenario::Hoi4::Hoi4Country> targetCountry,
-                     const Goal &goal);
+                     const Goal &goal, int &idCounter);
 
   void evaluateGoals(std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries);
+  void structureGoals(std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries);
+  void buildGoalTree(std::shared_ptr<Goal> currentGoal,
+                     const std::vector<std::shared_ptr<Goal>> &goals,
+                     std::set<std::shared_ptr<Goal>> &usedGoals,
+                     std::mt19937 &gen, int &xOffset, int depth);
 };
 
 } // namespace Scenario::Hoi4

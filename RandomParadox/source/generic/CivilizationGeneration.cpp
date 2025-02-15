@@ -257,13 +257,6 @@ void generateEconomicActivity(CivilizationData &civData,
   for (auto &region : regions) {
     region->economicActivity =
         region->developmentFactor * region->worldPopulationShare;
-    // print calculation
-    Fwg::Utils::Logging::logLine(
-        "Region " + region->name + " has economic activity " +
-        std::to_string(region->economicActivity) + " and development " +
-        std::to_string(region->developmentFactor) + " and population " +
-        std::to_string(region->worldPopulationShare));
-
     worldEconomicActivitySum += region->economicActivity;
   }
   for (auto &region : regions) {
