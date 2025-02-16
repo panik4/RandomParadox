@@ -82,6 +82,7 @@ public:
   std::vector<BypassGrouping> bypasses;
   std::shared_ptr<Region> regionTarget;
   std::shared_ptr<Hoi4Country> countryTarget;
+  std::shared_ptr<Goal> rootGoal;
   std::vector<std::shared_ptr<Goal>> prerequisitesGoals;
   std::vector<std::shared_ptr<Goal>> successorsGoals;
   int xPosition = 0;
