@@ -316,7 +316,8 @@ addBypassBlocks(std::shared_ptr<Hoi4Country> country,
   return bypassBlock;
 }
 
-std::string addAiModifierBlocks(std::shared_ptr<Hoi4Country> country,
+std::string
+addAiModifierBlocks(std::shared_ptr<Hoi4Country> country,
                     std::shared_ptr<Goal> goal,
                     const std::map<std::string, std::string> &aiModifierMap) {
   std::string aiModifierBlock = "";
@@ -454,7 +455,8 @@ void evaluateCountryGoals(
     for (auto &goal : countryGoals.second) {
       auto focusBase = focusBaseFile;
       // determine the name of the focus
-      Fwg::Parsing::replaceOccurences(focusBase, "templateFocusId", goal->uniqueName);
+      Fwg::Parsing::replaceOccurences(focusBase, "templateFocusId",
+                                      goal->uniqueName);
       std::string prereqBlock = "";
       for (auto &prereq : goal->prerequisitesGoals) {
         prereqBlock.append("prerequisite = { focus = " + prereq->uniqueName +
@@ -469,6 +471,13 @@ void evaluateCountryGoals(
                                       std::to_string(goal->xPosition));
       Fwg::Parsing::replaceOccurences(focusBase, "templateYpos",
                                       std::to_string(goal->yPosition));
+      if (goal->rootGoal != nullptr) {
+        Fwg::Parsing::replaceOccurences(focusBase, "templateRootGoal",
+                                        "relative_position_id = " +
+                                            goal->rootGoal->uniqueName);
+      } else {
+        Fwg::Parsing::replaceOccurences(focusBase, "templateRootGoal", "");
+      }
 
       for (auto &effectGroup : goal->effects) {
         std::string effectGroupText = "";
@@ -529,7 +538,6 @@ void evaluateCountryGoals(
                 effectGroupText.append(focusEffectText);
               }
             }
-
           }
         }
         // replace the effectGroupText in the focusBase
@@ -545,7 +553,6 @@ void evaluateCountryGoals(
             addAiModifierBlocks(country, goal, aiModifierMap);
         Fwg::Parsing::replaceOccurences(focusBase, "templateAiModifiers",
                                         aiModifierBlock);
-
       }
       focusList.append(focusBase);
     }

@@ -4,6 +4,7 @@
 		templatePrerequisite
 		x = templateXpos
 		y = templateYpos
+		templateRootGoal
 		cost = 1
 
 		search_filters = { FOCUS_FILTER_INDUSTRY  }

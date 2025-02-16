@@ -36,10 +36,16 @@ public:
 
   void evaluateGoals(std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries);
   void structureGoals(std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries);
-  void buildGoalTree(std::shared_ptr<Goal> currentGoal,
-                     const std::vector<std::shared_ptr<Goal>> &goals,
-                     std::set<std::shared_ptr<Goal>> &usedGoals,
-                     std::mt19937 &gen, int &xOffset, int depth);
+  std::shared_ptr<Goal>
+  findSecondParent(const std::vector<std::shared_ptr<Goal>> &frontier,
+                   const std::shared_ptr<Goal> &primaryParent,
+                   const std::set<std::shared_ptr<Goal>> &usedGoals,
+                   int currentX);
+  //void structureGoals(std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries);
+  //void buildGoalTree(std::shared_ptr<Goal> currentGoal,
+  //                   const std::vector<std::shared_ptr<Goal>> &goals,
+  //                   std::set<std::shared_ptr<Goal>> &usedGoals,
+  //                   std::mt19937 &gen, int &xOffset, int depth);
 };
 
 } // namespace Scenario::Hoi4

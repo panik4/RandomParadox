@@ -282,122 +282,212 @@ void Scenario::Hoi4::GoalGeneration::evaluateGoals(
   }
 }
 
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <random>
+#include <set>
+#include <unordered_map>
+#include <vector>
+
+struct Position {
+  int x;
+  int y;
+  bool operator<(const Position &other) const {
+    return (y == other.y) ? (x < other.x) : (y < other.y);
+  }
+};
+
 void Scenario::Hoi4::GoalGeneration::structureGoals(
     std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries) {
 
   std::random_device rd;
   std::mt19937 gen(rd());
 
-  // X offset for categories
-  int totalXOffset = 0;
-
   for (auto &countryGoals : goalsByCountry) {
-    // Assign random priorities if needed
+    int totalXOffset = 5;
+
+    // Assign random priorities
     for (auto &goal : countryGoals.second) {
       if (goal->priority == 999) {
         goal->priority = std::uniform_int_distribution<>(100, 999)(gen);
       }
     }
 
-    // Sort goals by category
+    // Group goals by type
     std::map<GoalType, std::vector<std::shared_ptr<Goal>>> goalsByType;
     for (auto &goal : countryGoals.second) {
       goalsByType[goal->type].push_back(goal);
     }
 
-    // Structure goals for each category
+    // Handle each category
     for (auto &[type, goals] : goalsByType) {
-
-      // Sort goals by priority (lowest first)
+      // Sort goals by priority
       std::sort(goals.begin(), goals.end(), [](const auto &a, const auto &b) {
         return a->priority < b->priority;
       });
 
       std::set<std::shared_ptr<Goal>> usedGoals;
+      std::vector<std::shared_ptr<Goal>> frontier;
+      std::set<Position> usedPositions;
 
-      // Find roots (highest priority)
-      std::vector<std::shared_ptr<Goal>> roots;
-      for (auto &goal : goals) {
-        if (goal->priority == goals.front()->priority) {
-          roots.push_back(goal);
-          usedGoals.insert(goal);
+      // Place root
+      auto root = goals.front();
+      root->xPosition = 0;
+      root->yPosition = 0;
+      // root->rootGoal = root;
+      usedPositions.insert({root->xPosition, root->yPosition});
+
+      usedGoals.insert(root);
+      frontier.push_back(root);
+
+      // Build tree
+      for (size_t i = 1; i < goals.size(); ++i) {
+        auto currentGoal = goals[i];
+
+        // Select random parent from frontier
+        std::uniform_int_distribution<> dist(
+            0, static_cast<int>(frontier.size()) - 1);
+        int parentIndex = dist(gen);
+        auto parent = frontier[parentIndex];
+
+        // Positioning
+        int targetX = parent->xPosition;
+        int targetY = parent->yPosition + 1;
+
+        // Collision avoidance
+        while (usedPositions.count({targetX, targetY})) {
+          if (targetX < parent->xPosition) {
+            targetX -= 2;
+          } else {
+            targetX += 2;
+          }
+        }
+
+        // Set position
+        currentGoal->xPosition = targetX;
+        currentGoal->yPosition = targetY;
+        usedPositions.insert({targetX, targetY});
+
+        // Connect goals
+        parent->successorsGoals.push_back(currentGoal);
+        currentGoal->prerequisitesGoals.push_back(parent);
+        currentGoal->rootGoal = root;
+
+        usedGoals.insert(currentGoal);
+
+        // Second Parent Possibility
+        if (std::uniform_int_distribution<>(1, 3)(gen) == 1) { // 33% chance
+          auto secondParent =
+              findSecondParent(frontier, parent, usedGoals, targetX);
+          if (secondParent) {
+            secondParent->successorsGoals.push_back(currentGoal);
+            currentGoal->prerequisitesGoals.push_back(secondParent);
+          }
+        }
+        if (currentGoal->successorsGoals.size() < 2) {
+          frontier.push_back(currentGoal);
+        }
+        // if we have a second parent, make sure our y is also larger than
+        // theirs
+        if (currentGoal->prerequisitesGoals.size() == 2) {
+          currentGoal->yPosition =
+              std::max<int>(currentGoal->prerequisitesGoals[0]->yPosition,
+                            currentGoal->prerequisitesGoals[1]->yPosition) +
+              1;
+        }
+
+        // Remove parent if full
+        if (parent->successorsGoals.size() >= 2) {
+          frontier.erase(frontier.begin() + parentIndex);
         }
       }
+      // determine width of tree
+      int minX = 0;
+      int maxX = 0;
+      for (auto &goal : goals) {
+        minX = std::min<int>(minX, goal->xPosition);
+        maxX = std::max<int>(maxX, goal->xPosition);
+      }
+      // center root
+      root->xPosition = (maxX - minX) / 2 + totalXOffset;
 
-      // Position roots and build their trees
-      for (auto &root : roots) {
-        root->xPosition = totalXOffset + 5; // Start category with padding
-        root->yPosition = 0;
+      totalXOffset += (maxX - minX) + 15; // Add padding
+                                          // checks:
+      // 1. if a goal has 2 prerequisites, it should be below both
+      // 2. if a goal has 2 successors, it should be above both
+      // 3. If a goal has prerequisites, it must not point to itself
+      // 4. If a goal has successors, it must not point to itself
 
-        int nextXOffset = 0;
-        buildGoalTree(root, goals, usedGoals, gen, nextXOffset, 1);
+      for (auto &goal : goals) {
+        if (goal->prerequisitesGoals.size() == 2) {
+          // check if we are below both
+          if (goal->prerequisitesGoals[0]->yPosition > goal->yPosition &&
+              goal->prerequisitesGoals[1]->yPosition > goal->yPosition) {
+            // we are good
+          } else {
+            std::cout << "ERROR: Goal " << goal->name
+                      << " has 2 prerequisites, but is not below both"
+                      << std::endl;
+          }
 
-        // Add spacing for the next category
-        totalXOffset += nextXOffset + 10;
+        }
+        if (goal->successorsGoals.size() == 2) {
+          // check if we are above both
+          if (goal->successorsGoals[0]->yPosition < goal->yPosition &&
+              goal->successorsGoals[1]->yPosition < goal->yPosition) {
+            // we are good
+          } else {
+            std::cout << "ERROR: Goal " << goal->name
+                      << " has 2 successors, but is not above both"
+                      << std::endl;
+          }
+
+        }
+        if (goal->prerequisitesGoals.size() > 0) {
+          if (goal->prerequisitesGoals[0] == goal) {
+            std::cout << "ERROR: Goal " << goal->name
+                      << " has a prerequisite pointing to itself" << std::endl;
+          }
+        }
+        if (goal->successorsGoals.size() > 0) {
+          if (goal->successorsGoals[0] == goal) {
+            std::cout << "ERROR: Goal " << goal->name
+                      << " has a successor pointing to itself" << std::endl;
+          }
+        }
       }
     }
+
+    // Sort all country goals by priority
+    std::sort(
+        countryGoals.second.begin(), countryGoals.second.end(),
+        [](const auto &a, const auto &b) { return a->priority < b->priority; });
   }
 }
 
-void Scenario::Hoi4::GoalGeneration::buildGoalTree(
-    std::shared_ptr<Goal> currentGoal,
-    const std::vector<std::shared_ptr<Goal>> &goals,
-    std::set<std::shared_ptr<Goal>> &usedGoals, std::mt19937 &gen, int &xOffset,
-    int depth) {
+std::shared_ptr<Scenario::Hoi4::Goal>
+Scenario::Hoi4::GoalGeneration::findSecondParent(
+    const std::vector<std::shared_ptr<Goal>> &frontier,
+    const std::shared_ptr<Goal> &primaryParent,
+    const std::set<std::shared_ptr<Goal>> &usedGoals, int currentX) {
 
-  // Find possible successors
-  std::vector<std::shared_ptr<Goal>> possibleSuccessors;
-  for (const auto &goal : goals) {
-    if (usedGoals.find(goal) == usedGoals.end() &&
-        goal->priority > currentGoal->priority &&
-        goal->prerequisitesGoals.size() < 2) { // Max 2 predecessors
-      possibleSuccessors.push_back(goal);
+  std::vector<std::shared_ptr<Goal>> candidates;
+  for (const auto &goal : frontier) {
+    if (goal != primaryParent && goal->successorsGoals.size() < 2 &&
+        goal->prerequisitesGoals.size() < 2 &&
+        std::abs(goal->xPosition - currentX) <= 5) { // Close in xPosition
+      candidates.push_back(goal);
     }
   }
 
-  if (possibleSuccessors.empty()) {
-    return;
+  if (!candidates.empty()) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(
+        0, static_cast<int>(candidates.size()) - 1);
+    return candidates[dist(gen)];
   }
-
-  // Randomize order
-  std::shuffle(possibleSuccessors.begin(), possibleSuccessors.end(), gen);
-  int numSuccessors = std::min<int>(static_cast<int>(possibleSuccessors.size()), 2);
-
-  // Track sibling horizontal positions
-  int localXOffset = 0;
-  int spacing = 5; // Horizontal spacing between siblings
-
-  for (int i = 0; i < numSuccessors; ++i) {
-    auto successor = possibleSuccessors[i];
-
-    // Relative positioning from root
-    successor->xPosition = currentGoal->xPosition + localXOffset;
-    successor->yPosition = currentGoal->yPosition + 1;
-
-    currentGoal->successorsGoals.push_back(successor);
-    successor->prerequisitesGoals.push_back(currentGoal);
-    usedGoals.insert(successor);
-
-    // Recurse
-    buildGoalTree(successor, goals, usedGoals, gen, localXOffset, depth + 1);
-
-    // Move horizontally for next sibling
-    localXOffset += spacing;
-  }
-
-  // Random merge with another branch
-  if (possibleSuccessors.size() > numSuccessors) {
-    auto mergeCandidate = possibleSuccessors[numSuccessors];
-    if (std::uniform_int_distribution<>(1, 4)(gen) == 1 &&
-        mergeCandidate->prerequisitesGoals.size() < 2) {
-      mergeCandidate->prerequisitesGoals.push_back(currentGoal);
-      currentGoal->successorsGoals.push_back(mergeCandidate);
-      mergeCandidate->xPosition = currentGoal->xPosition;
-      mergeCandidate->yPosition = currentGoal->yPosition + 1;
-      usedGoals.insert(mergeCandidate);
-    }
-  }
-
-  // Update total offset for siblings
-  xOffset += localXOffset;
+  return nullptr;
 }
