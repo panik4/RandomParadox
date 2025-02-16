@@ -142,6 +142,13 @@ void Scenario::Hoi4::GoalGeneration::parseGoals(const std::string &path) {
         goal.aiModifiers.push_back(aiModifier);
       }
     }
+    // now gather limits
+    for (size_t i = 2; i < goalParts.size(); i++) {
+      if (goalParts[i].find("limit:") != std::string::npos) {
+        auto limitParts = Fwg::Parsing::getTokens(goalParts[i], ':');
+        goal.limit = std::stoi(limitParts[1]);
+      }
+    }
 
     potentialGoals.push_back(goal);
     goalsByType[type].push_back(goal);
@@ -158,7 +165,7 @@ void Scenario::Hoi4::GoalGeneration::constructGoal(
     const Goal &goal, int &idCounter) {
 
   auto setCommonAttributes =
-      [&](std::shared_ptr<Scenario::Hoi4::Goal> &goalPtr) {
+      [&](std::shared_ptr<Scenario::Hoi4::Goal> &goalPtr, std::shared_ptr<Hoi4Country> country) {
         goalPtr->name = goal.name;
 
         goalPtr->uniqueName = sourceCountry->tag + "_" + goalPtr->name + "_" +
@@ -170,14 +177,15 @@ void Scenario::Hoi4::GoalGeneration::constructGoal(
         goalPtr->bypasses = goal.bypasses;
         goalPtr->availabilities = goal.availabilities;
         goalPtr->aiModifiers = goal.aiModifiers;
-        Scenario::Hoi4::Effects::constructEffects(goalPtr->effects);
+        goalPtr->limit = goal.limit;
+        Scenario::Hoi4::Effects::constructEffects(goalPtr->effects, country);
       };
 
   if (targetRegion) {
     auto regionGoal = std::make_shared<Scenario::Hoi4::Goal>();
     regionGoal->scope = GoalScope::Region;
     regionGoal->regionTarget = targetRegion;
-    setCommonAttributes(regionGoal);
+    setCommonAttributes(regionGoal, nullptr);
     goalsByCountry[sourceCountry].push_back(regionGoal);
   }
 
@@ -185,111 +193,194 @@ void Scenario::Hoi4::GoalGeneration::constructGoal(
     auto countryGoal = std::make_shared<Scenario::Hoi4::Goal>();
     countryGoal->scope = GoalScope::Country;
     countryGoal->countryTarget = targetCountry;
-    setCommonAttributes(countryGoal);
+    setCommonAttributes(countryGoal, targetCountry);
     goalsByCountry[sourceCountry].push_back(countryGoal);
   }
+}
+bool Scenario::Hoi4::GoalGeneration::checkPrerequisites(
+    const Goal &categoryGoal, const std::shared_ptr<Hoi4Country> &country,
+    std::vector<Goal> &categoryGoals) {
+  bool valid = true;
+  for (const auto &prerequisiteGroup : categoryGoal.prerequisites) {
+    for (const auto &prerequisite : prerequisiteGroup.prerequisites) {
+      if (prerequisite.name == "is_major" &&
+          country->rank != Rank::GreatPower) {
+        valid = false;
+        break;
+      } else if (prerequisite.name == "is_secondary" &&
+                 country->rank != Rank::SecondaryPower) {
+        valid = false;
+        break;
+      } else if (prerequisite.name == "is_regional" &&
+                 country->rank != Rank::RegionalPower) {
+        valid = false;
+        break;
+      } else if (prerequisite.name == "is_local" &&
+                 country->rank != Rank::LocalPower) {
+        valid = false;
+        break;
+      } else if (prerequisite.name == "is_minor" &&
+                 country->rank != Rank::MinorPower) {
+        valid = false;
+        break;
+      }
+    }
+  }
+  if (!valid) {
+    // remove the goal from the list if the name is the same
+    categoryGoals.erase(std::remove_if(categoryGoals.begin(),
+                                       categoryGoals.end(),
+                                       [&](const auto &goal) {
+                                         return goal.name == categoryGoal.name;
+                                       }),
+                        categoryGoals.end());
+  }
+  return valid;
+}
+
+// Method to check if the goal limit is reached
+bool Scenario::Hoi4::GoalGeneration::isGoalLimitReached(
+    const Goal &categoryGoal, const std::shared_ptr<Hoi4Country> &country,
+    std::vector<Goal> &categoryGoals) {
+  if (categoryGoal.limit != 999) {
+    int count = 0;
+    for (const auto &goal : goalsByCountry[country]) {
+      if (goal->name == categoryGoal.name) {
+        count++;
+      }
+    }
+    if (count >= categoryGoal.limit) {
+      // remove the goal from the list if the name is the same
+      categoryGoals.erase(
+          std::remove_if(
+              categoryGoals.begin(), categoryGoals.end(),
+              [&](const auto &goal) { return goal.name == categoryGoal.name; }),
+          categoryGoals.end());
+      return true;
+    }
+  }
+  return false;
 }
 
 void Scenario::Hoi4::GoalGeneration::evaluateGoals(
     std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries) {
   Fwg::Utils::Logging::logLineLevel(5, "HOI4: Evaluating goals");
   int counter = 0;
+  std::vector<std::string> simpleCategories = {"cat:economic", "cat:political",
+                                               "cat:army",     "cat:navy",
+                                               "cat:air",      "cat:research"};
   for (auto &country : hoi4Countries) {
-    auto economicGoals = goalsByType["cat:economic"];
-    for (auto i = 0; i < 20; i++) {
-      if (economicGoals.empty()) {
-        break;
-      }
-      // select a random goal from a copy of the goal
-      auto economicGoal = Fwg::Utils::selectRandom(economicGoals);
-      // check for each of the prerequisite groups if it is valid
-      bool valid = true;
-      for (auto &prerequisiteGroup : economicGoal.prerequisites) {
-        for (auto &prerequisite : prerequisiteGroup.prerequisites) {
+    for (auto &category : simpleCategories) {
+      auto categoryGoals = goalsByType[category];
+      for (auto i = 0; i < 20; i++) {
+        if (categoryGoals.empty()) {
+          break;
         }
-      }
-      // run the selector
-      std::shared_ptr<Scenario::Hoi4::Region> targetRegion;
-      std::shared_ptr<Scenario::Hoi4::Hoi4Country> targetCountry;
+        // select a random goal from a copy of the goal
+        auto categoryGoal = Fwg::Utils::selectRandom(categoryGoals);
 
-      for (auto &selectorGroup : economicGoal.selectors) {
-        for (auto &selector : selectorGroup.selectors) {
-          if (selector.name == "get_random_state") {
-            targetRegion = Scenario::Hoi4::Selectors::getRandomRegion(country);
-          } else if (selector.name == "get_random_coastal_state") {
-            targetRegion = Scenario::Hoi4::Selectors::getRandomRegion(country);
-          }
+        // check if we fulfill the prerequisites
+        bool valid = checkPrerequisites(categoryGoal, country, categoryGoals);
 
-          if (selector.name == "self") {
-            targetCountry = country;
-          }
-          if (selector.name == "get_opposing_ideology_neighbour") {
-            // targetCountry =
-            //     Scenario::Hoi4::Selectors::getOpposingIdeologyNeighbour(hoi4Countries);
-          }
+        if (!valid) {
+          i--;
+          continue;
         }
-      }
-      constructGoal(country, targetRegion, targetCountry, economicGoal,
-                    counter);
-    }
-    auto foreignPolicyGoals = goalsByType["cat:foreign_policy_offensive"];
-    // group all foreignPolicyGoals by priority
-    std::map<int, std::vector<Goal>> foreignPolicyGoalsByPriority;
-    for (auto &foreignPolicyGoal : foreignPolicyGoals) {
-      foreignPolicyGoalsByPriority[foreignPolicyGoal.priority].push_back(
-          foreignPolicyGoal);
-    }
-    // now start iterating from 0
-    for (auto i = 0; i < 3; i++) {
-      if (foreignPolicyGoalsByPriority.find(i) ==
-          foreignPolicyGoalsByPriority.end()) {
-        continue;
-      }
-      for (auto &foreignPolicyGoal : foreignPolicyGoalsByPriority[i]) {
-        // check for each of the prerequisite groups if it is valid
-        bool valid = true;
-        for (auto &prerequisiteGroup : foreignPolicyGoal.prerequisites) {
-          for (auto &prerequisite : prerequisiteGroup.prerequisites) {
-          }
+
+        // if the goal has a limit, check if it is already reached
+        if (isGoalLimitReached(categoryGoal, country, categoryGoals)) {
+          i--;
+          continue;
         }
-        // now different approach: we take the selector, and depending on what
-        // it is, we gather ALL possible targets
-        std::vector<std::shared_ptr<Scenario::Hoi4::Region>> targetRegions;
-        std::vector<std::shared_ptr<Scenario::Hoi4::Hoi4Country>>
-            targetCountries;
-        for (auto &selectorGroup : foreignPolicyGoal.selectors) {
+        // run the selector
+        std::shared_ptr<Scenario::Hoi4::Region> targetRegion;
+        std::shared_ptr<Scenario::Hoi4::Hoi4Country> targetCountry;
+
+        for (auto &selectorGroup : categoryGoal.selectors) {
           for (auto &selector : selectorGroup.selectors) {
+            if (selector.name == "get_random_state") {
+              targetRegion =
+                  Scenario::Hoi4::Selectors::getRandomRegion(country);
+            } else if (selector.name == "get_random_coastal_state") {
+              targetRegion =
+                  Scenario::Hoi4::Selectors::getRandomRegion(country);
+            }
+
+            if (selector.name == "self") {
+              targetCountry = country;
+            }
             if (selector.name == "get_opposing_ideology_neighbour") {
-              targetCountries =
-                  Scenario::Hoi4::Selectors::getOpposingIdeologyNeighbours(
-                      country, hoi4Countries);
-            } else if (selector.name ==
-                       "get_opposing_ideology_neighbours_neighbour") {
-              targetCountries = Scenario::Hoi4::Selectors::
-                  getOpposingIdeologyNeighboursNeighbours(country,
-                                                          hoi4Countries);
+              // targetCountry =
+              //     Scenario::Hoi4::Selectors::getOpposingIdeologyNeighbour(hoi4Countries);
             }
           }
         }
-        // now we have all possible targets, we can now create a goal for each
-        // of them
-        for (auto &targetCountry : targetCountries) {
-          constructGoal(country, nullptr, targetCountry, foreignPolicyGoal,
-                        counter);
+        constructGoal(country, targetRegion, targetCountry, categoryGoal,
+                      counter);
+      }
+    }
+
+    std::vector<std::string> foreignPolicyCategories = {
+        "cat:foreign_policy_offensive", "cat:foreign_policy"};
+    for (auto &category : foreignPolicyCategories) {
+      auto categoryGoals = goalsByType[category];
+      for (auto i = 0; i < 20; i++) {
+        for (auto &categoryGoal : categoryGoals) {
+          // check if we fulfill the prerequisites
+          bool valid = checkPrerequisites(categoryGoal, country, categoryGoals);
+
+          if (!valid) {
+            i--;
+            continue;
+          }
+
+          // if the goal has a limit, check if it is already reached
+          if (isGoalLimitReached(categoryGoal, country, categoryGoals)) {
+            i--;
+            continue;
+          }
+
+          // now different approach: we take the selector, and depending on what
+          // it is, we gather ALL possible targets
+          std::vector<std::shared_ptr<Scenario::Hoi4::Region>> targetRegions;
+          std::vector<std::shared_ptr<Scenario::Hoi4::Hoi4Country>>
+              targetCountries;
+          for (auto &selectorGroup : categoryGoal.selectors) {
+            for (auto &selector : selectorGroup.selectors) {
+              if (selector.name == "get_opposing_ideology_neighbour") {
+                targetCountries =
+                    Scenario::Hoi4::Selectors::getOpposingIdeologyNeighbours(
+                        country, hoi4Countries);
+              } else if (selector.name ==
+                         "get_opposing_ideology_neighbours_neighbour") {
+                targetCountries = Scenario::Hoi4::Selectors::
+                    getOpposingIdeologyNeighboursNeighbours(country,
+                                                            hoi4Countries);
+              } else if (selector.name == "self") {
+                targetCountries.push_back(country);
+              }
+            }
+          }
+          // now we have all possible targets, we can now create a goal for each
+          // of them
+          for (auto &targetCountry : targetCountries) {
+            constructGoal(country, nullptr, targetCountry, categoryGoal,
+                          counter);
+          }
+          // remove the goal from the list if the name is the same, we do this
+          // as each foreign policy goal is only evaluated once and applied to
+          // all potential targets
+          categoryGoals.erase(
+              std::remove_if(categoryGoals.begin(), categoryGoals.end(),
+                             [&](const auto &goal) {
+                               return goal.name == categoryGoal.name;
+                             }),
+              categoryGoals.end());
         }
       }
     }
   }
 }
-
-#include <algorithm>
-#include <iostream>
-#include <map>
-#include <memory>
-#include <random>
-#include <set>
-#include <unordered_map>
-#include <vector>
 
 struct Position {
   int x;
@@ -431,7 +522,6 @@ void Scenario::Hoi4::GoalGeneration::structureGoals(
                       << " has 2 prerequisites, but is not below both"
                       << std::endl;
           }
-
         }
         if (goal->successorsGoals.size() == 2) {
           // check if we are above both
@@ -443,7 +533,6 @@ void Scenario::Hoi4::GoalGeneration::structureGoals(
                       << " has 2 successors, but is not above both"
                       << std::endl;
           }
-
         }
         if (goal->prerequisitesGoals.size() > 0) {
           if (goal->prerequisitesGoals[0] == goal) {

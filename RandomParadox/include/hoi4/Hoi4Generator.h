@@ -17,9 +17,6 @@ class Generator : public Scenario::Generator {
   int focusID = 0;
   std::map<std::string, int> totalResources;
   // containers
-  std::vector<std::shared_ptr<Country>> majorPowers;
-  std::vector<std::shared_ptr<Country>> regionalPowers;
-  std::vector<std::shared_ptr<Country>> weakPowers;
   std::vector<std::string> wargoalsAttack;
   std::vector<std::string> goalsDefence;
   std::map<int, std::string> doctrineMap{

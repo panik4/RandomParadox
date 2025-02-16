@@ -48,6 +48,7 @@ public:
   std::set<std::string> tags;
   Fwg::Utils::ColourTMap<std::string> countryColourMap;
   std::map<std::string, std::shared_ptr<Country>> countries;
+  std::map<Rank, std::vector<std::shared_ptr<Country>>> countriesByRank;
   Fwg::Gfx::Bitmap countryMap;
   Fwg::Gfx::Bitmap stratRegionMap;
   std::vector<StrategicRegion> strategicRegions;

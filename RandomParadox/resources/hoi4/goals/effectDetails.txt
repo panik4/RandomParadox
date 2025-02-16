@@ -82,6 +82,12 @@ add_political_power,
 add_war_support,
 			add_war_support = templateEffect0
 ;
+
+extra_tech_slot,
+		add_research_slot = 1;
+############################# Foreign policy #############################,#;
+allow_found_faction,
+			set_rule = { can_create_factions = yes };
 join_faction,
 			templateTargetTag = {
 				country_event = generic.2
@@ -92,5 +98,21 @@ faction_invite,
 				country_event = generic.5
 			}
 ;
+found_faction,
+			set_rule = { can_create_factions = yes }
+			create_faction = templateEffect0
+;
 
 
+############################# ARMY #############################,#;
+army_xp,
+			army_experience = templateEffect0;
+
+
+############################# NAVY #############################,#;
+navy_xp,
+			navy_experience = templateEffect0;
+
+############################# AIRFORCE #############################,#;
+air_xp,
+			air_experience = templateEffect0;

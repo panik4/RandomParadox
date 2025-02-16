@@ -1,12 +1,21 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "RandNum.h"
+#include "generic/Culture.h"
 #include "generic/Flag.h"
 #include "generic/GameRegion.h"
-#include "generic/Culture.h"
 #include <string>
 #include <vector>
 namespace Scenario {
+
+enum class Rank {
+  GreatPower,
+  SecondaryPower,
+  RegionalPower,
+  LocalPower,
+  MinorPower,
+  Unranked
+};
 class Country {
 
 public:
@@ -22,7 +31,7 @@ public:
   double worldPopulationShare;
   double worldEconomicActivityShare;
 
-  std::string rank;
+  Rank rank = Rank::Unranked;
   // total importance
   double importanceScore;
   // relative importance to most important country

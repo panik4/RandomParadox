@@ -114,3 +114,46 @@ ourWarBalance,
 				}
 				factor = my_var
 			};
+gameLateness,
+			modifier = {
+				set_temp_variable = { my_var = 0.1 }
+				ROOT = {
+					if = {
+						limit = {
+							check_variable = { year > 1936 }
+						}
+						set_temp_variable = { my_var = 0.2 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { year > 1937 }
+						}
+						set_temp_variable = { my_var = 0.3 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { year > 1938 }
+						}
+						set_temp_variable = { my_var = 0.5 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { year > 1939 }
+						}
+						set_temp_variable = { my_var = 1.0 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { year > 1942 }
+						}
+						set_temp_variable = { my_var = 1.5 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { year > 1944 }
+						}
+						set_temp_variable = { my_var = 2.0 }
+					}
+				}
+				factor = my_var
+			};

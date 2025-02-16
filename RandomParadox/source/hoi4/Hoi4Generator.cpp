@@ -439,11 +439,16 @@ void Generator::generateCountrySpecifics() {
     // amount of research slots between 3 and 6, depending on average
     // development of the country and strength rank
     auto rankModifier = 0.0;
-    if (country->rank == "regional") {
+    if (country->rank == Rank::RegionalPower) {
       rankModifier = 0.5;
-    } else if (country->rank == "major") {
+    } else if (country->rank == Rank::GreatPower) {
       rankModifier = 1.0;
+    } else if (country->rank == Rank::SecondaryPower) {
+      rankModifier = 0.75;
+    } else if (country->rank == Rank::LocalPower) {
+      rankModifier = 0.25;
     }
+
     // rounded to the nearest integer
     country->researchSlots =
         std::round(3.0 + 2.0 * country->averageDevelopment + rankModifier);
@@ -979,23 +984,48 @@ void Generator::evaluateCountries() {
   int totalDeployedCountries = numCountries - countryImportanceScores.size()
                                    ? (int)countryImportanceScores[0].size()
                                    : 0;
-  int numMajorPowers = totalDeployedCountries / 10;
-  int numRegionalPowers = totalDeployedCountries / 3;
-  int numWeakStates =
+
+  // sort countries by rank
+
+  int numMajorPowers = numCountries / 10;
+  std::cout << numMajorPowers << std::endl;
+  ;
+  int numSecondaryPowers = numCountries / 10;
+  int numRegionalPowers = numCountries / 6;
+  int numLocalPowers = numCountries / 6;
+  int numMinorPowers =
       totalDeployedCountries - numMajorPowers - numRegionalPowers;
-  for (const auto &scores : countryImportanceScores) {
-    for (const auto &entry : scores.second) {
+
+  // init countriesByRank
+  countriesByRank = {{Rank::GreatPower, {}},
+                     {Rank::SecondaryPower, {}},
+                     {Rank::RegionalPower, {}},
+                     {Rank::LocalPower, {}},
+                     {Rank::MinorPower, {}}};
+
+  for (auto it = countryImportanceScores.rbegin();
+       it != countryImportanceScores.rend(); ++it) {
+    for (const auto &entry : it->second) {
       if (entry->importanceScore > 0.0) {
-        entry->relativeScore = (double)scores.first / maxScore;
-        if (numWeakStates > weakPowers.size()) {
-          weakPowers.push_back(entry);
-          entry->rank = "weak";
-        } else if (numRegionalPowers > regionalPowers.size()) {
-          regionalPowers.push_back(entry);
-          entry->rank = "regional";
+        entry->relativeScore = (double)it->first / maxScore;
+        if (numMajorPowers > countriesByRank.at(Rank::GreatPower).size()) {
+          countriesByRank[Rank::GreatPower].push_back(entry);
+          entry->rank = Rank::GreatPower;
+        } else if (numSecondaryPowers >
+                   countriesByRank.at(Rank::SecondaryPower).size()) {
+          countriesByRank[Rank::SecondaryPower].push_back(entry);
+          entry->rank = Rank::SecondaryPower;
+        } else if (numRegionalPowers >
+                   countriesByRank.at(Rank::RegionalPower).size()) {
+          countriesByRank[Rank::RegionalPower].push_back(entry);
+          entry->rank = Rank::RegionalPower;
+        } else if (numLocalPowers >
+                   countriesByRank.at(Rank::LocalPower).size()) {
+          countriesByRank[Rank::LocalPower].push_back(entry);
+          entry->rank = Rank::LocalPower;
         } else {
-          majorPowers.push_back(entry);
-          entry->rank = "major";
+          countriesByRank[Rank::MinorPower].push_back(entry);
+          entry->rank = Rank::MinorPower;
         }
       }
     }
@@ -1079,9 +1109,9 @@ void Generator::generateArmorVariants() {
         tankVariant.subType = chassis.second.subType;
         tankVariant.bbaArmorName = chassis.first;
         tankVariant.era = TechEra::Interwar;
-        tankVariant.name =
-            country->getPrimaryCulture()->language->generateGenericCapitalizedWord() +
-            " Mk " + std::to_string(RandNum::getRandom(0, 3));
+        tankVariant.name = country->getPrimaryCulture()
+                               ->language->generateGenericCapitalizedWord() +
+                           " Mk " + std::to_string(RandNum::getRandom(0, 3));
 
         addArmorModules(tankVariant, combinedTech);
         country->tankVariants.push_back(tankVariant);
@@ -1105,10 +1135,7 @@ void Generator::generateCountryUnits() {
     // share
     auto majorFactor = country->relativeScore;
     auto bullyFactor = 0.05 * country->bully / 5.0;
-    if (country->rank == "major") {
-      bullyFactor += 0.5;
-    } else if (country->rank == "regional") {
-    }
+
     // army focus:
     // simply give templates if we qualify for them
     if (majorFactor > 0.5 && bullyFactor > 0.25) {
@@ -1257,14 +1284,22 @@ void Generator::generateCountryNavies() {
     auto battleshipShare = 0.0;
     auto screenShare = 0.0;
     // carriers are only built by major powers
-    if (country->rank == "major") {
+    if (country->rank == Rank::GreatPower) {
       carrierShare = 0.1;
       battleshipShare = 0.2;
       screenShare = 0.7;
-    } else if (country->rank == "regional") {
-      carrierShare = 0.05;
+    } else if (country->rank == Rank::SecondaryPower) {
+      carrierShare = 0.075;
+      battleshipShare = 0.15;
+      screenShare = 0.775;
+    } else if (country->rank == Rank::RegionalPower) {
+      carrierShare = 0.00;
+      battleshipShare = 0.3;
+      screenShare = 0.7;
+    } else if (country->rank == Rank::LocalPower) {
+      carrierShare = 0.00;
       battleshipShare = 0.2;
-      screenShare = 0.75;
+      screenShare = 0.8;
     } else {
       carrierShare = 0.0;
       battleshipShare = 0.1;
@@ -1485,8 +1520,8 @@ bool Generator::unitFulfillsRequirements(
     if (value != "") {
       if (value.find("any") == std::string::npos)
         continue; // fine, may target any ideology
-      if (value.find(country->rank) == std::string::npos)
-        return false; // targets rank is not right
+      // if (value.find(country->rank) == std::string::npos)
+      //   return false; // targets rank is not right
     }
   }
   for (auto &requirement : unitRequirements) {
