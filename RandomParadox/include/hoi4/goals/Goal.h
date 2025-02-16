@@ -6,7 +6,9 @@ namespace Scenario::Hoi4 {
 enum class GoalType {
   Undefined,
   Political,
-  Military,
+  Army,
+  Navy,
+  Airforce,
   Economic,
   ForeignPolicy,
   ForeignPolicyOffensive,
@@ -72,6 +74,7 @@ public:
   std::string uniqueName = "";
   // to determine ordering of goals
   int priority = 999;
+  int limit = 999;
   GoalType type = GoalType::Undefined;
   GoalScope scope = GoalScope::Undefined;
   std::vector<PrerequisiteGrouping> prerequisites;

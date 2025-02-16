@@ -4,6 +4,7 @@
 
 namespace Scenario::Hoi4::Effects {
 
-void constructEffects(std::vector<EffectGrouping> &effects);
+void constructEffects(std::vector<EffectGrouping> &effects,
+                      std::shared_ptr<Hoi4Country> &hoi4Country);
 
 } // namespace Scenario::Hoi4::Effects

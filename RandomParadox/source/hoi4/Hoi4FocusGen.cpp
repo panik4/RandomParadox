@@ -464,9 +464,6 @@ void evaluateCountryGoals(
       }
       Fwg::Parsing::replaceOccurences(focusBase, "templatePrerequisite",
                                       prereqBlock);
-
-      // TODO positions
-
       Fwg::Parsing::replaceOccurences(focusBase, "templateXpos",
                                       std::to_string(goal->xPosition));
       Fwg::Parsing::replaceOccurences(focusBase, "templateYpos",

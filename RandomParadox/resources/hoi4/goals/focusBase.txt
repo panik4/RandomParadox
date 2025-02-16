@@ -5,7 +5,7 @@
 		x = templateXpos
 		y = templateYpos
 		templateRootGoal
-		cost = 1
+		cost = 5
 
 		search_filters = { FOCUS_FILTER_INDUSTRY  }
 		

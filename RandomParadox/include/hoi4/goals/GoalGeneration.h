@@ -18,7 +18,9 @@ public:
 
   std::map<std::string, GoalType> goalTypeMap = {
       {"cat:political", GoalType::Political},
-      {"cat:military", GoalType::Military},
+      {"cat:army", GoalType::Army},
+      {"cat:navy", GoalType::Navy},
+      {"cat:air", GoalType::Airforce},
       {"cat:economic", GoalType::Economic},
       {"cat:foreign_policy", GoalType::ForeignPolicy},
       {"cat:foreign_policy_offensive", GoalType::ForeignPolicyOffensive},
@@ -34,6 +36,14 @@ public:
                      std::shared_ptr<Scenario::Hoi4::Hoi4Country> targetCountry,
                      const Goal &goal, int &idCounter);
 
+  bool checkPrerequisites(const Goal &categoryGoal,
+                          const std::shared_ptr<Hoi4Country> &country,
+                          std::vector<Goal> &categoryGoals);
+
+  bool isGoalLimitReached(const Goal &categoryGoal,
+                          const std::shared_ptr<Hoi4Country> &country,
+                          std::vector<Goal> &categoryGoals);
+
   void evaluateGoals(std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries);
   void structureGoals(std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries);
   std::shared_ptr<Goal>
@@ -41,11 +51,11 @@ public:
                    const std::shared_ptr<Goal> &primaryParent,
                    const std::set<std::shared_ptr<Goal>> &usedGoals,
                    int currentX);
-  //void structureGoals(std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries);
-  //void buildGoalTree(std::shared_ptr<Goal> currentGoal,
-  //                   const std::vector<std::shared_ptr<Goal>> &goals,
-  //                   std::set<std::shared_ptr<Goal>> &usedGoals,
-  //                   std::mt19937 &gen, int &xOffset, int depth);
+  // void structureGoals(std::vector<std::shared_ptr<Hoi4Country>>
+  // &hoi4Countries); void buildGoalTree(std::shared_ptr<Goal> currentGoal,
+  //                    const std::vector<std::shared_ptr<Goal>> &goals,
+  //                    std::set<std::shared_ptr<Goal>> &usedGoals,
+  //                    std::mt19937 &gen, int &xOffset, int depth);
 };
 
 } // namespace Scenario::Hoi4
