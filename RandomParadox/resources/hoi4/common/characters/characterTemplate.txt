@@ -1,0 +1,5 @@
+	templateCountryTag_templateName_templateLastName={
+		name="templateName templateLastName"
+
+		templateCharacterType
+	}

@@ -32,7 +32,7 @@ templateAirBlock
 ### NAVY ###
 templateNavalBlock
 
-
+templateCharacters
 
 if = {
 	limit = {

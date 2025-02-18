@@ -1,6 +1,7 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "RandNum.h"
+#include "generic/Character.h"
 #include "generic/Culture.h"
 #include "generic/Flag.h"
 #include "generic/GameRegion.h"
@@ -42,6 +43,7 @@ public:
   std::map<std::shared_ptr<Culture>, double> cultures;
   Gfx::Flag flag;
   Fwg::Gfx::Colour colour;
+  std::vector<Scenario::Character> characters;
   // constructors/destructors
   Country();
   Country(std::string tag, int ID, std::string name, std::string adjective,

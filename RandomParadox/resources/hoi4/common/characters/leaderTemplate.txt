@@ -1,0 +1,7 @@
+
+		country_leader={
+			ideology=templateIdeology
+			traits = { templateTraits }
+			expire="1965.1.1.1"
+			id=-1
+		}

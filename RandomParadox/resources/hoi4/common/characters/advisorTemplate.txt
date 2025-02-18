@@ -1,0 +1,5 @@
+advisor={
+			slot = templateType
+			idea_token = templateCountryTag_templateName_templateLastName
+				traits = {	templateTraits	}
+		}

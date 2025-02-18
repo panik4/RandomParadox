@@ -120,39 +120,39 @@ gameLateness,
 				ROOT = {
 					if = {
 						limit = {
-							check_variable = { year > 1936 }
+							check_variable = { date > 1943.01.01 }
 						}
-						set_temp_variable = { my_var = 0.2 }
+						set_temp_variable = { my_var = 2.0 }
 					}
 					else_if = {
 						limit = {
-							check_variable = { year > 1937 }
-						}
-						set_temp_variable = { my_var = 0.3 }
-					}
-					else_if = {
-						limit = {
-							check_variable = { year > 1938 }
-						}
-						set_temp_variable = { my_var = 0.5 }
-					}
-					else_if = {
-						limit = {
-							check_variable = { year > 1939 }
-						}
-						set_temp_variable = { my_var = 1.0 }
-					}
-					else_if = {
-						limit = {
-							check_variable = { year > 1942 }
+							date > 1941.01.01
 						}
 						set_temp_variable = { my_var = 1.5 }
 					}
 					else_if = {
 						limit = {
-							check_variable = { year > 1944 }
+							date > 1939.06.06
 						}
-						set_temp_variable = { my_var = 2.0 }
+						set_temp_variable = { my_var = 1.0 }
+					}
+					else_if = {
+						limit = {
+							date > 1938.06.06
+						}
+						set_temp_variable = { my_var = 0.5 }
+					}
+					else_if = {
+						limit = {
+							date > 1937.06.06
+						}
+						set_temp_variable = { my_var = 0.35 }
+					}
+					else_if = {
+						limit = {
+							date > 1936.06.06
+						}
+						set_temp_variable = { my_var = 0.2 }
 					}
 				}
 				factor = my_var
