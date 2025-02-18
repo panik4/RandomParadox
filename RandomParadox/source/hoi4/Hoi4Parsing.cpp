@@ -833,6 +833,15 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
     pU::Scenario::replaceOccurences(countryText, "templateMtgVariants",
                                     mtgVariantsString);
 
+    // now gather characters, with a line of "recruit_character = id"
+    std::string characters = "";
+    for (auto &character : country->characters) {
+      characters += "recruit_character = " + country->tag + "_" +
+                    character.name + "_" + character.surname + "\n";
+    }
+    pU::Scenario::replaceOccurences(countryText, "templateCharacters",
+                                    characters);
+
     pU::writeFile(tempPath, countryText);
   }
 }
@@ -1179,6 +1188,78 @@ void commonNames(const std::string &path, const CountryMap &countries) {
     content.append(nameTemplate);
   }
   pU::writeFile(path, content);
+}
+
+void commonCharacters(const std::string &path, const CountryMap &countries) {
+  Logging::logLine("HOI4 Parser: Common: Writing Characters");
+  const auto characterTemplate =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//common//characters//characterTemplate.txt");
+  const auto advisorTemplate =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//common//characters//advisorTemplate.txt");
+  const auto leaderTemplate =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//common//characters//leaderTemplate.txt");
+  std::map<Type, std::string> slotTypes = {
+      {Type::Politician, "political_advisor"},
+      {Type::ArmyChief, "army_chief"},
+      {Type::NavyChief, "navy_chief"},
+      {Type::AirForceChief, "air_chief"},
+      {Type::Theorist, "theorist"},
+      {Type::HighCommand, "high_command"}};
+  // map to randomly get one of the ideologies
+  std::map<Ideology, std::vector<std::string>> ideologyMap{
+      {Ideology::Fascist,
+       {"rexism", "falangism", "fascism_ideology", "nazism"}},
+      {Ideology::Communist,
+       {"marxism", "leninism", "stalinism", "anti_revisionism",
+        "anarchist_communism"}},
+      {Ideology::Democratic, {"conservatism", "liberalism", "socialism"}},
+      {Ideology::Neutral,
+       {"despotism", "oligarchism", "moderatism", "centrism"}}};
+
+  for (const auto &country : countries) {
+    std::string content = "characters = {\n";
+
+    auto tempPath = path + country->tag + ".txt";
+    for (const auto &character : country->characters) {
+      auto characterText = characterTemplate;
+      if (character.type == Type::Leader) {
+        pU::Scenario::replaceOccurences(characterText, "templateCharacterType",
+                                        leaderTemplate);
+      } else if (character.type != Type::ArmyGeneral &&
+                 character.type != Type::FleetAdmiral) {
+        pU::Scenario::replaceOccurences(characterText, "templateCharacterType",
+                                        advisorTemplate);
+      }
+      pU::Scenario::replaceOccurences(characterText, "templateCountryTag",
+                                      country->tag);
+      pU::Scenario::replaceOccurences(characterText, "templateName",
+                                      character.name);
+      pU::Scenario::replaceOccurences(characterText, "templateLastName",
+                                      character.surname);
+      pU::Scenario::replaceOccurences(characterText, "templateType",
+                                      slotTypes[character.type]);
+      pU::Scenario::replaceOccurences(
+          characterText, "templateIdeology",
+          Fwg::Utils::selectRandom(ideologyMap[character.ideology]));
+
+      std::string traits = "";
+      for (const auto &trait : character.traits) {
+        traits.append(trait + " ");
+      }
+      pU::Scenario::replaceOccurences(characterText, "templateTraits", traits);
+
+      // pU::Scenario::replaceOccurences(characterText, "templateIdeology",
+      //                                 character.ideology);
+      // pU::Scenario::replaceOccurences(characterText, "templateTraits",
+      //                                 character->traits);
+      content.append(characterText);
+    }
+    content.append("}");
+    pU::writeFile(tempPath, content);
+  }
 }
 
 void countryNames(const std::string &path, const CountryMap &countries,

@@ -73,6 +73,9 @@ public:
   void generateUrbanisation();
   bool unitFulfillsRequirements(std::vector<std::string> unitRequirements,
                                 std::shared_ptr<Hoi4Country> &country);
+  // generate characters
+  void generateCharacters();
+  
   void generateArmorVariants();
   // determine unit composition, templates
   void generateCountryUnits();

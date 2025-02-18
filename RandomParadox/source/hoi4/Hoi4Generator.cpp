@@ -496,6 +496,7 @@ void Generator::generateCountrySpecifics() {
   generateArmorVariants();
   generateCountryUnits();
   generateCountryNavies();
+  generateCharacters();
 }
 
 void Generator::generateWeather() {
@@ -1551,6 +1552,209 @@ bool Generator::unitFulfillsRequirements(
   }
   return true;
 }
+void Generator::generateCharacters() {
+  std::map<Ideology, std::vector<std::string>> leaderTraits = {
+      {Ideology::None,
+       {"cabinet_crisis", "exiled", "headstrong", "humble",
+        "inexperienced_monarch", "political_prisoner", "socialite_connections",
+        "staunch_constitutionalist", "gentle_scholar", "the_statist",
+        "the_academic"}},
+      {Ideology::Neutral,
+       {"cabinet_crisis", "exiled", "headstrong", "humble",
+        "inexperienced_monarch", "political_prisoner", "socialite_connections",
+        "staunch_constitutionalist", "celebrity_junta_leader"}},
+      {Ideology::Fascist,
+       {"autocratic_imperialist", "collaborator_king", "generallissimo",
+        "inexperienced_imperialist", "spirit_of_genghis", "warmonger",
+        "the_young_magnate", "polemarch", "archon_basileus", "autokrator",
+        "basileus", "infirm", "celebrity_junta_leader"}},
+      {Ideology::Communist,
+       {"union_man", "stalins_puppet", "political_dancer",
+        "indomitable_perseverance", "mastermind_code_cracker", "polemarch",
+        "infirm", "reluctant_stalinist"}},
+      {Ideology::Democratic,
+       {"british_bulldog", "chamberlain_appeaser", "conservative_grandee",
+        "famous_aviator", "first_lady", "rearmer", "staunch_constitutionalist",
+        "the_banker", "the_young_magnate", "infirm",
+        "liberal_democratic_paragon"}}};
+
+  std::vector<std::string> armyChiefTraits = {
+      "army_chief_defensive_",      "army_chief_offensive_",
+      "army_chief_drill_",          "army_chief_reform_",
+      "army_chief_organizational_", "army_chief_planning_",
+      "army_chief_morale_",         "army_chief_maneuver_",
+      "army_chief_entrenchment_"};
+
+  std::vector<std::string> airChiefTraits = {
+      "air_chief_reform_",         "air_chief_safety_",
+      "air_chief_old_guard_",      "air_chief_night_operations_",
+      "air_chief_ground_support_", "air_chief_all_weather_"};
+
+  std::vector<std::string> navyChiefTraits = {
+      "navy_chief_naval_aviation_",   "navy_chief_decisive_battle_",
+      "navy_chief_commerce_raiding_", "navy_chief_old_guard_",
+      "navy_chief_reform_",           "navy_chief_maneuver_"};
+
+  std::vector<std::string> highCommandTraits = {"navy_anti_submarine_",
+                                                "navy_naval_air_defense_",
+                                                "navy_fleet_logistics_",
+                                                "navy_amphibious_assault_",
+                                                "navy_submarine_",
+                                                "navy_capital_ship_",
+                                                "navy_screen_",
+                                                "navy_carrier_",
+                                                "air_air_combat_training_",
+                                                "air_naval_strike_",
+                                                "air_bomber_interception_",
+                                                "air_air_superiority_",
+                                                "air_close_air_support_",
+                                                "air_strategic_bombing_",
+                                                "air_tactical_bombing_",
+                                                "air_airborne_",
+                                                "air_pilot_training_",
+                                                "army_entrenchment_",
+                                                "army_armored_",
+                                                "army_artillery_",
+                                                "army_infantry_",
+                                                "army_commando_",
+                                                "army_cavalry_",
+                                                "army_CombinedArms_",
+                                                "army_regrouping_",
+                                                "army_concealment_",
+                                                "army_logistics_",
+                                                "army_radio_intelligence_"};
+
+  for (auto &country : hoi4Countries) {
+    // we want of every ideology: Neutral, Fascist, Communist, Democratic
+    std::vector<Ideology> ideologies = {Ideology::Neutral, Ideology::Fascist,
+                                        Ideology::Communist,
+                                        Ideology::Democratic};
+    for (const auto &ideology : ideologies) {
+      // 1 country leader
+      Character leader;
+      leader.gender = Gender::Male;
+      leader.name = Fwg::Utils::selectRandom(
+          country->getPrimaryCulture()->language->maleNames);
+      leader.surname = Fwg::Utils::selectRandom(
+          country->getPrimaryCulture()->language->surnames);
+      leader.ideology = ideology;
+      leader.type = Type::Leader;
+      int desiredTraits = RandNum::getRandom(1, 3);
+      for (int i = 0; i < desiredTraits; i++) {
+        leader.traits.push_back(Fwg::Utils::selectRandom(
+            leaderTraits[ideology])); // find a random trait for the leader
+      }
+      country->characters.push_back(leader);
+
+      // 6 Politicians
+      for (int i = 0; i < 6; i++) {
+        Character politician;
+        politician.gender = Gender::Male;
+        politician.name = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->maleNames);
+        politician.surname = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->surnames);
+        politician.ideology = ideology;
+        politician.type = Type::Politician;
+        leader.traits.push_back(Fwg::Utils::selectRandom(
+            leaderTraits[ideology])); // find a random trait for the leader
+        country->characters.push_back(politician);
+      }
+
+      // 4 Command Generals
+      for (int i = 0; i < 4; i++) {
+        Character armyChief;
+        armyChief.gender = Gender::Male;
+        armyChief.name = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->maleNames);
+        armyChief.surname = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->surnames);
+        armyChief.ideology = ideology;
+        armyChief.type = Type::ArmyChief;
+        int level = RandNum::getRandom(1, 3);
+        armyChief.traits.push_back(Fwg::Utils::selectRandom(armyChiefTraits) +
+                                   std::to_string(level));
+        country->characters.push_back(armyChief);
+      }
+
+      // 2 Command Admirals
+      for (int i = 0; i < 2; i++) {
+        Character navyChief;
+        navyChief.gender = Gender::Male;
+        navyChief.name = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->maleNames);
+        navyChief.surname = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->surnames);
+        navyChief.ideology = ideology;
+        navyChief.type = Type::NavyChief;
+        int level = RandNum::getRandom(1, 3);
+        navyChief.traits.push_back(Fwg::Utils::selectRandom(navyChiefTraits) +
+                                   std::to_string(level));
+        country->characters.push_back(navyChief);
+      }
+
+      // 2 Airforce Chiefs
+      for (int i = 0; i < 2; i++) {
+        Character airforceChief;
+        airforceChief.gender = Gender::Male;
+        airforceChief.name = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->maleNames);
+        airforceChief.surname = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->surnames);
+        airforceChief.ideology = ideology;
+        airforceChief.type = Type::AirForceChief;
+        int level = RandNum::getRandom(1, 3);
+        airforceChief.traits.push_back(
+            Fwg::Utils::selectRandom(airChiefTraits) + std::to_string(level));
+        country->characters.push_back(airforceChief);
+      }
+
+      // 6 High Command
+      for (int i = 0; i < 6; i++) {
+        Character highCommand;
+        highCommand.gender = Gender::Male;
+        highCommand.name = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->maleNames);
+        highCommand.surname = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->surnames);
+        highCommand.ideology = ideology;
+        highCommand.type = Type::HighCommand;
+        int level = RandNum::getRandom(1, 3);
+        highCommand.traits.push_back(
+            Fwg::Utils::selectRandom(highCommandTraits) +
+            std::to_string(level));
+        country->characters.push_back(highCommand);
+      }
+
+      // 2 Generals
+      for (int i = 0; i < 0; i++) {
+        Character general;
+        general.gender = Gender::Male;
+        general.name = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->maleNames);
+        general.surname = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->surnames);
+        general.ideology = ideology;
+        general.type = Type::ArmyGeneral;
+        country->characters.push_back(general);
+      }
+
+      // 2 Admirals
+      for (int i = 0; i < 0; i++) {
+        Character admiral;
+        admiral.gender = Gender::Male;
+        admiral.name = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->maleNames);
+        admiral.surname = Fwg::Utils::selectRandom(
+            country->getPrimaryCulture()->language->surnames);
+        admiral.ideology = ideology;
+        admiral.type = Type::FleetAdmiral;
+        country->characters.push_back(admiral);
+      }
+    }
+  }
+}
+
 bool Generator::loadRivers(Fwg::Cfg &config, Fwg::Gfx::Bitmap &riverInput) {
 
   // replace a few colours by the colours understood by FWG
