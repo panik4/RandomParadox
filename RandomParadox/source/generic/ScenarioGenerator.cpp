@@ -23,7 +23,6 @@ void Generator::mapContinents() {
   for (const auto &continent : this->areas.continents) {
     // we copy the fwg continents by choice, to leave them untouched
     scenContinents.push_back(ScenarioContinent(continent));
-
   }
 }
 
@@ -94,6 +93,36 @@ void Generator::applyRegionInput() {
       }
     }
   }
+  // debug visualisation of all regions, if coastal they are yellow, if sea they
+  // are blue, if non-coastal they are green
+  Bitmap regionMap(Fwg::Cfg::Values().width, Fwg::Cfg::Values().height, 24);
+  for (auto &gameRegion : this->gameRegions) {
+    for (auto &gameProv : gameRegion->gameProvinces) {
+      for (auto &pix : gameProv->baseProvince->pixels) {
+        if (gameRegion->sea) {
+          regionMap.setColourAtIndex(pix, Fwg::Cfg::Values().colours.at("sea"));
+
+        } else if (gameRegion->coastal && !gameRegion->sea) {
+          regionMap.setColourAtIndex(pix,
+                                     Fwg::Cfg::Values().colours.at("ores"));
+
+        } else if (gameRegion->lake) {
+          regionMap.setColourAtIndex(pix,
+                                     Fwg::Cfg::Values().colours.at("lake"));
+        }
+
+        else {
+          regionMap.setColourAtIndex(pix,
+                                     Fwg::Cfg::Values().colours.at("land"));
+          if (gameProv->baseProvince->coastal) {
+            regionMap.setColourAtIndex(
+                pix, Fwg::Cfg::Values().colours.at("autumnForest"));
+          }
+        }
+      }
+    }
+  }
+  Png::save(regionMap, Fwg::Cfg::Values().mapsPath + "regionMap.png", false);
 }
 
 void Generator::mapProvinces() {

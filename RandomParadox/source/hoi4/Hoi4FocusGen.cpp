@@ -442,7 +442,7 @@ void evaluateCountryGoals(
   goalGen.structureGoals(hoi4Countries);
   for (auto &countryGoals : goalGen.goalsByCountry) {
     Fwg::Utils::Logging::logLineLevel(
-        5, "Evaluating country goals for country: ", countryGoals.first);
+        9, "Evaluating country goals for country: ", countryGoals.first);
     auto &country = countryGoals.first;
     int idCounter = 0;
     std::string ideaBase = "ideas = {\n\tcountry = {\n";

@@ -6,6 +6,7 @@
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4FocusGen.h"
 #include "hoi4/Hoi4Region.h"
+#include "hoi4/Hoi4Army.h"
 #include "hoi4/NationalFocus.h"
 #include <array>
 #include <set>
