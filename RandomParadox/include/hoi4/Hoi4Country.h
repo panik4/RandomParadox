@@ -4,6 +4,7 @@
 #include "generic/Country.h"
 #include "hoi4/Hoi4Navies.h"
 #include "hoi4/Hoi4Armor.h"
+#include "hoi4/Hoi4Army.h"
 #include <array>
 #include <string>
 #include <vector>
@@ -64,7 +65,7 @@ public:
   std::map<TechEra, std::vector<Technology>> infantryTechs;
   std::map<TechEra, std::vector<Technology>> armorTechs;
   std::vector<TankVariant> tankVariants;
-
+  std::vector<DivisionTemplate> divisionTemplates;
   // airforce
   double airFocus;
   std::map<TechEra, std::vector<Technology>> airTechs;
@@ -75,5 +76,8 @@ public:
   int armsFactories;
   int dockyards;
   int researchSlots;
+
+  bool hasTech(const std::string& techname)const;
+
 };
 } // namespace Scenario::Hoi4

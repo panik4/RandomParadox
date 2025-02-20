@@ -518,9 +518,9 @@ void Scenario::Hoi4::GoalGeneration::structureGoals(
               goal->prerequisitesGoals[1]->yPosition > goal->yPosition) {
             // we are good
           } else {
-            std::cout << "ERROR: Goal " << goal->name
-                      << " has 2 prerequisites, but is not below both"
-                      << std::endl;
+            //std::cout << "ERROR: Goal " << goal->name
+            //          << " has 2 prerequisites, but is not below both"
+            //          << std::endl;
           }
         }
         if (goal->successorsGoals.size() == 2) {
@@ -529,9 +529,9 @@ void Scenario::Hoi4::GoalGeneration::structureGoals(
               goal->successorsGoals[1]->yPosition < goal->yPosition) {
             // we are good
           } else {
-            std::cout << "ERROR: Goal " << goal->name
-                      << " has 2 successors, but is not above both"
-                      << std::endl;
+            //std::cout << "ERROR: Goal " << goal->name
+            //          << " has 2 successors, but is not above both"
+            //          << std::endl;
           }
         }
         if (goal->prerequisitesGoals.size() > 0) {

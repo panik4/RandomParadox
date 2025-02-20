@@ -853,21 +853,19 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
   const auto unitBlock = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                       "hoi4//history//unit_block.txt");
 
-  const auto unitTemplateFile = pU::readFile(
-      Fwg::Cfg::Values().resourcePath + "hoi4//history//divisionTemplates.txt");
-  // now tokenize by : character to get single
-  const auto unitTemplates = pU::getTokens(unitTemplateFile, ':');
+  const auto divisionTemplateFile = pU::readFile(
+      Fwg::Cfg::Values().resourcePath + "hoi4//history//divisionTemplate.txt");
 
-  // auto IDMapFile =
-  // pU::getLines(Fwg::Cfg::Values().resourcePath +
-  // "hoi4//history//divisionIDMapper.txt");
-  std::map<int, std::string> IDMap;
-  /*for (const auto& line : IDMapFile) {
-          if (line.size()) {
-                  auto lineTokens = pU::getTokens(line, ';');
-                  IDMap[stoi(lineTokens[0])] = lineTokens[1];
-          }
-  }*/
+  // map from regiment type to string
+  std::map<RegimentType, std::string> regimentTypeMap{
+      {RegimentType::Infantry, "infantry"},
+      {RegimentType::Artillery, "artillery"},
+      {RegimentType::Cavalry, "cavalry"},
+      {RegimentType::Motorized, "motorized"},
+      {RegimentType::Marines, "marine"},
+      {RegimentType::Mountaineers, "mountaineer"},
+      {RegimentType::Paratroopers, "paratrooper"}};
+
   for (const auto &country : countries) {
     std::vector<int> allowedProvinces;
     for (auto &region : country->hoi4Regions) {
@@ -881,41 +879,46 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     std::string unitFile = defaultTemplate;
     std::string divisionTemplates = "";
     // now insert all the unit templates for this country
-    for (const auto ID : country->units) {
-      divisionTemplates.append(unitTemplates[ID]);
-      // we need to buffer the names of the templates for use in later
-      // unit generationm
-      auto requirements = Fwg::Parsing::Scenario::getBracketBlockContent(
-          unitTemplates[ID], "requirements");
-      auto value = Fwg::Parsing::Scenario::getBracketBlockContent(
-          requirements, "templateName");
-      IDMap[ID] = value;
-      // remove requirements line
-      Fwg::Parsing::Scenario::replaceLine(divisionTemplates, "requirements",
-                                          "");
+    for (const auto divisionTemplate : country->divisionTemplates) {
+      auto tempDivisionTemplate = divisionTemplateFile;
+      Fwg::Parsing::Scenario::replaceOccurences(tempDivisionTemplate,
+                                                "templateDivisionTemplateName",
+                                                divisionTemplate.name);
+      // start adding the regiments
+      std::string regiments = "";
+      for (int i = 0; i < divisionTemplate.regiments.size(); i++) {
+        const auto &regimentColumn = divisionTemplate.regiments[i];
+        for (int x = 0; x < regimentColumn.size(); x++) {
+          regiments += "\t\t\t" + regimentTypeMap.at(regimentColumn[x]) +
+                       " = {  x = " + std::to_string(i) +
+                       " y = " + std::to_string(x) + " }\n";
+        }
+      }
+      divisionTemplates += tempDivisionTemplate;
     }
+
     Fwg::Parsing::Scenario::replaceOccurences(unitFile, "templateTemplateBlock",
                                               divisionTemplates);
 
     // now that we have the templates written down, we deploy units of
     // these templates under the "divisions" key in the unitFile
     std::string totalUnits = "";
-    // for every entry in unitCount vector
-    for (int i = 0; i < country->unitCount.size(); i++) {
-      // run unit generation ("unitCount")[i] times
-      for (int x = 0; x < country->unitCount[i]; x++) {
-        // copy the template unit file
-        auto tempUnit{unitBlock};
-        // replace division name with the generic division name
-        Fwg::Parsing::Scenario::replaceOccurences(
-            tempUnit, "templateDivisionName", "\"" + IDMap.at(i) + "\"");
-        // now deploy the unit in a random province
-        Fwg::Parsing::Scenario::replaceOccurences(
-            tempUnit, "templateLocation",
-            std::to_string(Fwg::Utils::selectRandom(allowedProvinces) + 1));
-        totalUnits += tempUnit;
-      }
-    }
+    //// for every entry in unitCount vector
+    // for (int i = 0; i < country->unitCount.size(); i++) {
+    //   // run unit generation ("unitCount")[i] times
+    //   for (int x = 0; x < country->unitCount[i]; x++) {
+    //     // copy the template unit file
+    //     auto tempUnit{unitBlock};
+    //     // replace division name with the generic division name
+    //     Fwg::Parsing::Scenario::replaceOccurences(
+    //         tempUnit, "templateDivisionName", "\"" + IDMap.at(i) + "\"");
+    //     // now deploy the unit in a random province
+    //     Fwg::Parsing::Scenario::replaceOccurences(
+    //         tempUnit, "templateLocation",
+    //         std::to_string(Fwg::Utils::selectRandom(allowedProvinces) + 1));
+    //     totalUnits += tempUnit;
+    //   }
+    // }
 
     // for (int i = 0; i < country->attributeVectors.at("units").size();
     // i++) {

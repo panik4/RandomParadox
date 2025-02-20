@@ -149,7 +149,10 @@ void Region::calculateBuildingPositions(const Fwg::Gfx::Bitmap &heightmap,
               getBuilding(type, *prov, true, heightmap, typeMap, ID));
         }
       }
-    } else if (coastal && (type == "dockyard" || type == "floating_harbor")) {
+    } else if (type == "dockyard" || type == "floating_harbor") {
+      if (!coastal) {
+        continue;
+      }
       auto prov = Fwg::Utils::selectRandom(provinces);
       while (!prov->coastal)
         prov = Fwg::Utils::selectRandom(provinces);

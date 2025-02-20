@@ -307,14 +307,14 @@ void Generator::generateStateSpecifics() {
         hoi4State->navalBases[location->provinceID] =
             std::max<double>(location->importance / maxImportance, 1.0);
         Fwg::Utils::Logging::logLineLevel(
-            5, "Naval base in ", hoi4State->name, " at ", location->provinceID,
+            8, "Naval base in ", hoi4State->name, " at ", location->provinceID,
             " with importance ", location->importance);
       }
     }
     double dockChance = 0.25;
     double civChance = 0.5;
     // distribute it to military, civilian and naval factories
-    if (!hoi4State->coastalProvinces) {
+    if (!hoi4State->coastal) {
       dockChance = 0.0;
       civChance = 0.6;
     }
@@ -809,6 +809,16 @@ void assignTechsRandomly(
       if (alreadyHas) {
         continue;
       }
+      if (moduleTech.predecessor.size()) {
+        // check if any of the previous era tech modules have the name of the
+        // predecessor
+        for (auto &module : countryCategoryTechs.at(TechEra::Interwar)) {
+          if (module.name == moduleTech.predecessor) {
+            countryCategoryTechs.at(TechEra::Interwar).push_back(moduleTech);
+            break;
+          }
+        }
+      }
 
       auto randomVal = RandNum::getRandom(0.0, 1.0) * techLevel;
       if (randomVal > 0.5) {
@@ -1123,67 +1133,126 @@ void Generator::generateArmorVariants() {
 void Generator::generateCountryUnits() {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Unit Files");
   // read in different compositions
-  auto unitTemplateFile = Parsing::readFile(
-      Fwg::Cfg::Values().resourcePath + "hoi4//history//divisionTemplates.txt");
-  // now tokenize by : character to get single
-  auto unitTemplates = Fwg::Parsing::getTokens(unitTemplateFile, ':');
+  std::string regimentTemplate = "infantry = {x = 0 y = 0}";
+  const auto divisionTemplateFile = Parsing::readFile(
+      Fwg::Cfg::Values().resourcePath + "hoi4//history//divisionTemplate.txt");
+
+  // std::vector<
+  const std::vector<DivisionType> divisionTypes = {
+      DivisionType::Irregulars,
+      DivisionType::Infantry,
+      DivisionType::SupportedInfantry,
+      DivisionType::HeavyArtilleryInfantry,
+      DivisionType::Cavalry,
+      DivisionType::Motorized,
+      DivisionType::Armor};
+
   for (auto &country : hoi4Countries) {
-    // determine army doctrine
-    // defensive vs offensive
-    // infantry/milita, infantry+support, mechanized+armored, artillery
-    // bully factor? Getting bullied? Infantry+artillery in defensive
-    // doctrine bully? Mechanized+armored major nation? more mechanized
-    // share
-    auto majorFactor = country->relativeScore;
-    auto bullyFactor = 0.05 * country->bully / 5.0;
 
-    // army focus:
-    // simply give templates if we qualify for them
-    if (majorFactor > 0.5 && bullyFactor > 0.25) {
-      // choose one of the mechanised doctrines
-      if (RandNum::getRandom(2))
-        country->doctrines.push_back(Hoi4Country::doctrineType::blitz);
-      else
-        country->doctrines.push_back(Hoi4Country::doctrineType::armored);
+    // basic idea: we create unit templates first. We start with irregulars,
+    // then infantry only, then infantry with support, then infantry with
+    // artillery, then infantry with armor, then motorised infantry, then
+    // motorised infantry with support, then motorised infantry with armor.
+    // for each of those, we depend on certain techs.
+    // each of these will vary a bit per country, depending on their techs and
+    // some randomness in regiments per column (we vary between 2-4 regiments of
+    // the same type per column)
+    std::vector<RegimentType> allowedRegimentTypes;
+    std::vector<SupportRegimentType> allowedSupportRegimentTypes;
+    std::vector<DivisionType> desiredDivisionTemplates;
+    // we also vary the amount of columns per division, between 2 and 4
+    if (country->hasTech("infantry_weapons")) {
+      allowedRegimentTypes.push_back(RegimentType::Infantry);
+      allowedRegimentTypes.push_back(RegimentType::Irregulars);
+      desiredDivisionTemplates.push_back(DivisionType::Irregulars);
+      desiredDivisionTemplates.push_back(DivisionType::Infantry);
     }
-    if (bullyFactor < 0.25) {
-      // will likely get bullied, add defensive doctrines
-      country->doctrines.push_back(Hoi4Country::doctrineType::defensive);
+    if (country->hasTech("gw_artillery")) {
+      allowedRegimentTypes.push_back(RegimentType::Artillery);
+      allowedSupportRegimentTypes.push_back(SupportRegimentType::Artillery);
+      desiredDivisionTemplates.push_back(DivisionType::HeavyArtilleryInfantry);
     }
-    // give all stronger powers infantry with support divisions
-    if (majorFactor >= 0.2) {
-      // any relatively large power has support divisions
-      country->doctrines.push_back(Hoi4Country::doctrineType::infantry);
-      country->doctrines.push_back(Hoi4Country::doctrineType::artillery);
-      // any relatively large power has support divisions
-      country->doctrines.push_back(Hoi4Country::doctrineType::support);
+    if (country->hasTech("tech_trucks")) {
+      allowedSupportRegimentTypes.push_back(
+          SupportRegimentType::MotorizedAntiAir);
+      allowedSupportRegimentTypes.push_back(
+          SupportRegimentType::MotorizedAntiTank);
+      allowedSupportRegimentTypes.push_back(
+          SupportRegimentType::MotorizedArtillery);
     }
-    // give all weaker powers infantry without support
-    if (majorFactor < 0.2) {
-      country->doctrines.push_back(Hoi4Country::doctrineType::milita);
-      country->doctrines.push_back(Hoi4Country::doctrineType::mass);
+    if (country->hasTech("motorised_infantry")) {
+      allowedRegimentTypes.push_back(RegimentType::Motorized);
+    }
+    if (country->hasTech("basic_light_tank_chassis")) {
+      allowedRegimentTypes.push_back(RegimentType::LightArmor);
     }
 
-    // now evaluate each template and add it if all requirements are
-    // fulfilled
-    for (int i = 0; i < unitTemplates.size(); i++) {
-      auto requirements = Parsing::Scenario::getBracketBlockContent(
-          unitTemplates[i], "requirements");
-      auto requirementTokens = Fwg::Parsing::getTokens(requirements, ';');
-      if (unitFulfillsRequirements(requirementTokens, country)) {
-        // get the ID and save it for used divison templates
-        country->units.push_back(i);
-      }
-    }
-    // now compose the army from the templates
-    std::map<int, int> unitCount;
-    country->unitCount.resize(100);
-    auto totalUnits = country->importanceScore / 5;
-    while (totalUnits-- > 0) {
-      // now randomly add units
-      auto unit = Fwg::Utils::selectRandom(country->units);
-      country->unitCount[unit]++;
-    }
+    // now we generate the division templates
+    country->divisionTemplates =
+        createDivisionTemplates(desiredDivisionTemplates, allowedRegimentTypes,
+                                allowedSupportRegimentTypes);
+
+    // at the end, we evaluate which of these templates is used with which
+    // share, as a developed country for example will NOT use irregular infantry
+    // in its army, but a minor power might.
+
+
+    //// determine army doctrine
+    //// defensive vs offensive
+    //// infantry/milita, infantry+support, mechanized+armored, artillery
+    //// bully factor? Getting bullied? Infantry+artillery in defensive
+    //// doctrine bully? Mechanized+armored major nation? more mechanized
+    //// share
+    // auto majorFactor = country->relativeScore;
+    // auto bullyFactor = 0.05 * country->bully / 5.0;
+
+    //// army focus:
+    //// simply give templates if we qualify for them
+    // if (majorFactor > 0.5 && bullyFactor > 0.25) {
+    //   // choose one of the mechanised doctrines
+    //   if (RandNum::getRandom(2))
+    //     country->doctrines.push_back(Hoi4Country::doctrineType::blitz);
+    //   else
+    //     country->doctrines.push_back(Hoi4Country::doctrineType::armored);
+    // }
+    // if (bullyFactor < 0.25) {
+    //   // will likely get bullied, add defensive doctrines
+    //   country->doctrines.push_back(Hoi4Country::doctrineType::defensive);
+    // }
+    //// give all stronger powers infantry with support divisions
+    // if (majorFactor >= 0.2) {
+    //   // any relatively large power has support divisions
+    //   country->doctrines.push_back(Hoi4Country::doctrineType::infantry);
+    //   country->doctrines.push_back(Hoi4Country::doctrineType::artillery);
+    //   // any relatively large power has support divisions
+    //   country->doctrines.push_back(Hoi4Country::doctrineType::support);
+    // }
+    //// give all weaker powers infantry without support
+    // if (majorFactor < 0.2) {
+    //   country->doctrines.push_back(Hoi4Country::doctrineType::milita);
+    //   country->doctrines.push_back(Hoi4Country::doctrineType::mass);
+    // }
+
+    //// now evaluate each template and add it if all requirements are
+    //// fulfilled
+    // for (int i = 0; i < unitTemplates.size(); i++) {
+    //   auto requirements = Parsing::Scenario::getBracketBlockContent(
+    //       unitTemplates[i], "requirements");
+    //   auto requirementTokens = Fwg::Parsing::getTokens(requirements, ';');
+    //   if (unitFulfillsRequirements(requirementTokens, country)) {
+    //     // get the ID and save it for used divison templates
+    //     country->units.push_back(i);
+    //   }
+    // }
+    //// now compose the army from the templates
+    // std::map<int, int> unitCount;
+    // country->unitCount.resize(100);
+    // auto totalUnits = country->importanceScore / 5;
+    // while (totalUnits-- > 0) {
+    //   // now randomly add units
+    //   auto unit = Fwg::Utils::selectRandom(country->units);
+    //   country->unitCount[unit]++;
+    // }
   }
 }
 
@@ -1556,12 +1625,12 @@ void Generator::generateCharacters() {
   std::map<Ideology, std::vector<std::string>> leaderTraits = {
       {Ideology::None,
        {"cabinet_crisis", "exiled", "headstrong", "humble",
-        "inexperienced_monarch", "political_prisoner", "socialite_connections",
+        "inexperienced_monarch", "socialite_connections",
         "staunch_constitutionalist", "gentle_scholar", "the_statist",
         "the_academic"}},
       {Ideology::Neutral,
        {"cabinet_crisis", "exiled", "headstrong", "humble",
-        "inexperienced_monarch", "political_prisoner", "socialite_connections",
+        "inexperienced_monarch", "socialite_connections",
         "staunch_constitutionalist", "celebrity_junta_leader"}},
       {Ideology::Fascist,
        {"autocratic_imperialist", "collaborator_king", "generallissimo",
@@ -1569,9 +1638,9 @@ void Generator::generateCharacters() {
         "the_young_magnate", "polemarch", "archon_basileus", "autokrator",
         "basileus", "infirm", "celebrity_junta_leader"}},
       {Ideology::Communist,
-       {"union_man", "stalins_puppet", "political_dancer",
-        "indomitable_perseverance", "mastermind_code_cracker", "polemarch",
-        "infirm", "reluctant_stalinist"}},
+       {"political_dancer", "indomitable_perseverance",
+        "mastermind_code_cracker", "polemarch", "infirm",
+        "reluctant_stalinist"}},
       {Ideology::Democratic,
        {"british_bulldog", "chamberlain_appeaser", "conservative_grandee",
         "famous_aviator", "first_lady", "rearmer", "staunch_constitutionalist",
@@ -1623,134 +1692,90 @@ void Generator::generateCharacters() {
                                                 "army_concealment_",
                                                 "army_logistics_",
                                                 "army_radio_intelligence_"};
+  std::vector<std::string> theoristTraits = {
+      "military_theorist", "naval_theorist", "air_warfare_theorist"};
 
   for (auto &country : hoi4Countries) {
+    // per country, we want to avoid duplicate names
+    std::set<std::string> usedNames;
     // we want of every ideology: Neutral, Fascist, Communist, Democratic
     std::vector<Ideology> ideologies = {Ideology::Neutral, Ideology::Fascist,
                                         Ideology::Communist,
                                         Ideology::Democratic};
+
+    auto createCharacter = [&](Type type, Ideology ideology,
+                               const std::vector<std::string> &traits,
+                               int count, bool addLevel = false) {
+      for (int i = 0; i < count; i++) {
+        Character character;
+        character.gender = Gender::Male;
+        do {
+          character.name = Fwg::Utils::selectRandom(
+              country->getPrimaryCulture()->language->maleNames);
+          character.surname = Fwg::Utils::selectRandom(
+              country->getPrimaryCulture()->language->surnames);
+        } while (usedNames.find(character.name + " " + character.surname) !=
+                 usedNames.end());
+
+        usedNames.insert(character.name + " " + character.surname);
+        character.ideology = ideology;
+        character.type = type;
+        if (traits.size()) {
+          if (addLevel) {
+            int level = RandNum::getRandom(1, 3);
+            character.traits.push_back(Fwg::Utils::selectRandom(traits) +
+                                       std::to_string(level));
+          } else {
+            character.traits.push_back(Fwg::Utils::selectRandom(traits));
+          }
+        }
+        country->characters.push_back(character);
+      }
+    };
+
     for (const auto &ideology : ideologies) {
       // 1 country leader
-      Character leader;
-      leader.gender = Gender::Male;
-      leader.name = Fwg::Utils::selectRandom(
-          country->getPrimaryCulture()->language->maleNames);
-      leader.surname = Fwg::Utils::selectRandom(
-          country->getPrimaryCulture()->language->surnames);
-      leader.ideology = ideology;
-      leader.type = Type::Leader;
-      int desiredTraits = RandNum::getRandom(1, 3);
-      for (int i = 0; i < desiredTraits; i++) {
-        leader.traits.push_back(Fwg::Utils::selectRandom(
-            leaderTraits[ideology])); // find a random trait for the leader
-      }
-      country->characters.push_back(leader);
+      createCharacter(Type::Leader, ideology, leaderTraits[ideology], 1);
 
       // 6 Politicians
-      for (int i = 0; i < 6; i++) {
-        Character politician;
-        politician.gender = Gender::Male;
-        politician.name = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->maleNames);
-        politician.surname = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->surnames);
-        politician.ideology = ideology;
-        politician.type = Type::Politician;
-        leader.traits.push_back(Fwg::Utils::selectRandom(
-            leaderTraits[ideology])); // find a random trait for the leader
-        country->characters.push_back(politician);
-      }
+      createCharacter(Type::Politician, ideology, leaderTraits[ideology], 6);
 
       // 4 Command Generals
-      for (int i = 0; i < 4; i++) {
-        Character armyChief;
-        armyChief.gender = Gender::Male;
-        armyChief.name = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->maleNames);
-        armyChief.surname = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->surnames);
-        armyChief.ideology = ideology;
-        armyChief.type = Type::ArmyChief;
-        int level = RandNum::getRandom(1, 3);
-        armyChief.traits.push_back(Fwg::Utils::selectRandom(armyChiefTraits) +
-                                   std::to_string(level));
-        country->characters.push_back(armyChief);
-      }
+      createCharacter(Type::ArmyChief, ideology, armyChiefTraits, 4, true);
 
       // 2 Command Admirals
-      for (int i = 0; i < 2; i++) {
-        Character navyChief;
-        navyChief.gender = Gender::Male;
-        navyChief.name = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->maleNames);
-        navyChief.surname = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->surnames);
-        navyChief.ideology = ideology;
-        navyChief.type = Type::NavyChief;
-        int level = RandNum::getRandom(1, 3);
-        navyChief.traits.push_back(Fwg::Utils::selectRandom(navyChiefTraits) +
-                                   std::to_string(level));
-        country->characters.push_back(navyChief);
-      }
+      createCharacter(Type::NavyChief, ideology, navyChiefTraits, 2, true);
 
       // 2 Airforce Chiefs
-      for (int i = 0; i < 2; i++) {
-        Character airforceChief;
-        airforceChief.gender = Gender::Male;
-        airforceChief.name = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->maleNames);
-        airforceChief.surname = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->surnames);
-        airforceChief.ideology = ideology;
-        airforceChief.type = Type::AirForceChief;
-        int level = RandNum::getRandom(1, 3);
-        airforceChief.traits.push_back(
-            Fwg::Utils::selectRandom(airChiefTraits) + std::to_string(level));
-        country->characters.push_back(airforceChief);
-      }
+      createCharacter(Type::AirForceChief, ideology, airChiefTraits, 2, true);
 
       // 6 High Command
-      for (int i = 0; i < 6; i++) {
-        Character highCommand;
-        highCommand.gender = Gender::Male;
-        highCommand.name = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->maleNames);
-        highCommand.surname = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->surnames);
-        highCommand.ideology = ideology;
-        highCommand.type = Type::HighCommand;
-        int level = RandNum::getRandom(1, 3);
-        highCommand.traits.push_back(
-            Fwg::Utils::selectRandom(highCommandTraits) +
-            std::to_string(level));
-        country->characters.push_back(highCommand);
-      }
+      createCharacter(Type::HighCommand, ideology, highCommandTraits, 6, true);
 
       // 2 Generals
-      for (int i = 0; i < 0; i++) {
-        Character general;
-        general.gender = Gender::Male;
-        general.name = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->maleNames);
-        general.surname = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->surnames);
-        general.ideology = ideology;
-        general.type = Type::ArmyGeneral;
-        country->characters.push_back(general);
-      }
+      createCharacter(Type::ArmyGeneral, ideology, {}, 0);
 
       // 2 Admirals
-      for (int i = 0; i < 0; i++) {
-        Character admiral;
-        admiral.gender = Gender::Male;
-        admiral.name = Fwg::Utils::selectRandom(
+      createCharacter(Type::FleetAdmiral, ideology, {}, 0);
+    }
+
+    // 3 theorists, 1 per trait
+    for (int i = 0; i < 3; i++) {
+      Character theorist;
+      theorist.gender = Gender::Male;
+      do {
+        theorist.name = Fwg::Utils::selectRandom(
             country->getPrimaryCulture()->language->maleNames);
-        admiral.surname = Fwg::Utils::selectRandom(
+        theorist.surname = Fwg::Utils::selectRandom(
             country->getPrimaryCulture()->language->surnames);
-        admiral.ideology = ideology;
-        admiral.type = Type::FleetAdmiral;
-        country->characters.push_back(admiral);
-      }
+      } while (usedNames.find(theorist.name + " " + theorist.surname) !=
+               usedNames.end());
+
+      usedNames.insert(theorist.name + " " + theorist.surname);
+      theorist.ideology = Ideology::Neutral;
+      theorist.type = Type::Theorist;
+      theorist.traits.push_back(theoristTraits.at(i));
+      country->characters.push_back(theorist);
     }
   }
 }
