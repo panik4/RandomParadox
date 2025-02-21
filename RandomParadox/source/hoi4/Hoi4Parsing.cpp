@@ -849,12 +849,12 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: History: Deploying the Troops");
   const auto defaultTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "hoi4//history//default_unit_template.txt");
+                   "hoi4//history//army//defaultUnitTemplate.txt");
   const auto unitBlock = pU::readFile(Fwg::Cfg::Values().resourcePath +
-                                      "hoi4//history//unit_block.txt");
+                                      "hoi4//history//army//unitBlock.txt");
 
   const auto divisionTemplateFile = pU::readFile(
-      Fwg::Cfg::Values().resourcePath + "hoi4//history//divisionTemplate.txt");
+      Fwg::Cfg::Values().resourcePath + "hoi4//history//army//divisionTemplate.txt");
 
   // map from regiment type to string
   std::map<CombatRegimentType, std::string> regimentTypeMap{
@@ -877,7 +877,7 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
       {SupportRegimentType::Recon, "recon"},
       {SupportRegimentType::FieldHospital, "field_hospital"},
       {SupportRegimentType::Logistics, "logistics"},
-      {SupportRegimentType::Maintenance, "maintenance"},
+      {SupportRegimentType::Maintenance, "maintenance_company"},
       {SupportRegimentType::AntiAir, "anti_air"},
       {SupportRegimentType::Artillery, "artillery"},
       {SupportRegimentType::AntiTank, "anti_tank"}};
@@ -945,7 +945,7 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
           std::to_string(division.startingExperienceFactor));
       Fwg::Parsing::Scenario::replaceOccurences(
           tempDivision, "templateStartEquipment",
-          std::to_string(division.startingExperienceFactor));
+          std::to_string(division.startingEquipmentFactor));
 
       totalUnits += tempDivision;
     }

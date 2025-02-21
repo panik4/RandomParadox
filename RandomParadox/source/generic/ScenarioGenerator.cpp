@@ -372,6 +372,7 @@ void Generator::distributeCountries() {
       region->owner = country;
     }
   }
+  Fwg::Utils::Logging::logLine("Distributing Countries::Assigning Regions");
 
   if (countries.size()) {
     for (auto &gameRegion : gameRegions) {
@@ -383,10 +384,13 @@ void Generator::distributeCountries() {
       }
     }
   }
+  Fwg::Utils::Logging::logLine("Distributing Countries::Evaluating Populations");
   for (auto &country : countries) {
     country.second->evaluatePopulations(civData.worldPopulationFactorSum);
     country.second->gatherCultureShares();
   }
+  Fwg::Utils::Logging::logLine(
+      "Distributing Countries::Visualising Countries");
   visualiseCountries(countryMap);
   Fwg::Gfx::Png::save(countryMap,
                       Fwg::Cfg::Values().mapsPath + "countries.png");

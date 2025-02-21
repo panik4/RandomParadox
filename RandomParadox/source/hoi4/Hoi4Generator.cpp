@@ -1138,12 +1138,7 @@ void Generator::generateArmorVariants() {
 }
 void Generator::generateCountryUnits() {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Unit Files");
-  // read in different compositions
-  std::string regimentTemplate = "infantry = {x = 0 y = 0}";
-  const auto divisionTemplateFile = Parsing::readFile(
-      Fwg::Cfg::Values().resourcePath + "hoi4//history//divisionTemplate.txt");
 
-  // std::vector<
   const std::vector<DivisionType> divisionTypes = {
       DivisionType::Irregulars,
       DivisionType::Infantry,
@@ -1175,6 +1170,7 @@ void Generator::generateCountryUnits() {
       allowedRegimentTypes.push_back(CombatRegimentType::Irregulars);
       desiredDivisionTemplates.insert(DivisionType::Militia);
       desiredDivisionTemplates.insert(DivisionType::Infantry);
+      desiredDivisionTemplates.insert(DivisionType::Cavalry);
     }
     if (country->hasTech("tech_recon")) {
       allowedSupportRegimentTypes.push_back(SupportRegimentType::Recon);
@@ -1249,6 +1245,8 @@ void Generator::generateCountryUnits() {
     for (auto &division : country->divisionTemplates) {
       if (division.type == DivisionType::Militia) {
         division.armyShare = 0.35 - development;
+      } else if (division.type == DivisionType::Cavalry) {
+        division.armyShare = 0.2 - (development - 0.3);
       } else if (division.type == DivisionType::Infantry) {
         division.armyShare = 0.2 - (development - 0.3);
       } else if (division.type == DivisionType::SupportedInfantry) {
@@ -1279,7 +1277,6 @@ void Generator::generateCountryUnits() {
     for (auto &divisionTemplate : country->divisionTemplates) {
       auto divisionMaxCost =
           divisionTemplate.armyShare * country->totalArmyStrength;
-      std::cout << divisionMaxCost << std::endl;
       int count = 1;
       while ((divisionMaxCost -= divisionTemplate.cost) > 0) {
         Division division;
@@ -1296,6 +1293,11 @@ void Generator::generateCountryUnits() {
         division.location = Fwg::Utils::selectRandom(country->ownedProvinces);
         division.name += " '" + division.location->name + "' " +
                          division.divisionTemplate.name;
+        division.startingEquipmentFactor =
+            std::min<double>(0.7 + country->averageDevelopment * 0.3 +
+                                 RandNum::getRandom(0.0, 0.2),
+                             1.0);
+        division.startingExperienceFactor = RandNum::getRandom(0.0, 1.0);
         country->divisions.push_back(division);
       }
     }
