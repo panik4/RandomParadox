@@ -220,7 +220,7 @@ void rocketSites(const std::string &path,
 }
 
 void unitStacks(const std::string &path,
-                const std::vector<Province *> provinces,
+                const std::vector<std::shared_ptr<Province>> provinces,
                 const std::vector<std::shared_ptr<Region>> regions,
                 const Fwg::Gfx::Bitmap &heightMap) {
   Logging::logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
@@ -693,7 +693,7 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
     for (const auto &tankVariant : country->tankVariants) {
       std::string variantString = armorVariantTemplate;
       std::string moduleString;
-      for (auto &tankModule : tankVariant.bbaModules) {
+      for (auto &tankModule : tankVariant.nsbModules) {
         moduleString.append("\t\t\t" + tankModule.first + " = " +
                             tankModule.second + "\n");
       }
@@ -1779,7 +1779,7 @@ void readProvinces(ClimateGeneration::ClimateData &climateData,
       auto r = static_cast<unsigned char>(std::stoi(tokens[1]));
       auto g = static_cast<unsigned char>(std::stoi(tokens[2]));
       auto b = static_cast<unsigned char>(std::stoi(tokens[3]));
-      Fwg::Province *p = new Fwg::Province();
+      std::shared_ptr<Fwg::Province>p = std::make_shared<Fwg::Province>();
       p->ID = ID;
       p->colour = {r, g, b};
       p->isLake = tokens[4] == "lake";

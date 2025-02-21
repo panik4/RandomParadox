@@ -9,8 +9,8 @@ std::string getBestTurretType(
       "tank_light_one_man_tank_turret", "tank_light_two_man_tank_turret",
       "tank_light_three_man_tank_turret",
       "tank_light_fixed_superstructure_turret"};
-  if (tankVariant.type == ArmorType::LightArmor) {
-    if (tankVariant.subType == ArmorSubType::TankDestroyer) {
+  if (tankVariant.type == PlaneType::LightArmor) {
+    if (tankVariant.subType == PlaneRole::TankDestroyer) {
       return "tank_light_fixed_superstructure_turret";
     }
     return Fwg::Utils::selectRandom(lightTurretTypes);
@@ -19,8 +19,8 @@ std::string getBestTurretType(
       "tank_medium_one_man_tank_turret", "tank_medium_two_man_tank_turret",
       "tank_medium_three_man_tank_turret",
       "tank_medium_fixed_superstructure_turret"};
-  if (tankVariant.type == ArmorType::MediumArmor) {
-    if (tankVariant.subType == ArmorSubType::TankDestroyer) {
+  if (tankVariant.type == PlaneType::MediumArmor) {
+    if (tankVariant.subType == PlaneRole::TankDestroyer) {
       return "tank_medium_fixed_superstructure_turret";
     }
     return Fwg::Utils::selectRandom(mediumTurretTypes);
@@ -28,8 +28,8 @@ std::string getBestTurretType(
   std::vector<std::string> heavyTurretTypes = {
       "tank_heavy_two_man_tank_turret", "tank_heavy_three_man_tank_turret",
       "tank_heavy_fixed_superstructure_turret"};
-  if (tankVariant.type == ArmorType::HeavyArmor) {
-    if (tankVariant.subType == ArmorSubType::TankDestroyer) {
+  if (tankVariant.type == PlaneType::HeavyArmor) {
+    if (tankVariant.subType == PlaneRole::TankDestroyer) {
       return "tank_heavy_fixed_superstructure_turret";
     }
     return Fwg::Utils::selectRandom(heavyTurretTypes);
@@ -51,36 +51,36 @@ std::string getBestSuitedGun(
     lightGuns.push_back("tank_small_cannon_2");
     lightGuns.push_back("tank_close_support_gun");
   }
-  if (tankVariant.type == ArmorType::LightArmor) {
-    if (tankVariant.subType == ArmorSubType::Tank) {
+  if (tankVariant.type == PlaneType::LightArmor) {
+    if (tankVariant.subType == PlaneRole::Tank) {
       return Fwg::Utils::selectRandom(lightGuns);
-    } else if (tankVariant.subType == ArmorSubType::TankDestroyer) {
+    } else if (tankVariant.subType == PlaneRole::TankDestroyer) {
       return "tank_high_velocity_cannon";
-    } else if (tankVariant.subType == ArmorSubType::AntiAir) {
+    } else if (tankVariant.subType == PlaneRole::AntiAir) {
       return "tank_anti_air_cannon";
-    } else if (tankVariant.subType == ArmorSubType::Artillery) {
+    } else if (tankVariant.subType == PlaneRole::Artillery) {
       return "tank_close_support_gun";
     }
-  } else if (tankVariant.type == ArmorType::MediumArmor) {
-    if (tankVariant.subType == ArmorSubType::Tank) {
+  } else if (tankVariant.type == PlaneType::MediumArmor) {
+    if (tankVariant.subType == PlaneRole::Tank) {
       return "tank_medium_cannon";
-    } else if (tankVariant.subType == ArmorSubType::TankDestroyer) {
+    } else if (tankVariant.subType == PlaneRole::TankDestroyer) {
       // a medium tank destroyer should use the medium fixed superstructure
       // turret and therefore be able to use the heavy cannon
       return "tank_heavy_cannon";
-    } else if (tankVariant.subType == ArmorSubType::AntiAir) {
+    } else if (tankVariant.subType == PlaneRole::AntiAir) {
       return "tank_anti_air_cannon";
-    } else if (tankVariant.subType == ArmorSubType::Artillery) {
+    } else if (tankVariant.subType == PlaneRole::Artillery) {
       return "tank_close_support_gun";
     }
-  } else if (tankVariant.type == ArmorType::HeavyArmor) {
-    if (tankVariant.subType == ArmorSubType::Tank) {
+  } else if (tankVariant.type == PlaneType::HeavyArmor) {
+    if (tankVariant.subType == PlaneRole::Tank) {
       return "tank_heavy_cannon";
-    } else if (tankVariant.subType == ArmorSubType::TankDestroyer) {
+    } else if (tankVariant.subType == PlaneRole::TankDestroyer) {
       return "tank_heavy_cannon";
-    } else if (tankVariant.subType == ArmorSubType::AntiAir) {
+    } else if (tankVariant.subType == PlaneRole::AntiAir) {
       return "tank_anti_air_cannon";
-    } else if (tankVariant.subType == ArmorSubType::Artillery) {
+    } else if (tankVariant.subType == PlaneRole::Artillery) {
       return "tank_close_support_gun";
     }
   }
@@ -141,17 +141,17 @@ std::string getBestSuitedAdditionalModules(
     std::vector<std::string> moduleTypes = {
         "extra_ammo_storage", "wet_ammo_storage", "smoke_launchers",
         "expanded_fuel_tank"};
-    // check if we find bbaModules["special_type_slot_x"] in the moduleTypes
+    // check if we find nsbModules["special_type_slot_x"] in the moduleTypes
     for (auto &specialSlotName : specialSlotNames) {
 
-      if (tankVariant.bbaModules.contains(specialSlotName) &&
+      if (tankVariant.nsbModules.contains(specialSlotName) &&
           std::find(
               moduleTypes.begin(), moduleTypes.end(),
-                    tankVariant.bbaModules.at(specialSlotName)) !=
+                    tankVariant.nsbModules.at(specialSlotName)) !=
           moduleTypes.end()) {
         moduleTypes.erase(
             std::find(moduleTypes.begin(), moduleTypes.end(),
-                      tankVariant.bbaModules.at(specialSlotName)));
+                      tankVariant.nsbModules.at(specialSlotName)));
       }
     }
     return Fwg::Utils::selectRandom(moduleTypes);
@@ -168,30 +168,30 @@ void addArmorModules(
   // 			suspension_type_slot = tank_christie_suspension
   // armor_type_slot = tank_riveted_armor
   // engine_type_slot = tank_gasoline_engine
-  tankVariant.bbaModules["suspension_type_slot"] = getBestSuitedSuspensionType(
+  tankVariant.nsbModules["suspension_type_slot"] = getBestSuitedSuspensionType(
       availableModuleTech, tankVariant.era, tankVariant);
-  tankVariant.bbaModules["armor_type_slot"] =
+  tankVariant.nsbModules["armor_type_slot"] =
       getBestSuitedArmorType(availableModuleTech, tankVariant.era, tankVariant);
-  tankVariant.bbaModules["engine_type_slot"] =
+  tankVariant.nsbModules["engine_type_slot"] =
       getBestEngineType(availableModuleTech, tankVariant.era, tankVariant);
   // turret type:
-  tankVariant.bbaModules["turret_type_slot"] =
+  tankVariant.nsbModules["turret_type_slot"] =
       getBestTurretType(availableModuleTech, tankVariant.era, tankVariant);
   // gun type:
-  tankVariant.bbaModules["main_armament_slot"] =
+  tankVariant.nsbModules["main_armament_slot"] =
       getBestSuitedGun(availableModuleTech, tankVariant.era, tankVariant);
   // additional modules:
-  tankVariant.bbaModules["special_type_slot_1"] =
+  tankVariant.nsbModules["special_type_slot_1"] =
       getBestSuitedAdditionalModules(availableModuleTech, tankVariant.era,
                                      tankVariant,
                                      RandNum::getRandom(0, 4) % 3 == 0);
   if (RandNum::getRandom(0, 4)) {
-    tankVariant.bbaModules["special_type_slot_2"] =
+    tankVariant.nsbModules["special_type_slot_2"] =
         getBestSuitedAdditionalModules(availableModuleTech, tankVariant.era,
                                        tankVariant, false);
   }
   if (RandNum::getRandom(0, 3)) {
-    tankVariant.bbaModules["special_type_slot_3"] =
+    tankVariant.nsbModules["special_type_slot_3"] =
         getBestSuitedAdditionalModules(availableModuleTech, tankVariant.era,
                                        tankVariant, false);
   }

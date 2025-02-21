@@ -32,7 +32,8 @@ void Generator::mapRegions() {
 
   for (auto &region : this->areas.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
-              [](const Fwg::Province *a, const Fwg::Province *b) {
+              [](const std::shared_ptr<Fwg::Province> a,
+                 const std::shared_ptr<Fwg::Province> b) {
                 return (*a < *b);
               });
     auto gameRegion = std::make_shared<Region>(region);
