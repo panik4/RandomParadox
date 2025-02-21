@@ -10,7 +10,7 @@ public:
   double popFactor;
   double devFactor;
   double cityShare;
-  Fwg::Province *baseProvince;
+  std::shared_ptr<Fwg::Province> baseProvince;
   // containers
   std::vector<GameProvince> neighbours;
   // TODO: Remove this crap
@@ -18,7 +18,7 @@ public:
   // TODO: Remove this crap
   std::map<std::string, std::string> attributeStrings;
   // constructors/destructor
-  GameProvince(Fwg::Province *province);
+  GameProvince(std::shared_ptr<Fwg::Province> province);
   GameProvince();
   ~GameProvince();
   // operators

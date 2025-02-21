@@ -7,25 +7,34 @@
 
 namespace Scenario::Hoi4 {
 
-enum class PlaneType { LightArmor, MediumArmor, HeavyArmor };
-enum class PlaneRole { Tank, TankDestroyer, AntiAir, Artillery };
+enum class PlaneType { SmallFrame, MediumFrame, LargeFrame };
+enum class PlaneRole {
+  Fighter,
+  Cas,
+  NavalBomber,
+  TacticalBomber,
+  StrategicBomber,
+  CarrierCas,
+  CarrierFighter,
+  CarrierNavalBomber
+};
 
-struct TankVariant {
+struct PlaneVariant {
   PlaneType type;
   PlaneRole subType;
   TechEra era;
   std::string name;
-  std::string vanillaArmorName;
-  std::string bbaArmorName;
-  std::map<std::string, std::string> nsbModules;
-  // this is the level between two major upgrades, and determines for nsbModules
+  std::string vanillaFrameName;
+  std::string bbaFrameName;
+  std::map<std::string, std::string> bbaModules;
+  // this is the level between two major upgrades, and determines for bbaModules
   // if we take some of the modules from the next era, and for vanilla how many
   // upgrades have happened. Range between 0.0 and 1.0
   double upgradeLevel = 0.0;
 };
 
-void addArmorModules(
-    TankVariant &tankVariant,
+void addPlaneModules(
+    PlaneVariant &tankVariant,
     const std::map<TechEra, std::vector<Technology>> &availableModuleTech);
 
 } // namespace Scenario::Hoi4
