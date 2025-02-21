@@ -31,6 +31,7 @@ public:
   double averageDevelopment;
   double worldPopulationShare;
   double worldEconomicActivityShare;
+  bool landlocked = true;
 
   Rank rank = Rank::Unranked;
   // total importance
@@ -51,6 +52,8 @@ public:
   virtual ~Country() = default;
   // containers
   std::vector<std::shared_ptr<Region>> ownedRegions;
+  std::vector<std::shared_ptr<GameProvince>> ownedProvinces;
+
   std::set<std::shared_ptr<Country>> neighbours;
   // member functions
   void assignRegions(int maxRegions,
@@ -61,9 +64,11 @@ public:
   void selectCapital();
   // operators
   bool operator<(const Country &right) const { return ID < right.ID; };
+  void evaluateProvinces();
   void evaluatePopulations(const double worldPopulationFactor);
   void evaluateDevelopment();
   void evaluateEconomicActivity(const double worldEconomicActivity);
+  void evaluateProperties();
 
   void gatherCultureShares();
   virtual std::shared_ptr<Culture> getPrimaryCulture() const;

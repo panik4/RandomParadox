@@ -130,7 +130,8 @@ std::string getBestSuitedSuspensionType(
 std::string getBestSuitedAdditionalModules(
     const std::map<TechEra, std::vector<Technology>> &availableModules,
     TechEra era, const TankVariant &tankVariant, bool wantAdditionalTurret) {
-
+  const std::array<std::string, 2> specialSlotNames = {"special_type_slot_1",
+                                                       "special_type_slot_2"};
   if (wantAdditionalTurret) {
     std::vector<std::string> moduleTypes = {"secondary_turret_hmg",
                                             "secondary_turret_small_cannon"};
@@ -140,6 +141,19 @@ std::string getBestSuitedAdditionalModules(
     std::vector<std::string> moduleTypes = {
         "extra_ammo_storage", "wet_ammo_storage", "smoke_launchers",
         "expanded_fuel_tank"};
+    // check if we find bbaModules["special_type_slot_x"] in the moduleTypes
+    for (auto &specialSlotName : specialSlotNames) {
+
+      if (tankVariant.bbaModules.contains(specialSlotName) &&
+          std::find(
+              moduleTypes.begin(), moduleTypes.end(),
+                    tankVariant.bbaModules.at(specialSlotName)) !=
+          moduleTypes.end()) {
+        moduleTypes.erase(
+            std::find(moduleTypes.begin(), moduleTypes.end(),
+                      tankVariant.bbaModules.at(specialSlotName)));
+      }
+    }
     return Fwg::Utils::selectRandom(moduleTypes);
   }
 

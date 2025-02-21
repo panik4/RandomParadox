@@ -857,14 +857,30 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
       Fwg::Cfg::Values().resourcePath + "hoi4//history//divisionTemplate.txt");
 
   // map from regiment type to string
-  std::map<RegimentType, std::string> regimentTypeMap{
-      {RegimentType::Infantry, "infantry"},
-      {RegimentType::Artillery, "artillery"},
-      {RegimentType::Cavalry, "cavalry"},
-      {RegimentType::Motorized, "motorized"},
-      {RegimentType::Marines, "marine"},
-      {RegimentType::Mountaineers, "mountaineer"},
-      {RegimentType::Paratroopers, "paratrooper"}};
+  std::map<CombatRegimentType, std::string> regimentTypeMap{
+      {CombatRegimentType::Infantry, "infantry"},
+      {CombatRegimentType::Irregulars, "infantry"},
+      {CombatRegimentType::Cavalry, "cavalry"},
+      {CombatRegimentType::Motorized, "motorized"},
+      {CombatRegimentType::AntiTank, "anti_tank_brigade"},
+      {CombatRegimentType::AntiAir, "anti_air_brigade"},
+      {CombatRegimentType::Artillery, "artillery_brigade"},
+      {CombatRegimentType::Marines, "marine"},
+      {CombatRegimentType::Mountaineers, "mountaineers"},
+      {CombatRegimentType::Paratroopers, "paratrooper"},
+      {CombatRegimentType::MotorizedAntiAir, "mot_anti_air_brigade"},
+      {CombatRegimentType::MotorizedAntiTank, "mot_anti_tank_brigade"},
+      {CombatRegimentType::MotorizedArtillery, "mot_artillery_brigade"},
+      {CombatRegimentType::LightArmor, "light_armor"}};
+  std::map<SupportRegimentType, std::string> supportRegimentTypeMap = {
+      {SupportRegimentType::Engineer, "engineer"},
+      {SupportRegimentType::Recon, "recon"},
+      {SupportRegimentType::FieldHospital, "field_hospital"},
+      {SupportRegimentType::Logistics, "logistics"},
+      {SupportRegimentType::Maintenance, "maintenance"},
+      {SupportRegimentType::AntiAir, "anti_air"},
+      {SupportRegimentType::Artillery, "artillery"},
+      {SupportRegimentType::AntiTank, "anti_tank"}};
 
   for (const auto &country : countries) {
     std::vector<int> allowedProvinces;
@@ -894,6 +910,17 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
                        " y = " + std::to_string(x) + " }\n";
         }
       }
+      Fwg::Parsing::Scenario::replaceOccurences(tempDivisionTemplate,
+                                                "templateRegiments", regiments);
+      std::string supports = "";
+      for (int i = 0; i < divisionTemplate.supportRegiments.size(); i++) {
+        supports +=
+            "\t\t\t" +
+            supportRegimentTypeMap.at(divisionTemplate.supportRegiments[i]) +
+            " = {  x = " + std::to_string(i) + " y = 0 }\n";
+      }
+      Fwg::Parsing::Scenario::replaceOccurences(
+          tempDivisionTemplate, "templateSupportRegiments", supports);
       divisionTemplates += tempDivisionTemplate;
     }
 
@@ -903,22 +930,25 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     // now that we have the templates written down, we deploy units of
     // these templates under the "divisions" key in the unitFile
     std::string totalUnits = "";
-    //// for every entry in unitCount vector
-    // for (int i = 0; i < country->unitCount.size(); i++) {
-    //   // run unit generation ("unitCount")[i] times
-    //   for (int x = 0; x < country->unitCount[i]; x++) {
-    //     // copy the template unit file
-    //     auto tempUnit{unitBlock};
-    //     // replace division name with the generic division name
-    //     Fwg::Parsing::Scenario::replaceOccurences(
-    //         tempUnit, "templateDivisionName", "\"" + IDMap.at(i) + "\"");
-    //     // now deploy the unit in a random province
-    //     Fwg::Parsing::Scenario::replaceOccurences(
-    //         tempUnit, "templateLocation",
-    //         std::to_string(Fwg::Utils::selectRandom(allowedProvinces) + 1));
-    //     totalUnits += tempUnit;
-    //   }
-    // }
+    for (auto &division : country->divisions) {
+      auto tempDivision = unitBlock;
+      Fwg::Parsing::Scenario::replaceOccurences(
+          tempDivision, "templateDivisionName", division.name);
+      Fwg::Parsing::Scenario::replaceOccurences(
+          tempDivision, "templateLocation",
+          std::to_string(division.location->ID + 1));
+      Fwg::Parsing::Scenario::replaceOccurences(tempDivision,
+                                                "templateDivisionTemplateName",
+                                                division.divisionTemplate.name);
+      Fwg::Parsing::Scenario::replaceOccurences(
+          tempDivision, "templateStartExperience",
+          std::to_string(division.startingExperienceFactor));
+      Fwg::Parsing::Scenario::replaceOccurences(
+          tempDivision, "templateStartEquipment",
+          std::to_string(division.startingExperienceFactor));
+
+      totalUnits += tempDivision;
+    }
 
     // for (int i = 0; i < country->attributeVectors.at("units").size();
     // i++) {
