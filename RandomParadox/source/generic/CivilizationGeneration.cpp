@@ -287,6 +287,9 @@ void nameRegions(std::vector<std::shared_ptr<Region>> &regions) {
     }
     auto language = culture->language;
     region->name = language->generateAreaName("");
+    for (auto &province : region->gameProvinces) {
+      province->name = language->generateAreaName("");
+    }
   }
 }
 

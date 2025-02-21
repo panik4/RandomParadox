@@ -372,6 +372,8 @@ void Generator::generateCountrySpecifics() {
   const std::vector<std::string> ideologies{"fascism", "democratic",
                                             "communism", "neutrality"};
   for (auto &country : hoi4Countries) {
+    // refresh the provinces
+    country->evaluateProvinces();
 
     // select a random country ideology
     country->gfxCulture = Fwg::Utils::selectRandom(gfxCultures);
@@ -909,8 +911,8 @@ void Generator::generateTechLevels() {
         {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
 
     // a few techs are guranteed, such as infantry_weapons
-    country->infantryTechs.insert(
-        {TechEra::Interwar, {{"infantry_weapons", "", TechEra::Interwar}}});
+    country->infantryTechs.at(TechEra::Interwar)
+        .push_back({"infantry_weapons", "", TechEra::Interwar});
     // gurantee we have sonar and basic_battery
     country->navyTechs.at(TechEra::Interwar)
         .push_back({"sonar", "", TechEra::Interwar});
@@ -931,6 +933,9 @@ void Generator::generateTechLevels() {
                         infantryTechLevel, 1.0);
     assignTechsRandomly(armorTechs, country->armorTechs, armorTechLevel, 1.0);
     assignTechsRandomly(navyTechs, country->navyTechs, navyTechLevel, 1.0);
+    if (!country->hasTech("infantry_weapons")) {
+      std::cout << "impossible";
+    }
   }
 
   for (auto &country : hoi4Countries) {
@@ -965,6 +970,7 @@ void Generator::evaluateCountries() {
     country->evaluatePopulations(civData.worldPopulationFactorSum);
     country->evaluateDevelopment();
     country->evaluateEconomicActivity(worldEconomicActivity);
+    country->evaluateProperties();
     country->capitalRegionID = 0;
     country->civilianIndustry = 0;
     country->dockyards = 0;
@@ -1148,6 +1154,9 @@ void Generator::generateCountryUnits() {
       DivisionType::Armor};
 
   for (auto &country : hoi4Countries) {
+    // first determine total army strength based on arms industry
+    country->totalArmyStrength = country->armsFactories * 100;
+    std::cout << country->totalArmyStrength << std::endl;
 
     // basic idea: we create unit templates first. We start with irregulars,
     // then infantry only, then infantry with support, then infantry with
@@ -1157,102 +1166,139 @@ void Generator::generateCountryUnits() {
     // each of these will vary a bit per country, depending on their techs and
     // some randomness in regiments per column (we vary between 2-4 regiments of
     // the same type per column)
-    std::vector<RegimentType> allowedRegimentTypes;
+    std::vector<CombatRegimentType> allowedRegimentTypes;
     std::vector<SupportRegimentType> allowedSupportRegimentTypes;
-    std::vector<DivisionType> desiredDivisionTemplates;
+    std::set<DivisionType> desiredDivisionTemplates;
     // we also vary the amount of columns per division, between 2 and 4
     if (country->hasTech("infantry_weapons")) {
-      allowedRegimentTypes.push_back(RegimentType::Infantry);
-      allowedRegimentTypes.push_back(RegimentType::Irregulars);
-      desiredDivisionTemplates.push_back(DivisionType::Irregulars);
-      desiredDivisionTemplates.push_back(DivisionType::Infantry);
+      allowedRegimentTypes.push_back(CombatRegimentType::Infantry);
+      allowedRegimentTypes.push_back(CombatRegimentType::Irregulars);
+      desiredDivisionTemplates.insert(DivisionType::Militia);
+      desiredDivisionTemplates.insert(DivisionType::Infantry);
+    }
+    if (country->hasTech("tech_recon")) {
+      allowedSupportRegimentTypes.push_back(SupportRegimentType::Recon);
+      desiredDivisionTemplates.insert(DivisionType::SupportedInfantry);
+    }
+    if (country->hasTech("tech_maintenance_company")) {
+      allowedSupportRegimentTypes.push_back(SupportRegimentType::Maintenance);
+      desiredDivisionTemplates.insert(DivisionType::SupportedInfantry);
+    }
+    if (country->hasTech("tech_engineers")) {
+      allowedSupportRegimentTypes.push_back(SupportRegimentType::Engineer);
+      desiredDivisionTemplates.insert(DivisionType::SupportedInfantry);
     }
     if (country->hasTech("gw_artillery")) {
-      allowedRegimentTypes.push_back(RegimentType::Artillery);
+      allowedRegimentTypes.push_back(CombatRegimentType::Artillery);
       allowedSupportRegimentTypes.push_back(SupportRegimentType::Artillery);
-      desiredDivisionTemplates.push_back(DivisionType::HeavyArtilleryInfantry);
+      desiredDivisionTemplates.insert(DivisionType::HeavyArtilleryInfantry);
+      if (country->hasTech("tech_trucks")) {
+        allowedRegimentTypes.push_back(CombatRegimentType::MotorizedArtillery);
+      }
     }
-    if (country->hasTech("tech_trucks")) {
-      allowedSupportRegimentTypes.push_back(
-          SupportRegimentType::MotorizedAntiAir);
-      allowedSupportRegimentTypes.push_back(
-          SupportRegimentType::MotorizedAntiTank);
-      allowedSupportRegimentTypes.push_back(
-          SupportRegimentType::MotorizedArtillery);
+    if (country->hasTech("interwar_antiair")) {
+      allowedRegimentTypes.push_back(CombatRegimentType::AntiAir);
+      allowedSupportRegimentTypes.push_back(SupportRegimentType::AntiAir);
+      if (country->hasTech("tech_trucks")) {
+        allowedRegimentTypes.push_back(CombatRegimentType::MotorizedAntiAir);
+      }
+    }
+    if (country->hasTech("interwar_antitank")) {
+      allowedRegimentTypes.push_back(CombatRegimentType::AntiTank);
+      allowedSupportRegimentTypes.push_back(SupportRegimentType::AntiTank);
+      if (country->hasTech("tech_trucks")) {
+        allowedRegimentTypes.push_back(CombatRegimentType::MotorizedAntiTank);
+      }
     }
     if (country->hasTech("motorised_infantry")) {
-      allowedRegimentTypes.push_back(RegimentType::Motorized);
+      allowedRegimentTypes.push_back(CombatRegimentType::Motorized);
+      desiredDivisionTemplates.insert(DivisionType::Motorized);
+      // if we have CombatRegimentType::MotorizedAntiTank or AntiAir or
+      // Artillery we want a supportedMotorized
+      if (country->hasTech("tech_recon") ||
+          country->hasTech("tech_engineers") ||
+          country->hasTech("gw_artillery")) {
+        desiredDivisionTemplates.insert(DivisionType::SupportedMotorized);
+      }
+      // with artillery available, lets get a motorized artillery division
+      if (country->hasTech("gw_artillery")) {
+        desiredDivisionTemplates.insert(DivisionType::HeavyArtilleryMotorized);
+      }
     }
     if (country->hasTech("basic_light_tank_chassis")) {
-      allowedRegimentTypes.push_back(RegimentType::LightArmor);
+      allowedRegimentTypes.push_back(CombatRegimentType::LightArmor);
     }
 
     // now we generate the division templates
     country->divisionTemplates =
         createDivisionTemplates(desiredDivisionTemplates, allowedRegimentTypes,
                                 allowedSupportRegimentTypes);
+    std::cout << country->divisionTemplates.size() << " "
+              << desiredDivisionTemplates.size() << std::endl;
+
+    // now find names for the divisions
+    for (auto &division : country->divisionTemplates) {
+    }
 
     // at the end, we evaluate which of these templates is used with which
     // share, as a developed country for example will NOT use irregular infantry
     // in its army, but a minor power might.
-
-
-    //// determine army doctrine
-    //// defensive vs offensive
-    //// infantry/milita, infantry+support, mechanized+armored, artillery
-    //// bully factor? Getting bullied? Infantry+artillery in defensive
-    //// doctrine bully? Mechanized+armored major nation? more mechanized
-    //// share
-    // auto majorFactor = country->relativeScore;
-    // auto bullyFactor = 0.05 * country->bully / 5.0;
-
-    //// army focus:
-    //// simply give templates if we qualify for them
-    // if (majorFactor > 0.5 && bullyFactor > 0.25) {
-    //   // choose one of the mechanised doctrines
-    //   if (RandNum::getRandom(2))
-    //     country->doctrines.push_back(Hoi4Country::doctrineType::blitz);
-    //   else
-    //     country->doctrines.push_back(Hoi4Country::doctrineType::armored);
-    // }
-    // if (bullyFactor < 0.25) {
-    //   // will likely get bullied, add defensive doctrines
-    //   country->doctrines.push_back(Hoi4Country::doctrineType::defensive);
-    // }
-    //// give all stronger powers infantry with support divisions
-    // if (majorFactor >= 0.2) {
-    //   // any relatively large power has support divisions
-    //   country->doctrines.push_back(Hoi4Country::doctrineType::infantry);
-    //   country->doctrines.push_back(Hoi4Country::doctrineType::artillery);
-    //   // any relatively large power has support divisions
-    //   country->doctrines.push_back(Hoi4Country::doctrineType::support);
-    // }
-    //// give all weaker powers infantry without support
-    // if (majorFactor < 0.2) {
-    //   country->doctrines.push_back(Hoi4Country::doctrineType::milita);
-    //   country->doctrines.push_back(Hoi4Country::doctrineType::mass);
-    // }
-
-    //// now evaluate each template and add it if all requirements are
-    //// fulfilled
-    // for (int i = 0; i < unitTemplates.size(); i++) {
-    //   auto requirements = Parsing::Scenario::getBracketBlockContent(
-    //       unitTemplates[i], "requirements");
-    //   auto requirementTokens = Fwg::Parsing::getTokens(requirements, ';');
-    //   if (unitFulfillsRequirements(requirementTokens, country)) {
-    //     // get the ID and save it for used divison templates
-    //     country->units.push_back(i);
-    //   }
-    // }
-    //// now compose the army from the templates
-    // std::map<int, int> unitCount;
-    // country->unitCount.resize(100);
-    // auto totalUnits = country->importanceScore / 5;
-    // while (totalUnits-- > 0) {
-    //   // now randomly add units
-    //   auto unit = Fwg::Utils::selectRandom(country->units);
-    //   country->unitCount[unit]++;
-    // }
+    // the more developed we are, the more likely we are to use the more
+    // expensive divisions
+    auto &development = country->averageDevelopment;
+    for (auto &division : country->divisionTemplates) {
+      if (division.type == DivisionType::Militia) {
+        division.armyShare = 0.35 - development;
+      } else if (division.type == DivisionType::Infantry) {
+        division.armyShare = 0.2 - (development - 0.3);
+      } else if (division.type == DivisionType::SupportedInfantry) {
+        division.armyShare = 0.2 - (development - 0.4);
+      } else if (division.type == DivisionType::HeavyArtilleryInfantry) {
+        division.armyShare = 0.2 - (development - 0.4);
+      } else if (division.type == DivisionType::Motorized) {
+        division.armyShare = 0.1 - (development - 0.5);
+      } else if (division.type == DivisionType::SupportedMotorized) {
+        division.armyShare = 0.1 - (development - 0.6);
+      } else if (division.type == DivisionType::HeavyArtilleryMotorized) {
+        division.armyShare = 0.1 - (development - 0.6);
+      } else if (division.type == DivisionType::Armor) {
+        division.armyShare = 0.1 - (development - 0.7);
+      }
+    }
+    // now normalise the shares so we get a sum of 1
+    double sum = 0.0;
+    for (auto &division : country->divisionTemplates) {
+      sum += division.armyShare;
+    }
+    for (auto &division : country->divisionTemplates) {
+      division.armyShare /= sum;
+    }
+    // now we can generate the divisions. Each typeshare is multiplied with the
+    // totalArmyStrength, and then we generate the divisions until their cost
+    // reaches the typeshare
+    for (auto &divisionTemplate : country->divisionTemplates) {
+      auto divisionMaxCost =
+          divisionTemplate.armyShare * country->totalArmyStrength;
+      std::cout << divisionMaxCost << std::endl;
+      int count = 1;
+      while ((divisionMaxCost -= divisionTemplate.cost) > 0) {
+        Division division;
+        division.divisionTemplate = divisionTemplate;
+        division.name = std::to_string(count++);
+        if (count % 10 == 1)
+          division.name += "st";
+        else if (count % 10 == 2)
+          division.name += "nd";
+        else if (count % 10 == 3)
+          division.name += "rd";
+        else
+          division.name += "th";
+        division.location = Fwg::Utils::selectRandom(country->ownedProvinces);
+        division.name += " '" + division.location->name + "' " +
+                         division.divisionTemplate.name;
+        country->divisions.push_back(division);
+      }
+    }
   }
 }
 
@@ -1339,6 +1385,10 @@ void Generator::generateCountryNavies() {
                             country->infantryTechs);
         country->shipClasses.at(shipClass.type).push_back(shipClass);
       }
+    }
+    // we only set the designs if we're landlocked
+    if (country->landlocked) {
+      continue;
     }
 
     // determine the total tonnage by taking the naval focus times the countries
@@ -1455,6 +1505,10 @@ void Generator::generateCountryNavies() {
   }
   // put all ships in one fleet
   for (auto &country : hoi4Countries) {
+    // we only set the designs if we're landlocked
+    if (country->landlocked) {
+      continue;
+    }
     std::map<std::string, int> utilisedShipNames;
     Fleet fleet;
     fleet.name = country->name + " Fleet";

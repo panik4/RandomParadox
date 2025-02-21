@@ -50,6 +50,7 @@ public:
   std::string ideas;
   // navy
   double navalFocus;
+  int totalNavyStrength;
   std::map<NavalHullType, std::vector<TechEra>> hullTech;
   std::map<TechEra, std::vector<Technology>> navyTechs;
   std::map<ShipClassType, std::vector<ShipClass>> shipClasses;
@@ -59,6 +60,7 @@ public:
 
   // army
   double landFocus;
+  int totalArmyStrength;
   std::vector<doctrineType> doctrines;
   std::vector<int> units;
   std::vector<int> unitCount;
@@ -66,8 +68,10 @@ public:
   std::map<TechEra, std::vector<Technology>> armorTechs;
   std::vector<TankVariant> tankVariants;
   std::vector<DivisionTemplate> divisionTemplates;
+  std::vector<Division> divisions;
   // airforce
   double airFocus;
+  int totalAirStrength;
   std::map<TechEra, std::vector<Technology>> airTechs;
 
   // industry

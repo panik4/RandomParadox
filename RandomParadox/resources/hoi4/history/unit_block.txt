@@ -1,10 +1,7 @@
 	division= {
-		division_name = {
-				is_name_ordered = yes
-				name_order = 1
-		}
+		name = "templateDivisionName"
 		location = templateLocation
-		division_template = templateDivisionName
-		start_experience_factor = 0.5
-		start_equipment_factor = 0.8
+		division_template = "templateDivisionTemplateName"
+		start_experience_factor = templateStartExperience
+		start_equipment_factor = templateStartEquipment
 	}

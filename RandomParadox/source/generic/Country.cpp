@@ -75,6 +75,22 @@ void Country::selectCapital() {
     }
   }
 }
+// gathers all provinces from the regions
+void Country::evaluateProvinces() {
+  ownedProvinces.clear();
+  for (const auto &region : ownedRegions) {
+    for (const auto &gameProvince : region->gameProvinces) {
+      ownedProvinces.push_back(gameProvince);
+    }
+  }
+  // sort the provinces by ID
+  std::sort(
+      ownedProvinces.begin(), ownedProvinces.end(),
+      [](const std::shared_ptr<GameProvince> &a,
+         const std::shared_ptr<GameProvince> &b) { return a->ID < b->ID; });
+
+
+}
 void Country::evaluatePopulations(const double worldPopulationFactor) {
   // gather all population factors of the regions
   populationFactor = 0.0;
@@ -100,6 +116,17 @@ void Country::evaluateEconomicActivity(const double worldEconomicActivity) {
     economicActivity += region->economicActivity;
   }
   worldEconomicActivityShare = economicActivity / worldEconomicActivity;
+}
+
+void Country::evaluateProperties() {
+  // first check if we are landlocked
+  landlocked = true;
+  for (const auto &region : ownedRegions) {
+    if (region->coastal) {
+      landlocked = false;
+      break;
+    }
+  }
 }
 
 void Country::gatherCultureShares() {
