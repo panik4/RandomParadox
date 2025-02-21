@@ -6,30 +6,32 @@ namespace NameGeneration {
 std::string generateTag(const std::string name, NameData &nameData) {
   std::string tag{""};
   int retries = 0;
+  // all letters in the alphabet
+  const std::vector<std::string> letters{
+      "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+      "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
   do {
     int offset = std::clamp(retries - 1, 0, (int)name.size() - 3);
-    tag = name.substr(0 + offset, 3);
+    tag = name.substr(0 + offset, std::min<int>(3, name.size()));
     std::transform(tag.begin(), tag.end(), tag.begin(), ::toupper);
     if (tag.size() < 3)
-      tag += "X";
+      tag += Fwg::Utils::selectRandom(letters)[0];
   } while (nameData.disallowedTokens.find(tag) !=
                nameData.disallowedTokens.end() &&
            retries++ < 10);
   if (retries >= 10) {
-    std::vector<std::string> letters{"A", "B", "C", "D", "E", "F",
-                                     "G", "H", "I", "J", "K", "L"};
     do {
       // add a random letter to the tag
       tag.resize(3);
-
       tag[2] = Fwg::Utils::selectRandom(letters)[0];
     } while (nameData.disallowedTokens.find(tag) !=
                  nameData.disallowedTokens.end() &&
              retries++ < 20);
   }
   if (tag.size() != 3)
-        throw(std::exception(std::string("Incorrect tag size in generating tag " + tag).c_str()));
+    throw(std::exception(
+        std::string("Incorrect tag size in generating tag " + tag).c_str()));
   if (retries >= 20)
     throw(std::exception(
         std::string("Too many tries generating tag " + tag).c_str()));
