@@ -933,9 +933,6 @@ void Generator::generateTechLevels() {
                         infantryTechLevel, 1.0);
     assignTechsRandomly(armorTechs, country->armorTechs, armorTechLevel, 1.0);
     assignTechsRandomly(navyTechs, country->navyTechs, navyTechLevel, 1.0);
-    if (!country->hasTech("infantry_weapons")) {
-      std::cout << "impossible";
-    }
   }
 
   for (auto &country : hoi4Countries) {
@@ -1004,10 +1001,8 @@ void Generator::evaluateCountries() {
 
   // sort countries by rank
 
-  int numMajorPowers = numCountries / 10;
-  std::cout << numMajorPowers << std::endl;
-  ;
-  int numSecondaryPowers = numCountries / 10;
+  int numMajorPowers = std::min<int>(numCountries / 10, 8);
+  int numSecondaryPowers = std::min<int>(numCountries / 10, 8);
   int numRegionalPowers = numCountries / 6;
   int numLocalPowers = numCountries / 6;
   int numMinorPowers =
@@ -1051,8 +1046,8 @@ void Generator::evaluateCountries() {
 
 void Generator::generateArmorVariants() {
   struct TankType {
-    PlaneType type;
-    PlaneRole subType;
+    ArmorType type;
+    ArmorRole subType;
   };
   Fwg::Utils::Logging::logLine("HOI4: Generating Armor Variants");
   for (auto &country : hoi4Countries) {
@@ -1066,56 +1061,56 @@ void Generator::generateArmorVariants() {
         }
       }
       std::map<std::string, TankType> chassisToGenerate;
-      chassisToGenerate["light_tank_chassis_0"] = {PlaneType::LightArmor,
-                                                   PlaneRole::Tank};
-      chassisToGenerate["medium_tank_chassis_0"] = {PlaneType::MediumArmor,
-                                                    PlaneRole::Tank};
+      chassisToGenerate["light_tank_chassis_0"] = {ArmorType::LightArmor,
+                                                   ArmorRole::Tank};
+      chassisToGenerate["medium_tank_chassis_0"] = {ArmorType::MediumArmor,
+                                                    ArmorRole::Tank};
       if (hasTechnology(country->armorTechs, "interwar_antitank")) {
         chassisToGenerate["light_tank_chassis_0"] = {
-            PlaneType::LightArmor, PlaneRole::TankDestroyer};
+            ArmorType::LightArmor, ArmorRole::TankDestroyer};
         chassisToGenerate["medium_tank_chassis_0"] = {
-            PlaneType::MediumArmor, PlaneRole::TankDestroyer};
+            ArmorType::MediumArmor, ArmorRole::TankDestroyer};
       }
       if (hasTechnology(country->armorTechs, "interwar_artillery")) {
-        chassisToGenerate["light_tank_chassis_0"] = {PlaneType::LightArmor,
-                                                     PlaneRole::Artillery};
-        chassisToGenerate["medium_tank_chassis_0"] = {PlaneType::MediumArmor,
-                                                      PlaneRole::Artillery};
+        chassisToGenerate["light_tank_chassis_0"] = {ArmorType::LightArmor,
+                                                     ArmorRole::Artillery};
+        chassisToGenerate["medium_tank_chassis_0"] = {ArmorType::MediumArmor,
+                                                      ArmorRole::Artillery};
       }
-      chassisToGenerate["heavy_tank_chassis_0"] = {PlaneType::HeavyArmor,
-                                                   PlaneRole::Tank};
+      chassisToGenerate["heavy_tank_chassis_0"] = {ArmorType::HeavyArmor,
+                                                   ArmorRole::Tank};
       if (hasTechnology(country->armorTechs, "basic_light_tank_chassis")) {
-        chassisToGenerate["light_tank_chassis_1"] = {PlaneType::LightArmor,
-                                                     PlaneRole::Tank};
+        chassisToGenerate["light_tank_chassis_1"] = {ArmorType::LightArmor,
+                                                     ArmorRole::Tank};
         if (hasTechnology(country->armorTechs, "interwar_antitank")) {
           chassisToGenerate["light_tank_chassis_1"] = {
-              PlaneType::LightArmor, PlaneRole::TankDestroyer};
+              ArmorType::LightArmor, ArmorRole::TankDestroyer};
         }
         if (hasTechnology(country->armorTechs, "interwar_artillery")) {
-          chassisToGenerate["light_tank_chassis_1"] = {PlaneType::LightArmor,
-                                                       PlaneRole::Artillery};
+          chassisToGenerate["light_tank_chassis_1"] = {ArmorType::LightArmor,
+                                                       ArmorRole::Artillery};
         }
       }
       if (hasTechnology(country->armorTechs, "improved_light_tank_chassis")) {
-        chassisToGenerate["light_tank_chassis_2"] = {PlaneType::LightArmor,
-                                                     PlaneRole::Tank};
+        chassisToGenerate["light_tank_chassis_2"] = {ArmorType::LightArmor,
+                                                     ArmorRole::Tank};
 
         if (hasTechnology(country->armorTechs, "interwar_antitank")) {
           chassisToGenerate["light_tank_chassis_2"] = {
-              PlaneType::LightArmor, PlaneRole::TankDestroyer};
+              ArmorType::LightArmor, ArmorRole::TankDestroyer};
         }
         if (hasTechnology(country->armorTechs, "interwar_artillery")) {
-          chassisToGenerate["light_tank_chassis_2"] = {PlaneType::LightArmor,
-                                                       PlaneRole::Artillery};
+          chassisToGenerate["light_tank_chassis_2"] = {ArmorType::LightArmor,
+                                                       ArmorRole::Artillery};
         }
       }
 
       if (hasTechnology(country->armorTechs, "basic_heavy_tank_chassis")) {
-        chassisToGenerate["heavy_tank_chassis_1"] = {PlaneType::HeavyArmor,
-                                                     PlaneRole::Tank};
+        chassisToGenerate["heavy_tank_chassis_1"] = {ArmorType::HeavyArmor,
+                                                     ArmorRole::Tank};
         if (hasTechnology(country->armorTechs, "interwar_antitank")) {
           chassisToGenerate["heavy_tank_chassis_1"] = {
-              PlaneType::HeavyArmor, PlaneRole::TankDestroyer};
+              ArmorType::HeavyArmor, ArmorRole::TankDestroyer};
         }
       }
 

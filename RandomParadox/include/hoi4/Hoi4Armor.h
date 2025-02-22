@@ -7,12 +7,12 @@
 
 namespace Scenario::Hoi4 {
 
-enum class PlaneType { LightArmor, MediumArmor, HeavyArmor };
-enum class PlaneRole { Tank, TankDestroyer, AntiAir, Artillery };
+enum class ArmorType { LightArmor, MediumArmor, HeavyArmor };
+enum class ArmorRole { Tank, TankDestroyer, AntiAir, Artillery };
 
 struct TankVariant {
-  PlaneType type;
-  PlaneRole subType;
+  ArmorType type;
+  ArmorRole subType;
   TechEra era;
   std::string name;
   std::string vanillaArmorName;

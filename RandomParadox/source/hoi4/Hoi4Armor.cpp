@@ -9,8 +9,8 @@ std::string getBestTurretType(
       "tank_light_one_man_tank_turret", "tank_light_two_man_tank_turret",
       "tank_light_three_man_tank_turret",
       "tank_light_fixed_superstructure_turret"};
-  if (tankVariant.type == PlaneType::LightArmor) {
-    if (tankVariant.subType == PlaneRole::TankDestroyer) {
+  if (tankVariant.type == ArmorType::LightArmor) {
+    if (tankVariant.subType == ArmorRole::TankDestroyer) {
       return "tank_light_fixed_superstructure_turret";
     }
     return Fwg::Utils::selectRandom(lightTurretTypes);
@@ -19,8 +19,8 @@ std::string getBestTurretType(
       "tank_medium_one_man_tank_turret", "tank_medium_two_man_tank_turret",
       "tank_medium_three_man_tank_turret",
       "tank_medium_fixed_superstructure_turret"};
-  if (tankVariant.type == PlaneType::MediumArmor) {
-    if (tankVariant.subType == PlaneRole::TankDestroyer) {
+  if (tankVariant.type == ArmorType::MediumArmor) {
+    if (tankVariant.subType == ArmorRole::TankDestroyer) {
       return "tank_medium_fixed_superstructure_turret";
     }
     return Fwg::Utils::selectRandom(mediumTurretTypes);
@@ -28,8 +28,8 @@ std::string getBestTurretType(
   std::vector<std::string> heavyTurretTypes = {
       "tank_heavy_two_man_tank_turret", "tank_heavy_three_man_tank_turret",
       "tank_heavy_fixed_superstructure_turret"};
-  if (tankVariant.type == PlaneType::HeavyArmor) {
-    if (tankVariant.subType == PlaneRole::TankDestroyer) {
+  if (tankVariant.type == ArmorType::HeavyArmor) {
+    if (tankVariant.subType == ArmorRole::TankDestroyer) {
       return "tank_heavy_fixed_superstructure_turret";
     }
     return Fwg::Utils::selectRandom(heavyTurretTypes);
@@ -51,36 +51,36 @@ std::string getBestSuitedGun(
     lightGuns.push_back("tank_small_cannon_2");
     lightGuns.push_back("tank_close_support_gun");
   }
-  if (tankVariant.type == PlaneType::LightArmor) {
-    if (tankVariant.subType == PlaneRole::Tank) {
+  if (tankVariant.type == ArmorType::LightArmor) {
+    if (tankVariant.subType == ArmorRole::Tank) {
       return Fwg::Utils::selectRandom(lightGuns);
-    } else if (tankVariant.subType == PlaneRole::TankDestroyer) {
+    } else if (tankVariant.subType == ArmorRole::TankDestroyer) {
       return "tank_high_velocity_cannon";
-    } else if (tankVariant.subType == PlaneRole::AntiAir) {
+    } else if (tankVariant.subType == ArmorRole::AntiAir) {
       return "tank_anti_air_cannon";
-    } else if (tankVariant.subType == PlaneRole::Artillery) {
+    } else if (tankVariant.subType == ArmorRole::Artillery) {
       return "tank_close_support_gun";
     }
-  } else if (tankVariant.type == PlaneType::MediumArmor) {
-    if (tankVariant.subType == PlaneRole::Tank) {
+  } else if (tankVariant.type == ArmorType::MediumArmor) {
+    if (tankVariant.subType == ArmorRole::Tank) {
       return "tank_medium_cannon";
-    } else if (tankVariant.subType == PlaneRole::TankDestroyer) {
+    } else if (tankVariant.subType == ArmorRole::TankDestroyer) {
       // a medium tank destroyer should use the medium fixed superstructure
       // turret and therefore be able to use the heavy cannon
       return "tank_heavy_cannon";
-    } else if (tankVariant.subType == PlaneRole::AntiAir) {
+    } else if (tankVariant.subType == ArmorRole::AntiAir) {
       return "tank_anti_air_cannon";
-    } else if (tankVariant.subType == PlaneRole::Artillery) {
+    } else if (tankVariant.subType == ArmorRole::Artillery) {
       return "tank_close_support_gun";
     }
-  } else if (tankVariant.type == PlaneType::HeavyArmor) {
-    if (tankVariant.subType == PlaneRole::Tank) {
+  } else if (tankVariant.type == ArmorType::HeavyArmor) {
+    if (tankVariant.subType == ArmorRole::Tank) {
       return "tank_heavy_cannon";
-    } else if (tankVariant.subType == PlaneRole::TankDestroyer) {
+    } else if (tankVariant.subType == ArmorRole::TankDestroyer) {
       return "tank_heavy_cannon";
-    } else if (tankVariant.subType == PlaneRole::AntiAir) {
+    } else if (tankVariant.subType == ArmorRole::AntiAir) {
       return "tank_anti_air_cannon";
-    } else if (tankVariant.subType == PlaneRole::Artillery) {
+    } else if (tankVariant.subType == ArmorRole::Artillery) {
       return "tank_close_support_gun";
     }
   }
