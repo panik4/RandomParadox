@@ -4,6 +4,7 @@ if = {
 		set_technology = {
 			templateBbaAirTechs
 		}
+templateAirVariants
 	else = {
 		set_air_oob = "templateTag_1936_air_legacy"
 		set_technology = {

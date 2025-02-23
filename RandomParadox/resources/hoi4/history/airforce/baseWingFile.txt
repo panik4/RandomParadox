@@ -1,0 +1,1 @@
+templateAirFrame = { owner = "templateCountryTag" amount = templateAmount version_name = "templateName" }

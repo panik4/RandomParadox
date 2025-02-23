@@ -21,9 +21,8 @@ void Generator::mapRegions() {
   statesInitialised = false;
   for (auto &region : this->areas.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
-              [](const std::shared_ptr<Fwg::Province>a, const std::shared_ptr<Fwg::Province>b) {
-                return (*a < *b);
-              });
+              [](const std::shared_ptr<Fwg::Province> a,
+                 const std::shared_ptr<Fwg::Province> b) { return (*a < *b); });
     auto gameRegion = std::make_shared<Region>(region);
     // generate random name for region
     gameRegion->name = "";
@@ -498,6 +497,7 @@ void Generator::generateCountrySpecifics() {
   generateArmorVariants();
   generateCountryUnits();
   generateCountryNavies();
+  generateAirVariants();
   generateCharacters();
 }
 
@@ -926,6 +926,9 @@ void Generator::generateTechLevels() {
     auto industryTechLevel = development * 5.0;
 
     assignTechsRandomly(airTechs, country->airTechs, airTechLevel, 1.0);
+    // ensure we have meaningful techs for planes, should we have any
+    adjustTechsForPlaneModules(country->airTechs);
+
     assignTechsRandomly(industryElectronicTechs,
                         country->industryElectronicTechs, industryTechLevel,
                         1.0);
@@ -1066,10 +1069,10 @@ void Generator::generateArmorVariants() {
       chassisToGenerate["medium_tank_chassis_0"] = {ArmorType::MediumArmor,
                                                     ArmorRole::Tank};
       if (hasTechnology(country->armorTechs, "interwar_antitank")) {
-        chassisToGenerate["light_tank_chassis_0"] = {
-            ArmorType::LightArmor, ArmorRole::TankDestroyer};
-        chassisToGenerate["medium_tank_chassis_0"] = {
-            ArmorType::MediumArmor, ArmorRole::TankDestroyer};
+        chassisToGenerate["light_tank_chassis_0"] = {ArmorType::LightArmor,
+                                                     ArmorRole::TankDestroyer};
+        chassisToGenerate["medium_tank_chassis_0"] = {ArmorType::MediumArmor,
+                                                      ArmorRole::TankDestroyer};
       }
       if (hasTechnology(country->armorTechs, "interwar_artillery")) {
         chassisToGenerate["light_tank_chassis_0"] = {ArmorType::LightArmor,
@@ -1131,6 +1134,178 @@ void Generator::generateArmorVariants() {
     }
   }
 }
+
+void Generator::generateAirVariants() {
+  struct AirType {
+    PlaneType type;
+    PlaneRole subType;
+    std::string frame;
+    TechEra era;
+  };
+  Fwg::Utils::Logging::logLine("HOI4: Generating Air Variants");
+  for (auto &country : hoi4Countries) {
+    bool hasCarrier = false;
+    for (auto &ship : country->ships) {
+      if (ship->shipClass.type == ShipClassType::Carrier) {
+        hasCarrier = true;
+        break;
+      }
+    }
+    std::map<std::string, AirType> frameToGenerate;
+    // first check if we have techs for small airframes
+    if (hasTechnology(country->airTechs, "iw_small_airframe")) {
+      frameToGenerate["iw_fighter"] = {PlaneType::SmallFrame,
+                                       PlaneRole::Fighter, "iw_small_airframe",
+                                       TechEra::Interwar};
+      if (hasCarrier) {
+        frameToGenerate["iw_carrier_fighter"] = {
+            PlaneType::SmallFrame, PlaneRole::CarrierFighter,
+            "iw_small_airframe", TechEra::Interwar};
+      }
+      if (hasTechnology(country->airTechs, "air_torpedoe_1")) {
+        frameToGenerate["iw_nav_bomb"] = {
+            PlaneType::SmallFrame, PlaneRole::NavalBomber, "iw_small_airframe",
+            TechEra::Interwar};
+        if (hasCarrier) {
+          frameToGenerate["iw_carrier_nav_bomb"] = {
+              PlaneType::SmallFrame, PlaneRole::CarrierNavalBomber,
+              "iw_small_airframe", TechEra::Interwar};
+        }
+      }
+      // check if we have everything for gw CAS
+      if (hasTechnology(country->airTechs, "early_bombs")) {
+        frameToGenerate["gw_cas"] = {PlaneType::SmallFrame, PlaneRole::Cas,
+                                     "gw_small_airframe", TechEra::Interwar};
+        if (hasCarrier) {
+          frameToGenerate["iw_carrier_cas"] = {
+              PlaneType::SmallFrame, PlaneRole::CarrierCas, "iw_small_airframe",
+              TechEra::Interwar};
+        }
+      }
+      // do the same for basic small airframes
+      if (hasTechnology(country->airTechs, "basic_small_airframe")) {
+        frameToGenerate["basic_fighter"] = {
+            PlaneType::SmallFrame, PlaneRole::Fighter, "basic_small_airframe",
+            TechEra::Buildup};
+        if (hasCarrier) {
+          frameToGenerate["basic_carrier_fighters"] = {
+              PlaneType::SmallFrame, PlaneRole::CarrierFighter,
+              "basic_small_airframe", TechEra::Buildup};
+        }
+        if (hasTechnology(country->airTechs, "air_torpedoe_1")) {
+          frameToGenerate["basic_nav_bomb"] = {
+              PlaneType::SmallFrame, PlaneRole::NavalBomber,
+              "basic_small_airframe", TechEra::Buildup};
+          if (hasCarrier) {
+            frameToGenerate["basic_carrier_nav_bomb"] = {
+                PlaneType::SmallFrame, PlaneRole::CarrierNavalBomber,
+                "basic_small_airframe", TechEra::Buildup};
+          }
+        }
+        // check if we have everything for basic CAS
+        if (hasTechnology(country->airTechs, "early_bombs")) {
+          frameToGenerate["basic_cas"] = {PlaneType::SmallFrame, PlaneRole::Cas,
+                                          "basic_small_airframe",
+                                          TechEra::Buildup};
+          if (hasCarrier) {
+            frameToGenerate["basic_carrier_cas"] = {
+                PlaneType::SmallFrame, PlaneRole::CarrierCas,
+                "basic_small_airframe", TechEra::Buildup};
+          }
+        }
+      }
+    }
+    // tact bombers, strat bombers
+    if (hasTechnology(country->airTechs, "early_bombs")) {
+      if (hasTechnology(country->airTechs, "iw_medium_airframe")) {
+        frameToGenerate["iw_tac_bomb"] = {
+            PlaneType::MediumFrame, PlaneRole::TacticalBomber,
+            "iw_medium_airframe", TechEra::Interwar};
+        if (hasTechnology(country->airTechs, "basic_medium_airframe")) {
+          frameToGenerate["basic_tac_bomb"] = {
+              PlaneType::MediumFrame, PlaneRole::TacticalBomber,
+              "basic_medium_airframe", TechEra::Buildup};
+        }
+      }
+      if (hasTechnology(country->airTechs, "iw_large_airframe")) {
+        frameToGenerate["iw_strat_bomb"] = {
+            PlaneType::LargeFrame, PlaneRole::StrategicBomber,
+            "iw_large_airframe", TechEra::Interwar};
+        if (hasTechnology(country->airTechs, "basic_large_airframe")) {
+          frameToGenerate["basic_strat_bomb"] = {
+              PlaneType::LargeFrame, PlaneRole::StrategicBomber,
+              "basic_large_airframe", TechEra::Buildup};
+        }
+      }
+    }
+    for (auto &frame : frameToGenerate) {
+      // we can create a plane variant
+      PlaneVariant airVariant;
+      airVariant.type = frame.second.type;
+      airVariant.subType = frame.second.subType;
+      if (airVariant.type == PlaneType::SmallFrame) {
+        airVariant.bbaFrameName = "small_plane_airframe_0";
+        if (airVariant.subType == PlaneRole::CarrierCas) {
+          airVariant.bbaFrameName = "cv_small_plane_cas_airframe_0";
+        } else if (airVariant.subType == PlaneRole::CarrierFighter) {
+          airVariant.bbaFrameName = "cv_small_plane_airframe_0";
+        } else if (airVariant.subType == PlaneRole::CarrierNavalBomber) {
+          airVariant.bbaFrameName = "cv_small_plane_naval_bomber_airframe_0";
+        } else if (airVariant.subType == PlaneRole::Cas) {
+          airVariant.bbaFrameName = "small_plane_cas_airframe_0";
+        } else if (airVariant.subType == PlaneRole::Fighter) {
+          airVariant.bbaFrameName = "small_plane_airframe_0";
+        } else if (airVariant.subType == PlaneRole::NavalBomber) {
+          airVariant.bbaFrameName = "small_plane_naval_bomber_airframe_0";
+        }
+
+      } else if (airVariant.type == PlaneType::MediumFrame) {
+        airVariant.bbaFrameName = "medium_plane_airframe_0";
+      } else if (airVariant.type == PlaneType::LargeFrame) {
+        airVariant.bbaFrameName = "large_plane_airframe_0";
+      }
+      // if we have a basic variant, we replace the 0 with 1
+      if (frame.second.era == TechEra::Buildup) {
+        airVariant.bbaFrameName[airVariant.bbaFrameName.size() - 1] = '1';
+      }
+
+      airVariant.name = country->getPrimaryCulture()
+                            ->language->generateGenericCapitalizedWord() +
+                        " Mk " + std::to_string(RandNum::getRandom(0, 3));
+
+      addPlaneModules(airVariant, country->airTechs);
+      country->planeVariants.push_back(airVariant);
+    }
+
+    int airforceStrength = country->airFocus * country->armsFactories;
+    int airBaseAmount = 1 + airforceStrength / 10;
+    if (country->planeVariants.size() && airforceStrength > 0) {
+      // lets distribute airbases throughout the country
+      for (int i = 0; i < airBaseAmount; i++) {
+        country->addAirBase(1);
+      }
+      // first gather the amount of planes per variant
+      while (airforceStrength > 0) {
+        auto &variant = Fwg::Utils::selectRandom(country->planeVariants);
+        variant.amount++;
+        airforceStrength -= variant.cost;
+      }
+
+      // now we generate the air wings
+      for (auto i = 0; i < country->planeVariants.size(); i++) {
+        for (auto j = 0; j < country->planeVariants[i].amount; j += 50) {
+          AirWing wing;
+          wing.variant = country->planeVariants[i];
+          wing.name = std::to_string(i) + ". " + country->planeVariants[i].name;
+          wing.amount = std::min<int>(country->planeVariants[i].amount, 50);
+          auto &randomAirbase = Fwg::Utils::selectRandom(country->airBases);
+          randomAirbase.second->wings.push_back(wing);
+          country->airWings.push_back(wing);
+        }
+      }
+    }
+  }
+}
 void Generator::generateCountryUnits() {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Unit Files");
 
@@ -1145,8 +1320,8 @@ void Generator::generateCountryUnits() {
 
   for (auto &country : hoi4Countries) {
     // first determine total army strength based on arms industry
-    country->totalArmyStrength = country->armsFactories * 100;
-    std::cout << country->totalArmyStrength << std::endl;
+    // TODO add a factor to settings
+    country->totalArmyStrength = country->armsFactories * 30;
 
     // basic idea: we create unit templates first. We start with irregulars,
     // then infantry only, then infantry with support, then infantry with
@@ -1154,8 +1329,8 @@ void Generator::generateCountryUnits() {
     // motorised infantry with support, then motorised infantry with armor.
     // for each of those, we depend on certain techs.
     // each of these will vary a bit per country, depending on their techs and
-    // some randomness in regiments per column (we vary between 2-4 regiments of
-    // the same type per column)
+    // some randomness in regiments per column (we vary between 2-4 regiments
+    // of the same type per column)
     std::vector<CombatRegimentType> allowedRegimentTypes;
     std::vector<SupportRegimentType> allowedSupportRegimentTypes;
     std::set<DivisionType> desiredDivisionTemplates;
@@ -1232,10 +1407,9 @@ void Generator::generateCountryUnits() {
     }
 
     // at the end, we evaluate which of these templates is used with which
-    // share, as a developed country for example will NOT use irregular infantry
-    // in its army, but a minor power might.
-    // the more developed we are, the more likely we are to use the more
-    // expensive divisions
+    // share, as a developed country for example will NOT use irregular
+    // infantry in its army, but a minor power might. the more developed we
+    // are, the more likely we are to use the more expensive divisions
     auto &development = country->averageDevelopment;
     for (auto &division : country->divisionTemplates) {
       if (division.type == DivisionType::Militia) {
@@ -1266,9 +1440,9 @@ void Generator::generateCountryUnits() {
     for (auto &division : country->divisionTemplates) {
       division.armyShare /= sum;
     }
-    // now we can generate the divisions. Each typeshare is multiplied with the
-    // totalArmyStrength, and then we generate the divisions until their cost
-    // reaches the typeshare
+    // now we can generate the divisions. Each typeshare is multiplied with
+    // the totalArmyStrength, and then we generate the divisions until their
+    // cost reaches the typeshare
     for (auto &divisionTemplate : country->divisionTemplates) {
       auto divisionMaxCost =
           divisionTemplate.armyShare * country->totalArmyStrength;
@@ -1347,8 +1521,8 @@ void Generator::generateCountryNavies() {
       {ShipClassType::Submarine, "ship_hull_submarine"}};
 
   for (auto &country : hoi4Countries) {
-    // first generate the different ship classes, in each ShipclassType, we have
-    // three: Interwar, Buildup
+    // first generate the different ship classes, in each ShipclassType, we
+    // have three: Interwar, Buildup
     for (const auto &shipclassType : shipClassTypes) {
       country->shipClasses.insert({shipclassType, {}});
       auto availableHullTypeEras =
@@ -1388,8 +1562,8 @@ void Generator::generateCountryNavies() {
       continue;
     }
 
-    // determine the total tonnage by taking the naval focus times the countries
-    // naval industry
+    // determine the total tonnage by taking the naval focus times the
+    // countries naval industry
     auto totalTonnage = country->navalFocus * country->dockyards * 100.0;
 
     // calculate amount of convoys based on tonnage
@@ -1858,8 +2032,8 @@ bool Generator::loadRivers(Fwg::Cfg &config, Fwg::Gfx::Bitmap &riverInput) {
     }
   }
 
-  // Call the base class method from FastWorldGenerator, to load the now mapped
-  // river input
+  // Call the base class method from FastWorldGenerator, to load the now
+  // mapped river input
   return FastWorldGenerator::loadRivers(config, riverInput);
 }
 } // namespace Scenario::Hoi4

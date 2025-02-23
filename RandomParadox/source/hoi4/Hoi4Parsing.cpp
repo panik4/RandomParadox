@@ -507,8 +507,6 @@ void states(const std::string &path,
     pU::Scenario::replaceOccurences(
         content, "templateInfrastructure",
         std::to_string(std::clamp(region->infrastructure, 1, 5)));
-    pU::Scenario::replaceOccurences(content, "templateAirbase",
-                                    std::to_string(0));
     pU::Scenario::replaceOccurences(
         content, "templateCivilianFactory",
         std::to_string((int)region->civilianFactories));
@@ -535,6 +533,12 @@ void states(const std::string &path,
                                       std::to_string((int)region->dockyards));
     else
       pU::Scenario::replaceOccurences(content, "dockyard = templateDockyards",
+                                      "");
+    if (region->airBase)
+      pU::Scenario::replaceOccurences(content, "templateAirBase",
+                                      std::to_string(region->airBase->level));
+    else
+      pU::Scenario::replaceOccurences(content, "air_base = templateAirBase",
                                       "");
 
     // resources
@@ -627,9 +631,8 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
     pU::Scenario::replaceOccurences(countryText, "templateParty",
                                     country->ideology);
 
-    std::string electAllowed = country->allowElections ? "yes" : "no";
     pU::Scenario::replaceOccurences(countryText, "templateAllowElections",
-                                    electAllowed);
+                                    country->allowElections ? "yes" : "no");
     pU::Scenario::replaceOccurences(countryText, "templateLastElection",
                                     country->lastElection);
     pU::Scenario::replaceOccurences(countryText, "templateFasPop",
@@ -664,6 +667,29 @@ void historyCountries(const std::string &path, const CountryMap &countries) {
                                     vanillaAirTechs);
     pU::Scenario::replaceOccurences(countryText, "templateBbaAirTechs",
                                     bbaAirTechs);
+
+    // air variants
+    const auto airVariantsTemplate =
+        pU::readFile(Fwg::Cfg::Values().resourcePath +
+                     "hoi4//history//airforce//baseVariant.txt");
+    std::string airVariants = "";
+    for (const auto &airVariant : country->planeVariants) {
+      std::string variantString = airVariantsTemplate;
+      std::string moduleString;
+      for (auto &airModule : airVariant.bbaModules) {
+        moduleString.append("\t\t\t" + airModule.first + " = " +
+                            airModule.second + "\n");
+      }
+      pU::Scenario::replaceOccurences(variantString, "templateModules",
+                                      moduleString);
+      pU::Scenario::replaceOccurences(variantString, "templateVariantName",
+                                      airVariant.name);
+      pU::Scenario::replaceOccurences(variantString, "templateFrameType",
+                                      airVariant.bbaFrameName);
+      airVariants.append(variantString);
+    }
+    pU::Scenario::replaceOccurences(countryText, "templateAirVariants",
+                                    airVariants);
 
     // same for armor
     std::map<std::string, std::string> armorTechMap{
@@ -853,9 +879,18 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
   const auto unitBlock = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                       "hoi4//history//army//unitBlock.txt");
 
-  const auto divisionTemplateFile = pU::readFile(
-      Fwg::Cfg::Values().resourcePath + "hoi4//history//army//divisionTemplate.txt");
-
+  const auto divisionTemplateFile =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//history//army//divisionTemplate.txt");
+  const auto baseAirFile =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//history//airforce//baseAirFile.txt");
+  const auto baseWingFile =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//history//airforce//baseWingFile.txt");
+  const auto baseAirbaseFile =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//history//airforce//baseAirbaseFile.txt");
   // map from regiment type to string
   std::map<CombatRegimentType, std::string> regimentTypeMap{
       {CombatRegimentType::Infantry, "infantry"},
@@ -950,25 +985,6 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
       totalUnits += tempDivision;
     }
 
-    // for (int i = 0; i < country->attributeVectors.at("units").size();
-    // i++) {
-    //
-    //	for (int x = 0; x <
-    // country->attributeVectors.at("unitCount")[i];
-    // x++) {
-    // Logging::logLine(country->attributeVectors.at("units")[i]);
-    // auto
-    // tempUnit{ unitBlock };
-    // Fwg::Parsing::Scenario::replaceOccurences(tempUnit,
-    //"templateDivisionName", IDMap.at(i));
-    // Logging::logLine(IDMap.at(i));
-    // Fwg::Parsing::Scenario::replaceOccurences(tempUnit,
-    //"templateLocation",
-    // std::to_string(country->ownedRegions[0].gameProvinces[0].ID +
-    // 1));
-    //		totalUnits += tempUnit;
-    //	}
-    //}
     Fwg::Parsing::Scenario::replaceOccurences(unitFile, "templateUnitBlock",
                                               totalUnits);
     // units
@@ -977,10 +993,40 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     pU::writeFile(path + country->tag + "_1936_nsb.txt", unitFile);
 
     // ############# AIRFORCES #############
-    tempPath = path + country->tag + "_1936_air.txt";
-    pU::writeFile(tempPath, "");
+    std::string airforce = baseAirFile;
+    std::string airbases = "";
+    // for every airbase, for every wing, write the wing file
+    for (auto &airbase : country->airBases) {
+      if (airbase.second->wings.empty())
+        continue;
+      std::string airbaseFile = baseAirbaseFile;
+      std::string wings = "";
+      Fwg::Parsing::Scenario::replaceOccurences(
+          airbaseFile, "templateStateID",
+          std::to_string(airbase.first->ID + 1));
+      for (auto &wing : airbase.second->wings) {
+        std::string wingFile = baseWingFile;
+        Fwg::Parsing::Scenario::replaceOccurences(wingFile, "templateName",
+                                                  wing.variant.name);
+        Fwg::Parsing::Scenario::replaceOccurences(
+            wingFile, "templateCountryTag", country->tag);
+        Fwg::Parsing::Scenario::replaceOccurences(wingFile, "templateAirFrame",
+                                                  wing.variant.bbaFrameName);
+        Fwg::Parsing::Scenario::replaceOccurences(wingFile, "templateAmount",
+                                                  std::to_string(wing.amount));
+        wings += wingFile;
+      }
+      Fwg::Parsing::Scenario::replaceOccurences(airbaseFile, "templateAirWings",
+                                                wings);
+      airbases += airbaseFile;
+    }
+
+    Fwg::Parsing::Scenario::replaceOccurences(airforce, "templateAirBases",
+                                              airbases);
+    tempPath = path + country->tag + "_1936_air_legacy.txt";
+    pU::writeFile(tempPath, airforce);
     tempPath = path + country->tag + "_1936_air_bba.txt";
-    pU::writeFile(tempPath, "");
+    pU::writeFile(tempPath, airforce);
 
     // ############# NAVIES #############
     const auto baseNavyFile =
@@ -1779,7 +1825,7 @@ void readProvinces(ClimateGeneration::ClimateData &climateData,
       auto r = static_cast<unsigned char>(std::stoi(tokens[1]));
       auto g = static_cast<unsigned char>(std::stoi(tokens[2]));
       auto b = static_cast<unsigned char>(std::stoi(tokens[3]));
-      std::shared_ptr<Fwg::Province>p = std::make_shared<Fwg::Province>();
+      std::shared_ptr<Fwg::Province> p = std::make_shared<Fwg::Province>();
       p->ID = ID;
       p->colour = {r, g, b};
       p->isLake = tokens[4] == "lake";

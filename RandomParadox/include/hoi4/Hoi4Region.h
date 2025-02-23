@@ -2,6 +2,7 @@
 #include "FastWorldGenerator.h"
 #include "generic/GameRegion.h"
 #include "generic/ScenarioUtils.h"
+#include "hoi4/Hoi4Airforce.h"
 
 namespace Scenario::Hoi4 {
 struct VictoryPoint {
@@ -41,6 +42,7 @@ public:
   std::map<std::string, int> resources;
   std::map<int, VictoryPoint> victoryPointsMap;
   std::map<int, int> navalBases;
+  std::shared_ptr<AirBase> airBase;
   // Constructors/Destructors
   Region();
   Region(const Scenario::Region &gameRegion);

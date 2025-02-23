@@ -71,6 +71,7 @@ getBuilding(const std::string &type, const Fwg::Province &prov,
   building.position = Scenario::Utils::Coordinate{
       widthPos, heightPos, (double)heightmap[pix].getRed() / 10.0, -1.57};
   building.relativeID = relativeID;
+  building.provinceID = prov.ID;
   return building;
 }
 
@@ -97,6 +98,7 @@ Scenario::Utils::Building getBuilding(const std::string &type,
   building.position = Scenario::Utils::Coordinate{
       widthPos, heightPos, (double)heightmap[pix].getRed() / 10.0, -1.57};
   building.relativeID = relativeID;
+  building.provinceID = prov->ID;
   return building;
 }
 
