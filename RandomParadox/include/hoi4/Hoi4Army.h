@@ -2,6 +2,7 @@
 #include "generic/GameProvince.h"
 #include "hoi4/Hoi4Armor.h"
 #include "hoi4/Hoi4Tech.h"
+#include "hoi4/Hoi4Airforce.h"
 #include <array>
 #include <string>
 #include <vector>

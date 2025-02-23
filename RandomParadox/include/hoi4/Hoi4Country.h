@@ -2,9 +2,9 @@
 #include "Hoi4Region.h"
 #include "NationalFocus.h"
 #include "generic/Country.h"
-#include "hoi4/Hoi4Navies.h"
 #include "hoi4/Hoi4Armor.h"
 #include "hoi4/Hoi4Army.h"
+#include "hoi4/Hoi4Navies.h"
 #include <array>
 #include <string>
 #include <vector>
@@ -39,7 +39,6 @@ public:
   int warSupport;
   int stability;
 
-
   // mapdata
   int victoryPoints;
   std::vector<std::shared_ptr<Region>> hoi4Regions;
@@ -73,6 +72,10 @@ public:
   double airFocus;
   int totalAirStrength;
   std::map<TechEra, std::vector<Technology>> airTechs;
+  std::vector<PlaneVariant> planeVariants;
+  std::vector<AirWing> airWings;
+  std::map<std::shared_ptr<Region>, std::shared_ptr<AirBase>> airBases;
+  void addAirBase(int level);
 
   // industry
   std::map<TechEra, std::vector<Technology>> industryElectronicTechs;
@@ -81,7 +84,6 @@ public:
   int dockyards;
   int researchSlots;
 
-  bool hasTech(const std::string& techname)const;
-
+  bool hasTech(const std::string &techname) const;
 };
 } // namespace Scenario::Hoi4

@@ -12,6 +12,7 @@ struct Building {
   Coordinate position;
   // sometimes necessary for special building types
   int relativeID;
+  int provinceID;
 };
 
 struct UnitStack {

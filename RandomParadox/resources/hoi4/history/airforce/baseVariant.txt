@@ -1,0 +1,7 @@
+		create_equipment_variant = {
+			name = "templateVariantName"
+			type = templateFrameType
+			modules = {
+				templateModules
+			}
+		}

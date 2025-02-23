@@ -78,6 +78,7 @@ public:
   void generateCharacters();
   
   void generateArmorVariants();
+  void generateAirVariants();
   // determine unit composition, templates
   void generateCountryUnits();
   // determine unit composition, templates
