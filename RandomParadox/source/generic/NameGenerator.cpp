@@ -29,14 +29,17 @@ std::string generateTag(const std::string name, NameData &nameData) {
                  nameData.disallowedTokens.end() &&
              retries++ < 20);
   }
-  if (tag.size() != 3)
+  if (tag.size() != 3) {
+    std::cerr << "Incorrect tag size" << std::endl;
     throw(std::exception(
         std::string("Incorrect tag size in generating tag " + tag).c_str()));
+  }
   if (retries >= 20)
     throw(std::exception(
         std::string("Too many tries generating tag " + tag).c_str()));
 
   nameData.disallowedTokens.insert(tag);
+
   return tag;
 }
 

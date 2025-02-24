@@ -2,6 +2,7 @@
 #include "hoi4/Hoi4Tech.h"
 #include <array>
 #include <set>
+#include <unordered_set>
 #include <string>
 #include <vector>
 namespace Scenario::Hoi4 {

@@ -15,26 +15,6 @@ void adj(const std::string &path) {
   pU::writeFile(path, content);
 }
 
-void airports(const std::string &path,
-              const std::vector<Fwg::Region> &regions) {
-  Logging::logLine("HOI4 Parser: Map: Building Airfields");
-  std::string content;
-  for (const auto &region : regions) {
-    if (region.sea || region.lake)
-      continue;
-    content.append(std::to_string(region.ID + 1));
-    content.append("={");
-    for (const auto &prov : region.provinces) {
-      if (!prov->isLake) {
-        content.append(std::to_string(prov->ID + 1));
-        break;
-      }
-    }
-    content.append(" }\n");
-  }
-  pU::writeFile(path, content);
-}
-
 void aiStrategy(const std::string &path, const CountryMap &countries) {
   // copy folders ai_areas and ai_strategy from cfg::Values().resourcePath +
   // "/hoi4//common// to path//common//
@@ -194,27 +174,6 @@ void definition(const std::string &path,
                                  1) // 0 is for sea, no continent
     };
     content.append(pU::csvFormat(arguments, ';', false));
-  }
-  pU::writeFile(path, content);
-}
-
-void rocketSites(const std::string &path,
-                 const std::vector<Fwg::Region> &regions) {
-  Logging::logLine("HOI4 Parser: Map: Launching Rockets");
-  std::string content;
-  // regionId={provId }
-  for (const auto &region : regions) {
-    if (region.sea || region.lake)
-      continue;
-    content.append(std::to_string(region.ID + 1));
-    content.append("={");
-    for (const auto &prov : region.provinces) {
-      if (!prov->isLake) {
-        content.append(std::to_string(prov->ID + 1));
-        break;
-      }
-    }
-    content.append(" }\n");
   }
   pU::writeFile(path, content);
 }

@@ -17,9 +17,11 @@ if = {
 }
 starting_train_buffer = 2
 set_fuel_ratio = 0.8
+starting_truck_buffer = 0.8
 
 # Starting tech
 set_technology = {
+	basic_train = 1
 	templateGenericTechBlock
 }
 

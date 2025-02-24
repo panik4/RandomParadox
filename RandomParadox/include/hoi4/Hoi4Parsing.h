@@ -13,7 +13,6 @@ using CountryMap = std::vector<std::shared_ptr<Hoi4Country>>;
 namespace Writing {
 void adj(const std::string &path);
 void adjacencyRules(const std::string &path);
-void airports(const std::string &path, const std::vector<Fwg::Region> &regions);
 void aiStrategy(const std::string &path, const CountryMap &countries);
 void events(const std::string &path, const CountryMap &countries);
 void ambientObjects(const std::string &path, const Fwg::Gfx::Bitmap &heightMap);
@@ -26,8 +25,6 @@ void continents(const std::string &path,
                 const std::string &localisationPath);
 void definition(const std::string &path,
                 const std::vector<std::shared_ptr<GameProvince>> &provinces);
-void rocketSites(const std::string &path,
-                 const std::vector<Fwg::Region> &regions);
 void strategicRegions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
                       const std::vector<StrategicRegion> &strategicRegions);
@@ -62,7 +59,7 @@ void commonCountryTags(const std::string &path, const CountryMap &countries);
 void commonNames(const std::string &path, const CountryMap &countries);
 
 void commonCharacters(const std::string &path, const CountryMap &countries);
-    // localisation
+// localisation
 void countryNames(const std::string &path, const CountryMap &countries,
                   const NameGeneration::NameData &nData);
 void stateNames(const std::string &path, const CountryMap &countries);
