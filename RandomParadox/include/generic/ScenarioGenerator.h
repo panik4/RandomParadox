@@ -11,6 +11,7 @@
 #include "ResourceLoading.h"
 #include "ScenarioContinent.h"
 #include "SuperRegion.h"
+#include "ScenarioUtils.h"
 #include <map>
 namespace Scenario {
 class StrategicRegion : public SuperRegion {
@@ -212,6 +213,9 @@ public:
   // see which country neighbours which
   void evaluateCountryNeighbours();
   virtual void generateCountrySpecifics();
+  void totalResourceVal(const std::vector<double> &resPrev,
+                        double resourceModifier,
+                        const Scenario::Utils::ResConfig &resourceConfig);
   // calculate how strong each country is
   virtual void evaluateCountries();
   virtual void printStatistics();

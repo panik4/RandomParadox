@@ -215,28 +215,31 @@ void Generator::mapCountries() {
 void Generator::generateStateResources() {
   Fwg::Utils::Logging::logLine("HOI4: Digging for resources");
 
-  for (const auto &resource : resources) {
-    totalResources[resource.first] = 0;
-  }
-  for (auto &hoi4Region : hoi4States) {
-    for (const auto &resource : resources) {
-      auto chance = resource.second[2];
-      if (RandNum::getRandom(100) < chance * 100.0) {
-        // calc total of this resource
-        auto totalOfResource = resource.second[1] * resource.second[0];
-        // more per selected state if the chance is lower
-        double averagePerState =
-            (totalOfResource / (double)areas.landRegions) * (1.0 / chance);
-        // range 1 to (2 times average - 1)
-        double value =
-            1.0 +
-            (RandNum::getRandom((int)ceil((2.0 * averagePerState)) - 1.0));
-        // increase by industry factor
-        value *= worldIndustryFactor;
-        hoi4Region->resources[resource.first] = (int)value;
-        totalResources[resource.first] += (int)value;
-      }
+  // config for all resource types
+  for (auto &resConfig : resConfigs) {
+    std::vector<double> resPrev;
+    if (resConfig.random) {
+      resPrev = Fwg::Civilization::Resources::randomResourceLayer(
+          resConfig.name, resConfig.noiseConfig.fractalFrequency,
+          resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
+          resConfig.noiseConfig.mountainBonus);
+    } else if (resConfig.considerSea) {
+      resPrev = Fwg::Civilization::Resources::coastDependentLayer(
+          resConfig.name, resConfig.oceanFactor, resConfig.lakeFactor,
+          areas.provinces);
+    } else {
+      resPrev = Fwg::Civilization::Resources::climateDependentLayer(
+          resConfig.name, resConfig.noiseConfig.fractalFrequency,
+          resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
+          resConfig.noiseConfig.mountainBonus, resConfig.considerClimate,
+          resConfig.climateEffects, resConfig.considerTrees,
+          resConfig.treeEffects, climateData);
     }
+    if (resPrev.size())
+      totalResourceVal(resPrev,
+                       resConfig.resourcePrevalence *
+                           resources.at(resConfig.name).at(0),
+                       resConfig);
   }
 }
 
@@ -358,27 +361,32 @@ void Generator::generateStateSpecifics() {
 void Generator::generateCountrySpecifics() {
   Fwg::Utils::Logging::logLine("HOI4: Choosing uniforms and electing Tyrants");
 
-  // graphical culture pairs:
-  // { graphical_culture = type }
-  // { graphical_culture_2d = type_2d }
-  // {western_european_gfx, western_european_2d}
-  // {eastern_european_gfx, eastern_european_2d}
-  // {middle_eastern_gfx, middle_eastern_2d}
-  // {african_gfx, african_2d}
-  // {southamerican_gfx, southamerican_2d}
-  // {commonwealth_gfx, commonwealth_2d}
-  // {asian_gfx, asian_2d}
-  const std::vector<std::string> gfxCultures{
-      "western_european", "eastern_european", "middle_eastern", "african",
-      "southamerican",    "commonwealth",     "asian"};
+  const std::vector<std::string> caucasianGfxCultures{
+      "western_european", "eastern_european", "commonwealth"};
+
   const std::vector<std::string> ideologies{"fascism", "democratic",
                                             "communism", "neutrality"};
   for (auto &country : hoi4Countries) {
     // refresh the provinces
     country->evaluateProvinces();
-
+    switch (country->getPrimaryCulture()->visualType) {
+    case Scenario::VisualType::ASIAN:
+      country->gfxCulture = "asian";
+      break;
+    case Scenario::VisualType::AFRICAN:
+      country->gfxCulture = "african";
+      break;
+    case Scenario::VisualType::ARABIC:
+      country->gfxCulture = "middle_eastern";
+      break;
+    case Scenario::VisualType::CAUCASIAN:
+      country->gfxCulture = Fwg::Utils::selectRandom(caucasianGfxCultures);
+      break;
+    case Scenario::VisualType::SOUTH_AMERICAN:
+      country->gfxCulture = "southamerican";
+      break;
+    }
     // select a random country ideology
-    country->gfxCulture = Fwg::Utils::selectRandom(gfxCultures);
     double totalPopularity = 0;
     std::vector<int> popularities(4);
 
@@ -1808,47 +1816,6 @@ void Generator::generateUrbanisation() {
   }
 }
 
-bool Generator::unitFulfillsRequirements(
-    std::vector<std::string> unitRequirements,
-    std::shared_ptr<Hoi4Country> &country) {
-  // now check if the country fulfills the target requirements
-  for (auto &requirement : unitRequirements) {
-    // need to check rank, first get the desired value
-    auto value = Parsing::Scenario::getBracketBlockContent(requirement, "rank");
-    if (value != "") {
-      if (value.find("any") == std::string::npos)
-        continue; // fine, may target any ideology
-      // if (value.find(country->rank) == std::string::npos)
-      //   return false; // targets rank is not right
-    }
-  }
-  for (auto &requirement : unitRequirements) {
-    // need to check rank, first get the desired value
-    auto value =
-        Parsing::Scenario::getBracketBlockContent(requirement, "doctrine");
-    if (value != "") {
-      if (value.find("any") != std::string::npos)
-        continue; // fine, may target any ideology
-      // now split by +
-      auto requiredDoctrines = Parsing::getTokens(value, '+');
-      // for every required doctrine string
-      for (const auto &requiredDoctrine : requiredDoctrines) {
-        // check if country has that doctrine
-        bool found = false;
-        for (const auto doctrine : country->doctrines) {
-          // map doctrine ID to a string and compare
-          if (requiredDoctrine.find(doctrineMap.at((int)doctrine))) {
-            found = true;
-          }
-        }
-        // return false if we didn't find this doctrine
-        if (!found)
-          return false;
-      }
-    }
-  }
-  return true;
-}
 void Generator::generateCharacters() {
   std::map<Ideology, std::vector<std::string>> leaderTraits = {
       {Ideology::None,

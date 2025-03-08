@@ -505,7 +505,7 @@ void states(const std::string &path,
              "aluminium", "chromium", "oil", "rubber", "steel", "tungsten"}) {
       pU::Scenario::replaceOccurences(
           content, "template" + resource,
-          std::to_string((int)region->resources.at(resource)));
+          std::to_string((int)region->resources.at(resource).amount));
     }
     pU::writeFile(path + "//" + std::to_string(region->ID + 1) + ".txt",
                   content);

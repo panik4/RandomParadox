@@ -1,0 +1,192 @@
+default_air_production = {
+	# If adding country-unique ones, bear in mind that they STACK unless excluding countries in the enable
+	enable = {
+		always = yes
+	}
+	abort_when_not_enabled = yes
+
+	#Air unit factors
+	ai_strategy = {
+		type = unit_ratio
+		id = fighter
+		value = 0
+	}
+
+	ai_strategy = {
+		type = unit_ratio
+		id = cas
+		value = 80
+	}
+
+	ai_strategy = {
+		type = unit_ratio
+		id = tactical_bomber
+		value = 10
+	}
+
+	ai_strategy = {
+		type = unit_ratio
+		id = strategic_bomber
+		value = 5
+	}
+
+	ai_strategy = {
+		type = unit_ratio
+		id = naval_bomber
+		value = 10
+	}
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = heavy_fighter
+		value = -40 #Just build a few slowly
+	}
+
+	ai_strategy = {
+		type = unit_ratio
+		id = heavy_fighter
+		value = 20
+	}
+}
+
+
+
+bba_air_prod_1 = {
+
+	enable = {
+		always = yes
+	}
+
+	abort_when_not_enabled = yes
+
+	#Air unit factors
+	ai_strategy = {
+		type = unit_ratio
+		id = fighter
+		value = 80
+	}
+
+	ai_strategy = {
+		type = unit_ratio
+		id = cas
+		value = 20
+	}
+ 
+	ai_strategy = {
+		type = unit_ratio
+		id = naval_bomber
+		value = 5
+	}
+
+	ai_strategy = {
+		type = unit_ratio
+		id = tactical_bomber
+		value = 10
+	}
+
+	ai_strategy = {
+		type = unit_ratio
+		id = strategic_bomber
+		value = 5
+	}
+
+	ai_strategy = {
+		type = unit_ratio
+		id = heavy_fighter
+		value = 1
+	}
+
+	ai_strategy = {
+		type = unit_ratio
+		id = cv_fighter
+		value = 10
+	}
+
+	ai_strategy = {
+		type = unit_ratio
+		id = cv_naval_bomber
+		value = 10
+	}
+	ai_strategy = {
+		type = equipment_production_factor
+		id = cas
+		value = 0
+	}
+	ai_strategy = {
+		type = equipment_production_factor
+		id = strategic_bomber
+		value = 0
+	}
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = heavy_fighter
+		value = 0
+	}
+	ai_strategy = {
+		type = equipment_production_factor
+		id = tactical_bomber
+		value = 0
+	}
+	ai_strategy = {
+		type = equipment_production_factor
+		id = fighter
+		value = 0
+	}
+
+	ai_strategy = {
+		type = equipment_production_min_factories
+		id = fighter
+		value = 0
+	}
+
+}
+# try to focus more on fighters if the enemy alliance strength is high - this let's us assume that they 
+# might achieve air superiority more easily and we want to primarily fight for air_superiority before focusing on other combat missions
+boost_fighter_prod = {
+
+	enable = {
+		has_war = yes
+		alliance_strength_ratio < 0.4
+	}
+
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = fighter
+		value = 100
+	}
+}
+
+boost_fighter_prod_2 = {
+
+	enable = {
+		has_war = yes
+		alliance_strength_ratio < 0.3
+	}
+
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = fighter
+		value = 100
+	}
+}
+
+boost_fighter_prod_3 = {
+
+	enable = {
+		has_war = yes
+		alliance_strength_ratio < 0.2
+	}
+
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = equipment_production_factor
+		id = fighter
+		value = 100
+	}
+}

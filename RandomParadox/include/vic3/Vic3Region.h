@@ -11,7 +11,6 @@ public:
   Region();
   Region(const Scenario::Region &gameRegion);
   ~Region();
-  std::map<std::string, Resource> resources;
   double arableLand = 0.0;
   std::map<std::string, Building> buildings;
   int supportsBuilding(const BuildingType &buildingType);

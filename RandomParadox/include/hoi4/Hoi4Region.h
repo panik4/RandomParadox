@@ -39,7 +39,6 @@ public:
   Scenario::Utils::WeatherPosition weatherPosition;
   // Containers
   std::vector<Scenario::Utils::Building> buildings;
-  std::map<std::string, int> resources;
   std::map<int, VictoryPoint> victoryPointsMap;
   std::map<int, int> navalBases;
   std::shared_ptr<AirBase> airBase;

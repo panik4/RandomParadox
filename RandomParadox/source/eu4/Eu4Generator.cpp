@@ -9,7 +9,7 @@ Generator::Generator(const std::string &configSubFolder)
     : Scenario::Generator(configSubFolder) {}
 
 void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
-  Utils::Logging::logLine("Eu4: Dividing world into strategic regions");
+  Fwg::Utils::Logging::logLine("Eu4: Dividing world into strategic regions");
   std::set<int> assignedIdeas;
   for (auto &region : regions) {
     if (assignedIdeas.find(region->ID) == assignedIdeas.end()) {
