@@ -23,7 +23,7 @@ std::string loadVanillaFile(const std::string &path,
 }
 void writeAdj(const std::string &path,
               const std::vector<std::shared_ptr<GameProvince>> &provinces) {
-  Utils::Logging::logLine("EU4 Parser: Map: Writing Adjacencies");
+  Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Adjacencies");
   // From;To;Type;Through;start_x;start_y;stop_x;stop_y;adjacency_rule_name;Comment
   // empty file for now
   std::string content;
@@ -43,9 +43,10 @@ void writeAdj(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void writeAmbientObjects(const std::string &path,
+void writeAmbientObjects(
+    const std::string &path,
     const std::vector<std::shared_ptr<GameProvince>> &provinces) {
-  Utils::Logging::logLine("Eu4 Parser: Map: Writing Ambient Objects");
+  Fwg::Utils::Logging::logLine("Eu4 Parser: Map: Writing Ambient Objects");
   // empty file for now
   std::string content{""};
   pU::writeFile(path, content);
@@ -54,15 +55,16 @@ void writeAmbientObjects(const std::string &path,
 void writeAreas(const std::string &path,
                 const std::vector<std::shared_ptr<Region>> &regions,
                 const std::string &gamePath) {
-  Utils::Logging::logLine("EU4 Parser: Map: Writing Areas");
+  Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Areas");
   std::string content =
       loadVanillaFile(gamePath + "//map//area.txt", {"{", "}", "_area"});
-  const auto templateArea = pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//area.txt");
+  const auto templateArea =
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//area.txt");
 
   for (auto &region : regions) {
     std::string areaText{templateArea};
     pU::Scenario::replaceOccurences(areaText, "template_name",
-                          "area_" + std::to_string(region->ID + 1));
+                                    "area_" + std::to_string(region->ID + 1));
     std::string provs{""};
     for (auto &prov : region->provinces) {
       provs.append(std::to_string(prov->ID + 1));
@@ -76,12 +78,13 @@ void writeAreas(const std::string &path,
 
 void writeClimate(const std::string &path,
                   const std::vector<std::shared_ptr<GameProvince>> &provinces) {
-  Utils::Logging::logLine("EU4 Parser: Map: Writing climate");
+  Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing climate");
   /* climate types:
    * tropical, arid, arctic, mild_winter, normal_winter, severe_winter,
    * impassable, mild_monsoon, normal_monsoon, severe_monsoon
    */
-  auto content = pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//climate.txt");
+  auto content =
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//climate.txt");
   std::string tropical{""};
   std::string arid{""};
   std::string arctic{""};
@@ -100,9 +103,9 @@ void writeClimate(const std::string &path,
     auto maxPrecipitation = 0.0;
     for (const auto &temp : province->baseProvince->weatherMonths) {
       // find min and max temperatures
-      Utils::switchIfComparator(temp[1], minTemp, std::less());
-      Utils::switchIfComparator(temp[1], maxTemp, std::greater());
-      Utils::switchIfComparator(temp[2], maxPrecipitation, std::greater());
+      Fwg::Utils::switchIfComparator(temp[1], minTemp, std::less());
+      Fwg::Utils::switchIfComparator(temp[1], maxTemp, std::greater());
+      Fwg::Utils::switchIfComparator(temp[2], maxPrecipitation, std::greater());
     }
     if (minTemp < 0.1)
       severe_winter.append(provID + " ");
@@ -133,7 +136,8 @@ void writeClimate(const std::string &path,
   pU::Scenario::replaceOccurences(content, "templateArid", arid);
   pU::Scenario::replaceOccurences(content, "templateArctic", arctic);
   pU::Scenario::replaceOccurences(content, "templateMildWinter", mild_winter);
-  pU::Scenario::replaceOccurences(content, "templateNormalWinter", normal_winter);
+  pU::Scenario::replaceOccurences(content, "templateNormalWinter",
+                                  normal_winter);
   pU::Scenario::replaceOccurences(content, "templateSevereWinter",
                                   severe_winter);
   pU::Scenario::replaceOccurences(content, "templateImpassable", impassable);
@@ -145,26 +149,29 @@ void writeClimate(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void writeColonialRegions(const std::string &path, const std::string &gamePath,
+void writeColonialRegions(
+    const std::string &path, const std::string &gamePath,
     const std::vector<std::shared_ptr<GameProvince>> &provinces) {
   std::string content = loadVanillaFile(
       gamePath + "//common//colonial_regions//00_colonial_regions.txt",
       {"{", "}", "=", "_"});
   int baseCompatProv = 1;
   while (pU::Scenario::replaceOccurence(content, "provinces = {",
-                              "provinces = \n\t{\n\t\t " +
-                                  std::to_string(baseCompatProv++)))
+                                        "provinces = \n\t{\n\t\t " +
+                                            std::to_string(baseCompatProv++)))
     ;
 
   // Parsing::Scenario::replaceLines(content, "owns =", "");
   pU::writeFile(path, content);
 }
 
-void writeContinent(const std::string &path,
+void writeContinent(
+    const std::string &path,
     const std::vector<std::shared_ptr<GameProvince>> &provinces) {
 
-  Utils::Logging::logLine("EU4 Parser: Map: Writing continents");
-  auto content = pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//continent.txt");
+  Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing continents");
+  auto content =
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//continent.txt");
   // must not be more than 6 continents!
   std::array<std::vector<int>, 6> continentMap;
   for (const auto &province : provinces) {
@@ -181,21 +188,22 @@ void writeContinent(const std::string &path,
       continentProvs.append(std::to_string(elem) + " ");
     }
     pU::Scenario::replaceOccurences(
-        content, "template" + std::to_string(count++),
-                          continentProvs);
+        content, "template" + std::to_string(count++), continentProvs);
   }
   pU::writeFile(path, content);
 }
-void writeDefaultMap(const std::string &path,
+void writeDefaultMap(
+    const std::string &path,
     const std::vector<std::shared_ptr<GameProvince>> &provinces) {
-  Utils::Logging::logLine("EU4 Parser: Map: Writing default map");
-  auto content = pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//default.map");
+  Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing default map");
+  auto content =
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//default.map");
   pU::Scenario::replaceOccurences(content, "templateWidth",
-                        std::to_string(Cfg::Values().width));
+                                  std::to_string(Cfg::Values().width));
   pU::Scenario::replaceOccurences(content, "templateHeight",
-                        std::to_string(Cfg::Values().height));
+                                  std::to_string(Cfg::Values().height));
   pU::Scenario::replaceOccurences(content, "templateProvinces",
-                        std::to_string(provinces.size() + 1));
+                                  std::to_string(provinces.size() + 1));
   std::string seaStarts{""};
   std::string lakes{""};
   for (const auto &province : provinces) {
@@ -214,9 +222,10 @@ void writeDefaultMap(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void writeDefinition(const std::string &path,
+void writeDefinition(
+    const std::string &path,
     const std::vector<std::shared_ptr<GameProvince>> &provinces) {
-  Utils::Logging::logLine("EU4 Parser: Map: Defining Provinces");
+  Fwg::Utils::Logging::logLine("EU4 Parser: Map: Defining Provinces");
   std::string content{"province;red;green;blue;x;x\n"};
   for (const auto &prov : provinces) {
     std::vector<std::string> arguments{
@@ -231,9 +240,10 @@ void writeDefinition(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void writePositions(const std::string &path,
+void writePositions(
+    const std::string &path,
     const std::vector<std::shared_ptr<GameProvince>> &provinces) {
-  Utils::Logging::logLine("EU4 Parser: Map: Writing Positions");
+  Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Positions");
 
   /* for positions, rotation and height, order is:
    * city model (xy position, rotation, height),
@@ -250,7 +260,7 @@ void writePositions(const std::string &path,
   for (const auto &prov : provinces) {
     std::string provincePositions{templateProvince};
     pU::Scenario::replaceOccurences(provincePositions, "templateID",
-                          std::to_string(prov->baseProvince->ID + 1));
+                                    std::to_string(prov->baseProvince->ID + 1));
     const auto &baseProv = prov->baseProvince;
     ;
     const std::string centerString = {
@@ -261,7 +271,7 @@ void writePositions(const std::string &path,
                                        centerString, centerString, centerString,
                                        centerString};
     pU::Scenario::replaceOccurences(provincePositions, "templatePositions",
-                          pU::csvFormat(arguments, ' ', false));
+                                    pU::csvFormat(arguments, ' ', false));
     content.append(provincePositions);
   }
   pU::writeFile(path, content);
@@ -269,12 +279,13 @@ void writePositions(const std::string &path,
 
 void writeRegions(const std::string &path, const std::string &gamePath,
                   const std::vector<eu4Region> &eu4regions) {
-  Utils::Logging::logLine("EU4 Parser: Map: Writing Regions");
+  Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Regions");
   std::string content =
       loadVanillaFile(gamePath + "//map//region.txt", {"{", "}", "areas"});
   while (pU::Scenario::removeBracketBlockFromKey(content, "monsoon")) {
   }
-  const auto templateRegion = pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//region.txt");
+  const auto templateRegion =
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//region.txt");
   for (const auto &eu4Region : eu4regions) {
     auto regionStr{templateRegion};
     std::string areaString{""};
@@ -292,7 +303,7 @@ void writeRegions(const std::string &path, const std::string &gamePath,
 
 void writeSuperregion(const std::string &path, const std::string &gamePath,
                       const std::vector<std::shared_ptr<Region>> &regions) {
-  Utils::Logging::logLine("EU4 Parser: Map: Writing Superregions");
+  Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Superregions");
   // not really necessary
 
   std::string content = loadVanillaFile(gamePath + "//map//superregion.txt",
@@ -302,36 +313,40 @@ void writeSuperregion(const std::string &path, const std::string &gamePath,
 
 void writeTerrain(const std::string &path,
                   const std::vector<std::shared_ptr<GameProvince>> &provinces) {
-  Utils::Logging::logLine("EU4 Parser: Map: Writing Terrain");
+  Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Terrain");
   // copying for now, as overwrites of terrain type are not a necessity
-  pU::writeFile(path, pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//terrain.txt"));
+  pU::writeFile(path, pU::readFile(Fwg::Cfg::Values().resourcePath +
+                                   "eu4//map//terrain.txt"));
 }
 
-void writeTradeCompanies(const std::string &path, const std::string &gamePath,
+void writeTradeCompanies(
+    const std::string &path, const std::string &gamePath,
     const std::vector<std::shared_ptr<GameProvince>> &provinces) {
   std::string content = loadVanillaFile(
       gamePath + "//common//trade_companies//00_trade_companies.txt",
       {"{", "}", "="});
   int baseCompatProv = 1;
   while (pU::Scenario::replaceOccurence(content, "provinces = {",
-                              "provinces = \n\t{\n\t\t " +
-                                  std::to_string(baseCompatProv++))) {
+                                        "provinces = \n\t{\n\t\t " +
+                                            std::to_string(baseCompatProv++))) {
   };
   pU::writeFile(path, content);
 }
 
-void writeTradewinds(const std::string &path,
+void writeTradewinds(
+    const std::string &path,
     const std::vector<std::shared_ptr<GameProvince>> &provinces) {
-  Utils::Logging::logLine("EU4 Parser: Map: Writing Tradewinds");
+  Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Tradewinds");
   // empty for now, as tradewinds are not a necessity
-  pU::writeFile(path, pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//trade_winds.txt"));
+  pU::writeFile(path, pU::readFile(Fwg::Cfg::Values().resourcePath +
+                                   "eu4//map//trade_winds.txt"));
 }
 
 void copyDescriptorFile(const std::string &sourcePath,
                         const std::string &destPath,
                         const std::string &modsDirectory,
                         const std::string &modName) {
-  Utils::Logging::logLine("EU4 Parser: Copying Descriptor file");
+  Fwg::Utils::Logging::logLine("EU4 Parser: Copying Descriptor file");
   auto descriptorText = pU::readFile(sourcePath);
   pU::Scenario::replaceOccurences(descriptorText, "templateName", modName);
   auto modText{descriptorText};
@@ -339,16 +354,16 @@ void copyDescriptorFile(const std::string &sourcePath,
   pU::writeFile(destPath + "//descriptor.mod", descriptorText);
   pU::Scenario::replaceOccurences(
       modText, "templatePath",
-                        Utils::varsToString("path=\"", destPath, "\""));
+      Fwg::Utils::varsToString("path=\"", destPath, "\""));
   pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
 }
 
 void writeProvinces(const std::string &path,
                     const std::vector<std::shared_ptr<GameProvince>> &provinces,
                     const std::vector<std::shared_ptr<Region>> &regions) {
-  Utils::Logging::logLine("Eu4 Parser: History: Drawing Province Borders");
-  auto templateContent =
-      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//history//provinceTemplate.txt");
+  Fwg::Utils::Logging::logLine("Eu4 Parser: History: Drawing Province Borders");
+  auto templateContent = pU::readFile(Fwg::Cfg::Values().resourcePath +
+                                      "eu4//history//provinceTemplate.txt");
   for (const auto &region : regions) {
     for (const auto &prov : region->gameProvinces) {
       // make sure lakes and wastelands are empty
@@ -369,7 +384,7 @@ void writeLoc(const std::string &path, const std::string &gamePath,
               const std::vector<std::shared_ptr<GameProvince>> &provinces,
               const std::vector<eu4Region> &eu4regions) {
 
-  Utils::Logging::logLine("Eu4 Parser: Localisation: Writing Area Names");
+  Fwg::Utils::Logging::logLine("Eu4 Parser: Localisation: Writing Area Names");
   std::vector<std::string> locKeys{"l_english", "l_german", "l_french",
                                    "l_spanish"};
   for (const auto &locKey : locKeys) {

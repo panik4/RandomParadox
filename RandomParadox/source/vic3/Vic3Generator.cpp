@@ -148,29 +148,7 @@ void Generator::totalArableLand(const std::vector<float> &arableLand) {
     reg->arableLand = stateArable;
   }
 }
-void Generator::totalResourceVal(const std::vector<double> &resPrev,
-                                 double resourceModifier,
-                                 const ResConfig &resourceConfig) {
-  const auto baseResourceAmount = 2500.0 * resourceModifier;
-  auto totalRes = 0.0;
-  for (auto &val : resPrev) {
-    totalRes += val;
-  }
-  for (auto &reg : vic3Regions) {
-    auto resShare = 0.0;
-    for (const auto &prov : reg->provinces) {
-      for (const auto &pix : prov->pixels) {
-        resShare += resPrev[pix];
-      }
-    }
-    // basically fictive value from given input of how often this resource
-    // appears
-    auto stateRes = baseResourceAmount * (resShare / totalRes);
-    reg->resources.insert(
-        {resourceConfig.name,
-         {resourceConfig.name, resourceConfig.capped, stateRes}});
-  }
-}
+
 
 void Generator::distributeResources() {
   const auto &cfg = Fwg::Cfg::Values();

@@ -13,16 +13,7 @@ namespace Scenario::Hoi4 {
 
 class Hoi4Country : public Scenario::Country {
 public:
-  enum class doctrineType {
-    blitz,
-    infantry,
-    milita,
-    artillery,
-    armored,
-    mass,
-    support,
-    defensive
-  };
+
   Hoi4Country(std::string tag, int ID, std::string name, std::string adjective,
               Gfx::Flag flag);
   Hoi4Country(Scenario::Country &country,
@@ -60,7 +51,6 @@ public:
   // army
   double landFocus;
   int totalArmyStrength;
-  std::vector<doctrineType> doctrines;
   std::vector<int> units;
   std::vector<int> unitCount;
   std::map<TechEra, std::vector<Technology>> infantryTechs;

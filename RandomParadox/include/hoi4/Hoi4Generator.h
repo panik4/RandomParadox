@@ -3,10 +3,11 @@
 #include "generic/Country.h"
 #include "generic/GenericParsing.h"
 #include "generic/ScenarioGenerator.h"
+#include "generic/ScenarioUtils.h"
+#include "hoi4/Hoi4Army.h"
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4FocusGen.h"
 #include "hoi4/Hoi4Region.h"
-#include "hoi4/Hoi4Army.h"
 #include "hoi4/NationalFocus.h"
 #include <array>
 #include <set>
@@ -14,15 +15,26 @@
 namespace Scenario::Hoi4 {
 
 class Generator : public Scenario::Generator {
+  using CTI = Fwg::ClimateGeneration::Detail::ClimateTypeIndex;
+  std::vector<Scenario::Utils::ResConfig> resConfigs{
+      {"chromium", true, 1250.0, true, Scenario::Utils::rareNoise},
+      {"steel", true, 2562.0, true, Scenario::Utils::defaultNoise},
+      {"tungsten", true, 1188.0, true, Scenario::Utils::semiRareNoise},
+      {"aluminium", true, 1169, true, Scenario::Utils::semiRareNoise},
+      {"oil", true, 1220.0, true, Scenario::Utils::rareLargePatch},
+      {"rubber",
+       true,
+       1029.0,
+       false,
+       Scenario::Utils::agriNoise,
+       true,
+       {{CTI::TROPICSMONSOON, 1.0},
+        {CTI::TROPICSRAINFOREST, 0.8},
+        {CTI::TROPICSSAVANNA, 0.5}}}};
   // vars
   int focusID = 0;
   std::map<std::string, int> totalResources;
-  // containers
-  std::vector<std::string> wargoalsAttack;
-  std::vector<std::string> goalsDefence;
-  std::map<int, std::string> doctrineMap{
-      {0, "blitz"},   {1, "infantry"}, {2, "milita"},  {3, "artillery"},
-      {4, "armored"}, {5, "mass"},     {6, "support"}, {7, "defensive"}};
+
 
 public:
   // containers
@@ -72,11 +84,10 @@ public:
   void distributeVictoryPoints();
   // determine urbanisation
   void generateUrbanisation();
-  bool unitFulfillsRequirements(std::vector<std::string> unitRequirements,
-                                std::shared_ptr<Hoi4Country> &country);
+
   // generate characters
   void generateCharacters();
-  
+
   void generateArmorVariants();
   void generateAirVariants();
   // determine unit composition, templates

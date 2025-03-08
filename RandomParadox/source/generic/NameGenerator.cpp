@@ -83,7 +83,7 @@ NameData prepare(const std::string &path, const std::string &gamePath) {
           nameData.disallowedTokens.insert(tag);
       }
     } catch (std::exception e) {
-      Fwg::Utils::Logging::logLine("ERROR: Path to game does not exist");
+      Fwg::Utils::Logging::logLine("ERROR: Path to game does not exist", e.what());
     }
   } else {
     Fwg::Utils::Logging::logLine(

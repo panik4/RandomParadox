@@ -1,7 +1,43 @@
 #pragma once
+#include "FastWorldGenerator.h"
 #include <string>
 #include <vector>
 namespace Scenario::Utils {
+
+struct NoiseConfig {
+  double fractalFrequency;
+  double tanFactor;
+  double cutOff;
+  double mountainBonus;
+};
+static NoiseConfig defaultNoise{0.02, 0.0, 0.8, 2.0};
+static NoiseConfig semiRareNoise{0.015, 0.0, 0.85, 2.0};
+static NoiseConfig rareLargePatch{0.005, 0.0, 0.7, 0.0};
+static NoiseConfig rareNoise{0.01, 0.0, 0.9, 2.0};
+static NoiseConfig agriNoise{0.24, 0.0, 0.0, 0.0};
+
+struct ResConfig {
+  std::string name;
+  bool capped;
+  double resourcePrevalence;
+  bool random = false;
+  NoiseConfig noiseConfig;
+  bool considerClimate = false;
+  std::map<Fwg::ClimateGeneration::Detail::ClimateTypeIndex, double>
+      climateEffects;
+  bool considerTrees = false;
+  std::map<Fwg::ClimateGeneration::Detail::TreeTypeIndex, double> treeEffects;
+  bool considerSea = false;
+  double oceanFactor = 0.0;
+  double lakeFactor = 0.0;
+};
+
+struct Resource {
+  std::string name;
+  bool capped;
+  double amount;
+};
+
 struct Coordinate {
   int x, z;
   double y, rotation;
@@ -25,7 +61,7 @@ struct WeatherPosition {
   Coordinate position;
 };
 static Coordinate strToPos(const std::vector<std::string> &tokens,
-                         const std::vector<int> positions) {
+                           const std::vector<int> positions) {
   Coordinate p;
   p.x = std::stoi(tokens[positions[0]]);
   p.y = std::stoi(tokens[positions[1]]);

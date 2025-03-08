@@ -3,6 +3,7 @@
 #include "GameProvince.h"
 #include "generic/Culture.h"
 #include "generic/Religion.h"
+#include "generic/ScenarioUtils.h"
 #include <map>
 namespace Scenario {
 class Country;
@@ -27,6 +28,7 @@ public:
   // development into account
   double economicActivity;
   double worldEconomicActivityShare;
+  std::map<std::string, Scenario::Utils::Resource> resources;
 
   // other
   bool assigned;

@@ -19,19 +19,19 @@ struct Vic3StratRegion {
 
 class Generator : public Scenario::Generator {
   using CTI = Fwg::ClimateGeneration::Detail::ClimateTypeIndex;
-  std::vector<ResConfig> resConfigs{
-      {"bg_coal_mining", true, 5.0, true, defaultNoise},
-      {"bg_gold_mining", true, 0.2, true, rareNoise},
-      {"bg_gold_fields", true, 0.2, true, rareNoise},
-      {"bg_iron_mining", true, 5.0, true, defaultNoise},
-      {"bg_lead_mining", true, 2.0, true, semiRareNoise},
-      {"bg_oil_extraction", true, 1.0, true, rareLargePatch},
-      {"bg_sulfur_mining", true, 2.0, true, semiRareNoise},
+  std::vector<Scenario::Utils::ResConfig> resConfigs{
+      {"bg_coal_mining", true, 5.0, true, Scenario::Utils::defaultNoise},
+      {"bg_gold_mining", true, 0.2, true, Scenario::Utils::rareNoise},
+      {"bg_gold_fields", true, 0.2, true, Scenario::Utils::rareNoise},
+      {"bg_iron_mining", true, 5.0, true, Scenario::Utils::defaultNoise},
+      {"bg_lead_mining", true, 2.0, true, Scenario::Utils::semiRareNoise},
+      {"bg_oil_extraction", true, 1.0, true, Scenario::Utils::rareLargePatch},
+      {"bg_sulfur_mining", true, 2.0, true, Scenario::Utils::semiRareNoise},
       {"bg_logging",
        true,
        10.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::TROPICSMONSOON, 1.0},
         {CTI::TROPICSRAINFOREST, 0.8},
@@ -48,7 +48,7 @@ class Generator : public Scenario::Generator {
        false,
        10.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::POLARTUNDRA, 0.2},
         {CTI::TROPICSMONSOON, 0.7},
@@ -66,7 +66,7 @@ class Generator : public Scenario::Generator {
        true,
        5.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::TROPICSMONSOON, 1.0},
         {CTI::TROPICSRAINFOREST, 0.8},
@@ -75,7 +75,7 @@ class Generator : public Scenario::Generator {
        false,
        10.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::TROPICSMONSOON, 1.0},
         {CTI::TROPICSRAINFOREST, 1.0},
@@ -84,7 +84,7 @@ class Generator : public Scenario::Generator {
        false,
        5.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::TROPICSMONSOON, 1.0},
         {CTI::TROPICSRAINFOREST, 1.0},
@@ -94,7 +94,7 @@ class Generator : public Scenario::Generator {
        false,
        10.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::TEMPERATEHOT, 0.8},
         {CTI::HOTSEMIARID, 1.0},
@@ -105,7 +105,7 @@ class Generator : public Scenario::Generator {
        false,
        5.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::HOTSEMIARID, 1.0},
         {CTI::TROPICSMONSOON, 0.8},
@@ -115,21 +115,21 @@ class Generator : public Scenario::Generator {
        false,
        4.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::HOTSEMIARID, 0.8}}},
       {"bg_silk_plantations",
        false,
        5.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::TEMPERATEHOT, 1.0}}},
       {"bg_sugar_plantations",
        false,
        1.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::TEMPERATEHOT, 0.8},
         {CTI::HOTSEMIARID, 1.0},
@@ -140,7 +140,7 @@ class Generator : public Scenario::Generator {
        false,
        1.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::HOTSEMIARID, 1.0},
         {CTI::TROPICSMONSOON, 1.0},
@@ -150,7 +150,7 @@ class Generator : public Scenario::Generator {
        false,
        1.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::HOTSEMIARID, 1.0},
         {CTI::TROPICSMONSOON, 0.8},
@@ -160,14 +160,14 @@ class Generator : public Scenario::Generator {
        false,
        1.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::TEMPERATEHOT, 1.0}, {CTI::TEMPERATEWARM, 0.8}}},
       {"bg_wheat_farms",
        false,
        1.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::CONTINENTALHOT, 1.0},
         {CTI::CONTINENTALWARM, 0.8},
@@ -178,7 +178,7 @@ class Generator : public Scenario::Generator {
        false,
        1.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::TROPICSMONSOON, 1.0},
         {CTI::TROPICSRAINFOREST, 0.8},
@@ -192,7 +192,7 @@ class Generator : public Scenario::Generator {
        false,
        1.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::TROPICSMONSOON, 1.0},
         {CTI::TROPICSRAINFOREST, 0.8},
@@ -202,7 +202,7 @@ class Generator : public Scenario::Generator {
        false,
        1.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::TROPICSMONSOON, 1.0},
         {CTI::TROPICSRAINFOREST, 0.8},
@@ -212,7 +212,7 @@ class Generator : public Scenario::Generator {
        false,
        1.0,
        false,
-       agriNoise,
+       Scenario::Utils::agriNoise,
        true,
        {{CTI::CONTINENTALCOLD, 1.0},
         {CTI::CONTINENTALWARM, 0.8},
@@ -222,7 +222,7 @@ class Generator : public Scenario::Generator {
        true,
        1.0,
        false,
-       defaultNoise,
+       Scenario::Utils::defaultNoise,
        false,
        {},
        false,
@@ -234,7 +234,7 @@ class Generator : public Scenario::Generator {
        true,
        1.0,
        false,
-       defaultNoise,
+       Scenario::Utils::defaultNoise,
        false,
        {},
        false,
@@ -263,7 +263,9 @@ class Generator : public Scenario::Generator {
   std::map<std::string, std::vector<BuildingType>> goodToBuildingTypes;
 
 public:
-  std::vector<ResConfig> &getResConfigs() { return this->resConfigs; }
+  std::vector<Scenario::Utils::ResConfig> &getResConfigs() {
+    return this->resConfigs;
+  }
   std::vector<std::shared_ptr<Region>> vic3Regions;
   std::map<std::string, std::shared_ptr<Country>> vic3Countries;
   Generator();
@@ -272,9 +274,6 @@ public:
   virtual void mapRegions();
   void distributePops();
   void totalArableLand(const std::vector<float> &arableLand);
-  void totalResourceVal(const std::vector<double> &resPrev,
-                        double resourceModifier,
-                        const ResConfig &resourceConfig);
   void distributeResources();
   // initialize states
   virtual void initializeStates();
@@ -296,12 +295,10 @@ public:
 
   void distributeBuildings();
 
-
   // iterates over all states and tries to place locators for all 5 types
   void createLocators();
 
   // calculate naval exits
   void calculateNavalExits();
-
 };
 } // namespace Scenario::Vic3

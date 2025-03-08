@@ -33,9 +33,7 @@ void Generator::mapRegions() {
   for (auto &region : this->areas.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
               [](const std::shared_ptr<Fwg::Province> a,
-                 const std::shared_ptr<Fwg::Province> b) {
-                return (*a < *b);
-              });
+                 const std::shared_ptr<Fwg::Province> b) { return (*a < *b); });
     auto gameRegion = std::make_shared<Region>(region);
 
     for (auto &province : gameRegion->provinces) {
@@ -385,13 +383,13 @@ void Generator::distributeCountries() {
       }
     }
   }
-  Fwg::Utils::Logging::logLine("Distributing Countries::Evaluating Populations");
+  Fwg::Utils::Logging::logLine(
+      "Distributing Countries::Evaluating Populations");
   for (auto &country : countries) {
     country.second->evaluatePopulations(civData.worldPopulationFactorSum);
     country.second->gatherCultureShares();
   }
-  Fwg::Utils::Logging::logLine(
-      "Distributing Countries::Visualising Countries");
+  Fwg::Utils::Logging::logLine("Distributing Countries::Visualising Countries");
   visualiseCountries(countryMap);
   Fwg::Gfx::Png::save(countryMap,
                       Fwg::Cfg::Values().mapsPath + "countries.png");
@@ -423,7 +421,31 @@ void Generator::evaluateCountryNeighbours() {
     }
   }
 }
-
+void Generator::totalResourceVal(
+    const std::vector<double> &resPrev, double resourceModifier,
+    const Scenario::Utils::ResConfig &resourceConfig) {
+  const auto baseResourceAmount = resourceModifier;
+  auto totalRes = 0.0;
+  for (auto &val : resPrev) {
+    totalRes += val;
+  }
+  for (auto &reg : gameRegions) {
+    auto resShare = 0.0;
+    for (const auto &prov : reg->provinces) {
+      for (const auto &pix : prov->pixels) {
+        resShare += resPrev[pix];
+      }
+    }
+    // basically fictive value from given input of how often this resource
+    // appears
+    auto stateRes = baseResourceAmount * (resShare / totalRes);
+    // round to whole number
+    stateRes = std::round(stateRes);
+    reg->resources.insert(
+        {resourceConfig.name,
+         {resourceConfig.name, resourceConfig.capped, stateRes}});
+  }
+}
 void Generator::evaluateCountries() {}
 void Generator::generateCountrySpecifics(){};
 void Generator::printStatistics() {
