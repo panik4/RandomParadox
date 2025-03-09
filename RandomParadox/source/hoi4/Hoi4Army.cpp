@@ -79,7 +79,6 @@ void addSupportRegiments(
         tempSupportRegiments[randomIndex]);
     tempSupportRegiments.erase(tempSupportRegiments.begin() + randomIndex);
   }
-  std::cout << "Supp: " + divisionTemplate.supportRegiments.size() << std::endl;
 }
 
 // this
@@ -99,7 +98,6 @@ void addCombatSupportRegiments(
     divisionTemplate.regiments.back().push_back(
         {availableCombatRegimentTypes[randomIndex]});
   }
-  std::cout << divisionTemplate.regiments.back().size() << std::endl;
 }
 
 // this adds line artillery regiments to the division

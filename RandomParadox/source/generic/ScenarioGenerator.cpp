@@ -236,23 +236,37 @@ void Generator::generateStrategicRegions() {
       stratRegion.ID = idcounter++;
       stratRegion.addRegion(region);
       assignedIDs.insert(region->ID);
-      for (auto &neighbourID : region->neighbours) {
-        // should be equal in sea/land
-        if (neighbourID > gameRegions.size())
-          continue;
-        auto neighbourRegion = gameRegions[neighbourID];
-        if (gameRegions[neighbourID]->sea == region->sea &&
-            assignedIDs.find(neighbourID) == assignedIDs.end()) {
-          stratRegion.addRegion(neighbourRegion);
-          assignedIDs.insert(neighbourID);
-        }
-      }
+      // for (auto &neighbourID : region->neighbours) {
+      //   // should be equal in sea/land
+      //   if (neighbourID > gameRegions.size())
+      //     continue;
+      //   auto neighbourRegion = gameRegions[neighbourID];
+      //   if (gameRegions[neighbourID]->sea == region->sea &&
+      //       assignedIDs.find(neighbourID) == assignedIDs.end()) {
+      //     stratRegion.addRegion(neighbourRegion);
+      //     assignedIDs.insert(neighbourID);
+      //   }
+      // }
       Colour c{static_cast<unsigned char>(RandNum::getRandom(255)),
                static_cast<unsigned char>(RandNum::getRandom(255)),
                static_cast<unsigned char>(region->sea ? 255 : 0)};
       stratRegion.colour = c;
+      stratRegion.setType();
       strategicRegions.push_back(stratRegion);
     }
+  }
+  // build a vector of superregions from all the strategic regions
+  std::vector<SuperRegion> superRegions;
+  for (auto &stratRegion : strategicRegions) {
+    SuperRegion superRegion;
+    superRegion.ID = stratRegion.ID;
+    superRegion.gameRegions = stratRegion.gameRegions;
+    superRegion.setType();
+    superRegions.push_back(superRegion);
+  }
+  for (auto &stratRegion : strategicRegions) {
+    stratRegion.checkPosition(superRegions);
+    stratRegion.name = std::to_string(stratRegion.ID + 1);
   }
   visualiseStrategicRegions();
 }

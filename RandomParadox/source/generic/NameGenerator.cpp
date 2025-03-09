@@ -12,11 +12,13 @@ std::string generateTag(const std::string name, NameData &nameData) {
       "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
   do {
-    int offset = std::clamp(retries - 1, 0, (int)name.size() - 3);
-    tag = name.substr(0 + offset, std::min<int>(3, name.size()));
+    tag = name.substr(0, std::min<int>(3, name.size()));
     std::transform(tag.begin(), tag.end(), tag.begin(), ::toupper);
     if (tag.size() < 3)
       tag += Fwg::Utils::selectRandom(letters)[0];
+    // if we have a retry, simply replace one of the letters with a random one
+    if (retries > 0)
+      tag[RandNum::getRandom(0, 2)] = Fwg::Utils::selectRandom(letters)[0];
   } while (nameData.disallowedTokens.find(tag) !=
                nameData.disallowedTokens.end() &&
            retries++ < 10);
@@ -39,6 +41,8 @@ std::string generateTag(const std::string name, NameData &nameData) {
         std::string("Too many tries generating tag " + tag).c_str()));
 
   nameData.disallowedTokens.insert(tag);
+  if (tag == "AUX")
+    std::cout << "WTF" << std::endl;
 
   return tag;
 }
@@ -83,7 +87,8 @@ NameData prepare(const std::string &path, const std::string &gamePath) {
           nameData.disallowedTokens.insert(tag);
       }
     } catch (std::exception e) {
-      Fwg::Utils::Logging::logLine("ERROR: Path to game does not exist", e.what());
+      Fwg::Utils::Logging::logLine("ERROR: Path to game does not exist",
+                                   e.what());
     }
   } else {
     Fwg::Utils::Logging::logLine(

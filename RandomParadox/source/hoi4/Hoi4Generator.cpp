@@ -367,6 +367,8 @@ void Generator::generateCountrySpecifics() {
   const std::vector<std::string> ideologies{"fascism", "democratic",
                                             "communism", "neutrality"};
   for (auto &country : hoi4Countries) {
+    if (!country->ownedRegions.size())
+      continue;
     // refresh the provinces
     country->evaluateProvinces();
     switch (country->getPrimaryCulture()->visualType) {
@@ -1410,8 +1412,6 @@ void Generator::generateCountryUnits() {
     country->divisionTemplates =
         createDivisionTemplates(desiredDivisionTemplates, allowedRegimentTypes,
                                 allowedSupportRegimentTypes);
-    std::cout << country->divisionTemplates.size() << " "
-              << desiredDivisionTemplates.size() << std::endl;
 
     // now find names for the divisions
     for (auto &division : country->divisionTemplates) {
@@ -1532,6 +1532,8 @@ void Generator::generateCountryNavies() {
       {ShipClassType::Submarine, "ship_hull_submarine"}};
 
   for (auto &country : hoi4Countries) {
+    if (!country->ownedRegions.size())
+      continue;
     // first generate the different ship classes, in each ShipclassType, we
     // have three: Interwar, Buildup
     for (const auto &shipclassType : shipClassTypes) {
@@ -1759,6 +1761,9 @@ void Generator::distributeVictoryPoints() {
   double baseVPs = 10000;
   double assignedVPs = 0;
   for (auto country : hoi4Countries) {
+
+    if (!country->ownedRegions.size())
+      continue;
     auto language = country->getPrimaryCulture()->language;
     for (auto &region : country->hoi4Regions) {
       if (region->sea || region->lake)
@@ -1891,6 +1896,8 @@ void Generator::generateCharacters() {
       "military_theorist", "naval_theorist", "air_warfare_theorist"};
 
   for (auto &country : hoi4Countries) {
+    if (!country->ownedRegions.size())
+      continue;
     // per country, we want to avoid duplicate names
     std::set<std::string> usedNames;
     // we want of every ideology: Neutral, Fascist, Communist, Democratic
