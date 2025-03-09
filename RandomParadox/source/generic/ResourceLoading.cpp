@@ -39,7 +39,6 @@ std::vector<std::string> loadForbiddenTags(const std::string &gamePath) {
       for (const auto &line : lines) {
         if (line.size() < 3)
           continue;
-        std::cout << line << std::endl;
         auto tag = line.substr(0, 3);
         tags.push_back(tag);
       }

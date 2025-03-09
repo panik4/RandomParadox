@@ -86,7 +86,7 @@
 			{
 				"autoLandRegions" : true,
 				"autoSeaRegions" : true,
-				"minProvPerRegion" : 8,
+				"minProvPerLandRegion" : 8,
 				"minProvPerSeaRegion" : 0,
 				"targetLandRegionAmount" : 640,
 				"targetSeaRegionAmount" : 160

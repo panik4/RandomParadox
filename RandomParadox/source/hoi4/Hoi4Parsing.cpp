@@ -1496,7 +1496,7 @@ void portraits(const std::string &path, const CountryMap &countries) {
                                         "hoi4//portraits//00_portraits.txt");
 
   // scientists
-  std::string scientistTemplate = "";
+  std::string scientistsTemplate = "";
 
   const auto africanTemplate = pU::readFile(
       Fwg::Cfg::Values().resourcePath + "hoi4//portraits//templateAfrican.txt");
@@ -1528,6 +1528,8 @@ void portraits(const std::string &path, const CountryMap &countries) {
                    "hoi4//portraits//templateSouthAmericanScientist.txt");
 
   for (auto &country : countries) {
+    if (!country->ownedRegions.size())
+      continue;
     auto culture = country->getPrimaryCulture();
     std::string portraitTemplate;
     std::string scientistTemplate;
@@ -1554,10 +1556,10 @@ void portraits(const std::string &path, const CountryMap &countries) {
                                     country->tag);
     // attach to templates
     portraitsTemplate.append(portraitTemplate);
-    scientistTemplate.append(scientistTemplate);
+    scientistsTemplate.append(scientistTemplate);
   }
   pU::writeFile(path + "00_portraits.txt", portraitsTemplate);
-  pU::writeFile(path + "998_scientist_portraits.txt", scientistTemplate);
+  pU::writeFile(path + "998_scientist_portraits.txt", scientistsTemplate);
 }
 } // namespace Writing
 
