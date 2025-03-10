@@ -11,14 +11,15 @@ namespace Scenario::Hoi4::Parsing {
 using CountryMap = std::vector<std::shared_ptr<Hoi4Country>>;
 
 namespace Writing {
+namespace Map {
+
 void adj(const std::string &path);
 void adjacencyRules(const std::string &path);
-void aiStrategy(const std::string &path, const CountryMap &countries);
-void events(const std::string &path, const CountryMap &countries);
 void ambientObjects(const std::string &path, const Fwg::Gfx::Bitmap &heightMap);
 void buildings(const std::string &path,
                const std::vector<std::shared_ptr<Region>> &regions,
                const Fwg::Gfx::Bitmap &heightMap);
+
 void continents(const std::string &path,
                 const std::vector<ScenarioContinent> &continents,
                 const std::string &hoiPath,
@@ -37,36 +38,44 @@ void unitStacks(const std::string &path,
 void weatherPositions(const std::string &path,
                       const std::vector<Fwg::Region> &regions,
                       std::vector<StrategicRegion> &strategicRegions);
+
+} // namespace Map
+
+namespace Countries {
+// common
+void commonCountries(const std::string &path, const std::string &hoiPath,
+                     const CountryMap &countries);
+void commonCountryTags(const std::string &path, const CountryMap &countries);
+
+void commonCharacters(const std::string &path, const CountryMap &countries);
+void commonNames(const std::string &path, const CountryMap &countries);
+void foci(const std::string &path, const CountryMap &countries,
+          const NameGeneration::NameData &nData);
 // gfx
 void flags(const std::string &path, const CountryMap &countries);
-
 // history
 void states(const std::string &path,
             const std::vector<std::shared_ptr<Region>> &regions);
-void historyCountries(const std::string &path, const CountryMap &countries);
+void historyCountries(const std::string &path, const CountryMap &countries,
+                      const std::string &gamePath,
+                      const std::vector<Fwg::Region> &regions);
 void historyUnits(const std::string &path, const CountryMap &countries);
-void foci(const std::string &path, const CountryMap &countries,
-          const NameGeneration::NameData &nData);
 void ideas(const std::string &path, const CountryMap &countries);
+
+// portraits
+void portraits(const std::string &path, const CountryMap &countries);
+
+} // namespace Countries
+
+void aiStrategy(const std::string &path);
+void events(const std::string &path);
+
 
 // common
 void commonBookmarks(
     const std::string &path, const CountryMap &countries,
     const std::map<int, std::vector<std::shared_ptr<Country>>> &strengthScores);
-void commonCountries(const std::string &path, const std::string &hoiPath,
-                     const CountryMap &countries);
-void commonCountryTags(const std::string &path, const CountryMap &countries);
-void commonNames(const std::string &path, const CountryMap &countries);
 
-void commonCharacters(const std::string &path, const CountryMap &countries);
-// localisation
-void countryNames(const std::string &path, const CountryMap &countries,
-                  const NameGeneration::NameData &nData);
-void stateNames(const std::string &path, const CountryMap &countries);
-void strategicRegionNames(const std::string &path,
-                          const std::vector<StrategicRegion> &strategicRegions);
-void victoryPointNames(const std::string &path,
-                       const std::vector<std::shared_ptr<Region>> &regions);
 void tutorials(const std::string &path);
 // copy base game countries and remove certain lines to reduce crashes
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
@@ -75,8 +84,23 @@ void scriptedTriggers(std::string gamePath, std::string modPath);
 
 void commonFiltering(const std::string &gamePath, const std::string &modPath);
 
-// portraits
-void portraits(const std::string &path, const CountryMap &countries);
+// copy over mod descriptor file
+void copyDescriptorFile(const std::string &sourcePath,
+                        const std::string &destPath,
+                        const std::string &modsDirectory,
+                        const std::string &modName);
+// localisation
+namespace Localisation {
+
+void countryNames(const std::string &path, const CountryMap &countries,
+                  const NameGeneration::NameData &nData);
+void stateNames(const std::string &path, const CountryMap &countries);
+void strategicRegionNames(const std::string &path,
+                          const std::vector<StrategicRegion> &strategicRegions);
+void victoryPointNames(const std::string &path,
+                       const std::vector<std::shared_ptr<Region>> &regions);
+
+} // namespace Localisation
 
 } // namespace Writing
 
@@ -113,9 +137,4 @@ void readWeatherPositions(const std::string &path,
 // history - National Focus
 std::vector<std::string> readTypeMap();
 std::map<std::string, std::string> readRewardMap(const std::string &path);
-// copy over mod descriptor file
-void copyDescriptorFile(const std::string &sourcePath,
-                        const std::string &destPath,
-                        const std::string &modsDirectory,
-                        const std::string &modName);
 } // namespace Scenario::Hoi4::Parsing

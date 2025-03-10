@@ -182,63 +182,70 @@ void Hoi4Module::writeTextFiles() {
   Fwg::Utils::Logging::logLine(
       "Writing Hoi4 mod text files to path: ",
       Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
-  ambientObjects(pathcfg.gameModPath + "//map//ambient_object.txt",
-                 hoi4Gen->heightMap);
-  compatibilityHistory(pathcfg.gameModPath + "//history//countries//",
-                       pathcfg.gamePath, hoi4Gen->areas.regions);
-  /*scriptedTriggers(pathcfg.gamePath + "//common//scripted_triggers//",
-                   pathcfg.gameModPath + "//common//scripted_triggers//");*/
-  // commonFiltering(pathcfg.gamePath, pathcfg.gameModPath);
-  historyCountries(pathcfg.gameModPath + "//history//countries//",
-                   hoi4Gen->hoi4Countries);
-  historyUnits(pathcfg.gameModPath + "//history//units//",
-               hoi4Gen->hoi4Countries);
-  commonCountryTags(pathcfg.gameModPath +
-                        "//common//country_tags//02_countries.txt",
-                    hoi4Gen->hoi4Countries);
-  commonCountries(pathcfg.gameModPath + "//common//countries//",
-                  pathcfg.gamePath + "//common//countries//colors.txt",
-                  hoi4Gen->hoi4Countries);
-  commonCharacters(pathcfg.gameModPath + "//common//characters//",
-                   hoi4Gen->hoi4Countries);
-  commonNames(pathcfg.gameModPath + "//common//names//00_names.txt",
-              hoi4Gen->hoi4Countries);
-  adj(pathcfg.gameModPath + "//map//adjacencies.csv");
-  aiStrategy(pathcfg.gameModPath + "//common//", hoi4Gen->hoi4Countries);
-  buildings(pathcfg.gameModPath + "//map//buildings.txt", hoi4Gen->hoi4States,
-            hoi4Gen->heightMap);
-  continents(pathcfg.gameModPath + "//map//continent.txt",
-             hoi4Gen->scenContinents, pathcfg.gamePath,
-             pathcfg.gameModPath +
-                 "//localisation//english//province_names_l_english.yml");
-  definition(pathcfg.gameModPath + "//map//definition.csv",
-             hoi4Gen->gameProvinces);
-  events(pathcfg.gameModPath + "//", hoi4Gen->hoi4Countries);
-  unitStacks(pathcfg.gameModPath + "//map//unitstacks.txt",
-             hoi4Gen->areas.provinces, hoi4Gen->hoi4States, hoi4Gen->heightMap);
-  strategicRegions(pathcfg.gameModPath + "//map//strategicregions",
-                   hoi4Gen->areas.regions, hoi4Gen->strategicRegions);
-  states(pathcfg.gameModPath + "//history//states", hoi4Gen->hoi4States);
-  flags(pathcfg.gameModPath + "//gfx//flags//", hoi4Gen->hoi4Countries);
-  weatherPositions(pathcfg.gameModPath + "//map//weatherpositions.txt",
-                   hoi4Gen->areas.regions, hoi4Gen->strategicRegions);
-  adjacencyRules(pathcfg.gameModPath + "//map//adjacency_rules.txt");
-  supply(pathcfg.gameModPath + "//map//", hoi4Gen->supplyNodeConnections);
+  Map::adj(pathcfg.gameModPath + "//map//adjacencies.csv");
+  Map::adjacencyRules(pathcfg.gameModPath + "//map//adjacency_rules.txt");
+  Map::ambientObjects(pathcfg.gameModPath + "//map//ambient_object.txt",
+                      hoi4Gen->heightMap);
+  Map::supply(pathcfg.gameModPath + "//map//", hoi4Gen->supplyNodeConnections);
+  Map::buildings(pathcfg.gameModPath + "//map//buildings.txt",
+                 hoi4Gen->hoi4States, hoi4Gen->heightMap);
+  Map::continents(pathcfg.gameModPath + "//map//continent.txt",
+                  hoi4Gen->scenContinents, pathcfg.gamePath,
+                  pathcfg.gameModPath +
+                      "//localisation//english//province_names_l_english.yml");
+  Map::definition(pathcfg.gameModPath + "//map//definition.csv",
+                  hoi4Gen->gameProvinces);
+  Map::strategicRegions(pathcfg.gameModPath + "//map//strategicregions",
+                        hoi4Gen->areas.regions, hoi4Gen->strategicRegions);
+  Map::unitStacks(pathcfg.gameModPath + "//map//unitstacks.txt",
+                  hoi4Gen->areas.provinces, hoi4Gen->hoi4States,
+                  hoi4Gen->heightMap);
+  Map::weatherPositions(pathcfg.gameModPath + "//map//weatherpositions.txt",
+                        hoi4Gen->areas.regions, hoi4Gen->strategicRegions);
 
-  foci(pathcfg.gameModPath + "//common//national_focus//",
-       hoi4Gen->hoi4Countries, hoi4Gen->nData);
-  ideas(pathcfg.gameModPath + "//common//ideas//", hoi4Gen->hoi4Countries);
+  Countries::commonCountryTags(pathcfg.gameModPath +
+                                   "//common//country_tags//02_countries.txt",
+                               hoi4Gen->hoi4Countries);
+  Countries::commonCountries(pathcfg.gameModPath + "//common//countries//",
+                             pathcfg.gamePath +
+                                 "//common//countries//colors.txt",
+                             hoi4Gen->hoi4Countries);
+  Countries::commonCharacters(pathcfg.gameModPath + "//common//characters//",
+                              hoi4Gen->hoi4Countries);
+  Countries::commonNames(pathcfg.gameModPath + "//common//names//00_names.txt",
+                         hoi4Gen->hoi4Countries);
+  Countries::foci(pathcfg.gameModPath + "//common//national_focus//",
+                  hoi4Gen->hoi4Countries, hoi4Gen->nData);
+  Countries::flags(pathcfg.gameModPath + "//gfx//flags//",
+                   hoi4Gen->hoi4Countries);
+  Countries::historyCountries(pathcfg.gameModPath + "//history//countries//",
+                              hoi4Gen->hoi4Countries, pathcfg.gamePath,
+                              hoi4Gen->areas.regions);
+  Countries::historyUnits(pathcfg.gameModPath + "//history//units//",
+                          hoi4Gen->hoi4Countries);
+  Countries::ideas(pathcfg.gameModPath + "//common//ideas//",
+                   hoi4Gen->hoi4Countries);
+  Countries::portraits(pathcfg.gameModPath + "//portraits//",
+                       hoi4Gen->hoi4Countries);
+  Countries::states(pathcfg.gameModPath + "//history//states",
+                    hoi4Gen->hoi4States);
+
+  aiStrategy(pathcfg.gameModPath + "//common//");
+  events(pathcfg.gameModPath + "//");
   commonBookmarks(pathcfg.gameModPath + "//common//bookmarks//",
                   hoi4Gen->hoi4Countries, hoi4Gen->countryImportanceScores);
   tutorials(pathcfg.gameModPath + "//tutorial//tutorial.txt");
-  portraits(pathcfg.gameModPath + "//portraits//", hoi4Gen->hoi4Countries);
-  Parsing::copyDescriptorFile(
-      Fwg::Cfg::Values().resourcePath + "hoi4//descriptor.mod",
-      pathcfg.gameModPath, pathcfg.gameModsDirectory, pathcfg.modName);
+  copyDescriptorFile(Fwg::Cfg::Values().resourcePath + "hoi4//descriptor.mod",
+                     pathcfg.gameModPath, pathcfg.gameModsDirectory,
+                     pathcfg.modName);
+
+  /*scriptedTriggers(pathcfg.gamePath + "//common//scripted_triggers//",
+                   pathcfg.gameModPath + "//common//scripted_triggers//");*/
+  // commonFiltering(pathcfg.gamePath, pathcfg.gameModPath);
 }
 void Hoi4Module::writeLocalisation() {
 
-  using namespace Parsing::Writing;
+  using namespace Parsing::Writing::Localisation;
   stateNames(pathcfg.gameModPath + "//localisation//english//",
              hoi4Gen->hoi4Countries);
   countryNames(pathcfg.gameModPath + "//localisation//english//",

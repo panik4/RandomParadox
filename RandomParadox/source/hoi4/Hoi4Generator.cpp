@@ -1258,24 +1258,33 @@ void Generator::generateAirVariants() {
       airVariant.subType = frame.second.subType;
       if (airVariant.type == PlaneType::SmallFrame) {
         airVariant.bbaFrameName = "small_plane_airframe_0";
+        airVariant.vanillaFrameName = "fighter_equipment_0";
         if (airVariant.subType == PlaneRole::CarrierCas) {
           airVariant.bbaFrameName = "cv_small_plane_cas_airframe_0";
+          airVariant.vanillaFrameName = "cv_CAS_equipment_0";
         } else if (airVariant.subType == PlaneRole::CarrierFighter) {
           airVariant.bbaFrameName = "cv_small_plane_airframe_0";
+          airVariant.vanillaFrameName = "cv_fighter_equipment_0";
         } else if (airVariant.subType == PlaneRole::CarrierNavalBomber) {
           airVariant.bbaFrameName = "cv_small_plane_naval_bomber_airframe_0";
+          airVariant.vanillaFrameName = "cv_nav_bomber_equipment_0";
         } else if (airVariant.subType == PlaneRole::Cas) {
           airVariant.bbaFrameName = "small_plane_cas_airframe_0";
+          airVariant.vanillaFrameName = "CAS_equipment_0";
         } else if (airVariant.subType == PlaneRole::Fighter) {
           airVariant.bbaFrameName = "small_plane_airframe_0";
+          airVariant.vanillaFrameName = "fighter_equipment_0";
         } else if (airVariant.subType == PlaneRole::NavalBomber) {
           airVariant.bbaFrameName = "small_plane_naval_bomber_airframe_0";
+          airVariant.vanillaFrameName = "nav_bomber_equipment_0";
         }
 
       } else if (airVariant.type == PlaneType::MediumFrame) {
         airVariant.bbaFrameName = "medium_plane_airframe_0";
+        airVariant.vanillaFrameName = "tac_bomber_equipment_0";
       } else if (airVariant.type == PlaneType::LargeFrame) {
         airVariant.bbaFrameName = "large_plane_airframe_0";
+        airVariant.vanillaFrameName = "strat_bomber_equipment_0";
       }
       // if we have a basic variant, we replace the 0 with 1
       if (frame.second.era == TechEra::Buildup) {
