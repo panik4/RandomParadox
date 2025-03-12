@@ -369,6 +369,7 @@ void Generator::distributeCountries() {
   Fwg::Utils::Logging::logLine("Distributing Countries");
   for (auto &countryEntry : countries) {
     auto &country = countryEntry.second;
+    country->ownedRegions.clear();
     auto startRegion(findStartRegion());
     if (startRegion->assigned || startRegion->sea || startRegion->lake)
       continue;

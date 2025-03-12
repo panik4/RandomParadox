@@ -61,6 +61,7 @@ public:
                      std::shared_ptr<Region> startRegion,
                      std::vector<std::shared_ptr<GameProvince>> &gameProvinces);
   void addRegion(std::shared_ptr<Region> region);
+  void removeRegion(std::shared_ptr<Region> region);
   void selectCapital();
   // operators
   bool operator<(const Country &right) const { return ID < right.ID; };
