@@ -103,6 +103,7 @@ void Region::calculateBuildingPositions(const Fwg::Gfx::Bitmap &heightmap,
                                         const Fwg::Gfx::Bitmap &typeMap) {
   if (this->sea || this->lake)
     return;
+  buildings.clear();
   bool coastal = false;
   for (const auto &prov : provinces) {
     if (prov->coastal)

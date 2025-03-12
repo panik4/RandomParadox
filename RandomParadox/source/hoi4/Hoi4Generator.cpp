@@ -162,6 +162,15 @@ void Generator::cutFromFiles(const std::string &gamePath) {
 }
 void Generator::mapCountries() {
   hoi4Countries.clear();
+  std::vector<std::shared_ptr<Country>> countryVector;
+  for (auto &country : countries) {
+    countryVector.push_back(country.second);
+  }
+  countries.clear();
+  for (auto &country : countryVector) {
+    countries[country->tag] = country;
+  }
+
   for (auto &country : countries) {
     // construct a hoi4country with country from ScenarioGenerator.
     // We want a copy here
@@ -369,6 +378,11 @@ void Generator::generateCountrySpecifics() {
   for (auto &country : hoi4Countries) {
     if (!country->ownedRegions.size())
       continue;
+    // clear some info from all owned regions
+    for (auto &region : country->hoi4Regions) {
+      region->airBase = nullptr;
+      region->navalBases.clear();
+    }
     // refresh the provinces
     country->evaluateProvinces();
     switch (country->getPrimaryCulture()->visualType) {
@@ -1156,7 +1170,9 @@ void Generator::generateAirVariants() {
     TechEra era;
   };
   Fwg::Utils::Logging::logLine("HOI4: Generating Air Variants");
+
   for (auto &country : hoi4Countries) {
+    country->planeVariants.clear();
     bool hasCarrier = false;
     for (auto &ship : country->ships) {
       if (ship->shipClass.type == ShipClassType::Carrier) {
@@ -1777,6 +1793,7 @@ void Generator::distributeVictoryPoints() {
     for (auto &region : country->hoi4Regions) {
       if (region->sea || region->lake)
         continue;
+      region->victoryPointsMap.clear();
       region->totalVictoryPoints =
           std::max<int>(region->relativeImportance * baseVPs, 1);
       std::map<int, double> provinceImportance;

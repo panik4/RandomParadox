@@ -510,6 +510,9 @@ void commonNames(const std::string &path, const CountryMap &countries) {
   std::string femaleNames = "";
   std::string surnames = "";
   for (auto &country : countries) {
+    if (!country->cultures.size() || !country->ownedRegions.size()) {
+      continue;
+    }
 
     auto nameTemplate = countryNamesTemplate;
     for (auto &culture : country->cultures) {

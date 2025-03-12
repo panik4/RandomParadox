@@ -189,109 +189,170 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                                "You need to validate paths successfully before "
                                "being able to do anything else");
           }
-          if (!validatedPaths)
-            ImGui::BeginDisabled();
-          showGeneric(cfg, *activeModule->generator, &primaryTexture);
-          if (!validatedPaths)
-            ImGui::EndDisabled();
-          ImGui::SameLine();
-          showModuleGeneric(cfg, activeModule);
-          ImGui::SeparatorText("Different Steps of the generation, usually go "
-                               "from left to right");
 
-          if (uiUtils->actTxs[1] == UIUtils::ActiveTexture::NONE &&
-              secondaryTexture != nullptr) {
-          }
-          if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
-            // Disable all inputs if computation is running
-            if (computationRunning) {
-              ImGui::BeginDisabled();
-            }
-            showConfigure(cfg, activeModule);
-            if (!validatedPaths)
-              ImGui::BeginDisabled();
-            if (cfg.debugLevel == 9) {
-              showModLoader(cfg, activeModule);
-            }
-            showHeightmapTab(cfg, *activeModule->generator, &primaryTexture);
-            showLandTab(cfg, *activeModule->generator);
-            showNormalMapTab(cfg, *activeModule->generator, &primaryTexture);
-            showContinentTab(cfg, *activeModule->generator, &primaryTexture);
-            showClimateInputTab(cfg, *activeModule->generator, &primaryTexture);
-            showClimateOverview(cfg, *activeModule->generator, &primaryTexture);
-            showDensityTab(cfg, *activeModule->generator, &primaryTexture);
-            showSegmentTab(cfg, *activeModule->generator);
-            showProvincesTab(cfg, *activeModule->generator, &primaryTexture);
-            showRegionTab(cfg, *activeModule->generator, &primaryTexture);
-            showCivilizationTab(cfg, *activeModule->generator);
-            showScenarioTab(cfg, activeModule);
-            if (!scenarioGenReady(false)) {
-              ImGui::BeginDisabled();
-            }
-            showCountryTab(cfg, &primaryTexture);
-            if (activeGameConfig.gameName == "Hearts of Iron IV") {
-              auto hoi4Gen =
-                  std::reinterpret_pointer_cast<Hoi4Gen, Scenario::Generator>(
-                      activeModule->generator);
-              showStrategicRegionTab(cfg, hoi4Gen);
-              showHoi4Finalise(
-                  cfg, std::reinterpret_pointer_cast<Scenario::Hoi4::Hoi4Module,
-                                                     Scenario::GenericModule>(
-                           activeModule));
-            } else if (activeGameConfig.gameName == "Victoria 3") {
-              auto vic3Gen =
-                  std::reinterpret_pointer_cast<Vic3Gen, Scenario::Generator>(
-                      activeModule->generator);
-              showStrategicRegionTab(cfg, vic3Gen);
-              showNavmeshTab(cfg, *activeModule->generator);
-              showVic3Finalise(
-                  cfg, std::reinterpret_pointer_cast<Scenario::Vic3::Module,
-                                                     Scenario::GenericModule>(
-                           activeModule));
-            }
-            if (!scenarioGenReady(false)) {
-              ImGui::EndDisabled();
-            }
-            if (!validatedPaths)
-              ImGui::EndDisabled();
-            // Re-enable inputs if computation is running
-            if (computationRunning && !computationStarted) {
-              ImGui::EndDisabled();
-            }
-            // Check if the computation is done
-            if (computationRunning &&
-                computationFutureBool.wait_for(std::chrono::seconds(0)) ==
-                    std::future_status::ready) {
-              computationRunning = false;
-              uiUtils->resetTexture();
-            }
+          ImGui::BeginChild("WrapperContent",
+                            ImVec2(ImGui::GetContentRegionAvail().x * 0.4f,
+                                   ImGui::GetContentRegionAvail().y * 1.0f),
+                            false);
+          {
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(78, 90, 204, 40));
+            // Create a child window for the left content
+            ImGui::BeginChild("LeftContent",
+                              ImVec2(ImGui::GetContentRegionAvail().x * 1.0f,
+                                     ImGui::GetContentRegionAvail().y * 0.8f),
+                              false);
+            {
+              if (!validatedPaths)
+                ImGui::BeginDisabled();
+              showGeneric(cfg, *activeModule->generator, &primaryTexture);
+              if (!validatedPaths)
+                ImGui::EndDisabled();
+              ImGui::SameLine();
+              showModuleGeneric(cfg, activeModule);
+              ImGui::SeparatorText(
+                  "Different Steps of the generation, usually go "
+                  "from left to right");
 
-            if (computationRunning) {
-              computationStarted = false;
-              ImGui::Text("Working, please be patient");
-              static auto lastTime = std::chrono::steady_clock::now();
-
-              auto currentTime = std::chrono::steady_clock::now();
-              auto elapsedTime =
-                  std::chrono::duration_cast<std::chrono::seconds>(currentTime -
-                                                                   lastTime)
-                      .count();
-
-              if (elapsedTime >= 1) {
-                auto desiredState = uiUtils->actTxs[0];
-                uiUtils->resetTexture();
-                // Reset texture every second during computation
-                uiUtils->switchTexture(*uiUtils->activeImages[0],
-                                       &primaryTexture, 0, desiredState,
-                                       g_pd3dDevice, w, h);
-                lastTime = currentTime;
+              if (uiUtils->actTxs[1] == UIUtils::ActiveTexture::NONE &&
+                  secondaryTexture != nullptr) {
               }
-            } else {
-              ImGui::Text("Ready!");
-            }
+              if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
+                // Disable all inputs if computation is running
+                if (computationRunning) {
+                  ImGui::BeginDisabled();
+                }
+                showConfigure(cfg, activeModule);
+                if (!validatedPaths)
+                  ImGui::BeginDisabled();
+                if (cfg.debugLevel == 9) {
+                  showModLoader(cfg, activeModule);
+                }
+                showHeightmapTab(cfg, *activeModule->generator,
+                                 &primaryTexture);
+                showLandTab(cfg, *activeModule->generator);
+                showNormalMapTab(cfg, *activeModule->generator,
+                                 &primaryTexture);
+                showContinentTab(cfg, *activeModule->generator,
+                                 &primaryTexture);
+                showClimateInputTab(cfg, *activeModule->generator,
+                                    &primaryTexture);
+                showClimateOverview(cfg, *activeModule->generator,
+                                    &primaryTexture);
+                showDensityTab(cfg, *activeModule->generator, &primaryTexture);
+                showSegmentTab(cfg, *activeModule->generator);
+                showProvincesTab(cfg, *activeModule->generator,
+                                 &primaryTexture);
+                showRegionTab(cfg, *activeModule->generator, &primaryTexture);
+                showCivilizationTab(cfg, *activeModule->generator);
+                showScenarioTab(cfg, activeModule);
+                if (!scenarioGenReady(false)) {
+                  ImGui::BeginDisabled();
+                }
+                showCountryTab(cfg, &primaryTexture);
+                if (activeGameConfig.gameName == "Hearts of Iron IV") {
+                  auto hoi4Gen = std::reinterpret_pointer_cast<
+                      Hoi4Gen, Scenario::Generator>(activeModule->generator);
+                  showStrategicRegionTab(cfg, hoi4Gen);
+                  showHoi4Finalise(
+                      cfg,
+                      std::reinterpret_pointer_cast<Scenario::Hoi4::Hoi4Module,
+                                                    Scenario::GenericModule>(
+                          activeModule));
+                } else if (activeGameConfig.gameName == "Victoria 3") {
+                  auto vic3Gen = std::reinterpret_pointer_cast<
+                      Vic3Gen, Scenario::Generator>(activeModule->generator);
+                  showStrategicRegionTab(cfg, vic3Gen);
+                  showNavmeshTab(cfg, *activeModule->generator);
+                  showVic3Finalise(
+                      cfg,
+                      std::reinterpret_pointer_cast<Scenario::Vic3::Module,
+                                                    Scenario::GenericModule>(
+                          activeModule));
+                }
+                if (!scenarioGenReady(false)) {
+                  ImGui::EndDisabled();
+                }
+                if (!validatedPaths)
+                  ImGui::EndDisabled();
+                // Re-enable inputs if computation is running
+                if (computationRunning && !computationStarted) {
+                  ImGui::EndDisabled();
+                }
+                // Check if the computation is done
+                if (computationRunning &&
+                    computationFutureBool.wait_for(std::chrono::seconds(0)) ==
+                        std::future_status::ready) {
+                  computationRunning = false;
+                  uiUtils->resetTexture();
+                }
 
-            ImGui::EndTabBar();
+                if (computationRunning) {
+                  computationStarted = false;
+                  ImGui::Text("Working, please be patient");
+                  static auto lastTime = std::chrono::steady_clock::now();
+
+                  auto currentTime = std::chrono::steady_clock::now();
+                  auto elapsedTime =
+                      std::chrono::duration_cast<std::chrono::seconds>(
+                          currentTime - lastTime)
+                          .count();
+
+                  if (elapsedTime >= 1) {
+                    auto desiredState = uiUtils->actTxs[0];
+                    uiUtils->resetTexture();
+                    // Reset texture every second during computation
+                    uiUtils->switchTexture(*uiUtils->activeImages[0],
+                                           &primaryTexture, 0, desiredState,
+                                           g_pd3dDevice, w, h);
+                    lastTime = currentTime;
+                  }
+                } else {
+                  ImGui::Text("Ready!");
+                }
+
+                ImGui::EndTabBar();
+              }
+
+              ImGui::PopStyleColor();
+              ImGui::EndChild();
+              // Draw a frame around the child region
+              ImVec2 childMin = ImGui::GetItemRectMin();
+              ImVec2 childMax = ImGui::GetItemRectMax();
+              ImGui::GetWindowDrawList()->AddRect(childMin, childMax,
+                                                  IM_COL32(78, 90, 204, 255),
+                                                  0.0f, 0, 2.0f);
+            }
+            ImGuiWindowFlags window_flags =
+                ImGuiWindowFlags_HorizontalScrollbar;
+
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(30, 100, 144, 40));
+            ImGui::BeginChild("Log",
+                              ImVec2(ImGui::GetContentRegionAvail().x * 1.0f,
+                                     ImGui::GetContentRegionAvail().y * 1.0f),
+                              false, window_flags);
+            {
+              ImGui::TextUnformatted(log->str().c_str());
+              if (!ImGui::IsWindowHovered()) {
+                // scroll to bottom
+                ImGui::SetScrollHereY(1.0f);
+              }
+              ImGui::EndChild();
+              ImGui::PopStyleColor();
+              // Draw a frame around the child region
+              ImVec2 childMin = ImGui::GetItemRectMin();
+              ImVec2 childMax = ImGui::GetItemRectMax();
+              ImGui::GetWindowDrawList()->AddRect(childMin, childMax,
+                                                  IM_COL32(25, 91, 133, 255),
+                                                  0.0f, 0, 2.0f);
+            }
+            ImGui::EndChild();
+            // Draw a frame around the child region
+            ImVec2 childMin = ImGui::GetItemRectMin();
+            ImVec2 childMax = ImGui::GetItemRectMax();
+            ImGui::GetWindowDrawList()->AddRect(
+                childMin, childMax, IM_COL32(64, 69, 112, 255), 0.0f, 0, 2.0f);
           }
+          ImGui::SameLine();
           static ImVec2 cursorPos;
           for (auto i = 0; i < uiUtils->activeImages.size(); i++) {
             // switch to the correct texture, by setting activeImage
@@ -392,8 +453,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
           if (w > 0 && h > 0) {
             float aspectRatio = (float)w / (float)h;
             auto scale =
-                std::min<float>((ImGui::GetContentRegionAvail().y) / h,
-                                (ImGui::GetContentRegionAvail().x) * modif / w);
+                std::min<float>((ImGui::GetContentRegionAvail().y) * modif / h,
+                                (ImGui::GetContentRegionAvail().x) / w);
             auto texWidth = w * scale;
             auto texHeight = h * scale;
 
@@ -401,52 +462,62 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
             if (io.KeyCtrl) {
               zoom += io.MouseWheel * 0.1f;
             }
-            if (primaryTexture != nullptr &&
-                uiUtils->actTxs[0] != UIUtils::ActiveTexture::NONE) {
-              // Create a child window with scrollbars
+            // Create a child window for the image
+            ImGui::BeginChild("ImageContainer", ImVec2(0, 0), false,
+                              ImGuiWindowFlags_HorizontalScrollbar |
+                                  ImGuiWindowFlags_AlwaysVerticalScrollbar);
+            {
               ImGui::BeginChild("Image", ImVec2(texWidth, texHeight), false,
                                 ImGuiWindowFlags_HorizontalScrollbar |
                                     ImGuiWindowFlags_AlwaysVerticalScrollbar);
-              ImGui::Image((void *)primaryTexture,
-                           ImVec2(texWidth * zoom, texHeight * zoom));
-              if (io.KeyCtrl && io.MouseWheel) {
-                // Get the mouse position relative to the image
-                ImVec2 mouse_pos = ImGui::GetMousePos();
-                ImVec2 image_pos = ImGui::GetItemRectMin();
-                auto itemsize = ImGui::GetItemRectSize();
-                ImVec2 mouse_pos_relative = ImVec2(mouse_pos.x - image_pos.x,
-                                                   mouse_pos.y - image_pos.y);
-                // Calculate the pixel position in the texture
-                float pixel_x = ((mouse_pos_relative.x / itemsize.x));
-                float pixel_y = ((mouse_pos_relative.y / itemsize.y));
-                ImGui::SetScrollHereY(std::clamp(pixel_y, 0.0f, 1.0f));
-                ImGui::SetScrollHereX(std::clamp(pixel_x, 0.0f, 1.0f));
-              }
+              if (primaryTexture != nullptr &&
+                  uiUtils->actTxs[0] != UIUtils::ActiveTexture::NONE) {
+                ImGui::Image((void *)primaryTexture,
+                             ImVec2(texWidth * zoom, texHeight * zoom));
+                if (io.KeyCtrl && io.MouseWheel) {
+                  // Get the mouse position relative to the image
+                  ImVec2 mouse_pos = ImGui::GetMousePos();
+                  ImVec2 image_pos = ImGui::GetItemRectMin();
+                  auto itemsize = ImGui::GetItemRectSize();
+                  ImVec2 mouse_pos_relative = ImVec2(mouse_pos.x - image_pos.x,
+                                                     mouse_pos.y - image_pos.y);
+                  // Calculate the pixel position in the texture
+                  float pixel_x = ((mouse_pos_relative.x / itemsize.x));
+                  float pixel_y = ((mouse_pos_relative.y / itemsize.y));
+                  ImGui::SetScrollHereY(std::clamp(pixel_y, 0.0f, 1.0f));
+                  ImGui::SetScrollHereX(std::clamp(pixel_x, 0.0f, 1.0f));
+                }
 
-              // Handle dragging
-              if (io.KeyCtrl && ImGui::IsMouseDragging(0, 0.0f)) {
-                ImVec2 drag_delta = ImGui::GetMouseDragDelta(0, 0.0f);
-                ImGui::ResetMouseDragDelta(0);
-                ImGui::SetScrollX(ImGui::GetScrollX() - drag_delta.x);
-                ImGui::SetScrollY(ImGui::GetScrollY() - drag_delta.y);
+                // Handle dragging
+                if (io.KeyCtrl && ImGui::IsMouseDragging(0, 0.0f)) {
+                  ImVec2 drag_delta = ImGui::GetMouseDragDelta(0, 0.0f);
+                  ImGui::ResetMouseDragDelta(0);
+                  ImGui::SetScrollX(ImGui::GetScrollX() - drag_delta.x);
+                  ImGui::SetScrollY(ImGui::GetScrollY() - drag_delta.y);
+                }
+                if (!io.KeyCtrl) {
+                  uiUtils->imageClick(scale, io);
+                }
               }
-              if (!io.KeyCtrl) {
-                uiUtils->imageClick(scale, io);
-              }
-
               // End the child window
               ImGui::EndChild();
-            }
 
-            // images are less wide, on a usual 16x9 monitor, it is better to
-            // place them besides each other
-            if (aspectRatio <= 2.0)
-              ImGui::SameLine();
-            if (secondaryTexture != nullptr &&
-                uiUtils->actTxs[1] != UIUtils::ActiveTexture::NONE) {
-              ImGui::Image((void *)secondaryTexture,
-                           ImVec2(w * scale, h * scale));
+              ImGui::BeginChild("ImageSecondary", ImVec2(texWidth, texHeight),
+                                false,
+                                ImGuiWindowFlags_HorizontalScrollbar |
+                                    ImGuiWindowFlags_AlwaysVerticalScrollbar);
+              // images are less wide, on a usual 16x9 monitor, it is better to
+              // place them besides each other
+              // if (aspectRatio <= 2.0)
+              //  ImGui::SameLine();
+              if (secondaryTexture != nullptr &&
+                  uiUtils->actTxs[1] != UIUtils::ActiveTexture::NONE) {
+                ImGui::Image((void *)secondaryTexture,
+                             ImVec2(w * scale, h * scale));
+              }
+              ImGui::EndChild();
             }
+            ImGui::EndChild();
           }
           ImGui::End();
         }
@@ -520,18 +591,8 @@ bool GUI::isRelevantModuleActive(const std::string &shortName) {
 }
 int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
                      ID3D11ShaderResourceView **texture) {
-  ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
-  ImGui::BeginChild("Log",
-                    ImVec2(ImGui::GetContentRegionAvail().x * 1.0f,
-                           ImGui::GetContentRegionAvail().y * 0.1),
-                    false, window_flags);
-  ImGui::TextUnformatted(log->str().c_str());
+
   bool success = true;
-  if (!ImGui::IsWindowHovered()) {
-    // scroll to bottom
-    ImGui::SetScrollHereY(1.0f);
-  }
-  ImGui::EndChild();
   ImGui::PushItemWidth(200.0f);
   uiUtils->brushSettingsHeader();
   if (ImGui::InputInt("<--Seed", &cfg.seed)) {
@@ -905,7 +966,8 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
         }
         if (!modifiableState->sea &&
             modifiableState->owner != selectedCountry) {
-          // modifiableState->owner = selectedCountry->tag;
+          modifiableState->owner->removeRegion(modifiableState);
+          modifiableState->owner = selectedCountry;
           selectedCountry->addRegion(modifiableState);
           generator->visualiseCountries(generator->countryMap,
                                         modifiableState->ID);
@@ -1150,7 +1212,8 @@ int GUI::showStrategicRegionTab(
       generator->mapCountries();
       generator->evaluateCountryNeighbours();
       Scenario::Civilization::generateWorldCivilizations(
-          generator->gameRegions, generator->gameProvinces, generator->civData, generator->scenContinents);
+          generator->gameRegions, generator->gameProvinces, generator->civData,
+          generator->scenContinents);
     }
     // drag event is ignored here
     if (triggeredDrag) {

@@ -41,10 +41,20 @@ void Country::assignRegions(
 
 void Country::addRegion(std::shared_ptr<Region> region) {
   region->assigned = true;
-  // region->owner = tag;
   for (auto &gameProvince : region->gameProvinces)
     gameProvince->owner = this->tag;
   ownedRegions.push_back(region);
+}
+void Country::removeRegion(std::shared_ptr<Region> region) {
+  region->assigned = false;
+  // region->owner = "";
+  for (auto &gameProvince : region->gameProvinces)
+    gameProvince->owner = "";
+  ownedRegions.erase(
+      std::remove(ownedRegions.begin(), ownedRegions.end(), region),
+      ownedRegions.end());
+
+
 }
 void Country::selectCapital() {
   // select the region with the highest population
