@@ -80,7 +80,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
     SendMessage(consoleWindow, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
     ::RegisterClassExW(&wc);
     HWND hwnd = uiUtils->createAndConfigureWindow(wc, wc.lpszClassName,
-                                                  L"RandomParadox 0.8.2");
+                                                  L"RandomParadox 0.9.0");
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd)) {
       CleanupDeviceD3D();
@@ -190,25 +190,18 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                                "being able to do anything else");
           }
 
-          ImGui::BeginChild("WrapperContent",
+          ImGui::BeginChild("LeftContent",
                             ImVec2(ImGui::GetContentRegionAvail().x * 0.4f,
                                    ImGui::GetContentRegionAvail().y * 1.0f),
                             false);
           {
             ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(78, 90, 204, 40));
             // Create a child window for the left content
-            ImGui::BeginChild("LeftContent",
+            ImGui::BeginChild("SettingsContent",
                               ImVec2(ImGui::GetContentRegionAvail().x * 1.0f,
                                      ImGui::GetContentRegionAvail().y * 0.8f),
                               false);
             {
-              if (!validatedPaths)
-                ImGui::BeginDisabled();
-              showGeneric(cfg, *activeModule->generator, &primaryTexture);
-              if (!validatedPaths)
-                ImGui::EndDisabled();
-              ImGui::SameLine();
-              showModuleGeneric(cfg, activeModule);
               ImGui::SeparatorText(
                   "Different Steps of the generation, usually go "
                   "from left to right");
@@ -227,22 +220,14 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                 if (cfg.debugLevel == 9) {
                   showModLoader(cfg, activeModule);
                 }
-                showHeightmapTab(cfg, *activeModule->generator,
-                                 &primaryTexture);
-                showLandTab(cfg, *activeModule->generator);
-                showNormalMapTab(cfg, *activeModule->generator,
-                                 &primaryTexture);
-                showContinentTab(cfg, *activeModule->generator,
-                                 &primaryTexture);
+                showElevationTabs(cfg, *activeModule->generator,
+                                  &primaryTexture);
                 showClimateInputTab(cfg, *activeModule->generator,
                                     &primaryTexture);
                 showClimateOverview(cfg, *activeModule->generator,
                                     &primaryTexture);
                 showDensityTab(cfg, *activeModule->generator, &primaryTexture);
-                showSegmentTab(cfg, *activeModule->generator);
-                showProvincesTab(cfg, *activeModule->generator,
-                                 &primaryTexture);
-                showRegionTab(cfg, *activeModule->generator, &primaryTexture);
+                showAreasTab(cfg, *activeModule->generator);
                 showCivilizationTab(cfg, *activeModule->generator);
                 showScenarioTab(cfg, activeModule);
                 if (!scenarioGenReady(false)) {
@@ -319,11 +304,37 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               ImVec2 childMin = ImGui::GetItemRectMin();
               ImVec2 childMax = ImGui::GetItemRectMax();
               ImGui::GetWindowDrawList()->AddRect(childMin, childMax,
-                                                  IM_COL32(78, 90, 204, 255),
+                                                  IM_COL32(100, 90, 180, 255),
                                                   0.0f, 0, 2.0f);
             }
             ImGuiWindowFlags window_flags =
                 ImGuiWindowFlags_HorizontalScrollbar;
+            {
+              ImGui::PushStyleColor(ImGuiCol_ChildBg,
+                                    IM_COL32(30, 100, 144, 40));
+
+              ImGui::BeginChild(
+                  "GenericWrapper",
+                  ImVec2(ImGui::GetContentRegionAvail().x * 1.0f,
+                         std::max<float>(
+                             ImGui::GetContentRegionAvail().y * 0.3f, 100.0f)),
+                  false, window_flags);
+              if (!validatedPaths)
+                ImGui::BeginDisabled();
+              showGeneric(cfg, *activeModule->generator, &primaryTexture);
+              if (!validatedPaths)
+                ImGui::EndDisabled();
+              ImGui::SameLine();
+              showModuleGeneric(cfg, activeModule);
+              ImGui::EndChild();
+              // Draw a frame around the child region
+              ImVec2 childMin = ImGui::GetItemRectMin();
+              ImVec2 childMax = ImGui::GetItemRectMax();
+              ImGui::GetWindowDrawList()->AddRect(childMin, childMax,
+                                                  IM_COL32(50, 91, 120, 255),
+                                                  0.0f, 0, 2.0f);
+              ImGui::PopStyleColor();
+            }
 
             ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(30, 100, 144, 40));
             ImGui::BeginChild("Log",
@@ -472,8 +483,9 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                                     ImGuiWindowFlags_AlwaysVerticalScrollbar);
               if (primaryTexture != nullptr &&
                   uiUtils->actTxs[0] != UIUtils::ActiveTexture::NONE) {
-                ImGui::Image((void *)primaryTexture,
-                             ImVec2(texWidth * zoom, texHeight * zoom));
+                ImGui::Image(
+                    (void *)primaryTexture,
+                    ImVec2(texWidth * zoom * 0.98, texHeight * zoom * 0.98));
                 if (io.KeyCtrl && io.MouseWheel) {
                   // Get the mouse position relative to the image
                   ImVec2 mouse_pos = ImGui::GetMousePos();
@@ -513,7 +525,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               if (secondaryTexture != nullptr &&
                   uiUtils->actTxs[1] != UIUtils::ActiveTexture::NONE) {
                 ImGui::Image((void *)secondaryTexture,
-                             ImVec2(w * scale, h * scale));
+                             ImVec2(w * scale * 0.98, h * scale * 0.98));
               }
               ImGui::EndChild();
             }
@@ -656,6 +668,7 @@ int GUI::showConfigure(Fwg::Cfg &cfg,
                        std::shared_ptr<Scenario::GenericModule> &activeModule) {
 
   if (ImGui::BeginTabItem("Configure")) {
+    uiUtils->showHelpTextBox("Configure");
     uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
     uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     if (ImGui::BeginTabBar("Config tabs", ImGuiTabBarFlags_None)) {
@@ -837,7 +850,7 @@ int GUI::showScenarioTab(
       // auto initialize
       ImGui::SeparatorText(
           "Only remap when you have changed the maps in the previous tabs");
-      uiUtils->showHelpTextPopup("Scenario");
+      uiUtils->showHelpTextBox("Scenario");
       if (ImGui::Button("Remap areas") ||
           !activeModule->generator->gameProvinces.size()) {
         if (!activeModule->createPaths()) {
@@ -1017,7 +1030,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
                 "inputs//countryMappings.txt as an example. If no file is "
                 "dragged in, this example file is used.");
     ImGui::PushItemWidth(300.0f);
-    uiUtils->showHelpTextPopup("Countries");
+    uiUtils->showHelpTextBox("Countries");
     ImGui::InputInt("Number of countries", &generator->numCountries);
     // ImGui::InputText("Path to country list: ",
     // &generator->countryMappingPath); ImGui::InputText("Path to state list: ",
@@ -1181,7 +1194,7 @@ int GUI::showStrategicRegionTab(
 
     ImGui::SeparatorText(
         "This generates strategic regions, they cannot be loaded");
-    uiUtils->showHelpTextPopup("Strategic Regions");
+    uiUtils->showHelpTextBox("Strategic Regions");
     if (generator->gameRegions.size()) {
       if (ImGui::Button("Generate strategic regions")) {
         // non-country stuff
