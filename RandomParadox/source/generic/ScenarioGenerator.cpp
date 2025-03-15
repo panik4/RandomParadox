@@ -374,6 +374,8 @@ void Generator::distributeCountries() {
     if (startRegion->assigned || startRegion->sea || startRegion->lake)
       continue;
     country->assignRegions(6, gameRegions, startRegion, gameProvinces);
+    if (!country->ownedRegions.size())
+      continue;
     // get the dominant culture in the country by iterating over all regions
     // and counting the number of provinces with the same culture
     country->gatherCultureShares();
