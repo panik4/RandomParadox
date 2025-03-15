@@ -85,6 +85,9 @@ class GUI : Fwg::fwgUI {
   // generic stuff
   int showStatisticsTab();
 
+
+  void recover();
+
 public:
   GUI();
   int shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,

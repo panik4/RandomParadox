@@ -42,6 +42,14 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 // for state/country/strategic region editing
 static bool drawBorders = false;
+void GUI::recover() {
+  auto &cfg = Fwg::Cfg::Values();
+  // load heightmap      cfg.loadHeight = true;
+  cfg.allowHeightmapModification = false;
+  activeModule->generator->loadHeight(cfg, cfg.mapsPath + "//heightmap.bmp");
+  // load landmap
+  activeModule->generator->genLand();
+}
 GUI::GUI() : fwgUI() {}
 
 int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
@@ -226,7 +234,6 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                                     &primaryTexture);
                 showClimateOverview(cfg, *activeModule->generator,
                                     &primaryTexture);
-                showDensityTab(cfg, *activeModule->generator, &primaryTexture);
                 showAreasTab(cfg, *activeModule->generator);
                 showCivilizationTab(cfg, *activeModule->generator);
                 showScenarioTab(cfg, activeModule);
@@ -308,7 +315,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                                                   0.0f, 0, 2.0f);
             }
             ImGuiWindowFlags window_flags =
-                ImGuiWindowFlags_HorizontalScrollbar;
+                ImGuiWindowFlags_None;
             {
               ImGui::PushStyleColor(ImGuiCol_ChildBg,
                                     IM_COL32(30, 100, 144, 40));
@@ -617,6 +624,10 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
     cfg.reRandomize();
   }
   ImGui::SameLine();
+  if (ImGui::Button("Recover")) {
+    recover();
+  }
+  ImGui::SameLine();
   if (cfg.debugLevel > 5 && ImGui::Button("Display size")) {
     Fwg::Utils::Logging::logLine(generator.size());
   }
@@ -913,7 +924,6 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
       }
     }
   }
-  ImGui::Columns(3, "Edit"); // Start columns
   if (generator->gameRegions.size()) {
     auto &modifiableState = generator->gameRegions[selectedStateIndex];
 
@@ -930,6 +940,7 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
       }
       std::string tempTag = selectedCountry->tag;
       static std::string bufferChangedTag = "";
+
       Elements::borderChild("CountryEdit", [&]() {
         if (ImGui::InputText("Country tag", &tempTag)) {
           bufferChangedTag = tempTag;
@@ -988,18 +999,19 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
         }
       }
     }
-    ImGui::NextColumn();
+
     Elements::borderChild("StateEdit", [&]() {
       ImGui::InputText("State name", &modifiableState->name);
       if (modifiableState->owner)
         ImGui::InputText("State owner", &modifiableState->owner->tag);
       ImGui::InputInt("Population", &modifiableState->totalPopulation);
     });
-    ImGui::NextColumn();
+
     if (isRelevantModuleActive("hoi4")) {
       const auto &hoi4Region =
           std::reinterpret_pointer_cast<Scenario::Hoi4::Region,
                                         Scenario::Region>(modifiableState);
+
       Elements::borderChild("StateEdit2", [&]() {
         ImGui::InputInt("Arms Industry", &hoi4Region->armsFactories);
         ImGui::InputInt("Civilian Industry", &hoi4Region->civilianFactories);
@@ -1008,7 +1020,6 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
       });
     }
   }
-  ImGui::Columns(1); // End columns
 }
 
 int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
@@ -1033,8 +1044,8 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
     uiUtils->showHelpTextBox("Countries");
     ImGui::InputInt("Number of countries", &generator->numCountries);
     // ImGui::InputText("Path to country list: ",
-    // &generator->countryMappingPath); ImGui::InputText("Path to state list: ",
-    // &generator->regionMappingPath);
+    // &generator->countryMappingPath); ImGui::InputText("Path to state list:
+    // ", &generator->regionMappingPath);
     ImGui::Checkbox("Draw-borders", &drawBorders);
 
     if (isRelevantModuleActive("hoi4")) {
@@ -1107,8 +1118,8 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
               "countryMappings.txt");
         }
       } else {
-        // load countries with correct type, dependent on the gamemodule that is
-        // active
+        // load countries with correct type, dependent on the gamemodule that
+        // is active
         if (isRelevantModuleActive("hoi4")) {
           auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
           hoi4Gen->loadCountries<Scenario::Hoi4::Hoi4Country>(
@@ -1321,7 +1332,8 @@ int GUI::showHoi4Finalise(
         computationFutureBool = runAsync([generator, hoi4Module, &cfg, this]() {
           // now generate hoi4 specific stuff
           try {
-            // to recalc if state data was changed after country generation
+            // to recalc if state data was changed after country
+            // generation
             generator->evaluateCountries();
             hoi4Module->writeImages();
             hoi4Module->writeTextFiles();
@@ -1336,7 +1348,8 @@ int GUI::showHoi4Finalise(
 
       //     formatConverter.dump8BitCities(hoi4Gen->climateMap,
       //                                    pathcfg.gameModPath +
-      //                                    "//map//cities.bmp", "cities", cut);
+      //                                    "//map//cities.bmp", "cities",
+      //                                    cut);
       //     formatConverter.dump8BitRivers(hoi4Gen->climateData,
       //                                    pathcfg.gameModPath +
       //                                    "//map//rivers", "rivers", cut);

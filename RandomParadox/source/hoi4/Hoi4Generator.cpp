@@ -1479,31 +1479,33 @@ void Generator::generateCountryUnits() {
     // now we can generate the divisions. Each typeshare is multiplied with
     // the totalArmyStrength, and then we generate the divisions until their
     // cost reaches the typeshare
-    for (auto &divisionTemplate : country->divisionTemplates) {
-      auto divisionMaxCost =
-          divisionTemplate.armyShare * country->totalArmyStrength;
-      int count = 1;
-      while ((divisionMaxCost -= divisionTemplate.cost) > 0) {
-        Division division;
-        division.divisionTemplate = divisionTemplate;
-        division.name = std::to_string(count++);
-        if (count % 10 == 1)
-          division.name += "st";
-        else if (count % 10 == 2)
-          division.name += "nd";
-        else if (count % 10 == 3)
-          division.name += "rd";
-        else
-          division.name += "th";
-        division.location = Fwg::Utils::selectRandom(country->ownedProvinces);
-        division.name += " '" + division.location->name + "' " +
-                         division.divisionTemplate.name;
-        division.startingEquipmentFactor =
-            std::min<double>(0.7 + country->averageDevelopment * 0.3 +
-                                 RandNum::getRandom(0.0, 0.2),
-                             1.0);
-        division.startingExperienceFactor = RandNum::getRandom(0.0, 1.0);
-        country->divisions.push_back(division);
+    if (country->ownedRegions.size()) {
+      for (auto &divisionTemplate : country->divisionTemplates) {
+        auto divisionMaxCost =
+            divisionTemplate.armyShare * country->totalArmyStrength;
+        int count = 1;
+        while ((divisionMaxCost -= divisionTemplate.cost) > 0) {
+          Division division;
+          division.divisionTemplate = divisionTemplate;
+          division.name = std::to_string(count++);
+          if (count % 10 == 1)
+            division.name += "st";
+          else if (count % 10 == 2)
+            division.name += "nd";
+          else if (count % 10 == 3)
+            division.name += "rd";
+          else
+            division.name += "th";
+          division.location = Fwg::Utils::selectRandom(country->ownedProvinces);
+          division.name += " '" + division.location->name + "' " +
+                           division.divisionTemplate.name;
+          division.startingEquipmentFactor =
+              std::min<double>(0.7 + country->averageDevelopment * 0.3 +
+                                   RandNum::getRandom(0.0, 0.2),
+                               1.0);
+          division.startingExperienceFactor = RandNum::getRandom(0.0, 1.0);
+          country->divisions.push_back(division);
+        }
       }
     }
   }

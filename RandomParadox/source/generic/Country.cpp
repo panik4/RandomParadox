@@ -53,8 +53,6 @@ void Country::removeRegion(std::shared_ptr<Region> region) {
   ownedRegions.erase(
       std::remove(ownedRegions.begin(), ownedRegions.end(), region),
       ownedRegions.end());
-
-
 }
 void Country::selectCapital() {
   // select the region with the highest population
@@ -98,8 +96,6 @@ void Country::evaluateProvinces() {
       ownedProvinces.begin(), ownedProvinces.end(),
       [](const std::shared_ptr<GameProvince> &a,
          const std::shared_ptr<GameProvince> &b) { return a->ID < b->ID; });
-
-
 }
 void Country::evaluatePopulations(const double worldPopulationFactor) {
   // gather all population factors of the regions
@@ -154,12 +150,10 @@ std::shared_ptr<Culture> Scenario::Country::getPrimaryCulture() const {
   // return the largest culture in the country, by evaluating all gameregions
   // according to their population multiplied with the share of the culture in
   // the region
-
-  // return maxelement of cultures
-  double max = 0;
+  double max = -1.0;
   std::shared_ptr<Culture> primaryCulture;
   for (const auto &culture : cultures) {
-    if (culture.second > max) {
+    if (culture.second >= max) {
       max = culture.second;
       primaryCulture = culture.first;
     }
