@@ -68,7 +68,7 @@ std::string modifyWithIdeology(const std::string &ideology,
 }
 
 NameData prepare(const std::string &path, const std::string &gamePath) {
-  Fwg::Utils::Logging::logLine("Preparing name generation from path", path);
+  Fwg::Utils::Logging::logLine("Preparing name generation from path: ", path);
   NameData nameData;
 
   auto additionalForbidden = Fwg::Parsing::getLines(

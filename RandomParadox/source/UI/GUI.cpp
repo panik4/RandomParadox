@@ -866,22 +866,6 @@ int GUI::showScenarioTab(
       ImGui::SeparatorText(
           "Only remap when you have changed the maps in the previous tabs");
       uiUtils->showHelpTextBox("Scenario");
-
-      ImGui::PushItemWidth(200.0f);
-      ImGui::InputDouble("WorldPopulationFactor",
-                         &activeModule->generator->worldPopulationFactor, 0.1);
-      ImGui::InputDouble("industryFactor",
-                         &activeModule->generator->worldIndustryFactor, 0.1);
-      if (isRelevantModuleActive("hoi4")) {
-        auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
-        showHoi4Configure(cfg, hoi4Gen);
-      } else if (isRelevantModuleActive("vic3")) {
-        auto vic3Gen = getGeneratorPointer<Vic3Gen>();
-        showVic3Configure(cfg, vic3Gen);
-      } else if (isRelevantModuleActive("eu4")) {
-        auto eu4Gen = getGeneratorPointer<Eu4Gen>();
-      }
-      ImGui::PopItemWidth();
       if (ImGui::Button("Remap areas") ||
           !activeModule->generator->gameProvinces.size()) {
         if (!activeModule->createPaths()) {
@@ -902,6 +886,21 @@ int GUI::showScenarioTab(
             activeModule->generator->scenContinents);
         configuredScenarioGen = true;
       }
+      ImGui::PushItemWidth(200.0f);
+      ImGui::InputDouble("WorldPopulationFactor",
+                         &activeModule->generator->worldPopulationFactor, 0.1);
+      ImGui::InputDouble("industryFactor",
+                         &activeModule->generator->worldIndustryFactor, 0.1);
+      if (isRelevantModuleActive("hoi4")) {
+        auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
+        showHoi4Configure(cfg, hoi4Gen);
+      } else if (isRelevantModuleActive("vic3")) {
+        auto vic3Gen = getGeneratorPointer<Vic3Gen>();
+        showVic3Configure(cfg, vic3Gen);
+      } else if (isRelevantModuleActive("eu4")) {
+        auto eu4Gen = getGeneratorPointer<Eu4Gen>();
+      }
+      ImGui::PopItemWidth();
     } else {
       ImGui::Text("Generate required maps in the other tabs first");
     }
