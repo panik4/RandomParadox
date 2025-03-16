@@ -16,7 +16,7 @@ public:
   // containers
   std::vector<std::shared_ptr<Region>> gameRegions;
   Fwg::Position position;
-
+  bool centerOutsidePixels = false;
 
   void addRegion(std::shared_ptr<Region> region);
   void removeRegion(std::shared_ptr<Region> region);
