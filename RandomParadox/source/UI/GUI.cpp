@@ -3,6 +3,7 @@
 static UINT g_ResizeWidth = 0, g_ResizeHeight = 0;
 // to track which game was selected for generation
 static int selectedGame = 0;
+static bool requireCountryDetails = false;
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd,
                                                              UINT msg,
@@ -314,8 +315,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                                                   IM_COL32(100, 90, 180, 255),
                                                   0.0f, 0, 2.0f);
             }
-            ImGuiWindowFlags window_flags =
-                ImGuiWindowFlags_None;
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
             {
               ImGui::PushStyleColor(ImGuiCol_ChildBg,
                                     IM_COL32(30, 100, 144, 40));
@@ -612,36 +612,39 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
                      ID3D11ShaderResourceView **texture) {
 
   bool success = true;
-  ImGui::PushItemWidth(200.0f);
-  uiUtils->brushSettingsHeader();
-  if (ImGui::InputInt("<--Seed", &cfg.seed)) {
-    cfg.randomSeed = false;
-    cfg.reRandomize();
+  static bool showBrushSettings = false;
+  ImGui::PushItemWidth(120.0f);
+  if (showBrushSettings) {
+    uiUtils->brushSettingsHeader();
   }
-  ImGui::SameLine();
-  if (ImGui::Button("Get random seed")) {
+  if (ImGui::Button("Get random seed: ")) {
     cfg.randomSeed = true;
     cfg.reRandomize();
   }
   ImGui::SameLine();
-  if (ImGui::Button("Recover")) {
-    recover();
+  if (ImGui::InputInt("  Debug level: ", &cfg.seed)) {
+    cfg.randomSeed = false;
+    cfg.reRandomize();
   }
   ImGui::SameLine();
-  if (cfg.debugLevel > 5 && ImGui::Button("Display size")) {
-    Fwg::Utils::Logging::logLine(generator.size());
-  }
+  ImGui::InputInt("", &cfg.debugLevel);
   ImGui::SameLine();
-  if (cfg.debugLevel > 5 && ImGui::Button("Clear")) {
-    generator.resetData();
-    Fwg::Utils::Logging::logLine(generator.size());
+  if (cfg.debugLevel > 5) {
+    if (ImGui::Button("Display size")) {
+      Fwg::Utils::Logging::logLine(generator.size());
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Clear")) {
+      generator.resetData();
+      Fwg::Utils::Logging::logLine(generator.size());
+    }
+    if (ImGui::Button("Recover")) {
+      recover();
+    }
   }
-  ImGui::SameLine();
   if (ImGui::Button(("Save current image to " + cfg.mapsPath).c_str())) {
     writeCurrentlyDisplayedImage(cfg);
   }
-  ImGui::SameLine();
-  ImGui::InputInt("<--Debug level", &cfg.debugLevel);
   if (ImGui::Button("Generate all world data")) {
     generator.resetData();
     if (cfg.cut) {
@@ -671,6 +674,7 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
     computationFutureBool = runAsyncInitialDisable(
         &Fwg::FastWorldGenerator::generateWorld, generator);
   }
+
   ImGui::PopItemWidth();
   return success;
 }
@@ -862,6 +866,22 @@ int GUI::showScenarioTab(
       ImGui::SeparatorText(
           "Only remap when you have changed the maps in the previous tabs");
       uiUtils->showHelpTextBox("Scenario");
+
+      ImGui::PushItemWidth(200.0f);
+      ImGui::InputDouble("WorldPopulationFactor",
+                         &activeModule->generator->worldPopulationFactor, 0.1);
+      ImGui::InputDouble("industryFactor",
+                         &activeModule->generator->worldIndustryFactor, 0.1);
+      if (isRelevantModuleActive("hoi4")) {
+        auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
+        showHoi4Configure(cfg, hoi4Gen);
+      } else if (isRelevantModuleActive("vic3")) {
+        auto vic3Gen = getGeneratorPointer<Vic3Gen>();
+        showVic3Configure(cfg, vic3Gen);
+      } else if (isRelevantModuleActive("eu4")) {
+        auto eu4Gen = getGeneratorPointer<Eu4Gen>();
+      }
+      ImGui::PopItemWidth();
       if (ImGui::Button("Remap areas") ||
           !activeModule->generator->gameProvinces.size()) {
         if (!activeModule->createPaths()) {
@@ -882,21 +902,6 @@ int GUI::showScenarioTab(
             activeModule->generator->scenContinents);
         configuredScenarioGen = true;
       }
-      ImGui::PushItemWidth(200.0f);
-      ImGui::InputDouble("WorldPopulationFactor",
-                         &activeModule->generator->worldPopulationFactor, 0.1);
-      ImGui::InputDouble("industryFactor",
-                         &activeModule->generator->worldIndustryFactor, 0.1);
-      if (isRelevantModuleActive("hoi4")) {
-        auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
-        showHoi4Configure(cfg, hoi4Gen);
-      } else if (isRelevantModuleActive("vic3")) {
-        auto vic3Gen = getGeneratorPointer<Vic3Gen>();
-        showVic3Configure(cfg, vic3Gen);
-      } else if (isRelevantModuleActive("eu4")) {
-        auto eu4Gen = getGeneratorPointer<Eu4Gen>();
-      }
-      ImGui::PopItemWidth();
     } else {
       ImGui::Text("Generate required maps in the other tabs first");
     }
@@ -1071,6 +1076,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
           // build hoi4 countries out of basic countries
           hoi4Gen->mapCountries();
           generator->visualiseCountries(generator->countryMap);
+          requireCountryDetails = true;
           uiUtils->resetTexture();
         }
         ImGui::SameLine();
@@ -1079,9 +1085,9 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
           hoi4Gen->evaluateCountries();
           hoi4Gen->generateLogistics();
           hoi4Gen->generateCountrySpecifics();
-          Scenario::Hoi4::NationalFocus::buildMaps();
           hoi4Gen->generateFocusTrees();
           hoi4Gen->distributeVictoryPoints();
+          requireCountryDetails = false;
         }
       }
     }
@@ -1103,6 +1109,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
               Fwg::Utils::userFilter(draggedFile, cfg.username));
           generator->regionMappingPath = draggedFile;
           generator->applyRegionInput();
+          requireCountryDetails = true;
 
         } else if (draggedFile.find("countries.txt") != std::string::npos ||
                    draggedFile.find("countryMappings.txt") !=
@@ -1111,6 +1118,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
               "Applying country input from file: ",
               Fwg::Utils::userFilter(draggedFile, cfg.username));
           generator->countryMappingPath = draggedFile;
+          requireCountryDetails = true;
         } else {
           Fwg::Utils::Logging::logLine(
               "No valid file dragged in, the filename must either be "
@@ -1325,7 +1333,7 @@ int GUI::showHoi4Finalise(
                 "configured paths");
     auto &generator = hoi4Module->hoi4Gen;
     if (generator->strategicRegions.size() && generator->provinceMap.size() &&
-        generator->statesInitialised) {
+        generator->statesInitialised && !requireCountryDetails) {
 
       if (ImGui::Button("Export complete mod")) {
 
@@ -1396,7 +1404,7 @@ int GUI::showHoi4Finalise(
       }
 
     } else {
-      ImGui::Text("Generate strategic regions first before exporting the mod");
+      ImGui::Text("Have strategic regions, initialised states and generated country data first before exporting the mod");
     }
     // drag event is ignored here
     if (triggeredDrag) {

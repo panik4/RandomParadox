@@ -197,7 +197,7 @@ void Generator::generateStrategicRegions() {
       "Scenario: Dividing world into strategic regions");
   strategicRegions.clear();
   stratRegionMap.clear();
-  std::set<int> assignedIDs;
+  std::map<int, int> assignedToIDs;
   // gather all non contiguous regions
   std::vector<std::shared_ptr<Region>> nonContiguousRegions;
   for (auto &region : gameRegions) {
@@ -229,24 +229,101 @@ void Generator::generateStrategicRegions() {
   //   strategicRegions.push_back(stratRegion);
   // }
 
+  // std::vector<std::shared_ptr<Region>> coastalOceanRegions;
+  // for (auto region : gameRegions) {
+  //   if (region->type == Region::RegionType::OceanMixedCoastal) {
+  //     coastalOceanRegions.push_back(region);
+  //   }
+  // }
+  //// sort these regions by the amount of neighbours of type
+  //// Region::RegionType::OceanMixedCoastal
+  // std::sort(
+  //     coastalOceanRegions.begin(), coastalOceanRegions.end(),
+  //     [](const std::shared_ptr<Region> &a, const std::shared_ptr<Region> &b)
+  //     {
+  //       return a->neighbourTypes.at(Region::RegionType::OceanMixedCoastal) >
+  //              b->neighbourTypes.at(Region::RegionType::OceanMixedCoastal);
+  //     });
+
+  // int targetRegionAmount = 6;
+  //// the goal: assign each region to a strategic region. Try not to mix water
+  //// and land too much, preferrably only in the case of island regions. try to
+  //// get most regions to a certain size, and reallocate too small regions to
+  //// larger ones start
   auto idcounter = 0;
+  //  for (auto coastalRegion : coastalOceanRegions) {
+  //    std::cout << coastalRegion->neighbourTypes.at(
+  //                     Region::RegionType::OceanMixedCoastal)
+  //              << std::endl;
+  //    if (assignedToIDs.contains(coastalRegion->ID))
+  //      continue;
+  //    StrategicRegion stratRegion;
+  //    stratRegion.ID = idcounter++;
+  //    stratRegion.addRegion(coastalRegion);
+  //    assignedToIDs.insert({coastalRegion->ID, stratRegion.ID});
+  //    for (const auto neighbourID : coastalRegion->neighbours) {
+  //      auto neighbourRegion = gameRegions[neighbourID];
+  //      if (gameRegions[neighbourID]->type ==
+  //              Region::RegionType::OceanMixedCoastal &&
+  //          assignedToIDs.find(neighbourID) == assignedToIDs.end()) {
+  //        stratRegion.addRegion(neighbourRegion);
+  //        assignedToIDs.insert({neighbourID, stratRegion.ID});
+  //      }
+  //    }
+  //    Colour c{static_cast<unsigned char>(RandNum::getRandom(255)),
+  //             static_cast<unsigned char>(RandNum::getRandom(255)),
+  //             static_cast<unsigned char>(coastalRegion->sea ? 255 : 0)};
+  //    stratRegion.colour = c;
+  //    stratRegion.setType();
+  //    stratRegion.name = std::to_string(stratRegion.ID + 1);
+  //    strategicRegions.push_back(stratRegion);
+  //  }
+  //  now for all these existing strat regions, add all of their neighbours if
+  //  they are some type of ocean as well
+
+  // for (auto &stratRegion : strategicRegions) {
+  //   std::cout << "0B: " << stratRegion.gameRegions.size() << std::endl;
+  //   for (auto &region : stratRegion.gameRegions) {
+  //     if (region == nullptr)
+  //       continue;
+  //     std::cout << "01: " << region->ID << std::endl;
+  //     std::cout << "0A: " << region->neighbours.size() << std::endl;
+  //     for (const auto neighbourID : region->neighbours) {
+  //               if (neighbourID > gameRegions.size())
+  //                 continue;
+  //       std::cout << "A: " << neighbourID << std::endl;
+  //       const auto neighbourRegion = gameRegions[neighbourID];
+  //       if (assignedToIDs.find(neighbourID) == assignedToIDs.end()) {
+  //         if (neighbourRegion->type == Region::RegionType::OceanCoastal ||
+  //             neighbourRegion->type == Region::RegionType::Ocean ||
+  //             neighbourRegion->type ==
+  //             Region::RegionType::OceanIslandCoastal) {
+
+  //          stratRegion.addRegion(neighbourRegion);
+  //          assignedToIDs.insert({neighbourID, stratRegion.ID});
+  //        }
+  //      }
+  //    }
+  //  }
+  //}
+
   for (auto &region : gameRegions) {
-    if (assignedIDs.find(region->ID) == assignedIDs.end()) {
+    if (assignedToIDs.find(region->ID) == assignedToIDs.end()) {
       StrategicRegion stratRegion;
       stratRegion.ID = idcounter++;
       stratRegion.addRegion(region);
-      assignedIDs.insert(region->ID);
-      // for (auto &neighbourID : region->neighbours) {
-      //   // should be equal in sea/land
-      //   if (neighbourID > gameRegions.size())
-      //     continue;
-      //   auto neighbourRegion = gameRegions[neighbourID];
-      //   if (gameRegions[neighbourID]->sea == region->sea &&
-      //       assignedIDs.find(neighbourID) == assignedIDs.end()) {
-      //     stratRegion.addRegion(neighbourRegion);
-      //     assignedIDs.insert(neighbourID);
-      //   }
-      // }
+      assignedToIDs.insert({region->ID, stratRegion.ID});
+      for (auto &neighbourID : region->neighbours) {
+        // should be equal in sea/land
+        if (neighbourID > gameRegions.size())
+          continue;
+        auto neighbourRegion = gameRegions[neighbourID];
+        if (gameRegions[neighbourID]->sea == region->sea &&
+            assignedToIDs.find(neighbourID) == assignedToIDs.end()) {
+          stratRegion.addRegion(neighbourRegion);
+          assignedToIDs.insert({neighbourID, stratRegion.ID});
+        }
+      }
       Colour c{static_cast<unsigned char>(RandNum::getRandom(255)),
                static_cast<unsigned char>(RandNum::getRandom(255)),
                static_cast<unsigned char>(region->sea ? 255 : 0)};
@@ -255,7 +332,7 @@ void Generator::generateStrategicRegions() {
       strategicRegions.push_back(stratRegion);
     }
   }
-  // build a vector of superregions from all the strategic regions
+  //  build a vector of superregions from all the strategic regions
   std::vector<SuperRegion> superRegions;
   for (auto &stratRegion : strategicRegions) {
     SuperRegion superRegion;
@@ -292,6 +369,7 @@ Fwg::Gfx::Bitmap Generator::visualiseStrategicRegions(const int ID) {
     auto noBorderMap = Fwg::Gfx::Bitmap(Fwg::Cfg::Values().width,
                                         Fwg::Cfg::Values().height, 24);
     for (auto &strat : strategicRegions) {
+
       for (auto &reg : strat.gameRegions) {
         for (auto &prov : reg->gameProvinces) {
           for (auto &pix : prov->baseProvince->pixels) {
@@ -302,7 +380,12 @@ Fwg::Gfx::Bitmap Generator::visualiseStrategicRegions(const int ID) {
           }
         }
         for (auto &pix : reg->borderPixels) {
-          stratRegionMap.setColourAtIndex(pix, strat.colour * 0.5);
+          if (strat.centerOutsidePixels) {
+            stratRegionMap.setColourAtIndex(pix,
+                                            Fwg::Gfx::Colour(255, 255, 255));
+          } else {
+            stratRegionMap.setColourAtIndex(pix, strat.colour * 0.5);
+          }
         }
       }
     }

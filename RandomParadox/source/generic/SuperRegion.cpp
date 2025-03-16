@@ -42,37 +42,40 @@ void SuperRegion::setType() {
 // weighted position
 void Scenario::SuperRegion::checkPosition(
     const std::vector<SuperRegion> &superRegions) {
-  std::vector<int> pixels;
-  for (auto &reg : gameRegions) {
-    for (auto &prov : reg->provinces) {
-      for (auto &pix : prov->pixels) {
-        pixels.push_back(pix);
-      }
-    }
-  }
-
-  this->position.calcWeightedCenter(pixels);
-  if (!this->position.centerPresent(pixels)) {
-    Fwg::Utils::Logging::logLine("Warning: Weighted center not inside the "
-                                 "pixels of the super region with ID: ",
-                                 this->ID, " type is: ", (int)this->type);
-    // print the position of the super region
-    Fwg::Utils::Logging::logLine("Position: ", this->position);
-    // now we check the type of the super region our center is actually in
-    for (auto &superReg : superRegions) {
-      std::set<int> othersPixels;
-      for (auto &reg : superReg.gameRegions) {
-        for (auto &prov : reg->provinces) {
-          for (auto &pix : prov->pixels) {
-            othersPixels.insert(pix);
-          }
+  if (Fwg::Cfg::Values().debugLevel > 5) {
+    std::vector<int> pixels;
+    for (auto &reg : gameRegions) {
+      for (auto &prov : reg->provinces) {
+        for (auto &pix : prov->pixels) {
+          pixels.push_back(pix);
         }
       }
-      if (othersPixels.find(this->position.weightedCenter) !=
-          othersPixels.end()) {
-        Fwg::Utils::Logging::logLine(
-            "The center is in super region with ID: ", superReg.ID,
-            " type is: ", (int)superReg.type);
+    }
+
+    this->position.calcWeightedCenter(pixels);
+    if (!this->position.centerPresent(pixels)) {
+      Fwg::Utils::Logging::logLine("Warning: Weighted center not inside the "
+                                   "pixels of the super region with ID: ",
+                                   this->ID, " type is: ", (int)this->type);
+      this->centerOutsidePixels = true;
+      // print the position of the super region
+      Fwg::Utils::Logging::logLine("Position: ", this->position);
+      // now we check the type of the super region our center is actually in
+      for (auto &superReg : superRegions) {
+        std::set<int> othersPixels;
+        for (auto &reg : superReg.gameRegions) {
+          for (auto &prov : reg->provinces) {
+            for (auto &pix : prov->pixels) {
+              othersPixels.insert(pix);
+            }
+          }
+        }
+        if (othersPixels.find(this->position.weightedCenter) !=
+            othersPixels.end()) {
+          Fwg::Utils::Logging::logLine(
+              "The center is in super region with ID: ", superReg.ID,
+              " type is: ", (int)superReg.type);
+        }
       }
     }
   }

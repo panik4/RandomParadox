@@ -381,7 +381,6 @@ void Generator::generateCountrySpecifics() {
     // clear some info from all owned regions
     for (auto &region : country->hoi4Regions) {
       region->airBase = nullptr;
-      region->navalBases.clear();
     }
     // refresh the provinces
     country->evaluateProvinces();
