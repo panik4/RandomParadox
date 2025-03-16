@@ -13,21 +13,21 @@
 	"Europa Universalis IV": 
 	{
 		"modName" : "eu4Mod1",
-		"gamePath" : "D://Steam//steamapps//common//Europa Universalis IV",
+		"gamePath" : "C://Steam//steamapps//common//Europa Universalis IV",
 		"modPath" : "exports//",
 		"modsDirectory" : "exports//"
 	},
 	"Hearts of Iron IV": 
 	{
 		"modName" : "hoi4Mod1",
-		"gamePath" : "D://Steam//steamapps//common//Hearts of Iron IV//",
+		"gamePath" : "C://Steam//steamapps//common//Hearts of Iron IV//",
 		"modPath" : "C:\Users\<username>\Documents\Paradox Interactive\Hearts of Iron IV\mod",
 		"modsDirectory" : "C:\Users\<username>\Documents\Paradox Interactive\Hearts of Iron IV\mod"
 	},
 	"Victoria 3": 
 	{
 		"modName" : "vic3Mod1",
-		"gamePath" : "D://Steam//steamapps//common//Victoria 3//",
+		"gamePath" : "C://Steam//steamapps//common//Victoria 3//",
 		"modPath" : "C:\Users\<username>\Documents\Paradox Interactive\Victoria 3\mod",
 		"modsDirectory" : "C:\Users\<username>\Documents\Paradox Interactive\Victoria 3\mod",
 		"mappingPath": "inputs//Victoria 3//"
