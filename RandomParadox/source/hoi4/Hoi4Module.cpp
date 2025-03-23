@@ -280,7 +280,7 @@ void Hoi4Module::writeImages() {
       "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
       DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
   formatConverter.dumpDDSFiles(
-      hoi4Gen->riverMap, hoi4Gen->heightMap,
+      hoi4Gen->heightMap,
       pathcfg.gameModPath + "//map//terrain//colormap_water_", cut, 8);
   formatConverter.dumpWorldNormal(
       hoi4Gen->sobelMap, pathcfg.gameModPath + "//map//world_normal.bmp", cut);

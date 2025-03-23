@@ -48,8 +48,7 @@ public:
   void dump8BitTrees(const Fwg::ClimateGeneration::ClimateData &climateIn,
                      const std::string &path, const std::string &colourMapKey,
                      const bool cut = false) const;
-  void dumpDDSFiles(const Fwg::Gfx::Bitmap &riverMap,
-                    const Fwg::Gfx::Bitmap &heightMap, const std::string &path,
+  void dumpDDSFiles(const Fwg::Gfx::Bitmap &heightMap, const std::string &path,
                     const bool cut = false, const int maxFactor = 2) const;
   void
   dumpTerrainColourmap(const Fwg::Gfx::Bitmap &climateMap,

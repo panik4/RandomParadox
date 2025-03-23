@@ -143,24 +143,26 @@ void Module::generate() {
     formatConverter.dump8BitHeightmap(
         eu4Gen->heightMap, pathcfg.gameModPath + "//map//heightmap.bmp",
         "heightmap");
-    formatConverter.dumpTerrainColourmap(eu4Gen->springMap, eu4Gen->civLayer,
-                                         pathcfg.gameModPath,
+    std::vector<Fwg::Gfx::Bitmap> seasonalColourmaps;
+    eu4Gen->genSeasons(Cfg::Values(), seasonalColourmaps);
+    formatConverter.dumpTerrainColourmap(seasonalColourmaps[0],
+                                         eu4Gen->civLayer, pathcfg.gameModPath,
                                          "//map//terrain//colormap_spring.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
-    formatConverter.dumpTerrainColourmap(eu4Gen->summerMap, eu4Gen->civLayer,
-                                         pathcfg.gameModPath,
+    formatConverter.dumpTerrainColourmap(seasonalColourmaps[1],
+                                         eu4Gen->civLayer, pathcfg.gameModPath,
                                          "//map//terrain//colormap_summer.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
-    formatConverter.dumpTerrainColourmap(eu4Gen->autumnMap, eu4Gen->civLayer,
-                                         pathcfg.gameModPath,
+    formatConverter.dumpTerrainColourmap(seasonalColourmaps[2],
+                                         eu4Gen->civLayer, pathcfg.gameModPath,
                                          "//map//terrain//colormap_autumn.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
-    formatConverter.dumpTerrainColourmap(eu4Gen->winterMap, eu4Gen->civLayer,
-                                         pathcfg.gameModPath,
+    formatConverter.dumpTerrainColourmap(seasonalColourmaps[3],
+                                         eu4Gen->civLayer, pathcfg.gameModPath,
                                          "//map//terrain//colormap_winter.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
     formatConverter.dumpDDSFiles(
-        eu4Gen->riverMap, eu4Gen->heightMap,
+        eu4Gen->heightMap,
         pathcfg.gameModPath + "//map//terrain//colormap_water", cut, 2);
     formatConverter.dumpWorldNormal(
         eu4Gen->sobelMap, pathcfg.gameModPath + "//map//world_normal.bmp", cut);
@@ -205,8 +207,9 @@ void Module::generate() {
       writeTradewinds(pathcfg.gameModPath + "//map//trade_winds.txt",
                       eu4Gen->gameProvinces);
 
-      copyDescriptorFile(this->pathcfg.resourcePath + "//eu4//descriptor.mod", pathcfg.gameModPath,
-                         pathcfg.gameModsDirectory, pathcfg.modName);
+      copyDescriptorFile(this->pathcfg.resourcePath + "//eu4//descriptor.mod",
+                         pathcfg.gameModPath, pathcfg.gameModsDirectory,
+                         pathcfg.modName);
 
       writeProvinces(pathcfg.gameModPath + "//history//provinces//",
                      eu4Gen->gameProvinces, eu4Gen->gameRegions);
