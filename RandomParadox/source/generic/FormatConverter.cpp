@@ -503,8 +503,7 @@ void FormatConverter::dump8BitTrees(
   Bmp::save8bit(trees, path);
 }
 
-void FormatConverter::dumpDDSFiles(const Bitmap &riverMap,
-                                   const Bitmap &heightMap,
+void FormatConverter::dumpDDSFiles(const Bitmap &heightMap,
                                    const std::string &path, const bool cut,
                                    const int maxFactor) const {
   Utils::Logging::logLine("FormatConverter::Writing DDS files");

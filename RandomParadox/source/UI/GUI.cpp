@@ -387,9 +387,6 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
             case UIUtils::ActiveTexture::NORMALMAP:
               uiUtils->activeImages[i] = &activeModule->generator->sobelMap;
               break;
-            case UIUtils::ActiveTexture::CONTINENTS:
-              uiUtils->activeImages[i] = &activeModule->generator->continentMap;
-              break;
             case UIUtils::ActiveTexture::CLIMATEINPUT:
               uiUtils->activeImages[i] =
                   &activeModule->generator->climateInputMap;
@@ -398,11 +395,10 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               uiUtils->activeImages[i] = &activeModule->generator->climateMap;
               break;
             case UIUtils::ActiveTexture::HABITABILITY:
-              uiUtils->activeImages[i] =
-                  &activeModule->generator->habitabilityMap;
+              uiUtils->activeImages[i] = &displayImage;
               break;
             case UIUtils::ActiveTexture::CONTINENT:
-              uiUtils->activeImages[i] = &activeModule->generator->continentMap;
+              uiUtils->activeImages[i] = &displayImage;
               break;
             case UIUtils::ActiveTexture::TEMPERATURE:
               uiUtils->activeImages[i] = &displayImage;
@@ -411,7 +407,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               uiUtils->activeImages[i] = &activeModule->generator->humidityMap;
               break;
             case UIUtils::ActiveTexture::RIVER:
-              uiUtils->activeImages[i] = &activeModule->generator->riverMap;
+              uiUtils->activeImages[i] = &displayImage;
               break;
             case UIUtils::ActiveTexture::WORLD:
               uiUtils->activeImages[i] = &activeModule->generator->worldMap;
@@ -429,12 +425,10 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               uiUtils->activeImages[i] = &activeModule->generator->regionMap;
               break;
             case UIUtils::ActiveTexture::DEVELOPMENT:
-              uiUtils->activeImages[i] =
-                  &activeModule->generator->developmentMap;
+              uiUtils->activeImages[i] = &displayImage;
               break;
             case UIUtils::ActiveTexture::POPULATION:
-              uiUtils->activeImages[i] =
-                  &activeModule->generator->populationMap;
+              uiUtils->activeImages[i] = &displayImage;
               break;
             case UIUtils::ActiveTexture::LOCATIONS:
               uiUtils->activeImages[i] = &activeModule->generator->locationMap;
@@ -837,7 +831,7 @@ bool GUI::scenarioGenReady(bool printIssue) {
     }
     ready = false;
   }
-  if (!generator->developmentMap.size() || !generator->populationMap.size() ||
+  if (!generator->civLayer.agriculture.size() ||
       !generator->locationMap.size()) {
     if (printIssue) {
       Fwg::Utils::Logging::logLine("You seem to not have generated data in the "
@@ -1403,7 +1397,8 @@ int GUI::showHoi4Finalise(
       }
 
     } else {
-      ImGui::Text("Have strategic regions, initialised states and generated country data first before exporting the mod");
+      ImGui::Text("Have strategic regions, initialised states and generated "
+                  "country data first before exporting the mod");
     }
     // drag event is ignored here
     if (triggeredDrag) {

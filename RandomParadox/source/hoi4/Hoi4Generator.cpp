@@ -2009,8 +2009,9 @@ void Generator::generateCharacters() {
   }
 }
 
-bool Generator::loadRivers(Fwg::Cfg &config, Fwg::Gfx::Bitmap &riverInput) {
-
+bool Generator::loadRivers(Fwg::Cfg &config,
+                           const Fwg::Gfx::Bitmap &riverInput) {
+  auto riverCopy = riverInput;
   // replace a few colours by the colours understood by FWG
   std::map<Fwg::Gfx::Colour, Fwg::Gfx::Colour> colourMapping{
       {{0, 255, 0}, config.colours.at("riverStart")},
@@ -2030,7 +2031,7 @@ bool Generator::loadRivers(Fwg::Cfg &config, Fwg::Gfx::Bitmap &riverInput) {
       {{0, 158, 0}, config.colours.at("riverStart")},
       {{24, 206, 0}, config.colours.at("riverStart")}};
   // now replace the colours
-  for (auto &pix : riverInput.imageData) {
+  for (auto &pix : riverCopy.imageData) {
     if (colourMapping.find(pix) != colourMapping.end()) {
       pix = colourMapping.at(pix);
     }
@@ -2038,6 +2039,6 @@ bool Generator::loadRivers(Fwg::Cfg &config, Fwg::Gfx::Bitmap &riverInput) {
 
   // Call the base class method from FastWorldGenerator, to load the now
   // mapped river input
-  return FastWorldGenerator::loadRivers(config, riverInput);
+  return FastWorldGenerator::loadRivers(config, riverCopy);
 }
 } // namespace Scenario::Hoi4
