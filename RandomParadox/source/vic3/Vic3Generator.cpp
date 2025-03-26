@@ -25,7 +25,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
   auto &elevationColours = Fwg::Cfg::Values().elevationColours;
   typeMap.fill(colours.at("sea"));
   Fwg::Utils::Logging::logLine("Mapping Terrain");
-  const auto &landForms = climateData.landForms;
+  const auto &landForms = terrainData.landForms;
   const auto &climates = climateData.climates;
   const auto &forests = climateData.dominantForest;
   for (auto &gameRegion : gameRegions) {
@@ -168,7 +168,7 @@ void Generator::distributeResources() {
     } else if (resConfig.considerSea) {
       resPrev = Fwg::Civilization::Resources::coastDependentLayer(
           resConfig.name, resConfig.oceanFactor, resConfig.lakeFactor,
-          areas.provinces);
+          areaData.provinces);
     } else {
       resPrev = Fwg::Civilization::Resources::climateDependentLayer(
           resConfig.name, resConfig.noiseConfig.fractalFrequency,
@@ -187,7 +187,7 @@ void Generator::mapRegions() {
   gameRegions.clear();
   vic3Regions.clear();
 
-  for (auto &region : this->areas.regions) {
+  for (auto &region : this->areaData.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
               [](const std::shared_ptr<Fwg::Province>a, const std::shared_ptr<Fwg::Province>b) {
                 return (*a < *b);
@@ -210,9 +210,9 @@ void Generator::mapRegions() {
             [](auto l, auto r) { return *l < *r; });
   // check if we have the same amount of gameProvinces as FastWorldGen
   // provinces
-  if (gameProvinces.size() != this->areas.provinces.size())
+  if (gameProvinces.size() != this->areaData.provinces.size())
     throw(std::exception("Fatal: Lost provinces, terminating"));
-  if (gameRegions.size() != this->areas.regions.size())
+  if (gameRegions.size() != this->areaData.regions.size())
     throw(std::exception("Fatal: Lost regions, terminating"));
   for (const auto &gameRegion : gameRegions) {
     if (gameRegion->ID > gameRegions.size()) {

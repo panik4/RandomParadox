@@ -131,13 +131,13 @@ void Module::generate() {
     // generate map files. Format must be converted and colours mapped to eu4
     // compatible colours
     Gfx::FormatConverter formatConverter(pathcfg.gamePath, "Eu4");
-    formatConverter.dump8BitTerrain(eu4Gen->climateData, eu4Gen->civLayer,
+    formatConverter.dump8BitTerrain(eu4Gen->terrainData, eu4Gen->climateData, eu4Gen->civLayer,
                                     pathcfg.gameModPath + "//map//terrain.bmp",
                                     "terrain", cut);
-    formatConverter.dump8BitRivers(eu4Gen->climateData,
+    formatConverter.dump8BitRivers(eu4Gen->terrainData, eu4Gen->climateData,
                                    pathcfg.gameModPath + "//map//rivers.bmp",
                                    "rivers", cut);
-    formatConverter.dump8BitTrees(eu4Gen->climateData,
+    formatConverter.dump8BitTrees(eu4Gen->terrainData, eu4Gen->climateData,
                                   pathcfg.gameModPath + "//map//trees.bmp",
                                   "trees", false);
     formatConverter.dump8BitHeightmap(

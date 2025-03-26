@@ -38,7 +38,8 @@ public:
   void contentSource(const std::string &path,
                      const Fwg::ClimateGeneration::ClimateData &climateData,
                      const Fwg::Civilization::CivilizationLayer &civLayer);
-  void detailMaps(const Fwg::ClimateGeneration::ClimateData &climateData,
+  void detailMaps(const Fwg::Terrain::TerrainData &terrainData,
+                  const Fwg::ClimateGeneration::ClimateData &climateData,
                   const Fwg::Civilization::CivilizationLayer &civLayer,
                   const std::string &path);
 };
