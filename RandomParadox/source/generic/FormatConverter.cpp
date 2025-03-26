@@ -301,6 +301,7 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
 }
 
 void FormatConverter::dump8BitTerrain(
+    const Fwg::Terrain::TerrainData& terrainData,
     const Fwg::ClimateGeneration::ClimateData &climateIn,
     const Fwg::Civilization::CivilizationLayer &civLayer,
     const std::string &path, const std::string &colourMapKey,
@@ -311,7 +312,7 @@ void FormatConverter::dump8BitTerrain(
   if (climateIn.climates.size() != conf.bitmapSize ||
       climateIn.treeCoverage.size() != conf.bitmapSize ||
       climateIn.dominantForest.size() != conf.bitmapSize ||
-      climateIn.landForms.size() != conf.bitmapSize) {
+      terrainData.landForms.size() != conf.bitmapSize) {
     Utils::Logging::logLine("FormatConverter::Climate data size mismatch");
     // print all the sizes
     Utils::Logging::logLine("Climates size: ", climateIn.climates.size());
@@ -319,7 +320,7 @@ void FormatConverter::dump8BitTerrain(
                             climateIn.treeCoverage.size());
     Utils::Logging::logLine("Dominant Forest size: ",
                             climateIn.dominantForest.size());
-    Utils::Logging::logLine("Landforms size: ", climateIn.landForms.size());
+    Utils::Logging::logLine("Landforms size: ", terrainData.landForms.size());
 
     return;
   }
@@ -342,7 +343,7 @@ void FormatConverter::dump8BitTerrain(
 
     for (auto i = 0; i < conf.bitmapSize; i++) {
       int elevationMod = 0;
-      auto elevationType = climateIn.landForms[i].landForm;
+      const auto& elevationType = terrainData.landForms.at(i).landForm;
       if (elevationType == Terrain::ElevationTypeIndex::HILLS) {
         elevationMod = 100;
       } else if (elevationType == Terrain::ElevationTypeIndex::MOUNTAINS) {
@@ -403,6 +404,7 @@ void FormatConverter::dump8BitCities(const Bitmap &climateIn,
 }
 
 void FormatConverter::dump8BitRivers(
+    const Fwg::Terrain::TerrainData &terrainData,
     const Fwg::ClimateGeneration::ClimateData &climateIn,
     const std::string &path, const std::string &colourMapKey,
     const bool cut) const {
@@ -413,7 +415,7 @@ void FormatConverter::dump8BitRivers(
   riverMap.colourtable = colourTables.at(colourMapKey + gameTag);
   if (!cut) {
     for (auto i = 0; i < riverMap.size(); i++) {
-      if (climateIn.landForms[i].altitude > 0.0) {
+      if (terrainData.landForms.at(i).altitude > 0.0) {
         riverMap.setColourAtIndex(i, riverMap.lookUp(255));
       } else {
         riverMap.setColourAtIndex(i, riverMap.lookUp(254));
@@ -444,6 +446,7 @@ void FormatConverter::dump8BitRivers(
 }
 
 void FormatConverter::dump8BitTrees(
+    const Fwg::Terrain::TerrainData &terrainData,
     const Fwg::ClimateGeneration::ClimateData &climateIn,
     const std::string &path, const std::string &colourMapKey,
     const bool cut) const {
@@ -475,7 +478,7 @@ void FormatConverter::dump8BitTrees(
   for (auto i = 0; i < treeCoverage.size(); i++) {
     for (auto offset : offsets) {
       if (i + offset < treeCoverage.size() && i + offset >= 0) {
-        if (climateIn.landForms[i + offset].altitude <= 0.0) {
+        if (terrainData.landForms.at(i + offset).altitude <= 0.0) {
           treeCoverage[i] = Fwg::ClimateGeneration::Detail::TreeTypeIndex::NONE;
         }
       }

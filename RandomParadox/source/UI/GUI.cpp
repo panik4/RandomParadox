@@ -45,11 +45,11 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 static bool drawBorders = false;
 void GUI::recover() {
   auto &cfg = Fwg::Cfg::Values();
-  // load heightmap      cfg.loadHeight = true;
-  cfg.allowHeightmapModification = false;
-  activeModule->generator->loadHeight(cfg, cfg.mapsPath + "//heightmap.bmp");
-  // load landmap
-  activeModule->generator->genLand();
+  auto &generator = *activeModule->generator;
+  generator.terrainData.deserialize(cfg.mapsPath + "terrainData.bin");
+  generator.climateData.deserialize(cfg.mapsPath + "climateData.bin");
+  generator.areaData.deserialize(cfg.mapsPath + "areaData.bin");
+
 }
 GUI::GUI() : fwgUI() {}
 
@@ -813,11 +813,11 @@ void GUI::showModLoader(
 bool GUI::scenarioGenReady(bool printIssue) {
   auto ready = configuredScenarioGen && !redoRegions && !redoProvinces;
   const auto &generator = activeModule->generator;
-  if (!generator->areas.provinces.size() || !generator->areas.regions.size())
+  if (!generator->areaData.provinces.size() || !generator->areaData.regions.size())
     return false;
-  if (generator->areas.provinces.size() != generator->gameProvinces.size() ||
-      generator->areas.regions.size() != generator->gameRegions.size() ||
-      generator->areas.provinces[0] !=
+  if (generator->areaData.provinces.size() != generator->gameProvinces.size() ||
+      generator->areaData.regions.size() != generator->gameRegions.size() ||
+      generator->areaData.provinces[0] !=
           generator->gameProvinces[0]->baseProvince) {
     ready = false;
   }
@@ -914,8 +914,8 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
     auto pix = clickEvents.front();
     clickEvents.pop();
     const auto &colour = generator->provinceMap[pix.pixel];
-    if (generator->areas.provinceColourMap.find(colour)) {
-      const auto &prov = generator->areas.provinceColourMap[colour];
+    if (generator->areaData.provinceColourMap.find(colour)) {
+      const auto &prov = generator->areaData.provinceColourMap[colour];
       if (prov->regionID < generator->gameRegions.size()) {
         auto &state = generator->gameRegions[prov->regionID];
         selectedStateIndex = state->ID;
@@ -1251,8 +1251,8 @@ int GUI::showStrategicRegionTab(
       auto pix = clickEvents.front();
       clickEvents.pop();
       const auto &colour = generator->provinceMap[pix.pixel];
-      if (generator->areas.provinceColourMap.find(colour)) {
-        const auto &prov = generator->areas.provinceColourMap[colour];
+      if (generator->areaData.provinceColourMap.find(colour)) {
+        const auto &prov = generator->areaData.provinceColourMap[colour];
         auto &state = generator->gameRegions[prov->regionID];
         auto &stratRegion = generator->strategicRegions[state->superRegionID];
         if (drawBorders) {
@@ -1372,6 +1372,7 @@ int GUI::showHoi4Finalise(
       }
       if (ImGui::Button("Export terrain.bmp")) {
         hoi4Module->formatConverter.dump8BitTerrain(
+            hoi4Module->generator->terrainData,
             hoi4Module->generator->climateData, hoi4Module->generator->civLayer,
             hoi4Module->pathcfg.gameModPath + "//map//terrain.bmp", "terrain",
             false);
@@ -1384,6 +1385,7 @@ int GUI::showHoi4Finalise(
       }
       if (ImGui::Button("Export treemap.bmp")) {
         hoi4Module->formatConverter.dump8BitTrees(
+            hoi4Module->generator->terrainData,
             hoi4Module->generator->climateData,
             hoi4Module->pathcfg.gameModPath + "//map//trees.bmp", "trees",
             false);

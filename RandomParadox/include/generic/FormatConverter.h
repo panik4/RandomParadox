@@ -35,17 +35,20 @@ public:
                               const int bit = 8) const;
   void dump8BitHeightmap(Fwg::Gfx::Bitmap &heightMap, const std::string &path,
                          const std::string &colourMapKey) const;
-  void dump8BitTerrain(const Fwg::ClimateGeneration::ClimateData &climateIn,
+  void dump8BitTerrain(const Fwg::Terrain::TerrainData &terrainData,
+                       const Fwg::ClimateGeneration::ClimateData &climateIn,
                        const Fwg::Civilization::CivilizationLayer &civLayer,
                        const std::string &path, const std::string &colourMapKey,
                        const bool cut = false) const;
   void dump8BitCities(const Fwg::Gfx::Bitmap &climateIn,
                       const std::string &path, const std::string &colourMapKey,
                       const bool cut = false) const;
-  void dump8BitRivers(const Fwg::ClimateGeneration::ClimateData &climateIn,
+  void dump8BitRivers(const Fwg::Terrain::TerrainData &terrainData,
+                      const Fwg::ClimateGeneration::ClimateData &climateIn,
                       const std::string &path, const std::string &colourMapKey,
                       const bool cut = false) const;
-  void dump8BitTrees(const Fwg::ClimateGeneration::ClimateData &climateIn,
+  void dump8BitTrees(const Fwg::Terrain::TerrainData &terrainData,
+                     const Fwg::ClimateGeneration::ClimateData &climateIn,
                      const std::string &path, const std::string &colourMapKey,
                      const bool cut = false) const;
   void dumpDDSFiles(const Fwg::Gfx::Bitmap &heightMap, const std::string &path,

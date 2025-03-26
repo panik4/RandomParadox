@@ -283,7 +283,7 @@ void Module::writeImages() {
   if (vic3Gen->originalHeightMap.size() > 0) {
     vic3Gen->heightMap = vic3Gen->originalHeightMap;
   }
-  formatConverter.detailMaps(vic3Gen->climateData, vic3Gen->civLayer,
+  formatConverter.detailMaps(vic3Gen->terrainData, vic3Gen->climateData, vic3Gen->civLayer,
                              pathcfg.gameModPath + "//gfx//map//");
   formatConverter.dynamicMasks(pathcfg.gameModPath + "//gfx//map//masks//",
                                vic3Gen->climateData, vic3Gen->civLayer);

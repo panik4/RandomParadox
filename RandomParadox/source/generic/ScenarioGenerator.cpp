@@ -20,7 +20,7 @@ void Generator::loadRequiredResources(const std::string &gamePath) {}
 void Generator::mapContinents() {
   Logging::logLine("Mapping Continents");
   scenContinents.clear();
-  for (const auto &continent : this->areas.continents) {
+  for (const auto &continent : this->areaData.continents) {
     // we copy the fwg continents by choice, to leave them untouched
     scenContinents.push_back(ScenarioContinent(continent));
   }
@@ -30,7 +30,7 @@ void Generator::mapRegions() {
   Logging::logLine("Mapping Regions");
   gameRegions.clear();
 
-  for (auto &region : this->areas.regions) {
+  for (auto &region : this->areaData.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
               [](const std::shared_ptr<Fwg::Province> a,
                  const std::shared_ptr<Fwg::Province> b) { return (*a < *b); });
@@ -46,9 +46,9 @@ void Generator::mapRegions() {
   std::sort(gameRegions.begin(), gameRegions.end(),
             [](auto l, auto r) { return *l < *r; });
   // check if we have the same amount of gameProvinces as FastWorldGen provinces
-  if (gameProvinces.size() != this->areas.provinces.size())
+  if (gameProvinces.size() != this->areaData.provinces.size())
     throw(std::exception("Fatal: Lost provinces, terminating"));
-  if (gameRegions.size() != this->areas.regions.size())
+  if (gameRegions.size() != this->areaData.regions.size())
     throw(std::exception("Fatal: Lost regions, terminating"));
   for (const auto &gameRegion : gameRegions) {
     if (gameRegion->ID > gameRegions.size()) {
@@ -126,7 +126,7 @@ void Generator::applyRegionInput() {
 
 void Generator::mapProvinces() {
   gameProvinces.clear();
-  for (auto &prov : this->areas.provinces) {
+  for (auto &prov : this->areaData.provinces) {
     // edit coastal status: lakes are not coasts!
     if (prov->coastal && prov->isLake)
       prov->coastal = false;
@@ -497,15 +497,15 @@ void Generator::distributeCountries() {
 
 void Generator::evaluateCountryNeighbours() {
   Logging::logLine("Evaluating Country Neighbours");
-  Fwg::Areas::Regions::evaluateRegionNeighbours(areas.regions);
+  Fwg::Areas::Regions::evaluateRegionNeighbours(areaData.regions);
 
   for (auto &c : countries) {
     for (const auto &gR : c.second->ownedRegions) {
-      if (gR->neighbours.size() != areas.regions[gR->ID].neighbours.size())
+      if (gR->neighbours.size() != areaData.regions[gR->ID].neighbours.size())
         throw(std::exception("Fatal: Neighbour count mismatch, terminating"));
       // now compare if all IDs in those neighbour vectors match
       for (int i = 0; i < gR->neighbours.size(); i++) {
-        if (gR->neighbours[i] != areas.regions[gR->ID].neighbours[i])
+        if (gR->neighbours[i] != areaData.regions[gR->ID].neighbours[i])
           throw(std::exception("Fatal: Neighbour mismatch, terminating"));
       }
 

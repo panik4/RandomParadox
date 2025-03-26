@@ -1699,12 +1699,12 @@ void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen) {
     reg.colour = colour;
     // hoi4Gen.gameRegions.push_back(reg);
     stateColours.setValue(reg.colour, reg);
-    hoi4Gen->areas.regions.push_back(reg);
+    hoi4Gen->areaData.regions.push_back(reg);
   }
 
-  std::sort(hoi4Gen->areas.regions.begin(), hoi4Gen->areas.regions.end(),
+  std::sort(hoi4Gen->areaData.regions.begin(), hoi4Gen->areaData.regions.end(),
             [](auto l, auto r) { return l < r; });
-  Fwg::Gfx::regionMap(hoi4Gen->areas.regions, hoi4Gen->areas.provinces,
+  Fwg::Gfx::regionMap(hoi4Gen->areaData.regions, hoi4Gen->areaData.provinces,
                       hoi4Gen->regionMap);
   // for (auto &region : hoi4Gen.gameRegions) {
   //   if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end())
@@ -1718,7 +1718,7 @@ void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen) {
   //   }
   // }
   // Fwg::Gfx::Bitmap regionMap(5632, 2048, 24);
-  // Fwg::Gfx::regionMap(hoi4Gen->areas.regions, hoi4Gen->areas.provinces,
+  // Fwg::Gfx::regionMap(hoi4Gen->areaData.regions, hoi4Gen->areaData.provinces,
   //                    regionMap);
   // Fwg::Gfx::Bmp::save(regionMap, path + "/map/regions.bmp");
 }
@@ -1809,7 +1809,8 @@ std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
   auto list = pU::getLinesByID(path);
   return list;
 }
-void readProvinces(ClimateGeneration::ClimateData &climateData,
+void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
+                   ClimateGeneration::ClimateData &climateData,
                    const std::string &inPath, const std::string &mapName,
                    Fwg::Areas::AreaData &areaData) {
   Logging::logLine("HOI4 Parser: Map: Studying the land");
@@ -1843,7 +1844,7 @@ void readProvinces(ClimateGeneration::ClimateData &climateData,
   }
   // call it with special idsort bool to make sure we sort by ID only this
   // time
-  Fwg::Areas::Provinces::readProvinceBMP(
+  Fwg::Areas::Provinces::readProvinceBMP(terrainData,
       climateData, provMap, heightMap, areaData.provinces,
       areaData.provinceColourMap, areaData.segments, true);
 }

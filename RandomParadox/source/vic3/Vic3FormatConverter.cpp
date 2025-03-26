@@ -430,6 +430,7 @@ void FormatConverter::contentSource(
   }
 }
 void FormatConverter::detailMaps(
+    const Fwg::Terrain::TerrainData &terrainData,
     const Fwg::ClimateGeneration::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer,
     const std::string &path) {
@@ -516,12 +517,12 @@ void FormatConverter::detailMaps(
       intensities[chanceIndex] = intensity;
     }
 
-    auto elevType = climateData.landForms[i].landForm;
+    auto elevType = terrainData.landForms[i].landForm;
     if (elevType != Terrain::ElevationTypeIndex::PLAINS &&
         elevType != Terrain::ElevationTypeIndex::HIGHLANDS) {
       colour[2] = elevationMap.at(elevType);
       intensities[2] =
-          std::clamp(climateData.landForms[i].inclination * 0.5f, 0.0f, 1.0f);
+          std::clamp(terrainData.landForms[i].inclination * 0.5f, 0.0f, 1.0f);
     }
 
     auto treeType = climateData.treeCoverage[i];

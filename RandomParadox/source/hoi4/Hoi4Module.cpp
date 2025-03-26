@@ -196,12 +196,12 @@ void Hoi4Module::writeTextFiles() {
   Map::definition(pathcfg.gameModPath + "//map//definition.csv",
                   hoi4Gen->gameProvinces);
   Map::strategicRegions(pathcfg.gameModPath + "//map//strategicregions",
-                        hoi4Gen->areas.regions, hoi4Gen->strategicRegions);
+                        hoi4Gen->areaData.regions, hoi4Gen->strategicRegions);
   Map::unitStacks(pathcfg.gameModPath + "//map//unitstacks.txt",
-                  hoi4Gen->areas.provinces, hoi4Gen->hoi4States,
+                  hoi4Gen->areaData.provinces, hoi4Gen->hoi4States,
                   hoi4Gen->heightMap);
   Map::weatherPositions(pathcfg.gameModPath + "//map//weatherpositions.txt",
-                        hoi4Gen->areas.regions, hoi4Gen->strategicRegions);
+                        hoi4Gen->areaData.regions, hoi4Gen->strategicRegions);
 
   Countries::commonCountryTags(pathcfg.gameModPath +
                                    "//common//country_tags//02_countries.txt",
@@ -220,7 +220,7 @@ void Hoi4Module::writeTextFiles() {
                    hoi4Gen->hoi4Countries);
   Countries::historyCountries(pathcfg.gameModPath + "//history//countries//",
                               hoi4Gen->hoi4Countries, pathcfg.gamePath,
-                              hoi4Gen->areas.regions);
+                              hoi4Gen->areaData.regions);
   Countries::historyUnits(pathcfg.gameModPath + "//history//units//",
                           hoi4Gen->hoi4Countries);
   Countries::ideas(pathcfg.gameModPath + "//common//ideas//",
@@ -260,16 +260,17 @@ void Hoi4Module::writeImages() {
       "Writing Hoi4 mod image files to path: ",
       Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
 
-  formatConverter.dump8BitTerrain(hoi4Gen->climateData, hoi4Gen->civLayer,
+  formatConverter.dump8BitTerrain(
+      hoi4Gen->terrainData, hoi4Gen->climateData, hoi4Gen->civLayer,
                                   pathcfg.gameModPath + "//map//terrain.bmp",
                                   "terrain", cut);
   formatConverter.dump8BitCities(hoi4Gen->climateMap,
                                  pathcfg.gameModPath + "//map//cities.bmp",
                                  "cities", cut);
-  formatConverter.dump8BitRivers(hoi4Gen->climateData,
+  formatConverter.dump8BitRivers(hoi4Gen->terrainData, hoi4Gen->climateData,
                                  pathcfg.gameModPath + "//map//rivers",
                                  "rivers", cut);
-  formatConverter.dump8BitTrees(hoi4Gen->climateData,
+  formatConverter.dump8BitTrees(hoi4Gen->terrainData, hoi4Gen->climateData,
                                 pathcfg.gameModPath + "//map//trees.bmp",
                                 "trees", false);
   formatConverter.dump8BitHeightmap(hoi4Gen->heightMap,
@@ -308,8 +309,8 @@ void Hoi4Module::readHoi(std::string &path) {
       Fwg::IO::Reader::readProvinceImage(path + "map//provinces.bmp", config);
   //// read in game or mod files
   hoi4Gen->climateData.habitabilities.resize(hoi4Gen->provinceMap.size());
-  Hoi4::Parsing::Reading::readProvinces(hoi4Gen->climateData, path,
-                                        "provinces.bmp", hoi4Gen->areas);
+  Hoi4::Parsing::Reading::readProvinces(hoi4Gen->terrainData, hoi4Gen->climateData, path,
+                                        "provinces.bmp", hoi4Gen->areaData);
   hoi4Gen->wrapupProvinces(config);
   // get the provinces into GameProvinces
   hoi4Gen->mapProvinces();
@@ -323,7 +324,7 @@ void Hoi4Module::readHoi(std::string &path) {
   // Which means we also need to load the existing continents file to match
   // those with each other, so another export does not overwrite the continents
   std::map<int, Continent> continents;
-  for (auto &prov : hoi4Gen->areas.provinces) {
+  for (auto &prov : hoi4Gen->areaData.provinces) {
     if (prov->continentID != -1) {
       if (continents.find(prov->continentID) == continents.end()) {
         Continent continent("", prov->continentID);
@@ -333,9 +334,9 @@ void Hoi4Module::readHoi(std::string &path) {
       }
     }
   }
-  hoi4Gen->areas.continents.clear();
+  hoi4Gen->areaData.continents.clear();
   for (auto &c : continents) {
-    hoi4Gen->areas.continents.push_back(c.second);
+    hoi4Gen->areaData.continents.push_back(c.second);
   }
 
   // get the provinces into GameProvinces
