@@ -49,7 +49,6 @@ void GUI::recover() {
   generator.terrainData.deserialize(cfg.mapsPath + "terrainData.bin");
   generator.climateData.deserialize(cfg.mapsPath + "climateData.bin");
   generator.areaData.deserialize(cfg.mapsPath + "areaData.bin");
-
 }
 GUI::GUI() : fwgUI() {}
 
@@ -371,6 +370,144 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                 childMin, childMax, IM_COL32(64, 69, 112, 255), 0.0f, 0, 2.0f);
           }
           ImGui::SameLine();
+
+          if (uiUtils->desiredState[0] ==
+              UIUtils::ActiveTexture::EXTENDEABLE6) {
+            // only do this every 50 milliseconds
+            static auto lastExecutionTime = std::chrono::steady_clock::now();
+            static auto lastState = activeModule->generator->getWorldGenState();
+            auto currentTime = std::chrono::steady_clock::now();
+            auto elapsedTime =
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    currentTime - lastExecutionTime);
+            /*if (elapsedTime.count() >= 50) {*/
+            // Declare a mutex for locking access to activeImages[1]
+            static std::mutex activeImagesMutex;
+            auto currentState = activeModule->generator->getWorldGenState();
+            // force updates only when receiving new date, or on the
+            // continuously updating states
+            if (lastState != currentState ||
+                currentState == Fwg::WorldGenerationState::GenSegments ||
+                currentState == Fwg::WorldGenerationState::GenProvinces) {
+              lastState = currentState;
+              uiUtils->resetTexture();
+            }
+            switch (currentState) {
+            case Fwg::WorldGenerationState::None:
+              break;
+
+            case Fwg::WorldGenerationState::GenHeight: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              std::cout << "Switching active image to heightmap";
+              uiUtils->activeImages[0] = &activeModule->generator->heightMap;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::GenSobelMap: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              uiUtils->activeImages[1] = &activeModule->generator->heightMap;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::GenLand: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              uiUtils->activeImages[0] = &activeModule->generator->heightMap;
+
+              displayImage = Fwg::Gfx::displaySobelMap(
+                  activeModule->generator->terrainData.sobelData);
+              uiUtils->activeImages[1] = &displayImage;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::GenTemperatures: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              displayImage = Fwg::Gfx::displaySobelMap(
+                  activeModule->generator->terrainData.sobelData);
+              uiUtils->activeImages[0] = &displayImage;
+              uiUtils->activeImages[1] = &activeModule->generator->landMap;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::GenHumidity: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              uiUtils->activeImages[0] = &activeModule->generator->landMap;
+              displayImage = Fwg::Gfx::Climate::displayTemperature(
+                  activeModule->generator->climateData);
+              uiUtils->activeImages[1] = &displayImage;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::GenRivers: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              auto tempImage = *uiUtils->activeImages[1];
+              uiUtils->activeImages[0] = &tempImage;
+              displayImage = Fwg::Gfx::Climate::displayHumidity(
+                  activeModule->generator->climateData);
+              uiUtils->activeImages[1] = &displayImage;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::GenClimate: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              uiUtils->activeImages[0] = &activeModule->generator->climateMap;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::GenHabitability: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              uiUtils->activeImages[0] = &activeModule->generator->climateMap;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::GenSegments: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              uiUtils->activeImages[0] = &activeModule->generator->segmentMap;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::GenProvinces: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              uiUtils->activeImages[0] = &activeModule->generator->provinceMap;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::WrapupProvinces: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              uiUtils->activeImages[0] = &activeModule->generator->provinceMap;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::GenRegions: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              uiUtils->activeImages[0] = &activeModule->generator->regionMap;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::GenContinents: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              uiUtils->activeImages[0] = &activeModule->generator->regionMap;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::GenCivData: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              uiUtils->activeImages[0] = &activeModule->generator->worldMap;
+              break;
+            }
+
+            case Fwg::WorldGenerationState::Wrapup: {
+              std::lock_guard<std::mutex> lock(activeImagesMutex);
+              uiUtils->activeImages[0] = &activeModule->generator->worldMap;
+              break;
+            }
+
+            default:
+              std::cerr << "Unknown world generation state!" << std::endl;
+              break;
+            }
+          }
+          //}
+
           static ImVec2 cursorPos;
           for (auto i = 0; i < uiUtils->activeImages.size(); i++) {
             // switch to the correct texture, by setting activeImage
@@ -385,7 +522,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               uiUtils->activeImages[i] = &activeModule->generator->landMap;
               break;
             case UIUtils::ActiveTexture::NORMALMAP:
-              uiUtils->activeImages[i] = &activeModule->generator->sobelMap;
+              uiUtils->activeImages[i] = &displayImage;
               break;
             case UIUtils::ActiveTexture::CLIMATEINPUT:
               uiUtils->activeImages[i] =
@@ -404,7 +541,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               uiUtils->activeImages[i] = &displayImage;
               break;
             case UIUtils::ActiveTexture::HUMIDITY:
-              uiUtils->activeImages[i] = &activeModule->generator->humidityMap;
+              uiUtils->activeImages[i] = &displayImage;
               break;
             case UIUtils::ActiveTexture::RIVER:
               uiUtils->activeImages[i] = &displayImage;
@@ -453,8 +590,11 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               break;
             }
           }
-          uiUtils->switchTexture(*uiUtils->activeImages[0], &primaryTexture, 0,
-                                 uiUtils->desiredState[0], g_pd3dDevice, w, h);
+          if (uiUtils->activeImages[0] != nullptr) {
+            uiUtils->switchTexture(*uiUtils->activeImages[0], &primaryTexture,
+                                   0, uiUtils->desiredState[0], g_pd3dDevice, w,
+                                   h);
+          }
           if (uiUtils->activeImages[1] != nullptr) {
             uiUtils->switchTexture(*uiUtils->activeImages[1], &secondaryTexture,
                                    1, uiUtils->desiredState[1], g_pd3dDevice, w,
@@ -519,9 +659,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                                 false,
                                 ImGuiWindowFlags_HorizontalScrollbar |
                                     ImGuiWindowFlags_AlwaysVerticalScrollbar);
-              // images are less wide, on a usual 16x9 monitor, it is better to
-              // place them besides each other
-              // if (aspectRatio <= 2.0)
+              // images are less wide, on a usual 16x9 monitor, it is better
+              // to place them besides each other if (aspectRatio <= 2.0)
               //  ImGui::SameLine();
               if (secondaryTexture != nullptr &&
                   uiUtils->actTxs[1] != UIUtils::ActiveTexture::NONE) {
@@ -599,6 +738,18 @@ void GUI::initGameConfigs() {
   activeGameConfig = gameConfigs[0];
 }
 
+bool GUI::validatePaths() {
+  validatedPaths = activeModule->findGame(activeModule->pathcfg.gamePath,
+                                          activeGameConfig.gameName);
+  if (validatedPaths)
+    validatedPaths =
+        activeModule->validateGameModFolder(activeGameConfig.gameName);
+  if (validatedPaths)
+    validatedPaths = activeModule->validateModFolder(activeGameConfig.gameName);
+  activeModule->initFormatConverter();
+  return validatedPaths;
+}
+
 bool GUI::isRelevantModuleActive(const std::string &shortName) {
   return activeGameConfig.gameShortName == shortName;
 }
@@ -664,6 +815,8 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
         cfg.cut = false;
       }
     }
+    // need to reset this when we generate all world data
+    cfg.allowHeightmapModification = true;
     // run the generation async
     computationFutureBool = runAsyncInitialDisable(
         &Fwg::FastWorldGenerator::generateWorld, generator);
@@ -696,8 +849,8 @@ int GUI::showRpdxConfigure(
   // remove the images, and set pretext for them to be auto
   // loaded after switching tabs again
   if (ImGui::BeginTabItem("RandomParadox Configuration")) {
-    uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
-    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
+    uiUtils->desiredState[0] = UIUtils::ActiveTexture::EXTENDEABLE6;
+    uiUtils->desiredState[1] = UIUtils::ActiveTexture::EXTENDEABLE6;
     ImGui::PushItemWidth(200.0f);
     uiUtils->tabSwitchEvent();
     // find every subfolder of config folder
@@ -705,6 +858,12 @@ int GUI::showRpdxConfigure(
       loadedConfigs = true;
       configSubfolders = loadConfigs();
       activeConfig = configSubfolders[item_current];
+      // on startup, try to auto locate game and game mod folder, then auto
+      // validate
+      activeModule->findGame(activeModule->pathcfg.gamePath,
+                             activeGameConfig.gameName);
+      activeModule->autoLocateGameModFolder(activeGameConfig.gameName);
+      validatePaths();
     }
 
     std::vector<const char *> gameSelection;
@@ -729,7 +888,11 @@ int GUI::showRpdxConfigure(
             Scenario::Vic3::Module(rpdConf, configSubFolder, username));
       }
       activeGameConfig = gameConfigs[selectedGame];
+      activeModule->findGame(activeModule->pathcfg.gamePath,
+                             activeGameConfig.gameName);
+      activeModule->autoLocateGameModFolder(activeGameConfig.gameName);
       validatedPaths = false;
+      validatePaths();
       activeModule->generator->configure(cfg);
     }
     std::vector<const char *> items;
@@ -748,35 +911,23 @@ int GUI::showRpdxConfigure(
     }
 
     ImGui::PopItemWidth();
-    if (ImGui::Button("Reload config")) {
-      cfg.readConfig(activeConfig);
-      loadGameConfig(cfg);
-    }
     ImGui::PushItemWidth(600.0f);
     ImGui::InputText("Mod Name", &activeModule->pathcfg.modName);
-    if (ImGui::Button("Try to find game")) {
-
-      activeModule->findGame(activeModule->pathcfg.gamePath,
-                             activeGameConfig.gameName);
-    }
     ImGui::InputText("Game Path", &activeModule->pathcfg.gamePath);
-    if (ImGui::Button("Try to find mod folder")) {
-      activeModule->autoLocateGameModFolder(activeGameConfig.gameName);
-    }
-
     ImGui::InputText("Mod Path", &activeModule->pathcfg.gameModPath);
     ImGui::InputText("Mods Directory",
                      &activeModule->pathcfg.gameModsDirectory);
+    if (ImGui::Button("Try to find game files")) {
+      activeModule->findGame(activeModule->pathcfg.gamePath,
+                             activeGameConfig.gameName);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Try to find the games mods folder")) {
+      activeModule->autoLocateGameModFolder(activeGameConfig.gameName);
+    }
+    ImGui::SameLine();
     if (ImGui::Button("Validate all paths")) {
-      validatedPaths = activeModule->findGame(activeModule->pathcfg.gamePath,
-                                              activeGameConfig.gameName);
-      if (validatedPaths)
-        validatedPaths =
-            activeModule->validateGameModFolder(activeGameConfig.gameName);
-      if (validatedPaths)
-        validatedPaths =
-            activeModule->validateModFolder(activeGameConfig.gameName);
-      activeModule->initFormatConverter();
+      validatePaths();
     }
     ImGui::PopItemWidth();
     ImGui::EndTabItem();
@@ -785,7 +936,6 @@ int GUI::showRpdxConfigure(
   // defined
   if (cfg.cut) {
     cfg.loadMapsPath = activeModule->pathcfg.gamePath + "map//";
-    cfg.heightmapIn = cfg.loadMapsPath + "heightmap.bmp";
   }
   if (cfg.loadClimate) {
     cfg.climateMappingPath = Fwg::Cfg::Values().resourcePath + "" +
@@ -813,7 +963,8 @@ void GUI::showModLoader(
 bool GUI::scenarioGenReady(bool printIssue) {
   auto ready = configuredScenarioGen && !redoRegions && !redoProvinces;
   const auto &generator = activeModule->generator;
-  if (!generator->areaData.provinces.size() || !generator->areaData.regions.size())
+  if (!generator->areaData.provinces.size() ||
+      !generator->areaData.regions.size())
     return false;
   if (generator->areaData.provinces.size() != generator->gameProvinces.size() ||
       generator->areaData.regions.size() != generator->gameRegions.size() ||
@@ -1367,7 +1518,8 @@ int GUI::showHoi4Finalise(
       }
       if (ImGui::Button("Export world_normal.bmp")) {
         hoi4Module->formatConverter.dumpWorldNormal(
-            hoi4Module->generator->sobelMap,
+            Fwg::Gfx::displaySobelMap(
+                hoi4Module->generator->terrainData.sobelData),
             hoi4Module->pathcfg.gameModPath + "//map//world_normal.bmp", false);
       }
       if (ImGui::Button("Export terrain.bmp")) {

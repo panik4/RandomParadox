@@ -284,7 +284,9 @@ void Hoi4Module::writeImages() {
       hoi4Gen->heightMap,
       pathcfg.gameModPath + "//map//terrain//colormap_water_", cut, 8);
   formatConverter.dumpWorldNormal(
-      hoi4Gen->sobelMap, pathcfg.gameModPath + "//map//world_normal.bmp", cut);
+      Fwg::Gfx::Bitmap(Cfg::Values().width, Cfg::Values().height, 24,
+                       hoi4Gen->terrainData.sobelData),
+      pathcfg.gameModPath + "//map//world_normal.bmp", cut);
 
   // just copy over provinces.bmp, already in a compatible format
   Fwg::Gfx::Bmp::save(hoi4Gen->provinceMap,
@@ -297,8 +299,9 @@ void Hoi4Module::readHoi(std::string &path) {
   auto &config = Fwg::Cfg::Values();
   bool bufferedCut = config.cut;
   config.cut = false;
-  config.loadHeight = true;
-  hoi4Gen->loadHeight(config, path + "map//heightmap.bmp");
+  auto heightmap = Fwg::IO::Reader::readGenericImage(
+      path + "map//heightmap.bmp", config, false);
+  hoi4Gen->loadHeight(config, heightmap);
   hoi4Gen->genSobelMap(config);
   hoi4Gen->genLand();
 

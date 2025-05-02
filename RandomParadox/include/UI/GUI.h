@@ -43,6 +43,7 @@ class GUI : Fwg::fwgUI {
   // configuration
   void loadGameConfig(Fwg::Cfg &cfg);
   void initGameConfigs();
+  bool validatePaths();
   bool isRelevantModuleActive(const std::string &shortName);
   int showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
                   ID3D11ShaderResourceView **texture);
