@@ -391,119 +391,127 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                 currentState == Fwg::WorldGenerationState::GenProvinces) {
               lastState = currentState;
               uiUtils->resetTexture();
-            }
-            switch (currentState) {
-            case Fwg::WorldGenerationState::None:
-              break;
+              switch (currentState) {
+              case Fwg::WorldGenerationState::None:
+                break;
 
-            case Fwg::WorldGenerationState::GenHeight: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              std::cout << "Switching active image to heightmap";
-              uiUtils->activeImages[0] = &activeModule->generator->heightMap;
-              break;
-            }
+              case Fwg::WorldGenerationState::GenHeight: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                std::cout << "Switching active image to heightmap";
+                displayImage = Fwg::Gfx::displayHeightMap(
+                    activeModule->generator->terrainData.detailedHeightMap);
+                uiUtils->activeImages[0] = &displayImage;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::GenSobelMap: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              uiUtils->activeImages[1] = &activeModule->generator->heightMap;
-              break;
-            }
+              case Fwg::WorldGenerationState::GenSobelMap: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                displayImage = Fwg::Gfx::displayHeightMap(
+                    activeModule->generator->terrainData.detailedHeightMap);
+                uiUtils->activeImages[1] = &displayImage;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::GenLand: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              uiUtils->activeImages[0] = &activeModule->generator->heightMap;
+              case Fwg::WorldGenerationState::GenLand: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                displayImage = Fwg::Gfx::displayHeightMap(
+                    activeModule->generator->terrainData.detailedHeightMap);
+                uiUtils->activeImages[0] = &displayImage;
 
-              displayImage = Fwg::Gfx::displaySobelMap(
-                  activeModule->generator->terrainData.sobelData);
-              uiUtils->activeImages[1] = &displayImage;
-              break;
-            }
+                displayImage = Fwg::Gfx::displaySobelMap(
+                    activeModule->generator->terrainData.sobelData);
+                uiUtils->activeImages[1] = &displayImage;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::GenTemperatures: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              displayImage = Fwg::Gfx::displaySobelMap(
-                  activeModule->generator->terrainData.sobelData);
-              uiUtils->activeImages[0] = &displayImage;
-              uiUtils->activeImages[1] = &activeModule->generator->landMap;
-              break;
-            }
+              case Fwg::WorldGenerationState::GenTemperatures: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                displayImage = Fwg::Gfx::displaySobelMap(
+                    activeModule->generator->terrainData.sobelData);
+                uiUtils->activeImages[0] = &displayImage;
+                uiUtils->activeImages[1] = &activeModule->generator->landMap;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::GenHumidity: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              uiUtils->activeImages[0] = &activeModule->generator->landMap;
-              displayImage = Fwg::Gfx::Climate::displayTemperature(
-                  activeModule->generator->climateData);
-              uiUtils->activeImages[1] = &displayImage;
-              break;
-            }
+              case Fwg::WorldGenerationState::GenHumidity: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                uiUtils->activeImages[0] = &activeModule->generator->landMap;
+                displayImage = Fwg::Gfx::Climate::displayTemperature(
+                    activeModule->generator->climateData);
+                uiUtils->activeImages[1] = &displayImage;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::GenRivers: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              auto tempImage = *uiUtils->activeImages[1];
-              uiUtils->activeImages[0] = &tempImage;
-              displayImage = Fwg::Gfx::Climate::displayHumidity(
-                  activeModule->generator->climateData);
-              uiUtils->activeImages[1] = &displayImage;
-              break;
-            }
+              case Fwg::WorldGenerationState::GenRivers: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                auto tempImage = *uiUtils->activeImages[1];
+                uiUtils->activeImages[0] = &tempImage;
+                displayImage = Fwg::Gfx::Climate::displayHumidity(
+                    activeModule->generator->climateData);
+                uiUtils->activeImages[1] = &displayImage;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::GenClimate: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              uiUtils->activeImages[0] = &activeModule->generator->climateMap;
-              break;
-            }
+              case Fwg::WorldGenerationState::GenClimate: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                uiUtils->activeImages[0] = &activeModule->generator->climateMap;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::GenHabitability: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              uiUtils->activeImages[0] = &activeModule->generator->climateMap;
-              break;
-            }
+              case Fwg::WorldGenerationState::GenHabitability: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                uiUtils->activeImages[0] = &activeModule->generator->climateMap;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::GenSegments: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              uiUtils->activeImages[0] = &activeModule->generator->segmentMap;
-              break;
-            }
+              case Fwg::WorldGenerationState::GenSegments: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                uiUtils->activeImages[0] = &activeModule->generator->segmentMap;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::GenProvinces: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              uiUtils->activeImages[0] = &activeModule->generator->provinceMap;
-              break;
-            }
+              case Fwg::WorldGenerationState::GenProvinces: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                uiUtils->activeImages[0] =
+                    &activeModule->generator->provinceMap;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::WrapupProvinces: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              uiUtils->activeImages[0] = &activeModule->generator->provinceMap;
-              break;
-            }
+              case Fwg::WorldGenerationState::WrapupProvinces: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                uiUtils->activeImages[0] =
+                    &activeModule->generator->provinceMap;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::GenRegions: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              uiUtils->activeImages[0] = &activeModule->generator->regionMap;
-              break;
-            }
+              case Fwg::WorldGenerationState::GenRegions: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                uiUtils->activeImages[0] = &activeModule->generator->regionMap;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::GenContinents: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              uiUtils->activeImages[0] = &activeModule->generator->regionMap;
-              break;
-            }
+              case Fwg::WorldGenerationState::GenContinents: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                uiUtils->activeImages[0] = &activeModule->generator->regionMap;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::GenCivData: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              uiUtils->activeImages[0] = &activeModule->generator->worldMap;
-              break;
-            }
+              case Fwg::WorldGenerationState::GenCivData: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                uiUtils->activeImages[0] = &activeModule->generator->worldMap;
+                break;
+              }
 
-            case Fwg::WorldGenerationState::Wrapup: {
-              std::lock_guard<std::mutex> lock(activeImagesMutex);
-              uiUtils->activeImages[0] = &activeModule->generator->worldMap;
-              break;
-            }
+              case Fwg::WorldGenerationState::Wrapup: {
+                std::lock_guard<std::mutex> lock(activeImagesMutex);
+                uiUtils->activeImages[0] = &activeModule->generator->worldMap;
+                break;
+              }
 
-            default:
-              std::cerr << "Unknown world generation state!" << std::endl;
-              break;
+              default:
+                std::cerr << "Unknown world generation state!" << std::endl;
+                break;
+              }
             }
           }
           //}
@@ -513,7 +521,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
             // switch to the correct texture, by setting activeImage
             switch (uiUtils->desiredState[i]) {
             case UIUtils::ActiveTexture::HEIGHTMAP:
-              uiUtils->activeImages[i] = &activeModule->generator->heightMap;
+              uiUtils->activeImages[i] = &displayImage;
               break;
             case UIUtils::ActiveTexture::LAYER:
               uiUtils->activeImages[i] = &displayImage;
@@ -1002,7 +1010,7 @@ int GUI::showScenarioTab(
     uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
     uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     uiUtils->tabSwitchEvent();
-    if (activeModule->generator->heightMap.initialised() &&
+    if (activeModule->generator->terrainData.detailedHeightMap.size() &&
         activeModule->generator->climateMap.initialised() &&
         activeModule->generator->provinceMap.initialised() &&
         activeModule->generator->regionMap.initialised() &&
@@ -1312,7 +1320,7 @@ int GUI::showModuleGeneric(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> genericModule) {
   if (!validatedPaths)
     ImGui::BeginDisabled();
-  if (genericModule->generator->heightMap.initialised() &&
+  if (genericModule->generator->terrainData.detailedHeightMap.size() &&
       genericModule->generator->climateMap.initialised() &&
       genericModule->generator->provinceMap.initialised() &&
       genericModule->generator->regionMap.initialised()) {
@@ -1513,7 +1521,7 @@ int GUI::showHoi4Finalise(
 
       if (ImGui::Button("Export heightmap.bmp")) {
         hoi4Module->formatConverter.dump8BitHeightmap(
-            hoi4Module->generator->heightMap,
+            hoi4Module->generator->terrainData.detailedHeightMap,
             hoi4Module->pathcfg.gameModPath + "//map//heightmap", "heightmap");
       }
       if (ImGui::Button("Export world_normal.bmp")) {

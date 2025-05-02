@@ -267,19 +267,16 @@ void Module::writeTextFiles() {
 
 void Module::writeImages() {
   Gfx::Vic3::FormatConverter formatConverter(pathcfg.gamePath, "Vic3");
+  auto heightMap =
+      Fwg::Gfx::displayHeightMap(vic3Gen->terrainData.detailedHeightMap);
 
-  formatConverter.Vic3ColourMaps(vic3Gen->worldMap, vic3Gen->heightMap,
+  formatConverter.Vic3ColourMaps(vic3Gen->worldMap, heightMap,
                                  vic3Gen->climateData, vic3Gen->civLayer,
                                  pathcfg.gameModPath + "//gfx//map//");
   // formatConverter.dump8BitRivers(vic3Gen->riverMap,
   //                                pathcfg.gameModPath +
   //                                "//map_data//rivers", "rivers", cut);
 
-  // overwrite the heightmap with the input heightmap, to conserve detail,
-  // which would otherwise be lost if the scaled down version had be used
-  if (vic3Gen->originalHeightMap.size() > 0) {
-    vic3Gen->heightMap = vic3Gen->originalHeightMap;
-  }
   formatConverter.detailMaps(vic3Gen->terrainData, vic3Gen->climateData,
                              vic3Gen->civLayer,
                              pathcfg.gameModPath + "//gfx//map//");
@@ -291,21 +288,20 @@ void Module::writeImages() {
   // save this and reset the heightmap later. The map will be scaled and the
   // scaled one then used for the packed heightmap generation. It is important
   // we reset this after
-  auto temporaryHeightmap = vic3Gen->heightMap;
+  auto temporaryHeightmap = heightMap;
   // also dump uncompressed packed heightmap
   formatConverter.dump8BitHeightmap(
-      vic3Gen->heightMap, pathcfg.gameModPath + "//map_data//heightmap",
-      "heightmap");
+      vic3Gen->terrainData.detailedHeightMap,
+      pathcfg.gameModPath + "//map_data//heightmap", "heightmap");
   auto packedHeightmap = formatConverter.dumpPackedHeightmap(
-      vic3Gen->heightMap, pathcfg.gameModPath + "//map_data//packed_heightmap",
+      heightMap, pathcfg.gameModPath + "//map_data//packed_heightmap",
       "heightmap");
   formatConverter.dumpIndirectionMap(
-      vic3Gen->heightMap,
-      pathcfg.gameModPath + "//map_data//indirection_heightmap.png");
+      heightMap, pathcfg.gameModPath + "//map_data//indirection_heightmap.png");
   Parsing::Writing::heightmap(pathcfg.gameModPath +
                                   "//map_data//heightmap.heightmap",
-                              vic3Gen->heightMap, packedHeightmap);
-  vic3Gen->heightMap = temporaryHeightmap;
+                              heightMap, packedHeightmap);
+  heightMap = temporaryHeightmap;
   temporaryHeightmap.clear();
   vic3Gen->visualiseCountries(generator->countryMap);
   Fwg::Gfx::Png::save(vic3Gen->countryMap,

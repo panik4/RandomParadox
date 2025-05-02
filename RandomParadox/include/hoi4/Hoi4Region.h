@@ -48,7 +48,7 @@ public:
   ~Region();
 
   // member functions
-  void calculateBuildingPositions(const Fwg::Gfx::Bitmap &heightmap,
+  void calculateBuildingPositions(const std::vector<float> &heightmap,
                                   const Fwg::Gfx::Bitmap &typeMap);
 };
 } // namespace Scenario::Hoi4

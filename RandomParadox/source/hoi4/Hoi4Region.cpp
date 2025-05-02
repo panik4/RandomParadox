@@ -11,7 +11,7 @@ Region::~Region() {}
 
 Scenario::Utils::Building
 getBuilding(const std::string &type, const Fwg::Province &prov,
-            const bool coastal, const Fwg::Gfx::Bitmap &heightmap,
+            const bool coastal, const std::vector<float> &heightmap,
             const Fwg::Gfx::Bitmap &typeMap, int relativeID = 0) {
   auto pix = 0;
   auto &cfg = Fwg::Cfg::Values();
@@ -66,7 +66,7 @@ getBuilding(const std::string &type, const Fwg::Province &prov,
 
   building.name = type;
   building.position = Scenario::Utils::Coordinate{
-      widthPos, heightPos, (double)heightmap[pix].getRed() / 10.0, -1.57};
+      widthPos, heightPos, heightmap[pix] / 10.0, -1.57};
   building.relativeID = relativeID;
   building.provinceID = prov.ID;
   return building;
@@ -75,7 +75,7 @@ getBuilding(const std::string &type, const Fwg::Province &prov,
 Scenario::Utils::Building getBuilding(const std::string &type,
                                       const Fwg::Region &region,
                                       const bool coastal,
-                                      const Fwg::Gfx::Bitmap &heightmap,
+                                      const std::vector<float> &heightmap,
                                       int relativeID = 0) {
   auto pix = 0;
   Scenario::Utils::Building building;
@@ -93,13 +93,13 @@ Scenario::Utils::Building getBuilding(const std::string &type,
   auto heightPos = pix / Fwg::Cfg::Values().width;
   building.name = type;
   building.position = Scenario::Utils::Coordinate{
-      widthPos, heightPos, (double)heightmap[pix].getRed() / 10.0, -1.57};
+      widthPos, heightPos, heightmap[pix] / 10.0, -1.57};
   building.relativeID = relativeID;
   building.provinceID = prov->ID;
   return building;
 }
 
-void Region::calculateBuildingPositions(const Fwg::Gfx::Bitmap &heightmap,
+void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
                                         const Fwg::Gfx::Bitmap &typeMap) {
   if (this->sea || this->lake)
     return;

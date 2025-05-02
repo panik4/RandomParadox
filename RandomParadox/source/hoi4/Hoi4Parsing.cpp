@@ -21,27 +21,25 @@ void adjacencyRules(const std::string &path) {
   // empty for now
   pU::writeFile(path, content);
 }
-void ambientObjects(const std::string &path,
-                    const Fwg::Gfx::Bitmap &heightMap) {
+void ambientObjects(const std::string &path) {
   Logging::logLine("HOI4 Parser: Map: editing ambient objects to ",
                    Fwg::Utils::userFilter(path, Fwg::Cfg::Values().username));
   auto templateContent = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                       "hoi4//map//ambient_object.txt");
 
   pU::Scenario::replaceOccurences(templateContent, "template_yresolution_top",
-                                  std::to_string(heightMap.height() + 142));
+                                  std::to_string(Cfg::Values().height + 142));
   pU::Scenario::replaceOccurences(templateContent, "template_yresolution_logo",
-                                  std::to_string(heightMap.height() + 82));
+                                  std::to_string(Cfg::Values().height + 82));
   // place in middle of map xres
   pU::Scenario::replaceOccurences(templateContent, "template_xpos_logo",
-                                  std::to_string(heightMap.width() / 2));
+                                  std::to_string(Cfg::Values().width / 2));
   pU::writeFile(path, templateContent);
 }
 
 // places building positions
 void buildings(const std::string &path,
-               const std::vector<std::shared_ptr<Region>> &regions,
-               const Fwg::Gfx::Bitmap &heightMap) {
+               const std::vector<std::shared_ptr<Region>> &regions) {
   Logging::logLine("HOI4 Parser: Map: Constructing Factories");
   std::string content;
   for (const auto &region : regions) {
@@ -146,7 +144,7 @@ void definition(const std::string &path,
 void unitStacks(const std::string &path,
                 const std::vector<std::shared_ptr<Province>> provinces,
                 const std::vector<std::shared_ptr<Region>> regions,
-                const Fwg::Gfx::Bitmap &heightMap) {
+                const std::vector<float> &heightMap) {
   Logging::logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
   // 1;0;3359.00;9.50;1166.00;0.00;0.08
   // provID, neighbour?, xPos, zPos yPos, rotation(3=north,
@@ -159,14 +157,13 @@ void unitStacks(const std::string &path,
     auto pix = Fwg::Utils::selectRandom(prov->pixels);
     auto widthPos = pix % Cfg::Values().width;
     auto heightPos = pix / Cfg::Values().width;
-    std::vector<std::string> arguments{
-        std::to_string(prov->ID + 1),
-        std::to_string(unitstackIndex),
-        std::to_string(widthPos),
-        std::to_string((double)heightMap[pix].getRed() / 10.0),
-        std::to_string(heightPos),
-        std::to_string(0.0),
-        "0.0"};
+    std::vector<std::string> arguments{std::to_string(prov->ID + 1),
+                                       std::to_string(unitstackIndex),
+                                       std::to_string(widthPos),
+                                       std::to_string(heightMap[pix] / 10.0),
+                                       std::to_string(heightPos),
+                                       std::to_string(0.0),
+                                       "0.0"};
     content.append(pU::csvFormat(arguments, ';', false));
     // attacking
     arguments[1] = "9";
@@ -190,7 +187,7 @@ void unitStacks(const std::string &path,
             std::to_string(prov->ID + 1),
             std::to_string(unitstackIndex),
             std::to_string(widthPos),
-            std::to_string((double)heightMap[pix].getRed() / 10.0),
+            std::to_string(heightMap[pix] / 10.0),
             std::to_string(heightPos),
             std::to_string(angle),
             "0.0"};
@@ -217,7 +214,7 @@ void unitStacks(const std::string &path,
                 std::to_string(prov->ID + 1),
                 std::to_string(unitstackIndex),
                 std::to_string(widthPos),
-                std::to_string((double)heightMap[pix].getRed() / 10.0),
+                std::to_string(heightMap[pix] / 10.0),
                 std::to_string(heightPos),
                 std::to_string(angle),
                 "0.0"};
@@ -234,9 +231,7 @@ void unitStacks(const std::string &path,
           std::to_string(vp.first + 1),
           std::to_string(38),
           std::to_string(vp.second.position.widthCenter),
-          std::to_string(
-              (double)heightMap[vp.second.position.weightedCenter].getRed() /
-              10.0),
+          std::to_string(heightMap[vp.second.position.weightedCenter] / 10.0),
           std::to_string(vp.second.position.heightCenter),
           std::to_string(0.0),
           "0.0"};
@@ -1844,8 +1839,8 @@ void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
   }
   // call it with special idsort bool to make sure we sort by ID only this
   // time
-  Fwg::Areas::Provinces::readProvinceBMP(terrainData,
-      climateData, provMap, heightMap, areaData.provinces,
+  Fwg::Areas::Provinces::readProvinceBMP(
+      terrainData, climateData, provMap, areaData.provinces,
       areaData.provinceColourMap, areaData.segments, true);
 }
 void readRocketSites(const std::string &path,

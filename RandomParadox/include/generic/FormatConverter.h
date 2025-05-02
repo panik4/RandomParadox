@@ -33,7 +33,8 @@ public:
   Fwg::Gfx::Bitmap cutBaseMap(const std::string &path,
                               const double factor = 1.0,
                               const int bit = 8) const;
-  void dump8BitHeightmap(Fwg::Gfx::Bitmap &heightMap, const std::string &path,
+  void dump8BitHeightmap(const std::vector<float> &altitudeData,
+                         const std::string &path,
                          const std::string &colourMapKey) const;
   void dump8BitTerrain(const Fwg::Terrain::TerrainData &terrainData,
                        const Fwg::ClimateGeneration::ClimateData &climateIn,
@@ -51,7 +52,8 @@ public:
                      const Fwg::ClimateGeneration::ClimateData &climateIn,
                      const std::string &path, const std::string &colourMapKey,
                      const bool cut = false) const;
-  void dumpDDSFiles(const Fwg::Gfx::Bitmap &heightMap, const std::string &path,
+  void dumpDDSFiles(const std::vector<float> &heightMap,
+                    const std::string &path,
                     const bool cut = false, const int maxFactor = 2) const;
   void
   dumpTerrainColourmap(const Fwg::Gfx::Bitmap &climateMap,
