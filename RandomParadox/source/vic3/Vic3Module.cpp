@@ -125,8 +125,6 @@ void Module::readVic3Config(const std::string &configSubFolder,
   // allow massive images for Vic3
   config.targetMaxImageSize = 160'000'000;
   config.loadMapsPath = vic3Conf.get<std::string>("fastworldgen.loadMapsPath");
-  config.heightmapIn = config.loadMapsPath +
-                       vic3Conf.get<std::string>("fastworldgen.heightMapName");
   config.miningPerRegion = 1;
   config.forestryPerRegion = 1;
   config.citiesPerRegion = 1;
@@ -151,7 +149,8 @@ void Module::generate() {
     vic3Gen->mapTerrain();
     vic3Gen->mapContinents();
     Civilization::generateWorldCivilizations(
-        vic3Gen->gameRegions, vic3Gen->gameProvinces, vic3Gen->civData, vic3Gen->scenContinents);
+        vic3Gen->gameRegions, vic3Gen->gameProvinces, vic3Gen->civData,
+        vic3Gen->scenContinents);
     vic3Gen->generateCountries<Vic3::Country>();
     vic3Gen->evaluateCountryNeighbours();
     vic3Gen->visualiseCountries(generator->countryMap);
@@ -269,11 +268,9 @@ void Module::writeTextFiles() {
 void Module::writeImages() {
   Gfx::Vic3::FormatConverter formatConverter(pathcfg.gamePath, "Vic3");
 
-  formatConverter.Vic3ColourMaps(
-      Fwg::Gfx::MapMerging::mergeTerrain(
-          vic3Gen->heightMap, vic3Gen->climateMap, vic3Gen->sobelMap),
-      vic3Gen->worldMap, vic3Gen->heightMap, vic3Gen->humidityMap,
-      vic3Gen->civLayer, pathcfg.gameModPath + "//gfx//map//");
+  formatConverter.Vic3ColourMaps(vic3Gen->worldMap, vic3Gen->heightMap,
+                                 vic3Gen->climateData, vic3Gen->civLayer,
+                                 pathcfg.gameModPath + "//gfx//map//");
   // formatConverter.dump8BitRivers(vic3Gen->riverMap,
   //                                pathcfg.gameModPath +
   //                                "//map_data//rivers", "rivers", cut);
@@ -283,7 +280,8 @@ void Module::writeImages() {
   if (vic3Gen->originalHeightMap.size() > 0) {
     vic3Gen->heightMap = vic3Gen->originalHeightMap;
   }
-  formatConverter.detailMaps(vic3Gen->terrainData, vic3Gen->climateData, vic3Gen->civLayer,
+  formatConverter.detailMaps(vic3Gen->terrainData, vic3Gen->climateData,
+                             vic3Gen->civLayer,
                              pathcfg.gameModPath + "//gfx//map//");
   formatConverter.dynamicMasks(pathcfg.gameModPath + "//gfx//map//masks//",
                                vic3Gen->climateData, vic3Gen->civLayer);

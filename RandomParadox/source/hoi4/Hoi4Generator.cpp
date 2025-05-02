@@ -53,7 +53,6 @@ void Generator::mapRegions() {
 }
 
 Fwg::Gfx::Bitmap Generator::mapTerrain() {
-  const auto &climateMap = this->climateMap;
   Bitmap typeMap(climateMap.width(), climateMap.height(), 24);
   auto &colours = Fwg::Cfg::Values().colours;
   auto &climateColours = Fwg::Cfg::Values().climateColours;
@@ -226,7 +225,7 @@ void Generator::generateStateResources() {
 
   // config for all resource types
   for (auto &resConfig : resConfigs) {
-    std::vector<double> resPrev;
+    std::vector<float> resPrev;
     if (resConfig.random) {
       resPrev = Fwg::Civilization::Resources::randomResourceLayer(
           resConfig.name, resConfig.noiseConfig.fractalFrequency,

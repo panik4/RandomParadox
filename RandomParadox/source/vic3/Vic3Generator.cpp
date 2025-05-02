@@ -149,7 +149,6 @@ void Generator::totalArableLand(const std::vector<float> &arableLand) {
   }
 }
 
-
 void Generator::distributeResources() {
   const auto &cfg = Fwg::Cfg::Values();
 
@@ -159,7 +158,7 @@ void Generator::distributeResources() {
   // config for all resource types
 
   for (auto &resConfig : resConfigs) {
-    std::vector<double> resPrev;
+    std::vector<float> resPrev;
     if (resConfig.random) {
       resPrev = Fwg::Civilization::Resources::randomResourceLayer(
           resConfig.name, resConfig.noiseConfig.fractalFrequency,
@@ -189,9 +188,8 @@ void Generator::mapRegions() {
 
   for (auto &region : this->areaData.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
-              [](const std::shared_ptr<Fwg::Province>a, const std::shared_ptr<Fwg::Province>b) {
-                return (*a < *b);
-              });
+              [](const std::shared_ptr<Fwg::Province> a,
+                 const std::shared_ptr<Fwg::Province> b) { return (*a < *b); });
     auto gameRegion = std::make_shared<Region>(region);
 
     // generate random name for region
@@ -520,7 +518,8 @@ void Generator::createLocators() {
   Fwg::Gfx::Bitmap debugImage = heightMap;
 
   for (auto i = 0; i < heightMap.size(); i++) {
-    binaryLandMap[i] = detailedHeightMap[i] <= config.seaLevel ? false : true;
+    binaryLandMap[i] =
+        terrainData.detailedHeightMap[i] <= config.seaLevel ? false : true;
   }
   auto searchVector = Fwg::Utils::getCircularOffsets(config.width, 10);
 

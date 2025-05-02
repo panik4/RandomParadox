@@ -188,8 +188,9 @@ void FormatConverter::dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
   Fwg::Gfx::Png::save(indirectionMap, path, false, LCT_RGBA, 8U, 0);
 }
 void FormatConverter::Vic3ColourMaps(
-    const Fwg::Gfx::Bitmap &climateMap, const Fwg::Gfx::Bitmap &treesIn,
-    const Fwg::Gfx::Bitmap &heightMap, const Fwg::Gfx::Bitmap &humidityMap,
+    const Fwg::Gfx::Bitmap &climateMap,
+    const Fwg::Gfx::Bitmap &heightMap,
+    Fwg::ClimateGeneration::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer,
     const std::string &path) {
   Fwg::Utils::Logging::logLine("Vic3 Format Converter: Writing colour maps");
@@ -288,6 +289,8 @@ void FormatConverter::Vic3ColourMaps(
                            DXGI_FORMAT_B8G8R8A8_UNORM,
                            path + "//water//flowmap.dds");
   // colormap_tree.dds
+  auto humidityMap =
+      Fwg::Gfx::Bitmap(config.width, config.height, 24, climateData.humidities);
   scaledMap =
       Bmp::scale(humidityMap, config.width / 8, config.height / 8, false);
   auto scaledHeight =

@@ -301,7 +301,7 @@ void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
 }
 
 void FormatConverter::dump8BitTerrain(
-    const Fwg::Terrain::TerrainData& terrainData,
+    const Fwg::Terrain::TerrainData &terrainData,
     const Fwg::ClimateGeneration::ClimateData &climateIn,
     const Fwg::Civilization::CivilizationLayer &civLayer,
     const std::string &path, const std::string &colourMapKey,
@@ -343,7 +343,7 @@ void FormatConverter::dump8BitTerrain(
 
     for (auto i = 0; i < conf.bitmapSize; i++) {
       int elevationMod = 0;
-      const auto& elevationType = terrainData.landForms.at(i).landForm;
+      const auto &elevationType = terrainData.landForms.at(i).landForm;
       if (elevationType == Terrain::ElevationTypeIndex::HILLS) {
         elevationMod = 100;
       } else if (elevationType == Terrain::ElevationTypeIndex::MOUNTAINS) {
@@ -635,12 +635,10 @@ void FormatConverter::dumpWorldNormal(const Bitmap &sobelMap,
   auto width = Cfg::Values().width;
 
   int factor = 2; // image width and height are halved
-  Bitmap normalMap(width / factor, height / factor, 24);
+  Bitmap normalMap = sobelMap;
   if (!cut) {
-    for (auto i = 0; i < normalMap.height(); i++)
-      for (auto w = 0; w < normalMap.width(); w++)
-        normalMap.setColourAtIndex(i * normalMap.width() + w,
-                                   sobelMap[factor * i * width + factor * w]);
+    Fwg::Gfx::Bmp::scaleInterpolation(normalMap, factor);
+
   } else {
     normalMap = cutBaseMap("//world_normal.bmp", (1.0 / (double)factor), 24);
     for (auto i = 0; i < 5; i++)

@@ -23,9 +23,8 @@ public:
                                        const std::string &colourMapKey) const;
 
   void Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
-                      const Fwg::Gfx::Bitmap &treesIn,
                       const Fwg::Gfx::Bitmap &heightMap,
-                      const Fwg::Gfx::Bitmap &humidityMap,
+                      Fwg::ClimateGeneration::ClimateData &climateData,
                       const Fwg::Civilization::CivilizationLayer &civLayer,
                       const std::string &path);
 

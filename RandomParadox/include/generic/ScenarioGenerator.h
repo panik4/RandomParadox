@@ -213,8 +213,8 @@ public:
   // see which country neighbours which
   void evaluateCountryNeighbours();
   virtual void generateCountrySpecifics();
-  void totalResourceVal(const std::vector<double> &resPrev,
-                        double resourceModifier,
+  void totalResourceVal(const std::vector<float> &resPrev,
+                        float resourceModifier,
                         const Scenario::Utils::ResConfig &resourceConfig);
   // calculate how strong each country is
   virtual void evaluateCountries();

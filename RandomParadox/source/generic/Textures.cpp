@@ -58,6 +58,7 @@ std::vector<uint8_t> readTGA(const std::string &path) {
        i++) {
     pixelData.push_back(image.GetImages()->pixels[i]);
   }
+  image.~ScratchImage();
   for (int i = 0; i < pixelData.size(); i += 4)
     std::swap(pixelData[i], pixelData[i + 2]);
   return pixelData;

@@ -163,7 +163,6 @@ void Generator::initializeStates() {}
 void Generator::mapCountries() {}
 
 Fwg::Gfx::Bitmap Generator::mapTerrain() {
-  const auto &climateMap = this->climateMap;
   Bitmap typeMap(climateMap.width(), climateMap.height(), 24);
   auto &colours = Fwg::Cfg::Values().colours;
   typeMap.fill(colours.at("sea"));
@@ -522,7 +521,7 @@ void Generator::evaluateCountryNeighbours() {
   }
 }
 void Generator::totalResourceVal(
-    const std::vector<double> &resPrev, double resourceModifier,
+    const std::vector<float> &resPrev, float resourceModifier,
     const Scenario::Utils::ResConfig &resourceConfig) {
   const auto baseResourceAmount = resourceModifier;
   auto totalRes = 0.0;

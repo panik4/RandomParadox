@@ -3,6 +3,7 @@ namespace Scenario {
 bool GenericModule::createPaths() { // mod directory
   return false;
 }
+bool GenericModule::validatePaths() { return false; }
 // a method to search for the original game files on the hard drive(s)
 bool GenericModule::findGame(std::string &path, const std::string &game) {
   using namespace std::filesystem;

@@ -99,8 +99,6 @@ void Module::readEu4Config(const std::string &configSubFolder,
   config.seaProvFactor *= 0.7;
   config.landProvFactor *= 0.7;
   config.loadMapsPath = eu4Conf.get<std::string>("fastworldgen.loadMapsPath");
-  config.heightmapIn = config.loadMapsPath +
-                       eu4Conf.get<std::string>("fastworldgen.heightMapName");
   cut = config.cut;
   // check if config settings are fine
   config.sanityCheck();
@@ -131,9 +129,9 @@ void Module::generate() {
     // generate map files. Format must be converted and colours mapped to eu4
     // compatible colours
     Gfx::FormatConverter formatConverter(pathcfg.gamePath, "Eu4");
-    formatConverter.dump8BitTerrain(eu4Gen->terrainData, eu4Gen->climateData, eu4Gen->civLayer,
-                                    pathcfg.gameModPath + "//map//terrain.bmp",
-                                    "terrain", cut);
+    formatConverter.dump8BitTerrain(
+        eu4Gen->terrainData, eu4Gen->climateData, eu4Gen->civLayer,
+        pathcfg.gameModPath + "//map//terrain.bmp", "terrain", cut);
     formatConverter.dump8BitRivers(eu4Gen->terrainData, eu4Gen->climateData,
                                    pathcfg.gameModPath + "//map//rivers.bmp",
                                    "rivers", cut);
@@ -165,7 +163,9 @@ void Module::generate() {
         eu4Gen->heightMap,
         pathcfg.gameModPath + "//map//terrain//colormap_water", cut, 2);
     formatConverter.dumpWorldNormal(
-        eu4Gen->sobelMap, pathcfg.gameModPath + "//map//world_normal.bmp", cut);
+        Fwg::Gfx::Bitmap(Cfg::Values().width, Cfg::Values().height, 24,
+                         eu4Gen->terrainData.sobelData),
+        pathcfg.gameModPath + "//map//world_normal.bmp", cut);
 
     using namespace Fwg::Gfx;
     // just copy over provinces.bmp, already in a compatible format

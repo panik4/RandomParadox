@@ -20,6 +20,7 @@ protected:
 
 public:
   virtual bool createPaths() = 0;
+  virtual bool validatePaths();
   std::shared_ptr<Scenario::Generator> generator;
   // try to locate hoi4 at configured path, if not found, try other
   // standard locations
