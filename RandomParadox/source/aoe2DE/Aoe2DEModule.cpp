@@ -35,7 +35,8 @@ void Module::genAoe2() {
     std::string land_generation{""};
     std::string terrain_generation{""};
     std::string elevation{""};
-    auto hMap = f.heightMap;
+    auto hMap = Fwg::Gfx::Bitmap(conf.width, conf.height, 24,
+                                 f.terrainData.detailedHeightMap);
     auto tMap = f.landMap;
     auto cMap = f.climateMap;
     int lowEle = 0, midEle = 0, highEle = 0;
@@ -86,46 +87,45 @@ void Module::genAoe2() {
       if (hMap[i].getBlue() < conf.seaLevel) {
         terrain_generation.append("\ncreate_land {\n");
         terrain_generation.append("terrain_type WATER\n");
-        //terrain_generation.append("land_percent 0\n");
+        // terrain_generation.append("land_percent 0\n");
         terrain_generation.append("number_of_tiles 1\n");
-        //terrain_generation.append("set_avoid_player_start_areas\n");
+        // terrain_generation.append("set_avoid_player_start_areas\n");
         terrain_generation.append(Fwg::Utils::varsToString(
-            "land_position ", aoe2PercentH, " ",
-                                          aoe2PercentW, "\n"));
+            "land_position ", aoe2PercentH, " ", aoe2PercentW, "\n"));
         terrain_generation.append("}\n");
       } else {
         terrain_generation.append("\ncreate_land {\n");
         terrain_generation.append("terrain_type " + terrainType + "\n");
-        //terrain_generation.append("land_percent 0\n");
+        // terrain_generation.append("land_percent 0\n");
         terrain_generation.append("number_of_tiles 1\n");
-        //terrain_generation.append("set_avoid_player_start_areas\n");
+        // terrain_generation.append("set_avoid_player_start_areas\n");
         terrain_generation.append(Fwg::Utils::varsToString(
-            "land_position ", aoe2PercentH, " ",
-                                          aoe2PercentW, "\n"));
+            "land_position ", aoe2PercentH, " ", aoe2PercentW, "\n"));
         if (zone) {
           terrain_generation.append("zone " + std::to_string(zone) + "\n");
         }
         terrain_generation.append("}\n");
       }
     }
-     elevation.append("\ncreate_elevation 3\n{\n");
-     elevation.append("base_terrain PINE_FOREST\n");
-     elevation.append("number_of_tiles " + std::to_string(lowEle) + "\n");
-     elevation.append("number_of_clumps " + std::to_string(lowEle) + "\n");
-     elevation.append("}\n");
-     elevation.append("\ncreate_elevation 5\n{\n");
-     elevation.append("base_terrain SNOW_FOREST\n");
-     elevation.append("number_of_tiles " + std::to_string(midEle) + "\n");
-     elevation.append("number_of_clumps " + std::to_string(midEle) + "\n");
-     elevation.append("}\n");
+    elevation.append("\ncreate_elevation 3\n{\n");
+    elevation.append("base_terrain PINE_FOREST\n");
+    elevation.append("number_of_tiles " + std::to_string(lowEle) + "\n");
+    elevation.append("number_of_clumps " + std::to_string(lowEle) + "\n");
+    elevation.append("}\n");
+    elevation.append("\ncreate_elevation 5\n{\n");
+    elevation.append("base_terrain SNOW_FOREST\n");
+    elevation.append("number_of_tiles " + std::to_string(midEle) + "\n");
+    elevation.append("number_of_clumps " + std::to_string(midEle) + "\n");
+    elevation.append("}\n");
 
-     elevation.append("\ncreate_elevation 7\n{\n");
-     elevation.append("base_terrain DIRT_SNOW\n");
-     elevation.append("number_of_tiles " + std::to_string(highEle) + "\n");
-     elevation.append("number_of_clumps " + std::to_string(highEle) + "\n");
-     elevation.append("}\n");
+    elevation.append("\ncreate_elevation 7\n{\n");
+    elevation.append("base_terrain DIRT_SNOW\n");
+    elevation.append("number_of_tiles " + std::to_string(highEle) + "\n");
+    elevation.append("number_of_clumps " + std::to_string(highEle) + "\n");
+    elevation.append("}\n");
 
-    Parsing::Scenario::replaceOccurence(file, "TOKEN_TERRAIN", terrain_generation);
+    Parsing::Scenario::replaceOccurence(file, "TOKEN_TERRAIN",
+                                        terrain_generation);
     Parsing::Scenario::replaceOccurence(file, "TOKEN_ELEVATION", elevation);
     Parsing::writeFile("mapContent", file);
 

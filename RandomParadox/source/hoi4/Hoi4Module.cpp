@@ -184,11 +184,10 @@ void Hoi4Module::writeTextFiles() {
       Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
   Map::adj(pathcfg.gameModPath + "//map//adjacencies.csv");
   Map::adjacencyRules(pathcfg.gameModPath + "//map//adjacency_rules.txt");
-  Map::ambientObjects(pathcfg.gameModPath + "//map//ambient_object.txt",
-                      hoi4Gen->heightMap);
+  Map::ambientObjects(pathcfg.gameModPath + "//map//ambient_object.txt");
   Map::supply(pathcfg.gameModPath + "//map//", hoi4Gen->supplyNodeConnections);
   Map::buildings(pathcfg.gameModPath + "//map//buildings.txt",
-                 hoi4Gen->hoi4States, hoi4Gen->heightMap);
+                 hoi4Gen->hoi4States);
   Map::continents(pathcfg.gameModPath + "//map//continent.txt",
                   hoi4Gen->scenContinents, pathcfg.gamePath,
                   pathcfg.gameModPath +
@@ -199,7 +198,7 @@ void Hoi4Module::writeTextFiles() {
                         hoi4Gen->areaData.regions, hoi4Gen->strategicRegions);
   Map::unitStacks(pathcfg.gameModPath + "//map//unitstacks.txt",
                   hoi4Gen->areaData.provinces, hoi4Gen->hoi4States,
-                  hoi4Gen->heightMap);
+                  hoi4Gen->terrainData.detailedHeightMap);
   Map::weatherPositions(pathcfg.gameModPath + "//map//weatherpositions.txt",
                         hoi4Gen->areaData.regions, hoi4Gen->strategicRegions);
 
@@ -262,8 +261,7 @@ void Hoi4Module::writeImages() {
 
   formatConverter.dump8BitTerrain(
       hoi4Gen->terrainData, hoi4Gen->climateData, hoi4Gen->civLayer,
-                                  pathcfg.gameModPath + "//map//terrain.bmp",
-                                  "terrain", cut);
+      pathcfg.gameModPath + "//map//terrain.bmp", "terrain", cut);
   formatConverter.dump8BitCities(hoi4Gen->climateMap,
                                  pathcfg.gameModPath + "//map//cities.bmp",
                                  "cities", cut);
@@ -273,7 +271,7 @@ void Hoi4Module::writeImages() {
   formatConverter.dump8BitTrees(hoi4Gen->terrainData, hoi4Gen->climateData,
                                 pathcfg.gameModPath + "//map//trees.bmp",
                                 "trees", false);
-  formatConverter.dump8BitHeightmap(hoi4Gen->heightMap,
+  formatConverter.dump8BitHeightmap(hoi4Gen->terrainData.detailedHeightMap,
                                     pathcfg.gameModPath + "//map//heightmap",
                                     "heightmap");
   formatConverter.dumpTerrainColourmap(
@@ -281,7 +279,7 @@ void Hoi4Module::writeImages() {
       "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
       DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
   formatConverter.dumpDDSFiles(
-      hoi4Gen->heightMap,
+      hoi4Gen->terrainData.detailedHeightMap,
       pathcfg.gameModPath + "//map//terrain//colormap_water_", cut, 8);
   formatConverter.dumpWorldNormal(
       Fwg::Gfx::Bitmap(Cfg::Values().width, Cfg::Values().height, 24,
@@ -312,7 +310,8 @@ void Hoi4Module::readHoi(std::string &path) {
       Fwg::IO::Reader::readProvinceImage(path + "map//provinces.bmp", config);
   //// read in game or mod files
   hoi4Gen->climateData.habitabilities.resize(hoi4Gen->provinceMap.size());
-  Hoi4::Parsing::Reading::readProvinces(hoi4Gen->terrainData, hoi4Gen->climateData, path,
+  Hoi4::Parsing::Reading::readProvinces(hoi4Gen->terrainData,
+                                        hoi4Gen->climateData, path,
                                         "provinces.bmp", hoi4Gen->areaData);
   hoi4Gen->wrapupProvinces(config);
   // get the provinces into GameProvinces

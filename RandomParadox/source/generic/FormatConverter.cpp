@@ -267,12 +267,13 @@ Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
   return cutBase;
 }
 
-void FormatConverter::dump8BitHeightmap(Bitmap &heightMap,
+void FormatConverter::dump8BitHeightmap(const std::vector<float> &altitudeData,
                                         const std::string &path,
                                         const std::string &colourMapKey) const {
   Utils::Logging::logLine("FormatConverter::Copying heightmap to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
   auto &conf = Cfg::Values();
+  auto heightMap = Fwg::Gfx::Bitmap(conf.width, conf.height, 24, altitudeData);
   if (!heightMap.initialised()) {
     Utils::Logging::logLine("FormatConverter::Heightmap not yet initialised");
     return;
@@ -506,7 +507,7 @@ void FormatConverter::dump8BitTrees(
   Bmp::save8bit(trees, path);
 }
 
-void FormatConverter::dumpDDSFiles(const Bitmap &heightMap,
+void FormatConverter::dumpDDSFiles(const std::vector<float> &heightMap,
                                    const std::string &path, const bool cut,
                                    const int maxFactor) const {
   Utils::Logging::logLine("FormatConverter::Writing DDS files");
@@ -526,12 +527,12 @@ void FormatConverter::dumpDDSFiles(const Bitmap &heightMap,
     for (auto h = 0; h < imageHeight; h++) {
       for (auto w = 0; w < imageWidth; w++) {
         auto referenceIndex = factor * h * width + factor * w;
-        double depth = (double)heightMap[referenceIndex].getBlue() /
-                       (double)Cfg::Values().seaLevel;
+        auto depth = heightMap[referenceIndex] /
+                       (float)Cfg::Values().seaLevel;
         auto imageIndex =
             imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
         imageIndex *= 4;
-        if (heightMap[referenceIndex].getBlue() <= Cfg::Values().seaLevel) {
+        if (heightMap[referenceIndex] <= Cfg::Values().seaLevel) {
           pixels[imageIndex] = static_cast<unsigned char>(200.0 * depth);
           pixels[imageIndex + 1] = static_cast<unsigned char>(150.0 * depth);
           pixels[imageIndex + 2] = static_cast<unsigned char>(100.0 * depth);

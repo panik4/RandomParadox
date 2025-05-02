@@ -139,7 +139,7 @@ void Module::generate() {
                                   pathcfg.gameModPath + "//map//trees.bmp",
                                   "trees", false);
     formatConverter.dump8BitHeightmap(
-        eu4Gen->heightMap, pathcfg.gameModPath + "//map//heightmap.bmp",
+        eu4Gen->terrainData.detailedHeightMap, pathcfg.gameModPath + "//map//heightmap.bmp",
         "heightmap");
     std::vector<Fwg::Gfx::Bitmap> seasonalColourmaps;
     eu4Gen->genSeasons(Cfg::Values(), seasonalColourmaps);
@@ -160,7 +160,7 @@ void Module::generate() {
                                          "//map//terrain//colormap_winter.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, cut);
     formatConverter.dumpDDSFiles(
-        eu4Gen->heightMap,
+        eu4Gen->terrainData.detailedHeightMap,
         pathcfg.gameModPath + "//map//terrain//colormap_water", cut, 2);
     formatConverter.dumpWorldNormal(
         Fwg::Gfx::Bitmap(Cfg::Values().width, Cfg::Values().height, 24,

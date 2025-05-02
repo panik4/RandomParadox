@@ -359,7 +359,7 @@ void Generator::generateStateSpecifics() {
     civilianIndustry += (int)hoi4State->civilianFactories;
     navalIndustry += (int)hoi4State->dockyards;
     // get potential building positions
-    hoi4State->calculateBuildingPositions(this->heightMap, typeMap);
+    hoi4State->calculateBuildingPositions(this->terrainData.detailedHeightMap, typeMap);
   }
   totalWorldIndustry = militaryIndustry + civilianIndustry + navalIndustry;
   statesInitialised = true;
