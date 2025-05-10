@@ -50,9 +50,11 @@ void Country::removeRegion(std::shared_ptr<Region> region) {
   // region->owner = "";
   for (auto &gameProvince : region->gameProvinces)
     gameProvince->owner = "";
-  ownedRegions.erase(
-      std::remove(ownedRegions.begin(), ownedRegions.end(), region),
-      ownedRegions.end());
+  if (this != nullptr && ownedRegions.size()) {
+    ownedRegions.erase(
+        std::remove(ownedRegions.begin(), ownedRegions.end(), region),
+        ownedRegions.end());
+  }
 }
 void Country::selectCapital() {
   // select the region with the highest population

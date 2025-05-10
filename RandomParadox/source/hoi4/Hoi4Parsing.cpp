@@ -512,20 +512,22 @@ void commonNames(const std::string &path, const CountryMap &countries) {
     auto nameTemplate = countryNamesTemplate;
     for (auto &culture : country->cultures) {
       // get the share of the culture in the country
-      auto share = culture.second / country->populationFactor;
+      auto share = std::min<double>(culture.second / country->populationFactor, 1.0);
       auto language = culture.first->language;
       // get the names for the culture
-      for (int i = 1; i < share * (double)language->maleNames.size(); i++) {
+      for (int i = 1; i < (int)(share * (double)language->maleNames.size()); i++) {
         maleNames.append("\"" + language->maleNames[i] + "\"" + " ");
         if (i % 10 == 0)
           maleNames.append("\n\t\t\t");
       }
-      for (int i = 0; i < share * (double)language->femaleNames.size(); i++) {
+      for (int i = 0; i < (int)(share * (double)language->femaleNames.size());
+           i++) {
         femaleNames.append("\"" + language->femaleNames[i] + "\"" + " ");
         if (i % 10 == 0)
           femaleNames.append("\n\t\t\t");
       }
-      for (int i = 0; i < share * (double)language->surnames.size(); i++) {
+      for (int i = 0; i < (int)(share * (double)language->surnames.size());
+           i++) {
         surnames.append("\"" + language->surnames[i] + "\"" + " ");
         if (i % 10 == 0)
           surnames.append("\n\t\t\t");

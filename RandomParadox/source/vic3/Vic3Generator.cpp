@@ -515,10 +515,8 @@ void Generator::distributeBuildings() {
 void Generator::createLocators() {
   auto &config = Fwg::Cfg::Values();
   std::vector<bool> binaryLandMap(config.width * config.height);
-  auto heightMap = Fwg::Gfx::displayHeightMap(terrainData.detailedHeightMap);
-  Fwg::Gfx::Bitmap debugImage = heightMap;
 
-  for (auto i = 0; i < heightMap.size(); i++) {
+  for (auto i = 0; i < terrainData.detailedHeightMap.size(); i++) {
     binaryLandMap[i] =
         terrainData.detailedHeightMap[i] <= config.seaLevel ? false : true;
   }
