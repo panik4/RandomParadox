@@ -302,10 +302,7 @@ void Hoi4Module::readHoi(std::string &path) {
   hoi4Gen->loadHeight(config, heightmap);
   hoi4Gen->genSobelMap(config);
   hoi4Gen->genLand();
-
-  config.loadClimate = true;
   hoi4Gen->loadClimate(config, path + "map//terrain.bmp");
-  config.loadClimate = false;
   hoi4Gen->provinceMap =
       Fwg::IO::Reader::readProvinceImage(path + "map//provinces.bmp", config);
   //// read in game or mod files

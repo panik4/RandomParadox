@@ -116,7 +116,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
     bool done = false;
     //--- prior to main loop:
     DragAcceptFiles(hwnd, TRUE);
-    primaryTexture = nullptr;
+    uiUtils->primaryTexture = nullptr;
+    uiUtils->device = g_pd3dDevice;
     this->rpdConf = rpdConf;
     this->configSubFolder = configSubFolder;
     this->username = username;
@@ -214,9 +215,6 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                   "Different Steps of the generation, usually go "
                   "from left to right");
 
-              if (uiUtils->actTxs[1] == UIUtils::ActiveTexture::NONE &&
-                  secondaryTexture != nullptr) {
-              }
               if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
                 // Disable all inputs if computation is running
                 if (computationRunning) {
@@ -228,19 +226,16 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                 if (cfg.debugLevel == 9) {
                   showModLoader(cfg, activeModule);
                 }
-                showElevationTabs(cfg, *activeModule->generator,
-                                  &primaryTexture);
-                showClimateInputTab(cfg, *activeModule->generator,
-                                    &primaryTexture);
-                showClimateOverview(cfg, *activeModule->generator,
-                                    &primaryTexture);
+                showElevationTabs(cfg, *activeModule->generator);
+                showClimateInputTab(cfg, *activeModule->generator);
+                showClimateOverview(cfg, *activeModule->generator);
                 showAreasTab(cfg, *activeModule->generator);
                 showCivilizationTab(cfg, *activeModule->generator);
                 showScenarioTab(cfg, activeModule);
                 if (!scenarioGenReady(false)) {
                   ImGui::BeginDisabled();
                 }
-                showCountryTab(cfg, &primaryTexture);
+                showCountryTab(cfg);
                 if (activeGameConfig.gameName == "Hearts of Iron IV") {
                   auto hoi4Gen = std::reinterpret_pointer_cast<
                       Hoi4Gen, Scenario::Generator>(activeModule->generator);
@@ -289,15 +284,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                           currentTime - lastTime)
                           .count();
 
-                  if (elapsedTime >= 1) {
-                    auto desiredState = uiUtils->actTxs[0];
-                    uiUtils->resetTexture();
-                    // Reset texture every second during computation
-                    uiUtils->switchTexture(*uiUtils->activeImages[0],
-                                           &primaryTexture, 0, desiredState,
-                                           g_pd3dDevice, w, h);
-                    lastTime = currentTime;
-                  }
+                  // TODO: Image updates?
                 } else {
                   ImGui::Text("Ready!");
                 }
@@ -327,7 +314,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                   false, window_flags);
               if (!validatedPaths)
                 ImGui::BeginDisabled();
-              showGeneric(cfg, *activeModule->generator, &primaryTexture);
+              showGeneric(cfg, *activeModule->generator,
+                          &uiUtils->primaryTexture);
               if (!validatedPaths)
                 ImGui::EndDisabled();
               ImGui::SameLine();
@@ -371,8 +359,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
           }
           ImGui::SameLine();
 
-          if (uiUtils->desiredState[0] ==
-              UIUtils::ActiveTexture::EXTENDEABLE6) {
+          if (worldGenerationView) {
             // only do this every 50 milliseconds
             static auto lastExecutionTime = std::chrono::steady_clock::now();
             static auto lastState = activeModule->generator->getWorldGenState();
@@ -392,121 +379,124 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               lastState = currentState;
               uiUtils->resetTexture();
               switch (currentState) {
-              case Fwg::WorldGenerationState::None:
-                break;
+                // case Fwg::WorldGenerationState::None:
+                //   break;
 
-              case Fwg::WorldGenerationState::GenHeight: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                std::cout << "Switching active image to heightmap";
-                displayImage = Fwg::Gfx::displayHeightMap(
-                    activeModule->generator->terrainData.detailedHeightMap);
-                uiUtils->activeImages[0] = &displayImage;
-                break;
-              }
+                // case Fwg::WorldGenerationState::GenHeight: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   displayImage = Fwg::Gfx::displayHeightMap(
+                //       activeModule->generator->terrainData.detailedHeightMap);
+                //   uiUtils->activeImages[0] = &displayImage;
+                //   break;
+                // }
 
-              case Fwg::WorldGenerationState::GenSobelMap: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                displayImage = Fwg::Gfx::displayHeightMap(
-                    activeModule->generator->terrainData.detailedHeightMap);
-                uiUtils->activeImages[1] = &displayImage;
-                break;
-              }
+                // case Fwg::WorldGenerationState::GenSobelMap: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   displayImage = Fwg::Gfx::displayHeightMap(
+                //       activeModule->generator->terrainData.detailedHeightMap);
+                //   uiUtils->activeImages[1] = &displayImage;
+                //   break;
+                // }
 
-              case Fwg::WorldGenerationState::GenLand: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                displayImage = Fwg::Gfx::displayHeightMap(
-                    activeModule->generator->terrainData.detailedHeightMap);
-                uiUtils->activeImages[0] = &displayImage;
+                // case Fwg::WorldGenerationState::GenLand: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   displayImage = Fwg::Gfx::displayHeightMap(
+                //       activeModule->generator->terrainData.detailedHeightMap);
+                //   uiUtils->activeImages[0] = &displayImage;
 
-                displayImage = Fwg::Gfx::displaySobelMap(
-                    activeModule->generator->terrainData.sobelData);
-                uiUtils->activeImages[1] = &displayImage;
-                break;
-              }
+                //  displayImage = Fwg::Gfx::displaySobelMap(
+                //      activeModule->generator->terrainData.sobelData);
+                //  uiUtils->activeImages[1] = &displayImage;
+                //  break;
+                //}
 
-              case Fwg::WorldGenerationState::GenTemperatures: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                displayImage = Fwg::Gfx::displaySobelMap(
-                    activeModule->generator->terrainData.sobelData);
-                uiUtils->activeImages[0] = &displayImage;
-                uiUtils->activeImages[1] = &activeModule->generator->landMap;
-                break;
-              }
+                // case Fwg::WorldGenerationState::GenTemperatures: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   displayImage = Fwg::Gfx::displaySobelMap(
+                //       activeModule->generator->terrainData.sobelData);
+                //   uiUtils->activeImages[0] = &displayImage;
+                //   displayImage =
+                //       Fwg::Gfx::landMap(activeModule->generator->terrainData);
+                //   uiUtils->activeImages[1] = &displayImage;
+                //   break;
+                // }
 
-              case Fwg::WorldGenerationState::GenHumidity: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                uiUtils->activeImages[0] = &activeModule->generator->landMap;
-                displayImage = Fwg::Gfx::Climate::displayTemperature(
-                    activeModule->generator->climateData);
-                uiUtils->activeImages[1] = &displayImage;
-                break;
-              }
+                // case Fwg::WorldGenerationState::GenHumidity: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   displayImage =
+                //       Fwg::Gfx::landMap(activeModule->generator->terrainData);
+                //   uiUtils->activeImages[0] = &displayImage;
+                //   displayImage = Fwg::Gfx::Climate::displayTemperature(
+                //       activeModule->generator->climateData);
+                //   uiUtils->activeImages[1] = &displayImage;
+                //   break;
+                // }
 
-              case Fwg::WorldGenerationState::GenRivers: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                auto tempImage = *uiUtils->activeImages[1];
-                uiUtils->activeImages[0] = &tempImage;
-                displayImage = Fwg::Gfx::Climate::displayHumidity(
-                    activeModule->generator->climateData);
-                uiUtils->activeImages[1] = &displayImage;
-                break;
-              }
+                // case Fwg::WorldGenerationState::GenRivers: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   auto tempImage = *uiUtils->activeImages[1];
+                //   uiUtils->activeImages[0] = &tempImage;
+                //   displayImage = Fwg::Gfx::Climate::displayHumidity(
+                //       activeModule->generator->climateData);
+                //   uiUtils->activeImages[1] = &displayImage;
+                //   break;
+                // }
 
-              case Fwg::WorldGenerationState::GenClimate: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                uiUtils->activeImages[0] = &activeModule->generator->climateMap;
-                break;
-              }
+                // case Fwg::WorldGenerationState::GenClimate: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   uiUtils->activeImages[0] =
+                //   &activeModule->generator->climateMap; break;
+                // }
 
-              case Fwg::WorldGenerationState::GenHabitability: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                uiUtils->activeImages[0] = &activeModule->generator->climateMap;
-                break;
-              }
+                // case Fwg::WorldGenerationState::GenHabitability: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   uiUtils->activeImages[0] =
+                //   &activeModule->generator->climateMap; break;
+                // }
 
-              case Fwg::WorldGenerationState::GenSegments: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                uiUtils->activeImages[0] = &activeModule->generator->segmentMap;
-                break;
-              }
+                // case Fwg::WorldGenerationState::GenSegments: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   uiUtils->activeImages[0] =
+                //   &activeModule->generator->segmentMap; break;
+                // }
 
-              case Fwg::WorldGenerationState::GenProvinces: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                uiUtils->activeImages[0] =
-                    &activeModule->generator->provinceMap;
-                break;
-              }
+                // case Fwg::WorldGenerationState::GenProvinces: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   uiUtils->activeImages[0] =
+                //       &activeModule->generator->provinceMap;
+                //   break;
+                // }
 
-              case Fwg::WorldGenerationState::WrapupProvinces: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                uiUtils->activeImages[0] =
-                    &activeModule->generator->provinceMap;
-                break;
-              }
+                // case Fwg::WorldGenerationState::WrapupProvinces: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   uiUtils->activeImages[0] =
+                //       &activeModule->generator->provinceMap;
+                //   break;
+                // }
 
-              case Fwg::WorldGenerationState::GenRegions: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                uiUtils->activeImages[0] = &activeModule->generator->regionMap;
-                break;
-              }
+                // case Fwg::WorldGenerationState::GenRegions: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   uiUtils->activeImages[0] =
+                //   &activeModule->generator->regionMap; break;
+                // }
 
-              case Fwg::WorldGenerationState::GenContinents: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                uiUtils->activeImages[0] = &activeModule->generator->regionMap;
-                break;
-              }
+                // case Fwg::WorldGenerationState::GenContinents: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   uiUtils->activeImages[0] =
+                //   &activeModule->generator->regionMap; break;
+                // }
 
-              case Fwg::WorldGenerationState::GenCivData: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                uiUtils->activeImages[0] = &activeModule->generator->worldMap;
-                break;
-              }
+                // case Fwg::WorldGenerationState::GenCivData: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   uiUtils->activeImages[0] =
+                //   &activeModule->generator->worldMap; break;
+                // }
 
-              case Fwg::WorldGenerationState::Wrapup: {
-                std::lock_guard<std::mutex> lock(activeImagesMutex);
-                uiUtils->activeImages[0] = &activeModule->generator->worldMap;
-                break;
-              }
+                // case Fwg::WorldGenerationState::Wrapup: {
+                //   std::lock_guard<std::mutex> lock(activeImagesMutex);
+                //   uiUtils->activeImages[0] =
+                //   &activeModule->generator->worldMap; break;
+                // }
 
               default:
                 std::cerr << "Unknown world generation state!" << std::endl;
@@ -517,111 +507,23 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
           //}
 
           static ImVec2 cursorPos;
-          for (auto i = 0; i < uiUtils->activeImages.size(); i++) {
-            // switch to the correct texture, by setting activeImage
-            switch (uiUtils->desiredState[i]) {
-            case UIUtils::ActiveTexture::HEIGHTMAP:
-              uiUtils->activeImages[i] = &displayImage;
-              break;
-            case UIUtils::ActiveTexture::LAYER:
-              uiUtils->activeImages[i] = &displayImage;
-              break;
-            case UIUtils::ActiveTexture::TERRAIN:
-              uiUtils->activeImages[i] = &activeModule->generator->landMap;
-              break;
-            case UIUtils::ActiveTexture::NORMALMAP:
-              uiUtils->activeImages[i] = &displayImage;
-              break;
-            case UIUtils::ActiveTexture::CLIMATEINPUT:
-              uiUtils->activeImages[i] =
-                  &activeModule->generator->climateInputMap;
-              break;
-            case UIUtils::ActiveTexture::CLIMATE:
-              uiUtils->activeImages[i] = &activeModule->generator->climateMap;
-              break;
-            case UIUtils::ActiveTexture::HABITABILITY:
-              uiUtils->activeImages[i] = &displayImage;
-              break;
-            case UIUtils::ActiveTexture::CONTINENT:
-              uiUtils->activeImages[i] = &displayImage;
-              break;
-            case UIUtils::ActiveTexture::TEMPERATURE:
-              uiUtils->activeImages[i] = &displayImage;
-              break;
-            case UIUtils::ActiveTexture::HUMIDITY:
-              uiUtils->activeImages[i] = &displayImage;
-              break;
-            case UIUtils::ActiveTexture::RIVER:
-              uiUtils->activeImages[i] = &displayImage;
-              break;
-            case UIUtils::ActiveTexture::WORLD:
-              uiUtils->activeImages[i] = &activeModule->generator->worldMap;
-              break;
-            case UIUtils::ActiveTexture::TREES:
-              uiUtils->activeImages[i] = &activeModule->generator->climateMap;
-              break;
-            case UIUtils::ActiveTexture::SEGMENTS:
-              uiUtils->activeImages[i] = &activeModule->generator->segmentMap;
-              break;
-            case UIUtils::ActiveTexture::PROVINCES:
-              uiUtils->activeImages[i] = &activeModule->generator->provinceMap;
-              break;
-            case UIUtils::ActiveTexture::REGIONS:
-              uiUtils->activeImages[i] = &activeModule->generator->regionMap;
-              break;
-            case UIUtils::ActiveTexture::DEVELOPMENT:
-              uiUtils->activeImages[i] = &displayImage;
-              break;
-            case UIUtils::ActiveTexture::POPULATION:
-              uiUtils->activeImages[i] = &displayImage;
-              break;
-            case UIUtils::ActiveTexture::LOCATIONS:
-              uiUtils->activeImages[i] = &activeModule->generator->locationMap;
-              break;
-            case UIUtils::ActiveTexture::NAVMESH:
-              uiUtils->activeImages[i] = &activeModule->generator->navmeshMap;
-              break;
-            case UIUtils::ActiveTexture::AGRICULTURE:
-              uiUtils->activeImages[i] = &displayImage;
-              break;
-            case UIUtils::ActiveTexture::URBANISATION:
-              uiUtils->activeImages[i] = &displayImage;
-              break;
-            case UIUtils::ActiveTexture::EXTENDEABLE1:
-              uiUtils->activeImages[i] = &activeModule->generator->countryMap;
-              break;
-            case UIUtils::ActiveTexture::EXTENDEABLE2:
-              uiUtils->activeImages[i] =
-                  &activeModule->generator->stratRegionMap;
-              break;
-            default:
-              break;
-            }
-          }
-          if (uiUtils->activeImages[0] != nullptr) {
-            uiUtils->switchTexture(*uiUtils->activeImages[0], &primaryTexture,
-                                   0, uiUtils->desiredState[0], g_pd3dDevice, w,
-                                   h);
-          }
-          if (uiUtils->activeImages[1] != nullptr) {
-            uiUtils->switchTexture(*uiUtils->activeImages[1], &secondaryTexture,
-                                   1, uiUtils->desiredState[1], g_pd3dDevice, w,
-                                   h);
-          }
 
-          float modif = 1.0 - (secondaryTexture != nullptr) * 0.5;
-          if (w > 0 && h > 0) {
-            float aspectRatio = (float)w / (float)h;
-            auto scale =
-                std::min<float>((ImGui::GetContentRegionAvail().y) * modif / h,
-                                (ImGui::GetContentRegionAvail().x) / w);
-            auto texWidth = w * scale;
-            auto texHeight = h * scale;
+          float modif = 1.0 - (uiUtils->secondaryTexture != nullptr) * 0.5;
+          if (uiUtils->textureWidth > 0 && uiUtils->textureHeight > 0) {
+            float aspectRatio =
+                (float)uiUtils->textureWidth / (float)uiUtils->textureHeight;
+            auto scale = std::min<float>((ImGui::GetContentRegionAvail().y) *
+                                             modif / uiUtils->textureHeight,
+                                         (ImGui::GetContentRegionAvail().x) /
+                                             uiUtils->textureWidth);
+            auto texWidth = uiUtils->textureWidth * scale;
+            auto texHeight = uiUtils->textureHeight * scale;
 
             // Handle zooming
             if (io.KeyCtrl) {
               zoom += io.MouseWheel * 0.1f;
             }
+
             // Create a child window for the image
             ImGui::BeginChild("ImageContainer", ImVec2(0, 0), false,
                               ImGuiWindowFlags_HorizontalScrollbar |
@@ -630,10 +532,9 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               ImGui::BeginChild("Image", ImVec2(texWidth, texHeight), false,
                                 ImGuiWindowFlags_HorizontalScrollbar |
                                     ImGuiWindowFlags_AlwaysVerticalScrollbar);
-              if (primaryTexture != nullptr &&
-                  uiUtils->actTxs[0] != UIUtils::ActiveTexture::NONE) {
+              if (uiUtils->primaryTexture != nullptr) {
                 ImGui::Image(
-                    (void *)primaryTexture,
+                    (void *)uiUtils->primaryTexture,
                     ImVec2(texWidth * zoom * 0.98, texHeight * zoom * 0.98));
                 if (io.KeyCtrl && io.MouseWheel) {
                   // Get the mouse position relative to the image
@@ -670,10 +571,10 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
               // images are less wide, on a usual 16x9 monitor, it is better
               // to place them besides each other if (aspectRatio <= 2.0)
               //  ImGui::SameLine();
-              if (secondaryTexture != nullptr &&
-                  uiUtils->actTxs[1] != UIUtils::ActiveTexture::NONE) {
-                ImGui::Image((void *)secondaryTexture,
-                             ImVec2(w * scale * 0.98, h * scale * 0.98));
+              if (uiUtils->secondaryTexture != nullptr) {
+                ImGui::Image((void *)uiUtils->secondaryTexture,
+                             ImVec2(uiUtils->textureWidth * scale * 0.98,
+                                    uiUtils->textureHeight * scale * 0.98));
               }
               ImGui::EndChild();
             }
@@ -802,16 +703,7 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
     generator.resetData();
     if (cfg.cut) {
       if (gameConfigs[selectedGame].gameName == "Hearts of Iron IV") {
-        // auto hoi4Module = std::reinterpret_pointer_cast<
-        //     Scenario::Hoi4::Hoi4Module,
-        //     Scenario::GenericModule>(activeModule);
-        // hoi4Module->readHoi(hoi4Module->pathcfg.gamePath);
-        if (cfg.loadRegions) {
-          Fwg::Utils::Logging::logLine(
-              "Loading of regions from base game is currently not supported");
 
-          cfg.loadRegions = false;
-        }
       } else if (gameConfigs[selectedGame].gameName ==
                  "Europa Universalis IV") {
         Fwg::Utils::Logging::logLine(
@@ -839,11 +731,9 @@ int GUI::showConfigure(Fwg::Cfg &cfg,
 
   if (ImGui::BeginTabItem("Configure")) {
     uiUtils->showHelpTextBox("Configure");
-    uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
-    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     if (ImGui::BeginTabBar("Config tabs", ImGuiTabBarFlags_None)) {
       showRpdxConfigure(cfg, activeModule);
-      showFwgConfigure(cfg, &primaryTexture);
+      showFwgConfigure(cfg);
       ImGui::EndTabBar();
     }
     ImGui::EndTabItem();
@@ -857,8 +747,6 @@ int GUI::showRpdxConfigure(
   // remove the images, and set pretext for them to be auto
   // loaded after switching tabs again
   if (ImGui::BeginTabItem("RandomParadox Configuration")) {
-    uiUtils->desiredState[0] = UIUtils::ActiveTexture::EXTENDEABLE6;
-    uiUtils->desiredState[1] = UIUtils::ActiveTexture::EXTENDEABLE6;
     ImGui::PushItemWidth(200.0f);
     uiUtils->tabSwitchEvent();
     // find every subfolder of config folder
@@ -945,11 +833,9 @@ int GUI::showRpdxConfigure(
   if (cfg.cut) {
     cfg.loadMapsPath = activeModule->pathcfg.gamePath + "map//";
   }
-  if (cfg.loadClimate) {
-    cfg.climateMappingPath = Fwg::Cfg::Values().resourcePath + "" +
-                             activeGameConfig.gameShortName +
-                             "//climateMapping.txt ";
-  }
+  cfg.climateMappingPath = Fwg::Cfg::Values().resourcePath + "" +
+                           activeGameConfig.gameShortName +
+                           "//climateMapping.txt ";
   return 0;
 }
 
@@ -1007,9 +893,9 @@ int GUI::showScenarioTab(
   if (ImGui::BeginTabItem("Scenario")) {
     // allow printing why the scenario generation is not ready
     scenarioGenReady(true);
-    uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
-    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
-    uiUtils->tabSwitchEvent();
+    if (uiUtils->tabSwitchEvent()) {
+      uiUtils->resetTexture();
+    }
     if (activeModule->generator->terrainData.detailedHeightMap.size() &&
         activeModule->generator->climateMap.initialised() &&
         activeModule->generator->provinceMap.initialised() &&
@@ -1145,14 +1031,14 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
             generator->countries.end()) {
           selectedCountry = generator->countries.at(drawCountryTag);
         }
-        if (!modifiableState->sea &&
+        if (selectedCountry != nullptr && !modifiableState->sea &&
             modifiableState->owner != selectedCountry) {
           modifiableState->owner->removeRegion(modifiableState);
           modifiableState->owner = selectedCountry;
           selectedCountry->addRegion(modifiableState);
           generator->visualiseCountries(generator->countryMap,
                                         modifiableState->ID);
-          uiUtils->resetTexture();
+          uiUtils->updateImage(0, generator->countryMap);
         }
       }
     }
@@ -1179,16 +1065,15 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
   }
 }
 
-int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
+int GUI::showCountryTab(Fwg::Cfg &cfg) {
   if (ImGui::BeginTabItem("Countries")) {
-    uiUtils->desiredState[0] = UIUtils::ActiveTexture::EXTENDEABLE1;
-    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     auto &generator = activeModule->generator;
-    uiUtils->tabSwitchEvent(true);
-    // pre-generate simply image even if no countries present
-    if (!generator->countryMap.size()) {
-      generator->visualiseCountries(generator->countryMap);
+    if (uiUtils->tabSwitchEvent(true)) {
+      uiUtils->updateImage(
+          0, generator->visualiseCountries(generator->countryMap));
+      uiUtils->updateImage(1, generator->worldMap);
     }
+
     ImGui::Text(
         "Use auto generated country map or drop it in. You may also first "
         "generate a country map, then edit it in the Maps folder, and then "
@@ -1227,7 +1112,6 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
           hoi4Gen->evaluateCountryNeighbours();
           // build hoi4 countries out of basic countries
           hoi4Gen->mapCountries();
-          generator->visualiseCountries(generator->countryMap);
           requireCountryDetails = true;
           uiUtils->resetTexture();
         }
@@ -1294,9 +1178,6 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
         generator->evaluateCountryNeighbours();
         // build module specific countries out of basic countries
         generator->mapCountries();
-        generator->visualiseCountries(generator->countryMap);
-        Fwg::Gfx::Png::save(generator->countryMap,
-                            cfg.mapsPath + "countryMap.png");
         uiUtils->resetTexture();
       }
       triggeredDrag = false;
@@ -1304,7 +1185,8 @@ int GUI::showCountryTab(Fwg::Cfg &cfg, ID3D11ShaderResourceView **texture) {
 
     ImGui::SameLine();
     if (ImGui::Button("Export current countries as image after editing")) {
-      generator->visualiseCountries(generator->countryMap);
+      Fwg::Gfx::Png::save(generator->visualiseCountries(generator->countryMap),
+                          cfg.mapsPath + "countries.png");
       uiUtils->resetTexture();
     }
 
@@ -1357,12 +1239,12 @@ int GUI::showModuleGeneric(
 int GUI::showStrategicRegionTab(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::Generator> generator) {
   if (ImGui::BeginTabItem("Strategic Regions")) {
-    uiUtils->desiredState[0] = UIUtils::ActiveTexture::EXTENDEABLE2;
-    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     static int selectedStratRegionIndex = 0;
     // tab switch setting draw events as accepted
-    uiUtils->tabSwitchEvent(true);
-
+    if (uiUtils->tabSwitchEvent(true)) {
+      uiUtils->updateImage(0, generator->stratRegionMap);
+      uiUtils->updateImage(1, Fwg::Gfx::Bitmap());
+    }
     ImGui::SeparatorText(
         "This generates strategic regions, they cannot be loaded");
     uiUtils->showHelpTextBox("Strategic Regions");
@@ -1390,14 +1272,14 @@ int GUI::showStrategicRegionTab(
       }
       ImGui::Checkbox("Draw strategic regions", &drawBorders);
     } else {
-      // transfer generic states to hoi4states
-      generator->initializeStates();
-      // build hoi4 countries out of basic countries
-      generator->mapCountries();
-      generator->evaluateCountryNeighbours();
-      Scenario::Civilization::generateWorldCivilizations(
-          generator->gameRegions, generator->gameProvinces, generator->civData,
-          generator->scenContinents);
+      //// transfer generic states to hoi4states
+      // generator->initializeStates();
+      //// build hoi4 countries out of basic countries
+      // generator->mapCountries();
+      // generator->evaluateCountryNeighbours();
+      // Scenario::Civilization::generateWorldCivilizations(
+      //     generator->gameRegions, generator->gameProvinces,
+      //     generator->civData, generator->scenContinents);
     }
     // drag event is ignored here
     if (triggeredDrag) {
@@ -1419,12 +1301,12 @@ int GUI::showStrategicRegionTab(
               generator->strategicRegions[selectedStratRegionIndex];
           stratRegion.removeRegion(state);
           rootRegion.addRegion(state);
-          generator->visualiseStrategicRegions(stratRegion.ID);
+          uiUtils->updateImage(
+              0, generator->visualiseStrategicRegions(stratRegion.ID));
         } else {
           selectedStratRegionIndex = stratRegion.ID;
         }
       }
-      uiUtils->resetTexture();
     }
     ImGui::EndTabItem();
   }
@@ -1478,8 +1360,6 @@ void GUI::pathWarning(std::exception e) {
 int GUI::showHoi4Finalise(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::Hoi4::Hoi4Module> hoi4Module) {
   if (ImGui::BeginTabItem("Finalise")) {
-    uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
-    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     uiUtils->tabSwitchEvent();
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
@@ -1595,8 +1475,6 @@ int GUI::showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator) {
 void GUI::showSplineTab(Fwg::Cfg &cfg,
                         std::shared_ptr<Scenario::Vic3::Module> vic3Module) {
   if (ImGui::BeginTabItem("Splines")) {
-    uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
-    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     uiUtils->tabSwitchEvent();
     const auto &generator = vic3Module->getGenerator();
 
@@ -1615,8 +1493,6 @@ void GUI::showSplineTab(Fwg::Cfg &cfg,
 int GUI::showVic3Finalise(Fwg::Cfg &cfg,
                           std::shared_ptr<Scenario::Vic3::Module> vic3Module) {
   if (ImGui::BeginTabItem("Finalise")) {
-    uiUtils->desiredState[0] = UIUtils::ActiveTexture::NONE;
-    uiUtils->desiredState[1] = UIUtils::ActiveTexture::NONE;
     uiUtils->tabSwitchEvent();
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");

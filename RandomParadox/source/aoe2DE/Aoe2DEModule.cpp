@@ -37,7 +37,7 @@ void Module::genAoe2() {
     std::string elevation{""};
     auto hMap = Fwg::Gfx::Bitmap(conf.width, conf.height, 24,
                                  f.terrainData.detailedHeightMap);
-    auto tMap = f.landMap;
+    auto tMap = f.climateMap;
     auto cMap = f.climateMap;
     int lowEle = 0, midEle = 0, highEle = 0;
     for (int i = 0; i < hMap.size(); i++) {

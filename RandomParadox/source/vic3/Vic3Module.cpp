@@ -267,6 +267,7 @@ void Module::writeTextFiles() {
 
 void Module::writeImages() {
   Gfx::Vic3::FormatConverter formatConverter(pathcfg.gamePath, "Vic3");
+  // TODO: improve handling of altitude data to not rely on image
   auto heightMap =
       Fwg::Gfx::displayHeightMap(vic3Gen->terrainData.detailedHeightMap);
 

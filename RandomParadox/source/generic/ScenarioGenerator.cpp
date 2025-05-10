@@ -390,7 +390,7 @@ Fwg::Gfx::Bitmap Generator::visualiseStrategicRegions(const int ID) {
     }
     Png::save(noBorderMap,
               Fwg::Cfg::Values().mapsPath + "stratRegions_no_borders.png");
-    Bmp::save(stratRegionMap, Fwg::Cfg::Values().mapsPath + "stratRegions.bmp");
+    Png::save(stratRegionMap, Fwg::Cfg::Values().mapsPath + "stratRegions.png");
   }
   return stratRegionMap;
 }
