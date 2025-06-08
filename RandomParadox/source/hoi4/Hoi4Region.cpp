@@ -85,7 +85,7 @@ Scenario::Utils::Building getBuilding(const std::string &type,
       prov = Fwg::Utils::selectRandom(region.provinces);
     pix = Fwg::Utils::selectRandom(prov->coastalPixels);
   } else {
-    while (prov->isLake)
+    while (prov->isLake())
       prov = Fwg::Utils::selectRandom(region.provinces);
     pix = Fwg::Utils::selectRandom(prov->pixels);
   }
@@ -101,7 +101,7 @@ Scenario::Utils::Building getBuilding(const std::string &type,
 
 void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
                                         const Fwg::Gfx::Bitmap &typeMap) {
-  if (this->sea || this->lake)
+  if (!this->isLand())
     return;
   buildings.clear();
   bool coastal = false;
@@ -118,13 +118,13 @@ void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
       }
     } else if (type == "bunker") {
       for (const auto &prov : provinces) {
-        if (!prov->isLake && !prov->sea) {
+        if (!prov->isLake() && !prov->isSea()) {
           buildings.push_back(getBuilding(type, *this, false, heightmap));
         }
       }
     } else if (type == "special_project_facility_spawn") {
       for (const auto &prov : provinces) {
-        if (!prov->isLake && !prov->sea) {
+        if (!prov->isLake() && !prov->isSea()) {
           buildings.push_back(getBuilding(type, *this, false, heightmap));
         }
       }
@@ -139,7 +139,7 @@ void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
           if (type == "naval_base_spawn") {
             // find the ocean province this coastal building is next to
             for (const auto &neighbour : prov->neighbours)
-              if (neighbour->sea && !neighbour->isLake)
+              if (neighbour->isSea() && !neighbour->isLake())
                 for (const auto &provPix : neighbour->pixels)
                   if (Fwg::Utils::getDistance(provPix, pix,
                                               Fwg::Cfg::Values().width) < 2.0)

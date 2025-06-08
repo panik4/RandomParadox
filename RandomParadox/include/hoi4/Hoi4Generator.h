@@ -15,7 +15,7 @@
 namespace Scenario::Hoi4 {
 
 class Generator : public Scenario::Generator {
-  using CTI = Fwg::ClimateGeneration::Detail::ClimateTypeIndex;
+  using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
   std::vector<Scenario::Utils::ResConfig> resConfigs{
       {"chromium", true, 1250.0, true, Scenario::Utils::rareNoise},
       {"steel", true, 2562.0, true, Scenario::Utils::defaultNoise},

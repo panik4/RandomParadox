@@ -377,7 +377,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                 currentState == Fwg::WorldGenerationState::GenSegments ||
                 currentState == Fwg::WorldGenerationState::GenProvinces) {
               lastState = currentState;
-              uiUtils->resetTexture();
+              //uiUtils->resetTexture();
               switch (currentState) {
                 // case Fwg::WorldGenerationState::None:
                 //   break;
@@ -499,7 +499,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                 // }
 
               default:
-                std::cerr << "Unknown world generation state!" << std::endl;
+                //std::cerr << "Unknown world generation state!" << std::endl;
                 break;
               }
             }
@@ -1031,7 +1031,7 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
             generator->countries.end()) {
           selectedCountry = generator->countries.at(drawCountryTag);
         }
-        if (selectedCountry != nullptr && !modifiableState->sea &&
+        if (selectedCountry != nullptr && !modifiableState->isSea() &&
             modifiableState->owner != selectedCountry) {
           modifiableState->owner->removeRegion(modifiableState);
           modifiableState->owner = selectedCountry;

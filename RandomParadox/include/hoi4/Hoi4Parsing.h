@@ -121,7 +121,7 @@ std::vector<std::shared_ptr<Hoi4Country>>
 readCountries(const std::string &path);
 std::vector<std::vector<std::string>> readDefinitions(const std::string &path);
 void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
-                   Fwg::ClimateGeneration::ClimateData &climateData,
+                   Fwg::Climate::ClimateData &climateData,
                    const std::string &inPath, const std::string &mapName,
                    Fwg::Areas::AreaData &areaData);
 void readRailways(const std::string &path, Fwg::Areas::AreaData &areaData);

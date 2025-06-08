@@ -18,7 +18,7 @@ struct Vic3StratRegion {
 };
 
 class Generator : public Scenario::Generator {
-  using CTI = Fwg::ClimateGeneration::Detail::ClimateTypeIndex;
+  using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
   std::vector<Scenario::Utils::ResConfig> resConfigs{
       {"bg_coal_mining", true, 5.0, true, Scenario::Utils::defaultNoise},
       {"bg_gold_mining", true, 0.2, true, Scenario::Utils::rareNoise},

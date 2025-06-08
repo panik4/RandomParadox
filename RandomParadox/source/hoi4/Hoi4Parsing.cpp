@@ -106,20 +106,20 @@ void definition(const std::string &path,
   // Bitmap typeMap(512, 512, 24);
   std::string content{"0;0;0;0;land;false;unknown;0\n"};
   for (const auto &prov : provinces) {
-    auto seaType = prov->baseProvince->sea ? "sea" : "land";
+    auto seaType = prov->baseProvince->isSea() ? "sea" : "land";
     auto coastal = prov->baseProvince->coastal ? "true" : "false";
-    if (prov->baseProvince->sea) {
+    if (prov->baseProvince->isSea()) {
       for (auto prov2 : prov->baseProvince->neighbours) {
-        if (!prov2->sea)
+        if (!prov2->isSea())
           coastal = "true";
       }
     }
     std::string terraintype;
-    if (prov->baseProvince->sea)
+    if (prov->baseProvince->isSea())
       terraintype = "ocean";
     else
       terraintype = prov->terrainType;
-    if (prov->baseProvince->isLake) {
+    if (prov->baseProvince->isLake()) {
       terraintype = "lakes";
       seaType = "lake";
     }
@@ -131,7 +131,7 @@ void definition(const std::string &path,
         seaType,
         coastal,
         terraintype,
-        std::to_string(prov->baseProvince->sea || prov->baseProvince->isLake
+        std::to_string(prov->baseProvince->isSea() || prov->baseProvince->isLake()
                            ? 0
                            : prov->baseProvince->continentID +
                                  1) // 0 is for sea, no continent
@@ -202,7 +202,7 @@ void unitStacks(const std::string &path,
     if (prov->coastal) {
       unitstackIndex = 11;
       for (const auto &neighbour : prov->neighbours) {
-        if (prov->sea) {
+        if (prov->isSea()) {
           if (unitstackIndex < 19) {
             double angle;
             auto nextPos = prov->getPositionBetweenProvinces(
@@ -512,10 +512,12 @@ void commonNames(const std::string &path, const CountryMap &countries) {
     auto nameTemplate = countryNamesTemplate;
     for (auto &culture : country->cultures) {
       // get the share of the culture in the country
-      auto share = std::min<double>(culture.second / country->populationFactor, 1.0);
+      auto share =
+          std::min<double>(culture.second / country->populationFactor, 1.0);
       auto language = culture.first->language;
       // get the names for the culture
-      for (int i = 1; i < (int)(share * (double)language->maleNames.size()); i++) {
+      for (int i = 1; i < (int)(share * (double)language->maleNames.size());
+           i++) {
         maleNames.append("\"" + language->maleNames[i] + "\"" + " ");
         if (i % 10 == 0)
           maleNames.append("\n\t\t\t");
@@ -954,7 +956,7 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     std::vector<int> allowedProvinces;
     for (auto &region : country->hoi4Regions) {
       for (auto &prov : region->gameProvinces) {
-        if (!prov->baseProvince->isLake)
+        if (!prov->baseProvince->isLake())
           allowedProvinces.push_back(prov->ID);
       }
     }
@@ -1177,7 +1179,7 @@ void states(const std::string &path,
       "large_town", "city",         "large_city", "metropolis", "megalopolis"};
   for (const auto &region : regions) {
     // skip both sea and land regions
-    if (region->sea || region->lake) {
+    if (!region->isLand()) {
       continue;
     }
     std::string victoryPoints{""};
@@ -1807,7 +1809,7 @@ std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
   return list;
 }
 void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
-                   ClimateGeneration::ClimateData &climateData,
+                   Fwg::Climate::ClimateData &climateData,
                    const std::string &inPath, const std::string &mapName,
                    Fwg::Areas::AreaData &areaData) {
   Logging::logLine("HOI4 Parser: Map: Studying the land");
@@ -1829,10 +1831,11 @@ void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
       std::shared_ptr<Fwg::Province> p = std::make_shared<Fwg::Province>();
       p->ID = ID;
       p->colour = {r, g, b};
-      p->isLake = tokens[4] == "lake";
-      if (p->isLake) {
+      if (tokens[4] == "lake") {
+        p->areaType = Areas::AreaType::Lake;
+      }
+      if (p->isLake()) {
         p->coastal = false;
-        p->sea = false;
       }
       p->continentID = stoi(tokens[7]) - 1;
       areaData.provinceColourMap.setValue(p->colour, p);

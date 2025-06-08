@@ -32,19 +32,19 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
     for (auto &gameProv : gameRegion->gameProvinces) {
       gameProv->terrainType = "plains";
       const auto &baseProv = gameProv->baseProvince;
-      if (baseProv->isLake) {
+      if (baseProv->isLake()) {
         gameProv->terrainType = "lake";
         for (auto &pix : baseProv->pixels) {
           typeMap.setColourAtIndex(pix, colours.at("lake"));
         }
-      } else if (baseProv->sea) {
+      } else if (baseProv->isSea()) {
         gameProv->terrainType = "sea";
         for (auto &pix : baseProv->pixels) {
           typeMap.setColourAtIndex(pix, climateColours.at("ocean"));
         }
       } else {
         int forestPixels = 0;
-        std::map<ClimateGeneration::Detail::ClimateTypeIndex, int>
+        std::map<Fwg::Climate::Detail::ClimateTypeIndex, int>
             climateScores;
         std::map<Fwg::Terrain::ElevationTypeIndex, int> terrainTypeScores;
         // get the dominant climate of the province
@@ -87,7 +87,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
             typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour(16, 40, 8));
           }
         } else {
-          using CTI = ClimateGeneration::Detail::ClimateTypeIndex;
+          using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
           // now, if this is a more flat land, check the climate type
           if (dominantClimate == CTI::TROPICSMONSOON ||
               dominantClimate == CTI::TROPICSRAINFOREST) {
@@ -119,7 +119,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
 void Generator::distributePops() {
   auto targetWorldPop = 1'000'000'000.0 * worldPopulationFactor;
   for (auto &region : vic3Regions) {
-    if (region->sea)
+    if (region->isSea())
       continue;
     // only init this when it hasn't been initialized via text input before
     if (region->totalPopulation < 0) {
@@ -524,7 +524,7 @@ void Generator::createLocators() {
 
   for (auto &region : vic3Regions) {
     region->significantLocations.clear();
-    if (!region->sea && !region->lake) {
+    if (region->isLand()) {
       // create a locator for each building in the region
       region->findCityLocator();
       region->findFarmLocator();
@@ -532,7 +532,7 @@ void Generator::createLocators() {
       region->findPortLocator();
       region->findWaterPortLocator();
       region->findWoodLocator();
-    } else if (region->sea) {
+    } else if (region->isSea()) {
       region->findWaterLocator();
     }
     //// now overwrite the locator position for the farm - we want to find the
@@ -600,7 +600,7 @@ void Generator::createLocators() {
 
 void Generator::calculateNavalExits() {
   for (auto &region : vic3Regions) {
-    if (!region->sea) {
+    if (!region->isSea()) {
       //  check if we have a port locator, and take its naval exit ID
       for (auto &location : region->significantLocations) {
         if (location->type == Fwg::Civilization::LocationType::Port) {

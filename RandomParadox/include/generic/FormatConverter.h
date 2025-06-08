@@ -2,7 +2,7 @@
 #include "DirectXTex.h"
 #include "Textures.h"
 #include "entities/Colour.h"
-#include "terrain/ClimateGeneration.h"
+#include "entities/ClimateData.h"
 #include "utils/Bitmap.h"
 #include "utils/Cfg.h"
 #include <map>
@@ -37,7 +37,7 @@ public:
                          const std::string &path,
                          const std::string &colourMapKey) const;
   void dump8BitTerrain(const Fwg::Terrain::TerrainData &terrainData,
-                       const Fwg::ClimateGeneration::ClimateData &climateIn,
+                       const Fwg::Climate::ClimateData &climateIn,
                        const Fwg::Civilization::CivilizationLayer &civLayer,
                        const std::string &path, const std::string &colourMapKey,
                        const bool cut = false) const;
@@ -45,11 +45,11 @@ public:
                       const std::string &path, const std::string &colourMapKey,
                       const bool cut = false) const;
   void dump8BitRivers(const Fwg::Terrain::TerrainData &terrainData,
-                      const Fwg::ClimateGeneration::ClimateData &climateIn,
+                      const Fwg::Climate::ClimateData &climateIn,
                       const std::string &path, const std::string &colourMapKey,
                       const bool cut = false) const;
   void dump8BitTrees(const Fwg::Terrain::TerrainData &terrainData,
-                     const Fwg::ClimateGeneration::ClimateData &climateIn,
+                     const Fwg::Climate::ClimateData &climateIn,
                      const std::string &path, const std::string &colourMapKey,
                      const bool cut = false) const;
   void dumpDDSFiles(const std::vector<float> &heightMap,

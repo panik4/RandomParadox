@@ -21,7 +21,7 @@ void SuperRegion::setType() {
   std::vector<int> pixels;
   for (auto &reg : gameRegions) {
     for (auto &prov : reg->provinces) {
-      if (prov->sea) {
+      if (prov->isSea()) {
         foundSea = true;
       } else {
         foundLand = true;

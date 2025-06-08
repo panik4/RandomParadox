@@ -24,21 +24,21 @@ public:
 
   void Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
                       const Fwg::Gfx::Bitmap &heightMap,
-                      Fwg::ClimateGeneration::ClimateData &climateData,
+                      Fwg::Climate::ClimateData &climateData,
                       const Fwg::Civilization::CivilizationLayer &civLayer,
                       const std::string &path);
 
   void dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
                           const std::string &path);
   void dynamicMasks(const std::string &path,
-                    const Fwg::ClimateGeneration::ClimateData &climateData,
+                    const Fwg::Climate::ClimateData &climateData,
                     const Fwg::Civilization::CivilizationLayer &civLayer);
 
   void contentSource(const std::string &path,
-                     const Fwg::ClimateGeneration::ClimateData &climateData,
+                     const Fwg::Climate::ClimateData &climateData,
                      const Fwg::Civilization::CivilizationLayer &civLayer);
   void detailMaps(const Fwg::Terrain::TerrainData &terrainData,
-                  const Fwg::ClimateGeneration::ClimateData &climateData,
+                  const Fwg::Climate::ClimateData &climateData,
                   const Fwg::Civilization::CivilizationLayer &civLayer,
                   const std::string &path);
 };

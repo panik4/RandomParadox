@@ -23,10 +23,10 @@ struct ResConfig {
   bool random = false;
   NoiseConfig noiseConfig;
   bool considerClimate = false;
-  std::map<Fwg::ClimateGeneration::Detail::ClimateTypeIndex, double>
+  std::map<Fwg::Climate::Detail::ClimateTypeIndex, double>
       climateEffects;
   bool considerTrees = false;
-  std::map<Fwg::ClimateGeneration::Detail::TreeTypeIndex, double> treeEffects;
+  std::map<Fwg::Climate::Detail::TreeTypeIndex, double> treeEffects;
   bool considerSea = false;
   double oceanFactor = 0.0;
   double lakeFactor = 0.0;

@@ -190,7 +190,7 @@ void FormatConverter::dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
 void FormatConverter::Vic3ColourMaps(
     const Fwg::Gfx::Bitmap &climateMap,
     const Fwg::Gfx::Bitmap &heightMap,
-    Fwg::ClimateGeneration::ClimateData &climateData,
+    Fwg::Climate::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer,
     const std::string &path) {
   Fwg::Utils::Logging::logLine("Vic3 Format Converter: Writing colour maps");
@@ -349,7 +349,7 @@ void FormatConverter::Vic3ColourMaps(
 
 void FormatConverter::dynamicMasks(
     const std::string &path,
-    const Fwg::ClimateGeneration::ClimateData &climateData,
+    const Fwg::Climate::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer) {
   // TODO: exclusion_mask.dds
   //
@@ -375,7 +375,7 @@ void FormatConverter::dynamicMasks(
   for (int i = 0; i < climateData.treeCoverage.size(); i++) {
     dynamicMask[i] = 0;
     auto val = climateData.treeCoverage[i];
-    if (val != Fwg::ClimateGeneration::Detail::TreeTypeIndex::NONE)
+    if (val != Fwg::Climate::Detail::TreeTypeIndex::NONE)
       dynamicMask[i] = climateData.treeDensity[i] * 255.0;
   }
 
@@ -387,7 +387,7 @@ void FormatConverter::dynamicMasks(
 }
 void FormatConverter::contentSource(
     const std::string &path,
-    const Fwg::ClimateGeneration::ClimateData &climateData,
+    const Fwg::Climate::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer) {
 
   Utils::Logging::logLine("Vic3::Writing content source masks");
@@ -434,12 +434,12 @@ void FormatConverter::contentSource(
 }
 void FormatConverter::detailMaps(
     const Fwg::Terrain::TerrainData &terrainData,
-    const Fwg::ClimateGeneration::ClimateData &climateData,
+    const Fwg::Climate::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer,
     const std::string &path) {
   using Et = Fwg::Terrain::ElevationTypeIndex;
-  using Clt = Fwg::ClimateGeneration::Detail::ClimateTypeIndex;
-  using ft = Fwg::ClimateGeneration::Detail::TreeTypeIndex;
+  using Clt = Fwg::Climate::Detail::ClimateTypeIndex;
+  using ft = Fwg::Climate::Detail::TreeTypeIndex;
   std::map<Et, int> elevationMap{
       {Et::CLIFF, 16},      {Et::DEEPOCEAN, 6}, {Et::LAKE, 6},
       {Et::HIGHLANDS, 18},  {Et::HILLS, 16},    {Et::LOWHILLS, 13},
@@ -454,7 +454,6 @@ void FormatConverter::detailMaps(
                                 {Clt::HOTSEMIARID, 26},
                                 {Clt::POLARARCTIC, 21},
                                 {Clt::POLARTUNDRA, 28},
-                                {Clt::ROCK, 15},
                                 {Clt::SNOW, 21},
                                 {Clt::TEMPERATECOLD, 22},
                                 {Clt::TEMPERATEHOT, 24},
