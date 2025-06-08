@@ -29,7 +29,8 @@ void Country::assignRegions(
         auto &nextRegion = Fwg::Utils::selectRandom(gameRegion->neighbours);
         if (nextRegion < gameRegions.size()) {
           if (!gameRegions[nextRegion]->assigned &&
-              !gameRegions[nextRegion]->sea && !gameRegions[nextRegion]->lake) {
+              !gameRegions[nextRegion]->isSea() &&
+              !gameRegions[nextRegion]->isLake()) {
             gameRegions[nextRegion]->assigned = true;
             addRegion(gameRegions[nextRegion]);
           }

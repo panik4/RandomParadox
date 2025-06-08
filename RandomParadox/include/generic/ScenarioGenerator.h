@@ -113,14 +113,14 @@ public:
     Fwg::Utils::ColourTMap<std::vector<std::shared_ptr<Scenario::Region>>>
         mapOfRegions;
     for (auto &region : gameRegions) {
-      if (region->sea || region->lake)
+      if (region->isSea() || region->isLake())
         continue;
 
       Fwg::Utils::ColourTMap<int> likeliestOwner;
       Fwg::Gfx::Colour selectedCol;
 
       for (auto province : region->gameProvinces) {
-        if (!province->baseProvince->sea) {
+        if (!province->baseProvince->isSea()) {
           //  we have the colour already
           auto colour = countryMap[province->baseProvince->pixels[0]];
 

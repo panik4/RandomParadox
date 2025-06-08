@@ -25,12 +25,12 @@ void defaultMap(const std::string &path,
   auto seaFormatCounter = 1;
   auto lakeFormatCounter = 1;
   for (const auto &province : provinces) {
-    if (province->baseProvince->sea) {
+    if (province->baseProvince->isSea()) {
       seaStarts.append(province->toHexString() + " ");
       if (seaFormatCounter++ % 5 == 0) {
         seaStarts.append("\n\t");
       }
-    } else if (province->baseProvince->isLake) {
+    } else if (province->baseProvince->isLake()) {
       lakes.append(province->toHexString() + " ");
       if (lakeFormatCounter++ % 5 == 0) {
         lakes.append("\n\t");
@@ -78,7 +78,7 @@ void stateFiles(const std::string &path,
                    "vic3//map_data//sea_state_template.txt");
   std::string file = "";
   for (const auto &region : regions) {
-    auto content = region->sea ? seaTemplateFile : templateFile;
+    auto content = region->isSea() ? seaTemplateFile : templateFile;
     pU::Scenario::replaceOccurences(content, "template_name", region->name);
     pU::Scenario::replaceOccurences(content, "template_id",
                                     std::to_string(region->ID + 1));
@@ -89,7 +89,7 @@ void stateFiles(const std::string &path,
     pU::Scenario::replaceOccurences(content, "template_provinces",
                                     provinceString);
     // don't write these details for ocean regions
-    if (!region->sea) {
+    if (!region->isSea()) {
       int counter = 0;
       pU::Scenario::replaceOccurences(
           content, "template_city",
@@ -124,7 +124,7 @@ void stateFiles(const std::string &path,
 
       // check if we are a coastal region
       for (auto &prov : region->gameProvinces) {
-        if (prov->baseProvince->sea) {
+        if (prov->baseProvince->isSea()) {
           pU::Scenario::replaceOccurences(content, "template_naval_exit",
                                           prov->toHexString());
         }
@@ -182,11 +182,11 @@ void provinceTerrains(
     content.append(province->toHexString());
     content.append("=\"");
     std::string terraintype;
-    if (province->baseProvince->sea)
+    if (province->baseProvince->isSea())
       terraintype = "ocean";
     else
       terraintype = province->terrainType;
-    if (province->baseProvince->isLake) {
+    if (province->baseProvince->isLake()) {
       terraintype = "lakes";
     }
 
@@ -321,7 +321,7 @@ void popsHistory(const std::string &path,
                    "vic3//common//history//popsStateTemplate.txt");
   std::string listOfStates{""};
   for (const auto &region : regions) {
-    if (region->sea || region->lake)
+    if (!region->isLand())
       continue;
     auto statePops = popsStateTemplate;
     pU::Scenario::replaceOccurences(statePops, "templateName", region->name);
@@ -356,7 +356,7 @@ void stateHistory(const std::string &path,
       pU::readFile(Fwg::Cfg::Values().resourcePath +
                    "vic3//common//history//stateTemplate.txt");
   for (const auto &region : regions) {
-    if (region->sea || region->lake)
+    if (!region->isLand())
       continue;
     auto content = stateTemplate;
     pU::Scenario::replaceOccurences(content, "templateName", region->name);
@@ -628,7 +628,7 @@ void Scenario::Vic3::Parsing::History::writeBuildings(
       "vic3//common//history//buildingsSingleBuildingTemplate.txt");
   std::string allStateString;
   for (auto &region : regions) {
-    if (region->sea || region->lake)
+    if (!region->isLand())
       continue;
     auto stateString = buildingsStateTemplate;
     pU::replaceOccurence(stateString, "templateStateName",

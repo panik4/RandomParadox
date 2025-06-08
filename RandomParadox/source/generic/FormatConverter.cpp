@@ -138,7 +138,7 @@ const std::map<std::string, std::map<Gfx::Colour, int>>
           {Cfg::Values().colours["sea"], 15}}}
 
     };
-using namespace Fwg::ClimateGeneration::Detail;
+using namespace Fwg::Climate::Detail;
 const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
     {"terrainHoi4",
      {{(int)ClimateTypeIndex::TROPICSRAINFOREST, 21},
@@ -205,10 +205,6 @@ const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
       {100 + (int)ClimateTypeIndex::SNOW, 16},
       {200 + (int)ClimateTypeIndex::SNOW, 16},
       {300 + (int)ClimateTypeIndex::SNOW, 16},
-      {(int)ClimateTypeIndex::ROCK, 11},
-      {100 + (int)ClimateTypeIndex::ROCK, 2},
-      {200 + (int)ClimateTypeIndex::ROCK, 16},
-      {300 + (int)ClimateTypeIndex::ROCK, 16},
       {(int)ClimateTypeIndex::WATER, 15},
       {100 + (int)ClimateTypeIndex::WATER, 15},
       {200 + (int)ClimateTypeIndex::WATER, 15},
@@ -303,7 +299,7 @@ void FormatConverter::dump8BitHeightmap(const std::vector<float> &altitudeData,
 
 void FormatConverter::dump8BitTerrain(
     const Fwg::Terrain::TerrainData &terrainData,
-    const Fwg::ClimateGeneration::ClimateData &climateIn,
+    const Fwg::Climate::ClimateData &climateIn,
     const Fwg::Civilization::CivilizationLayer &civLayer,
     const std::string &path, const std::string &colourMapKey,
     const bool cut) const {
@@ -406,7 +402,7 @@ void FormatConverter::dump8BitCities(const Bitmap &climateIn,
 
 void FormatConverter::dump8BitRivers(
     const Fwg::Terrain::TerrainData &terrainData,
-    const Fwg::ClimateGeneration::ClimateData &climateIn,
+    const Fwg::Climate::ClimateData &climateIn,
     const std::string &path, const std::string &colourMapKey,
     const bool cut) const {
   Utils::Logging::logLine("FormatConverter::Writing rivers to ",
@@ -448,7 +444,7 @@ void FormatConverter::dump8BitRivers(
 
 void FormatConverter::dump8BitTrees(
     const Fwg::Terrain::TerrainData &terrainData,
-    const Fwg::ClimateGeneration::ClimateData &climateIn,
+    const Fwg::Climate::ClimateData &climateIn,
     const std::string &path, const std::string &colourMapKey,
     const bool cut) const {
   auto &conf = Cfg::Values();
@@ -480,7 +476,7 @@ void FormatConverter::dump8BitTrees(
     for (auto offset : offsets) {
       if (i + offset < treeCoverage.size() && i + offset >= 0) {
         if (terrainData.landForms.at(i + offset).altitude <= 0.0) {
-          treeCoverage[i] = Fwg::ClimateGeneration::Detail::TreeTypeIndex::NONE;
+          treeCoverage[i] = Fwg::Climate::Detail::TreeTypeIndex::NONE;
         }
       }
     }

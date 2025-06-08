@@ -98,14 +98,14 @@ void Generator::applyRegionInput() {
   for (auto &gameRegion : this->gameRegions) {
     for (auto &gameProv : gameRegion->gameProvinces) {
       for (auto &pix : gameProv->baseProvince->pixels) {
-        if (gameRegion->sea) {
+        if (gameRegion->isSea()) {
           regionMap.setColourAtIndex(pix, Fwg::Cfg::Values().colours.at("sea"));
 
-        } else if (gameRegion->coastal && !gameRegion->sea) {
+        } else if (gameRegion->coastal && !gameRegion->isSea()) {
           regionMap.setColourAtIndex(pix,
                                      Fwg::Cfg::Values().colours.at("ores"));
 
-        } else if (gameRegion->lake) {
+        } else if (gameRegion->isLake()) {
           regionMap.setColourAtIndex(pix,
                                      Fwg::Cfg::Values().colours.at("lake"));
         }
@@ -128,14 +128,14 @@ void Generator::mapProvinces() {
   gameProvinces.clear();
   for (auto &prov : this->areaData.provinces) {
     // edit coastal status: lakes are not coasts!
-    if (prov->coastal && prov->isLake)
+    if (prov->coastal && prov->isLake())
       prov->coastal = false;
     // if it is a land province, check that a neighbour is an ocean, otherwise
     // this isn't coastal in this scenario definition
     else if (prov->coastal) {
       bool foundTrueCoast = false;
       for (auto &neighbour : prov->neighbours) {
-        if (neighbour->sea) {
+        if (neighbour->isSea()) {
           foundTrueCoast = true;
         }
       }
@@ -178,7 +178,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
 std::shared_ptr<Region> &Generator::findStartRegion() {
   std::vector<std::shared_ptr<Region>> freeRegions;
   for (const auto &gameRegion : gameRegions)
-    if (!gameRegion->assigned && !gameRegion->sea && !gameRegion->lake)
+    if (!gameRegion->assigned && !gameRegion->isSea() && !gameRegion->isLake())
       freeRegions.push_back(gameRegion);
 
   if (freeRegions.size() == 0)
@@ -317,7 +317,7 @@ void Generator::generateStrategicRegions() {
         if (neighbourID > gameRegions.size())
           continue;
         auto neighbourRegion = gameRegions[neighbourID];
-        if (gameRegions[neighbourID]->sea == region->sea &&
+        if (gameRegions[neighbourID]->isSea() == region->isSea() &&
             assignedToIDs.find(neighbourID) == assignedToIDs.end()) {
           stratRegion.addRegion(neighbourRegion);
           assignedToIDs.insert({neighbourID, stratRegion.ID});
@@ -325,7 +325,7 @@ void Generator::generateStrategicRegions() {
       }
       Colour c{static_cast<unsigned char>(RandNum::getRandom(255)),
                static_cast<unsigned char>(RandNum::getRandom(255)),
-               static_cast<unsigned char>(region->sea ? 255 : 0)};
+               static_cast<unsigned char>(region->isSea() ? 255 : 0)};
       stratRegion.colour = c;
       stratRegion.setType();
       strategicRegions.push_back(stratRegion);
@@ -453,7 +453,7 @@ void Generator::distributeCountries() {
     auto &country = countryEntry.second;
     country->ownedRegions.clear();
     auto startRegion(findStartRegion());
-    if (startRegion->assigned || startRegion->sea || startRegion->lake)
+    if (startRegion->assigned || startRegion->isSea() || startRegion->isLake())
       continue;
     country->assignRegions(6, gameRegions, startRegion, gameProvinces);
     if (!country->ownedRegions.size())
@@ -474,7 +474,7 @@ void Generator::distributeCountries() {
 
   if (countries.size()) {
     for (auto &gameRegion : gameRegions) {
-      if (!gameRegion->sea && !gameRegion->assigned && !gameRegion->lake) {
+      if (!gameRegion->isSea() && !gameRegion->assigned && !gameRegion->isLake()) {
         auto gR = Fwg::Utils::getNearestAssignedLand(
             gameRegions, gameRegion, config.width, config.height);
         gR->owner->addRegion(gameRegion);

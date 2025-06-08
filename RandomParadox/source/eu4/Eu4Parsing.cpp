@@ -176,7 +176,7 @@ void writeContinent(
   std::array<std::vector<int>, 6> continentMap;
   for (const auto &province : provinces) {
     if (province->baseProvince->continentID >= 0 &&
-        province->baseProvince->continentID != 1000000) {
+        province->baseProvince->continentID != -1) {
       continentMap.at(province->baseProvince->continentID)
           .push_back(province->ID + 1);
     }
@@ -207,11 +207,11 @@ void writeDefaultMap(
   std::string seaStarts{""};
   std::string lakes{""};
   for (const auto &province : provinces) {
-    if (province->baseProvince->sea) {
+    if (province->baseProvince->isSea()) {
       seaStarts.append(std::to_string(province->ID + 1) + " ");
       if (seaStarts.size() % 76 < 10 && seaStarts.size() >= 10)
         seaStarts.append("\n\t\t\t\t");
-    } else if (province->baseProvince->isLake) {
+    } else if (province->baseProvince->isLake()) {
       lakes.append(std::to_string(province->ID + 1) + " ");
       if (lakes.size() % 76 < 10 && lakes.size() >= 10)
         lakes.append("\n\t\t\t");
@@ -367,7 +367,8 @@ void writeProvinces(const std::string &path,
   for (const auto &region : regions) {
     for (const auto &prov : region->gameProvinces) {
       // make sure lakes and wastelands are empty
-      if (prov->baseProvince->isLake || prov->terrainType == "rockyMountains") {
+      if (prov->baseProvince->isLake() ||
+          prov->terrainType == "rockyMountains") {
         pU::writeFile(path + "//" + std::to_string(prov->ID + 1) + "-a.txt",
                       "");
       } else {

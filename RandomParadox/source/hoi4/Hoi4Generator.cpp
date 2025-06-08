@@ -66,19 +66,19 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
     for (auto &gameProv : gameRegion->gameProvinces) {
       gameProv->terrainType = "plains";
       const auto &baseProv = gameProv->baseProvince;
-      if (baseProv->isLake) {
+      if (baseProv->isLake()) {
         gameProv->terrainType = "lake";
         for (auto &pix : baseProv->pixels) {
           typeMap.setColourAtIndex(pix, colours.at("lake"));
         }
-      } else if (baseProv->sea) {
+      } else if (baseProv->isSea()) {
         gameProv->terrainType = "sea";
         for (auto &pix : baseProv->pixels) {
           typeMap.setColourAtIndex(pix, climateColours.at("ocean"));
         }
       } else {
         int forestPixels = 0;
-        std::map<ClimateGeneration::Detail::ClimateTypeIndex, int>
+        std::map<Fwg::Climate::Detail::ClimateTypeIndex, int>
             climateScores;
         std::map<Fwg::Terrain::ElevationTypeIndex, int> terrainTypeScores;
         // get the dominant climate of the province
@@ -121,7 +121,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
             typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour(16, 40, 8));
           }
         } else {
-          using CTI = ClimateGeneration::Detail::ClimateTypeIndex;
+          using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
           // now, if this is a more flat land, check the climate type
           if (dominantClimate == CTI::TROPICSMONSOON ||
               dominantClimate == CTI::TROPICSRAINFOREST) {
@@ -287,7 +287,7 @@ void Generator::generateStateSpecifics() {
   Fwg::Utils::Logging::logLine(config.landPercentage);
   for (auto &hoi4State : hoi4States) {
     // skip sea and lake states
-    if (hoi4State->sea || hoi4State->lake)
+    if (!hoi4State->isLand())
       continue;
 
     // state level is calculated from population and development
@@ -622,12 +622,12 @@ void Generator::generateLogistics() {
           || (country->hoi4Regions.size() > 2 &&
               (region->ID == (*(country->hoi4Regions.end() - 2))->ID) &&
               supplyHubProvinces.size() < (country->hoi4Regions.size() / 4))) {
-        if (region->sea || region->lake)
+        if (!region->isLand())
           continue;
         // select a random gameprovince of the state
         int lakeCounter = 0;
         auto hubProvince{Fwg::Utils::selectRandom(region->gameProvinces)};
-        while (hubProvince->baseProvince->isLake && lakeCounter++ < 1000) {
+        while (hubProvince->baseProvince->isLake() && lakeCounter++ < 1000) {
           hubProvince = Fwg::Utils::selectRandom(region->gameProvinces);
         }
         // just skip a lake
@@ -715,8 +715,8 @@ void Generator::generateLogistics() {
              gameProvinces[sourceNodeID]->neighbours) {
           // check if this belongs to us and is an eligible province
           if (gProvIDs.find(neighbourGProvince.ID) == gProvIDs.end() ||
-              neighbourGProvince.baseProvince->isLake ||
-              neighbourGProvince.baseProvince->sea)
+              neighbourGProvince.baseProvince->isLake() ||
+              neighbourGProvince.baseProvince->isSea())
             continue;
           bool cont = false;
           for (auto passThroughID : passthroughProvinceIDs) {
@@ -774,8 +774,8 @@ void Generator::generateLogistics() {
     for (int i = 0; i < connection.size(); i++) {
       // check if we accidentally added a sea province or lake province to the
       // connection
-      if (gameProvinces[connection[i]]->baseProvince->sea ||
-          gameProvinces[connection[i]]->baseProvince->isLake) {
+      if (gameProvinces[connection[i]]->baseProvince->isSea() ||
+          gameProvinces[connection[i]]->baseProvince->isLake()) {
         Fwg::Utils::Logging::logLine("Error: Skipping an invalid connection "
                                      "due to sea or lake province "
                                      "in it in logistics");
@@ -1791,7 +1791,7 @@ void Generator::distributeVictoryPoints() {
       continue;
     auto language = country->getPrimaryCulture()->language;
     for (auto &region : country->hoi4Regions) {
-      if (region->sea || region->lake)
+      if (!region->isLand())
         continue;
       region->victoryPointsMap.clear();
       region->totalVictoryPoints =

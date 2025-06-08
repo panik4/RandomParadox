@@ -108,7 +108,7 @@ void generateCultures(CivilizationData &civData,
 
   // now distribute these culturegroups to the regions
   for (auto &gameRegion : gameRegions) {
-    if (gameRegion->sea || gameRegion->lake)
+    if (gameRegion->isSea() || gameRegion->isLake())
       continue;
     auto closestCultureGroup = 0;
     auto distance = 100000000.0;
@@ -171,7 +171,7 @@ void generateCultures(CivilizationData &civData,
 
   // now write the cultures to the culture map
   for (auto &gameRegion : gameRegions) {
-    if (gameRegion->sea || gameRegion->lake)
+    if (gameRegion->isSea() || gameRegion->isLake())
       continue;
     for (auto &culture : gameRegion->cultureShares) {
       for (auto &province : gameRegion->gameProvinces) {
@@ -236,7 +236,7 @@ void generateDevelopment(std::vector<std::shared_ptr<Region>> &regions) {
   for (auto &region : regions) {
     auto totalPop = region->populationFactor;
     region->developmentFactor = 0.0;
-    if (region->sea || region->lake)
+    if (region->isSea() || region->isLake())
       continue;
     // we want to calculate the average development of the region, by taking the
     // average of the development of the provinces weighted by the popFactor

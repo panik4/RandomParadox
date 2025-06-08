@@ -21,7 +21,7 @@ void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
         // should be equal in sea/land
         if (neighbour > regions.size())
           continue;
-        if (regions[neighbour]->sea == region->sea &&
+        if (regions[neighbour]->isSea() == region->isSea() &&
             assignedIdeas.find(neighbour) == assignedIdeas.end()) {
           euR.areaIDs.insert(neighbour);
           assignedIdeas.insert(neighbour);
@@ -37,7 +37,7 @@ void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
         static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255),
         static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255)};
     for (auto &area : strat.areaIDs) {
-      c.setBlue(regions[area]->sea ? 255 : 0);
+      c.setBlue(regions[area]->isSea() ? 255 : 0);
       for (auto &prov : regions[area]->gameProvinces) {
         for (auto &pix : prov->baseProvince->pixels) {
           eu4RegionBmp.setColourAtIndex(pix, c);
