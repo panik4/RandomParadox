@@ -21,8 +21,8 @@ void Generator::mapRegions() {
   statesInitialised = false;
   for (auto &region : this->areaData.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
-              [](const std::shared_ptr<Fwg::Province> a,
-                 const std::shared_ptr<Fwg::Province> b) { return (*a < *b); });
+              [](const std::shared_ptr<Fwg::Areas::Province> a,
+                 const std::shared_ptr<Fwg::Areas::Province> b) { return (*a < *b); });
     auto gameRegion = std::make_shared<Region>(region);
     // generate random name for region
     gameRegion->name = "";

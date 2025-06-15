@@ -2,8 +2,8 @@
 namespace Scenario {
 Region::Region() {}
 
-Region::Region(const Fwg::Region &baseRegion)
-    : Fwg::Region(baseRegion), assigned(false), totalPopulation{-1} {}
+Region::Region(const Fwg::Areas::Region &baseRegion)
+    : Fwg::Areas::Region(baseRegion), assigned(false), totalPopulation{-1} {}
 
 Region::~Region() {}
 void Region::sumPopulations() {}

@@ -121,7 +121,7 @@ void GenericModule::generate() {}
 
 void GenericModule::initNameData(const std::string &path,
                                  const std::string &gamePath) {
-  generator->nData = NameGeneration::prepare(path, gamePath);
+  generator->nData = NameGeneration::prepare(path, gamePath, gameType);
   generator->civData.nData = generator->nData;
 }
 

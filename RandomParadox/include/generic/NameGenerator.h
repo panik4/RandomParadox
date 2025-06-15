@@ -4,6 +4,7 @@
 #include "LanguageGroup.h"
 #include "ParserUtils.h"
 #include "ResourceLoading.h"
+#include "ScenarioUtils.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -27,7 +28,7 @@ std::string modifyWithIdeology(const std::string &ideology,
                                const std::string name,
                                const std::string adjective,
                                const NameData &nameData);
-NameData prepare(const std::string &path, const std::string &gamePath = "");
+NameData prepare(const std::string &path, const std::string &gamePath, const GameType gameType);
 namespace Detail {
 void readMap(const std::string path,
              std::map<std::string, std::vector<std::string>> &map);

@@ -26,16 +26,16 @@ void continents(const std::string &path,
 void definition(const std::string &path,
                 const std::vector<std::shared_ptr<GameProvince>> &provinces);
 void strategicRegions(const std::string &path,
-                      const std::vector<Fwg::Region> &regions,
+                      const std::vector<Fwg::Areas::Region> &regions,
                       const std::vector<StrategicRegion> &strategicRegions);
 void supply(const std::string &path,
             const std::vector<std::vector<int>> &supplyNodeConnections);
 void unitStacks(const std::string &path,
-                const std::vector<std::shared_ptr<Fwg::Province>> provinces,
+                const std::vector<std::shared_ptr<Fwg::Areas::Province>> provinces,
                 const std::vector<std::shared_ptr<Region>> regions,
                 const std::vector<float> &heightMap);
 void weatherPositions(const std::string &path,
-                      const std::vector<Fwg::Region> &regions,
+                      const std::vector<Fwg::Areas::Region> &regions,
                       std::vector<StrategicRegion> &strategicRegions);
 
 } // namespace Map
@@ -57,7 +57,7 @@ void states(const std::string &path,
             const std::vector<std::shared_ptr<Region>> &regions);
 void historyCountries(const std::string &path, const CountryMap &countries,
                       const std::string &gamePath,
-                      const std::vector<Fwg::Region> &regions);
+                      const std::vector<Fwg::Areas::Region> &regions);
 void historyUnits(const std::string &path, const CountryMap &countries);
 void ideas(const std::string &path, const CountryMap &countries);
 
@@ -78,7 +78,7 @@ void commonBookmarks(
 void tutorials(const std::string &path);
 // copy base game countries and remove certain lines to reduce crashes
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
-                          const std::vector<Fwg::Region> &regions);
+                          const std::vector<Fwg::Areas::Region> &regions);
 void scriptedTriggers(std::string gamePath, std::string modPath);
 
 void commonFiltering(const std::string &gamePath, const std::string &modPath);
@@ -110,7 +110,7 @@ struct ChangeHolder;
 Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path);
 void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen);
 
-std::vector<Fwg::Province> readProvinceMap(const std::string &path);
+std::vector<Fwg::Areas::Province> readProvinceMap(const std::string &path);
 void readAirports(const std::string &path,
                   std::vector<std::shared_ptr<Region>> &regions);
 

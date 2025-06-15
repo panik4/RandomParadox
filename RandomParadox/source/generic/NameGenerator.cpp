@@ -67,7 +67,7 @@ std::string modifyWithIdeology(const std::string &ideology,
   return stateName;
 }
 
-NameData prepare(const std::string &path, const std::string &gamePath) {
+NameData prepare(const std::string &path, const std::string &gamePath, const GameType gameType) {
   Fwg::Utils::Logging::logLine("Preparing name generation from path: ", path);
   NameData nameData;
 
@@ -76,7 +76,7 @@ NameData prepare(const std::string &path, const std::string &gamePath) {
   for (const auto &tag : additionalForbidden)
     nameData.disallowedTokens.insert(tag);
 
-  if (std::filesystem::exists(path)) {
+  if (gameType == GameType::Hoi4 && std::filesystem::exists(path)) {
     Detail::readMap(path + "//state_types.txt", nameData.ideologyNames);
     Detail::readMap(path + "//faction_names.txt", nameData.factionNames);
     try {

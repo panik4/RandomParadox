@@ -13,6 +13,7 @@ Module::Module(const boost::property_tree::ptree &gamesConf,
 
   // set the executable subpath
   this->executableSubPath = "eu4.exe";
+  gameType = GameType::Eu4;
 }
 
 Module::~Module() {}
@@ -104,19 +105,28 @@ void Module::readEu4Config(const std::string &configSubFolder,
   config.sanityCheck();
 }
 
+void Module::initFormatConverter() {
+  formatConverter = Gfx::Eu4::FormatConverter(pathcfg.gamePath, "Eu4");
+}
+
 void Module::generate() {
   if (!createPaths())
     return;
 
-  initNameData(this->pathcfg.resourcePath + "//names", this->pathcfg.gamePath);
+  initNameData(Fwg::Cfg::Values().resourcePath + "//names",
+               this->pathcfg.gamePath);
   try {
     // start with the generic stuff in the Scenario Generator
     eu4Gen->mapProvinces();
     eu4Gen->mapRegions();
+
+    eu4Gen->mapTerrain();
     eu4Gen->mapContinents();
+    Civilization::generateWorldCivilizations(
+        eu4Gen->gameRegions, eu4Gen->gameProvinces, eu4Gen->civData,
+        eu4Gen->scenContinents);
     eu4Gen->generateCountries<Scenario::Country>();
     eu4Gen->evaluateCountryNeighbours();
-    eu4Gen->generateWorld();
     eu4Gen->visualiseCountries(generator->countryMap);
     eu4Gen->generateRegions(eu4Gen->gameRegions);
   } catch (std::exception e) {
@@ -128,19 +138,18 @@ void Module::generate() {
   try {
     // generate map files. Format must be converted and colours mapped to eu4
     // compatible colours
-    Gfx::FormatConverter formatConverter(pathcfg.gamePath, "Eu4");
     formatConverter.dump8BitTerrain(
         eu4Gen->terrainData, eu4Gen->climateData, eu4Gen->civLayer,
         pathcfg.gameModPath + "//map//terrain.bmp", "terrain", cut);
     formatConverter.dump8BitRivers(eu4Gen->terrainData, eu4Gen->climateData,
-                                   pathcfg.gameModPath + "//map//rivers.bmp",
+                                   pathcfg.gameModPath + "//map//rivers",
                                    "rivers", cut);
     formatConverter.dump8BitTrees(eu4Gen->terrainData, eu4Gen->climateData,
                                   pathcfg.gameModPath + "//map//trees.bmp",
                                   "trees", false);
-    formatConverter.dump8BitHeightmap(
-        eu4Gen->terrainData.detailedHeightMap, pathcfg.gameModPath + "//map//heightmap.bmp",
-        "heightmap");
+    formatConverter.dump8BitHeightmap(eu4Gen->terrainData.detailedHeightMap,
+                                      pathcfg.gameModPath + "//map//heightmap",
+                                      "heightmap");
     std::vector<Fwg::Gfx::Bitmap> seasonalColourmaps;
     eu4Gen->genSeasons(Cfg::Values(), seasonalColourmaps);
     formatConverter.dumpTerrainColourmap(seasonalColourmaps[0],
@@ -207,15 +216,16 @@ void Module::generate() {
       writeTradewinds(pathcfg.gameModPath + "//map//trade_winds.txt",
                       eu4Gen->gameProvinces);
 
-      copyDescriptorFile(this->pathcfg.resourcePath + "//eu4//descriptor.mod",
-                         pathcfg.gameModPath, pathcfg.gameModsDirectory,
-                         pathcfg.modName);
+      copyDescriptorFile(
+          Fwg::Cfg::Values().resourcePath + "//eu4//descriptor.mod",
+          pathcfg.gameModPath, pathcfg.gameModsDirectory, pathcfg.modName);
 
       writeProvinces(pathcfg.gameModPath + "//history//provinces//",
                      eu4Gen->gameProvinces, eu4Gen->gameRegions);
       writeLoc(pathcfg.gameModPath + "//localisation//", pathcfg.gamePath,
                eu4Gen->gameRegions, eu4Gen->gameProvinces,
                eu4Gen->getEu4Regions());
+      Fwg::Utils::Logging::logLine("Done with the eu4 export");
     }
   } catch (std::exception e) {
     std::string error = "Error while dumping and writing files.\n";

@@ -8,7 +8,7 @@
 namespace Scenario {
 class Country;
 enum class LocatorType { NONE, CITY, FARM, MINE, PORT, WOOD };
-class Region : public Fwg::Region {
+class Region : public Fwg::Areas::Region {
   std::vector<std::string> cores;
 
 public:
@@ -45,7 +45,7 @@ public:
       significantLocations;
 
   Region();
-  Region(const Fwg::Region &baseRegion);
+  Region(const Fwg::Areas::Region &baseRegion);
   virtual ~Region();
 
   // member functions

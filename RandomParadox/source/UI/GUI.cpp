@@ -3,6 +3,8 @@
 static UINT g_ResizeWidth = 0, g_ResizeHeight = 0;
 // to track which game was selected for generation
 static int selectedGame = 0;
+static bool showErrorPopup = false;
+static std::string errorLog;
 static bool requireCountryDetails = false;
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd,
@@ -136,6 +138,12 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
     log = std::make_shared<std::stringstream>();
     *log << Fwg::Utils::Logging::Logger::logInstance.getFullLog();
     Fwg::Utils::Logging::Logger::logInstance.attachStream(log);
+
+    // auto log2 = std::make_shared<std::stringstream>();
+    //*log2 << Fwg::Utils::Logging::Logger::logInstance.getFullLog();
+    Fwg::Utils::Logging::LogObserver observer(
+        log); // Observer reads from the same stream
+
     activeModule->generator->configure(cfg);
     initAllowedInput(cfg, activeModule->generator->climateData,
                      activeModule->generator->terrainData.elevationTypes);
@@ -193,10 +201,32 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
           ImGui::SetNextWindowPos({0, 0});
           ImGui::SetNextWindowSize({io.DisplaySize.x, io.DisplaySize.y});
           ImGui::Begin("RandomParadox");
+          // observer checks for "Error"
+          auto errors = observer.pollForMessage("Error");
+          // if (!errors.empty()) {
+          //   errorLog = errors;
+          //   showErrorPopup = true;
+          //   ImGui::OpenPopup("Error Log");
+          // }
           if (!validatedPaths) {
             ImGui::TextColored({255, 0, 100, 255},
                                "You need to validate paths successfully before "
                                "being able to do anything else");
+          }
+          if (ImGui::BeginPopupModal("Error Log", NULL,
+                                     ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::TextWrapped("%s", errorLog.c_str());
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            if (ImGui::Button("Close", ImVec2(120, 0))) {
+              ImGui::CloseCurrentPopup();
+              showErrorPopup = false;
+            }
+
+            ImGui::EndPopup();
           }
 
           ImGui::BeginChild("LeftContent",
@@ -377,7 +407,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                 currentState == Fwg::WorldGenerationState::GenSegments ||
                 currentState == Fwg::WorldGenerationState::GenProvinces) {
               lastState = currentState;
-              //uiUtils->resetTexture();
+              // uiUtils->resetTexture();
               switch (currentState) {
                 // case Fwg::WorldGenerationState::None:
                 //   break;
@@ -499,7 +529,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                 // }
 
               default:
-                //std::cerr << "Unknown world generation state!" << std::endl;
+                // std::cerr << "Unknown world generation state!" << std::endl;
                 break;
               }
             }

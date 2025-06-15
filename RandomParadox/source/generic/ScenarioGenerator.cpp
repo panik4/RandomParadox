@@ -32,8 +32,8 @@ void Generator::mapRegions() {
 
   for (auto &region : this->areaData.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
-              [](const std::shared_ptr<Fwg::Province> a,
-                 const std::shared_ptr<Fwg::Province> b) { return (*a < *b); });
+              [](const std::shared_ptr<Fwg::Areas::Province> a,
+                 const std::shared_ptr<Fwg::Areas::Province> b) { return (*a < *b); });
     auto gameRegion = std::make_shared<Region>(region);
 
     for (auto &province : gameRegion->provinces) {
@@ -149,9 +149,18 @@ void Generator::mapProvinces() {
       gP->neighbours.push_back(baseProvinceNeighbour);
     gameProvinces.push_back(gP);
   }
+
+
   // sort by gameprovince ID
   std::sort(gameProvinces.begin(), gameProvinces.end(),
             [](auto l, auto r) { return *l < *r; });
+  // now print all colours of the provinces
+  for (auto &gameProv : gameProvinces) {
+
+    Fwg::Utils::Logging::logLine(
+        "GameProvince ID: " + std::to_string(gameProv->ID) +
+        " Colour: " + gameProv->baseProvince->colour.toString());
+  }
 }
 
 void Generator::cutFromFiles(const std::string &gamePath) {
@@ -200,7 +209,7 @@ void Generator::generateStrategicRegions() {
   // gather all non contiguous regions
   std::vector<std::shared_ptr<Region>> nonContiguousRegions;
   for (auto &region : gameRegions) {
-    if (!region->isContiguos()) {
+    if (!region->isContiguous()) {
       nonContiguousRegions.push_back(region);
     }
   }

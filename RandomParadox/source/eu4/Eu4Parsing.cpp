@@ -176,9 +176,11 @@ void writeContinent(
   std::array<std::vector<int>, 6> continentMap;
   for (const auto &province : provinces) {
     if (province->baseProvince->continentID >= 0 &&
-        province->baseProvince->continentID != -1) {
-      continentMap.at(province->baseProvince->continentID)
-          .push_back(province->ID + 1);
+        province->baseProvince->continentID != -1 &&
+        province->baseProvince->continentID < continentMap.size()) {
+
+        continentMap.at(province->baseProvince->continentID)
+            .push_back(province->ID + 1);
     }
   }
   auto count = 0;
@@ -361,7 +363,8 @@ void copyDescriptorFile(const std::string &sourcePath,
 void writeProvinces(const std::string &path,
                     const std::vector<std::shared_ptr<GameProvince>> &provinces,
                     const std::vector<std::shared_ptr<Region>> &regions) {
-  Fwg::Utils::Logging::logLine("Eu4 Parser: History: Drawing Province Borders");
+  Fwg::Utils::Logging::logLine(
+      "Eu4 Parser: History: Drawing Areas::Province Borders");
   auto templateContent = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                       "eu4//history//provinceTemplate.txt");
   for (const auto &region : regions) {

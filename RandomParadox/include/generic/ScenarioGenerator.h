@@ -10,8 +10,8 @@
 #include "RandNum.h"
 #include "ResourceLoading.h"
 #include "ScenarioContinent.h"
-#include "SuperRegion.h"
 #include "ScenarioUtils.h"
+#include "SuperRegion.h"
 #include <map>
 namespace Scenario {
 class StrategicRegion : public SuperRegion {
@@ -136,7 +136,7 @@ public:
           for (auto &potOwner : likeliestOwner.getMap()) {
             if (potOwner.second > max) {
               max = potOwner.second;
-              selectedCol = likeliestOwner.getKeyColour(potOwner.first);
+              selectedCol = potOwner.first;
             }
           }
         }
@@ -148,7 +148,7 @@ public:
       }
     }
     for (auto &entry : mapOfRegions.getMap()) {
-      auto entryCol = mapOfRegions.getKeyColour(entry.first);
+      auto entryCol = entry.first;
       if (mapOfCountries.find(entryCol)) {
         auto tokens = mapOfCountries[entryCol];
         auto colour = Fwg::Gfx::Colour(
@@ -163,7 +163,7 @@ public:
       } else {
         T country(std::to_string(counter), counter++, "DUMMY", "",
                   Gfx::Flag(82, 52));
-        country.colour = mapOfRegions.getKeyColour(entry.first);
+        country.colour = entry.first;
         for (auto &region : entry.second) {
           country.addRegion(region);
         }
