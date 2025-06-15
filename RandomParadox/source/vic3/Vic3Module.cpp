@@ -12,6 +12,7 @@ Module::Module(const boost::property_tree::ptree &gamesConf,
   readVic3Config(configSubFolder, username, gamesConf);
   // set the executable subpath
   this->executableSubPath = "binaries//victoria3.exe";
+  gameType = GameType::Vic3;
 }
 
 Module::~Module() {}

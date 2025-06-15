@@ -131,7 +131,8 @@ void definition(const std::string &path,
         seaType,
         coastal,
         terraintype,
-        std::to_string(prov->baseProvince->isSea() || prov->baseProvince->isLake()
+        std::to_string(prov->baseProvince->isSea() ||
+                               prov->baseProvince->isLake()
                            ? 0
                            : prov->baseProvince->continentID +
                                  1) // 0 is for sea, no continent
@@ -142,7 +143,7 @@ void definition(const std::string &path,
 }
 
 void unitStacks(const std::string &path,
-                const std::vector<std::shared_ptr<Province>> provinces,
+                const std::vector<std::shared_ptr<Areas::Province>> provinces,
                 const std::vector<std::shared_ptr<Region>> regions,
                 const std::vector<float> &heightMap) {
   Logging::logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
@@ -242,7 +243,7 @@ void unitStacks(const std::string &path,
 }
 
 void strategicRegions(const std::string &path,
-                      const std::vector<Fwg::Region> &regions,
+                      const std::vector<Fwg::Areas::Region> &regions,
                       const std::vector<StrategicRegion> &strategicRegions) {
   constexpr std::array<int, 12> daysInMonth{30, 27, 30, 29, 30, 29,
                                             30, 30, 29, 30, 29, 30};
@@ -316,7 +317,7 @@ void strategicRegions(const std::string &path,
   }
 }
 void weatherPositions(const std::string &path,
-                      const std::vector<Fwg::Region> &regions,
+                      const std::vector<Fwg::Areas::Region> &regions,
                       std::vector<StrategicRegion> &strategicRegions) {
   Logging::logLine("HOI4 Parser: Map: Creating Storms");
   // 1; 2781.24; 9.90; 1571.49; small
@@ -597,7 +598,7 @@ void flags(const std::string &path, const CountryMap &countries) {
 
 void historyCountries(const std::string &path, const CountryMap &countries,
                       const std::string &gamePath,
-                      const std::vector<Fwg::Region> &regions) {
+                      const std::vector<Fwg::Areas::Region> &regions) {
   Logging::logLine("HOI4 Parser: History: Writing Country History");
   Fwg::IO::Utils::clearFilesOfType(path, ".txt");
   // now compat countries
@@ -1465,7 +1466,7 @@ void tutorials(const std::string &path) {
 }
 
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
-                          const std::vector<Fwg::Region> &regions) {
+                          const std::vector<Fwg::Areas::Region> &regions) {
   Logging::logLine("HOI4 Parser: History: Writing Compatibility Files");
   const std::filesystem::path hoiDir{hoiPath + "//history//countries//"};
   Logging::logLine("HOI4 Parser: History: Reading Files from " +
@@ -1672,13 +1673,13 @@ void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen) {
   using namespace Fwg::Parsing::Scenario;
   auto states = pU::readFilesInDirectory(path + "/history/states");
 
-  Fwg::Utils::ColourTMap<Fwg::Region> stateColours;
+  Fwg::Utils::ColourTMap<Fwg::Areas::Region> stateColours;
   hoi4Gen->gameRegions.clear();
   hoi4Gen->countries.clear();
   stateColours.clear();
 
   for (auto &state : states) {
-    Fwg::Region reg;
+    Fwg::Areas::Region reg;
     auto tag = pU::getValue(state, "owner");
     reg.ID = std::stoi(pU::getValue(state, "id")) - 1;
     removeCharacter(tag, ' ');
@@ -1722,13 +1723,13 @@ void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen) {
   // Fwg::Gfx::Bmp::save(regionMap, path + "/map/regions.bmp");
 }
 // get the bmp file info and extract the respective IDs from definition.csv
-std::vector<Fwg::Province> readProvinceMap(const std::string &path) {
+std::vector<Fwg::Areas::Province> readProvinceMap(const std::string &path) {
   using namespace Fwg::Parsing::Scenario;
   auto &cfg = Fwg::Cfg::Values();
   auto provMap =
       Fwg::IO::Reader::readGenericImage(path + "map/provinces.bmp", cfg);
   auto definition = pU::getLines(path + "map/definition.csv");
-  Fwg::Utils::ColourTMap<Fwg::Province> provinces;
+  Fwg::Utils::ColourTMap<Fwg::Areas::Province> provinces;
   for (const auto &line : definition) {
     auto nums = getNumbers(line, ';', {0, 1, 2, 3});
     provinces.setValue({static_cast<unsigned char>(nums[1]),
@@ -1740,7 +1741,7 @@ std::vector<Fwg::Province> readProvinceMap(const std::string &path) {
                          static_cast<unsigned char>(nums[3])},
                         false});
   }
-  std::vector<Fwg::Province> retProvs(definition.size());
+  std::vector<Fwg::Areas::Province> retProvs(definition.size());
   for (auto i = 0; i < provMap.imageData.size(); i++) {
     const auto colour = provMap[i];
     provinces[colour].pixels.push_back(i);
@@ -1828,7 +1829,7 @@ void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
       auto r = static_cast<unsigned char>(std::stoi(tokens[1]));
       auto g = static_cast<unsigned char>(std::stoi(tokens[2]));
       auto b = static_cast<unsigned char>(std::stoi(tokens[3]));
-      std::shared_ptr<Fwg::Province> p = std::make_shared<Fwg::Province>();
+      std::shared_ptr<Fwg::Areas::Province> p = std::make_shared<Fwg::Areas::Province>();
       p->ID = ID;
       p->colour = {r, g, b};
       if (tokens[4] == "lake") {
@@ -1844,7 +1845,7 @@ void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
   }
   // call it with special idsort bool to make sure we sort by ID only this
   // time
-  Fwg::Areas::Provinces::readProvinceBMP(
+  Fwg::Areas::Provinces::loadProvinces(
       terrainData, climateData, provMap, areaData.provinces,
       areaData.provinceColourMap, areaData.segments, true);
 }

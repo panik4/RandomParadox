@@ -354,9 +354,10 @@ std::set<std::string> readTags(const std::string &inFolder) {
   std::set<std::string> tags;
   for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder}) {
     std::string pathString = dir_entry.path().filename().string();
-    if (pathString.find(".txt") == std::string::npos)
+    if (pathString.find(".txt") == std::string::npos || pathString.size() < 3)
       continue;
     std::string tag = pathString.substr(0, 3);
+    Fwg::Utils::Logging::logLineLevel(3, "Working with: ", pathString);
     std::transform(tag.begin(), tag.end(), tag.begin(), ::toupper);
     tags.insert(tag);
   }

@@ -1,6 +1,6 @@
 #include "generic/GameProvince.h"
 namespace Scenario {
-GameProvince::GameProvince(std::shared_ptr<Fwg::Province> province)
+GameProvince::GameProvince(std::shared_ptr<Fwg::Areas::Province> province)
     : ID(province->ID), baseProvince(province), popFactor(0.0), devFactor(0.0),
       cityShare(0.0) {}
 

@@ -26,8 +26,15 @@ void Country::evaluateTechLevel(
       std::clamp(1.0 + (1.0 - this->averageDevelopment) * 6.0, 1.0, 7.0);
   this->techLevel = "effect_starting_technology_tier_" +
                     std::to_string((int)techLevel) + "_tech";
-  for (const auto &tech : techLevels.at(this->techLevel).technologies) {
-    this->techs[tech.name] = tech;
+  if (techLevels.count(this->techLevel)) {
+    for (const auto &tech : techLevels.at(this->techLevel).technologies) {
+      if (this->techs.find(tech.name) == this->techs.end()) {
+        Fwg::Utils::Logging::logLine("Warning: Tech ", tech.name,
+                                     " doesn't exists in country ", this->name);
+        continue;
+      }
+      this->techs[tech.name] = tech;
+    }
   }
 }
 

@@ -176,7 +176,7 @@ void stateFiles(const std::string &path,
 void provinceTerrains(
     const std::string &path,
     const std::vector<std::shared_ptr<GameProvince>> &provinces) {
-  Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Province Terrains");
+  Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Areas::Province Terrains");
   std::string content{""};
   for (const auto &province : provinces) {
     content.append(province->toHexString());

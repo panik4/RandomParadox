@@ -7,12 +7,14 @@ Generator::Generator() : Scenario::Generator() {}
 
 Generator::Generator(const std::string &configSubFolder)
     : Scenario::Generator(configSubFolder) {
-  // this->terrainTypeToString.at(Fwg::Province::TerrainType::marsh) =
+  // this->terrainTypeToString.at(Fwg::Areas::Province::TerrainType::marsh) =
   // "wetlands";
-  // this->terrainTypeToString.at(Fwg::Province::TerrainType::savannah) =
+  // this->terrainTypeToString.at(Fwg::Areas::Province::TerrainType::savannah) =
   //     "savanna";
-  // this->terrainTypeToString.at(Fwg::Province::TerrainType::tundra) = "snow";
-  // this->terrainTypeToString.at(Fwg::Province::TerrainType::arctic) = "snow";
+  // this->terrainTypeToString.at(Fwg::Areas::Province::TerrainType::tundra) =
+  // "snow";
+  // this->terrainTypeToString.at(Fwg::Areas::Province::TerrainType::arctic) =
+  // "snow";
 }
 
 /* a visualisation of the final terrain types. This is not vic3 specific yet, a
@@ -44,8 +46,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
         }
       } else {
         int forestPixels = 0;
-        std::map<Fwg::Climate::Detail::ClimateTypeIndex, int>
-            climateScores;
+        std::map<Fwg::Climate::Detail::ClimateTypeIndex, int> climateScores;
         std::map<Fwg::Terrain::ElevationTypeIndex, int> terrainTypeScores;
         // get the dominant climate of the province
         for (auto &pix : baseProv->pixels) {
@@ -188,8 +189,10 @@ void Generator::mapRegions() {
 
   for (auto &region : this->areaData.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
-              [](const std::shared_ptr<Fwg::Province> a,
-                 const std::shared_ptr<Fwg::Province> b) { return (*a < *b); });
+              [](const std::shared_ptr<Fwg::Areas::Province> a,
+                 const std::shared_ptr<Fwg::Areas::Province> b) {
+                return (*a < *b);
+              });
     auto gameRegion = std::make_shared<Region>(region);
 
     // generate random name for region
@@ -292,6 +295,7 @@ bool Generator::importData(const std::string &path) {
     Fwg::Utils::Logging::logLine("Error: ", e.what());
     return false;
   }
+  Fwg::Utils::Logging::logLine("Reading goods");
   // now map goods to building types
   for (auto &good : goods) {
     std::vector<Productionmethod> prodMethods;
@@ -303,18 +307,30 @@ bool Generator::importData(const std::string &path) {
       for (auto &outputGood : productionmethod.second.outputs) {
         // this building has a production method that outputs this good
         if (good.first == outputGood.first.name && outputGood.second > 0) {
-          goodToProdMethodsOutput[good.first].push_back(
-              productionmethod.second);
+          if (goodToProdMethodsOutput.count(good.first)) {
+            goodToProdMethodsOutput[good.first].push_back(
+                productionmethod.second);
+          } else {
+            Fwg::Utils::Logging::logLine("Cannot find output good: ",
+                                         good.first);
+          }
         }
       }
       for (auto &inputGood : productionmethod.second.inputs) {
         // this building has a production method that inputs this good
         if (good.first == inputGood.first.name && inputGood.second > 0) {
-          goodToProdMethodsInput[good.first].push_back(productionmethod.second);
+          if (goodToProdMethodsInput.count(good.first)) {
+            goodToProdMethodsInput[good.first].push_back(
+                productionmethod.second);
+          } else {
+            Fwg::Utils::Logging::logLine("Cannot find input good: ",
+                                         good.first);
+          }
         }
       }
     }
   }
+  Fwg::Utils::Logging::logLine("Reading building types");
   for (const auto &buildingType : buildingsTypes) {
     for (const auto &buildingProdGroups : buildingType.productionMethodGroups) {
       for (const auto &buildingProductionmethod :
@@ -342,7 +358,8 @@ void Generator::calculateNeeds() {
     auto wealthDispersion = shiftedGaussian(wealth);
     double pop = country.second->pop;
     for (int i = 0; i < wealthDispersion.size(); i++) {
-      // get the buypackage, it tells us which popneeds we have for this wealth
+      // get the buypackage, it tells us which popneeds we have for this
+      // wealth
       auto buyPackage = buypackages.at("wealth_" + std::to_string(i + 1));
       // this is the pop of that wealth, needing the above buypackage contents
       auto affectedPopFactor = wealthDispersion[i] * pop / 10000.0;
@@ -385,13 +402,14 @@ void Generator::distributeBuildings() {
         Fwg::Utils::Logging::logLine(produceableGood.name, " has demand of ",
                                      actualDemand);
         // filter out tiny demands for now: TODO
-        if (actualDemand > 5.0) {
+        if (actualDemand > 5.0 &&
+            goodToProdMethodsOutput.count(produceableGood.name)) {
           // find production methods that produce this good
           const auto &potentialProdMethods =
               goodToProdMethodsOutput.at(produceableGood.name);
 
-          // now find all buildings for all the production methods, so we get a
-          // complete list of prod methods we support
+          // now find all buildings for all the production methods, so we get
+          // a complete list of prod methods we support
           std::map<std::string, BuildingType> buildingTypes;
           for (auto &entry : potentialProdMethods) {
             // check against techs, this is the decisive factor in
@@ -423,7 +441,8 @@ void Generator::distributeBuildings() {
             Fwg::Utils::Logging::logLine("Have ", type.second.name,
                                          " as option for ",
                                          produceableGood.name);
-            // now get the potential production methods of this single building
+            // now get the potential production methods of this single
+            // building
             std::vector<Productionmethod> buildingProdMethods;
             for (auto &prodMethod : potentialProdMethods) {
               if (type.second.productionMethods.find(prodMethod.name) !=
@@ -494,8 +513,8 @@ void Generator::distributeBuildings() {
           auto portLocator =
               region->getLocation(Fwg::Civilization::LocationType::Port);
           if (portLocator != nullptr) {
-            // find the building in buildingsTypes with the name building_port.
-            // This is a vector we search in
+            // find the building in buildingsTypes with the name
+            // building_port. This is a vector we search in
             auto portBuilding =
                 std::find_if(buildingsTypes.begin(), buildingsTypes.end(),
                              [](BuildingType &building) {
@@ -552,8 +571,9 @@ void Generator::createLocators() {
 
     //    auto ogPosition = farmLocator->position.weightedCenter;
     //    auto circDistance = Fwg::HeightGeneration::circularDistance(
-    //        binaryLandMap, config.width, farmLocator->position.weightedCenter,
-    //        config.seaLevel, searchVector, 10, true);
+    //        binaryLandMap, config.width,
+    //        farmLocator->position.weightedCenter, config.seaLevel,
+    //        searchVector, 10, true);
     //    if (circDistance < 5) {
     //      // now try to find the most distant point in this whole region
     //      auto maxDistance = 0;
@@ -583,7 +603,8 @@ void Generator::createLocators() {
     //        // we must delete it
     //        region->significantLocations.erase(
     //            std::remove(region->significantLocations.begin(),
-    //                        region->significantLocations.end(), farmLocator),
+    //                        region->significantLocations.end(),
+    //                        farmLocator),
     //            region->significantLocations.end());
     //        // also clear it from region locations
     //        region->locations.erase(std::remove(region->locations.begin(),

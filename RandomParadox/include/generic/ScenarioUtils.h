@@ -2,6 +2,7 @@
 #include "FastWorldGenerator.h"
 #include <string>
 #include <vector>
+enum class GameType { Generic, Hoi4, Vic3, Eu4 };
 namespace Scenario::Utils {
 
 struct NoiseConfig {

@@ -10,6 +10,7 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   const auto &config = Fwg::Cfg::Values();
   // set the executable subpath
   this->executableSubPath = "hoi4.exe";
+  gameType = GameType::Hoi4;
 
   // read hoi configs and potentially overwrite settings for fwg
   readHoiConfig(configSubFolder, username, gamesConf);
@@ -146,8 +147,8 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
     config.targetSeaRegionAmount = 160;
   cut = config.cut;
   config.forceResolutionBase = true;
-  config.resolutionBase = 64;
-  config.autoSplitProvinces = true;
+  config.resolutionBase = 256;
+  config.autoSplitProvinces = false;
   config.miningPerRegion = 0;
   config.forestryPerRegion = 0;
   config.citiesPerRegion = 5;
@@ -304,7 +305,7 @@ void Hoi4Module::readHoi(std::string &path) {
   hoi4Gen->genLand();
   hoi4Gen->loadClimate(config, path + "map//terrain.bmp");
   hoi4Gen->provinceMap =
-      Fwg::IO::Reader::readProvinceImage(path + "map//provinces.bmp", config);
+      Fwg::IO::Reader::readGenericImage(path + "map//provinces.bmp", config);
   //// read in game or mod files
   hoi4Gen->climateData.habitabilities.resize(hoi4Gen->provinceMap.size());
   Hoi4::Parsing::Reading::readProvinces(hoi4Gen->terrainData,
@@ -322,11 +323,11 @@ void Hoi4Module::readHoi(std::string &path) {
   // ensure continents are created via the details in definition.csv.
   // Which means we also need to load the existing continents file to match
   // those with each other, so another export does not overwrite the continents
-  std::map<int, Continent> continents;
+  std::map<int, Areas::Continent> continents;
   for (auto &prov : hoi4Gen->areaData.provinces) {
     if (prov->continentID != -1) {
       if (continents.find(prov->continentID) == continents.end()) {
-        Continent continent("", prov->continentID);
+        Areas::Continent continent("", prov->continentID);
         continents.insert({prov->continentID, continent});
       } else {
         continents.at(prov->continentID).provinces.push_back(prov);

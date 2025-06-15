@@ -10,7 +10,7 @@ Region::Region(const Scenario::Region &gameRegion)
 Region::~Region() {}
 
 Scenario::Utils::Building
-getBuilding(const std::string &type, const Fwg::Province &prov,
+getBuilding(const std::string &type, const Fwg::Areas::Province &prov,
             const bool coastal, const std::vector<float> &heightmap,
             const Fwg::Gfx::Bitmap &typeMap, int relativeID = 0) {
   auto pix = 0;
@@ -73,7 +73,7 @@ getBuilding(const std::string &type, const Fwg::Province &prov,
 }
 
 Scenario::Utils::Building getBuilding(const std::string &type,
-                                      const Fwg::Region &region,
+                                      const Fwg::Areas::Region &region,
                                       const bool coastal,
                                       const std::vector<float> &heightmap,
                                       int relativeID = 0) {

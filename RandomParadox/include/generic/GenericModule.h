@@ -9,6 +9,7 @@
 #include <string>
 namespace Scenario {
 class GenericModule {
+
 protected:
   bool cut;
 
@@ -17,6 +18,7 @@ protected:
 
   // optional for every game
   std::string executableSubPath = "";
+  GameType gameType = GameType::Generic;
 
 public:
   virtual bool createPaths() = 0;

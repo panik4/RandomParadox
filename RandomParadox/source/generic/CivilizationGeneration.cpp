@@ -287,6 +287,10 @@ void nameRegions(std::vector<std::shared_ptr<Region>> &regions) {
     }
     auto language = culture->language;
     region->name = language->generateAreaName("");
+    // capitalise the region name
+    std::transform(region->name.begin(), region->name.end(),
+                   region->name.begin(),
+                   [](unsigned char c) { return std::toupper(c); });
     for (auto &province : region->gameProvinces) {
       province->name = language->generateAreaName("");
     }
