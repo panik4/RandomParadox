@@ -14,6 +14,9 @@ void dumpInfo(const std::string &error, const std::string &configSubFolder) {
   std::string path = configSubFolder;
   if (path.length() > 0) {
     for (const auto &entry : std::filesystem::directory_iterator(path)) {
+      if (entry.is_directory()) {
+        continue; // Skip directories
+      }
       dump += Fwg::Parsing::readFile(entry.path().string());
     }
   }
@@ -93,7 +96,7 @@ int main() {
   try {
     Fwg::Utils::Logging::logLine("Starting the loading of ",
                                  configSubFolder + "FastWorldGenerator.json");
-    config.readConfig(configSubFolder + "FastWorldGenerator.json");
+    config.readConfig(configSubFolder);
   } catch (std::exception e) {
     Utils::Logging::logLine("Incorrect config \"FastWorldGenerator.json\"");
     Utils::Logging::logLine("You can try fixing it yourself. Error is: ",

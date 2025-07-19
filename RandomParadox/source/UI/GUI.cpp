@@ -935,8 +935,7 @@ int GUI::showScenarioTab(
       ImGui::SeparatorText(
           "Only remap when you have changed the maps in the previous tabs");
       uiUtils->showHelpTextBox("Scenario");
-      if (ImGui::Button("Remap areas") ||
-          !activeModule->generator->gameProvinces.size()) {
+      if (ImGui::Button("Remap areas")) {
         if (!activeModule->createPaths()) {
           Fwg::Utils::Logging::logLine("ERROR: Couldn't create paths");
           retCode = -1;
@@ -944,6 +943,7 @@ int GUI::showScenarioTab(
         activeModule->initNameData(Fwg::Cfg::Values().resourcePath + "names",
                                    activeModule->pathcfg.gamePath);
         // start with the generic stuff in the Scenario Generator
+        activeModule->generator->wrapup(cfg);
         activeModule->generator->mapProvinces();
         activeModule->generator->mapRegions();
         activeModule->generator->mapTerrain();
@@ -953,6 +953,7 @@ int GUI::showScenarioTab(
             activeModule->generator->gameProvinces,
             activeModule->generator->civData,
             activeModule->generator->scenContinents);
+
         configuredScenarioGen = true;
       }
       ImGui::PushItemWidth(200.0f);
@@ -1153,6 +1154,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
           hoi4Gen->generateCountrySpecifics();
           hoi4Gen->generateFocusTrees();
           hoi4Gen->distributeVictoryPoints();
+          hoi4Gen->generatePositions();
           requireCountryDetails = false;
         }
       }

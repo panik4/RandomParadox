@@ -22,7 +22,9 @@ void Generator::mapRegions() {
   for (auto &region : this->areaData.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
               [](const std::shared_ptr<Fwg::Areas::Province> a,
-                 const std::shared_ptr<Fwg::Areas::Province> b) { return (*a < *b); });
+                 const std::shared_ptr<Fwg::Areas::Province> b) {
+                return (*a < *b);
+              });
     auto gameRegion = std::make_shared<Region>(region);
     // generate random name for region
     gameRegion->name = "";
@@ -78,8 +80,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
         }
       } else {
         int forestPixels = 0;
-        std::map<Fwg::Climate::Detail::ClimateTypeIndex, int>
-            climateScores;
+        std::map<Fwg::Climate::Detail::ClimateTypeIndex, int> climateScores;
         std::map<Fwg::Terrain::ElevationTypeIndex, int> terrainTypeScores;
         // get the dominant climate of the province
         for (auto &pix : baseProv->pixels) {
@@ -359,7 +360,8 @@ void Generator::generateStateSpecifics() {
     civilianIndustry += (int)hoi4State->civilianFactories;
     navalIndustry += (int)hoi4State->dockyards;
     // get potential building positions
-    hoi4State->calculateBuildingPositions(this->terrainData.detailedHeightMap, typeMap);
+    hoi4State->calculateBuildingPositions(this->terrainData.detailedHeightMap,
+                                          typeMap);
   }
   totalWorldIndustry = militaryIndustry + civilianIndustry + navalIndustry;
   statesInitialised = true;
@@ -1755,6 +1757,147 @@ void Generator::generateFocusTrees() {
   Hoi4::FocusGen::evaluateCountryGoals(this->hoi4Countries, this->gameRegions);
 }
 
+ScenarioPosition
+createPosition(Fwg::Position &position, PositionType type, int typeIndex,
+               const std::vector<Fwg::Terrain::LandForm> &landForms) {
+  ScenarioPosition scenarioPos;
+  scenarioPos.position = position;
+  scenarioPos.position.altitude =
+      landForms[scenarioPos.position.weightedCenter].altitude;
+  scenarioPos.type = type;
+  scenarioPos.typeIndex = typeIndex;
+  return scenarioPos;
+}
+std::vector<Fwg::Areas::NeighbourProvince>
+getNeighbourRelations(const std::shared_ptr<Fwg::Areas::Province> &prov,
+                      const Fwg::Cfg &cfg, const float &factor) {
+  // create the neighbour relations for each of the neighbours
+  std::vector<Fwg::Areas::NeighbourProvince> neighbourRelations;
+  for (auto &neighbour : prov->neighbours) {
+    Fwg::Areas::NeighbourProvince neighbourProv;
+    neighbourProv.neighbour = neighbour;
+    neighbourProv.cost = 1.0f;
+    double angle = 0.0;
+    auto positionBetweenProvinces = prov->getPositionToNeighbourProvince(
+        neighbour, cfg.width, angle, factor);
+    neighbourProv.positionToNeighbour = positionBetweenProvinces;
+
+    neighbourRelations.push_back(neighbourProv);
+  }
+  return neighbourRelations;
+}
+
+void Generator::generatePositions() {
+  const auto &landForms = this->terrainData.landForms;
+  const auto &cfg = Fwg::Cfg::Values();
+  for (auto &gameProv : gameProvinces) {
+    Fwg::Position position;
+    if (gameProv->victoryPoint) {
+      position = gameProv->victoryPoint->position;
+    } else {
+      position = gameProv->baseProvince->position;
+    }
+    gameProv->positions.push_back(
+        createPosition(position, PositionType::VictoryPoint, 38, landForms));
+
+    // now we get neighbour relations for a province, but in a very short
+    // distance to the centre.
+    std::vector<Fwg::Areas::NeighbourProvince> neighbourRelations;
+    const auto &prov = gameProv->baseProvince;
+    neighbourRelations = getNeighbourRelations(prov, cfg, 0.2f);
+
+    //  We use those for standstill, standstill RG, defending, attacking
+    auto allowedSize = neighbourRelations.size() - 1;
+    gameProv->positions.push_back(createPosition(
+        neighbourRelations[std::min<int>(0, allowedSize)].positionToNeighbour,
+        PositionType::Standstill, 0, landForms));
+    gameProv->positions.push_back(createPosition(
+        neighbourRelations[std::min<int>(1, allowedSize)].positionToNeighbour,
+        PositionType::StandstillRG, 21, landForms));
+    gameProv->positions.push_back(createPosition(
+        neighbourRelations[std::min<int>(2, allowedSize)].positionToNeighbour,
+        PositionType::Defending, 10, landForms));
+    gameProv->positions.push_back(createPosition(
+        neighbourRelations[std::min<int>(3, allowedSize)].positionToNeighbour,
+        PositionType::Attacking, 9, landForms));
+
+    // for sea we need: standstill, standstill RG, defending, attacking, per
+    // neighbour: moving, disembarck (11 + x), moving RG, disembarck RG (30 + x)
+    // for land we need: standstill, standstill RG, defending, attacking, per
+    // neighbour: moving, moving RG for coastal land we need additionally: ship
+    // in port (19), ship in port moving (20)
+    // commonality for all: standstill (0), standstill RG (21), defending (10),
+    // attacking (9), per neighbour: moving (1 + x), moving RG (22 + x), victory
+    // point (38)
+    auto sea = gameProv->baseProvince->isSea();
+
+    // evaluate if we need ship in port positions
+    if (gameProv->baseProvince->isLand() && gameProv->baseProvince->coastal) {
+      // now check if we have a port location
+      auto &locations = gameProv->baseProvince->locations;
+      // get the port if we have one
+      auto portLocation =
+          std::find_if(locations.begin(), locations.end(), [](const auto &loc) {
+            return loc->type == Fwg::Civilization::LocationType::Port;
+          });
+      if (portLocation == locations.end()) {
+        // no port location, so we take random coastal pixels from the
+        // baseProvince
+        position = Fwg::Position(
+            Fwg::Utils::selectRandom(gameProv->baseProvince->coastalPixels),
+            cfg.width);
+      } else {
+        position = (*portLocation)->position;
+      }
+
+      gameProv->positions.push_back(
+          createPosition(position, PositionType::ShipInPort, 19, landForms));
+      gameProv->positions.push_back(createPosition(
+          position, PositionType::ShipInPortMoving, 20, landForms));
+    }
+    neighbourRelations = getNeighbourRelations(prov, cfg, 0.33f);
+    // really close to the destination coast
+    auto embarkNeighbourRelations = getNeighbourRelations(prov, cfg, 0.9f);
+    auto embarkRgNeighbourRelations = getNeighbourRelations(prov, cfg, 0.8f);
+
+    // all need moving, and moving RG. Moving we take from the
+    // gameProv->baseProvince->neighbourRelations, while moving RG we take
+    // from neighbourRelations, as they are closer to the center of the
+    // province
+    for (auto counter = 0;
+         auto &neighbour : gameProv->baseProvince->neighbourRelations) {
+      if (counter > 7) {
+        // hoi4 only supports 8 moving positions, so we break here
+        break;
+      }
+
+      gameProv->positions.push_back(
+          createPosition(neighbour->positionToNeighbour,
+                         PositionType::UnitMoving, 1 + counter, landForms));
+      gameProv->positions.push_back(
+          createPosition(neighbourRelations[counter].positionToNeighbour,
+                         PositionType::UnitMovingRG, 22 + counter, landForms));
+      if (sea) {
+        // now we add the embark positions, which are the same as the
+        // neighbour relations, but with a different type
+        gameProv->positions.push_back(createPosition(
+            embarkNeighbourRelations[counter].positionToNeighbour,
+            PositionType::UnitDisembarking, 11 + counter, landForms));
+
+        gameProv->positions.push_back(createPosition(
+            embarkRgNeighbourRelations[counter].positionToNeighbour,
+            PositionType::UnitDisembarkingRG, 30 + counter, landForms));
+        counter++;
+      }
+    }
+    // now sort by typeIndex
+    std::sort(gameProv->positions.begin(), gameProv->positions.end(),
+              [](const ScenarioPosition &a, const ScenarioPosition &b) {
+                return a.typeIndex < b.typeIndex;
+              });
+  }
+}
+
 void Generator::printStatistics() {
   Fwg::Utils::Logging::logLine(
       "Total Industry: ", militaryIndustry + civilianIndustry + navalIndustry);
@@ -1826,8 +1969,9 @@ void Generator::distributeVictoryPoints() {
         vp.position = (*mostImportantLocation)->position;
         vp.name = Fwg::Utils::selectRandom(language->cityNames);
         if ((int)vps > 0) {
-          region->victoryPointsMap[province.first] = vp;
-          assignedVPs += region->victoryPointsMap[province.first].amount;
+          region->victoryPointsMap[province.first] =
+              std::make_shared<VictoryPoint>(vp);
+          assignedVPs += region->victoryPointsMap[province.first]->amount;
         }
       }
     }

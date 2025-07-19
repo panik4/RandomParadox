@@ -1,6 +1,25 @@
 #pragma once
 #include "FastWorldGenerator.h"
+#include "generic/VictoryPoint.h"
 namespace Scenario {
+enum class PositionType {
+  Standstill,
+  StandstillRG,
+  Attacking,
+  Defending,
+  UnitMoving,
+  UnitMovingRG,
+  UnitDisembarking,
+  UnitDisembarkingRG,
+  ShipInPort,
+  ShipInPortMoving,
+  VictoryPoint
+};
+struct ScenarioPosition {
+  Fwg::Position position;
+  PositionType type;
+  int typeIndex;
+};
 class GameProvince {
 public:
   int ID;
@@ -11,12 +30,12 @@ public:
   double devFactor;
   double cityShare;
   std::shared_ptr<Fwg::Areas::Province> baseProvince;
+  std::shared_ptr<VictoryPoint> victoryPoint;
   // containers
   std::vector<GameProvince> neighbours;
-  // TODO: Remove this crap
-  std::map<std::string, double> attributeDoubles;
-  // TODO: Remove this crap
-  std::map<std::string, std::string> attributeStrings;
+  // these positions are used for victory points, units, etc
+  std::vector<ScenarioPosition> positions;
+
   // constructors/destructor
   GameProvince(std::shared_ptr<Fwg::Areas::Province> province);
   GameProvince();

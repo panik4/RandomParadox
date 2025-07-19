@@ -143,7 +143,7 @@ void definition(const std::string &path,
 }
 
 void unitStacks(const std::string &path,
-                const std::vector<std::shared_ptr<Areas::Province>> provinces,
+                const std::vector<std::shared_ptr<GameProvince>> provinces,
                 const std::vector<std::shared_ptr<Region>> regions,
                 const std::vector<float> &heightMap) {
   Logging::logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
@@ -152,93 +152,24 @@ void unitStacks(const std::string &path,
   // 0=south, 1.5=east,4,5=west), ?? provID, xPos, ~10, yPos, ~0, 0,5 for each
   // neighbour add move state in the direction of the neighbour. 0 might be
   // stand still
+  auto &cfg = Cfg::Values();
+
   std::string content{""};
   for (const auto &prov : provinces) {
-    int unitstackIndex = 0;
-    auto pix = Fwg::Utils::selectRandom(prov->pixels);
-    auto widthPos = pix % Cfg::Values().width;
-    auto heightPos = pix / Cfg::Values().width;
-    std::vector<std::string> arguments{std::to_string(prov->ID + 1),
-                                       std::to_string(unitstackIndex),
-                                       std::to_string(widthPos),
-                                       std::to_string(heightMap[pix] / 10.0),
-                                       std::to_string(heightPos),
-                                       std::to_string(0.0),
-                                       "0.0"};
-    content.append(pU::csvFormat(arguments, ';', false));
-    // attacking
-    arguments[1] = "9";
-    content.append(pU::csvFormat(arguments, ';', false));
-    // defending
-    arguments[1] = "10";
-    content.append(pU::csvFormat(arguments, ';', false));
-    // standstill RG
-    arguments[1] = "21";
-    content.append(pU::csvFormat(arguments, ';', false));
-    unitstackIndex++;
-    for (const auto &neighbour : prov->neighbours) {
-      if (unitstackIndex < 9) {
-        double angle;
-        auto nextPos = prov->getPositionBetweenProvinces(
-            *neighbour, Cfg::Values().width, angle);
-        angle += 1.57;
-        auto widthPos = nextPos % Cfg::Values().width;
-        auto heightPos = nextPos / Cfg::Values().width;
-        std::vector<std::string> arguments{
-            std::to_string(prov->ID + 1),
-            std::to_string(unitstackIndex),
-            std::to_string(widthPos),
-            std::to_string(heightMap[pix] / 10.0),
-            std::to_string(heightPos),
-            std::to_string(angle),
-            "0.0"};
-        content.append(pU::csvFormat(arguments, ';', false));
-        // regroup equivalent
-        arguments[1] = std::to_string(21 + unitstackIndex);
-        content.append(pU::csvFormat(arguments, ';', false));
-        unitstackIndex++;
-      }
-    }
-
-    if (prov->coastal) {
-      unitstackIndex = 11;
-      for (const auto &neighbour : prov->neighbours) {
-        if (prov->isSea()) {
-          if (unitstackIndex < 19) {
-            double angle;
-            auto nextPos = prov->getPositionBetweenProvinces(
-                *neighbour, Cfg::Values().width, angle);
-            angle += 1.57;
-            auto widthPos = nextPos % Cfg::Values().width;
-            auto heightPos = nextPos / Cfg::Values().width;
-            std::vector<std::string> arguments{
-                std::to_string(prov->ID + 1),
-                std::to_string(unitstackIndex),
-                std::to_string(widthPos),
-                std::to_string(heightMap[pix] / 10.0),
-                std::to_string(heightPos),
-                std::to_string(angle),
-                "0.0"};
-            content.append(pU::csvFormat(arguments, ';', false));
-            unitstackIndex++;
-          }
-        }
-      }
-    }
-  }
-  for (auto &region : regions) {
-    for (auto &vp : region->victoryPointsMap) {
+    for (auto &position : prov->positions) {
       std::vector<std::string> arguments{
-          std::to_string(vp.first + 1),
-          std::to_string(38),
-          std::to_string(vp.second.position.widthCenter),
-          std::to_string(heightMap[vp.second.position.weightedCenter] / 10.0),
-          std::to_string(vp.second.position.heightCenter),
-          std::to_string(0.0),
-          "0.0"};
+          std::to_string(prov->ID + 1), // province ID
+          std::to_string(position.typeIndex),
+          std::to_string(position.position.widthCenter),
+          std::to_string(
+              9.5 + std::max<float>(
+                        0.0f, position.position.altitude * 0.1 *
+                                  static_cast<double>(255 - cfg.seaLevel))),
+          std::to_string(position.position.heightCenter),
+          std::to_string(1.57 + position.position.rotation),
+          std::to_string(0.01f + RandNum::getRandom<float>(0.0f, 0.5f))};
       content.append(pU::csvFormat(arguments, ';', false));
     }
-  }
   pU::writeFile(path, content);
 }
 
@@ -1192,7 +1123,7 @@ void states(const std::string &path,
     for (auto &vp : region->victoryPointsMap) {
       victoryPoints.append("victory_points = { " +
                            std::to_string(vp.first + 1) + " " +
-                           std::to_string(vp.second.amount) + "}\n\t\t");
+                           std::to_string(vp.second->amount) + "}\n\t\t");
     }
     auto content{templateContent};
     pU::Scenario::replaceOccurences(content, "templateID",
@@ -1595,7 +1526,7 @@ void victoryPointNames(const std::string &path,
   for (auto region : regions) {
     for (auto vp : region->victoryPointsMap) {
       content += Fwg::Utils::varsToString(" VICTORY_POINTS_", vp.first + 1,
-                                          ":0 \"", vp.second.name, "\"\n");
+                                          ":0 \"", vp.second->name, "\"\n");
     }
   }
   pU::writeFile(path + "//victory_points_l_english.yml", content, true);
@@ -1829,7 +1760,8 @@ void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
       auto r = static_cast<unsigned char>(std::stoi(tokens[1]));
       auto g = static_cast<unsigned char>(std::stoi(tokens[2]));
       auto b = static_cast<unsigned char>(std::stoi(tokens[3]));
-      std::shared_ptr<Fwg::Areas::Province> p = std::make_shared<Fwg::Areas::Province>();
+      std::shared_ptr<Fwg::Areas::Province> p =
+          std::make_shared<Fwg::Areas::Province>();
       p->ID = ID;
       p->colour = {r, g, b};
       if (tokens[4] == "lake") {

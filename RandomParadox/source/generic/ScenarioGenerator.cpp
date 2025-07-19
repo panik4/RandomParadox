@@ -33,7 +33,9 @@ void Generator::mapRegions() {
   for (auto &region : this->areaData.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
               [](const std::shared_ptr<Fwg::Areas::Province> a,
-                 const std::shared_ptr<Fwg::Areas::Province> b) { return (*a < *b); });
+                 const std::shared_ptr<Fwg::Areas::Province> b) {
+                return (*a < *b);
+              });
     auto gameRegion = std::make_shared<Region>(region);
 
     for (auto &province : gameRegion->provinces) {
@@ -121,7 +123,7 @@ void Generator::applyRegionInput() {
       }
     }
   }
-  Png::save(regionMap, Fwg::Cfg::Values().mapsPath + "regionMap.png", false);
+  Png::save(regionMap, Fwg::Cfg::Values().mapsPath + "debug//regionTypes.png", false);
 }
 
 void Generator::mapProvinces() {
@@ -150,17 +152,9 @@ void Generator::mapProvinces() {
     gameProvinces.push_back(gP);
   }
 
-
   // sort by gameprovince ID
   std::sort(gameProvinces.begin(), gameProvinces.end(),
             [](auto l, auto r) { return *l < *r; });
-  // now print all colours of the provinces
-  for (auto &gameProv : gameProvinces) {
-
-    Fwg::Utils::Logging::logLine(
-        "GameProvince ID: " + std::to_string(gameProv->ID) +
-        " Colour: " + gameProv->baseProvince->colour.toString());
-  }
 }
 
 void Generator::cutFromFiles(const std::string &gamePath) {
@@ -483,7 +477,8 @@ void Generator::distributeCountries() {
 
   if (countries.size()) {
     for (auto &gameRegion : gameRegions) {
-      if (!gameRegion->isSea() && !gameRegion->assigned && !gameRegion->isLake()) {
+      if (!gameRegion->isSea() && !gameRegion->assigned &&
+          !gameRegion->isLake()) {
         auto gR = Fwg::Utils::getNearestAssignedLand(
             gameRegions, gameRegion, config.width, config.height);
         gR->owner->addRegion(gameRegion);
@@ -555,7 +550,7 @@ void Generator::totalResourceVal(
   }
 }
 void Generator::evaluateCountries() {}
-void Generator::generateCountrySpecifics(){};
+void Generator::generateCountrySpecifics() {};
 void Generator::printStatistics() {
   Logging::logLine("Printing Statistics");
   std::map<std::string, int> countryPop;

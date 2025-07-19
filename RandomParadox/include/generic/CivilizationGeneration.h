@@ -46,4 +46,7 @@ void nameRegions(std::vector<std::shared_ptr<Region>> &regions);
 // after having generated cultures, generate names for the continents
 void nameContinents(std::vector<ScenarioContinent> &continents,
                     std::vector<std::shared_ptr<Region>> &regions);
+
+bool sanityChecks(const CivilizationData &civData);
+
 } // namespace Scenario::Civilization
