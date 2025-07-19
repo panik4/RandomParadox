@@ -302,15 +302,22 @@ void nameContinents(std::vector<ScenarioContinent> &continents,
   // take all continents and name them by taking their dominant cultures
   // language and generating a name
   for (auto &continent : continents) {
-    auto ID = continent.regions[0]->ID;
-    auto culture = regions[ID]->getPrimaryCulture();
-    if (culture == nullptr) {
-      continue;
+    if (continent.regions.size()) {
+      auto ID = continent.regions[0]->ID;
+      auto culture = regions[ID]->getPrimaryCulture();
+      if (culture == nullptr) {
+        continue;
+      }
+      auto language = culture->language;
+      continent.name = language->generateAreaName("");
+      continent.adjective = language->getAdjectiveForm(continent.name);
+    } else {
+      continent.name = std::to_string(continent.ID);
+      continent.adjective = std::to_string(continent.ID);
     }
-    auto language = culture->language;
-    continent.name = language->generateAreaName("");
-    continent.adjective = language->getAdjectiveForm(continent.name);
   }
 }
+
+bool sanityChecks(const CivilizationData &civData) { return true; }
 
 } // namespace Scenario::Civilization

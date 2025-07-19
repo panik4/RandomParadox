@@ -97,6 +97,8 @@ public:
 
   void generateFocusTrees();
 
+  void generatePositions();
+
   // see which countries are in need of unification
   void evaluateBrotherlyWars();
   // see which country needs to see some action

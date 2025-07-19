@@ -50,7 +50,7 @@
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
-		"sobelFactor": 4,
+		"sobelFactor": 1,
 		"climate" : 
 		{
 			"fantasyClimate" : false,

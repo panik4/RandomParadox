@@ -198,7 +198,7 @@ void Hoi4Module::writeTextFiles() {
   Map::strategicRegions(pathcfg.gameModPath + "//map//strategicregions",
                         hoi4Gen->areaData.regions, hoi4Gen->strategicRegions);
   Map::unitStacks(pathcfg.gameModPath + "//map//unitstacks.txt",
-                  hoi4Gen->areaData.provinces, hoi4Gen->hoi4States,
+                  hoi4Gen->gameProvinces, hoi4Gen->hoi4States,
                   hoi4Gen->terrainData.detailedHeightMap);
   Map::weatherPositions(pathcfg.gameModPath + "//map//weatherpositions.txt",
                         hoi4Gen->areaData.regions, hoi4Gen->strategicRegions);
@@ -426,6 +426,7 @@ void Hoi4Module::generate() {
     NationalFocus::buildMaps();
     hoi4Gen->generateFocusTrees();
     hoi4Gen->distributeVictoryPoints();
+    hoi4Gen->generatePositions();
 
     // non-country stuff
     hoi4Gen->generateStrategicRegions();

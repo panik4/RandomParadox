@@ -1,13 +1,10 @@
 {
 	"module": 
 	{
-		"debugLevel": 0,
-		"loadMaps" : false,
+		"debugLevel": 9,
 		"writeMaps" : true,
-		"cut" : false,
-		"scale" : false,
 		"scaleFactor" : 1,
-		"seed" : 0
+		"seed" : 2
 	},
 	"paths":
 	{
@@ -37,8 +34,8 @@
 	},
 	"map": 
 	{
-		"width" : 5632,
-		"height" : 2048,
+		"width" : 512,
+		"height" : 512,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -97,226 +94,6 @@
 			"minimumDegCelcius": -20,
 			"deviationFactor": 10,
 			"temperatureRange": 70
-		},
-		"heightmap" : 
-		{
-			"complexHeight" : true,
-			"layerAmount" : 11,
-			"overallFrequencyModifier" : 1.5,
-			"removeChunkThreshold": 9,
-			"baseSeaLevel": 80,
-			"layers" :
-			{
-				"0" :
-				{
-					"noiseType" : 4,
-					"fractalType" : 1,
-					"landLayer" : false,
-					"seaLayer" : false,
-					"fractalFrequency" : 1.0,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.4,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 1.0,
-					"altitudeWeightStart" : 0.0,
-					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 100,
-					"minHeight" : 0,
-					"tanFactor": 0.0
-				},
-				"1" :
-				{
-					"noiseType" : 4,
-					"fractalType" : 1,
-					"landLayer" : false,
-					"seaLayer" : false,
-					"fractalFrequency" : 5,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.4,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 0.5,
-					"altitudeWeightStart" : 0.0,
-					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 25,
-					"minHeight" : 0,
-					"tanFactor": 0.0
-				},
-				"2" :
-				{
-					"noiseType" : 4,
-					"fractalType" : 1,
-					"landLayer" : false,
-					"seaLayer" : false,
-					"fractalFrequency" : 5,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.4,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 0.5,
-					"altitudeWeightStart" : 0.0,
-					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 25,
-					"minHeight" : 0,
-					"tanFactor": 0.0
-				},
-				"3" :
-				{
-					"noiseType" : 1,
-					"fractalType" : 3,
-					"landLayer" : false,
-					"seaLayer" : false,
-					"fractalFrequency" : 0.6,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.4,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 1.0,
-					"altitudeWeightStart" : 0.0,
-					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 50,
-					"minHeight" : 0,
-					"tanFactor": 0.16
-				},
-				"4" :
-				{
-					"noiseType" : 1,
-					"fractalType" : 3,
-					"landLayer" : true,
-					"seaLayer" : false,
-					"fractalFrequency" : 1,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.4,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 1.5,
-					"altitudeWeightStart" : 0.0,
-					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 80,
-					"minHeight" : 0,
-					"tanFactor": 0.217
-				},
-				"5" :
-				{
-					"noiseType" : 4,
-					"fractalType" : 1,
-					"landLayer" : false,
-					"seaLayer" : false,
-					"fractalFrequency" : 8,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.6,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 0.5,
-					"altitudeWeightStart" : 0.0,
-					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 15,
-					"minHeight" : 0,
-					"tanFactor": 0.0
-				},
-				"6" :
-				{
-					"noiseType" : 4,
-					"fractalType" : 1,
-					"landLayer" : false,
-					"seaLayer" : false,
-					"fractalFrequency" : 4,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.4,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 1.0,
-					"altitudeWeightStart" : 0.0,
-					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 10,
-					"minHeight" : 0,
-					"tanFactor": 0.0
-				},
-				"7" :
-				{
-					"noiseType" : 1,
-					"fractalType" : 3,
-					"landLayer" : true,
-					"seaLayer" : false,
-					"fractalFrequency" : 1,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.6,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 0.8,
-					"altitudeWeightStart" : 0.0,
-					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 150,
-					"minHeight" : 0,
-					"tanFactor": 0.22
-				},
-				"8" :
-				{
-					"noiseType" : 1,
-					"fractalType" : 3,
-					"landLayer" : true,
-					"seaLayer" : false,
-					"fractalFrequency" : 1,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.5,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 0.5,
-					"altitudeWeightStart" : 0.0,
-					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 1,
-					"minHeight" : 1,
-					"tanFactor": 0.0
-				},
-				"9" :
-				{
-					"noiseType" : 1,
-					"fractalType" : 2,
-					"landLayer" : true,
-					"seaLayer" : false,
-					"fractalFrequency" : 1,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.7,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 1.0,
-					"altitudeWeightStart" : 0.0,
-					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 40,
-					"minHeight" : 0,
-					"tanFactor": 0.214
-				},
-				"10" :
-				{
-					"noiseType" : 4,
-					"fractalType" : 1,
-					"landLayer" : false,
-					"seaLayer" : true,
-					"fractalFrequency" : 4,
-					"fractalOctaves" : 11,
-					"fractalGain" : 0.4,
-					"seed" : 0,
-					"widthEdge" : 10,
-					"heightEdge" : 0,
-					"weight" : 0.5,
-					"altitudeWeightStart" : 0.0,
-					"altitudeWeightEnd" : 0.0,
-					"maxHeight" : 255,
-					"minHeight" : 0,
-					"tanFactor": 0.0
-				}
-			}
 		}
     }
 }

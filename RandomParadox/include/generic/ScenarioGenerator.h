@@ -161,7 +161,7 @@ public:
         }
         countries.insert({country.tag, std::make_shared<T>(country)});
       } else {
-        T country(std::to_string(counter), counter++, "DUMMY", "",
+        T country(std::to_string(counter), counter++, "", "",
                   Gfx::Flag(82, 52));
         country.colour = entry.first;
         for (auto &region : entry.second) {
@@ -176,11 +176,14 @@ public:
       country.second->gatherCultureShares();
       auto culture = country.second->getPrimaryCulture();
       auto language = culture->language;
-      country.second->name = language->generateGenericCapitalizedWord();
+      // only generate name and tag if this country was not in the input mappings
+      if (!country.second->name.size()) {
+        country.second->name = language->generateGenericCapitalizedWord();
+        country.second->tag =
+            NameGeneration::generateTag(country.second->name, nData);
+      }
       country.second->adjective =
           language->getAdjectiveForm(country.second->name);
-      country.second->tag =
-          NameGeneration::generateTag(country.second->name, nData);
       for (auto &region : country.second->ownedRegions) {
         region->owner = country.second;
       }

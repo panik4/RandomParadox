@@ -31,7 +31,7 @@ void strategicRegions(const std::string &path,
 void supply(const std::string &path,
             const std::vector<std::vector<int>> &supplyNodeConnections);
 void unitStacks(const std::string &path,
-                const std::vector<std::shared_ptr<Fwg::Areas::Province>> provinces,
+                const std::vector<std::shared_ptr<GameProvince>> provinces,
                 const std::vector<std::shared_ptr<Region>> regions,
                 const std::vector<float> &heightMap);
 void weatherPositions(const std::string &path,

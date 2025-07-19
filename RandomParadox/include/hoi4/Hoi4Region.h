@@ -3,13 +3,10 @@
 #include "generic/GameRegion.h"
 #include "generic/ScenarioUtils.h"
 #include "hoi4/Hoi4Airforce.h"
+#include "generic/VictoryPoint.h"
 
 namespace Scenario::Hoi4 {
-struct VictoryPoint {
-  int amount;
-  Fwg::Position position;
-  std::string name;
-};
+
 
 class Region : public Scenario::Region {
   const std::vector<std::string> buildingTypes{
@@ -39,7 +36,7 @@ public:
   Scenario::Utils::WeatherPosition weatherPosition;
   // Containers
   std::vector<Scenario::Utils::Building> buildings;
-  std::map<int, VictoryPoint> victoryPointsMap;
+  std::map<int, std::shared_ptr<VictoryPoint>> victoryPointsMap;
   std::map<int, int> navalBases;
   std::shared_ptr<AirBase> airBase;
   // Constructors/Destructors

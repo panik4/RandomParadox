@@ -497,9 +497,8 @@ void FormatConverter::dump8BitCities(const Bitmap &climateIn,
 
 void FormatConverter::dump8BitRivers(
     const Fwg::Terrain::TerrainData &terrainData,
-    const Fwg::Climate::ClimateData &climateIn,
-    const std::string &path, const std::string &colourMapKey,
-    const bool cut) const {
+    const Fwg::Climate::ClimateData &climateIn, const std::string &path,
+    const std::string &colourMapKey, const bool cut) const {
   Utils::Logging::logLine("FormatConverter::Writing rivers to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
 
@@ -539,9 +538,8 @@ void FormatConverter::dump8BitRivers(
 
 void FormatConverter::dump8BitTrees(
     const Fwg::Terrain::TerrainData &terrainData,
-    const Fwg::Climate::ClimateData &climateIn,
-    const std::string &path, const std::string &colourMapKey,
-    const bool cut) const {
+    const Fwg::Climate::ClimateData &climateIn, const std::string &path,
+    const std::string &colourMapKey, const bool cut) const {
   auto &conf = Cfg::Values();
   Utils::Logging::logLine("FormatConverter::Writing trees to ",
                           Fwg::Utils::userFilter(path, conf.username));
@@ -618,8 +616,7 @@ void FormatConverter::dumpDDSFiles(const std::vector<float> &heightMap,
     for (auto h = 0; h < imageHeight; h++) {
       for (auto w = 0; w < imageWidth; w++) {
         auto referenceIndex = factor * h * width + factor * w;
-        auto depth = heightMap[referenceIndex] /
-                       (float)Cfg::Values().seaLevel;
+        auto depth = heightMap[referenceIndex] / (float)Cfg::Values().seaLevel;
         auto imageIndex =
             imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
         imageIndex *= 4;
@@ -727,16 +724,9 @@ void FormatConverter::dumpWorldNormal(const Bitmap &sobelMap,
   auto width = Cfg::Values().width;
 
   int factor = 2; // image width and height are halved
-  Bitmap normalMap = sobelMap;
-  if (!cut) {
-    Fwg::Gfx::Bmp::scaleInterpolation(normalMap, factor);
 
-  } else {
-    normalMap = cutBaseMap("//world_normal.bmp", (1.0 / (double)factor), 24);
-    for (auto i = 0; i < 5; i++)
-      normalMap.imageData = Bmp::filter(normalMap);
-  }
-  Bmp::save(normalMap, (path).c_str());
+  Bmp::save(Fwg::Gfx::Bmp::scaleInterpolation(sobelMap, factor),
+            (path).c_str());
 }
 
 FormatConverter::FormatConverter() {}
