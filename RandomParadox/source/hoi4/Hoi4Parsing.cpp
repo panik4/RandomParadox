@@ -170,6 +170,7 @@ void unitStacks(const std::string &path,
           std::to_string(0.01f + RandNum::getRandom<float>(0.0f, 0.5f))};
       content.append(pU::csvFormat(arguments, ';', false));
     }
+  }
   pU::writeFile(path, content);
 }
 

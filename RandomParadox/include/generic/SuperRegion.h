@@ -3,8 +3,10 @@
 #include "GameRegion.h"
 #include <map>
 namespace Scenario {
-class SuperRegion {
-  Fwg::Areas::AreaType type;
+struct Cluster : Fwg::Areas::Area {
+  std::vector<std::shared_ptr<Region>> regions;
+};
+class SuperRegion : public Fwg::Areas::Area {
 
 public:
   SuperRegion();
@@ -15,12 +17,15 @@ public:
   Fwg::Gfx::Colour colour;
   // containers
   std::vector<std::shared_ptr<Region>> gameRegions;
-  Fwg::Position position;
+  std::vector<Cluster> gameRegionClusters;
+
   bool centerOutsidePixels = false;
 
   void addRegion(std::shared_ptr<Region> region);
   void removeRegion(std::shared_ptr<Region> region);
   void setType();
   void checkPosition(const std::vector<SuperRegion> &superRegions);
+  std::vector<Cluster>
+  getClusters(std::vector<std::shared_ptr<Region>> &regions);
 };
 } // namespace Scenario
