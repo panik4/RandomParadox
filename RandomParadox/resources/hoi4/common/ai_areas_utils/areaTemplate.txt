@@ -1,0 +1,5 @@
+	templateArea = {
+		continents = {
+			templateArea
+		}
+	}

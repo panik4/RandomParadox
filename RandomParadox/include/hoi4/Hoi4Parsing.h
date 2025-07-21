@@ -66,9 +66,9 @@ void portraits(const std::string &path, const CountryMap &countries);
 
 } // namespace Countries
 
-void aiStrategy(const std::string &path);
+void aiStrategy(const std::string &path,
+                const std::vector<ScenarioContinent> &continents);
 void events(const std::string &path);
-
 
 // common
 void commonBookmarks(

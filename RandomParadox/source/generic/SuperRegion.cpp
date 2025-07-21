@@ -62,7 +62,7 @@ void Scenario::SuperRegion::checkPosition(
       Fwg::Utils::Logging::logLine("Position: ", this->position);
       // now we check the type of the super region our center is actually in
       for (auto &superReg : superRegions) {
-        std::set<int> othersPixels;
+        std::unordered_set<int> othersPixels;
         for (auto &reg : superReg.gameRegions) {
           for (auto &prov : reg->provinces) {
             for (auto &pix : prov->pixels) {

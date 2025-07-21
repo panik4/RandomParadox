@@ -254,9 +254,9 @@ void Generator::generateStrategicRegions() {
     Png::save(areaBmp, config.mapsPath + "debug//waterLandAreas.png", false);
   }
   int landMinDist = Fwg::Utils::computePoissonMinDistFromArea(
-      landAreaPixels.size(), landStratRegions, config.width, 4.0);
+      landAreaPixels.size(), landStratRegions, config.width, 8.0);
   int waterMinDist = Fwg::Utils::computePoissonMinDistFromArea(
-      waterAreaPixels.size(), waterStratRegions, config.width, 4.0);
+      waterAreaPixels.size(), waterStratRegions, config.width, 8.0);
 
   auto waterPoints = Fwg::Utils::generatePoissonDiskPoints(
       waterAreaPixels, config.width, waterStratRegions, waterMinDist);
@@ -369,17 +369,18 @@ void Generator::generateStrategicRegions() {
     // now get all clusters
     stratRegion.gameRegionClusters = stratRegion.getClusters(gameRegions);
     if (stratRegion.gameRegionClusters.size() > 1) {
-      std::cout << "Split region with clusters: "
-                << stratRegion.gameRegionClusters.size() << std::endl;
+      Fwg::Utils::Logging::logLineLevel(
+          9, "Strategic region with ID: ", stratRegion.ID,
+          " has multiple clusters: ", stratRegion.gameRegionClusters.size());
     }
 
     // now if the strategic region is of AreaType sea, free the smaller
     // clusters, add their regions to the regionsToBeReassigned vector
     if (stratRegion.gameRegionClusters.size() > 1 &&
         stratRegion.areaType == Fwg::Areas::AreaType::Sea) {
-      std::cout << "Split sea region with ID: " << stratRegion.ID
-                << " with clusters: " << stratRegion.gameRegionClusters.size()
-                << std::endl;
+      Fwg::Utils::Logging::logLineLevel(9, 
+          "Strategic region with ID: ", stratRegion.ID,
+          " has multiple clusters, trying to free smaller clusters");
       // the biggest cluster by pixels size remains
       auto biggestCluster =
           std::max_element(stratRegion.gameRegionClusters.begin(),
@@ -390,8 +391,8 @@ void Generator::generateStrategicRegions() {
       // free the others
       for (auto &cluster : stratRegion.gameRegionClusters) {
         if (&cluster != &(*biggestCluster)) {
-          std::cout << "Freeing cluster with size: " << cluster.size()
-                    << std::endl;
+          Fwg::Utils::Logging::logLine(
+              "Freeing cluster with size: " , cluster.size());
           // add the regions of the cluster to the regionsToBeReassigned vector
           for (auto &region : cluster.regions) {
             regionsToBeReassigned.push(region);

@@ -451,48 +451,16 @@ default_area_priority = {
 	}
 	abort_when_not_enabled = yes
 
-	ai_strategy = {
-		type = area_priority
-		id = continent_1
-		value = 100
-	}
-	ai_strategy = {
-		type = area_priority
-		id = continent_2
-		value = 100
-	}
-		ai_strategy = {
-		type = area_priority
-		id = continent_3
-		value = 100
-	}
-		ai_strategy = {
-		type = area_priority
-		id = continent_4
-		value = 100
-	}
-		ai_strategy = {
-		type = area_priority
-		id = continent_5
-		value = 100
-	}
-		ai_strategy = {
-		type = area_priority
-		id = continent_6
-		value = 100
-	}
-		ai_strategy = {
-		type = area_priority
-		id = continent_7
-		value = 100
-	}
+	# Generated continents
+	templateContinents
 	
+	# Base game continents, removing is risky, as it might break references to the base game continents!
 	ai_strategy = {
 		type = area_priority
 		id = europe
 		value = 0
 	}
-
+	
 	ai_strategy = {
 		type = area_priority
 		id = north_america

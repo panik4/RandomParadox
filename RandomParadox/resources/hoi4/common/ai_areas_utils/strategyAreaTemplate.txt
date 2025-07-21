@@ -1,0 +1,5 @@
+	ai_strategy = {
+		type = area_priority
+		id = templateArea
+		value = 0
+	}

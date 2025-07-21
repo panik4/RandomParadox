@@ -229,8 +229,8 @@ void Hoi4Module::writeTextFiles() {
                        hoi4Gen->hoi4Countries);
   Countries::states(pathcfg.gameModPath + "//history//states",
                     hoi4Gen->hoi4States);
-
-  aiStrategy(pathcfg.gameModPath + "//common//");
+  
+  aiStrategy(pathcfg.gameModPath + "//common//", hoi4Gen->scenContinents);
   events(pathcfg.gameModPath + "//");
   commonBookmarks(pathcfg.gameModPath + "//common//bookmarks//",
                   hoi4Gen->hoi4Countries, hoi4Gen->countryImportanceScores);

@@ -265,11 +265,11 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                 if (!scenarioGenReady(false)) {
                   ImGui::BeginDisabled();
                 }
-                showCountryTab(cfg);
                 if (activeGameConfig.gameName == "Hearts of Iron IV") {
                   auto hoi4Gen = std::reinterpret_pointer_cast<
                       Hoi4Gen, Scenario::Generator>(activeModule->generator);
                   showStrategicRegionTab(cfg, hoi4Gen);
+                  showCountryTab(cfg);
                   showHoi4Finalise(
                       cfg,
                       std::reinterpret_pointer_cast<Scenario::Hoi4::Hoi4Module,
@@ -279,6 +279,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                   auto vic3Gen = std::reinterpret_pointer_cast<
                       Vic3Gen, Scenario::Generator>(activeModule->generator);
                   showStrategicRegionTab(cfg, vic3Gen);
+                  showCountryTab(cfg);
                   showNavmeshTab(cfg, *activeModule->generator);
                   showVic3Finalise(
                       cfg,
@@ -1036,6 +1037,7 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
                 region->owner = selectedCountry;
               }
             }
+            requireCountryDetails = true;
             generator->visualiseCountries(generator->countryMap);
           }
         }
@@ -1067,6 +1069,7 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
           modifiableState->owner->removeRegion(modifiableState);
           modifiableState->owner = selectedCountry;
           selectedCountry->addRegion(modifiableState);
+          requireCountryDetails = true;
           generator->visualiseCountries(generator->countryMap,
                                         modifiableState->ID);
           uiUtils->updateImage(0, generator->countryMap);
@@ -1075,10 +1078,15 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
     }
 
     Elements::borderChild("StateEdit", [&]() {
-      ImGui::InputText("State name", &modifiableState->name);
-      if (modifiableState->owner)
-        ImGui::InputText("State owner", &modifiableState->owner->tag);
-      ImGui::InputInt("Population", &modifiableState->totalPopulation);
+      if (ImGui::InputText("State name", &modifiableState->name)) {
+        requireCountryDetails = true;
+      }
+      if (modifiableState->owner) {
+        ImGui::Text("State owner", &modifiableState->owner->tag);
+      }
+      if (ImGui::InputInt("Population", &modifiableState->totalPopulation)) {
+        requireCountryDetails = true;
+      }
     });
 
     if (isRelevantModuleActive("hoi4")) {
@@ -1087,10 +1095,15 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
                                         Scenario::Region>(modifiableState);
 
       Elements::borderChild("StateEdit2", [&]() {
-        ImGui::InputInt("Arms Industry", &hoi4Region->armsFactories);
-        ImGui::InputInt("Civilian Industry", &hoi4Region->civilianFactories);
-        ImGui::InputInt("Naval Industry", &hoi4Region->dockyards);
-        ImGui::InputInt("State Category", &hoi4Region->stateCategory);
+        if (longCircuitLogicalOr(
+                ImGui::InputInt("Arms Industry", &hoi4Region->armsFactories),
+                ImGui::InputInt("Civilian Industry",
+                                &hoi4Region->civilianFactories),
+                ImGui::InputInt("Naval Industry", &hoi4Region->dockyards),
+                ImGui::InputInt("State Category",
+                                &hoi4Region->stateCategory))) {
+          requireCountryDetails = true;
+        }
       });
     }
   }
@@ -1147,6 +1160,10 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
           uiUtils->resetTexture();
         }
         ImGui::SameLine();
+        if (requireCountryDetails) {
+          ImGui::PushStyleColor(ImGuiCol_Button,
+                                ImVec4(1.0f, 0.2f, 0.2f, 1.0f)); // Red
+        }
         if (ImGui::Button("Generate country data")) {
           hoi4Gen->evaluateCountryNeighbours();
           hoi4Gen->evaluateCountries();
@@ -1156,6 +1173,9 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
           hoi4Gen->distributeVictoryPoints();
           hoi4Gen->generatePositions();
           requireCountryDetails = false;
+        }
+        if (requireCountryDetails) {
+          ImGui::PopStyleColor();
         }
       }
     }
@@ -1271,16 +1291,18 @@ int GUI::showModuleGeneric(
 int GUI::showStrategicRegionTab(
     Fwg::Cfg &cfg, std::shared_ptr<Scenario::Generator> generator) {
   if (ImGui::BeginTabItem("Strategic Regions")) {
-    static int selectedStratRegionIndex = 0;
     // tab switch setting draw events as accepted
     if (uiUtils->tabSwitchEvent(true)) {
-      uiUtils->updateImage(0, generator->stratRegionMap);
+      uiUtils->updateImage(0, generator->visualiseStrategicRegions());
       uiUtils->updateImage(1, Fwg::Gfx::Bitmap());
     }
+    static int selectedStratRegionIndex = 0;
     ImGui::SeparatorText(
         "This generates strategic regions, they cannot be loaded");
     uiUtils->showHelpTextBox("Strategic Regions");
     if (generator->gameRegions.size()) {
+      ImGui::InputFloat(
+          "Strategic region factor: ", &generator->strategicRegionFactor, 0.1f);
       if (ImGui::Button("Generate strategic regions")) {
         // non-country stuff
         generator->generateStrategicRegions();
@@ -1303,15 +1325,6 @@ int GUI::showStrategicRegionTab(
         uiUtils->resetTexture();
       }
       ImGui::Checkbox("Draw strategic regions", &drawBorders);
-    } else {
-      //// transfer generic states to hoi4states
-      // generator->initializeStates();
-      //// build hoi4 countries out of basic countries
-      // generator->mapCountries();
-      // generator->evaluateCountryNeighbours();
-      // Scenario::Civilization::generateWorldCivilizations(
-      //     generator->gameRegions, generator->gameProvinces,
-      //     generator->civData, generator->scenContinents);
     }
     // drag event is ignored here
     if (triggeredDrag) {
@@ -1417,19 +1430,6 @@ int GUI::showHoi4Finalise(
           return true;
         });
       }
-
-      //     formatConverter.dump8BitCities(hoi4Gen->climateMap,
-      //                                    pathcfg.gameModPath +
-      //                                    "//map//cities.bmp", "cities",
-      //                                    cut);
-      //     formatConverter.dump8BitRivers(hoi4Gen->climateData,
-      //                                    pathcfg.gameModPath +
-      //                                    "//map//rivers", "rivers", cut);
-
-      //     formatConverter.dumpDDSFiles(
-      //         hoi4Gen->riverMap, hoi4Gen->heightMap,
-      //         pathcfg.gameModPath + "//map//terrain//colormap_water_", cut,
-      //         8);
 
       if (ImGui::Button("Export heightmap.bmp")) {
         hoi4Module->formatConverter.dump8BitHeightmap(

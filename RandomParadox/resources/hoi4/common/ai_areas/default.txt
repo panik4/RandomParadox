@@ -1,12 +1,6 @@
 areas = {
-
-
-
-
-
-
-
-
+	# Generated continents
+	templateContinents
 
 	#Vanilla continents kept in for compatibility. Removing them breaks a lot of references to them
 	europe = {

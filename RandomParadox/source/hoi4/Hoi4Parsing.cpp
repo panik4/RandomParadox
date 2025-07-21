@@ -1262,7 +1262,8 @@ void portraits(const std::string &path, const CountryMap &countries) {
 }
 
 } // namespace Countries
-void aiStrategy(const std::string &path) {
+void aiStrategy(const std::string &path,
+                const std::vector<ScenarioContinent> &continents) {
   // copy folders ai_areas and ai_strategy from cfg::Values().resourcePath +
   // "/hoi4//common// to path//common//
   Logging::logLine("HOI4 Parser: Map: Writing AI Strategies");
@@ -1273,7 +1274,6 @@ void aiStrategy(const std::string &path) {
       Fwg::Cfg::Values().resourcePath + "hoi4//common//ai_strategy";
 
   try {
-
     // Copy ai_areas folder
     std::filesystem::copy(sourceAiAreas, path + "//ai_areas",
                           std::filesystem::copy_options::recursive);
@@ -1285,6 +1285,41 @@ void aiStrategy(const std::string &path) {
     Logging::logLine("HOI4 Parser: Error copying AI Strategies: " +
                      std::string(e.what()));
   }
+  // now modify certain files
+  auto aiAreasFile = pU::readFile(Fwg::Cfg::Values().resourcePath +
+                                  "hoi4//common//ai_areas//default.txt");
+  auto aiAreasTemplate =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//common//ai_areas_utils//areaTemplate.txt");
+  std::string aiAreasContent = "";
+
+  auto aiStrategyFile = pU::readFile(Fwg::Cfg::Values().resourcePath +
+                                     "hoi4//common//ai_strategy//default.txt");
+  auto aiStrategyTemplate =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//common//ai_areas_utils//strategyAreaTemplate.txt");
+  std::string aiStrategyContent = "";
+
+  for (const auto &continent : continents) {
+    auto name = continent.name;
+    // create lowercase continent
+    std::transform(name.begin(), name.end(), name.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    auto continentString = aiAreasTemplate;
+    pU::Scenario::replaceOccurences(continentString, "templateArea",
+                                    name);
+    aiAreasContent.append(continentString);
+    auto strategyContinentString = aiStrategyTemplate;
+    pU::Scenario::replaceOccurences(strategyContinentString, "templateArea",
+                                    name);
+    aiStrategyContent.append(strategyContinentString);
+  }
+  Fwg::Parsing::Scenario::replaceOccurences(aiAreasFile, "templateContinents",
+                                            aiAreasContent);
+  Fwg::Parsing::Scenario::replaceOccurences(
+      aiStrategyFile, "templateContinents", aiStrategyContent);
+  pU::writeFile(path + "//ai_areas//default.txt", aiAreasFile);
+  pU::writeFile(path + "//ai_strategy//default.txt", aiStrategyFile);
 }
 
 void events(const std::string &path) {
