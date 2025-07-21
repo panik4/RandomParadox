@@ -42,7 +42,7 @@ public:
   double worldPopulationFactor = 1.0;
   double worldIndustryFactor = 1.0;
   double resourceFactor = 1.0;
-  double strategicRegionFactor = 1.0;
+  float strategicRegionFactor = 1.0;
   // containers - used for every game
   std::vector<ScenarioContinent> scenContinents;
   std::vector<std::shared_ptr<Region>> gameRegions;
