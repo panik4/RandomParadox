@@ -10,7 +10,7 @@ Victoria 3 and Europa Universalis 4 generation are creating loadable mods, but t
 
 The Hearts of Iron IV module generates a full mod on a randomly generated worldmap, with random countries, flags, national focus trees, unit templates.
 
-Note that the underlying world map generation is done in a separate project and repository "FastWorldGenerator", which is not yet open source.
+Please note that this repository depends on the repository ArdaSuite, which contains two frontends and two libraries (LibArdaGen and FastWorldGen). FastWorldGen is not yet open source, this project can therefore not be built.
 
 It contains a simple GUI built using Dear Imgui (https://github.com/ocornut/imgui)
 
