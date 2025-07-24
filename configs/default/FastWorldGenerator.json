@@ -1,0 +1,99 @@
+{
+	"module": 
+	{
+		"debugLevel": 9,
+		"writeMaps" : true,
+		"scaleFactor" : 1,
+		"seed" : 0
+	},
+	"paths":
+	{
+		"mapsPath": "Maps//",
+		"loadMapsPath" : "Maps//"
+	},
+	"loadMaps":
+	{
+		"heightMap" : false,
+		"landMap" : false,
+		"continentMap" : false,
+		"climateMap" : false,
+		"riverMap" : false,
+		"humidityMap" : false,
+		"habitabilityMap" : false,
+		"provinceMap" : false,
+		"regionMap" : false,
+		"modifyHeight": false,
+		"heightAdjustments": 0
+	},
+	"edit":
+	{
+		"editor" : "mspaint.exe"
+	},
+	"cut":
+	{
+	},
+	"map": 
+	{
+		"width" : 512,
+		"height" : 512,
+		"landPercentage" : 40,
+		"seaLevel" : 94,
+		"accuracy": 100,
+		"sobelFactor": 1,
+		"climate" : 
+		{
+			"fantasyClimate" : false,
+			"fantasyClimateFrequency" : 2.0
+		},
+		"rivers" : 
+		{
+			"riverFactor" : 1.0
+		},
+		"humidity" : 
+		{
+			"latitudeLow" : 0.25,
+			"latitudeHigh" : 1.75,
+			"riverHumidityFactor" : 0.5,
+			"riverEffectRangeFactor" : 0.5,
+			"baseHumidity": 1.0,
+			"baseTemperature": 1.0
+		},
+		"trees" : 
+		{
+			"borealDensity" : 1.0,
+			"temperateNeedleDensity" : 0.6,
+			"temperateMixedDensity" : 0.75,
+			"sparseDensity" : 0.9,
+			"tropicalDryDensity" : 0.5,
+			"tropicalMoistDensity" : 0.55
+		},
+		"areas" : 
+		{
+			"provinces" : 
+			{
+				"auto" : true,
+				"landProvinceFactor" : 1.0,
+				"landProvinceFactor" : 1.0,
+				"seaProvinceFactor" : 1.0,
+				"minProvSize" : 20,
+				"provinceDensityEffects" : 1.0,
+				"maxProvAmount" : 20000
+			},
+			"regions" :
+			{
+				"autoLandRegions" : true,
+				"autoSeaRegions" : true,
+				"minProvPerLandRegion" : 8,
+				"minProvPerSeaRegion" : 0,
+				"targetLandRegionAmount" : 640,
+				"targetSeaRegionAmount" : 160
+			}
+		},
+		"weather":
+		{
+			"minimumDegCelcius": -20,
+			"deviationFactor": 10,
+			"temperatureRange": 70
+		}
+    }
+}
