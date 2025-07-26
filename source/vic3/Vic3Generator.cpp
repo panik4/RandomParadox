@@ -222,8 +222,6 @@ void Generator::mapRegions() {
   }
   applyRegionInput();
 }
-// initialize states
-void Generator::initializeStates() {}
 void Generator::mapCountries() {
   for (auto &country : countries) {
     std::shared_ptr<Country> vic3Country =

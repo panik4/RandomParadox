@@ -2,7 +2,7 @@
 namespace Logging = Fwg::Utils::Logging;
 namespace Rpx {
 using namespace Fwg::Gfx;
-ModGenerator::ModGenerator(){}
+ModGenerator::ModGenerator() {}
 
 ModGenerator::ModGenerator(const std::string &configSubFolder)
     : Arda::ArdaGen(configSubFolder) {
@@ -10,11 +10,10 @@ ModGenerator::ModGenerator(const std::string &configSubFolder)
   Arda::Gfx::Flag::readFlagTypes();
   Arda::Gfx::Flag::readFlagTemplates();
   Arda::Gfx::Flag::readSymbolTemplates();
-  stratRegionMap = Bitmap(0, 0, 24);
+  superRegionMap = Bitmap(0, 0, 24);
 }
 
-ModGenerator::ModGenerator(Arda::ArdaGen &scenGen)
-    : Arda::ArdaGen(scenGen) {}
+ModGenerator::ModGenerator(Arda::ArdaGen &scenGen) : Arda::ArdaGen(scenGen) {}
 
 ModGenerator::~ModGenerator() {}
 
@@ -22,7 +21,7 @@ void ModGenerator::generateStrategicRegions() {
   Fwg::Utils::Logging::logLine(
       "Scenario: Dividing world into strategic regions");
   strategicRegions.clear();
-  stratRegionMap.clear();
+  superRegionMap.clear();
   const auto &config = Fwg::Cfg::Values();
 
   std::vector<int> waterAreaPixels;
@@ -62,9 +61,9 @@ void ModGenerator::generateStrategicRegions() {
   }
   // calculate the amount of strategic regions we want to have
   int landStratRegions =
-      static_cast<int>(landShare * 110.0 * 2.0 * this->strategicRegionFactor);
+      static_cast<int>(landShare * 110.0 * 2.0 * this->superRegionFactor);
   int waterStratRegions =
-      static_cast<int>(waterShare * 110.0 * 1.0 * this->strategicRegionFactor);
+      static_cast<int>(waterShare * 110.0 * 1.0 * this->superRegionFactor);
   if (config.debugLevel > 5) {
     // lets debug visualise the water and land areas in the same image
     Bitmap areaBmp(config.width, config.height, 24);
@@ -205,12 +204,11 @@ void ModGenerator::generateStrategicRegions() {
           9, "Strategic region with ID: ", stratRegion.ID,
           " has multiple clusters, trying to free smaller clusters");
       // the biggest cluster by pixels size remains
-      auto biggestCluster =
-          std::max_element(stratRegion.regionClusters.begin(),
-                           stratRegion.regionClusters.end(),
-                           [](const Arda::Cluster &a, const Arda::Cluster &b) {
-                             return a.size() < b.size();
-                           });
+      auto biggestCluster = std::max_element(
+          stratRegion.regionClusters.begin(), stratRegion.regionClusters.end(),
+          [](const Arda::Cluster &a, const Arda::Cluster &b) {
+            return a.size() < b.size();
+          });
       // free the others
       for (auto &cluster : stratRegion.regionClusters) {
         if (&cluster != &(*biggestCluster)) {
@@ -240,9 +238,8 @@ void ModGenerator::generateStrategicRegions() {
 
       // remove empty clusters
       stratRegion.regionClusters.erase(
-          std::remove_if(
-              stratRegion.regionClusters.begin(),
-              stratRegion.regionClusters.end(),
+          std::remove_if(stratRegion.regionClusters.begin(),
+                         stratRegion.regionClusters.end(),
                          [](const Arda::Cluster &cluster) {
                            return cluster.regions.empty();
                          }),
@@ -378,8 +375,8 @@ void ModGenerator::generateStrategicRegions() {
 }
 
 Fwg::Gfx::Bitmap ModGenerator::visualiseStrategicRegions(const int ID) {
-  if (!stratRegionMap.size()) {
-    stratRegionMap =
+  if (!superRegionMap.size()) {
+    superRegionMap =
         Bitmap(Fwg::Cfg::Values().width, Fwg::Cfg::Values().height, 24);
   }
   if (ID > -1) {
@@ -387,11 +384,11 @@ Fwg::Gfx::Bitmap ModGenerator::visualiseStrategicRegions(const int ID) {
     for (auto &reg : strat.ardaRegions) {
       for (auto &prov : reg->ardaProvinces) {
         for (auto &pix : prov->baseProvince->pixels) {
-          stratRegionMap.setColourAtIndex(pix, strat.colour);
+          superRegionMap.setColourAtIndex(pix, strat.colour);
         }
       }
       for (auto &pix : reg->borderPixels) {
-        stratRegionMap.setColourAtIndex(pix, strat.colour * 0.5);
+        superRegionMap.setColourAtIndex(pix, strat.colour * 0.5);
       }
     }
   } else {
@@ -402,7 +399,7 @@ Fwg::Gfx::Bitmap ModGenerator::visualiseStrategicRegions(const int ID) {
       for (auto &reg : strat.ardaRegions) {
         for (auto &prov : reg->ardaProvinces) {
           for (auto &pix : prov->baseProvince->pixels) {
-            stratRegionMap.setColourAtIndex(pix, strat.colour);
+            superRegionMap.setColourAtIndex(pix, strat.colour);
             if (ID == -1) {
               noBorderMap.setColourAtIndex(pix, strat.colour);
             }
@@ -410,19 +407,38 @@ Fwg::Gfx::Bitmap ModGenerator::visualiseStrategicRegions(const int ID) {
         }
         for (auto &pix : reg->borderPixels) {
           if (strat.centerOutsidePixels) {
-            stratRegionMap.setColourAtIndex(pix,
+            superRegionMap.setColourAtIndex(pix,
                                             Fwg::Gfx::Colour(255, 255, 255));
           } else {
-            stratRegionMap.setColourAtIndex(pix, strat.colour * 0.5);
+            superRegionMap.setColourAtIndex(pix, strat.colour * 0.5);
           }
         }
       }
     }
     Png::save(noBorderMap,
               Fwg::Cfg::Values().mapsPath + "stratRegions_no_borders.png");
-    Png::save(stratRegionMap, Fwg::Cfg::Values().mapsPath + "stratRegions.png");
+    Png::save(superRegionMap, Fwg::Cfg::Values().mapsPath + "stratRegions.png");
   }
-  return stratRegionMap;
+  return superRegionMap;
+}
+
+void ModGenerator::mapCountries() {}
+
+Fwg::Gfx::Bitmap ModGenerator::mapTerrain() {
+  Bitmap typeMap(climateMap.width(), climateMap.height(), 24);
+  auto &colours = Fwg::Cfg::Values().colours;
+  typeMap.fill(colours.at("sea"));
+  Logging::logLine("Mapping Terrain");
+  for (auto &ardaRegion : ardaRegions) {
+    for (auto &gameProv : ardaRegion->ardaProvinces) {
+    }
+  }
+  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "/typeMap.png");
+  return typeMap;
+}
+
+void ModGenerator::cutFromFiles(const std::string &gamePath) {
+  Fwg::Utils::Logging::logLine("Unimplemented cutting");
 }
 
 } // namespace Rpx

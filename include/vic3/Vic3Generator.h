@@ -275,8 +275,6 @@ public:
   void distributePops();
   void totalArableLand(const std::vector<float> &arableLand);
   void distributeResources();
-  // initialize states
-  virtual void initializeStates();
   // map scenario countries to vic3 countries
   virtual void mapCountries();
   // details of countries

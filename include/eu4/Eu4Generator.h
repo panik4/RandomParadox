@@ -16,8 +16,6 @@ public:
   Generator(const std::string &configSubFolder);
   void generateRegions(std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions);
 
-  // initialize states
-  virtual void initializeStates();
   // initialize countries
   virtual void mapCountries();
   std::vector<eu4Region> getEu4Regions() { return eu4regions; };
