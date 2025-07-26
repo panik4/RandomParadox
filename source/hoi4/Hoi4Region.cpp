@@ -1,6 +1,6 @@
 #include "hoi4/Hoi4Region.h"
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 Region::Region() {}
 
 Region::Region(const Arda::ArdaRegion &ardaRegion)
@@ -164,4 +164,4 @@ void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
     }
   }
 }
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

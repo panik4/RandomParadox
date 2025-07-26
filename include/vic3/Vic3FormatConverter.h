@@ -6,8 +6,8 @@
 #include "rendering/Images.h"
 #include "utils/Cfg.h"
 #include <map>
-namespace Scenario::Gfx::Vic3 {
-class FormatConverter : public Scenario::Gfx::FormatConverter {
+namespace Rpx::Gfx::Vic3 {
+class FormatConverter : public Rpx::Gfx::FormatConverter {
 
 public:
   // constructor/destructor
@@ -42,4 +42,4 @@ public:
                   const Fwg::Civilization::CivilizationLayer &civLayer,
                   const std::string &path);
 };
-} // namespace Scenario::Gfx::Vic3
+} // namespace Rpx::Gfx::Vic3

@@ -1,11 +1,11 @@
 #include "hoi4/Hoi4Module.h"
 using namespace Fwg;
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
                        const std::string &configSubFolder,
                        const std::string &username, const bool editMode) {
-  generator = std::make_shared<Scenario::Hoi4::Generator>((configSubFolder));
-  hoi4Gen = std::reinterpret_pointer_cast<Scenario::Hoi4::Generator,
+  generator = std::make_shared<Rpx::Hoi4::Generator>((configSubFolder));
+  hoi4Gen = std::reinterpret_pointer_cast<Rpx::Hoi4::Generator,
                                           Arda::ArdaGen>(generator);
   const auto &config = Fwg::Cfg::Values();
   // set the executable subpath
@@ -453,4 +453,4 @@ void Hoi4Module::generate() {
   hoi4Gen->printStatistics();
 }
 
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

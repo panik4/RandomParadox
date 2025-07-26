@@ -1,7 +1,7 @@
 #include "aoe2DE/Aoe2DEModule.h"
 using namespace Fwg;
 
-namespace Scenario::Aoe2 {
+namespace Rpx::Aoe2 {
 Module::Module(const boost::property_tree::ptree &gamesConf,
                const std::string &configSubFolder,
                const std::string &username) {
@@ -27,7 +27,7 @@ void Module::genAoe2() {
   Fwg::Utils::Logging::logLine("AAAA");
   const auto &conf = Fwg::Cfg::Values();
   const auto &colours = conf.colours;
-  const auto &templateFile = Parsing::readFile(Fwg::Cfg::Values().resourcePath +
+  const auto &templateFile = Fwg::Parsing::readFile(Fwg::Cfg::Values().resourcePath +
                                                "aoe2/base_skeleton.txt");
   try {
     std::string file = templateFile;
@@ -127,10 +127,10 @@ void Module::genAoe2() {
     Rpx::Parsing::replaceOccurence(file, "TOKEN_TERRAIN",
                                         terrain_generation);
     Rpx::Parsing::replaceOccurence(file, "TOKEN_ELEVATION", elevation);
-    Parsing::writeFile("mapContent", file);
+    Fwg::Parsing::writeFile("mapContent", file);
 
   } catch (std::exception e) {
   }
 }
 
-} // namespace Scenario::Aoe2
+} // namespace Rpx::Aoe2

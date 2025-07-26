@@ -1,12 +1,12 @@
 #include "eu4/Eu4Generator.h"
-namespace Scenario::Eu4 {
+namespace Rpx::Eu4 {
 using namespace Fwg;
 using namespace Fwg::Gfx;
 
 Generator::Generator() {}
 
 Generator::Generator(const std::string &configSubFolder)
-    : Scenario::ModGenerator(configSubFolder) {}
+    : Rpx::ModGenerator(configSubFolder) {}
 
 void Generator::generateRegions(
     std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions) {
@@ -53,4 +53,4 @@ void Generator::generateRegions(
 void Generator::initializeStates() {}
 // initialize states
 void Generator::mapCountries() {}
-} // namespace Scenario::Eu4
+} // namespace Rpx::Eu4

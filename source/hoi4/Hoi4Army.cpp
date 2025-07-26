@@ -1,5 +1,5 @@
 #include "hoi4/Hoi4Army.h"
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 
 DivisionTemplate createUniformTemplate(int totalRegiments, int &columns,
                                        const CombatRegimentType &type) {
@@ -147,7 +147,7 @@ double calculateDivisionCost(const DivisionTemplate &divisionTemplate) {
   return cost;
 }
 
-std::vector<DivisionTemplate> Scenario::Hoi4::createDivisionTemplates(
+std::vector<DivisionTemplate> Rpx::Hoi4::createDivisionTemplates(
     const std::set<DivisionType> &desiredTypes,
     const std::vector<CombatRegimentType> &availableRegimentTypes,
     const std::vector<SupportRegimentType> &availableSupportRegimentTypes) {
@@ -254,4 +254,4 @@ std::vector<DivisionTemplate> Scenario::Hoi4::createDivisionTemplates(
 
   return divisionTemplates;
 }
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

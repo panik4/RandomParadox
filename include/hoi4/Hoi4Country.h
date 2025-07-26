@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 
 class Hoi4Country : public Arda::Country {
 public:
@@ -76,4 +76,4 @@ public:
 
   bool hasTech(const std::string &techname) const;
 };
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

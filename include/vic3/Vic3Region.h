@@ -3,7 +3,7 @@
 #include "areas/ArdaRegion.h"
 #include "utils/ScenarioUtils.h"
 #include "vic3/Vic3Utils.h"
-namespace Scenario::Vic3 {
+namespace Rpx::Vic3 {
 
 class Region : public Arda::ArdaRegion {
 
@@ -16,4 +16,4 @@ public:
   int supportsBuilding(const BuildingType &buildingType);
   int navalExit = -1;
 };
-} // namespace Scenario::Vic3
+} // namespace Rpx::Vic3

@@ -1,6 +1,6 @@
 #include "hoi4/Hoi4Navies.h"
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 
 Technology getBestSuitedModule(
     const std::map<TechEra, std::vector<Technology>> &availableModules,
@@ -503,4 +503,4 @@ void addShipClassModules(
   }
 }
 
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

@@ -6,7 +6,7 @@
 #include "vic3/Vic3Generator.h"
 #include "vic3/Vic3Parsing.h"
 #include "vic3/Splnet.h"
-namespace Scenario::Vic3 {
+namespace Rpx::Vic3 {
 class Module : public GenericModule {
   std::shared_ptr<Generator> vic3Gen;
   // clear and create all the mod paths at each run
@@ -27,4 +27,4 @@ public:
   void writeSplnet();
   std::shared_ptr<Generator> getGenerator() { return vic3Gen; }
 };
-} // namespace Scenario::Vic3
+} // namespace Rpx::Vic3

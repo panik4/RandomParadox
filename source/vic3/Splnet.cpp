@@ -1,6 +1,6 @@
 #include "vic3/Splnet.h"
 
-namespace Scenario::Vic3 {
+namespace Rpx::Vic3 {
 // method to create a float from 4 bytes
 float createFloat(const char *bytes) {
   float f;
@@ -523,4 +523,4 @@ void Splnet::writeFile(const std::string &path) {
 
   stream.close();
 }
-} // namespace Scenario::Vic3
+} // namespace Rpx::Vic3

@@ -1,6 +1,6 @@
 
 #include "hoi4/goals/Effects.h"
-namespace Scenario::Hoi4::Effects {
+namespace Rpx::Hoi4::Effects {
 void constructEffects(std::vector<EffectGrouping> &effectGroupings,
                       std::shared_ptr<Hoi4Country> &country) {
   // randomly select one of the effectGroupings
@@ -72,4 +72,4 @@ void constructEffects(std::vector<EffectGrouping> &effectGroupings,
   }
   effectGroupings.push_back(effectGrouping);
 }
-} // namespace Scenario::Hoi4::Effects
+} // namespace Rpx::Hoi4::Effects

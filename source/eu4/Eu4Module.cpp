@@ -1,13 +1,13 @@
 #include "eu4/Eu4Module.h"
 using namespace Fwg;
 
-namespace Scenario::Eu4 {
+namespace Rpx::Eu4 {
 Module::Module(const boost::property_tree::ptree &gamesConf,
                const std::string &configSubFolder,
                const std::string &username) {
-  generator = std::make_shared<Scenario::Eu4::Generator>((configSubFolder));
+  generator = std::make_shared<Rpx::Eu4::Generator>((configSubFolder));
   eu4Gen =
-      std::reinterpret_pointer_cast<Scenario::Eu4::Generator, Arda::ArdaGen>(
+      std::reinterpret_pointer_cast<Rpx::Eu4::Generator, Arda::ArdaGen>(
           generator);
   // read eu4 configs and potentially overwrite settings for fwg
   readEu4Config(configSubFolder, username, gamesConf);
@@ -236,4 +236,4 @@ void Module::generate() {
   }
 }
 
-} // namespace Scenario::Eu4
+} // namespace Rpx::Eu4

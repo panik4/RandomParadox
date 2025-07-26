@@ -3,7 +3,7 @@
 #include <areas/ArdaProvince.h>
 #include <areas/ArdaRegion.h>
 
-namespace Scenario::Eu4::Parsing {
+namespace Rpx::Eu4::Parsing {
 std::string loadVanillaFile(const std::string &path,
                             const std::vector<std::string> &&filters);
 void writeAdj(const std::string &path,
@@ -60,4 +60,4 @@ void writeLoc(const std::string &path, const std::string &gamePath,
               const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions,
               const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
               const std::vector<eu4Region> &eu4regions);
-}; // namespace Scenario::Eu4::Parsing
+}; // namespace Rpx::Eu4::Parsing

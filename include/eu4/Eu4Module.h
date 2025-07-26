@@ -5,10 +5,10 @@
 #include "eu4/Eu4FormatConverter.h"
 #include "generic/GenericModule.h"
 #include "generic/ArdaGen.h"
-namespace Scenario::Eu4 {
+namespace Rpx::Eu4 {
 class Module : public GenericModule {
   std::shared_ptr<Generator> eu4Gen;
-  Scenario::Gfx::Eu4::FormatConverter formatConverter;
+  Rpx::Gfx::Eu4::FormatConverter formatConverter;
   // clear and create all the mod paths at each run
   bool createPaths();
   // read the config options specific to eu4
@@ -24,4 +24,4 @@ public:
   void initFormatConverter();
   virtual void generate();
 };
-} // namespace Scenario::Eu4
+} // namespace Rpx::Eu4

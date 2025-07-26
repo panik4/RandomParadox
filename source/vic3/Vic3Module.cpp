@@ -1,12 +1,12 @@
 #include "vic3/Vic3Module.h"
 using namespace Fwg;
 
-namespace Scenario::Vic3 {
+namespace Rpx::Vic3 {
 Module::Module(const boost::property_tree::ptree &gamesConf,
                const std::string &configSubFolder,
                const std::string &username) {
-  generator = std::make_shared<Scenario::Vic3::Generator>((configSubFolder));
-  vic3Gen = std::reinterpret_pointer_cast<Scenario::Vic3::Generator,
+  generator = std::make_shared<Rpx::Vic3::Generator>((configSubFolder));
+  vic3Gen = std::reinterpret_pointer_cast<Rpx::Vic3::Generator,
                                           Arda::ArdaGen>(generator);
   // read eu4 configs and potentially overwrite settings for fwg
   readVic3Config(configSubFolder, username, gamesConf);
@@ -329,4 +329,4 @@ void Module::writeSplnet() {
                    "//gfx//map//spline_network//spline_network.splnet");
 }
 
-} // namespace Scenario::Vic3
+} // namespace Rpx::Vic3

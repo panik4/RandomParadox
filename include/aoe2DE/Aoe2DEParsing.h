@@ -2,8 +2,8 @@
 #include <areas/ArdaProvince.h>
 #include <areas/ArdaRegion.h>
 
-namespace Scenario::Aoe2DE::Parsing {
+namespace Rpx::Aoe2DE::Parsing {
 
 
 
-}; // namespace Scenario::Aoe2DE::Parsing
+}; // namespace Rpx::Aoe2DE::Parsing

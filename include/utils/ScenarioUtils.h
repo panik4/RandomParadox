@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 enum class GameType { Generic, Hoi4, Vic3, Eu4 };
-namespace Scenario::Utils {
+namespace Rpx::Utils {
 struct Pathcfg {
   std::string modName;
   std::string gamePath;
@@ -13,4 +13,4 @@ struct Pathcfg {
   std::string resourcePath;
 };
 
-}; // namespace Scenario::Utils
+}; // namespace Rpx::Utils

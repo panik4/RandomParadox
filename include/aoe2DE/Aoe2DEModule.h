@@ -3,7 +3,7 @@
 #include "io/FormatConverter.h"
 #include "generic/GenericModule.h"
 #include "generic/ArdaGen.h"
-namespace Scenario::Aoe2 {
+namespace Rpx::Aoe2 {
 class Module : GenericModule {
   Fwg::FastWorldGenerator f;
   // clear and create all the mod paths at each run
@@ -20,4 +20,4 @@ public:
   // member functions
   void genAoe2();
 };
-} // namespace Scenario::Eu4
+} // namespace Rpx::Eu4

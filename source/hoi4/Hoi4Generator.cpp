@@ -1,11 +1,11 @@
 #include "hoi4/Hoi4Generator.h"
 using namespace Fwg;
 using namespace Fwg::Gfx;
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 Generator::Generator() {}
 
 Generator::Generator(const std::string &configSubFolder)
-    : Scenario::ModGenerator(configSubFolder) {}
+    : Rpx::ModGenerator(configSubFolder) {}
 
 Generator::~Generator() {}
 
@@ -801,7 +801,7 @@ void createTech(const std::vector<std::string> &fileLines,
                 std::map<TechEra, std::vector<Technology>> &techMap) {
   for (const auto &line : fileLines) {
     if (line.size()) {
-      auto parts = Parsing::getTokens(line, ';');
+      auto parts = Fwg::Parsing::getTokens(line, ';');
       if (parts.size() == 3) {
         Technology tech;
         if (parts[2] == "interwar") {
@@ -894,32 +894,32 @@ void Generator::generateTechLevels() {
       NavalHullType::Carrier, NavalHullType::Submarine};
 
   // read in the techs from the files
-  auto industryElectronicTechsFile = Parsing::getLines(
+  auto industryElectronicTechsFile = Fwg::Parsing::getLines(
       Fwg::Cfg::Values().resourcePath +
       "//hoi4//common//technologies//industryElectronicTechs.txt");
   std::map<TechEra, std::vector<Technology>> industryElectronicTechs;
   createTech(industryElectronicTechsFile, industryElectronicTechs);
 
   auto infantryTechsFile =
-      Parsing::getLines(Fwg::Cfg::Values().resourcePath +
+      Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
                         "//hoi4//common//technologies//infantryTechs.txt");
   std::map<TechEra, std::vector<Technology>> infantryTechs;
   createTech(infantryTechsFile, infantryTechs);
 
   auto armorTechsFile =
-      Parsing::getLines(Fwg::Cfg::Values().resourcePath +
+      Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
                         "//hoi4//common//technologies//armorTechs.txt");
   std::map<TechEra, std::vector<Technology>> armorTechs;
   createTech(armorTechsFile, armorTechs);
 
   auto airTechsFile =
-      Parsing::getLines(Fwg::Cfg::Values().resourcePath +
+      Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
                         "//hoi4//common//technologies//airTechs.txt");
   std::map<TechEra, std::vector<Technology>> airTechs;
   createTech(airTechsFile, airTechs);
 
   auto navyTechsFile =
-      Parsing::getLines(Fwg::Cfg::Values().resourcePath +
+      Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
                         "//hoi4//common//technologies//navyTechs.txt");
   std::map<TechEra, std::vector<Technology>> navyTechs;
   createTech(navyTechsFile, navyTechs);
@@ -2184,4 +2184,4 @@ bool Generator::loadRivers(Fwg::Cfg &config,
   // mapped river input
   return FastWorldGenerator::loadRivers(config, riverCopy);
 }
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

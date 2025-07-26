@@ -1,5 +1,5 @@
 #include "vic3/Vic3FormatConverter.h"
-namespace Scenario::Gfx::Vic3 {
+namespace Rpx::Gfx::Vic3 {
 using namespace Arda::Gfx::Textures;
 using namespace Fwg;
 using namespace Fwg::Gfx;
@@ -614,7 +614,7 @@ void FormatConverter::detailMaps(
 
 FormatConverter::FormatConverter(const std::string &gamePath,
                                  const std::string &gameTag)
-    : Scenario::Gfx::FormatConverter(gamePath, gameTag) {}
+    : Rpx::Gfx::FormatConverter(gamePath, gameTag) {}
 
 FormatConverter::~FormatConverter() {}
-} // namespace Scenario::Gfx::Vic3
+} // namespace Rpx::Gfx::Vic3

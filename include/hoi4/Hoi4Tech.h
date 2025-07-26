@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 
 
 enum class TechEra { Interwar, Buildup, Early };
@@ -20,4 +20,4 @@ struct Technology {
 bool hasTechnology(const std::map<TechEra, std::vector<Technology>> &techs,
                    const std::string &techName);
 
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

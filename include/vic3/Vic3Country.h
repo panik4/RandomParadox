@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace Scenario::Vic3 {
+namespace Rpx::Vic3 {
 
 class Country : public Arda::Country {
   struct Market {
@@ -33,4 +33,4 @@ public:
   bool hasTech(const std::string &techName) const;
   bool canUseProductionMethod(const Productionmethod &prodMethod) const;
 };
-} // namespace Scenario::Vic3
+} // namespace Rpx::Vic3

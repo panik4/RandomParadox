@@ -1,6 +1,6 @@
 #include "vic3/Vic3Region.h"
 
-namespace Scenario::Vic3 {
+namespace Rpx::Vic3 {
 Region::Region() {}
 Region::Region(const Arda::ArdaRegion &ardaRegion)
     : Arda::ArdaRegion(ardaRegion) {}
@@ -26,4 +26,4 @@ int Region::supportsBuilding(const BuildingType &buildingType) {
   return 0;
 }
 
-} // namespace Scenario::Vic3
+} // namespace Rpx::Vic3

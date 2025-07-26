@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 
 enum class ShipClassType {
   Destroyer,
@@ -47,4 +47,4 @@ void addShipClassModules(
     const std::map<TechEra, std::vector<Technology>> &availableModuleTech,
     const std::map<TechEra, std::vector<Technology>> &availableArmyTech);
 
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

@@ -7,7 +7,7 @@
 #include "hoi4/Hoi4Generator.h"
 #include <array>
 #include <map>
-namespace Scenario::Hoi4::Parsing {
+namespace Rpx::Hoi4::Parsing {
 using CountryMap = std::vector<std::shared_ptr<Hoi4Country>>;
 
 namespace Writing {
@@ -138,4 +138,4 @@ void readWeatherPositions(const std::string &path,
 // history - National Focus
 std::vector<std::string> readTypeMap();
 std::map<std::string, std::string> readRewardMap(const std::string &path);
-} // namespace Scenario::Hoi4::Parsing
+} // namespace Rpx::Hoi4::Parsing

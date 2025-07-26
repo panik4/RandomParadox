@@ -10,14 +10,14 @@
 #include <random>
 #include <utility>
 #include <vector>
-namespace Scenario::Vic3 {
+namespace Rpx::Vic3 {
 
 struct Vic3StratRegion {
   std::set<int> areaIDs;
   std::string name;
 };
 
-class Generator : public Scenario::ModGenerator {
+class Generator : public Rpx::ModGenerator {
   using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
   std::vector<Arda::Utils::ResConfig> resConfigs{
       {"bg_coal_mining", true, 5.0, true, Arda::Utils::defaultNoise},
@@ -301,4 +301,4 @@ public:
   // calculate naval exits
   void calculateNavalExits();
 };
-} // namespace Scenario::Vic3
+} // namespace Rpx::Vic3

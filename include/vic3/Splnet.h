@@ -2,7 +2,7 @@
 #include "areas/ArdaRegion.h"
 #include "utils/ParsingUtils.h"
 #include <vector>
-namespace Scenario::Vic3 {
+namespace Rpx::Vic3 {
 
 #pragma pack(push, 1) // Disable padding bytes
 
@@ -159,4 +159,4 @@ public:
   void writeFile(const std::string &path);
 };
 
-} // namespace Scenario::Vic3
+} // namespace Rpx::Vic3

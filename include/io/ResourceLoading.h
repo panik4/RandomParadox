@@ -3,7 +3,7 @@
 #include "parsing/ParserUtils.h"
 #include <string>
 
-namespace Scenario::ResourceLoading {
+namespace Rpx::ResourceLoading {
 Fwg::Gfx::Bitmap loadProvinceMap(const std::string &gamePath);
 Fwg::Gfx::Bitmap loadHeightMap(const std::string &gamePath);
 std::vector<std::string> loadStates(const std::string &gamePath);

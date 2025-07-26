@@ -8,7 +8,7 @@
 #include <map>
 #include <string>
 #include <vector>
-namespace Scenario {
+namespace Rpx {
 namespace NameGeneration {
 
 struct NameData {
@@ -37,4 +37,4 @@ getRandomMapElement(const std::string key,
                     const std::map<std::string, std::vector<std::string>> map);
 } // namespace Detail
 }; // namespace NameGeneration
-} // namespace Scenario
+} // namespace Rpx

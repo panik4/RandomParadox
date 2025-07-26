@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 #include <vector>
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 struct Date {
   int day;
   int month;
@@ -73,4 +73,4 @@ struct FocusBranch {
 
   size_t size();
 };
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4
