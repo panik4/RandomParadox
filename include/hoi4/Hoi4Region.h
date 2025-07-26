@@ -1,6 +1,6 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include "areas/GameRegion.h"
+#include "areas/ArdaRegion.h"
 #include "utils/ScenarioUtils.h"
 #include "hoi4/Hoi4Airforce.h"
 #include "generic/VictoryPoint.h"
@@ -8,7 +8,7 @@
 namespace Scenario::Hoi4 {
 
 
-class Region : public Scenario::Region {
+class Region : public Arda::ArdaRegion {
   const std::vector<std::string> buildingTypes{
       "arms_factory",       "industrial_complex",
       "air_base",           "bunker",
@@ -33,15 +33,15 @@ public:
   int stratID;
   int airport, rocketsite, supplyNode;
   double totalVictoryPoints;
-  Scenario::Utils::WeatherPosition weatherPosition;
+  Arda::Utils::WeatherPosition weatherPosition;
   // Containers
-  std::vector<Scenario::Utils::Building> buildings;
-  std::map<int, std::shared_ptr<VictoryPoint>> victoryPointsMap;
+  std::vector<Arda::Utils::Building> buildings;
+  std::map<int, std::shared_ptr<Arda::VictoryPoint>> victoryPointsMap;
   std::map<int, int> navalBases;
   std::shared_ptr<AirBase> airBase;
   // Constructors/Destructors
   Region();
-  Region(const Scenario::Region &gameRegion);
+  Region(const Arda::ArdaRegion &ardaRegion);
   ~Region();
 
   // member functions

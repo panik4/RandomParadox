@@ -15,7 +15,7 @@ void adj(const std::string &path) {
 }
 
 void defaultMap(const std::string &path,
-                const std::vector<std::shared_ptr<GameProvince>> &provinces) {
+                const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
   auto templateContent = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                       "vic3//map_data//default.map");
   Logging::logLine("Vic3 Parser: Map: Default Map");
@@ -83,7 +83,7 @@ void stateFiles(const std::string &path,
     Rpx::Parsing::replaceOccurences(content, "template_id",
                                     std::to_string(region->ID + 1));
     std::string provinceString{""};
-    for (auto prov : region->gameProvinces) {
+    for (auto prov : region->ardaProvinces) {
       provinceString.append("\"" + prov->toHexString() + "\" ");
     }
     Rpx::Parsing::replaceOccurences(content, "template_provinces",
@@ -94,36 +94,36 @@ void stateFiles(const std::string &path,
       Rpx::Parsing::replaceOccurences(
           content, "template_city",
           region
-              ->gameProvinces[std::clamp(counter++, 0,
+              ->ardaProvinces[std::clamp(counter++, 0,
                                          (int)region->provinces.size() - 1)]
               ->toHexString());
       Rpx::Parsing::replaceOccurences(
           content, "template_port",
           region
-              ->gameProvinces[std::clamp(counter++, 0,
+              ->ardaProvinces[std::clamp(counter++, 0,
                                          (int)region->provinces.size() - 1)]
               ->toHexString());
       Rpx::Parsing::replaceOccurences(
           content, "template_farm",
           region
-              ->gameProvinces[std::clamp(counter++, 0,
+              ->ardaProvinces[std::clamp(counter++, 0,
                                          (int)region->provinces.size() - 1)]
               ->toHexString());
       Rpx::Parsing::replaceOccurences(
           content, "template_mine",
           region
-              ->gameProvinces[std::clamp(counter++, 0,
+              ->ardaProvinces[std::clamp(counter++, 0,
                                          (int)region->provinces.size() - 1)]
               ->toHexString());
       Rpx::Parsing::replaceOccurences(
           content, "template_wood",
           region
-              ->gameProvinces[std::clamp(counter++, 0,
+              ->ardaProvinces[std::clamp(counter++, 0,
                                          (int)region->provinces.size() - 1)]
               ->toHexString());
 
       // check if we are a coastal region
-      for (auto &prov : region->gameProvinces) {
+      for (auto &prov : region->ardaProvinces) {
         if (prov->baseProvince->isSea()) {
           Rpx::Parsing::replaceOccurences(content, "template_naval_exit",
                                           prov->toHexString());
@@ -175,7 +175,7 @@ void stateFiles(const std::string &path,
 
 void provinceTerrains(
     const std::string &path,
-    const std::vector<std::shared_ptr<GameProvince>> &provinces) {
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Areas::Province Terrains");
   std::string content{""};
   for (const auto &province : provinces) {
@@ -216,11 +216,11 @@ void strategicRegions(const std::string &path,
     std::string states{""};
     std::string capital;
     bool capitalSelected = false;
-    for (const auto &state : region.gameRegions) {
+    for (const auto &state : region.ardaRegions) {
       states.append(" STATE_" + state->name);
       if (!capitalSelected) {
         capitalSelected = true;
-        capital = state->gameProvinces[0]->toHexString();
+        capital = state->ardaProvinces[0]->toHexString();
       }
     }
     Rpx::Parsing::replaceOccurences(content, "template_name", region.name);
@@ -232,7 +232,7 @@ void strategicRegions(const std::string &path,
   pU::writeFile(path, file, true);
 }
 void cultureCommon(const std::string &path,
-                   const std::vector<std::shared_ptr<Culture>> &cultures) {
+    const std::vector<std::shared_ptr<Arda::Culture>> &cultures) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing cultures");
   const auto culturesTemplate = pU::readFile(
       Fwg::Cfg::Values().resourcePath + "vic3//common//cultureTemplate.txt");
@@ -254,7 +254,7 @@ void cultureCommon(const std::string &path,
   pU::writeFile(path, cultureFile, true);
 }
 void religionCommon(const std::string &path,
-                    const std::vector<std::shared_ptr<Religion>> &religions) {
+    const std::vector<std::shared_ptr<Arda::Religion>> &religions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing religions");
 
   const auto religionTemplate =
@@ -363,7 +363,7 @@ void stateHistory(const std::string &path,
     Rpx::Parsing::replaceOccurences(content, "templateCountry",
                                     region->owner->tag);
     std::string provinceString{""};
-    for (auto prov : region->gameProvinces) {
+    for (auto prov : region->ardaProvinces) {
       provinceString.append("\"" + prov->toHexString() + "\" ");
     }
     Rpx::Parsing::replaceOccurences(content, "templateProvinces",
@@ -399,8 +399,8 @@ void countryHistory(
   }
 }
 void staticModifiers(const std::string &path,
-                     const std::vector<std::shared_ptr<Culture>> &cultures,
-                     const std::vector<std::shared_ptr<Religion>> &religions) {
+    const std::vector<std::shared_ptr<Arda::Culture>> &cultures,
+    const std::vector<std::shared_ptr<Arda::Religion>> &religions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing static modifiers");
   const auto cultureTemplateFile = pU::readFile(
       Fwg::Cfg::Values().resourcePath + "vic3//common//static_modifiers//"
@@ -470,7 +470,7 @@ std::string compatRegions(const std::string &inFolder,
 }
 void compatStratRegions(const std::string &inFolder, const std::string &outPath,
                         const std::vector<std::shared_ptr<Region>> &regions,
-                        std::string &baseGameRegions) {
+                        std::string &baseArdaRegions) {
   return;
   Fwg::Utils::Logging::logLine(
       "Vic3 Parser: Map: Generating compatibility Strategic Regions from ",
@@ -482,7 +482,7 @@ void compatStratRegions(const std::string &inFolder, const std::string &outPath,
       continue;
     std::string content = "";
     auto lines = pU::getLines(filePath.string());
-    auto hexID = regions[0]->gameProvinces[0]->toHexString();
+    auto hexID = regions[0]->ardaProvinces[0]->toHexString();
     auto blocks = Rpx::Parsing::getOuterBlocks(lines);
     for (auto &block : blocks) {
       Rpx::Parsing::removeLines(block.content, "capital_province");

@@ -2,7 +2,7 @@
 #include "FastWorldGenerator.h"
 #include "io/FormatConverter.h"
 #include "generic/GenericModule.h"
-#include "generic/ScenarioGenerator.h"
+#include "generic/ArdaGen.h"
 namespace Scenario::Aoe2 {
 class Module : GenericModule {
   Fwg::FastWorldGenerator f;

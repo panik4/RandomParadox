@@ -5,16 +5,16 @@ using namespace Fwg::Gfx;
 ModGenerator::ModGenerator(){}
 
 ModGenerator::ModGenerator(const std::string &configSubFolder)
-    : Scenario::Generator(configSubFolder) {
-  Gfx::Flag::readColourGroups();
-  Gfx::Flag::readFlagTypes();
-  Gfx::Flag::readFlagTemplates();
-  Gfx::Flag::readSymbolTemplates();
+    : Arda::ArdaGen(configSubFolder) {
+  Arda::Gfx::Flag::readColourGroups();
+  Arda::Gfx::Flag::readFlagTypes();
+  Arda::Gfx::Flag::readFlagTemplates();
+  Arda::Gfx::Flag::readSymbolTemplates();
   stratRegionMap = Bitmap(0, 0, 24);
 }
 
-ModGenerator::ModGenerator(Scenario::Generator &scenGen)
-    : Scenario::Generator(scenGen) {}
+ModGenerator::ModGenerator(Arda::ArdaGen &scenGen)
+    : Arda::ArdaGen(scenGen) {}
 
 ModGenerator::~ModGenerator() {}
 
@@ -27,18 +27,18 @@ void ModGenerator::generateStrategicRegions() {
 
   std::vector<int> waterAreaPixels;
   std::vector<int> landAreaPixels;
-  for (auto &region : this->gameRegions) {
+  for (auto &region : this->ardaRegions) {
     // as per types, group the regions. Land and lake together, while ocean and
     // islands together. MixedLand is landArea
     // sum up all the province pixels of the region in one vector
     region->pixels = region->gatherPixels();
-    if (region->type == Region::RegionType::Ocean ||
-        region->type == Region::RegionType::OceanCoastal ||
-        region->type == Region::RegionType::OceanIslandCoastal ||
-        region->type == Region::RegionType::OceanMixedCoastal ||
-        region->type == Region::RegionType::CoastalIsland ||
-        region->type == Region::RegionType::Island ||
-        region->type == Region::RegionType::IslandLake) {
+    if (region->type == Arda::ArdaRegion::RegionType::Ocean ||
+        region->type == Arda::ArdaRegion::RegionType::OceanCoastal ||
+        region->type == Arda::ArdaRegion::RegionType::OceanIslandCoastal ||
+        region->type == Arda::ArdaRegion::RegionType::OceanMixedCoastal ||
+        region->type == Arda::ArdaRegion::RegionType::CoastalIsland ||
+        region->type == Arda::ArdaRegion::RegionType::Island ||
+        region->type == Arda::ArdaRegion::RegionType::IslandLake) {
       for (auto &province : region->provinces) {
         waterAreaPixels.insert(waterAreaPixels.end(), region->pixels.begin(),
                                region->pixels.end());
@@ -150,7 +150,7 @@ void ModGenerator::generateStrategicRegions() {
   std::map<int, Fwg::Areas::AreaType> regionAreaTypeMap;
   // now we match the regions to the voronoi areas, and create the strategic
   // regions by a best fit
-  for (auto &region : this->gameRegions) {
+  for (auto &region : this->ardaRegions) {
     std::unordered_map<int, int> voronoiOverlap;
     auto &regionPixels = region->pixels;
     for (const auto &pix : regionPixels) {
@@ -175,62 +175,62 @@ void ModGenerator::generateStrategicRegions() {
   }
   // to track which regions should be reassigned later after evaluation of some
   // metrics
-  std::queue<std::shared_ptr<Region>> regionsToBeReassigned;
+  std::queue<std::shared_ptr<Arda::ArdaRegion>> regionsToBeReassigned;
 
   // postprocess stratregions
   for (auto &stratRegion : strategicRegions) {
     stratRegion.colour.randomize();
     // lets sum up all the pixels of the strategic region
-    for (auto &gameRegion : stratRegion.gameRegions) {
+    for (auto &ardaRegion : stratRegion.ardaRegions) {
       stratRegion.pixels.insert(stratRegion.pixels.end(),
-                                gameRegion->pixels.begin(),
-                                gameRegion->pixels.end());
+                                ardaRegion->pixels.begin(),
+                                ardaRegion->pixels.end());
     }
     // let's find the weighted centre of the strat region
     stratRegion.position.calcWeightedCenter(stratRegion.pixels);
 
     // now get all clusters
-    stratRegion.gameRegionClusters = stratRegion.getClusters(gameRegions);
-    if (stratRegion.gameRegionClusters.size() > 1) {
+    stratRegion.regionClusters = stratRegion.getClusters(ardaRegions);
+    if (stratRegion.regionClusters.size() > 1) {
       Fwg::Utils::Logging::logLineLevel(
           9, "Strategic region with ID: ", stratRegion.ID,
-          " has multiple clusters: ", stratRegion.gameRegionClusters.size());
+          " has multiple clusters: ", stratRegion.regionClusters.size());
     }
 
     // now if the strategic region is of AreaType sea, free the smaller
     // clusters, add their regions to the regionsToBeReassigned vector
-    if (stratRegion.gameRegionClusters.size() > 1 &&
+    if (stratRegion.regionClusters.size() > 1 &&
         stratRegion.areaType == Fwg::Areas::AreaType::Sea) {
       Fwg::Utils::Logging::logLineLevel(
           9, "Strategic region with ID: ", stratRegion.ID,
           " has multiple clusters, trying to free smaller clusters");
       // the biggest cluster by pixels size remains
       auto biggestCluster =
-          std::max_element(stratRegion.gameRegionClusters.begin(),
-                           stratRegion.gameRegionClusters.end(),
-                           [](const Cluster &a, const Cluster &b) {
+          std::max_element(stratRegion.regionClusters.begin(),
+                           stratRegion.regionClusters.end(),
+                           [](const Arda::Cluster &a, const Arda::Cluster &b) {
                              return a.size() < b.size();
                            });
       // free the others
-      for (auto &cluster : stratRegion.gameRegionClusters) {
+      for (auto &cluster : stratRegion.regionClusters) {
         if (&cluster != &(*biggestCluster)) {
           Fwg::Utils::Logging::logLine("Freeing cluster with size: ",
                                        cluster.size());
           // add the regions of the cluster to the regionsToBeReassigned vector
           for (auto &region : cluster.regions) {
             regionsToBeReassigned.push(region);
-            // remove the region from the stratregion gameRegions vector
-            auto it = std::find(stratRegion.gameRegions.begin(),
-                                stratRegion.gameRegions.end(), region);
-            if (it != stratRegion.gameRegions.end()) {
+            // remove the region from the stratregion ardaRegions vector
+            auto it = std::find(stratRegion.ardaRegions.begin(),
+                                stratRegion.ardaRegions.end(), region);
+            if (it != stratRegion.ardaRegions.end()) {
               Fwg::Utils::Logging::logLine(
                   "Removing region with ID: ", region->ID,
                   " from strategic region with ID: ", stratRegion.ID);
-              stratRegion.gameRegions.erase(it);
+              stratRegion.ardaRegions.erase(it);
 
             } else {
               Fwg::Utils::Logging::logLine(
-                  "Warning: Region not found in strategic region gameRegions");
+                  "Warning: Region not found in strategic region ardaRegions");
             }
           }
           // clear the cluster regions
@@ -239,12 +239,14 @@ void ModGenerator::generateStrategicRegions() {
       }
 
       // remove empty clusters
-      stratRegion.gameRegionClusters.erase(
+      stratRegion.regionClusters.erase(
           std::remove_if(
-              stratRegion.gameRegionClusters.begin(),
-              stratRegion.gameRegionClusters.end(),
-              [](const Cluster &cluster) { return cluster.regions.empty(); }),
-          stratRegion.gameRegionClusters.end());
+              stratRegion.regionClusters.begin(),
+              stratRegion.regionClusters.end(),
+                         [](const Arda::Cluster &cluster) {
+                           return cluster.regions.empty();
+                         }),
+          stratRegion.regionClusters.end());
     }
   }
 
@@ -252,7 +254,7 @@ void ModGenerator::generateStrategicRegions() {
   std::map<int, int> assignedToIDs;
   for (auto &stratRegion : strategicRegions) {
     // assign the regions to the strategic region
-    for (auto &region : stratRegion.gameRegions) {
+    for (auto &region : stratRegion.ardaRegions) {
       // check for duplicate regions
       if (assignedToIDs.count(region->ID)) {
         Fwg::Utils::Logging::logLine(
@@ -275,7 +277,7 @@ void ModGenerator::generateStrategicRegions() {
     regionsToBeReassigned.pop();
     std::map<int, int> regionDistances;
     for (auto &neighbourId : region->neighbours) {
-      auto &neighbourRegion = gameRegions[neighbourId];
+      auto &neighbourRegion = ardaRegions[neighbourId];
       // if the neighbour region is of the same area type, we can consider that
       // ones distance, and it must already be assigned
       if (regionAreaTypeMap[neighbourRegion->ID] ==
@@ -302,7 +304,7 @@ void ModGenerator::generateStrategicRegions() {
           return a.second < b.second;
         });
     auto closestNeighbourID = closestNeighbourIt->first;
-    auto closestNeighbourRegion = gameRegions[closestNeighbourID];
+    auto closestNeighbourRegion = ardaRegions[closestNeighbourID];
     // check if the closest neighbour region is already assigned to a strategic
     // region
     if (assignedToIDs.find(closestNeighbourID) != assignedToIDs.end()) {
@@ -323,7 +325,7 @@ void ModGenerator::generateStrategicRegions() {
   }
 
   // safety check to see if all regions are assigned to some region
-  for (const auto &region : gameRegions) {
+  for (const auto &region : ardaRegions) {
     if (assignedToIDs.find(region->ID) == assignedToIDs.end()) {
       Fwg::Utils::Logging::logLine("Warning: Region with ID: ", region->ID,
                                    " is not assigned to any strategic region");
@@ -343,7 +345,7 @@ void ModGenerator::generateStrategicRegions() {
   strategicRegions.erase(
       std::remove_if(strategicRegions.begin(), strategicRegions.end(),
                      [](const StrategicRegion &stratRegion) {
-                       return stratRegion.gameRegions.empty();
+                       return stratRegion.ardaRegions.empty();
                      }),
       strategicRegions.end());
   // fix IDs of strategic regions
@@ -354,11 +356,11 @@ void ModGenerator::generateStrategicRegions() {
   }
 
   //  build a vector of superregions from all the strategic regions
-  std::vector<SuperRegion> superRegions;
+  std::vector<Arda::SuperRegion> superRegions;
   for (auto &stratRegion : strategicRegions) {
-    SuperRegion superRegion;
+    Arda::SuperRegion superRegion;
     superRegion.ID = stratRegion.ID;
-    superRegion.gameRegions = stratRegion.gameRegions;
+    superRegion.ardaRegions = stratRegion.ardaRegions;
     superRegion.setType();
     superRegions.push_back(superRegion);
   }
@@ -382,8 +384,8 @@ Fwg::Gfx::Bitmap ModGenerator::visualiseStrategicRegions(const int ID) {
   }
   if (ID > -1) {
     auto &strat = strategicRegions[ID];
-    for (auto &reg : strat.gameRegions) {
-      for (auto &prov : reg->gameProvinces) {
+    for (auto &reg : strat.ardaRegions) {
+      for (auto &prov : reg->ardaProvinces) {
         for (auto &pix : prov->baseProvince->pixels) {
           stratRegionMap.setColourAtIndex(pix, strat.colour);
         }
@@ -397,8 +399,8 @@ Fwg::Gfx::Bitmap ModGenerator::visualiseStrategicRegions(const int ID) {
                                         Fwg::Cfg::Values().height, 24);
     for (auto &strat : strategicRegions) {
 
-      for (auto &reg : strat.gameRegions) {
-        for (auto &prov : reg->gameProvinces) {
+      for (auto &reg : strat.ardaRegions) {
+        for (auto &prov : reg->ardaProvinces) {
           for (auto &pix : prov->baseProvince->pixels) {
             stratRegionMap.setColourAtIndex(pix, strat.colour);
             if (ID == -1) {

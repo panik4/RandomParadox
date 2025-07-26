@@ -30,7 +30,7 @@ addBypassBlocks(std::shared_ptr<Hoi4Country> country,
 // evaluate the focus chains for each country
 void evaluateCountryGoals(
     std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries,
-    const std::vector<std::shared_ptr<Scenario::Region>> &gameRegions);
+    const std::vector<std::shared_ptr<Arda::ArdaRegion>> &ardaRegions);
 
 }; // namespace FocusGen
 } // namespace Scenario::Hoi4

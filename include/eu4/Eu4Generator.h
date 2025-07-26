@@ -14,7 +14,7 @@ class Generator : public Scenario::ModGenerator {
 public:
   Generator();
   Generator(const std::string &configSubFolder);
-  void generateRegions(std::vector<std::shared_ptr<Region>> &regions);
+  void generateRegions(std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions);
 
   // initialize states
   virtual void initializeStates();

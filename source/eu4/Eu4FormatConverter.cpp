@@ -1,6 +1,6 @@
 #include "eu4/Eu4FormatConverter.h"
 namespace Scenario::Gfx::Eu4 {
-using namespace Scenario::Gfx::Textures;
+using namespace Arda::Gfx::Textures;
 using namespace Fwg;
 using namespace Fwg::Gfx;
 

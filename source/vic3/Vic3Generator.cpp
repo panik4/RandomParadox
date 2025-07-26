@@ -30,8 +30,8 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
   const auto &landForms = terrainData.landForms;
   const auto &climates = climateData.climates;
   const auto &forests = climateData.dominantForest;
-  for (auto &gameRegion : gameRegions) {
-    for (auto &gameProv : gameRegion->gameProvinces) {
+  for (auto &ardaRegion : ardaRegions) {
+    for (auto &gameProv : ardaRegion->ardaProvinces) {
       gameProv->terrainType = "plains";
       const auto &baseProv = gameProv->baseProvince;
       if (baseProv->isLake()) {
@@ -184,7 +184,7 @@ void Generator::distributeResources() {
 
 void Generator::mapRegions() {
   Fwg::Utils::Logging::logLine("Mapping Regions");
-  gameRegions.clear();
+  ardaRegions.clear();
   vic3Regions.clear();
 
   for (auto &region : this->areaData.regions) {
@@ -193,30 +193,30 @@ void Generator::mapRegions() {
                  const std::shared_ptr<Fwg::Areas::Province> b) {
                 return (*a < *b);
               });
-    auto gameRegion = std::make_shared<Region>(region);
+    auto ardaRegion = std::make_shared<Region>(region);
 
     // generate random name for region
-    gameRegion->name = "";
+    ardaRegion->name = "";
 
-    for (auto &province : gameRegion->provinces) {
-      gameRegion->gameProvinces.push_back(gameProvinces[province->ID]);
+    for (auto &province : ardaRegion->provinces) {
+      ardaRegion->ardaProvinces.push_back(ardaProvinces[province->ID]);
     }
     // save game region to generic module container and to hoi4 specific
     // container
-    gameRegions.push_back(gameRegion);
-    vic3Regions.push_back(gameRegion);
+    ardaRegions.push_back(ardaRegion);
+    vic3Regions.push_back(ardaRegion);
   }
-  // sort by gameprovince ID
-  std::sort(gameRegions.begin(), gameRegions.end(),
+  // sort by Arda::ArdaProvince ID
+  std::sort(ardaRegions.begin(), ardaRegions.end(),
             [](auto l, auto r) { return *l < *r; });
-  // check if we have the same amount of gameProvinces as FastWorldGen
+  // check if we have the same amount of ardaProvinces as FastWorldGen
   // provinces
-  if (gameProvinces.size() != this->areaData.provinces.size())
+  if (ardaProvinces.size() != this->areaData.provinces.size())
     throw(std::exception("Fatal: Lost provinces, terminating"));
-  if (gameRegions.size() != this->areaData.regions.size())
+  if (ardaRegions.size() != this->areaData.regions.size())
     throw(std::exception("Fatal: Lost regions, terminating"));
-  for (const auto &gameRegion : gameRegions) {
-    if (gameRegion->ID > gameRegions.size()) {
+  for (const auto &ardaRegion : ardaRegions) {
+    if (ardaRegion->ID > ardaRegions.size()) {
       throw(std::exception("Fatal: Invalid region IDs, terminating"));
     }
   }
@@ -227,12 +227,12 @@ void Generator::initializeStates() {}
 void Generator::mapCountries() {
   for (auto &country : countries) {
     std::shared_ptr<Country> vic3Country =
-        std::dynamic_pointer_cast<Vic3::Country, Scenario::Country>(
+        std::dynamic_pointer_cast<Vic3::Country, Arda::Country>(
             country.second);
     if (vic3Country != nullptr) {
       for (auto &region : vic3Country->ownedRegions) {
         // vic3Country->ownedVic3Regions.push_back(
-        //     std::reinterpret_pointer_cast<Vic3::Region, Scenario::Region>(
+        //     std::reinterpret_pointer_cast<Vic3::Region, Arda::ArdaRegion>(
         //         region));
 
         vic3Country->ownedVic3Regions.push_back(

@@ -350,7 +350,7 @@ addAiModifierBlocks(std::shared_ptr<Hoi4Country> country,
 
 void evaluateCountryGoals(
     std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries,
-    const std::vector<std::shared_ptr<Scenario::Region>> &gameRegions) {
+    const std::vector<std::shared_ptr<Arda::ArdaRegion>> &ardaRegions) {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Goals");
   // get the base focus tree file
   const auto focusTreeBaseFile = Fwg::Parsing::readFile(

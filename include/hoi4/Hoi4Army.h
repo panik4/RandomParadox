@@ -1,5 +1,5 @@
 #pragma once
-#include "areas/GameProvince.h"
+#include "areas/ArdaProvince.h"
 #include "hoi4/Hoi4Armor.h"
 #include "hoi4/Hoi4Tech.h"
 #include "hoi4/Hoi4Airforce.h"
@@ -85,7 +85,7 @@ struct DivisionTemplate {
 struct Division {
   DivisionTemplate divisionTemplate;
   std::string name;
-  std::shared_ptr<GameProvince> location;
+  std::shared_ptr<Arda::ArdaProvince> location;
   double startingExperienceFactor;
   double startingEquipmentFactor;
 };

@@ -2,10 +2,10 @@
 
 namespace Scenario::Vic3 {
 Country::Country(std::string tag, int ID, std::string name,
-                 std::string adjective, Gfx::Flag flag)
-    : Scenario::Country(tag, ID, name, adjective, flag) {}
+                 std::string adjective, Arda::Gfx::Flag flag)
+    : Arda::Country(tag, ID, name, adjective, flag) {}
 
-Country::Country(Scenario::Country &country,
+Country::Country(Arda::Country &country,
                  std::vector<std::shared_ptr<Vic3::Region>> &regions) {
   for (auto &region : country.ownedRegions) {
     this->ownedVic3Regions.push_back(

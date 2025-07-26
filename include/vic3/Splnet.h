@@ -1,5 +1,5 @@
 #pragma once
-#include "areas/GameRegion.h"
+#include "areas/ArdaRegion.h"
 #include "utils/ParsingUtils.h"
 #include <vector>
 namespace Scenario::Vic3 {
@@ -147,7 +147,7 @@ class Splnet {
 
 public:
   void constructSplnet(
-      const std::vector<std::shared_ptr<Scenario::Region>> &regions);
+      const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions);
 
   // parse header
   void parseHeader(const std::array<char, 36> &headerData, Header &header);

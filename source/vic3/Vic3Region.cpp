@@ -2,8 +2,8 @@
 
 namespace Scenario::Vic3 {
 Region::Region() {}
-Region::Region(const Scenario::Region &gameRegion)
-    : Scenario::Region(gameRegion) {}
+Region::Region(const Arda::ArdaRegion &ardaRegion)
+    : Arda::ArdaRegion(ardaRegion) {}
 Region::~Region() {}
 
 int Region::supportsBuilding(const BuildingType &buildingType) {

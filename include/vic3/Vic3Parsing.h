@@ -1,13 +1,14 @@
 #include "parsing/ParserUtils.h"
 #include "vic3/Vic3Generator.h"
-#include <areas/GameProvince.h>
-#include <areas/GameRegion.h>
+#include <areas/ArdaProvince.h>
+#include <areas/ArdaRegion.h>
 
 namespace Scenario::Vic3::Parsing {
 namespace Writing {
 void adj(const std::string &path);
-void defaultMap(const std::string &path,
-                const std::vector<std::shared_ptr<GameProvince>> &provinces);
+void defaultMap(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
 void defines(const std::string &pathOut);
 void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap,
                const Fwg::Gfx::Bitmap &packedHeightmap);
@@ -16,16 +17,17 @@ void stateFiles(const std::string &path,
                 const std::vector<std::shared_ptr<Region>> &regions);
 void provinceTerrains(
     const std::string &path,
-    const std::vector<std::shared_ptr<GameProvince>> &provinces);
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
 void writeMetadata(const std::string &path);
 
 void strategicRegions(const std::string &path,
                       const std::vector<StrategicRegion> &strategicRegions,
                       const std::vector<std::shared_ptr<Region>> &regions);
 void cultureCommon(const std::string &path,
-                   const std::vector<std::shared_ptr<Culture>> &cultures);
-void religionCommon(const std::string &path,
-                    const std::vector<std::shared_ptr<Religion>> &religions);
+                   const std::vector<std::shared_ptr<Arda::Culture>> &cultures);
+void religionCommon(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::Religion>> &religions);
 void countryCommon(
     const std::string &path,
     const std::map<std::string, std::shared_ptr<Country>> &countries,
@@ -38,9 +40,10 @@ void countryHistory(
     const std::string &path,
     const std::map<std::string, std::shared_ptr<Country>> &countries);
 
-void staticModifiers(const std::string &path,
-                     const std::vector<std::shared_ptr<Culture>> &cultures,
-                     const std::vector<std::shared_ptr<Religion>> &religions);
+void staticModifiers(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::Culture>> &cultures,
+    const std::vector<std::shared_ptr<Arda::Religion>> &religions);
 
 void splineNetwork(const std::string &path);
 
@@ -51,7 +54,7 @@ std::string compatRegions(const std::string &inFolder,
 
 void compatStratRegions(const std::string &inFolder, const std::string &outPath,
                         const std::vector<std::shared_ptr<Region>> &regions,
-                        std::string &baseGameRegions);
+                        std::string &baseArdaRegions);
 void compatReleasable(const std::string &inFolder, const std::string &outPath);
 
 void compatTriggers(const std::string &inFolder, const std::string &outPath);

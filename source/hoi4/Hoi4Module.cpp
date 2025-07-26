@@ -6,7 +6,7 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
                        const std::string &username, const bool editMode) {
   generator = std::make_shared<Scenario::Hoi4::Generator>((configSubFolder));
   hoi4Gen = std::reinterpret_pointer_cast<Scenario::Hoi4::Generator,
-                                          Scenario::Generator>(generator);
+                                          Arda::ArdaGen>(generator);
   const auto &config = Fwg::Cfg::Values();
   // set the executable subpath
   this->executableSubPath = "hoi4.exe";
@@ -194,11 +194,11 @@ void Hoi4Module::writeTextFiles() {
                   pathcfg.gameModPath +
                       "//localisation//english//province_names_l_english.yml");
   Map::definition(pathcfg.gameModPath + "//map//definition.csv",
-                  hoi4Gen->gameProvinces);
+                  hoi4Gen->ardaProvinces);
   Map::strategicRegions(pathcfg.gameModPath + "//map//strategicregions",
                         hoi4Gen->areaData.regions, hoi4Gen->strategicRegions);
   Map::unitStacks(pathcfg.gameModPath + "//map//unitstacks.txt",
-                  hoi4Gen->gameProvinces, hoi4Gen->hoi4States,
+                  hoi4Gen->ardaProvinces, hoi4Gen->hoi4States,
                   hoi4Gen->terrainData.detailedHeightMap);
   Map::weatherPositions(pathcfg.gameModPath + "//map//weatherpositions.txt",
                         hoi4Gen->areaData.regions, hoi4Gen->strategicRegions);
@@ -312,7 +312,7 @@ void Hoi4Module::readHoi(std::string &path) {
                                         hoi4Gen->climateData, path,
                                         "provinces.bmp", hoi4Gen->areaData);
   hoi4Gen->wrapupProvinces(config);
-  // get the provinces into GameProvinces
+  // get the provinces into ardaProvinces
   hoi4Gen->mapProvinces();
   // load existing states: we first get all the state files and parse their
   // provinces for land regions (including lakes) then we need to get the
@@ -339,9 +339,9 @@ void Hoi4Module::readHoi(std::string &path) {
     hoi4Gen->areaData.continents.push_back(c.second);
   }
 
-  // get the provinces into GameProvinces
+  // get the provinces into ardaProvinces
   // hoi4Gen->mapProvinces();
-  // get the states from files to initialize gameRegions
+  // get the states from files to initialize ardaRegions
   // Hoi4::Parsing::Reading::readStates(gamePath, *hoi4Gen);
   // try {
   //  hoi4Gen->mapRegions();
@@ -351,7 +351,7 @@ void Hoi4Module::readHoi(std::string &path) {
   //// read the colour codes from the game/mod files
   // hoi4Gen->countryColourMap =
   //     Hoi4::Parsing::Reading::readColourMapping(pathcfg.gamePath);
-  //// now initialize hoi4 states from the gameRegions
+  //// now initialize hoi4 states from the ardaRegions
   // hoi4Gen->mapTerrain();
   // for (auto &c : hoi4Gen->countries) {
   //   auto fCol = hoi4Gen->countryColourMap.valueSearch(c.first);
@@ -403,8 +403,8 @@ void Hoi4Module::generate() {
     hoi4Gen->mapContinents();
     hoi4Gen->mapTerrain();
     // generate generic world data
-    Civilization::generateWorldCivilizations(
-        hoi4Gen->gameRegions, hoi4Gen->gameProvinces, hoi4Gen->civData,
+    Arda::Civilization::generateWorldCivilizations(
+        hoi4Gen->ardaRegions, hoi4Gen->ardaProvinces, hoi4Gen->civData,
         hoi4Gen->scenContinents);
     // generate state information
     hoi4Gen->generateStateSpecifics();

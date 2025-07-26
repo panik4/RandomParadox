@@ -7,7 +7,7 @@ Module::Module(const boost::property_tree::ptree &gamesConf,
                const std::string &username) {
   generator = std::make_shared<Scenario::Vic3::Generator>((configSubFolder));
   vic3Gen = std::reinterpret_pointer_cast<Scenario::Vic3::Generator,
-                                          Scenario::Generator>(generator);
+                                          Arda::ArdaGen>(generator);
   // read eu4 configs and potentially overwrite settings for fwg
   readVic3Config(configSubFolder, username, gamesConf);
   // set the executable subpath
@@ -149,8 +149,8 @@ void Module::generate() {
 
     vic3Gen->mapTerrain();
     vic3Gen->mapContinents();
-    Civilization::generateWorldCivilizations(
-        vic3Gen->gameRegions, vic3Gen->gameProvinces, vic3Gen->civData,
+    Arda::Civilization::generateWorldCivilizations(
+        vic3Gen->ardaRegions, vic3Gen->ardaProvinces, vic3Gen->civData,
         vic3Gen->scenContinents);
     vic3Gen->generateCountries<Vic3::Country>();
     vic3Gen->evaluateCountryNeighbours();
@@ -211,10 +211,10 @@ void Module::writeTextFiles() {
   //                  pathcfg.gameModPath + "//common//country_creation//");
   adj(pathcfg.gameModPath + "//map_data//adjacencies.csv");
   defaultMap(pathcfg.gameModPath + "//map_data//default.map",
-             vic3Gen->gameProvinces);
+             vic3Gen->ardaProvinces);
   defines(pathcfg.gameModPath + "//common//defines//01_defines.txt");
   provinceTerrains(pathcfg.gameModPath + "//map_data//province_terrains.txt",
-                   vic3Gen->gameProvinces);
+                   vic3Gen->ardaProvinces);
   stateFiles(pathcfg.gameModPath + "//map_data//state_regions//00_regions.txt",
              vic3Gen->vic3Regions);
   Parsing::History::writeBuildings(
@@ -324,7 +324,7 @@ void Module::writeSplnet() {
   vic3Gen->calculateNavalExits();
 
   Splnet splnet;
-  splnet.constructSplnet(vic3Gen->gameRegions);
+  splnet.constructSplnet(vic3Gen->ardaRegions);
   splnet.writeFile(pathcfg.gameModPath +
                    "//gfx//map//spline_network//spline_network.splnet");
 }

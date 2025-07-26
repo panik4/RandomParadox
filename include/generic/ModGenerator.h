@@ -1,11 +1,11 @@
 #pragma once
-#include "generic/ScenarioGenerator.h"
-#include "namegeneration/NameGenerator.h"
+#include "generic/ArdaGen.h"
 #include "io/ResourceLoading.h"
+#include "namegeneration/NameGenerator.h"
 #include "rendering/Images.h"
 #include <map>
 namespace Scenario {
-class StrategicRegion : public SuperRegion {
+class StrategicRegion : public Arda::SuperRegion {
 public:
   // weather: month{averageTemp, standard deviation, average precipitation,
   // tempLow, tempHigh, tempNightly, snowChance, lightRainChance,
@@ -13,8 +13,7 @@ public:
   std::vector<std::vector<double>> weatherMonths;
 };
 
-class ModGenerator : public Scenario::Generator {
-
+class ModGenerator : public Arda::ArdaGen {
 
 public:
   // vars - used for every game
@@ -22,16 +21,14 @@ public:
   std::vector<StrategicRegion> strategicRegions;
   ModGenerator();
   ModGenerator(const std::string &configSubFolder);
-  ModGenerator(Scenario::Generator &scenGen);
+  ModGenerator(Arda::ArdaGen &scenGen);
   ~ModGenerator();
- 
-  
-  // build strategic regions from gameregions
+
+  // build strategic regions from ardaRegions
   void generateStrategicRegions();
   Fwg::Gfx::Bitmap visualiseStrategicRegions(const int ID = -1);
 
-
-    // load countries from an image and map them to regions
+  // load countries from an image and map them to regions
   template <typename T>
   void loadCountries(const std::string &countryMapPath,
                      const std::string &mappingPath) {
@@ -54,16 +51,16 @@ public:
     }
     countryMap =
         Fwg::IO::Reader::readGenericImage(countryMapPath, Fwg::Cfg::Values());
-    Fwg::Utils::ColourTMap<std::vector<std::shared_ptr<Scenario::Region>>>
+    Fwg::Utils::ColourTMap<std::vector<std::shared_ptr<Arda::ArdaRegion>>>
         mapOfRegions;
-    for (auto &region : gameRegions) {
+    for (auto &region : ardaRegions) {
       if (region->isSea() || region->isLake())
         continue;
 
       Fwg::Utils::ColourTMap<int> likeliestOwner;
       Fwg::Gfx::Colour selectedCol;
 
-      for (auto province : region->gameProvinces) {
+      for (auto province : region->ardaProvinces) {
         if (!province->baseProvince->isSea()) {
           //  we have the colour already
           auto colour = countryMap[province->baseProvince->pixels[0]];
@@ -98,7 +95,7 @@ public:
         auto colour = Fwg::Gfx::Colour(
             std::stoi(tokens[0]), std::stoi(tokens[1]), std::stoi(tokens[2]));
         T country(tokens[3], counter++, tokens[4], tokens[5],
-                  Gfx::Flag(82, 52));
+                  Arda::Gfx::Flag(82, 52));
         country.colour = colour;
         for (auto &region : entry.second) {
           country.addRegion(region);
@@ -106,7 +103,7 @@ public:
         countries.insert({country.tag, std::make_shared<T>(country)});
       } else {
         T country(std::to_string(counter), counter++, "", "",
-                  Gfx::Flag(82, 52));
+                  Arda::Gfx::Flag(82, 52));
         country.colour = entry.first;
         for (auto &region : entry.second) {
           country.addRegion(region);
