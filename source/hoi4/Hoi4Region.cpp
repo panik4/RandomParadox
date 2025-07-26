@@ -3,19 +3,20 @@
 namespace Scenario::Hoi4 {
 Region::Region() {}
 
-Region::Region(const Scenario::Region &gameRegion)
-    : Scenario::Region(gameRegion), armsFactories{0}, civilianFactories{0},
+Region::Region(const Arda::ArdaRegion &ardaRegion)
+    : Arda::ArdaRegion(ardaRegion), armsFactories{0},
+      civilianFactories{0},
       dockyards{0}, stateCategory{0}, stratID{0} {}
 
 Region::~Region() {}
 
-Scenario::Utils::Building
+Arda::Utils::Building
 getBuilding(const std::string &type, const Fwg::Areas::Province &prov,
             const bool coastal, const std::vector<float> &heightmap,
             const Fwg::Gfx::Bitmap &typeMap, int relativeID = 0) {
   auto pix = 0;
   auto &cfg = Fwg::Cfg::Values();
-  Scenario::Utils::Building building;
+  Arda::Utils::Building building;
   bool done = false;
   int coastalAttempts = 0;
   if (coastal) {
@@ -65,20 +66,20 @@ getBuilding(const std::string &type, const Fwg::Areas::Province &prov,
   auto heightPos = pix / Fwg::Cfg::Values().width;
 
   building.name = type;
-  building.position = Scenario::Utils::Coordinate{
+  building.position = Arda::Utils::Coordinate{
       widthPos, heightPos, heightmap[pix] / 10.0, -1.57};
   building.relativeID = relativeID;
   building.provinceID = prov.ID;
   return building;
 }
 
-Scenario::Utils::Building getBuilding(const std::string &type,
+Arda::Utils::Building getBuilding(const std::string &type,
                                       const Fwg::Areas::Region &region,
                                       const bool coastal,
                                       const std::vector<float> &heightmap,
                                       int relativeID = 0) {
   auto pix = 0;
-  Scenario::Utils::Building building;
+  Arda::Utils::Building building;
   auto prov = Fwg::Utils::selectRandom(region.provinces);
   if (coastal) {
     while (!prov->coastal)
@@ -92,7 +93,7 @@ Scenario::Utils::Building getBuilding(const std::string &type,
   auto widthPos = pix % Fwg::Cfg::Values().width;
   auto heightPos = pix / Fwg::Cfg::Values().width;
   building.name = type;
-  building.position = Scenario::Utils::Coordinate{
+  building.position = Arda::Utils::Coordinate{
       widthPos, heightPos, heightmap[pix] / 10.0, -1.57};
   building.relativeID = relativeID;
   building.provinceID = prov->ID;

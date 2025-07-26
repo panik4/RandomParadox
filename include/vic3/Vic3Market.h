@@ -1,5 +1,5 @@
 #pragma once
-#include "areas/GameRegion.h"
+#include "areas/ArdaRegion.h"
 #include "utils/ScenarioUtils.h"
 #include "vic3/Vic3Region.h"
 

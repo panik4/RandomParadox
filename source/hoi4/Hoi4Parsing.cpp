@@ -59,7 +59,7 @@ void buildings(const std::string &path,
 }
 
 void continents(const std::string &path,
-                const std::vector<ScenarioContinent> &continents,
+                const std::vector<Arda::ArdaContinent> &continents,
                 const std::string &hoiPath,
                 const std::string &localisationPath) {
   Logging::logLine("HOI4 Parser: Map: Writing Continents");
@@ -92,8 +92,9 @@ void continents(const std::string &path,
   pU::writeFile(localisationPath, continentLocalisation);
 }
 
-void definition(const std::string &path,
-                const std::vector<std::shared_ptr<GameProvince>> &provinces) {
+void definition(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
   Logging::logLine("HOI4 Parser: Map: Defining Provinces");
   // province id; r value; g value; b value; province type (land/sea/lake);
   // coastal (true/false); terrain (plains/hills/urban/etc. Defined for land or
@@ -142,10 +143,11 @@ void definition(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void unitStacks(const std::string &path,
-                const std::vector<std::shared_ptr<GameProvince>> provinces,
-                const std::vector<std::shared_ptr<Region>> regions,
-                const std::vector<float> &heightMap) {
+void unitStacks(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> provinces,
+    const std::vector<std::shared_ptr<Region>> regions,
+    const std::vector<float> &heightMap) {
   Logging::logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
   // 1;0;3359.00;9.50;1166.00;0.00;0.08
   // provID, neighbour?, xPos, zPos yPos, rotation(3=north,
@@ -188,7 +190,7 @@ void strategicRegions(const std::string &path,
       Rpx::Parsing::getBracketBlock(templateContent, "period");
   for (auto i = 0; i < strategicRegions.size(); i++) {
     std::string provString{""};
-    for (const auto &region : strategicRegions[i].gameRegions) {
+    for (const auto &region : strategicRegions[i].ardaRegions) {
       for (const auto prov : region->provinces) {
         provString.append(std::to_string(prov->ID + 1));
         provString.append(" ");
@@ -257,10 +259,10 @@ void weatherPositions(const std::string &path,
   // stateId; pixelX; rotation??; pixelY; rotation??; size
   // 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
 
-  // delete strategic regions that have no gameRegions
+  // delete strategic regions that have no ardaRegions
   for (auto i = 0;
        i < strategicRegions.size();) { // Removed increment from here
-    if (strategicRegions[i].gameRegions.size() == 0) {
+    if (strategicRegions[i].ardaRegions.size() == 0) {
       // do the erase
       strategicRegions.erase(strategicRegions.begin() + i);
       // No need to decrement i since we're not incrementing it in the loop
@@ -272,7 +274,7 @@ void weatherPositions(const std::string &path,
 
   for (auto i = 0; i < strategicRegions.size(); i++) {
     const auto &region =
-        Fwg::Utils::selectRandom(strategicRegions[i].gameRegions);
+        Fwg::Utils::selectRandom(strategicRegions[i].ardaRegions);
     const auto prov = Fwg::Utils::selectRandom(region->provinces);
     const auto pix = Fwg::Utils::selectRandom(prov->pixels);
     auto widthPos = pix % Cfg::Values().width;
@@ -363,22 +365,22 @@ void commonCharacters(const std::string &path, const CountryMap &countries) {
   const auto leaderTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
                    "hoi4//common//characters//leaderTemplate.txt");
-  std::map<Type, std::string> slotTypes = {
-      {Type::Politician, "political_advisor"},
-      {Type::ArmyChief, "army_chief"},
-      {Type::NavyChief, "navy_chief"},
-      {Type::AirForceChief, "air_chief"},
-      {Type::Theorist, "theorist"},
-      {Type::HighCommand, "high_command"}};
+  std::map<Arda::Type, std::string> slotTypes = {
+      {Arda::Type::Politician, "political_advisor"},
+      {Arda::Type::ArmyChief, "army_chief"},
+      {Arda::Type::NavyChief, "navy_chief"},
+      {Arda::Type::AirForceChief, "air_chief"},
+      {Arda::Type::Theorist, "theorist"},
+      {Arda::Type::HighCommand, "high_command"}};
   // map to randomly get one of the ideologies
-  std::map<Ideology, std::vector<std::string>> ideologyMap{
-      {Ideology::Fascist,
+  std::map<Arda::Ideology, std::vector<std::string>> ideologyMap{
+      {Arda::Ideology::Fascist,
        {"rexism", "falangism", "fascism_ideology", "nazism"}},
-      {Ideology::Communist,
+      {Arda::Ideology::Communist,
        {"marxism", "leninism", "stalinism", "anti_revisionism",
         "anarchist_communism"}},
-      {Ideology::Democratic, {"conservatism", "liberalism", "socialism"}},
-      {Ideology::Neutral,
+      {Arda::Ideology::Democratic, {"conservatism", "liberalism", "socialism"}},
+      {Arda::Ideology::Neutral,
        {"despotism", "oligarchism", "moderatism", "centrism"}}};
 
   for (const auto &country : countries) {
@@ -387,11 +389,11 @@ void commonCharacters(const std::string &path, const CountryMap &countries) {
     auto tempPath = path + country->tag + ".txt";
     for (const auto &character : country->characters) {
       auto characterText = characterTemplate;
-      if (character.type == Type::Leader) {
+      if (character.type == Arda::Type::Leader) {
         Rpx::Parsing::replaceOccurences(characterText, "templateCharacterType",
                                         leaderTemplate);
-      } else if (character.type != Type::ArmyGeneral &&
-                 character.type != Type::FleetAdmiral) {
+      } else if (character.type != Arda::Type::ArmyGeneral &&
+                 character.type != Arda::Type::FleetAdmiral) {
         Rpx::Parsing::replaceOccurences(characterText, "templateCharacterType",
                                         advisorTemplate);
       }
@@ -514,7 +516,7 @@ void ideas(const std::string &path, const CountryMap &countries) {
 
 void flags(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: Gfx: Printing Flags");
-  using namespace Gfx::Textures;
+  using namespace Arda::Gfx::Textures;
   Fwg::IO::Utils::clearFilesOfType(path, ".tga");
   for (const auto &country : countries) {
     writeTGA(country->flag.width, country->flag.height, country->flag.getFlag(),
@@ -888,7 +890,7 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
   for (const auto &country : countries) {
     std::vector<int> allowedProvinces;
     for (auto &region : country->hoi4Regions) {
-      for (auto &prov : region->gameProvinces) {
+      for (auto &prov : region->ardaProvinces) {
         if (!prov->baseProvince->isLake())
           allowedProvinces.push_back(prov->ID);
       }
@@ -901,8 +903,8 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     for (const auto divisionTemplate : country->divisionTemplates) {
       auto tempDivisionTemplate = divisionTemplateFile;
       Rpx::Parsing::replaceOccurences(tempDivisionTemplate,
-                                                "templateDivisionTemplateName",
-                                                divisionTemplate.name);
+                                      "templateDivisionTemplateName",
+                                      divisionTemplate.name);
       // start adding the regiments
       std::string regiments = "";
       for (int i = 0; i < divisionTemplate.regiments.size(); i++) {
@@ -913,8 +915,8 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
                        " y = " + std::to_string(x) + " }\n";
         }
       }
-      Rpx::Parsing::replaceOccurences(tempDivisionTemplate,
-                                                "templateRegiments", regiments);
+      Rpx::Parsing::replaceOccurences(tempDivisionTemplate, "templateRegiments",
+                                      regiments);
       std::string supports = "";
       for (int i = 0; i < divisionTemplate.supportRegiments.size(); i++) {
         supports +=
@@ -922,27 +924,27 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
             supportRegimentTypeMap.at(divisionTemplate.supportRegiments[i]) +
             " = {  x = " + std::to_string(i) + " y = 0 }\n";
       }
-      Rpx::Parsing::replaceOccurences(
-          tempDivisionTemplate, "templateSupportRegiments", supports);
+      Rpx::Parsing::replaceOccurences(tempDivisionTemplate,
+                                      "templateSupportRegiments", supports);
       divisionTemplates += tempDivisionTemplate;
     }
 
     Rpx::Parsing::replaceOccurences(unitFile, "templateTemplateBlock",
-                                              divisionTemplates);
+                                    divisionTemplates);
 
     // now that we have the templates written down, we deploy units of
     // these templates under the "divisions" key in the unitFile
     std::string totalUnits = "";
     for (auto &division : country->divisions) {
       auto tempDivision = unitBlock;
-      Rpx::Parsing::replaceOccurences(
-          tempDivision, "templateDivisionName", division.name);
+      Rpx::Parsing::replaceOccurences(tempDivision, "templateDivisionName",
+                                      division.name);
       Rpx::Parsing::replaceOccurences(
           tempDivision, "templateLocation",
           std::to_string(division.location->ID + 1));
       Rpx::Parsing::replaceOccurences(tempDivision,
-                                                "templateDivisionTemplateName",
-                                                division.divisionTemplate.name);
+                                      "templateDivisionTemplateName",
+                                      division.divisionTemplate.name);
       Rpx::Parsing::replaceOccurences(
           tempDivision, "templateStartExperience",
           std::to_string(division.startingExperienceFactor));
@@ -953,8 +955,7 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
       totalUnits += tempDivision;
     }
 
-    Rpx::Parsing::replaceOccurences(unitFile, "templateUnitBlock",
-                                              totalUnits);
+    Rpx::Parsing::replaceOccurences(unitFile, "templateUnitBlock", totalUnits);
     // units
     auto tempPath = path + country->tag + "_1936.txt";
     pU::writeFile(path + country->tag + "_1936.txt", unitFile);
@@ -969,35 +970,32 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
         continue;
       std::string airbaseFile = baseAirbaseFile;
       std::string wings = "";
-      Rpx::Parsing::replaceOccurences(
-          airbaseFile, "templateStateID",
-          std::to_string(airbase.first->ID + 1));
+      Rpx::Parsing::replaceOccurences(airbaseFile, "templateStateID",
+                                      std::to_string(airbase.first->ID + 1));
       for (auto &wing : airbase.second->wings) {
         std::string wingFile = baseWingFile;
         Rpx::Parsing::replaceOccurences(wingFile, "templateName",
-                                                  wing.variant.name);
-        Rpx::Parsing::replaceOccurences(
-            wingFile, "templateCountryTag", country->tag);
+                                        wing.variant.name);
+        Rpx::Parsing::replaceOccurences(wingFile, "templateCountryTag",
+                                        country->tag);
         Rpx::Parsing::replaceOccurences(wingFile, "templateAirFrame",
-                                                  wing.variant.bbaFrameName);
+                                        wing.variant.bbaFrameName);
         Rpx::Parsing::replaceOccurences(wingFile, "templateAmount",
-                                                  std::to_string(wing.amount));
+                                        std::to_string(wing.amount));
         wings += wingFile;
       }
-      Rpx::Parsing::replaceOccurences(airbaseFile, "templateAirWings",
-                                                wings);
+      Rpx::Parsing::replaceOccurences(airbaseFile, "templateAirWings", wings);
       airbases += airbaseFile;
     }
 
-    Rpx::Parsing::replaceOccurences(airforce, "templateAirBases",
-                                              airbases);
+    Rpx::Parsing::replaceOccurences(airforce, "templateAirBases", airbases);
     tempPath = path + country->tag + "_1936_air_bba.txt";
     pU::writeFile(tempPath, airforce);
     // now replace the bba frames with vanilla frames
     tempPath = path + country->tag + "_1936_air_legacy.txt";
     for (auto &variant : country->planeVariants) {
       Rpx::Parsing::replaceOccurences(airforce, variant.bbaFrameName,
-                                                variant.vanillaFrameName);
+                                      variant.vanillaFrameName);
     }
     pU::writeFile(tempPath, airforce);
 
@@ -1050,51 +1048,46 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
       for (int i = 0; i < 2; i++) {
         for (auto &ship : fleet.ships) {
           auto shipString = i ? mtgShipString : baseShipString;
-          Rpx::Parsing::replaceOccurences(
-              shipString, "templateShipName", ship->name);
+          Rpx::Parsing::replaceOccurences(shipString, "templateShipName",
+                                          ship->name);
           Rpx::Parsing::replaceOccurences(
               shipString, "templateShipType",
               ShipClassTypeDefinitions.at(ship->shipClass.type));
-          Rpx::Parsing::replaceOccurences(
-              shipString, "templateCountryTag", country->tag);
-          Rpx::Parsing::replaceOccurences(
-              shipString, "templateClassName", ship->shipClass.name);
+          Rpx::Parsing::replaceOccurences(shipString, "templateCountryTag",
+                                          country->tag);
+          Rpx::Parsing::replaceOccurences(shipString, "templateClassName",
+                                          ship->shipClass.name);
 
           // legacy
           if (i == 0) {
-            Rpx::Parsing::replaceOccurences(
-                shipString, "templateShipEquipment",
-                ship->shipClass.vanillaShipType);
+            Rpx::Parsing::replaceOccurences(shipString, "templateShipEquipment",
+                                            ship->shipClass.vanillaShipType);
             ships.append(shipString);
           }
           // mtg
           else {
-            Rpx::Parsing::replaceOccurences(
-                shipString, "templateShipEquipment",
-                ship->shipClass.mtgHullname);
+            Rpx::Parsing::replaceOccurences(shipString, "templateShipEquipment",
+                                            ship->shipClass.mtgHullname);
             mtgShips.append(shipString);
           }
         }
       }
-      Rpx::Parsing::replaceOccurences(
-          fleetString, "templateFleetName", fleet.name);
-      Rpx::Parsing::replaceOccurences(
-          fleetString, "templateTaskForceName", fleet.name);
+      Rpx::Parsing::replaceOccurences(fleetString, "templateFleetName",
+                                      fleet.name);
+      Rpx::Parsing::replaceOccurences(fleetString, "templateTaskForceName",
+                                      fleet.name);
       Rpx::Parsing::replaceOccurences(
           fleetString, "templateLocation",
           std::to_string(fleet.startingPort->ID + 1));
       auto mtgFleetString = fleetString;
-      Rpx::Parsing::replaceOccurences(fleetString, "templateShips",
-                                                ships);
+      Rpx::Parsing::replaceOccurences(fleetString, "templateShips", ships);
       Rpx::Parsing::replaceOccurences(mtgFleetString, "templateShips",
-                                                mtgShips);
+                                      mtgShips);
       fleets.append(fleetString);
       mtgFleets.append(mtgFleetString);
     }
-    Rpx::Parsing::replaceOccurences(navyFile, "templateFleets",
-                                              fleets);
-    Rpx::Parsing::replaceOccurences(mtgNavyFile, "templateFleets",
-                                              mtgFleets);
+    Rpx::Parsing::replaceOccurences(navyFile, "templateFleets", fleets);
+    Rpx::Parsing::replaceOccurences(mtgNavyFile, "templateFleets", mtgFleets);
     tempPath = path + country->tag + "_1936_naval.txt";
     pU::writeFile(tempPath, navyFile);
     tempPath = path + country->tag + "_1936_naval_mtg.txt";
@@ -1232,19 +1225,19 @@ void portraits(const std::string &path, const CountryMap &countries) {
     auto culture = country->getPrimaryCulture();
     std::string portraitTemplate;
     std::string scientistTemplate;
-    if (culture->visualType == VisualType::AFRICAN) {
+    if (culture->visualType == Arda::VisualType::AFRICAN) {
       portraitTemplate = africanTemplate;
       scientistTemplate = africanScientistTemplate;
-    } else if (culture->visualType == VisualType::ASIAN) {
+    } else if (culture->visualType == Arda::VisualType::ASIAN) {
       portraitTemplate = asianTemplate;
       scientistTemplate = asianScientistTemplate;
-    } else if (culture->visualType == VisualType::CAUCASIAN) {
+    } else if (culture->visualType == Arda::VisualType::CAUCASIAN) {
       portraitTemplate = caucasianTemplate;
       scientistTemplate = caucasianScientistTemplate;
-    } else if (culture->visualType == VisualType::ARABIC) {
+    } else if (culture->visualType == Arda::VisualType::ARABIC) {
       portraitTemplate = arabicTemplate;
       scientistTemplate = arabicScientistTemplate;
-    } else if (culture->visualType == VisualType::SOUTH_AMERICAN) {
+    } else if (culture->visualType == Arda::VisualType::SOUTH_AMERICAN) {
       portraitTemplate = southAmericanTemplate;
       scientistTemplate = southAmericanScientistTemplate;
     }
@@ -1263,7 +1256,7 @@ void portraits(const std::string &path, const CountryMap &countries) {
 
 } // namespace Countries
 void aiStrategy(const std::string &path,
-                const std::vector<ScenarioContinent> &continents) {
+                const std::vector<Arda::ArdaContinent> &continents) {
   // copy folders ai_areas and ai_strategy from cfg::Values().resourcePath +
   // "/hoi4//common// to path//common//
   Logging::logLine("HOI4 Parser: Map: Writing AI Strategies");
@@ -1306,8 +1299,7 @@ void aiStrategy(const std::string &path,
     std::transform(name.begin(), name.end(), name.begin(),
                    [](unsigned char c) { return std::tolower(c); });
     auto continentString = aiAreasTemplate;
-    Rpx::Parsing::replaceOccurences(continentString, "templateArea",
-                                    name);
+    Rpx::Parsing::replaceOccurences(continentString, "templateArea", name);
     aiAreasContent.append(continentString);
     auto strategyContinentString = aiStrategyTemplate;
     Rpx::Parsing::replaceOccurences(strategyContinentString, "templateArea",
@@ -1315,9 +1307,9 @@ void aiStrategy(const std::string &path,
     aiStrategyContent.append(strategyContinentString);
   }
   Rpx::Parsing::replaceOccurences(aiAreasFile, "templateContinents",
-                                            aiAreasContent);
-  Rpx::Parsing::replaceOccurences(
-      aiStrategyFile, "templateContinents", aiStrategyContent);
+                                  aiAreasContent);
+  Rpx::Parsing::replaceOccurences(aiStrategyFile, "templateContinents",
+                                  aiStrategyContent);
   pU::writeFile(path + "//ai_areas//default.txt", aiAreasFile);
   pU::writeFile(path + "//ai_strategy//default.txt", aiStrategyFile);
 }
@@ -1339,7 +1331,7 @@ void events(const std::string &path) {
 }
 
 void commonBookmarks(const std::string &path, const CountryMap &countries,
-                     const std::map<int, std::vector<std::shared_ptr<Country>>>
+                     const std::map<int, std::vector<std::shared_ptr<Arda::Country>>>
                          &strengthScores) {
   auto bookmarkTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
@@ -1641,7 +1633,7 @@ void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen) {
   auto states = pU::readFilesInDirectory(path + "/history/states");
 
   Fwg::Utils::ColourTMap<Fwg::Areas::Region> stateColours;
-  hoi4Gen->gameRegions.clear();
+  hoi4Gen->ardaRegions.clear();
   hoi4Gen->countries.clear();
   stateColours.clear();
 
@@ -1653,9 +1645,9 @@ void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen) {
     // reg->owner = tag;
     auto readIDs = getNumberBlockMultiDelim(state, "provinces");
     for (auto id : readIDs) {
-      // reg->gameProvinces.push_back(hoi4Gen.gameProvinces[id - 1]);
-      reg.provinces.push_back(hoi4Gen->gameProvinces[id - 1]->baseProvince);
-      // hoi4Gen.gameProvinces[id - 1]->baseProvince->regionID = reg.ID;
+      // reg->ardaProvinces.push_back(hoi4Gen.ardaProvinces[id - 1]);
+      reg.provinces.push_back(hoi4Gen->ardaProvinces[id - 1]->baseProvince);
+      // hoi4Gen.ardaProvinces[id - 1]->baseProvince->regionID = reg.ID;
     }
 
     Fwg::Gfx::Colour colour;
@@ -1664,7 +1656,7 @@ void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen) {
       colour.randomize();
     } while (stateColours.find(colour));
     reg.colour = colour;
-    // hoi4Gen.gameRegions.push_back(reg);
+    // hoi4Gen.ardaRegions.push_back(reg);
     stateColours.setValue(reg.colour, reg);
     hoi4Gen->areaData.regions.push_back(reg);
   }
@@ -1673,7 +1665,7 @@ void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen) {
             [](auto l, auto r) { return l < r; });
   Fwg::Gfx::regionMap(hoi4Gen->areaData.regions, hoi4Gen->areaData.provinces,
                       hoi4Gen->regionMap);
-  // for (auto &region : hoi4Gen.gameRegions) {
+  // for (auto &region : hoi4Gen.ardaRegions) {
   //   if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end())
   //   {
   //     hoi4Gen.countries.at(region->owner)->ownedRegions.push_back(region);
@@ -1739,14 +1731,14 @@ void readBuildings(const std::string &path,
   Logging::logLine("HOI4 Parser: Map: Observing Infrastructure");
   auto content = pU::getLines(path + "//map//buildings.txt");
   for (const auto &line : content) {
-    Scenario::Utils::Building building;
+    Arda::Utils::Building building;
     auto tokens = pU::getTokens(line, ';');
     auto stateID = std::stoi(tokens[0]) - 1;
 
     if (stateID < regions.size()) {
       building.name = tokens[1];
       building.relativeID = std::stoi(tokens[6]);
-      building.position = Scenario::Utils::strToPos(tokens, {2, 3, 4, 5});
+      building.position = Arda::Utils::strToPos(tokens, {2, 3, 4, 5});
       regions[stateID]->buildings.push_back(building);
     }
   }
@@ -1854,9 +1846,9 @@ void readWeatherPositions(const std::string &path,
   Logging::logLine("HOI4 Parser: Map: Observing the Weather");
   auto content = pU::getLines(path + "//map//weatherpositions.txt");
   for (const auto &line : content) {
-    Scenario::Utils::WeatherPosition weather;
+    Arda::Utils::WeatherPosition weather;
     auto tokens = pU::getTokens(line, ';');
-    weather.position = Scenario::Utils::strToPos(tokens, {1, 2, 3, 3});
+    weather.position = Arda::Utils::strToPos(tokens, {1, 2, 3, 3});
     weather.effectSize = tokens[4];
     auto stateID = std::stoi(tokens[0]) - 1;
     if (stateID < regions.size())

@@ -204,23 +204,23 @@ bool Scenario::Hoi4::GoalGeneration::checkPrerequisites(
   for (const auto &prerequisiteGroup : categoryGoal.prerequisites) {
     for (const auto &prerequisite : prerequisiteGroup.prerequisites) {
       if (prerequisite.name == "is_major" &&
-          country->rank != Rank::GreatPower) {
+          country->rank != Arda::Rank::GreatPower) {
         valid = false;
         break;
       } else if (prerequisite.name == "is_secondary" &&
-                 country->rank != Rank::SecondaryPower) {
+                 country->rank != Arda::Rank::SecondaryPower) {
         valid = false;
         break;
       } else if (prerequisite.name == "is_regional" &&
-                 country->rank != Rank::RegionalPower) {
+                 country->rank != Arda::Rank::RegionalPower) {
         valid = false;
         break;
       } else if (prerequisite.name == "is_local" &&
-                 country->rank != Rank::LocalPower) {
+                 country->rank != Arda::Rank::LocalPower) {
         valid = false;
         break;
       } else if (prerequisite.name == "is_minor" &&
-                 country->rank != Rank::MinorPower) {
+                 country->rank != Arda::Rank::MinorPower) {
         valid = false;
         break;
       }

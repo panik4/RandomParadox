@@ -1,6 +1,6 @@
 #include "hoi4/Hoi4FormatConverter.h"
 namespace Scenario::Gfx::Hoi4 {
-using namespace Scenario::Gfx::Textures;
+using namespace Arda::Gfx::Textures;
 using namespace Fwg;
 using namespace Fwg::Gfx;
 

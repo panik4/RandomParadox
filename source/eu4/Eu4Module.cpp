@@ -6,8 +6,9 @@ Module::Module(const boost::property_tree::ptree &gamesConf,
                const std::string &configSubFolder,
                const std::string &username) {
   generator = std::make_shared<Scenario::Eu4::Generator>((configSubFolder));
-  eu4Gen = std::reinterpret_pointer_cast<Scenario::Eu4::Generator,
-                                         Scenario::Generator>(generator);
+  eu4Gen =
+      std::reinterpret_pointer_cast<Scenario::Eu4::Generator, Arda::ArdaGen>(
+          generator);
   // read eu4 configs and potentially overwrite settings for fwg
   readEu4Config(configSubFolder, username, gamesConf);
 
@@ -122,13 +123,13 @@ void Module::generate() {
 
     eu4Gen->mapTerrain();
     eu4Gen->mapContinents();
-    Civilization::generateWorldCivilizations(
-        eu4Gen->gameRegions, eu4Gen->gameProvinces, eu4Gen->civData,
+    Arda::Civilization::generateWorldCivilizations(
+        eu4Gen->ardaRegions, eu4Gen->ardaProvinces, eu4Gen->civData,
         eu4Gen->scenContinents);
-    eu4Gen->generateCountries<Scenario::Country>();
+    eu4Gen->generateCountries<Arda::Country>();
     eu4Gen->evaluateCountryNeighbours();
     eu4Gen->visualiseCountries(generator->countryMap);
-    eu4Gen->generateRegions(eu4Gen->gameRegions);
+    eu4Gen->generateRegions(eu4Gen->ardaRegions);
   } catch (std::exception e) {
     std::string error = "Error while generating the Eu4 Module.\n";
     error += "Error is: \n";
@@ -184,46 +185,46 @@ void Module::generate() {
       using namespace Parsing;
       // now do text
       writeAdj(pathcfg.gameModPath + "//map//adjacencies.csv",
-               eu4Gen->gameProvinces);
+               eu4Gen->ardaProvinces);
       writeAmbientObjects(pathcfg.gameModPath + "//map//ambient_object.txt",
-                          eu4Gen->gameProvinces);
-      writeAreas(pathcfg.gameModPath + "//map//area.txt", eu4Gen->gameRegions,
+                          eu4Gen->ardaProvinces);
+      writeAreas(pathcfg.gameModPath + "//map//area.txt", eu4Gen->ardaRegions,
                  pathcfg.gamePath);
       writeColonialRegions(
           pathcfg.gameModPath +
               "//common//colonial_regions//00_colonial_regions.txt",
-          pathcfg.gamePath, eu4Gen->gameProvinces);
+          pathcfg.gamePath, eu4Gen->ardaProvinces);
       writeClimate(pathcfg.gameModPath + "//map//climate.txt",
-                   eu4Gen->gameProvinces);
+                   eu4Gen->ardaProvinces);
       writeContinent(pathcfg.gameModPath + "//map//continent.txt",
-                     eu4Gen->gameProvinces);
+                     eu4Gen->ardaProvinces);
       writeDefaultMap(pathcfg.gameModPath + "//map//default.map",
-                      eu4Gen->gameProvinces);
+                      eu4Gen->ardaProvinces);
       writeDefinition(pathcfg.gameModPath + "//map//definition.csv",
-                      eu4Gen->gameProvinces);
+                      eu4Gen->ardaProvinces);
       writePositions(pathcfg.gameModPath + "//map//positions.txt",
-                     eu4Gen->gameProvinces);
+                     eu4Gen->ardaProvinces);
       writeRegions(pathcfg.gameModPath + "//map//region.txt", pathcfg.gamePath,
                    eu4Gen->getEu4Regions());
       writeSuperregion(pathcfg.gameModPath + "//map//superregion.txt",
-                       pathcfg.gamePath, eu4Gen->gameRegions);
+                       pathcfg.gamePath, eu4Gen->ardaRegions);
       writeTerrain(pathcfg.gameModPath + "//map//terrain.txt",
-                   eu4Gen->gameProvinces);
+                   eu4Gen->ardaProvinces);
       writeTradeCompanies(
           pathcfg.gameModPath +
               "//common//trade_companies//00_trade_companies.txt",
-          pathcfg.gamePath, eu4Gen->gameProvinces);
+          pathcfg.gamePath, eu4Gen->ardaProvinces);
       writeTradewinds(pathcfg.gameModPath + "//map//trade_winds.txt",
-                      eu4Gen->gameProvinces);
+                      eu4Gen->ardaProvinces);
 
       copyDescriptorFile(
           Fwg::Cfg::Values().resourcePath + "//eu4//descriptor.mod",
           pathcfg.gameModPath, pathcfg.gameModsDirectory, pathcfg.modName);
 
       writeProvinces(pathcfg.gameModPath + "//history//provinces//",
-                     eu4Gen->gameProvinces, eu4Gen->gameRegions);
+                     eu4Gen->ardaProvinces, eu4Gen->ardaRegions);
       writeLoc(pathcfg.gameModPath + "//localisation//", pathcfg.gamePath,
-               eu4Gen->gameRegions, eu4Gen->gameProvinces,
+               eu4Gen->ardaRegions, eu4Gen->ardaProvinces,
                eu4Gen->getEu4Regions());
       Fwg::Utils::Logging::logLine("Done with the eu4 export");
     }

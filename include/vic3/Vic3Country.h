@@ -8,15 +8,15 @@
 
 namespace Scenario::Vic3 {
 
-class Country : public Scenario::Country {
+class Country : public Arda::Country {
   struct Market {
     std::vector<Country> marketParticipants;
   };
 
 public:
   Country(std::string tag, int ID, std::string name, std::string adjective,
-          Gfx::Flag flag);
-  Country(Scenario::Country &country,
+          Arda::Gfx::Flag flag);
+  Country(Arda::Country &country,
           std::vector<std::shared_ptr<Vic3::Region>> &regions);
   ~Country();
   std::vector<std::shared_ptr<Region>> ownedVic3Regions;

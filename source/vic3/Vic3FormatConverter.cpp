@@ -1,6 +1,6 @@
 #include "vic3/Vic3FormatConverter.h"
 namespace Scenario::Gfx::Vic3 {
-using namespace Scenario::Gfx::Textures;
+using namespace Arda::Gfx::Textures;
 using namespace Fwg;
 using namespace Fwg::Gfx;
 
@@ -218,7 +218,7 @@ void FormatConverter::Vic3ColourMaps(
       writeBufferPixels(pixels, imageIndex, Fwg::Gfx::Colour(val), 255);
     }
   }
-  Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
+  Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
                            DXGI_FORMAT_B8G8R8A8_UNORM,
                            path + "//textures//land_mask.dds", false);
 
@@ -240,12 +240,12 @@ void FormatConverter::Vic3ColourMaps(
       writeBufferPixels(pixels, imageIndex, col, 255);
     }
   }
-  Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
+  Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
                            DXGI_FORMAT_B8G8R8A8_UNORM,
                            path + "//textures//flatmap.dds");
 
   std::fill(pixels.begin(), pixels.end(), 0);
-  Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
+  Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
                            DXGI_FORMAT_B8G8R8A8_UNORM,
                            path + "//textures//flatmap_overlay.dds");
   // terrain colour map
@@ -278,14 +278,14 @@ void FormatConverter::Vic3ColourMaps(
       }
     }
   }
-  Textures::writeMipMapDDS(
+  Arda::Gfx::Textures::writeMipMapDDS(
       imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
       path + "//water//watercolor_rgb_waterspec_a.dds", true);
   std::fill(pixels.begin(), pixels.end(), 0);
-  Textures::writeMipMapDDS(imageWidth / 4, imageHeight / 4, pixels,
+  Arda::Gfx::Textures::writeMipMapDDS(imageWidth / 4, imageHeight / 4, pixels,
                            DXGI_FORMAT_B8G8R8A8_UNORM,
                            path + "//water//foam_map.dds");
-  Textures::writeMipMapDDS(imageWidth / 8, imageHeight / 8, pixels,
+  Arda::Gfx::Textures::writeMipMapDDS(imageWidth / 8, imageHeight / 8, pixels,
                            DXGI_FORMAT_B8G8R8A8_UNORM,
                            path + "//water//flowmap.dds");
   // colormap_tree.dds
@@ -317,7 +317,7 @@ void FormatConverter::Vic3ColourMaps(
       writeBufferPixels(pixels, imageIndex, col, 255);
     }
   }
-  writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
+  Arda::Gfx::Textures::writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
            path + "//textures//colormap_tree.dds");
 
   scaledHeight =
@@ -342,7 +342,7 @@ void FormatConverter::Vic3ColourMaps(
       writeBufferPixels(pixels, imageIndex, Fwg::Gfx::Colour(col), 255);
     }
   }
-  Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
+  Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
                            DXGI_FORMAT_B8G8R8A8_UNORM,
                            path + "//textures//windmap_tree.dds", true);
 }
@@ -600,9 +600,9 @@ void FormatConverter::detailMaps(
       }
     }
   }
-  Textures::writeTGA(config.width, config.height, pixels,
+  Arda::Gfx::Textures::writeTGA(config.width, config.height, pixels,
                      path + "//terrain//detail_index.tga");
-  Textures::writeTGA(config.width, config.height, intensityPixels,
+  Arda::Gfx::Textures::writeTGA(config.width, config.height, intensityPixels,
                      path + "//terrain//detail_intensity.tga");
 
   for (int i = 0; i < masks.size(); i++) {

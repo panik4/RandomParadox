@@ -38,7 +38,7 @@ struct Ship {
 
 struct Fleet {
   std::string name;
-  std::shared_ptr<GameProvince> startingPort;
+  std::shared_ptr<Arda::ArdaProvince> startingPort;
   std::vector<std::shared_ptr<Ship>> ships;
 };
 

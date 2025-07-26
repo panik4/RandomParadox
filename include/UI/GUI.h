@@ -45,10 +45,10 @@ class GUI : Fwg::fwgUI {
   void initGameConfigs();
   bool validatePaths();
   bool isRelevantModuleActive(const std::string &shortName);
-  int showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
+  int showGeneric(Fwg::Cfg &cfg, Arda::ArdaGen &generator,
                   ID3D11ShaderResourceView **texture);
   template <class T> constexpr std::shared_ptr<T> getGeneratorPointer() {
-    return std::reinterpret_pointer_cast<T, Scenario::Generator>(
+    return std::reinterpret_pointer_cast<T, Arda::ArdaGen>(
         activeModule->generator);
   }
   int showConfigure(Fwg::Cfg &cfg,
@@ -61,7 +61,7 @@ class GUI : Fwg::fwgUI {
   // generic scenario stuff
   int showScenarioTab(Fwg::Cfg &cfg,
                       std::shared_ptr<Scenario::GenericModule> genericModule);
-  void countryEdit(std::shared_ptr<Scenario::Generator> generator);
+  void countryEdit(std::shared_ptr<Arda::ArdaGen> generator);
   int showCountryTab(Fwg::Cfg &cfg);
 
   int showModuleGeneric(Fwg::Cfg &cfg,
@@ -70,7 +70,7 @@ class GUI : Fwg::fwgUI {
                              std::shared_ptr<Scenario::ModGenerator> generator);
   // to display the terrain maps/masks etc
   int showTerrainTab(Fwg::Cfg &cfg,
-                     std::shared_ptr<Scenario::Generator> generator);
+                     std::shared_ptr<Arda::ArdaGen> generator);
   // HOI stuff
   int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
   void pathWarning(std::exception e);

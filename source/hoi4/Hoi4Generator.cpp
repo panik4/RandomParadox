@@ -11,7 +11,7 @@ Generator::~Generator() {}
 
 void Generator::mapRegions() {
   Fwg::Utils::Logging::logLine("Mapping Regions");
-  gameRegions.clear();
+  ardaRegions.clear();
   hoi4States.clear();
   worldPop = 0;
   militaryIndustry = 0;
@@ -25,29 +25,29 @@ void Generator::mapRegions() {
                  const std::shared_ptr<Fwg::Areas::Province> b) {
                 return (*a < *b);
               });
-    auto gameRegion = std::make_shared<Region>(region);
+    auto ardaRegion = std::make_shared<Region>(region);
     // generate random name for region
-    gameRegion->name = "";
-    gameRegion->identifier = "STATE_" + std::to_string(region.ID + 1);
+    ardaRegion->name = "";
+    ardaRegion->identifier = "STATE_" + std::to_string(region.ID + 1);
 
-    for (auto &province : gameRegion->provinces) {
-      gameRegion->gameProvinces.push_back(gameProvinces[province->ID]);
+    for (auto &province : ardaRegion->provinces) {
+      ardaRegion->ardaProvinces.push_back(ardaProvinces[province->ID]);
     }
     // save game region to generic module container and to hoi4 specific
     // container
-    gameRegions.push_back(gameRegion);
-    hoi4States.push_back(gameRegion);
+    ardaRegions.push_back(ardaRegion);
+    hoi4States.push_back(ardaRegion);
   }
-  // sort by gameprovince ID
-  std::sort(gameRegions.begin(), gameRegions.end(),
+  // sort by Arda::ArdaProvince ID
+  std::sort(ardaRegions.begin(), ardaRegions.end(),
             [](auto l, auto r) { return *l < *r; });
-  // check if we have the same amount of gameProvinces as FastWorldGen provinces
-  if (gameProvinces.size() != this->areaData.provinces.size())
+  // check if we have the same amount of ardaProvinces as FastWorldGen provinces
+  if (ardaProvinces.size() != this->areaData.provinces.size())
     throw(std::exception("Fatal: Lost provinces, terminating"));
-  if (gameRegions.size() != this->areaData.regions.size())
+  if (ardaRegions.size() != this->areaData.regions.size())
     throw(std::exception("Fatal: Lost regions, terminating"));
-  for (const auto &gameRegion : gameRegions) {
-    if (gameRegion->ID > gameRegions.size()) {
+  for (const auto &ardaRegion : ardaRegions) {
+    if (ardaRegion->ID > ardaRegions.size()) {
       throw(std::exception("Fatal: Invalid region IDs, terminating"));
     }
   }
@@ -64,8 +64,8 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
   const auto &landForms = terrainData.landForms;
   const auto &climates = climateData.climates;
   const auto &forests = climateData.dominantForest;
-  for (auto &gameRegion : gameRegions) {
-    for (auto &gameProv : gameRegion->gameProvinces) {
+  for (auto &ardaRegion : ardaRegions) {
+    for (auto &gameProv : ardaRegion->ardaProvinces) {
       gameProv->terrainType = "plains";
       const auto &baseProv = gameProv->baseProvince;
       if (baseProv->isLake()) {
@@ -162,7 +162,7 @@ void Generator::cutFromFiles(const std::string &gamePath) {
 }
 void Generator::mapCountries() {
   hoi4Countries.clear();
-  std::vector<std::shared_ptr<Country>> countryVector;
+  std::vector<std::shared_ptr<Arda::Country>> countryVector;
   for (auto &country : countries) {
     countryVector.push_back(country.second);
   }
@@ -304,7 +304,7 @@ void Generator::generateStateSpecifics() {
                          3.0 * hoi4State->developmentFactor),
                    1, 5);
     // one province state? Must be an island state
-    if (hoi4State->gameProvinces.size() == 1) {
+    if (hoi4State->ardaProvinces.size() == 1) {
       // if only one province, should be an island. Make it an island state,
       // if it isn't more developed
       hoi4State->stateCategory = std::max<int>(1, hoi4State->stateCategory);
@@ -386,19 +386,19 @@ void Generator::generateCountrySpecifics() {
     // refresh the provinces
     country->evaluateProvinces();
     switch (country->getPrimaryCulture()->visualType) {
-    case Scenario::VisualType::ASIAN:
+    case Arda::VisualType::ASIAN:
       country->gfxCulture = "asian";
       break;
-    case Scenario::VisualType::AFRICAN:
+    case Arda::VisualType::AFRICAN:
       country->gfxCulture = "african";
       break;
-    case Scenario::VisualType::ARABIC:
+    case Arda::VisualType::ARABIC:
       country->gfxCulture = "middle_eastern";
       break;
-    case Scenario::VisualType::CAUCASIAN:
+    case Arda::VisualType::CAUCASIAN:
       country->gfxCulture = Fwg::Utils::selectRandom(caucasianGfxCultures);
       break;
-    case Scenario::VisualType::SOUTH_AMERICAN:
+    case Arda::VisualType::SOUTH_AMERICAN:
       country->gfxCulture = "southamerican";
       break;
     }
@@ -467,13 +467,13 @@ void Generator::generateCountrySpecifics() {
     // amount of research slots between 3 and 6, depending on average
     // development of the country and strength rank
     auto rankModifier = 0.0;
-    if (country->rank == Rank::RegionalPower) {
+    if (country->rank == Arda::Rank::RegionalPower) {
       rankModifier = 0.5;
-    } else if (country->rank == Rank::GreatPower) {
+    } else if (country->rank == Arda::Rank::GreatPower) {
       rankModifier = 1.0;
-    } else if (country->rank == Rank::SecondaryPower) {
+    } else if (country->rank == Arda::Rank::SecondaryPower) {
       rankModifier = 0.75;
-    } else if (country->rank == Rank::LocalPower) {
+    } else if (country->rank == Arda::Rank::LocalPower) {
       rankModifier = 0.25;
     }
 
@@ -530,17 +530,17 @@ void Generator::generateCountrySpecifics() {
 
 void Generator::generateWeather() {
   for (auto &strat : strategicRegions) {
-    for (auto &reg : strat.gameRegions) {
+    for (auto &reg : strat.ardaRegions) {
       for (auto i = 0; i < 12; i++) {
         double averageTemperature = 0.0;
         double averageDeviation = 0.0;
         double averagePrecipitation = 0.0;
-        for (auto &prov : reg->gameProvinces) {
+        for (auto &prov : reg->ardaProvinces) {
           averageDeviation += prov->baseProvince->weatherMonths[i][0];
           averageTemperature += prov->baseProvince->weatherMonths[i][1];
           averagePrecipitation += prov->baseProvince->weatherMonths[i][2];
         }
-        double divisor = (int)reg->gameProvinces.size();
+        double divisor = (int)reg->ardaProvinces.size();
         averageDeviation /= divisor;
         averageTemperature /= divisor;
         averagePrecipitation /= divisor;
@@ -605,15 +605,15 @@ void Generator::generateLogistics() {
   // visualisation of the logistics
   auto logistics = this->countryMap;
   for (auto &country : hoi4Countries) {
-    // GameProvince ID, distance
+    // Arda::ArdaProvince ID, distance
     std::map<double, int> supplyHubs;
     // add capital
-    auto capitalPosition = gameRegions[country->capitalRegionID]->position;
+    auto capitalPosition = ardaRegions[country->capitalRegionID]->position;
     auto &capitalProvince = Fwg::Utils::selectRandom(
-        gameRegions[country->capitalRegionID]->gameProvinces);
+        ardaRegions[country->capitalRegionID]->ardaProvinces);
     std::vector<double> distances;
     // region ID, provinceID
-    std::map<int, std::shared_ptr<GameProvince>> supplyHubProvinces;
+    std::map<int, std::shared_ptr<Arda::ArdaProvince>> supplyHubProvinces;
     std::map<int, bool> navalBases;
     std::set<int> gProvIDs;
     for (auto &region : country->hoi4Regions) {
@@ -626,11 +626,11 @@ void Generator::generateLogistics() {
               supplyHubProvinces.size() < (country->hoi4Regions.size() / 4))) {
         if (!region->isLand())
           continue;
-        // select a random gameprovince of the state
+        // select a random Arda::ArdaProvince of the state
         int lakeCounter = 0;
-        auto hubProvince{Fwg::Utils::selectRandom(region->gameProvinces)};
+        auto hubProvince{Fwg::Utils::selectRandom(region->ardaProvinces)};
         while (hubProvince->baseProvince->isLake() && lakeCounter++ < 1000) {
-          hubProvince = Fwg::Utils::selectRandom(region->gameProvinces);
+          hubProvince = Fwg::Utils::selectRandom(region->ardaProvinces);
         }
         // just skip a lake
         if (lakeCounter >= 1000) {
@@ -644,7 +644,7 @@ void Generator::generateLogistics() {
           if (location->type == Fwg::Civilization::LocationType::Port ||
               location->secondaryType ==
                   Fwg::Civilization::LocationType::Port) {
-            hubProvince = gameProvinces[location->provinceID];
+            hubProvince = ardaProvinces[location->provinceID];
             break;
           }
         }
@@ -660,7 +660,7 @@ void Generator::generateLogistics() {
         // save the distance
         distances.push_back(distance); // save distances to ensure ordering
       }
-      for (auto &gProv : region->gameProvinces) {
+      for (auto &gProv : region->ardaProvinces) {
         gProvIDs.insert(gProv->ID);
       }
     }
@@ -685,11 +685,11 @@ void Generator::generateLogistics() {
               // now find distance2, the distance between us and the other
               // already assigned supply hubs
               auto dist3 = Fwg::getPositionDistance(
-                  gameProvinces[supplyHubs[distance2]]->baseProvince->position,
-                  gameProvinces[supplyHubs[distance]]->baseProvince->position,
+                  ardaProvinces[supplyHubs[distance2]]->baseProvince->position,
+                  ardaProvinces[supplyHubs[distance]]->baseProvince->position,
                   width);
               if (dist3 < tempDistance) {
-                sourceNodeID = gameProvinces[supplyHubs[distance2]]->ID;
+                sourceNodeID = ardaProvinces[supplyHubs[distance2]]->ID;
                 tempDistance = dist3;
               }
             }
@@ -701,20 +701,20 @@ void Generator::generateLogistics() {
           sourceNodeID = passthroughProvinceIDs.back();
         }
         // break if this is another landmass. We can't reach it anyway
-        if (gameProvinces[sourceNodeID]->baseProvince->landMassID !=
-            gameProvinces[destNodeID]->baseProvince->landMassID)
+        if (ardaProvinces[sourceNodeID]->baseProvince->landMassID !=
+            ardaProvinces[destNodeID]->baseProvince->landMassID)
           break;
         ;
         // the origins position
         auto sourceNodePosition =
-            gameProvinces[sourceNodeID]->baseProvince->position;
+            ardaProvinces[sourceNodeID]->baseProvince->position;
         // save the distance in a temp variable
         double tempMinDistance = width;
         auto closestID = INT_MAX;
         // now check every sourceNode neighbour for distance to
         // destinationNode
         for (auto &neighbourGProvince :
-             gameProvinces[sourceNodeID]->neighbours) {
+             ardaProvinces[sourceNodeID]->neighbours) {
           // check if this belongs to us and is an eligible province
           if (gProvIDs.find(neighbourGProvince.ID) == gProvIDs.end() ||
               neighbourGProvince.baseProvince->isLake() ||
@@ -729,7 +729,7 @@ void Generator::generateLogistics() {
             continue;
           // the distance to the sources neighbours
           auto nodeDistance = Fwg::getPositionDistance(
-              gameProvinces[destNodeID]->baseProvince->position,
+              ardaProvinces[destNodeID]->baseProvince->position,
               neighbourGProvince.baseProvince->position, width);
           if (nodeDistance < tempMinDistance) {
             tempMinDistance = nodeDistance;
@@ -776,8 +776,8 @@ void Generator::generateLogistics() {
     for (int i = 0; i < connection.size(); i++) {
       // check if we accidentally added a sea province or lake province to the
       // connection
-      if (gameProvinces[connection[i]]->baseProvince->isSea() ||
-          gameProvinces[connection[i]]->baseProvince->isLake()) {
+      if (ardaProvinces[connection[i]]->baseProvince->isSea() ||
+          ardaProvinces[connection[i]]->baseProvince->isLake()) {
         Fwg::Utils::Logging::logLine("Error: Skipping an invalid connection "
                                      "due to sea or lake province "
                                      "in it in logistics");
@@ -785,7 +785,7 @@ void Generator::generateLogistics() {
         i--;
         continue;
       }
-      for (auto pix : gameProvinces[connection[i]]->baseProvince->pixels) {
+      for (auto pix : ardaProvinces[connection[i]]->baseProvince->pixels) {
         // don't overwrite capitals and supply nodes
         if (logistics[pix] == Colour{255, 255, 0} ||
             logistics[pix] == Colour{0, 255, 0})
@@ -1039,35 +1039,35 @@ void Generator::evaluateCountries() {
       totalDeployedCountries - numMajorPowers - numRegionalPowers;
 
   // init countriesByRank
-  countriesByRank = {{Rank::GreatPower, {}},
-                     {Rank::SecondaryPower, {}},
-                     {Rank::RegionalPower, {}},
-                     {Rank::LocalPower, {}},
-                     {Rank::MinorPower, {}}};
+  countriesByRank = {{Arda::Rank::GreatPower, {}},
+                     {Arda::Rank::SecondaryPower, {}},
+                     {Arda::Rank::RegionalPower, {}},
+                     {Arda::Rank::LocalPower, {}},
+                     {Arda::Rank::MinorPower, {}}};
 
   for (auto it = countryImportanceScores.rbegin();
        it != countryImportanceScores.rend(); ++it) {
     for (const auto &entry : it->second) {
       if (entry->importanceScore > 0.0) {
         entry->relativeScore = (double)it->first / maxScore;
-        if (numMajorPowers > countriesByRank.at(Rank::GreatPower).size()) {
-          countriesByRank[Rank::GreatPower].push_back(entry);
-          entry->rank = Rank::GreatPower;
+        if (numMajorPowers > countriesByRank.at(Arda::Rank::GreatPower).size()) {
+          countriesByRank[Arda::Rank::GreatPower].push_back(entry);
+          entry->rank = Arda::Rank::GreatPower;
         } else if (numSecondaryPowers >
-                   countriesByRank.at(Rank::SecondaryPower).size()) {
-          countriesByRank[Rank::SecondaryPower].push_back(entry);
-          entry->rank = Rank::SecondaryPower;
+                   countriesByRank.at(Arda::Rank::SecondaryPower).size()) {
+          countriesByRank[Arda::Rank::SecondaryPower].push_back(entry);
+          entry->rank = Arda::Rank::SecondaryPower;
         } else if (numRegionalPowers >
-                   countriesByRank.at(Rank::RegionalPower).size()) {
-          countriesByRank[Rank::RegionalPower].push_back(entry);
-          entry->rank = Rank::RegionalPower;
+                   countriesByRank.at(Arda::Rank::RegionalPower).size()) {
+          countriesByRank[Arda::Rank::RegionalPower].push_back(entry);
+          entry->rank = Arda::Rank::RegionalPower;
         } else if (numLocalPowers >
-                   countriesByRank.at(Rank::LocalPower).size()) {
-          countriesByRank[Rank::LocalPower].push_back(entry);
-          entry->rank = Rank::LocalPower;
+                   countriesByRank.at(Arda::Rank::LocalPower).size()) {
+          countriesByRank[Arda::Rank::LocalPower].push_back(entry);
+          entry->rank = Arda::Rank::LocalPower;
         } else {
-          countriesByRank[Rank::MinorPower].push_back(entry);
-          entry->rank = Rank::MinorPower;
+          countriesByRank[Arda::Rank::MinorPower].push_back(entry);
+          entry->rank = Arda::Rank::MinorPower;
         }
       }
     }
@@ -1615,19 +1615,19 @@ void Generator::generateCountryNavies() {
     auto battleshipShare = 0.0;
     auto screenShare = 0.0;
     // carriers are only built by major powers
-    if (country->rank == Rank::GreatPower) {
+    if (country->rank == Arda::Rank::GreatPower) {
       carrierShare = 0.1;
       battleshipShare = 0.2;
       screenShare = 0.7;
-    } else if (country->rank == Rank::SecondaryPower) {
+    } else if (country->rank == Arda::Rank::SecondaryPower) {
       carrierShare = 0.075;
       battleshipShare = 0.15;
       screenShare = 0.775;
-    } else if (country->rank == Rank::RegionalPower) {
+    } else if (country->rank == Arda::Rank::RegionalPower) {
       carrierShare = 0.00;
       battleshipShare = 0.3;
       screenShare = 0.7;
-    } else if (country->rank == Rank::LocalPower) {
+    } else if (country->rank == Arda::Rank::LocalPower) {
       carrierShare = 0.00;
       battleshipShare = 0.2;
       screenShare = 0.8;
@@ -1738,7 +1738,7 @@ void Generator::generateCountryNavies() {
     for (auto &region : country->hoi4Regions) {
       for (auto &navalbase : region->navalBases) {
         if (navalbase.second > 0) {
-          fleet.startingPort = gameProvinces.at(navalbase.first);
+          fleet.startingPort = ardaProvinces.at(navalbase.first);
           break;
         }
       }
@@ -1746,7 +1746,7 @@ void Generator::generateCountryNavies() {
     // check if no port was found
     if (fleet.startingPort == nullptr) {
       // just take the capital
-      fleet.startingPort = gameProvinces.at(country->capitalRegionID);
+      fleet.startingPort = ardaProvinces.at(country->capitalRegionID);
     }
 
     country->fleets.push_back(fleet);
@@ -1754,13 +1754,13 @@ void Generator::generateCountryNavies() {
 }
 
 void Generator::generateFocusTrees() {
-  Hoi4::FocusGen::evaluateCountryGoals(this->hoi4Countries, this->gameRegions);
+  Hoi4::FocusGen::evaluateCountryGoals(this->hoi4Countries, this->ardaRegions);
 }
 
-ScenarioPosition
-createPosition(Fwg::Position &position, PositionType type, int typeIndex,
+Arda::ScenarioPosition
+createPosition(Fwg::Position &position, Arda::PositionType type, int typeIndex,
                const std::vector<Fwg::Terrain::LandForm> &landForms) {
-  ScenarioPosition scenarioPos;
+  Arda::ScenarioPosition scenarioPos;
   scenarioPos.position = position;
   scenarioPos.position.altitude =
       landForms[scenarioPos.position.weightedCenter].altitude;
@@ -1790,7 +1790,7 @@ getNeighbourRelations(const std::shared_ptr<Fwg::Areas::Province> &prov,
 void Generator::generatePositions() {
   const auto &landForms = this->terrainData.landForms;
   const auto &cfg = Fwg::Cfg::Values();
-  for (auto &gameProv : gameProvinces) {
+  for (auto &gameProv : ardaProvinces) {
     Fwg::Position position;
     if (gameProv->victoryPoint) {
       position = gameProv->victoryPoint->position;
@@ -1798,7 +1798,7 @@ void Generator::generatePositions() {
       position = gameProv->baseProvince->position;
     }
     gameProv->positions.push_back(
-        createPosition(position, PositionType::VictoryPoint, 38, landForms));
+        createPosition(position, Arda::PositionType::VictoryPoint, 38, landForms));
 
     // now we get neighbour relations for a province, but in a very short
     // distance to the centre.
@@ -1810,16 +1810,16 @@ void Generator::generatePositions() {
     auto allowedSize = neighbourRelations.size() - 1;
     gameProv->positions.push_back(createPosition(
         neighbourRelations[std::min<int>(0, allowedSize)].positionToNeighbour,
-        PositionType::Standstill, 0, landForms));
+        Arda::PositionType::Standstill, 0, landForms));
     gameProv->positions.push_back(createPosition(
         neighbourRelations[std::min<int>(1, allowedSize)].positionToNeighbour,
-        PositionType::StandstillRG, 21, landForms));
+        Arda::PositionType::StandstillRG, 21, landForms));
     gameProv->positions.push_back(createPosition(
         neighbourRelations[std::min<int>(2, allowedSize)].positionToNeighbour,
-        PositionType::Defending, 10, landForms));
+        Arda::PositionType::Defending, 10, landForms));
     gameProv->positions.push_back(createPosition(
         neighbourRelations[std::min<int>(3, allowedSize)].positionToNeighbour,
-        PositionType::Attacking, 9, landForms));
+        Arda::PositionType::Attacking, 9, landForms));
 
     // for sea we need: standstill, standstill RG, defending, attacking, per
     // neighbour: moving, disembarck (11 + x), moving RG, disembarck RG (30 + x)
@@ -1851,9 +1851,9 @@ void Generator::generatePositions() {
       }
 
       gameProv->positions.push_back(
-          createPosition(position, PositionType::ShipInPort, 19, landForms));
+          createPosition(position, Arda::PositionType::ShipInPort, 19, landForms));
       gameProv->positions.push_back(createPosition(
-          position, PositionType::ShipInPortMoving, 20, landForms));
+          position, Arda::PositionType::ShipInPortMoving, 20, landForms));
     }
     neighbourRelations = getNeighbourRelations(prov, cfg, 0.33f);
     // really close to the destination coast
@@ -1873,26 +1873,26 @@ void Generator::generatePositions() {
 
       gameProv->positions.push_back(
           createPosition(neighbour->positionToNeighbour,
-                         PositionType::UnitMoving, 1 + counter, landForms));
+                         Arda::PositionType::UnitMoving, 1 + counter, landForms));
       gameProv->positions.push_back(
           createPosition(neighbourRelations[counter].positionToNeighbour,
-                         PositionType::UnitMovingRG, 22 + counter, landForms));
+                         Arda::PositionType::UnitMovingRG, 22 + counter, landForms));
       if (sea) {
         // now we add the embark positions, which are the same as the
         // neighbour relations, but with a different type
         gameProv->positions.push_back(createPosition(
             embarkNeighbourRelations[counter].positionToNeighbour,
-            PositionType::UnitDisembarking, 11 + counter, landForms));
+            Arda::PositionType::UnitDisembarking, 11 + counter, landForms));
 
         gameProv->positions.push_back(createPosition(
             embarkRgNeighbourRelations[counter].positionToNeighbour,
-            PositionType::UnitDisembarkingRG, 30 + counter, landForms));
+            Arda::PositionType::UnitDisembarkingRG, 30 + counter, landForms));
         counter++;
       }
     }
     // now sort by typeIndex
     std::sort(gameProv->positions.begin(), gameProv->positions.end(),
-              [](const ScenarioPosition &a, const ScenarioPosition &b) {
+        [](const Arda::ScenarioPosition &a, const Arda::ScenarioPosition &b) {
                 return a.typeIndex < b.typeIndex;
               });
   }
@@ -1957,7 +1957,7 @@ void Generator::distributeVictoryPoints() {
       for (auto &province : provinceImportance) {
         auto vps = (int)(province.second / totalImportance *
                          region->totalVictoryPoints);
-        VictoryPoint vp{vps};
+        Arda::VictoryPoint vp{vps};
         // find the most significant location in this province, with a custom
         // comparator using the location importance
         auto mostImportantLocation =
@@ -1970,7 +1970,7 @@ void Generator::distributeVictoryPoints() {
         vp.name = Fwg::Utils::selectRandom(language->cityNames);
         if ((int)vps > 0) {
           region->victoryPointsMap[province.first] =
-              std::make_shared<VictoryPoint>(vp);
+              std::make_shared<Arda::VictoryPoint>(vp);
           assignedVPs += region->victoryPointsMap[province.first]->amount;
         }
       }
@@ -1992,26 +1992,26 @@ void Generator::generateUrbanisation() {
 }
 
 void Generator::generateCharacters() {
-  std::map<Ideology, std::vector<std::string>> leaderTraits = {
-      {Ideology::None,
+  std::map<Arda::Ideology, std::vector<std::string>> leaderTraits = {
+      {Arda::Ideology::None,
        {"cabinet_crisis", "exiled", "headstrong", "humble",
         "inexperienced_monarch", "socialite_connections",
         "staunch_constitutionalist", "gentle_scholar", "the_statist",
         "the_academic"}},
-      {Ideology::Neutral,
+      {Arda::Ideology::Neutral,
        {"cabinet_crisis", "exiled", "headstrong", "humble",
         "inexperienced_monarch", "socialite_connections",
         "staunch_constitutionalist", "celebrity_junta_leader"}},
-      {Ideology::Fascist,
+      {Arda::Ideology::Fascist,
        {"autocratic_imperialist", "collaborator_king", "generallissimo",
         "inexperienced_imperialist", "spirit_of_genghis", "warmonger",
         "the_young_magnate", "polemarch", "archon_basileus", "autokrator",
         "basileus", "infirm", "celebrity_junta_leader"}},
-      {Ideology::Communist,
+      {Arda::Ideology::Communist,
        {"political_dancer", "indomitable_perseverance",
         "mastermind_code_cracker", "polemarch", "infirm",
         "reluctant_stalinist"}},
-      {Ideology::Democratic,
+      {Arda::Ideology::Democratic,
        {"british_bulldog", "chamberlain_appeaser", "conservative_grandee",
         "famous_aviator", "first_lady", "rearmer", "staunch_constitutionalist",
         "the_banker", "the_young_magnate", "infirm",
@@ -2071,16 +2071,16 @@ void Generator::generateCharacters() {
     // per country, we want to avoid duplicate names
     std::set<std::string> usedNames;
     // we want of every ideology: Neutral, Fascist, Communist, Democratic
-    std::vector<Ideology> ideologies = {Ideology::Neutral, Ideology::Fascist,
-                                        Ideology::Communist,
-                                        Ideology::Democratic};
+    std::vector<Arda::Ideology> ideologies = {Arda::Ideology::Neutral, Arda::Ideology::Fascist,
+                                        Arda::Ideology::Communist,
+                                        Arda::Ideology::Democratic};
 
-    auto createCharacter = [&](Type type, Ideology ideology,
+    auto createCharacter = [&](Arda::Type type, Arda::Ideology ideology,
                                const std::vector<std::string> &traits,
                                int count, bool addLevel = false) {
       for (int i = 0; i < count; i++) {
-        Character character;
-        character.gender = Gender::Male;
+        Arda::Character character;
+        character.gender = Arda::Gender::Male;
         do {
           character.name = Fwg::Utils::selectRandom(
               country->getPrimaryCulture()->language->maleNames);
@@ -2107,34 +2107,34 @@ void Generator::generateCharacters() {
 
     for (const auto &ideology : ideologies) {
       // 1 country leader
-      createCharacter(Type::Leader, ideology, leaderTraits[ideology], 1);
+      createCharacter(Arda::Type::Leader, ideology, leaderTraits[ideology], 1);
 
       // 6 Politicians
-      createCharacter(Type::Politician, ideology, leaderTraits[ideology], 6);
+      createCharacter(Arda::Type::Politician, ideology, leaderTraits[ideology], 6);
 
       // 4 Command Generals
-      createCharacter(Type::ArmyChief, ideology, armyChiefTraits, 4, true);
+      createCharacter(Arda::Type::ArmyChief, ideology, armyChiefTraits, 4, true);
 
       // 2 Command Admirals
-      createCharacter(Type::NavyChief, ideology, navyChiefTraits, 2, true);
+      createCharacter(Arda::Type::NavyChief, ideology, navyChiefTraits, 2, true);
 
       // 2 Airforce Chiefs
-      createCharacter(Type::AirForceChief, ideology, airChiefTraits, 2, true);
+      createCharacter(Arda::Type::AirForceChief, ideology, airChiefTraits, 2, true);
 
       // 6 High Command
-      createCharacter(Type::HighCommand, ideology, highCommandTraits, 6, true);
+      createCharacter(Arda::Type::HighCommand, ideology, highCommandTraits, 6, true);
 
       // 2 Generals
-      createCharacter(Type::ArmyGeneral, ideology, {}, 0);
+      createCharacter(Arda::Type::ArmyGeneral, ideology, {}, 0);
 
       // 2 Admirals
-      createCharacter(Type::FleetAdmiral, ideology, {}, 0);
+      createCharacter(Arda::Type::FleetAdmiral, ideology, {}, 0);
     }
 
     // 3 theorists, 1 per trait
     for (int i = 0; i < 3; i++) {
-      Character theorist;
-      theorist.gender = Gender::Male;
+      Arda::Character theorist;
+      theorist.gender = Arda::Gender::Male;
       do {
         theorist.name = Fwg::Utils::selectRandom(
             country->getPrimaryCulture()->language->maleNames);
@@ -2144,8 +2144,8 @@ void Generator::generateCharacters() {
                usedNames.end());
 
       usedNames.insert(theorist.name + " " + theorist.surname);
-      theorist.ideology = Ideology::Neutral;
-      theorist.type = Type::Theorist;
+      theorist.ideology = Arda::Ideology::Neutral;
+      theorist.type = Arda::Type::Theorist;
       theorist.traits.push_back(theoristTraits.at(i));
       country->characters.push_back(theorist);
     }

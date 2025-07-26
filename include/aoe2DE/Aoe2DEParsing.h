@@ -1,6 +1,6 @@
 #include "parsing/ParserUtils.h"
-#include <areas/GameProvince.h>
-#include <areas/GameRegion.h>
+#include <areas/ArdaProvince.h>
+#include <areas/ArdaRegion.h>
 
 namespace Scenario::Aoe2DE::Parsing {
 

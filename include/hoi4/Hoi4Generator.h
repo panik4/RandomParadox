@@ -16,17 +16,17 @@ namespace Scenario::Hoi4 {
 
 class Generator : public Scenario::ModGenerator {
   using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
-  std::vector<Scenario::Utils::ResConfig> resConfigs{
-      {"chromium", true, 1250.0, true, Scenario::Utils::rareNoise},
-      {"steel", true, 2562.0, true, Scenario::Utils::defaultNoise},
-      {"tungsten", true, 1188.0, true, Scenario::Utils::semiRareNoise},
-      {"aluminium", true, 1169, true, Scenario::Utils::semiRareNoise},
-      {"oil", true, 1220.0, true, Scenario::Utils::rareLargePatch},
+  std::vector<Arda::Utils::ResConfig> resConfigs{
+      {"chromium", true, 1250.0, true, Arda::Utils::rareNoise},
+      {"steel", true, 2562.0, true, Arda::Utils::defaultNoise},
+      {"tungsten", true, 1188.0, true, Arda::Utils::semiRareNoise},
+      {"aluminium", true, 1169, true, Arda::Utils::semiRareNoise},
+      {"oil", true, 1220.0, true, Arda::Utils::rareLargePatch},
       {"rubber",
        true,
        1029.0,
        false,
-       Scenario::Utils::agriNoise,
+       Arda::Utils::agriNoise,
        true,
        {{CTI::TROPICSMONSOON, 1.0},
         {CTI::TROPICSRAINFOREST, 0.8},

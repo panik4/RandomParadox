@@ -1216,7 +1216,7 @@ country_event = {
 	}	
 }
 
-# Ideology civil war won
+# Arda::Ideology civil war won
 country_event = {
 	id = generic.11
 	title = generic.11.t

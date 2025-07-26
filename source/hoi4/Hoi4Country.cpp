@@ -2,8 +2,8 @@
 
 namespace Scenario::Hoi4 {
 Hoi4Country::Hoi4Country(std::string tag, int ID, std::string name,
-                         std::string adjective, Gfx::Flag flag)
-    : Scenario::Country(tag, ID, name, adjective, flag) {}
+                         std::string adjective, Arda::Gfx::Flag flag)
+    : Arda::Country(tag, ID, name, adjective, flag) {}
 
 Hoi4Country::Hoi4Country(Country &c,
                          std::vector<std::shared_ptr<Hoi4::Region>> &hoi4Region)

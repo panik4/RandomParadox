@@ -8,7 +8,8 @@ Generator::Generator() {}
 Generator::Generator(const std::string &configSubFolder)
     : Scenario::ModGenerator(configSubFolder) {}
 
-void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
+void Generator::generateRegions(
+    std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions) {
   Fwg::Utils::Logging::logLine("Eu4: Dividing world into strategic regions");
   std::set<int> assignedIdeas;
   for (auto &region : regions) {
@@ -38,7 +39,7 @@ void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
         static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255)};
     for (auto &area : strat.areaIDs) {
       c.setBlue(regions[area]->isSea() ? 255 : 0);
-      for (auto &prov : regions[area]->gameProvinces) {
+      for (auto &prov : regions[area]->ardaProvinces) {
         for (auto &pix : prov->baseProvince->pixels) {
           eu4RegionBmp.setColourAtIndex(pix, c);
         }

@@ -267,7 +267,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                 }
                 if (activeGameConfig.gameName == "Hearts of Iron IV") {
                   auto hoi4Gen = std::reinterpret_pointer_cast<
-                      Hoi4Gen, Scenario::Generator>(activeModule->generator);
+                      Hoi4Gen, Arda::ArdaGen>(activeModule->generator);
                   showStrategicRegionTab(cfg, hoi4Gen);
                   showCountryTab(cfg);
                   showHoi4Finalise(
@@ -277,7 +277,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                           activeModule));
                 } else if (activeGameConfig.gameName == "Victoria 3") {
                   auto vic3Gen = std::reinterpret_pointer_cast<
-                      Vic3Gen, Scenario::Generator>(activeModule->generator);
+                      Vic3Gen, Arda::ArdaGen>(activeModule->generator);
                   showStrategicRegionTab(cfg, vic3Gen);
                   showCountryTab(cfg);
                   showNavmeshTab(cfg, *activeModule->generator);
@@ -693,7 +693,7 @@ bool GUI::validatePaths() {
 bool GUI::isRelevantModuleActive(const std::string &shortName) {
   return activeGameConfig.gameShortName == shortName;
 }
-int GUI::showGeneric(Fwg::Cfg &cfg, Scenario::Generator &generator,
+int GUI::showGeneric(Fwg::Cfg &cfg, Arda::ArdaGen &generator,
                      ID3D11ShaderResourceView **texture) {
 
   bool success = true;
@@ -891,10 +891,10 @@ bool GUI::scenarioGenReady(bool printIssue) {
   if (!generator->areaData.provinces.size() ||
       !generator->areaData.regions.size())
     return false;
-  if (generator->areaData.provinces.size() != generator->gameProvinces.size() ||
-      generator->areaData.regions.size() != generator->gameRegions.size() ||
+  if (generator->areaData.provinces.size() != generator->ardaProvinces.size() ||
+      generator->areaData.regions.size() != generator->ardaRegions.size() ||
       generator->areaData.provinces[0] !=
-          generator->gameProvinces[0]->baseProvince) {
+          generator->ardaProvinces[0]->baseProvince) {
     ready = false;
   }
   auto &cfg = Fwg::Cfg::Values();
@@ -949,9 +949,9 @@ int GUI::showScenarioTab(
         activeModule->generator->mapRegions();
         activeModule->generator->mapTerrain();
         activeModule->generator->mapContinents();
-        Scenario::Civilization::generateWorldCivilizations(
-            activeModule->generator->gameRegions,
-            activeModule->generator->gameProvinces,
+        Arda::Civilization::generateWorldCivilizations(
+            activeModule->generator->ardaRegions,
+            activeModule->generator->ardaProvinces,
             activeModule->generator->civData,
             activeModule->generator->scenContinents);
 
@@ -980,7 +980,7 @@ int GUI::showScenarioTab(
   return retCode;
 }
 
-void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
+void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
   static int selectedStateIndex = 0;
   static std::string drawCountryTag;
   if (!drawBorders) {
@@ -993,14 +993,14 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
     const auto &colour = generator->provinceMap[pix.pixel];
     if (generator->areaData.provinceColourMap.find(colour)) {
       const auto &prov = generator->areaData.provinceColourMap[colour];
-      if (prov->regionID < generator->gameRegions.size()) {
-        auto &state = generator->gameRegions[prov->regionID];
+      if (prov->regionID < generator->ardaRegions.size()) {
+        auto &state = generator->ardaRegions[prov->regionID];
         selectedStateIndex = state->ID;
       }
     }
   }
-  if (generator->gameRegions.size()) {
-    auto &modifiableState = generator->gameRegions[selectedStateIndex];
+  if (generator->ardaRegions.size()) {
+    auto &modifiableState = generator->ardaRegions[selectedStateIndex];
 
     if ((modifiableState->owner &&
              generator->countries.find(modifiableState->owner->tag) !=
@@ -1092,7 +1092,7 @@ void GUI::countryEdit(std::shared_ptr<Scenario::Generator> generator) {
     if (isRelevantModuleActive("hoi4")) {
       const auto &hoi4Region =
           std::reinterpret_pointer_cast<Scenario::Hoi4::Region,
-                                        Scenario::Region>(modifiableState);
+                                        Arda::ArdaRegion>(modifiableState);
 
       Elements::borderChild("StateEdit2", [&]() {
         if (longCircuitLogicalOr(
@@ -1140,10 +1140,10 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
         hoi4Gen->generateStateSpecifics();
         hoi4Gen->generateStateResources();
         // generate generic world data
-        Scenario::Civilization::generateWorldCivilizations(
-            hoi4Gen->gameRegions, hoi4Gen->gameProvinces, hoi4Gen->civData,
+        Arda::Civilization::generateWorldCivilizations(
+            hoi4Gen->ardaRegions, hoi4Gen->ardaProvinces, hoi4Gen->civData,
             hoi4Gen->scenContinents);
-        Scenario::Civilization::generateImportance(hoi4Gen->gameRegions);
+        Arda::Civilization::generateImportance(hoi4Gen->ardaRegions);
       }
       if (!hoi4Gen->statesInitialised) {
         ImGui::Text("Generate state data first");
@@ -1249,7 +1249,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
             generator->loadCountries<Scenario::Vic3::Country>(
                 draggedFile, generator->countryMappingPath);
           } else if (isRelevantModuleActive("eu4")) {
-            generator->loadCountries<Scenario::Country>(
+            generator->loadCountries<Arda::Country>(
                 draggedFile, generator->countryMappingPath);
           }
           generator->evaluateCountryNeighbours();
@@ -1327,7 +1327,7 @@ int GUI::showStrategicRegionTab(
     ImGui::SeparatorText(
         "This generates strategic regions, they cannot be loaded");
     uiUtils->showHelpTextBox("Strategic Regions");
-    if (generator->gameRegions.size()) {
+    if (generator->ardaRegions.size()) {
       ImGui::InputFloat(
           "Strategic region factor: ", &generator->strategicRegionFactor, 0.1f);
       if (ImGui::Button("Generate strategic regions")) {
@@ -1337,12 +1337,12 @@ int GUI::showStrategicRegionTab(
           uiUtils->resetTexture();
           if (activeGameConfig.gameName == "Hearts of Iron IV") {
             auto hoi4Gen =
-                std::reinterpret_pointer_cast<Hoi4Gen, Scenario::Generator>(
+                std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
                     activeModule->generator);
             hoi4Gen->generateWeather();
           } else if (activeGameConfig.gameName == "Victoria 3") {
             auto vic3Gen =
-                std::reinterpret_pointer_cast<Vic3Gen, Scenario::Generator>(
+                std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
                     activeModule->generator);
             // do stuff
           }
@@ -1369,7 +1369,7 @@ int GUI::showStrategicRegionTab(
       const auto &colour = generator->provinceMap[pix.pixel];
       if (generator->areaData.provinceColourMap.find(colour)) {
         const auto &prov = generator->areaData.provinceColourMap[colour];
-        auto &state = generator->gameRegions[prov->regionID];
+        auto &state = generator->ardaRegions[prov->regionID];
         auto &stratRegion = generator->strategicRegions[state->superRegionID];
         if (drawBorders) {
           auto &rootRegion =

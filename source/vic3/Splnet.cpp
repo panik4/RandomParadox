@@ -104,9 +104,9 @@ void splitStreamByPattern(std::istream &stream,
 }
 
 // for every region, create 5 anchors if possible, with the positions of the
-// GameProvinces
+// ardaProvinces
 void Splnet::constructSplnet(
-    const std::vector<std::shared_ptr<Region>> &regions) {
+    const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions) {
   using namespace Fwg::Civilization;
   std::map<LocationType, int> locatorTypeToID = {
       {LocationType::City, 0},      {LocationType::Farm, 1},

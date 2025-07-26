@@ -20,18 +20,18 @@ void buildings(const std::string &path,
                const std::vector<std::shared_ptr<Region>> &regions);
 
 void continents(const std::string &path,
-                const std::vector<ScenarioContinent> &continents,
+                const std::vector<Arda::ArdaContinent> &continents,
                 const std::string &hoiPath,
                 const std::string &localisationPath);
 void definition(const std::string &path,
-                const std::vector<std::shared_ptr<GameProvince>> &provinces);
+                const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
 void strategicRegions(const std::string &path,
                       const std::vector<Fwg::Areas::Region> &regions,
                       const std::vector<StrategicRegion> &strategicRegions);
 void supply(const std::string &path,
             const std::vector<std::vector<int>> &supplyNodeConnections);
 void unitStacks(const std::string &path,
-                const std::vector<std::shared_ptr<GameProvince>> provinces,
+                const std::vector<std::shared_ptr<Arda::ArdaProvince>> provinces,
                 const std::vector<std::shared_ptr<Region>> regions,
                 const std::vector<float> &heightMap);
 void weatherPositions(const std::string &path,
@@ -67,13 +67,14 @@ void portraits(const std::string &path, const CountryMap &countries);
 } // namespace Countries
 
 void aiStrategy(const std::string &path,
-                const std::vector<ScenarioContinent> &continents);
+                const std::vector<Arda::ArdaContinent> &continents);
 void events(const std::string &path);
 
 // common
 void commonBookmarks(
     const std::string &path, const CountryMap &countries,
-    const std::map<int, std::vector<std::shared_ptr<Country>>> &strengthScores);
+    const std::map<int, std::vector<std::shared_ptr<Arda::Country>>>
+        &strengthScores);
 
 void tutorials(const std::string &path);
 // copy base game countries and remove certain lines to reduce crashes
