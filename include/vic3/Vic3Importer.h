@@ -1,4 +1,4 @@
-#include "generic/ParserUtils.h"
+#include "parsing/ParserUtils.h"
 #include "vic3/Vic3Utils.h"
 
 namespace Scenario::Vic3::Importing {

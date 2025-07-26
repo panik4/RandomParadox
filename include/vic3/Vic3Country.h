@@ -1,5 +1,5 @@
 #pragma once
-#include "generic/Country.h"
+#include "countries/Country.h"
 #include "vic3/Vic3Region.h"
 #include "vic3/Vic3Utils.h"
 #include <array>

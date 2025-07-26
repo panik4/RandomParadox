@@ -1,9 +1,9 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include "generic/Country.h"
-#include "generic/GenericParsing.h"
-#include "generic/ScenarioGenerator.h"
-#include "generic/ScenarioUtils.h"
+#include "countries/Country.h"
+#include "io/GenericParsing.h"
+#include "generic/ModGenerator.h"
+#include "utils/ScenarioUtils.h"
 #include "hoi4/Hoi4Army.h"
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4FocusGen.h"
@@ -14,7 +14,7 @@
 
 namespace Scenario::Hoi4 {
 
-class Generator : public Scenario::Generator {
+class Generator : public Scenario::ModGenerator {
   using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
   std::vector<Scenario::Utils::ResConfig> resConfigs{
       {"chromium", true, 1250.0, true, Scenario::Utils::rareNoise},

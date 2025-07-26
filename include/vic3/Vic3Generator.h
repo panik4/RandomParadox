@@ -4,7 +4,7 @@
 #include "vic3/Vic3Importer.h"
 #include "vic3/Vic3Utils.h"
 #include <cmath>
-#include <generic/ScenarioGenerator.h>
+#include <generic/ModGenerator.h>
 #include <iostream>
 #include <memory>
 #include <random>
@@ -17,7 +17,7 @@ struct Vic3StratRegion {
   std::string name;
 };
 
-class Generator : public Scenario::Generator {
+class Generator : public Scenario::ModGenerator {
   using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
   std::vector<Scenario::Utils::ResConfig> resConfigs{
       {"bg_coal_mining", true, 5.0, true, Scenario::Utils::defaultNoise},

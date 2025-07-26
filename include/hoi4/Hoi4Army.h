@@ -1,5 +1,5 @@
 #pragma once
-#include "generic/GameProvince.h"
+#include "areas/GameProvince.h"
 #include "hoi4/Hoi4Armor.h"
 #include "hoi4/Hoi4Tech.h"
 #include "hoi4/Hoi4Airforce.h"

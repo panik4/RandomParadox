@@ -1,7 +1,7 @@
-#include "generic/ParserUtils.h"
+#include "parsing/ParserUtils.h"
 #include "vic3/Vic3Generator.h"
-#include <generic/GameProvince.h>
-#include <generic/GameRegion.h>
+#include <areas/GameProvince.h>
+#include <areas/GameRegion.h>
 
 namespace Scenario::Vic3::Parsing {
 namespace Writing {

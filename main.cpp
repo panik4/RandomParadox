@@ -3,7 +3,7 @@
 #include "aoe2DE/Aoe2DEModule.h"
 #include "eu4/Eu4Module.h"
 #include "generic/ScenarioGenerator.h"
-#include "generic/Textures.h"
+#include "io/Textures.h"
 #include "hoi4/Hoi4Module.h"
 #include "vic3/Vic3Module.h"
 #include <filesystem>

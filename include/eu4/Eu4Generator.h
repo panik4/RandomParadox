@@ -1,5 +1,5 @@
 #pragma once
-#include <generic/ScenarioGenerator.h>
+#include <generic/ModGenerator.h>
 
 namespace Scenario::Eu4 {
 // eu4 regions consist of multiple areas, which are collections of provinces
@@ -8,7 +8,7 @@ struct eu4Region {
   std::string name;
 };
 
-class Generator : public Scenario::Generator {
+class Generator : public Scenario::ModGenerator {
   std::vector<eu4Region> eu4regions;
 
 public:

@@ -12,6 +12,7 @@
 *x64
 *.bmp
 *log*
+!*logy
 *imgui*
 
 packages.config*

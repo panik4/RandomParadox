@@ -1,9 +1,9 @@
 #pragma once
 #include "DirectXTex.h"
 #include "entities/Colour.h"
-#include "generic/FormatConverter.h"
-#include "generic/Textures.h"
-#include "utils/Bitmap.h"
+#include "io/FormatConverter.h"
+#include "io/Textures.h"
+#include "rendering/Images.h"
 #include "utils/Cfg.h"
 #include <map>
 namespace Scenario::Gfx::Hoi4 {

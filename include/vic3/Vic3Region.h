@@ -1,7 +1,7 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include "generic/GameRegion.h"
-#include "generic/ScenarioUtils.h"
+#include "areas/GameRegion.h"
+#include "utils/ScenarioUtils.h"
 #include "vic3/Vic3Utils.h"
 namespace Scenario::Vic3 {
 

@@ -1150,17 +1150,26 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
       } else {
         if (ImGui::Button("Randomly distribute countries")) {
           computationFutureBool = runAsync([&hoi4Gen, &cfg, this]() {
-            hoi4Gen->generateCountries<Scenario::Hoi4::Hoi4Country>();
+            //hoi4Gen->generateCountries<Scenario::Hoi4::Hoi4Country>();
 
-            // first gather generic neighbours, they will be mapped to hoi4
-            // countries in mapCountries
-            hoi4Gen->evaluateCountryNeighbours();
-            // build hoi4 countries out of basic countries
-            hoi4Gen->mapCountries();
-            requireCountryDetails = true;
-            uiUtils->resetTexture();
+            //// first gather generic neighbours, they will be mapped to hoi4
+            //// countries in mapCountries
+            //hoi4Gen->evaluateCountryNeighbours();
+            //// build hoi4 countries out of basic countries
+            //hoi4Gen->mapCountries();
+            //requireCountryDetails = true;
+            //uiUtils->resetTexture();
             return true;
           });
+          hoi4Gen->generateCountries<Scenario::Hoi4::Hoi4Country>();
+
+          // first gather generic neighbours, they will be mapped to hoi4
+          // countries in mapCountries
+          hoi4Gen->evaluateCountryNeighbours();
+          // build hoi4 countries out of basic countries
+          hoi4Gen->mapCountries();
+          requireCountryDetails = true;
+          uiUtils->resetTexture();
         }
         ImGui::SameLine();
         if (requireCountryDetails) {
@@ -1169,16 +1178,24 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
         }
         if (ImGui::Button("Generate country data")) {
           computationFutureBool = runAsync([&hoi4Gen, &cfg, this]() {
-            hoi4Gen->evaluateCountryNeighbours();
-            hoi4Gen->evaluateCountries();
-            hoi4Gen->generateLogistics();
-            hoi4Gen->generateCountrySpecifics();
-            hoi4Gen->generateFocusTrees();
-            hoi4Gen->distributeVictoryPoints();
-            hoi4Gen->generatePositions();
-            requireCountryDetails = false;
+            //hoi4Gen->evaluateCountryNeighbours();
+            //hoi4Gen->evaluateCountries();
+            //hoi4Gen->generateLogistics();
+            //hoi4Gen->generateCountrySpecifics();
+            //hoi4Gen->generateFocusTrees();
+            //hoi4Gen->distributeVictoryPoints();
+            //hoi4Gen->generatePositions();
+            //requireCountryDetails = false;
             return true;
           });
+          hoi4Gen->evaluateCountryNeighbours();
+          hoi4Gen->evaluateCountries();
+          hoi4Gen->generateLogistics();
+          hoi4Gen->generateCountrySpecifics();
+          hoi4Gen->generateFocusTrees();
+          hoi4Gen->distributeVictoryPoints();
+          hoi4Gen->generatePositions();
+          requireCountryDetails = false;
         }
         if (requireCountryDetails) {
           ImGui::PopStyleColor();
@@ -1299,7 +1316,7 @@ int GUI::showModuleGeneric(
 }
 
 int GUI::showStrategicRegionTab(
-    Fwg::Cfg &cfg, std::shared_ptr<Scenario::Generator> generator) {
+    Fwg::Cfg &cfg, std::shared_ptr<Scenario::ModGenerator> generator) {
   if (ImGui::BeginTabItem("Strategic Regions")) {
     // tab switch setting draw events as accepted
     if (uiUtils->tabSwitchEvent(true)) {
@@ -1318,7 +1335,6 @@ int GUI::showStrategicRegionTab(
         computationFutureBool = runAsync([&generator, &cfg, this]() {
           generator->generateStrategicRegions();
           uiUtils->resetTexture();
-          return true;
           if (activeGameConfig.gameName == "Hearts of Iron IV") {
             auto hoi4Gen =
                 std::reinterpret_pointer_cast<Hoi4Gen, Scenario::Generator>(
@@ -1330,6 +1346,7 @@ int GUI::showStrategicRegionTab(
                     activeModule->generator);
             // do stuff
           }
+          return true;
         });
       }
       ImGui::SameLine();

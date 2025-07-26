@@ -1,6 +1,6 @@
 #pragma once
-#include "generic/GameRegion.h"
-#include "generic/ScenarioUtils.h"
+#include "areas/GameRegion.h"
+#include "utils/ScenarioUtils.h"
 #include "vic3/Vic3Region.h"
 
 namespace Scenario::Vic3 {
