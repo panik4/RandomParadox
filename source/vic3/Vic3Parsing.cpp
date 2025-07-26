@@ -2,7 +2,7 @@
 using namespace Fwg;
 namespace Logging = Fwg::Utils::Logging;
 namespace pU = Fwg::Parsing;
-namespace Scenario::Vic3::Parsing {
+namespace Rpx::Vic3::Parsing {
 namespace Writing {
 void adj(const std::string &path) {
   Logging::logLine("Vic3 Parser: Map: Writing Adjacencies");
@@ -610,9 +610,9 @@ void locators(const std::string &path,
 } // namespace Writing
 
 namespace Reading {}
-} // namespace Scenario::Vic3::Parsing
+} // namespace Rpx::Vic3::Parsing
 
-void Scenario::Vic3::Parsing::History::writeBuildings(
+void Rpx::Vic3::Parsing::History::writeBuildings(
     const std::string &path,
     const std::vector<std::shared_ptr<Region>> &regions) {
 

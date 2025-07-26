@@ -6,8 +6,8 @@
 #include "rendering/Images.h"
 #include "utils/Cfg.h"
 #include <map>
-namespace Scenario::Gfx::Hoi4 {
-class FormatConverter : public Scenario::Gfx::FormatConverter {
+namespace Rpx::Gfx::Hoi4 {
+class FormatConverter : public Rpx::Gfx::FormatConverter {
 
 public:
   // constructor/destructor
@@ -16,4 +16,4 @@ public:
   ~FormatConverter();
   // member functions
 };
-} // namespace Scenario::Gfx::Hoi4
+} // namespace Rpx::Gfx::Hoi4

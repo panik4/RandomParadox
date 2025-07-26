@@ -1,7 +1,7 @@
 #include "parsing/ParserUtils.h"
 #include "vic3/Vic3Utils.h"
 
-namespace Scenario::Vic3::Importing {
+namespace Rpx::Vic3::Importing {
 std::map<std::string, Technology> readTechs(const std::string &inFolder);
 std::map<std::string, TechnologyLevel>
 readTechLevels(const std::string &inPath,
@@ -28,4 +28,4 @@ std::map<std::string, Good> readGoods(const std::string &inFolder);
 
 std::set<std::string> readTags(const std::string &inFolder);
 
-} // namespace Scenario::Vic3::Importing
+} // namespace Rpx::Vic3::Importing

@@ -6,7 +6,7 @@
 #include <set>
 #include <string>
 #include <vector>
-namespace Scenario::Vic3 {
+namespace Rpx::Vic3 {
 
 struct DiplomaticRelation {};
 struct Technology {
@@ -66,4 +66,4 @@ struct Building {
 
 std::vector<double> shiftedGaussian(double input);
 
-} // namespace Scenario::Vic3
+} // namespace Rpx::Vic3

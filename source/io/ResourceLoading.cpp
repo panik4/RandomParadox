@@ -1,7 +1,7 @@
 #include "io/ResourceLoading.h"
 using namespace Fwg;
 using namespace Fwg::Gfx;
-namespace Scenario::ResourceLoading {
+namespace Rpx::ResourceLoading {
 Bitmap loadProvinceMap(const std::string &gamePath) {
   return Fwg::IO::Reader::readGenericImage(gamePath + "//map//provinces.bmp",
                                            Fwg::Cfg::Values());
@@ -13,11 +13,11 @@ Bitmap loadHeightMap(const std::string &gamePath) {
 }
 
 std::vector<std::string> loadStates(const std::string &gamePath) {
-  return Parsing::readFilesInDirectory(gamePath + "//history//states//");
+  return Fwg::Parsing::readFilesInDirectory(gamePath + "//history//states//");
 }
 
 std::vector<std::string> loadDefinition(const std::string &gamePath) {
-  return Parsing::getLines(gamePath + "//map//definition.csv");
+  return Fwg::Parsing::getLines(gamePath + "//map//definition.csv");
 }
 
 std::vector<std::string> loadForbiddenTags(const std::string &gamePath) {
@@ -34,7 +34,7 @@ std::vector<std::string> loadForbiddenTags(const std::string &gamePath) {
 
     if (std::filesystem::exists(gamePath +
                                 "//common//country_tags//00_countries.txt")) {
-      auto lines = Parsing::getLines(
+      auto lines = Fwg::Parsing::getLines(
           gamePath + "//common//country_tags//00_countries.txt");
       for (const auto &line : lines) {
         if (line.size() < 3)
@@ -43,7 +43,8 @@ std::vector<std::string> loadForbiddenTags(const std::string &gamePath) {
         tags.push_back(tag);
       }
       if (gamePath.find("Europa Universalis") != std::string::npos) {
-        lines = Parsing::getLines(gamePath +
+        lines = Fwg::Parsing::getLines(
+            gamePath +
                                   "//common//country_tags//01_countries.txt");
       }
       for (const auto &line : lines) {
@@ -56,4 +57,4 @@ std::vector<std::string> loadForbiddenTags(const std::string &gamePath) {
   }
   return tags;
 }
-} // namespace Scenario::ResourceLoading
+} // namespace Rpx::ResourceLoading

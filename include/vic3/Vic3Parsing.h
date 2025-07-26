@@ -3,7 +3,7 @@
 #include <areas/ArdaProvince.h>
 #include <areas/ArdaRegion.h>
 
-namespace Scenario::Vic3::Parsing {
+namespace Rpx::Vic3::Parsing {
 namespace Writing {
 void adj(const std::string &path);
 void defaultMap(
@@ -69,4 +69,4 @@ void writeBuildings(const std::string &path,
                     const std::vector<std::shared_ptr<Region>> &regions);
 }
 
-}; // namespace Scenario::Vic3::Parsing
+}; // namespace Rpx::Vic3::Parsing

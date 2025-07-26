@@ -1,6 +1,6 @@
 #include "namegeneration/NameGenerator.h"
 
-namespace Scenario {
+namespace Rpx {
 namespace NameGeneration {
 
 std::string generateTag(const std::string name, NameData &nameData) {
@@ -121,4 +121,4 @@ getRandomMapElement(const std::string key,
 
 } // namespace Detail
 } // namespace NameGeneration
-} // namespace Scenario
+} // namespace Rpx

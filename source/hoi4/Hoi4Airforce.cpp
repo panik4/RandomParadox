@@ -1,6 +1,6 @@
 #include "hoi4/Hoi4Airforce.h"
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 void adjustTechsForPlaneModules(
     std::map<TechEra, std::vector<Technology>> &availableModuleTech) {
   auto &airTechs = availableModuleTech.at(TechEra::Interwar);
@@ -110,4 +110,4 @@ void addPlaneModules(
   selectSpecialEquipment(planeVariant);
 }
 
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

@@ -4,7 +4,7 @@
 #include "namegeneration/NameGenerator.h"
 #include "rendering/Images.h"
 #include <map>
-namespace Scenario {
+namespace Rpx {
 class StrategicRegion : public Arda::SuperRegion {
 public:
   // weather: month{averageTemp, standard deviation, average precipitation,
@@ -133,5 +133,5 @@ public:
       country.second->gatherCultureShares();
     }
   }
-}; // namespace Scenario
-} // namespace Scenario
+}; // namespace Rpx
+} // namespace Rpx

@@ -3,7 +3,7 @@
 using namespace Fwg;
 namespace Logging = Fwg::Utils::Logging;
 namespace pU = Fwg::Parsing;
-namespace Scenario::Hoi4::Parsing {
+namespace Rpx::Hoi4::Parsing {
 namespace Writing {
 namespace Map {
 void adj(const std::string &path) {
@@ -1874,4 +1874,4 @@ std::map<std::string, std::string> readRewardMap(const std::string &path) {
   return {rewardMap};
 }
 
-} // namespace Scenario::Hoi4::Parsing
+} // namespace Rpx::Hoi4::Parsing

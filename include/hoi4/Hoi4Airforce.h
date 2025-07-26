@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <string>
 #include <vector>
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 
 enum class PlaneType { SmallFrame, MediumFrame, LargeFrame };
 enum class PlaneRole {
@@ -51,4 +51,4 @@ void addPlaneModules(
     PlaneVariant &tankVariant,
     const std::map<TechEra, std::vector<Technology>> &availableModuleTech);
 
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

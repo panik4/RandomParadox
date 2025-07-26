@@ -1,6 +1,6 @@
 #include "hoi4/Hoi4Armor.h"
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 
 std::string getBestTurretType(
     const std::map<TechEra, std::vector<Technology>> &availableModules,
@@ -197,4 +197,4 @@ void addArmorModules(
   }
 }
 
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

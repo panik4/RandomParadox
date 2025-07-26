@@ -1,6 +1,6 @@
 #include "hoi4/goals/GoalGeneration.h"
 
-void Scenario::Hoi4::GoalGeneration::parseGoals(const std::string &path) {
+void Rpx::Hoi4::GoalGeneration::parseGoals(const std::string &path) {
   Fwg::Utils::Logging::logLineLevel(5, "HOI4: Parsing goals");
   auto goalLines = Fwg::Parsing::getLines(path);
   for (auto &goalLine : goalLines) {
@@ -155,17 +155,17 @@ void Scenario::Hoi4::GoalGeneration::parseGoals(const std::string &path) {
   }
 }
 
-void Scenario::Hoi4::GoalGeneration::gatherAggressionGoals(
+void Rpx::Hoi4::GoalGeneration::gatherAggressionGoals(
     const std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries) {}
 
-void Scenario::Hoi4::GoalGeneration::constructGoal(
+void Rpx::Hoi4::GoalGeneration::constructGoal(
     std::shared_ptr<Hoi4Country> sourceCountry,
-    std::shared_ptr<Scenario::Hoi4::Region> targetRegion,
-    std::shared_ptr<Scenario::Hoi4::Hoi4Country> targetCountry,
+    std::shared_ptr<Rpx::Hoi4::Region> targetRegion,
+    std::shared_ptr<Rpx::Hoi4::Hoi4Country> targetCountry,
     const Goal &goal, int &idCounter) {
 
   auto setCommonAttributes =
-      [&](std::shared_ptr<Scenario::Hoi4::Goal> &goalPtr, std::shared_ptr<Hoi4Country> country) {
+      [&](std::shared_ptr<Rpx::Hoi4::Goal> &goalPtr, std::shared_ptr<Hoi4Country> country) {
         goalPtr->name = goal.name;
 
         goalPtr->uniqueName = sourceCountry->tag + "_" + goalPtr->name + "_" +
@@ -178,11 +178,11 @@ void Scenario::Hoi4::GoalGeneration::constructGoal(
         goalPtr->availabilities = goal.availabilities;
         goalPtr->aiModifiers = goal.aiModifiers;
         goalPtr->limit = goal.limit;
-        Scenario::Hoi4::Effects::constructEffects(goalPtr->effects, country);
+        Rpx::Hoi4::Effects::constructEffects(goalPtr->effects, country);
       };
 
   if (targetRegion) {
-    auto regionGoal = std::make_shared<Scenario::Hoi4::Goal>();
+    auto regionGoal = std::make_shared<Rpx::Hoi4::Goal>();
     regionGoal->scope = GoalScope::Region;
     regionGoal->regionTarget = targetRegion;
     setCommonAttributes(regionGoal, nullptr);
@@ -190,14 +190,14 @@ void Scenario::Hoi4::GoalGeneration::constructGoal(
   }
 
   if (targetCountry) {
-    auto countryGoal = std::make_shared<Scenario::Hoi4::Goal>();
+    auto countryGoal = std::make_shared<Rpx::Hoi4::Goal>();
     countryGoal->scope = GoalScope::Country;
     countryGoal->countryTarget = targetCountry;
     setCommonAttributes(countryGoal, targetCountry);
     goalsByCountry[sourceCountry].push_back(countryGoal);
   }
 }
-bool Scenario::Hoi4::GoalGeneration::checkPrerequisites(
+bool Rpx::Hoi4::GoalGeneration::checkPrerequisites(
     const Goal &categoryGoal, const std::shared_ptr<Hoi4Country> &country,
     std::vector<Goal> &categoryGoals) {
   bool valid = true;
@@ -239,7 +239,7 @@ bool Scenario::Hoi4::GoalGeneration::checkPrerequisites(
 }
 
 // Method to check if the goal limit is reached
-bool Scenario::Hoi4::GoalGeneration::isGoalLimitReached(
+bool Rpx::Hoi4::GoalGeneration::isGoalLimitReached(
     const Goal &categoryGoal, const std::shared_ptr<Hoi4Country> &country,
     std::vector<Goal> &categoryGoals) {
   if (categoryGoal.limit != 999) {
@@ -262,7 +262,7 @@ bool Scenario::Hoi4::GoalGeneration::isGoalLimitReached(
   return false;
 }
 
-void Scenario::Hoi4::GoalGeneration::evaluateGoals(
+void Rpx::Hoi4::GoalGeneration::evaluateGoals(
     std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries) {
   Fwg::Utils::Logging::logLineLevel(5, "HOI4: Evaluating goals");
   int counter = 0;
@@ -293,17 +293,17 @@ void Scenario::Hoi4::GoalGeneration::evaluateGoals(
           continue;
         }
         // run the selector
-        std::shared_ptr<Scenario::Hoi4::Region> targetRegion;
-        std::shared_ptr<Scenario::Hoi4::Hoi4Country> targetCountry;
+        std::shared_ptr<Rpx::Hoi4::Region> targetRegion;
+        std::shared_ptr<Rpx::Hoi4::Hoi4Country> targetCountry;
 
         for (auto &selectorGroup : categoryGoal.selectors) {
           for (auto &selector : selectorGroup.selectors) {
             if (selector.name == "get_random_state") {
               targetRegion =
-                  Scenario::Hoi4::Selectors::getRandomRegion(country);
+                  Rpx::Hoi4::Selectors::getRandomRegion(country);
             } else if (selector.name == "get_random_coastal_state") {
               targetRegion =
-                  Scenario::Hoi4::Selectors::getRandomRegion(country);
+                  Rpx::Hoi4::Selectors::getRandomRegion(country);
             }
 
             if (selector.name == "self") {
@@ -311,7 +311,7 @@ void Scenario::Hoi4::GoalGeneration::evaluateGoals(
             }
             if (selector.name == "get_opposing_ideology_neighbour") {
               // targetCountry =
-              //     Scenario::Hoi4::Selectors::getOpposingIdeologyNeighbour(hoi4Countries);
+              //     Rpx::Hoi4::Selectors::getOpposingIdeologyNeighbour(hoi4Countries);
             }
           }
         }
@@ -342,18 +342,18 @@ void Scenario::Hoi4::GoalGeneration::evaluateGoals(
 
           // now different approach: we take the selector, and depending on what
           // it is, we gather ALL possible targets
-          std::vector<std::shared_ptr<Scenario::Hoi4::Region>> targetRegions;
-          std::vector<std::shared_ptr<Scenario::Hoi4::Hoi4Country>>
+          std::vector<std::shared_ptr<Rpx::Hoi4::Region>> targetRegions;
+          std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
               targetCountries;
           for (auto &selectorGroup : categoryGoal.selectors) {
             for (auto &selector : selectorGroup.selectors) {
               if (selector.name == "get_opposing_ideology_neighbour") {
                 targetCountries =
-                    Scenario::Hoi4::Selectors::getOpposingIdeologyNeighbours(
+                    Rpx::Hoi4::Selectors::getOpposingIdeologyNeighbours(
                         country, hoi4Countries);
               } else if (selector.name ==
                          "get_opposing_ideology_neighbours_neighbour") {
-                targetCountries = Scenario::Hoi4::Selectors::
+                targetCountries = Rpx::Hoi4::Selectors::
                     getOpposingIdeologyNeighboursNeighbours(country,
                                                             hoi4Countries);
               } else if (selector.name == "self") {
@@ -390,7 +390,7 @@ struct Position {
   }
 };
 
-void Scenario::Hoi4::GoalGeneration::structureGoals(
+void Rpx::Hoi4::GoalGeneration::structureGoals(
     std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries) {
 
   std::random_device rd;
@@ -556,8 +556,8 @@ void Scenario::Hoi4::GoalGeneration::structureGoals(
   }
 }
 
-std::shared_ptr<Scenario::Hoi4::Goal>
-Scenario::Hoi4::GoalGeneration::findSecondParent(
+std::shared_ptr<Rpx::Hoi4::Goal>
+Rpx::Hoi4::GoalGeneration::findSecondParent(
     const std::vector<std::shared_ptr<Goal>> &frontier,
     const std::shared_ptr<Goal> &primaryParent,
     const std::set<std::shared_ptr<Goal>> &usedGoals, int currentX) {

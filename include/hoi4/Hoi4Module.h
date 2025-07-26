@@ -9,7 +9,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <filesystem>
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 class Hoi4Module : public GenericModule {
 
   // read the config specific to hoi4
@@ -40,4 +40,4 @@ public:
   virtual bool createPaths();
   virtual void generate();
 };
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

@@ -3,7 +3,7 @@
 #include "hoi4/goals/Goal.h"
 #include "hoi4/goals/Selectors.h"
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 
 class GoalGeneration {
 public:
@@ -32,8 +32,8 @@ public:
       const std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries);
 
   void constructGoal(std::shared_ptr<Hoi4Country> sourceCountry,
-                     std::shared_ptr<Scenario::Hoi4::Region> targetRegion,
-                     std::shared_ptr<Scenario::Hoi4::Hoi4Country> targetCountry,
+                     std::shared_ptr<Rpx::Hoi4::Region> targetRegion,
+                     std::shared_ptr<Rpx::Hoi4::Hoi4Country> targetCountry,
                      const Goal &goal, int &idCounter);
 
   bool checkPrerequisites(const Goal &categoryGoal,
@@ -58,4 +58,4 @@ public:
   //                    std::mt19937 &gen, int &xOffset, int depth);
 };
 
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

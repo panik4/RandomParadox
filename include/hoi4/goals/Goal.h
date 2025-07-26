@@ -2,7 +2,7 @@
 #include "hoi4/Hoi4Country.h"
 #include <string>
 #include <vector>
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 enum class GoalType {
   Undefined,
   Political,
@@ -98,4 +98,4 @@ struct AlternativeGoalGrouping {
   // std::vector<Goal> goals;
 };
 
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

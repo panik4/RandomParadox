@@ -5,7 +5,7 @@
 #include "hoi4/Hoi4Airforce.h"
 #include "generic/VictoryPoint.h"
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 
 
 class Region : public Arda::ArdaRegion {
@@ -48,4 +48,4 @@ public:
   void calculateBuildingPositions(const std::vector<float> &heightmap,
                                   const Fwg::Gfx::Bitmap &typeMap);
 };
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

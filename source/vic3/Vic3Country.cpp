@@ -1,6 +1,6 @@
 #include "vic3/Vic3Country.h"
 
-namespace Scenario::Vic3 {
+namespace Rpx::Vic3 {
 Country::Country(std::string tag, int ID, std::string name,
                  std::string adjective, Arda::Gfx::Flag flag)
     : Arda::Country(tag, ID, name, adjective, flag) {}
@@ -51,4 +51,4 @@ bool Country::canUseProductionMethod(const Productionmethod &prodMethod) const {
   return true;
 }
 
-} // namespace Scenario::Vic3
+} // namespace Rpx::Vic3

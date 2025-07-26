@@ -7,7 +7,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <filesystem>
 #include <string>
-namespace Scenario {
+namespace Rpx {
 class GenericModule {
 
 protected:
@@ -23,7 +23,7 @@ protected:
 public:
   virtual bool createPaths() = 0;
   virtual bool validatePaths();
-  std::shared_ptr<Scenario::ModGenerator> generator;
+  std::shared_ptr<Rpx::ModGenerator> generator;
   // try to locate hoi4 at configured path, if not found, try other
   // standard locations
   bool findGame(std::string &path, const std::string &game);
@@ -43,4 +43,4 @@ public:
   virtual void writeFiles();
   virtual void writeImages();
 };
-} // namespace Scenario
+} // namespace Rpx

@@ -1,6 +1,6 @@
 #include "generic/ModGenerator.h"
 namespace Logging = Fwg::Utils::Logging;
-namespace Scenario {
+namespace Rpx {
 using namespace Fwg::Gfx;
 ModGenerator::ModGenerator(){}
 
@@ -425,4 +425,4 @@ Fwg::Gfx::Bitmap ModGenerator::visualiseStrategicRegions(const int ID) {
   return stratRegionMap;
 }
 
-} // namespace Scenario
+} // namespace Rpx

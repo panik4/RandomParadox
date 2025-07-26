@@ -6,7 +6,7 @@
 #include "rendering/Images.h"
 #include "utils/Cfg.h"
 #include <map>
-namespace Scenario::Gfx {
+namespace Rpx::Gfx {
 class FormatConverter {
 protected:
   // map of maps of colours, defines which FastWorldGen colour

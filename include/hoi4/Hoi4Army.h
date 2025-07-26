@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 enum class CombatRegimentType {
   Irregulars,
   Infantry,
@@ -95,4 +95,4 @@ std::vector<DivisionTemplate> createDivisionTemplates(
     const std::vector<CombatRegimentType> &availableRegimentTypes,
     const std::vector<SupportRegimentType> &availableSupportRegimentTypes);
 
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

@@ -1,5 +1,5 @@
 #include "io/FormatConverter.h"
-namespace Scenario::Gfx {
+namespace Rpx::Gfx {
 using namespace Fwg;
 using namespace Fwg::Gfx;
 
@@ -736,4 +736,4 @@ FormatConverter::FormatConverter(const std::string &gamePath,
     : gamePath{gamePath}, gameTag{gameTag} {}
 
 FormatConverter::~FormatConverter() {}
-} // namespace Scenario::Gfx
+} // namespace Rpx::Gfx

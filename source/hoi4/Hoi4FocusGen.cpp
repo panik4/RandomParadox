@@ -1,6 +1,6 @@
 #include "hoi4/Hoi4FocusGen.h"
 
-namespace Scenario::Hoi4::FocusGen {
+namespace Rpx::Hoi4::FocusGen {
 NationalFocus FocusGen::buildFocus(const std::vector<std::string> chainStep,
                                    const Hoi4Country &source,
                                    const Hoi4Country &target) {
@@ -561,4 +561,4 @@ void evaluateCountryGoals(
   }
 }
 
-} // namespace Scenario::Hoi4::FocusGen
+} // namespace Rpx::Hoi4::FocusGen

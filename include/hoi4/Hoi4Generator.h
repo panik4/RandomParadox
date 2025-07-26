@@ -12,9 +12,9 @@
 #include <array>
 #include <set>
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 
-class Generator : public Scenario::ModGenerator {
+class Generator : public Rpx::ModGenerator {
   using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
   std::vector<Arda::Utils::ResConfig> resConfigs{
       {"chromium", true, 1250.0, true, Arda::Utils::rareNoise},
@@ -112,4 +112,4 @@ public:
   virtual bool loadRivers(Fwg::Cfg &config,
                           const Fwg::Gfx::Bitmap &riverInput) override;
 };
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

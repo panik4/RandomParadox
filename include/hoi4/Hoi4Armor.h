@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 
 enum class ArmorType { LightArmor, MediumArmor, HeavyArmor };
 enum class ArmorRole { Tank, TankDestroyer, AntiAir, Artillery };
@@ -28,4 +28,4 @@ void addArmorModules(
     TankVariant &tankVariant,
     const std::map<TechEra, std::vector<Technology>> &availableModuleTech);
 
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

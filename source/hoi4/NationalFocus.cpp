@@ -1,6 +1,6 @@
 #include "hoi4/NationalFocus.h"
 #include "hoi4/Hoi4Parsing.h"
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 int NationalFocus::IDcounter = 0;
 std::map<std::string, NationalFocus::FocusType> NationalFocus::typeMapping;
 std::map<std::string, std::string> NationalFocus::availableMap;
@@ -53,4 +53,4 @@ std::ostream &operator<<(std::ostream &os, const NationalFocus &focus) {
 const NationalFocus &FocusBranch::operator[](int index) const { return foci[index]; }
 size_t FocusBranch::size() { return foci.size(); }
 
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

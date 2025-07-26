@@ -1,6 +1,6 @@
 #include "hoi4/Hoi4Country.h"
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 Hoi4Country::Hoi4Country(std::string tag, int ID, std::string name,
                          std::string adjective, Arda::Gfx::Flag flag)
     : Arda::Country(tag, ID, name, adjective, flag) {}
@@ -52,4 +52,4 @@ bool Hoi4Country::hasTech(const std::string &techname) const {
          checkTechMap(airTechs);
 }
 
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

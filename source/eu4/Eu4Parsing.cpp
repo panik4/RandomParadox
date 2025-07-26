@@ -1,7 +1,7 @@
 #include "eu4/Eu4Parsing.h"
 using namespace Fwg;
 namespace pU = Fwg::Parsing;
-namespace Scenario::Eu4::Parsing {
+namespace Rpx::Eu4::Parsing {
 std::string loadVanillaFile(const std::string &path,
                             const std::vector<std::string> &&filters) {
   std::string content{""};
@@ -421,4 +421,4 @@ void writeLoc(const std::string &path, const std::string &gamePath,
     pU::writeFile(path + "prov_names_" + locKey + ".yml", content, true);
   }
 }
-} // namespace Scenario::Eu4::Parsing
+} // namespace Rpx::Eu4::Parsing

@@ -1,6 +1,6 @@
 #include "vic3/Vic3Importer.h"
 
-namespace Scenario::Vic3::Importing {
+namespace Rpx::Vic3::Importing {
 namespace PU = Fwg::Parsing;
 namespace PUS = Rpx::Parsing;
 
@@ -363,4 +363,4 @@ std::set<std::string> readTags(const std::string &inFolder) {
   }
   return tags;
 }
-} // namespace Scenario::Vic3::Importing
+} // namespace Rpx::Vic3::Importing

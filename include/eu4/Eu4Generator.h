@@ -1,14 +1,14 @@
 #pragma once
 #include <generic/ModGenerator.h>
 
-namespace Scenario::Eu4 {
+namespace Rpx::Eu4 {
 // eu4 regions consist of multiple areas, which are collections of provinces
 struct eu4Region {
   std::set<int> areaIDs;
   std::string name;
 };
 
-class Generator : public Scenario::ModGenerator {
+class Generator : public Rpx::ModGenerator {
   std::vector<eu4Region> eu4regions;
 
 public:
@@ -22,4 +22,4 @@ public:
   virtual void mapCountries();
   std::vector<eu4Region> getEu4Regions() { return eu4regions; };
 };
-} // namespace Scenario::Eu4
+} // namespace Rpx::Eu4

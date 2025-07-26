@@ -123,8 +123,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
     this->rpdConf = rpdConf;
     this->configSubFolder = configSubFolder;
     this->username = username;
-    activeModule = std::make_shared<Scenario::Hoi4::Hoi4Module>(
-        Scenario::Hoi4::Hoi4Module(rpdConf, configSubFolder, username, false));
+    activeModule = std::make_shared<Rpx::Hoi4::Hoi4Module>(
+        Rpx::Hoi4::Hoi4Module(rpdConf, configSubFolder, username, false));
     activeModule->generator->climateData.addSecondaryColours(
         Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
                                "hoi4/colourMappings.txt"));
@@ -272,8 +272,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                   showCountryTab(cfg);
                   showHoi4Finalise(
                       cfg,
-                      std::reinterpret_pointer_cast<Scenario::Hoi4::Hoi4Module,
-                                                    Scenario::GenericModule>(
+                      std::reinterpret_pointer_cast<Rpx::Hoi4::Hoi4Module,
+                                                    Rpx::GenericModule>(
                           activeModule));
                 } else if (activeGameConfig.gameName == "Victoria 3") {
                   auto vic3Gen = std::reinterpret_pointer_cast<
@@ -283,8 +283,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                   showNavmeshTab(cfg, *activeModule->generator);
                   showVic3Finalise(
                       cfg,
-                      std::reinterpret_pointer_cast<Scenario::Vic3::Module,
-                                                    Scenario::GenericModule>(
+                      std::reinterpret_pointer_cast<Rpx::Vic3::Module,
+                                                    Rpx::GenericModule>(
                           activeModule));
                 }
                 if (!scenarioGenReady(false)) {
@@ -758,7 +758,7 @@ int GUI::showGeneric(Fwg::Cfg &cfg, Arda::ArdaGen &generator,
 }
 // generic configure tab, containing a tab for fwg and rpdx configs
 int GUI::showConfigure(Fwg::Cfg &cfg,
-                       std::shared_ptr<Scenario::GenericModule> &activeModule) {
+                       std::shared_ptr<Rpx::GenericModule> &activeModule) {
 
   if (ImGui::BeginTabItem("Configure")) {
     uiUtils->showHelpTextBox("Configure");
@@ -773,7 +773,7 @@ int GUI::showConfigure(Fwg::Cfg &cfg,
 }
 
 int GUI::showRpdxConfigure(
-    Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> &activeModule) {
+    Fwg::Cfg &cfg, std::shared_ptr<Rpx::GenericModule> &activeModule) {
   static int item_current = 1;
   // remove the images, and set pretext for them to be auto
   // loaded after switching tabs again
@@ -800,19 +800,19 @@ int GUI::showRpdxConfigure(
     if (ImGui::ListBox("Game Selection", &selectedGame, gameSelection.data(),
                        gameSelection.size())) {
       if (gameConfigs[selectedGame].gameName == "Hearts of Iron IV") {
-        activeModule = std::make_shared<Scenario::Hoi4::Hoi4Module>(
-            Scenario::Hoi4::Hoi4Module(rpdConf, configSubFolder, username,
+        activeModule = std::make_shared<Rpx::Hoi4::Hoi4Module>(
+            Rpx::Hoi4::Hoi4Module(rpdConf, configSubFolder, username,
                                        false));
         activeModule->generator->climateData.addSecondaryColours(
             Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
                                    "hoi4/colourMappings.txt"));
       } else if (gameConfigs[selectedGame].gameName ==
                  "Europa Universalis IV") {
-        activeModule = std::make_shared<Scenario::Eu4::Module>(
-            Scenario::Eu4::Module(rpdConf, configSubFolder, username));
+        activeModule = std::make_shared<Rpx::Eu4::Module>(
+            Rpx::Eu4::Module(rpdConf, configSubFolder, username));
       } else if (gameConfigs[selectedGame].gameName == "Victoria 3") {
-        activeModule = std::make_shared<Scenario::Vic3::Module>(
-            Scenario::Vic3::Module(rpdConf, configSubFolder, username));
+        activeModule = std::make_shared<Rpx::Vic3::Module>(
+            Rpx::Vic3::Module(rpdConf, configSubFolder, username));
       }
       activeGameConfig = gameConfigs[selectedGame];
       activeModule->findGame(activeModule->pathcfg.gamePath,
@@ -871,12 +871,12 @@ int GUI::showRpdxConfigure(
 }
 
 void GUI::showModLoader(
-    Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> &genericModule) {
+    Fwg::Cfg &cfg, std::shared_ptr<Rpx::GenericModule> &genericModule) {
   if (ImGui::BeginTabItem("Modloader")) {
     if (triggeredDrag) {
       auto hoi4Module =
-          std::reinterpret_pointer_cast<Scenario::Hoi4::Hoi4Module,
-                                        Scenario::GenericModule>(genericModule);
+          std::reinterpret_pointer_cast<Rpx::Hoi4::Hoi4Module,
+                                        Rpx::GenericModule>(genericModule);
       hoi4Module->readHoi(draggedFile);
       triggeredDrag = false;
       uiUtils->resetTexture();
@@ -919,7 +919,7 @@ bool GUI::scenarioGenReady(bool printIssue) {
 }
 
 int GUI::showScenarioTab(
-    Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> activeModule) {
+    Fwg::Cfg &cfg, std::shared_ptr<Rpx::GenericModule> activeModule) {
   int retCode = 0;
   if (ImGui::BeginTabItem("Scenario")) {
     // allow printing why the scenario generation is not ready
@@ -1091,7 +1091,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
 
     if (isRelevantModuleActive("hoi4")) {
       const auto &hoi4Region =
-          std::reinterpret_pointer_cast<Scenario::Hoi4::Region,
+          std::reinterpret_pointer_cast<Rpx::Hoi4::Region,
                                         Arda::ArdaRegion>(modifiableState);
 
       Elements::borderChild("StateEdit2", [&]() {
@@ -1150,7 +1150,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
       } else {
         if (ImGui::Button("Randomly distribute countries")) {
           computationFutureBool = runAsync([&hoi4Gen, &cfg, this]() {
-            //hoi4Gen->generateCountries<Scenario::Hoi4::Hoi4Country>();
+            //hoi4Gen->generateCountries<Rpx::Hoi4::Hoi4Country>();
 
             //// first gather generic neighbours, they will be mapped to hoi4
             //// countries in mapCountries
@@ -1161,7 +1161,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
             //uiUtils->resetTexture();
             return true;
           });
-          hoi4Gen->generateCountries<Scenario::Hoi4::Hoi4Country>();
+          hoi4Gen->generateCountries<Rpx::Hoi4::Hoi4Country>();
 
           // first gather generic neighbours, they will be mapped to hoi4
           // countries in mapCountries
@@ -1243,10 +1243,10 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
           // is active
           if (isRelevantModuleActive("hoi4")) {
             auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
-            hoi4Gen->loadCountries<Scenario::Hoi4::Hoi4Country>(
+            hoi4Gen->loadCountries<Rpx::Hoi4::Hoi4Country>(
                 draggedFile, generator->countryMappingPath);
           } else if (isRelevantModuleActive("vic3")) {
-            generator->loadCountries<Scenario::Vic3::Country>(
+            generator->loadCountries<Rpx::Vic3::Country>(
                 draggedFile, generator->countryMappingPath);
           } else if (isRelevantModuleActive("eu4")) {
             generator->loadCountries<Arda::Country>(
@@ -1278,7 +1278,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
 }
 
 int GUI::showModuleGeneric(
-    Fwg::Cfg &cfg, std::shared_ptr<Scenario::GenericModule> genericModule) {
+    Fwg::Cfg &cfg, std::shared_ptr<Rpx::GenericModule> genericModule) {
   if (!validatedPaths)
     ImGui::BeginDisabled();
   if (genericModule->generator->terrainData.detailedHeightMap.size() &&
@@ -1316,7 +1316,7 @@ int GUI::showModuleGeneric(
 }
 
 int GUI::showStrategicRegionTab(
-    Fwg::Cfg &cfg, std::shared_ptr<Scenario::ModGenerator> generator) {
+    Fwg::Cfg &cfg, std::shared_ptr<Rpx::ModGenerator> generator) {
   if (ImGui::BeginTabItem("Strategic Regions")) {
     // tab switch setting draw events as accepted
     if (uiUtils->tabSwitchEvent(true)) {
@@ -1433,7 +1433,7 @@ void GUI::pathWarning(std::exception e) {
 }
 
 int GUI::showHoi4Finalise(
-    Fwg::Cfg &cfg, std::shared_ptr<Scenario::Hoi4::Hoi4Module> hoi4Module) {
+    Fwg::Cfg &cfg, std::shared_ptr<Rpx::Hoi4::Hoi4Module> hoi4Module) {
   if (ImGui::BeginTabItem("Finalise")) {
     uiUtils->tabSwitchEvent();
     ImGui::Text("This will finish generating the mod and write it to the "
@@ -1535,14 +1535,14 @@ int GUI::showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator) {
 }
 
 void GUI::showSplineTab(Fwg::Cfg &cfg,
-                        std::shared_ptr<Scenario::Vic3::Module> vic3Module) {
+                        std::shared_ptr<Rpx::Vic3::Module> vic3Module) {
   if (ImGui::BeginTabItem("Splines")) {
     uiUtils->tabSwitchEvent();
     const auto &generator = vic3Module->getGenerator();
 
     // drag event is ignored here
     if (triggeredDrag) {
-      Scenario::Vic3::Splnet spline;
+      Rpx::Vic3::Splnet spline;
       spline.parseFile(draggedFile);
 
       spline.writeFile(draggedFile + "overwrite");
@@ -1553,7 +1553,7 @@ void GUI::showSplineTab(Fwg::Cfg &cfg,
 }
 
 int GUI::showVic3Finalise(Fwg::Cfg &cfg,
-                          std::shared_ptr<Scenario::Vic3::Module> vic3Module) {
+                          std::shared_ptr<Rpx::Vic3::Module> vic3Module) {
   if (ImGui::BeginTabItem("Finalise")) {
     uiUtils->tabSwitchEvent();
     ImGui::Text("This will finish generating the mod and write it to the "

@@ -1,6 +1,6 @@
 #include "hoi4/Hoi4Tech.h"
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 bool hasTechnology(
     const std::map<TechEra, std::vector<Technology>> &techs,
     const std::string &techName) {
@@ -13,4 +13,4 @@ bool hasTechnology(
   }
   return false;
 }
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4

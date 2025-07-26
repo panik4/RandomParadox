@@ -1,5 +1,5 @@
 #include "hoi4/Hoi4FormatConverter.h"
-namespace Scenario::Gfx::Hoi4 {
+namespace Rpx::Gfx::Hoi4 {
 using namespace Arda::Gfx::Textures;
 using namespace Fwg;
 using namespace Fwg::Gfx;
@@ -8,7 +8,7 @@ FormatConverter::FormatConverter() {}
 
 FormatConverter::FormatConverter(const std::string &gamePath,
                                  const std::string &gameTag)
-    : Scenario::Gfx::FormatConverter(gamePath, gameTag) {
+    : Rpx::Gfx::FormatConverter(gamePath, gameTag) {
   auto &conf = Cfg::Values();
   std::string mapFolderName = "//map";
   std::string terrainsourceString =
@@ -40,4 +40,4 @@ FormatConverter::FormatConverter(const std::string &gamePath,
 }
 
 FormatConverter::~FormatConverter() {}
-} // namespace Scenario::Gfx::Hoi4
+} // namespace Rpx::Gfx::Hoi4

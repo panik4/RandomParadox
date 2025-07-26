@@ -1,6 +1,6 @@
 #include "vic3/Vic3Utils.h"
 
-namespace Scenario::Vic3 {
+namespace Rpx::Vic3 {
 std::vector<double> shiftedGaussian(double input) {
   std::vector<double> values(15, 0.0);
 
@@ -32,4 +32,4 @@ std::vector<double> shiftedGaussian(double input) {
 
   return values;
 }
-} // namespace Scenario::Vic3
+} // namespace Rpx::Vic3

@@ -1,12 +1,12 @@
 #include "vic3/Vic3Generator.h"
-namespace Scenario::Vic3 {
+namespace Rpx::Vic3 {
 using namespace Fwg;
 using namespace Fwg::Gfx;
 
-Generator::Generator() : Scenario::ModGenerator() {}
+Generator::Generator() : Rpx::ModGenerator() {}
 
 Generator::Generator(const std::string &configSubFolder)
-    : Scenario::ModGenerator(configSubFolder) {
+    : Rpx::ModGenerator(configSubFolder) {
   // this->terrainTypeToString.at(Fwg::Areas::Province::TerrainType::marsh) =
   // "wetlands";
   // this->terrainTypeToString.at(Fwg::Areas::Province::TerrainType::savannah) =
@@ -633,4 +633,4 @@ void Generator::calculateNavalExits() {
   }
 }
 
-} // namespace Scenario::Vic3
+} // namespace Rpx::Vic3

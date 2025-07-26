@@ -1,5 +1,5 @@
 #include "generic/GenericModule.h"
-namespace Scenario {
+namespace Rpx {
 bool GenericModule::createPaths() { // mod directory
   return false;
 }
@@ -155,4 +155,4 @@ void GenericModule::configurePaths(
   Rpx::Parsing::replaceOccurences(pathcfg.gameModsDirectory,
                                             "<username>", username);
 }
-} // namespace Scenario
+} // namespace Rpx

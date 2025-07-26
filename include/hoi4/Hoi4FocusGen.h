@@ -4,7 +4,7 @@
 #include "hoi4/goals/GoalGeneration.h"
 #include "parsing/ParserUtils.h"
 
-namespace Scenario::Hoi4 {
+namespace Rpx::Hoi4 {
 namespace FocusGen {
 
 
@@ -33,4 +33,4 @@ void evaluateCountryGoals(
     const std::vector<std::shared_ptr<Arda::ArdaRegion>> &ardaRegions);
 
 }; // namespace FocusGen
-} // namespace Scenario::Hoi4
+} // namespace Rpx::Hoi4
