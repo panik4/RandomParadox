@@ -6,7 +6,7 @@ using namespace Fwg::Gfx;
 Generator::Generator() {}
 
 Generator::Generator(const std::string &configSubFolder)
-    : Scenario::Generator(configSubFolder) {}
+    : Scenario::ModGenerator(configSubFolder) {}
 
 void Generator::generateRegions(std::vector<std::shared_ptr<Region>> &regions) {
   Fwg::Utils::Logging::logLine("Eu4: Dividing world into strategic regions");

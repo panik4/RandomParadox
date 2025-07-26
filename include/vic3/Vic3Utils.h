@@ -1,6 +1,6 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include <generic/ScenarioUtils.h>
+#include <utils/ScenarioUtils.h>
 #include <map>
 #include <memory>
 #include <set>

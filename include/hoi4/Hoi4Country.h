@@ -1,7 +1,7 @@
 #pragma once
 #include "Hoi4Region.h"
 #include "NationalFocus.h"
-#include "generic/Country.h"
+#include "countries/Country.h"
 #include "hoi4/Hoi4Armor.h"
 #include "hoi4/Hoi4Army.h"
 #include "hoi4/Hoi4Navies.h"

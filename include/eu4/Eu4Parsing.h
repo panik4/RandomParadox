@@ -1,7 +1,7 @@
 #include "eu4/Eu4Generator.h"
-#include "generic/ParserUtils.h"
-#include <generic/GameProvince.h>
-#include <generic/GameRegion.h>
+#include "parsing/ParserUtils.h"
+#include <areas/GameProvince.h>
+#include <areas/GameRegion.h>
 
 namespace Scenario::Eu4::Parsing {
 std::string loadVanillaFile(const std::string &path,

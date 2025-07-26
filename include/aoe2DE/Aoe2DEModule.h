@@ -1,6 +1,6 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include "generic/FormatConverter.h"
+#include "io/FormatConverter.h"
 #include "generic/GenericModule.h"
 #include "generic/ScenarioGenerator.h"
 namespace Scenario::Aoe2 {

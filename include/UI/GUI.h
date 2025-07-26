@@ -2,7 +2,7 @@
 #include "FastWorldGenerator.h"
 #include "UI/fwgUI.h"
 #include "eu4/Eu4Module.h"
-#include "generic/ScenarioUtils.h"
+#include "utils/ScenarioUtils.h"
 #include "hoi4/Hoi4Generator.h"
 #include "hoi4/Hoi4Module.h"
 #include "misc/cpp/imgui_stdlib.h"
@@ -67,7 +67,7 @@ class GUI : Fwg::fwgUI {
   int showModuleGeneric(Fwg::Cfg &cfg,
                         std::shared_ptr<Scenario::GenericModule> genericModule);
   int showStrategicRegionTab(Fwg::Cfg &cfg,
-                             std::shared_ptr<Scenario::Generator> generator);
+                             std::shared_ptr<Scenario::ModGenerator> generator);
   // to display the terrain maps/masks etc
   int showTerrainTab(Fwg::Cfg &cfg,
                      std::shared_ptr<Scenario::Generator> generator);

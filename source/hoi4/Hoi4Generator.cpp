@@ -5,7 +5,7 @@ namespace Scenario::Hoi4 {
 Generator::Generator() {}
 
 Generator::Generator(const std::string &configSubFolder)
-    : Scenario::Generator(configSubFolder) {}
+    : Scenario::ModGenerator(configSubFolder) {}
 
 Generator::~Generator() {}
 

@@ -1,8 +1,8 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include "generic/NameGenerator.h"
-#include "generic/ParserUtils.h"
-#include "generic/Textures.h"
+#include "namegeneration/NameGenerator.h"
+#include "parsing/ParserUtils.h"
+#include "io/Textures.h"
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4Generator.h"
 #include <array>

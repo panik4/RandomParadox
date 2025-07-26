@@ -1,5 +1,5 @@
 #pragma once
-#include "generic/GameRegion.h"
+#include "areas/GameRegion.h"
 #include "utils/ParsingUtils.h"
 #include <vector>
 namespace Scenario::Vic3 {

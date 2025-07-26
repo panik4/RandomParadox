@@ -3,10 +3,10 @@ namespace Scenario::Vic3 {
 using namespace Fwg;
 using namespace Fwg::Gfx;
 
-Generator::Generator() : Scenario::Generator() {}
+Generator::Generator() : Scenario::ModGenerator() {}
 
 Generator::Generator(const std::string &configSubFolder)
-    : Scenario::Generator(configSubFolder) {
+    : Scenario::ModGenerator(configSubFolder) {
   // this->terrainTypeToString.at(Fwg::Areas::Province::TerrainType::marsh) =
   // "wetlands";
   // this->terrainTypeToString.at(Fwg::Areas::Province::TerrainType::savannah) =
