@@ -3,7 +3,7 @@
 #include "countries/Country.h"
 #include "io/GenericParsing.h"
 #include "generic/ModGenerator.h"
-#include "utils/ScenarioUtils.h"
+#include "utils/RpxUtils.h"
 #include "hoi4/Hoi4Army.h"
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4FocusGen.h"
@@ -60,8 +60,6 @@ public:
   void mapRegions();
   virtual Fwg::Gfx::Bitmap mapTerrain();
   void cutFromFiles(const std::string &gamePath);
-  // initialize states
-  // void initializeStates();
   // initialize states
   void mapCountries();
   // give resources to states

@@ -27,6 +27,13 @@ public:
   // build strategic regions from ardaRegions
   void generateStrategicRegions();
   Fwg::Gfx::Bitmap visualiseStrategicRegions(const int ID = -1);
+  // mapping terrain types of FastWorldGen to module
+  // compatible terrains
+  virtual Fwg::Gfx::Bitmap mapTerrain();
+  // initialize countries
+  virtual void mapCountries();
+
+  virtual void cutFromFiles(const std::string &gamePath);
 
   // load countries from an image and map them to regions
   template <typename T>

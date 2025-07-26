@@ -1,7 +1,7 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "areas/ArdaRegion.h"
-#include "utils/ScenarioUtils.h"
+#include "utils/RpxUtils.h"
 #include "vic3/Vic3Utils.h"
 namespace Rpx::Vic3 {
 

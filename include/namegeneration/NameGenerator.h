@@ -4,7 +4,7 @@
 #include "language/LanguageGroup.h"
 #include "parsing/ParserUtils.h"
 #include "io/ResourceLoading.h"
-#include "utils/ScenarioUtils.h"
+#include "utils/RpxUtils.h"
 #include <map>
 #include <string>
 #include <vector>

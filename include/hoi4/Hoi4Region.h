@@ -1,7 +1,7 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "areas/ArdaRegion.h"
-#include "utils/ScenarioUtils.h"
+#include "utils/RpxUtils.h"
 #include "hoi4/Hoi4Airforce.h"
 #include "generic/VictoryPoint.h"
 
