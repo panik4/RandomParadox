@@ -23,7 +23,7 @@ std::vector<std::string> loadDefinition(const std::string &gamePath) {
 std::vector<std::string> loadForbiddenTags(const std::string &gamePath) {
   std::vector<std::string> tags;
   if (gamePath.find("Victoria") != std::string::npos) {
-    // auto lines = Parsing::Scenario::getLines(
+    // auto lines = Rpx::Parsing::getLines(
     //     gamePath + "//common//country_definitions//00_countries.txt");
     // for (const auto &line : lines) {
     //   auto tag = line.substr(0, 3);

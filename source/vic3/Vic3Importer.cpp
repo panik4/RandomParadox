@@ -2,7 +2,7 @@
 
 namespace Scenario::Vic3::Importing {
 namespace PU = Fwg::Parsing;
-namespace PUS = Fwg::Parsing::Scenario;
+namespace PUS = Rpx::Parsing;
 
 std::map<std::string, Technology> readTechs(const std::string &inFolder) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Reading techs from ",
@@ -20,7 +20,7 @@ std::map<std::string, Technology> readTechs(const std::string &inFolder) {
     Fwg::Utils::Logging::logLine("Determined filename: ", filename);
     std::string content = "";
     auto lines = Fwg::Parsing::getLines(pathString);
-    auto blocks = Fwg::Parsing::Scenario::getOuterBlocks(lines);
+    auto blocks = Rpx::Parsing::getOuterBlocks(lines);
 
     for (auto &block : blocks) {
       Technology tech;
@@ -48,7 +48,7 @@ readTechLevels(const std::string &inPath,
                const std::map<std::string, Technology> &techs) {
   std::map<std::string, TechnologyLevel> techlevels;
   auto lines = Fwg::Parsing::getLines(inPath);
-  auto blocks = Fwg::Parsing::Scenario::getOuterBlocks(lines);
+  auto blocks = Rpx::Parsing::getOuterBlocks(lines);
 
   for (auto &block : blocks) {
     TechnologyLevel techLevel;
@@ -100,14 +100,14 @@ std::map<std::string, ProductionmethodGroup> readProdMethodGroups(
                           pathString.back() - pathString.find_last_of("//"));
     std::string content = "";
     auto lines = Fwg::Parsing::getLines(pathString);
-    auto blocks = Fwg::Parsing::Scenario::getOuterBlocks(lines);
+    auto blocks = Rpx::Parsing::getOuterBlocks(lines);
 
     for (auto &block : blocks) {
       ProductionmethodGroup prodmethGroup;
       PUS::removeSpecials(block.name);
       prodmethGroup.name = block.name;
       // the contained "production_methods" block
-      auto innerblocks = Fwg::Parsing::Scenario::getOuterBlocks(
+      auto innerblocks = Rpx::Parsing::getOuterBlocks(
           Fwg::Parsing::splitLines(block.content));
       for (auto &innerblock : innerblocks) {
         auto lines = PU::splitLines(innerblock.content);
@@ -150,7 +150,7 @@ readProdMethods(const std::string &inFolder,
                           pathString.back() - pathString.find_last_of("//"));
     std::string content = "";
     auto lines = Fwg::Parsing::getLines(pathString);
-    auto blocks = Fwg::Parsing::Scenario::getOuterBlocks(lines);
+    auto blocks = Rpx::Parsing::getOuterBlocks(lines);
 
     for (auto &block : blocks) {
       Productionmethod prodmeth;
@@ -210,7 +210,7 @@ std::vector<BuildingType> readBuildings(
     Fwg::Utils::Logging::logLine("Determined filename: ", filename);
     std::string content = "";
     auto lines = Fwg::Parsing::getLines(pathString);
-    auto blocks = Fwg::Parsing::Scenario::getOuterBlocks(lines);
+    auto blocks = Rpx::Parsing::getOuterBlocks(lines);
 
     for (auto &block : blocks) {
       BuildingType bt;
@@ -272,7 +272,7 @@ readBuypackages(const std::string &inFolder,
                 const std::map<std::string, PopNeed> &popNeeds) {
   std::map<std::string, Buypackage> buypackages;
   auto lines = Fwg::Parsing::getLines(inFolder);
-  auto blocks = Fwg::Parsing::Scenario::getOuterBlocks(lines);
+  auto blocks = Rpx::Parsing::getOuterBlocks(lines);
 
   for (auto &block : blocks) {
     Buypackage bt;
@@ -280,7 +280,7 @@ readBuypackages(const std::string &inFolder,
     bt.name = block.name;
     PUS::removeSpecials(bt.name);
     // the contained "goods" block
-    auto innerblocks = Fwg::Parsing::Scenario::getOuterBlocks(
+    auto innerblocks = Rpx::Parsing::getOuterBlocks(
         Fwg::Parsing::splitLines(block.content));
     for (auto &innerblock : innerblocks) {
       auto lines = PU::splitLines(innerblock.content);
@@ -303,18 +303,18 @@ readPopNeeds(const std::string &inFolder,
              const std::map<std::string, Good> &goods) {
   std::map<std::string, PopNeed> popneeds;
   auto lines = Fwg::Parsing::getLines(inFolder);
-  auto blocks = Fwg::Parsing::Scenario::getOuterBlocks(lines);
+  auto blocks = Rpx::Parsing::getOuterBlocks(lines);
 
   for (auto &block : blocks) {
     PopNeed bt;
     bt.name = block.name;
     PUS::removeSpecials(bt.name);
-    auto innerblocks = Fwg::Parsing::Scenario::getOuterBlocks(
+    auto innerblocks = Rpx::Parsing::getOuterBlocks(
         Fwg::Parsing::splitLines(block.content));
     for (auto &innerblock : innerblocks) {
       auto goodName = Fwg::Parsing::getValue(innerblock.content, "goods");
-      Fwg::Parsing::Scenario::removeSpecials(goodName);
-      Fwg::Parsing::Scenario::removeCharacter(goodName, ' ');
+      Rpx::Parsing::removeSpecials(goodName);
+      Rpx::Parsing::removeCharacter(goodName, ' ');
       try {
         bt.goods.push_back(goods.at(goodName));
       } catch (std::exception e) {
@@ -329,7 +329,7 @@ readPopNeeds(const std::string &inFolder,
 std::map<std::string, Good> readGoods(const std::string &inFolder) {
   std::map<std::string, Good> goods;
   auto lines = Fwg::Parsing::getLines(inFolder);
-  auto blocks = Fwg::Parsing::Scenario::getOuterBlocks(lines);
+  auto blocks = Rpx::Parsing::getOuterBlocks(lines);
 
   for (auto &block : blocks) {
     Good good;

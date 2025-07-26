@@ -113,7 +113,7 @@ bool GenericModule::validateModFolder(const std::string &game) {
 }
 
 void GenericModule::sanitizePath(std::string &path) {
-  Fwg::Parsing::Scenario::replaceOccurences(path, "\\", "//");
+  Rpx::Parsing::replaceOccurences(path, "\\", "//");
   Fwg::Parsing::attachTrailing(path);
 }
 
@@ -145,14 +145,14 @@ void GenericModule::configurePaths(
   sanitizePath(pathcfg.gameModPath);
   pathcfg.gameModPath += pathcfg.modName;
   sanitizePath(pathcfg.gameModPath);
-  Fwg::Parsing::Scenario::replaceOccurences(pathcfg.gameModPath, "<username>",
+  Rpx::Parsing::replaceOccurences(pathcfg.gameModPath, "<username>",
                                             username);
-  Fwg::Parsing::Scenario::replaceOccurences(pathcfg.gamePath, "<username>",
+  Rpx::Parsing::replaceOccurences(pathcfg.gamePath, "<username>",
                                             username);
   pathcfg.gameModsDirectory =
       gamesConf.get<std::string>(gameName + ".modsDirectory");
   sanitizePath(pathcfg.gameModsDirectory);
-  Fwg::Parsing::Scenario::replaceOccurences(pathcfg.gameModsDirectory,
+  Rpx::Parsing::replaceOccurences(pathcfg.gameModsDirectory,
                                             "<username>", username);
 }
 } // namespace Scenario

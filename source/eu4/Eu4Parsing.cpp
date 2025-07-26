@@ -63,14 +63,14 @@ void writeAreas(const std::string &path,
 
   for (auto &region : regions) {
     std::string areaText{templateArea};
-    pU::Scenario::replaceOccurences(areaText, "template_name",
+    Rpx::Parsing::replaceOccurences(areaText, "template_name",
                                     "area_" + std::to_string(region->ID + 1));
     std::string provs{""};
     for (auto &prov : region->provinces) {
       provs.append(std::to_string(prov->ID + 1));
       provs.append(" ");
     }
-    pU::Scenario::replaceOccurences(areaText, "templateProvinces", provs);
+    Rpx::Parsing::replaceOccurences(areaText, "templateProvinces", provs);
     content.append(areaText);
   }
   pU::writeFile(path, content);
@@ -132,19 +132,19 @@ void writeClimate(const std::string &path,
     else if (maxTemp > 0.85 && maxPrecipitation > 0.8)
       severe_monsoon.append(provID + " ");
   }
-  pU::Scenario::replaceOccurences(content, "templateTropical", tropical);
-  pU::Scenario::replaceOccurences(content, "templateArid", arid);
-  pU::Scenario::replaceOccurences(content, "templateArctic", arctic);
-  pU::Scenario::replaceOccurences(content, "templateMildWinter", mild_winter);
-  pU::Scenario::replaceOccurences(content, "templateNormalWinter",
+  Rpx::Parsing::replaceOccurences(content, "templateTropical", tropical);
+  Rpx::Parsing::replaceOccurences(content, "templateArid", arid);
+  Rpx::Parsing::replaceOccurences(content, "templateArctic", arctic);
+  Rpx::Parsing::replaceOccurences(content, "templateMildWinter", mild_winter);
+  Rpx::Parsing::replaceOccurences(content, "templateNormalWinter",
                                   normal_winter);
-  pU::Scenario::replaceOccurences(content, "templateSevereWinter",
+  Rpx::Parsing::replaceOccurences(content, "templateSevereWinter",
                                   severe_winter);
-  pU::Scenario::replaceOccurences(content, "templateImpassable", impassable);
-  pU::Scenario::replaceOccurences(content, "templateMildMonsoon", mild_monsoon);
-  pU::Scenario::replaceOccurences(content, "templateNormalMonsoon",
+  Rpx::Parsing::replaceOccurences(content, "templateImpassable", impassable);
+  Rpx::Parsing::replaceOccurences(content, "templateMildMonsoon", mild_monsoon);
+  Rpx::Parsing::replaceOccurences(content, "templateNormalMonsoon",
                                   normal_monsoon);
-  pU::Scenario::replaceOccurences(content, "templateSevereMonsoon",
+  Rpx::Parsing::replaceOccurences(content, "templateSevereMonsoon",
                                   severe_monsoon);
   pU::writeFile(path, content);
 }
@@ -156,12 +156,12 @@ void writeColonialRegions(
       gamePath + "//common//colonial_regions//00_colonial_regions.txt",
       {"{", "}", "=", "_"});
   int baseCompatProv = 1;
-  while (pU::Scenario::replaceOccurence(content, "provinces = {",
+  while (Rpx::Parsing::replaceOccurence(content, "provinces = {",
                                         "provinces = \n\t{\n\t\t " +
                                             std::to_string(baseCompatProv++)))
     ;
 
-  // Parsing::Scenario::replaceLines(content, "owns =", "");
+  // Rpx::Parsing::replaceLines(content, "owns =", "");
   pU::writeFile(path, content);
 }
 
@@ -189,7 +189,7 @@ void writeContinent(
     for (auto elem : continent) {
       continentProvs.append(std::to_string(elem) + " ");
     }
-    pU::Scenario::replaceOccurences(
+    Rpx::Parsing::replaceOccurences(
         content, "template" + std::to_string(count++), continentProvs);
   }
   pU::writeFile(path, content);
@@ -200,11 +200,11 @@ void writeDefaultMap(
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing default map");
   auto content =
       pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//default.map");
-  pU::Scenario::replaceOccurences(content, "templateWidth",
+  Rpx::Parsing::replaceOccurences(content, "templateWidth",
                                   std::to_string(Cfg::Values().width));
-  pU::Scenario::replaceOccurences(content, "templateHeight",
+  Rpx::Parsing::replaceOccurences(content, "templateHeight",
                                   std::to_string(Cfg::Values().height));
-  pU::Scenario::replaceOccurences(content, "templateProvinces",
+  Rpx::Parsing::replaceOccurences(content, "templateProvinces",
                                   std::to_string(provinces.size() + 1));
   std::string seaStarts{""};
   std::string lakes{""};
@@ -219,8 +219,8 @@ void writeDefaultMap(
         lakes.append("\n\t\t\t");
     }
   }
-  pU::Scenario::replaceOccurences(content, "templateSeaStarts", seaStarts);
-  pU::Scenario::replaceOccurences(content, "templateLakes", lakes);
+  Rpx::Parsing::replaceOccurences(content, "templateSeaStarts", seaStarts);
+  Rpx::Parsing::replaceOccurences(content, "templateLakes", lakes);
   pU::writeFile(path, content);
 }
 
@@ -261,7 +261,7 @@ void writePositions(
       pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//positions.txt");
   for (const auto &prov : provinces) {
     std::string provincePositions{templateProvince};
-    pU::Scenario::replaceOccurences(provincePositions, "templateID",
+    Rpx::Parsing::replaceOccurences(provincePositions, "templateID",
                                     std::to_string(prov->baseProvince->ID + 1));
     const auto &baseProv = prov->baseProvince;
     ;
@@ -272,7 +272,7 @@ void writePositions(
     std::vector<std::string> arguments{centerString, centerString, centerString,
                                        centerString, centerString, centerString,
                                        centerString};
-    pU::Scenario::replaceOccurences(provincePositions, "templatePositions",
+    Rpx::Parsing::replaceOccurences(provincePositions, "templatePositions",
                                     pU::csvFormat(arguments, ' ', false));
     content.append(provincePositions);
   }
@@ -284,19 +284,19 @@ void writeRegions(const std::string &path, const std::string &gamePath,
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Regions");
   std::string content =
       loadVanillaFile(gamePath + "//map//region.txt", {"{", "}", "areas"});
-  while (pU::Scenario::removeBracketBlockFromKey(content, "monsoon")) {
+  while (Rpx::Parsing::removeBracketBlockFromKey(content, "monsoon")) {
   }
   const auto templateRegion =
       pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//region.txt");
   for (const auto &eu4Region : eu4regions) {
     auto regionStr{templateRegion};
     std::string areaString{""};
-    pU::Scenario::replaceOccurences(regionStr, "templateRegion",
+    Rpx::Parsing::replaceOccurences(regionStr, "templateRegion",
                                     eu4Region.name);
     for (const auto areaID : eu4Region.areaIDs) {
       areaString.append("area_" + std::to_string(areaID + 1) + " ");
     }
-    pU::Scenario::replaceOccurences(regionStr, "templateAreaList", areaString);
+    Rpx::Parsing::replaceOccurences(regionStr, "templateAreaList", areaString);
     content.append(regionStr);
   }
 
@@ -328,7 +328,7 @@ void writeTradeCompanies(
       gamePath + "//common//trade_companies//00_trade_companies.txt",
       {"{", "}", "="});
   int baseCompatProv = 1;
-  while (pU::Scenario::replaceOccurence(content, "provinces = {",
+  while (Rpx::Parsing::replaceOccurence(content, "provinces = {",
                                         "provinces = \n\t{\n\t\t " +
                                             std::to_string(baseCompatProv++))) {
   };
@@ -350,11 +350,11 @@ void copyDescriptorFile(const std::string &sourcePath,
                         const std::string &modName) {
   Fwg::Utils::Logging::logLine("EU4 Parser: Copying Descriptor file");
   auto descriptorText = pU::readFile(sourcePath);
-  pU::Scenario::replaceOccurences(descriptorText, "templateName", modName);
+  Rpx::Parsing::replaceOccurences(descriptorText, "templateName", modName);
   auto modText{descriptorText};
-  pU::Scenario::replaceOccurences(descriptorText, "templatePath", "");
+  Rpx::Parsing::replaceOccurences(descriptorText, "templatePath", "");
   pU::writeFile(destPath + "//descriptor.mod", descriptorText);
-  pU::Scenario::replaceOccurences(
+  Rpx::Parsing::replaceOccurences(
       modText, "templatePath",
       Fwg::Utils::varsToString("path=\"", destPath, "\""));
   pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);

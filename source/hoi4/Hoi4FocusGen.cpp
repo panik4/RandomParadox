@@ -7,51 +7,51 @@ NationalFocus FocusGen::buildFocus(const std::vector<std::string> chainStep,
   // map the string of the chainstep to the type
   auto type = NationalFocus::typeMapping[chainStep[5]];
   auto dateTokens =
-      Fwg::Parsing::Scenario::getNumbers(chainStep[8], '-', std::set<int>{});
+      Arda::Parsing::getNumbers(chainStep[8], '-', std::set<int>{});
   NationalFocus nF(type, false, source.tag, target.tag, dateTokens);
 
-  auto predecessors = Fwg::Parsing::Scenario::getNumbers(
-      Fwg::Parsing::Scenario::getBracketBlockContent(chainStep[2],
+  auto predecessors = Arda::Parsing::getNumbers(
+      Rpx::Parsing::getBracketBlockContent(chainStep[2],
                                                      "predecessor"),
       ',', std::set<int>());
   for (const auto &predecessor : predecessors)
     nF.precedingFoci.push_back(predecessor);
 
   // now get the "xor"...
-  auto exclusives = Fwg::Parsing::Scenario::getNumbers(
-      Fwg::Parsing::Scenario::getBracketBlockContent(chainStep[7], "exclusive"),
+  auto exclusives = Arda::Parsing::getNumbers(
+      Rpx::Parsing::getBracketBlockContent(chainStep[7], "exclusive"),
       ',', std::set<int>());
   for (const auto &exclusive : exclusives)
     nF.xorFoci.push_back(exclusive);
   // and "and" foci
-  auto ands = Fwg::Parsing::Scenario::getNumbers(
-      Fwg::Parsing::Scenario::getBracketBlockContent(chainStep[7], "and"), ',',
+  auto ands = Arda::Parsing::getNumbers(
+      Rpx::Parsing::getBracketBlockContent(chainStep[7], "and"), ',',
       std::set<int>());
   for (const auto &anddd : ands)
     nF.andFoci.push_back(anddd);
   // and "or" foci
-  auto ors = Fwg::Parsing::Scenario::getNumbers(
-      Fwg::Parsing::Scenario::getBracketBlockContent(chainStep[7], "or"), ',',
+  auto ors = Arda::Parsing::getNumbers(
+      Rpx::Parsing::getBracketBlockContent(chainStep[7], "or"), ',',
       std::set<int>());
   for (const auto &orrr : ors)
     nF.orFoci.push_back(orrr);
   // add completion reward keys
   auto available = Fwg::Parsing::getTokens(
-      Fwg::Parsing::Scenario::getBracketBlockContent(chainStep[9], "available"),
+      Rpx::Parsing::getBracketBlockContent(chainStep[9], "available"),
       '+');
   for (const auto &availKey : available) {
     nF.available.push_back(availKey);
   }
   // add completion reward keys
   auto bypasses = Fwg::Parsing::getTokens(
-      Fwg::Parsing::Scenario::getBracketBlockContent(chainStep[10], "bypass"),
+      Rpx::Parsing::getBracketBlockContent(chainStep[10], "bypass"),
       '+');
   for (const auto &bypassKey : bypasses) {
     nF.bypasses.push_back(bypassKey);
   }
   // add completion reward keys
   auto rewards =
-      Fwg::Parsing::getTokens(Fwg::Parsing::Scenario::getBracketBlockContent(
+      Fwg::Parsing::getTokens(Rpx::Parsing::getBracketBlockContent(
                                   chainStep[11], "completion_reward"),
                               '+');
   for (const auto &rewardKey : rewards) {

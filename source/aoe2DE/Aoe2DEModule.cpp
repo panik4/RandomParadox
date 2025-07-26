@@ -124,9 +124,9 @@ void Module::genAoe2() {
     elevation.append("number_of_clumps " + std::to_string(highEle) + "\n");
     elevation.append("}\n");
 
-    Parsing::Scenario::replaceOccurence(file, "TOKEN_TERRAIN",
+    Rpx::Parsing::replaceOccurence(file, "TOKEN_TERRAIN",
                                         terrain_generation);
-    Parsing::Scenario::replaceOccurence(file, "TOKEN_ELEVATION", elevation);
+    Rpx::Parsing::replaceOccurence(file, "TOKEN_ELEVATION", elevation);
     Parsing::writeFile("mapContent", file);
 
   } catch (std::exception e) {
