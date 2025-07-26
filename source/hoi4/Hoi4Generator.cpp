@@ -365,7 +365,7 @@ void Generator::generateStateSpecifics() {
   }
   totalWorldIndustry = militaryIndustry + civilianIndustry + navalIndustry;
   statesInitialised = true;
-  dumpRegions(hoi4States);
+  Arda::Parsing::dumpRegions(hoi4States);
 }
 
 void Generator::generateCountrySpecifics() {

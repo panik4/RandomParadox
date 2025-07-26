@@ -2,6 +2,7 @@
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/NationalFocus.h"
 #include "hoi4/goals/GoalGeneration.h"
+#include "parsing/ParserUtils.h"
 
 namespace Scenario::Hoi4 {
 namespace FocusGen {

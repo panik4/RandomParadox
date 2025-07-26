@@ -60,10 +60,10 @@ std::string modifyWithIdeology(const std::string &ideology,
                                const NameData &nameData) {
   auto stateName{Detail::getRandomMapElement(ideology, nameData.ideologyNames)};
   if (stateName.find("templateAdj") != std::string::npos)
-    Fwg::Parsing::Scenario::replaceOccurences(stateName, "templateAdj",
+    Rpx::Parsing::replaceOccurences(stateName, "templateAdj",
                                               adjective);
   else
-    Fwg::Parsing::Scenario::replaceOccurences(stateName, "template", name);
+    Rpx::Parsing::replaceOccurences(stateName, "template", name);
   return stateName;
 }
 
