@@ -1,6 +1,5 @@
 #include "FastWorldGenerator.h"
 #include "UI/GUI.h"
-#include "aoe2DE/Aoe2DEModule.h"
 #include "eu4/Eu4Module.h"
 #include "generic/ArdaGen.h"
 #include "io/Textures.h"
