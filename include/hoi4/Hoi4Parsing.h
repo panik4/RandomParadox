@@ -49,7 +49,7 @@ void commonCountryTags(const std::string &path, const CountryMap &countries);
 void commonCharacters(const std::string &path, const CountryMap &countries);
 void commonNames(const std::string &path, const CountryMap &countries);
 void foci(const std::string &path, const CountryMap &countries,
-          const NameGeneration::NameData &nData);
+          const Arda::Names::NameData &nData);
 // gfx
 void flags(const std::string &path, const CountryMap &countries);
 // history
@@ -93,7 +93,7 @@ void copyDescriptorFile(const std::string &sourcePath,
 namespace Localisation {
 
 void countryNames(const std::string &path, const CountryMap &countries,
-                  const NameGeneration::NameData &nData);
+                  const Arda::Names::NameData &nData);
 void stateNames(const std::string &path, const CountryMap &countries);
 void strategicRegionNames(const std::string &path,
                           const std::vector<StrategicRegion> &strategicRegions);

@@ -17,7 +17,6 @@ class ModGenerator : public Arda::ArdaGen {
 
 public:
   // vars - used for every game
-  NameGeneration::NameData nData;
   std::vector<StrategicRegion> strategicRegions;
   ModGenerator();
   ModGenerator(const std::string &configSubFolder);
@@ -128,8 +127,8 @@ public:
       // mappings
       if (!country.second->name.size()) {
         country.second->name = language->generateGenericCapitalizedWord();
-        country.second->tag =
-            NameGeneration::generateTag(country.second->name, nData);
+        country.second->tag = Arda::Names::generateTag(country.second->name,
+                                                       nData.disallowedTokens);
       }
       country.second->adjective =
           language->getAdjectiveForm(country.second->name);

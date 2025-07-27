@@ -1,6 +1,6 @@
 #pragma once
+#include "ArdaUI/ArdaUI.h"
 #include "FastWorldGenerator.h"
-#include "UI/fwgUI.h"
 #include "eu4/Eu4Module.h"
 #include "hoi4/Hoi4Generator.h"
 #include "hoi4/Hoi4Module.h"
@@ -26,38 +26,7 @@ using Hoi4Gen = Rpx::Hoi4::Generator;
 using Vic3Gen = Rpx::Vic3::Generator;
 using Eu4Gen = Rpx::Eu4::Generator;
 
-class GUI : Fwg::FwgUI {
-  enum class VisualLayerType {
-    HEIGHTMAP,
-    ELEVATIONTYPES,
-    TOPOGRAPHY,
-    NORMALMAP,
-    INCLINATION,
-    RELSURROUNDINGS,
-    HUMIDITY,
-    TEMPERATURE,
-    CLIMATE,
-    TREECLIMATE,
-    DENSITY,
-    SUPERSEGMENTS,
-    SEGMENTS,
-    PROVINCES,
-    REGIONS,
-    REGIONSWITHPROVINCES,
-    REGIONSWITHBORDERS,
-    CONTINENTS,
-    POPULATION,
-    DEVELOPMENT,
-    ARABLELAND,
-    LOCATIONS,
-    WORLD_MAP,
-    CIVILISATION_MAP,
-    SUPERREGIONS,
-    COUNTRIES,
-    CULTUREGROUPS,
-    CULTURES,
-    RELIGIONS
-  };
+class GUI : public Arda::ArdaUI {
   std::vector<GameConfig> gameConfigs;
   GameConfig activeGameConfig;
   pt::ptree rpdConf;
@@ -67,7 +36,6 @@ class GUI : Fwg::FwgUI {
   bool loadedConfigs = false;
   bool configuredScenarioGen = false;
   bool validatedPaths = false;
-  Fwg::Gfx::Bitmap regionSelectMap;
   std::string activeConfig;
   std::vector<std::string> configSubfolders;
   std::vector<std::string> loadConfigs();
@@ -76,8 +44,6 @@ class GUI : Fwg::FwgUI {
   void initGameConfigs();
   bool validatePaths();
   bool isRelevantModuleActive(const std::string &shortName);
-  int showGeneric(Fwg::Cfg &cfg, Arda::ArdaGen &generator,
-                  ID3D11ShaderResourceView **texture);
   template <class T> constexpr std::shared_ptr<T> getGeneratorPointer() {
     return std::reinterpret_pointer_cast<T, Arda::ArdaGen>(
         activeModule->generator);
@@ -89,8 +55,6 @@ class GUI : Fwg::FwgUI {
   void showModLoader(Fwg::Cfg &cfg,
                      std::shared_ptr<Rpx::GenericModule> &genericModule);
   bool scenarioGenReady(bool printIssue);
-  std::string getLayerTypeName(VisualLayerType type);
-  bool showVisualLayerToggles(std::map<VisualLayerType, bool> &layerVisibility);
   // generic scenario stuff
   int showScenarioTab(Fwg::Cfg &cfg,
                       std::shared_ptr<Rpx::GenericModule> genericModule);
@@ -118,27 +82,7 @@ class GUI : Fwg::FwgUI {
   // generic stuff
   int showStatisticsTab();
 
-  void recover();
-
-  std::map<VisualLayerType, bool> visualLayerVisibility = {
-      {VisualLayerType::HEIGHTMAP, false},
-      {VisualLayerType::ELEVATIONTYPES, false},
-      {VisualLayerType::TOPOGRAPHY, false},
-      {VisualLayerType::HUMIDITY, false},
-      {VisualLayerType::TEMPERATURE, false},
-      {VisualLayerType::CLIMATE, false},
-      {VisualLayerType::TREECLIMATE, false},
-      {VisualLayerType::DENSITY, false},
-      {VisualLayerType::SUPERSEGMENTS, false},
-      {VisualLayerType::SEGMENTS, false},
-      {VisualLayerType::PROVINCES, false},
-      {VisualLayerType::REGIONS, false},
-      {VisualLayerType::CONTINENTS, false},
-      {VisualLayerType::POPULATION, false},
-      {VisualLayerType::DEVELOPMENT, false},
-      {VisualLayerType::LOCATIONS, false},
-      {VisualLayerType::WORLD_MAP, false},
-      {VisualLayerType::CIVILISATION_MAP, false}};
+  void recover();;
 
   // std::vector<VisualLayer> layers = {
   //     {"World Map", 0.1f, false, &activeModule->generator->worldMap},

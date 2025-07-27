@@ -52,7 +52,7 @@ void GUI::recover() {
   generator.climateData.deserialize(cfg.mapsPath + "climateData.bin");
   generator.areaData.deserialize(cfg.mapsPath + "areaData.bin");
 }
-GUI::GUI() : FwgUI() {}
+GUI::GUI() : Arda::ArdaUI() {}
 
 void GUI::genericWrapper() {
   auto &cfg = Fwg::Cfg::Values();
@@ -68,7 +68,7 @@ void GUI::genericWrapper() {
         false, window_flags);
     if (!validatedPaths)
       ImGui::BeginDisabled();
-    showGeneric(cfg, *activeModule->generator, &uiUtils->primaryTexture);
+    showGeneric(cfg, *activeModule->generator);
     if (!validatedPaths)
       ImGui::EndDisabled();
     ImGui::SameLine();
@@ -222,6 +222,9 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                 defaultTabs(cfg, *activeModule->generator);
                 showScenarioTab(cfg, activeModule);
                 gameSpecificTabs(cfg);
+                auto ardaGen = std::static_pointer_cast<Arda::ArdaGen>(
+                    activeModule->generator);
+                overview(ardaGen, cfg);
                 if (!validatedPaths)
                   ImGui::EndDisabled();
                 // Re-enable inputs if computation is running
@@ -338,69 +341,7 @@ bool GUI::validatePaths() {
 bool GUI::isRelevantModuleActive(const std::string &shortName) {
   return activeGameConfig.gameShortName == shortName;
 }
-int GUI::showGeneric(Fwg::Cfg &cfg, Arda::ArdaGen &generator,
-                     ID3D11ShaderResourceView **texture) {
 
-  bool success = true;
-  static bool showBrushSettings = false;
-  ImGui::PushItemWidth(120.0f);
-  if (showBrushSettings) {
-    uiUtils->brushSettingsHeader();
-  }
-  if (ImGui::Button("Get random seed: ")) {
-    cfg.randomSeed = true;
-    cfg.reRandomize();
-  }
-  ImGui::SameLine();
-  if (ImGui::InputInt("  Debug level: ", &cfg.seed)) {
-    cfg.randomSeed = false;
-    cfg.reRandomize();
-  }
-  ImGui::SameLine();
-  ImGui::InputInt("", &cfg.debugLevel);
-  ImGui::SameLine();
-  if (cfg.debugLevel > 5) {
-    if (ImGui::Button("Display size")) {
-      Fwg::Utils::Logging::logLine(generator.size());
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Clear")) {
-      generator.resetData();
-      Fwg::Utils::Logging::logLine(generator.size());
-    }
-    if (ImGui::Button("Recover")) {
-      recover();
-    }
-  }
-  if (ImGui::Button(("Save current image to " + cfg.mapsPath).c_str())) {
-    writeCurrentlyDisplayedImage(cfg);
-  }
-  if (ImGui::Button("Generate all world data")) {
-    generator.resetData();
-    if (cfg.cut) {
-      if (gameConfigs[selectedGame].gameName == "Hearts of Iron IV") {
-
-      } else if (gameConfigs[selectedGame].gameName ==
-                 "Europa Universalis IV") {
-        Fwg::Utils::Logging::logLine(
-            "Cutting from Europa Universalis IV not yet supported");
-        cfg.cut = false;
-      } else if (gameConfigs[selectedGame].gameName == "Victoria 3") {
-        Fwg::Utils::Logging::logLine(
-            "Cutting from Victoria 3 not yet supported");
-        cfg.cut = false;
-      }
-    }
-    // need to reset this when we generate all world data
-    cfg.allowHeightmapModification = true;
-    // run the generation async
-    computationFutureBool = runAsyncInitialDisable(
-        &Fwg::FastWorldGenerator::generateWorld, generator);
-  }
-
-  ImGui::PopItemWidth();
-  return success;
-}
 // generic configure tab, containing a tab for fwg and rpdx configs
 int GUI::showConfigure(Fwg::Cfg &cfg,
                        std::shared_ptr<Rpx::GenericModule> &activeModule) {
@@ -562,65 +503,6 @@ bool GUI::scenarioGenReady(bool printIssue) {
   return ready;
 }
 
-std::string GUI::getLayerTypeName(VisualLayerType type) {
-  switch (type) {
-  case VisualLayerType::HEIGHTMAP:
-    return "Heightmap";
-  case VisualLayerType::ELEVATIONTYPES:
-    return "Elevation Types";
-  case VisualLayerType::HUMIDITY:
-    return "Humidity";
-  case VisualLayerType::TEMPERATURE:
-    return "Temperature";
-  case VisualLayerType::CLIMATE:
-    return "Climate";
-  case VisualLayerType::TREECLIMATE:
-    return "Tree Climate";
-  case VisualLayerType::DENSITY:
-    return "Density";
-  case VisualLayerType::SUPERSEGMENTS:
-    return "Super Segments";
-  case VisualLayerType::SEGMENTS:
-    return "Segments";
-  case VisualLayerType::PROVINCES:
-    return "Provinces";
-  case VisualLayerType::REGIONS:
-    return "Regions";
-  case VisualLayerType::CONTINENTS:
-    return "Continents";
-  case VisualLayerType::POPULATION:
-    return "Population";
-  case VisualLayerType::DEVELOPMENT:
-    return "Development";
-  case VisualLayerType::LOCATIONS:
-    return "Locations";
-  case VisualLayerType::WORLD_MAP:
-    return "World Map";
-  case VisualLayerType::CIVILISATION_MAP:
-    return "Civilisation Map";
-  default:
-    return "Unknown Layer";
-  }
-}
-
-bool GUI::showVisualLayerToggles(
-    std::map<VisualLayerType, bool> &layerVisibility) {
-  bool changed = false;
-
-  for (auto &[layer, visible] : layerVisibility) {
-    ImGui::PushID(static_cast<int>(layer)); // avoid ID conflicts
-
-    std::string label = getLayerTypeName(layer); // e.g., "World Map"
-    if (ImGui::Checkbox(label.c_str(), &visible)) {
-      changed = true;
-    }
-
-    ImGui::PopID();
-  }
-
-  return changed;
-}
-
 int GUI::showScenarioTab(Fwg::Cfg &cfg,
                          std::shared_ptr<Rpx::GenericModule> activeModule) {
   int retCode = 0;
@@ -634,124 +516,6 @@ int GUI::showScenarioTab(Fwg::Cfg &cfg,
                                   activeModule->generator->regionMap, ""));
       uiUtils->updateImage(1, Fwg::Gfx::Bitmap());
     }
-
-    if (showVisualLayerToggles(visualLayerVisibility)) {
-      std::vector<Fwg::Gfx::WeightedBitmap> layers;
-      for (const auto &[layerType, visible] : visualLayerVisibility) {
-        if (visible) {
-
-          switch (layerType) {
-          case VisualLayerType::HEIGHTMAP:
-            layers.push_back(
-                {Fwg::Gfx::displayHeightMap(
-                     activeModule->generator->terrainData.detailedHeightMap),
-                 0.1f});
-            break;
-
-          case VisualLayerType::ELEVATIONTYPES:
-            layers.push_back(
-                {Fwg::Gfx::landMap(activeModule->generator->terrainData),
-                 0.2f});
-            break;
-
-          case VisualLayerType::HUMIDITY:
-            layers.push_back({Fwg::Gfx::Climate::displayHumidity(
-                                  activeModule->generator->climateData),
-                              0.2f});
-            break;
-
-          case VisualLayerType::TEMPERATURE:
-            layers.push_back({Fwg::Gfx::Climate::displayTemperature(
-                                  activeModule->generator->climateData),
-                              0.2f});
-            break;
-
-          case VisualLayerType::CLIMATE:
-            layers.push_back({Fwg::Gfx::Climate::displayClimate(
-                                  activeModule->generator->climateData, false),
-                              0.2f});
-            break;
-
-          case VisualLayerType::TREECLIMATE:
-            layers.push_back({Fwg::Gfx::Climate::displayClimate(
-                                  activeModule->generator->climateData, true),
-                              0.2f});
-            break;
-
-          case VisualLayerType::DENSITY:
-            layers.push_back(
-                {Fwg::Gfx::displayHabitability(
-                     activeModule->generator->climateData.habitabilities),
-                 0.3f});
-            break;
-
-          case VisualLayerType::SUPERSEGMENTS:
-            layers.push_back(
-                {Fwg::Gfx::Segments::displaySuperSegments(
-                     activeModule->generator->areaData.superSegments),
-                 0.3f});
-            break;
-
-          case VisualLayerType::SEGMENTS:
-            layers.push_back({Fwg::Gfx::Segments::displaySegments(
-                                  activeModule->generator->areaData.segments),
-                              0.3f});
-            break;
-
-          case VisualLayerType::PROVINCES:
-            layers.push_back({activeModule->generator->provinceMap, 0.3f});
-            break;
-
-          case VisualLayerType::REGIONS:
-            layers.push_back({activeModule->generator->regionMap, 0.3f});
-            break;
-
-          case VisualLayerType::CONTINENTS:
-            layers.push_back({Fwg::Gfx::simpleContinents(
-                                  activeModule->generator->areaData.continents,
-                                  activeModule->generator->areaData.seaBodies),
-                              0.3f});
-            break;
-
-          case VisualLayerType::POPULATION:
-            layers.push_back({Fwg::Gfx::displayPopulation(
-                                  activeModule->generator->areaData.provinces),
-                              0.5f});
-            break;
-
-          case VisualLayerType::DEVELOPMENT:
-            layers.push_back({Fwg::Gfx::displayDevelopment(
-                                  activeModule->generator->areaData.provinces),
-                              0.5f});
-            break;
-
-          case VisualLayerType::LOCATIONS:
-            layers.push_back({Fwg::Gfx::displayLocations(
-                                  activeModule->generator->areaData.regions,
-                                  activeModule->generator->worldMap),
-                              0.7f});
-            break;
-
-          case VisualLayerType::WORLD_MAP:
-            layers.push_back({activeModule->generator->worldMap, 0.2f});
-            break;
-
-          case VisualLayerType::CIVILISATION_MAP:
-            layers.push_back({Fwg::Gfx::displayWorldCivilisationMap(
-                                  activeModule->generator->climateData,
-                                  activeModule->generator->provinceMap,
-                                  activeModule->generator->worldMap,
-                                  activeModule->generator->civLayer,
-                                  activeModule->generator->regionMap, ""),
-                              1.0f});
-            break;
-          }
-        }
-        uiUtils->updateImage(
-            0, Fwg::Gfx::mergeWeightedBitmaps(cfg.width, cfg.height, layers));
-      }
-    }
-    // show the layers
 
     // allow printing why the scenario generation is not ready
     scenarioGenReady(true);

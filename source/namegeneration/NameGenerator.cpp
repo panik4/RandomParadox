@@ -3,61 +3,18 @@
 namespace Rpx {
 namespace NameGeneration {
 
-std::string generateTag(const std::string name, NameData &nameData) {
-  std::string tag{""};
-  int retries = 0;
-  // all letters in the alphabet
-  const std::vector<std::string> letters{
-      "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-      "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
-
-  do {
-    tag = name.substr(0, std::min<int>(3, name.size()));
-    std::transform(tag.begin(), tag.end(), tag.begin(), ::toupper);
-    if (tag.size() < 3)
-      tag += Fwg::Utils::selectRandom(letters)[0];
-    // if we have a retry, simply replace one of the letters with a random one
-    if (retries > 0)
-      tag[RandNum::getRandom(0, 2)] = Fwg::Utils::selectRandom(letters)[0];
-  } while (nameData.disallowedTokens.find(tag) !=
-               nameData.disallowedTokens.end() &&
-           retries++ < 10);
-  if (retries >= 10) {
-    do {
-      // add a random letter to the tag
-      tag.resize(3);
-      tag[2] = Fwg::Utils::selectRandom(letters)[0];
-    } while (nameData.disallowedTokens.find(tag) !=
-                 nameData.disallowedTokens.end() &&
-             retries++ < 20);
-  }
-  if (tag.size() != 3) {
-    std::cerr << "Incorrect tag size" << std::endl;
-    throw(std::exception(
-        std::string("Incorrect tag size in generating tag " + tag).c_str()));
-  }
-  if (retries >= 20)
-    throw(std::exception(
-        std::string("Too many tries generating tag " + tag).c_str()));
-
-  nameData.disallowedTokens.insert(tag);
-  if (tag == "AUX")
-    std::cout << "WTF" << std::endl;
-
-  return tag;
-}
 
 std::string generateFactionName(const std::string &ideology,
                                 const std::string name,
                                 const std::string adjective,
-                                const NameData &nameData) {
+                                const Arda::Names::NameData &nameData) {
   return Detail::getRandomMapElement(ideology, nameData.factionNames);
 }
 
 std::string modifyWithIdeology(const std::string &ideology,
                                const std::string name,
                                const std::string adjective,
-                               const NameData &nameData) {
+                               const Arda::Names::NameData &nameData) {
   auto stateName{Detail::getRandomMapElement(ideology, nameData.ideologyNames)};
   if (stateName.find("templateAdj") != std::string::npos)
     Rpx::Parsing::replaceOccurences(stateName, "templateAdj",
@@ -67,9 +24,9 @@ std::string modifyWithIdeology(const std::string &ideology,
   return stateName;
 }
 
-NameData prepare(const std::string &path, const std::string &gamePath, const GameType gameType) {
+Arda::Names::NameData prepare(const std::string &path, const std::string &gamePath, const GameType gameType) {
   Fwg::Utils::Logging::logLine("Preparing name generation from path: ", path);
-  NameData nameData;
+  Arda::Names::NameData nameData;
 
   auto additionalForbidden = Fwg::Parsing::getLines(
       Fwg::Cfg::Values().resourcePath + "hoi4//history//forbidden_tags.txt");
