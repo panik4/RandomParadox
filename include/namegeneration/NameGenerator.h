@@ -5,30 +5,26 @@
 #include "parsing/ParserUtils.h"
 #include "io/ResourceLoading.h"
 #include "utils/RpxUtils.h"
+#include "culture/NameUtils.h"
 #include <map>
 #include <string>
 #include <vector>
 namespace Rpx {
 namespace NameGeneration {
 
-struct NameData {
-  // containers
-  std::set<std::string> tags;
-  std::map<std::string, std::vector<std::string>> ideologyNames;
-  std::map<std::string, std::vector<std::string>> factionNames;
-  std::set<std::string> disallowedTokens;
-};
+
 // member functions
-std::string generateTag(const std::string name, NameData &nameData);
 std::string generateFactionName(const std::string &ideology,
                                 const std::string name,
                                 const std::string adjective,
-                                const NameData &nameData);
+                                const Arda::Names::NameData &nameData);
 std::string modifyWithIdeology(const std::string &ideology,
                                const std::string name,
                                const std::string adjective,
-                               const NameData &nameData);
-NameData prepare(const std::string &path, const std::string &gamePath, const GameType gameType);
+                               const Arda::Names::NameData &nameData);
+Arda::Names::NameData prepare(const std::string &path,
+                              const std::string &gamePath,
+                              const GameType gameType);
 namespace Detail {
 void readMap(const std::string path,
              std::map<std::string, std::vector<std::string>> &map);

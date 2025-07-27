@@ -485,7 +485,7 @@ void commonNames(const std::string &path, const CountryMap &countries) {
 }
 
 void foci(const std::string &path, const CountryMap &countries,
-          const NameGeneration::NameData &nData) {
+          const Arda::Names::NameData &nData) {
   Logging::logLine("HOI4 Parser: History: Demanding Danzig");
   Fwg::IO::Utils::clearFilesOfType(path, ".txt");
   const auto focusTypes =
@@ -1500,7 +1500,7 @@ void copyDescriptorFile(const std::string &sourcePath,
 namespace Localisation {
 
 void countryNames(const std::string &path, const CountryMap &countries,
-                  const NameGeneration::NameData &nData) {
+                  const Arda::Names::NameData &nData) {
   Logging::logLine("HOI4 Parser: Localisation: Writing Country Names");
   std::string content = "l_english:\n";
   std::vector<std::string> ideologies{"fascism", "communism", "neutrality",
