@@ -20,9 +20,10 @@ void provinceTerrains(
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
 void writeMetadata(const std::string &path);
 
-void strategicRegions(const std::string &path,
-                      const std::vector<StrategicRegion> &strategicRegions,
-                      const std::vector<std::shared_ptr<Region>> &regions);
+void strategicRegions(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions,
+    const std::vector<std::shared_ptr<Region>> &regions);
 void cultureCommon(const std::string &path,
                    const std::vector<std::shared_ptr<Arda::Culture>> &cultures);
 void religionCommon(

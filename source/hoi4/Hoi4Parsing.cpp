@@ -176,9 +176,9 @@ void unitStacks(
   pU::writeFile(path, content);
 }
 
-void strategicRegions(const std::string &path,
-                      const std::vector<Fwg::Areas::Region> &regions,
-                      const std::vector<StrategicRegion> &strategicRegions) {
+void strategicRegions(
+    const std::string &path, const std::vector<Fwg::Areas::Region> &regions,
+    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions) {
   constexpr std::array<int, 12> daysInMonth{30, 27, 30, 29, 30, 29,
                                             30, 30, 29, 30, 29, 30};
   Logging::logLine("HOI4 Parser: Map: Drawing Strategic Regions");
@@ -189,8 +189,10 @@ void strategicRegions(const std::string &path,
   const auto templateWeather =
       Rpx::Parsing::getBracketBlock(templateContent, "period");
   for (auto i = 0; i < strategicRegions.size(); i++) {
+    auto stratRegion =
+        std::dynamic_pointer_cast<StrategicRegion>(strategicRegions[i]);
     std::string provString{""};
-    for (const auto &region : strategicRegions[i].ardaRegions) {
+    for (const auto &region : stratRegion->ardaRegions) {
       for (const auto prov : region->provinces) {
         provString.append(std::to_string(prov->ID + 1));
         provString.append(" ");
@@ -211,33 +213,32 @@ void strategicRegions(const std::string &path,
                                           "." + std::to_string(mo));
       Rpx::Parsing::replaceOccurences(
           month, "templateTemperatureRange",
-          std::to_string(round((float)strategicRegions[i].weatherMonths[mo][3]))
+          std::to_string(round((float)stratRegion->weatherMonths[mo][3]))
                   .substr(0, 5) +
               " " +
-              std::to_string(
-                  round((float)strategicRegions[i].weatherMonths[mo][4]))
+              std::to_string(round((float)stratRegion->weatherMonths[mo][4]))
                   .substr(0, 5));
       Rpx::Parsing::replaceOccurences(
           month, "templateRainLightChance",
-          std::to_string((float)strategicRegions[i].weatherMonths[mo][5]));
+          std::to_string((float)stratRegion->weatherMonths[mo][5]));
       Rpx::Parsing::replaceOccurences(
           month, "templateRainHeavyChance",
-          std::to_string((float)strategicRegions[i].weatherMonths[mo][6]));
+          std::to_string((float)stratRegion->weatherMonths[mo][6]));
       Rpx::Parsing::replaceOccurences(
           month, "templateMud",
-          std::to_string((float)strategicRegions[i].weatherMonths[mo][7]));
+          std::to_string((float)stratRegion->weatherMonths[mo][7]));
       Rpx::Parsing::replaceOccurences(
           month, "templateBlizzard",
-          std::to_string((float)strategicRegions[i].weatherMonths[mo][8]));
+          std::to_string((float)stratRegion->weatherMonths[mo][8]));
       Rpx::Parsing::replaceOccurences(
           month, "templateSandStorm",
-          std::to_string((float)strategicRegions[i].weatherMonths[mo][9]));
+          std::to_string((float)stratRegion->weatherMonths[mo][9]));
       Rpx::Parsing::replaceOccurences(
           month, "templateSnow",
-          std::to_string((float)strategicRegions[i].weatherMonths[mo][10]));
+          std::to_string((float)stratRegion->weatherMonths[mo][10]));
       Rpx::Parsing::replaceOccurences(
           month, "templateNoPhenomenon",
-          std::to_string((float)strategicRegions[i].weatherMonths[mo][11]));
+          std::to_string((float)stratRegion->weatherMonths[mo][11]));
       // Rpx::Parsing::replaceOccurences(month, "templateDateRange", "0." +
       // std::to_string(i) + " 30." + std::to_string(i));
       // Rpx::Parsing::replaceOccurences(month, "templateDateRange", "0." +
@@ -250,9 +251,9 @@ void strategicRegions(const std::string &path,
                   content);
   }
 }
-void weatherPositions(const std::string &path,
-                      const std::vector<Fwg::Areas::Region> &regions,
-                      std::vector<StrategicRegion> &strategicRegions) {
+void weatherPositions(
+    const std::string &path, const std::vector<Fwg::Areas::Region> &regions,
+    std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions) {
   Logging::logLine("HOI4 Parser: Map: Creating Storms");
   // 1; 2781.24; 9.90; 1571.49; small
   std::string content{""};
@@ -262,7 +263,7 @@ void weatherPositions(const std::string &path,
   // delete strategic regions that have no ardaRegions
   for (auto i = 0;
        i < strategicRegions.size();) { // Removed increment from here
-    if (strategicRegions[i].ardaRegions.size() == 0) {
+    if (strategicRegions[i]->ardaRegions.size() == 0) {
       // do the erase
       strategicRegions.erase(strategicRegions.begin() + i);
       // No need to decrement i since we're not incrementing it in the loop
@@ -274,7 +275,7 @@ void weatherPositions(const std::string &path,
 
   for (auto i = 0; i < strategicRegions.size(); i++) {
     const auto &region =
-        Fwg::Utils::selectRandom(strategicRegions[i].ardaRegions);
+        Fwg::Utils::selectRandom(strategicRegions[i]->ardaRegions);
     const auto prov = Fwg::Utils::selectRandom(region->provinces);
     const auto pix = Fwg::Utils::selectRandom(prov->pixels);
     auto widthPos = pix % Cfg::Values().width;
@@ -1330,9 +1331,10 @@ void events(const std::string &path) {
   }
 }
 
-void commonBookmarks(const std::string &path, const CountryMap &countries,
-                     const std::map<int, std::vector<std::shared_ptr<Arda::Country>>>
-                         &strengthScores) {
+void commonBookmarks(
+    const std::string &path, const CountryMap &countries,
+    const std::map<int, std::vector<std::shared_ptr<Arda::Country>>>
+        &strengthScores) {
   auto bookmarkTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
                    "hoi4//common//bookmarks//the_gathering_storm.txt");
@@ -1537,12 +1539,12 @@ void stateNames(const std::string &path, const CountryMap &countries) {
 
 void strategicRegionNames(
     const std::string &path,
-    const std::vector<StrategicRegion> &strategicRegions) {
+    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions) {
   Logging::logLine("HOI4 Parser: Map: Naming the Regions");
   std::string content = "l_english:\n";
   for (auto i = 0; i < strategicRegions.size(); i++) {
     content += Fwg::Utils::varsToString(" STRATEGICREGION_", i, ":0 \"",
-                                        strategicRegions[i].name, "\"\n");
+                                        strategicRegions[i]->name, "\"\n");
   }
   pU::writeFile(path + "//strategic_region_names_l_english.yml", content, true);
 }

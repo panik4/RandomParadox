@@ -64,7 +64,7 @@ class GUI : public Arda::ArdaUI {
   int showModuleGeneric(Fwg::Cfg &cfg,
                         std::shared_ptr<Rpx::GenericModule> genericModule);
   int showStrategicRegionTab(Fwg::Cfg &cfg,
-                             std::shared_ptr<Rpx::ModGenerator> generator);
+                             std::shared_ptr<Rpx::ModGenerator>& generator);
   // to display the terrain maps/masks etc
   int showTerrainTab(Fwg::Cfg &cfg, std::shared_ptr<Arda::ArdaGen> generator);
   // HOI stuff

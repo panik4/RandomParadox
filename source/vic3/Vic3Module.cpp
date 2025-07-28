@@ -155,7 +155,7 @@ void Module::generate() {
     vic3Gen->generateCountries<Vic3::Country>();
     vic3Gen->evaluateCountryNeighbours();
     vic3Gen->visualiseCountries(generator->countryMap);
-    vic3Gen->generateStrategicRegions();
+    vic3Gen->generateStrategicRegions<StrategicRegion>();
     // Vic3 specifics:
     vic3Gen->distributePops();
     vic3Gen->distributeResources();
@@ -224,7 +224,7 @@ void Module::writeTextFiles() {
   strategicRegions(
       pathcfg.gameModPath +
           "//common//strategic_regions//randVic_strategic_regions.txt",
-      vic3Gen->strategicRegions, vic3Gen->vic3Regions);
+      vic3Gen->superRegions, vic3Gen->vic3Regions);
   cultureCommon(pathcfg.gameModPath + "//common//cultures//00_cultures.txt",
                 vic3Gen->civData.cultures);
   religionCommon(pathcfg.gameModPath + "//common//religions//religions.txt",

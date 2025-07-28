@@ -1,10 +1,10 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include "namegeneration/NameGenerator.h"
-#include "parsing/ParserUtils.h"
-#include "io/Textures.h"
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4Generator.h"
+#include "io/Textures.h"
+#include "namegeneration/NameGenerator.h"
+#include "parsing/ParserUtils.h"
 #include <array>
 #include <map>
 namespace Rpx::Hoi4::Parsing {
@@ -23,20 +23,22 @@ void continents(const std::string &path,
                 const std::vector<Arda::ArdaContinent> &continents,
                 const std::string &hoiPath,
                 const std::string &localisationPath);
-void definition(const std::string &path,
-                const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
-void strategicRegions(const std::string &path,
-                      const std::vector<Fwg::Areas::Region> &regions,
-                      const std::vector<StrategicRegion> &strategicRegions);
+void definition(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
+void strategicRegions(
+    const std::string &path, const std::vector<Fwg::Areas::Region> &regions,
+    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions);
 void supply(const std::string &path,
             const std::vector<std::vector<int>> &supplyNodeConnections);
-void unitStacks(const std::string &path,
-                const std::vector<std::shared_ptr<Arda::ArdaProvince>> provinces,
-                const std::vector<std::shared_ptr<Region>> regions,
-                const std::vector<float> &heightMap);
-void weatherPositions(const std::string &path,
-                      const std::vector<Fwg::Areas::Region> &regions,
-                      std::vector<StrategicRegion> &strategicRegions);
+void unitStacks(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> provinces,
+    const std::vector<std::shared_ptr<Region>> regions,
+    const std::vector<float> &heightMap);
+void weatherPositions(
+    const std::string &path, const std::vector<Fwg::Areas::Region> &regions,
+    std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions);
 
 } // namespace Map
 
@@ -95,8 +97,9 @@ namespace Localisation {
 void countryNames(const std::string &path, const CountryMap &countries,
                   const Arda::Names::NameData &nData);
 void stateNames(const std::string &path, const CountryMap &countries);
-void strategicRegionNames(const std::string &path,
-                          const std::vector<StrategicRegion> &strategicRegions);
+void strategicRegionNames(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions);
 void victoryPointNames(const std::string &path,
                        const std::vector<std::shared_ptr<Region>> &regions);
 
