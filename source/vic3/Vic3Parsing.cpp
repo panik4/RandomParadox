@@ -203,7 +203,7 @@ void writeMetadata(const std::string &path) {
   pU::writeFile(path, templateFile);
 }
 void strategicRegions(const std::string &path,
-                      const std::vector<StrategicRegion> &strategicRegions,
+    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions,
                       const std::vector<std::shared_ptr<Region>> &regions) {
 
   Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Strategig Regions");
@@ -216,14 +216,14 @@ void strategicRegions(const std::string &path,
     std::string states{""};
     std::string capital;
     bool capitalSelected = false;
-    for (const auto &state : region.ardaRegions) {
+    for (const auto &state : region->ardaRegions) {
       states.append(" STATE_" + state->name);
       if (!capitalSelected) {
         capitalSelected = true;
         capital = state->ardaProvinces[0]->toHexString();
       }
     }
-    Rpx::Parsing::replaceOccurences(content, "template_name", region.name);
+    Rpx::Parsing::replaceOccurences(content, "template_name", region->name);
     Rpx::Parsing::replaceOccurences(content, "template_states", states);
     Rpx::Parsing::replaceOccurences(content, "template_capital", capital);
 

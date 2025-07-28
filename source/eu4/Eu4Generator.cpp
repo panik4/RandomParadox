@@ -32,12 +32,12 @@ void Generator::generateRegions(
     }
   }
   Bitmap eu4RegionBmp(Cfg::Values().width, Cfg::Values().height, 24);
-  for (auto &strat : eu4regions) {
+  for (auto &stratRegion : eu4regions) {
     Colour c{
         static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255),
         static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255),
         static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255)};
-    for (auto &area : strat.areaIDs) {
+    for (auto &area : stratRegion.areaIDs) {
       c.setBlue(regions[area]->isSea() ? 255 : 0);
       for (auto &prov : regions[area]->ardaProvinces) {
         for (auto &pix : prov->baseProvince->pixels) {

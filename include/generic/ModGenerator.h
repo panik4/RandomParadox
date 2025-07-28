@@ -17,15 +17,11 @@ class ModGenerator : public Arda::ArdaGen {
 
 public:
   // vars - used for every game
-  std::vector<StrategicRegion> strategicRegions;
   ModGenerator();
   ModGenerator(const std::string &configSubFolder);
   ModGenerator(Arda::ArdaGen &scenGen);
   ~ModGenerator();
 
-  // build strategic regions from ardaRegions
-  void generateStrategicRegions();
-  Fwg::Gfx::Bitmap visualiseStrategicRegions(const int ID = -1);
   // mapping terrain types of FastWorldGen to module
   // compatible terrains
   virtual Fwg::Gfx::Bitmap mapTerrain();

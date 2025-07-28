@@ -291,11 +291,12 @@ void Generator::generateStateSpecifics() {
     if (!hoi4State->isLand())
       continue;
 
-    // state level is calculated from population and development
-    hoi4State->stateCategory =
-        std::clamp((int)(2.0 + 3.0 * hoi4State->worldEconomicActivityShare /
-                                   averageEconomicActivity),
-                   0, 9);
+    double ratio =
+        hoi4State->worldEconomicActivityShare / averageEconomicActivity;
+    double biased =
+        std::pow(ratio, 0.6); // 0.6 flattens large values more than small ones
+    hoi4State->stateCategory = std::clamp((int)(1.0 + 4.0 * biased), 0, 9);
+
     hoi4State->infrastructure =
         std::clamp((int)(1.0 +
                          (hoi4State->worldEconomicActivityShare /
@@ -529,8 +530,9 @@ void Generator::generateCountrySpecifics() {
 }
 
 void Generator::generateWeather() {
-  for (auto &strat : strategicRegions) {
-    for (auto &reg : strat.ardaRegions) {
+  for (auto &superRegion : superRegions) {
+    auto stratRegion = std::dynamic_pointer_cast<StrategicRegion>(superRegion);
+    for (auto &reg : stratRegion->ardaRegions) {
       for (auto i = 0; i < 12; i++) {
         double averageTemperature = 0.0;
         double averageDeviation = 0.0;
@@ -545,31 +547,31 @@ void Generator::generateWeather() {
         averageTemperature /= divisor;
         averagePrecipitation /= divisor;
         // now save monthly data, 0, 1, 2
-        strat.weatherMonths.push_back(
+        stratRegion->weatherMonths.push_back(
             {averageDeviation, averageTemperature, averagePrecipitation});
         // temperature low, 3
-        strat.weatherMonths[i].push_back(Cfg::Values().minimumDegCelcius +
+        stratRegion->weatherMonths[i].push_back(Cfg::Values().minimumDegCelcius +
                                          averageTemperature *
                                              Cfg::Values().temperatureRange);
         // tempHigh, 4
-        strat.weatherMonths[i].push_back(
+        stratRegion->weatherMonths[i].push_back(
             Cfg::Values().minimumDegCelcius +
             averageTemperature * Cfg::Values().temperatureRange +
             averageDeviation * Cfg::Values().deviationFactor);
         // light_rain chance: cold and humid -> high, 5
-        strat.weatherMonths[i].push_back(
+        stratRegion->weatherMonths[i].push_back(
             this->weatherChances.at("baseLightRainChance") *
             (1.0 - averageTemperature) * averagePrecipitation);
         // heavy rain chance: warm and humid -> high, 6
-        strat.weatherMonths[i].push_back(
+        stratRegion->weatherMonths[i].push_back(
             this->weatherChances.at("baseHeavyRainChance") *
             averageTemperature * averagePrecipitation);
         // mud chance, 7
-        strat.weatherMonths[i].push_back(
+        stratRegion->weatherMonths[i].push_back(
             this->weatherChances.at("baseMudChance") *
-            (2.0 * strat.weatherMonths[i][6] + strat.weatherMonths[i][5]));
+            (2.0 * stratRegion->weatherMonths[i][6] + stratRegion->weatherMonths[i][5]));
         // blizzard chance, 8
-        strat.weatherMonths[i].push_back(
+        stratRegion->weatherMonths[i].push_back(
             std::clamp(this->weatherChances.at("baseBlizzardChance") -
                            averageTemperature,
                        0.0, 0.2) *
@@ -580,18 +582,18 @@ void Generator::generateWeather() {
                            this->weatherChances.at("baseSandstormChance"),
                        0.0, 0.1) *
             std::clamp(0.2 - averagePrecipitation, 0.0, 0.2);
-        strat.weatherMonths[i].push_back(snadChance);
+        stratRegion->weatherMonths[i].push_back(snadChance);
         // snow chance, 10
-        strat.weatherMonths[i].push_back(
+        stratRegion->weatherMonths[i].push_back(
             std::clamp(this->weatherChances.at("baseSnowChance") -
                            averageTemperature,
                        0.0, 0.2) *
             averagePrecipitation);
         // no phenomenon chance, 11
-        strat.weatherMonths[i].push_back(
-            1.0 - strat.weatherMonths[i][5] - strat.weatherMonths[i][6] -
-            strat.weatherMonths[i][8] - strat.weatherMonths[i][9] -
-            strat.weatherMonths[i][10]);
+        stratRegion->weatherMonths[i].push_back(
+            1.0 - stratRegion->weatherMonths[i][5] - stratRegion->weatherMonths[i][6] -
+            stratRegion->weatherMonths[i][8] - stratRegion->weatherMonths[i][9] -
+            stratRegion->weatherMonths[i][10]);
       }
     }
   }
@@ -902,25 +904,25 @@ void Generator::generateTechLevels() {
 
   auto infantryTechsFile =
       Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
-                        "//hoi4//common//technologies//infantryTechs.txt");
+                             "//hoi4//common//technologies//infantryTechs.txt");
   std::map<TechEra, std::vector<Technology>> infantryTechs;
   createTech(infantryTechsFile, infantryTechs);
 
   auto armorTechsFile =
       Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
-                        "//hoi4//common//technologies//armorTechs.txt");
+                             "//hoi4//common//technologies//armorTechs.txt");
   std::map<TechEra, std::vector<Technology>> armorTechs;
   createTech(armorTechsFile, armorTechs);
 
   auto airTechsFile =
       Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
-                        "//hoi4//common//technologies//airTechs.txt");
+                             "//hoi4//common//technologies//airTechs.txt");
   std::map<TechEra, std::vector<Technology>> airTechs;
   createTech(airTechsFile, airTechs);
 
   auto navyTechsFile =
       Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
-                        "//hoi4//common//technologies//navyTechs.txt");
+                             "//hoi4//common//technologies//navyTechs.txt");
   std::map<TechEra, std::vector<Technology>> navyTechs;
   createTech(navyTechsFile, navyTechs);
 
@@ -1050,7 +1052,8 @@ void Generator::evaluateCountries() {
     for (const auto &entry : it->second) {
       if (entry->importanceScore > 0.0) {
         entry->relativeScore = (double)it->first / maxScore;
-        if (numMajorPowers > countriesByRank.at(Arda::Rank::GreatPower).size()) {
+        if (numMajorPowers >
+            countriesByRank.at(Arda::Rank::GreatPower).size()) {
           countriesByRank[Arda::Rank::GreatPower].push_back(entry);
           entry->rank = Arda::Rank::GreatPower;
         } else if (numSecondaryPowers >
@@ -1359,7 +1362,7 @@ void Generator::generateCountryUnits() {
   for (auto &country : hoi4Countries) {
     // first determine total army strength based on arms industry
     // TODO add a factor to settings
-    country->totalArmyStrength = country->armsFactories * 30;
+    country->totalArmyStrength = country->armsFactories * 10;
 
     // basic idea: we create unit templates first. We start with irregulars,
     // then infantry only, then infantry with support, then infantry with
@@ -1797,8 +1800,8 @@ void Generator::generatePositions() {
     } else {
       position = gameProv->baseProvince->position;
     }
-    gameProv->positions.push_back(
-        createPosition(position, Arda::PositionType::VictoryPoint, 38, landForms));
+    gameProv->positions.push_back(createPosition(
+        position, Arda::PositionType::VictoryPoint, 38, landForms));
 
     // now we get neighbour relations for a province, but in a very short
     // distance to the centre.
@@ -1850,8 +1853,8 @@ void Generator::generatePositions() {
         position = (*portLocation)->position;
       }
 
-      gameProv->positions.push_back(
-          createPosition(position, Arda::PositionType::ShipInPort, 19, landForms));
+      gameProv->positions.push_back(createPosition(
+          position, Arda::PositionType::ShipInPort, 19, landForms));
       gameProv->positions.push_back(createPosition(
           position, Arda::PositionType::ShipInPortMoving, 20, landForms));
     }
@@ -1871,12 +1874,12 @@ void Generator::generatePositions() {
         break;
       }
 
-      gameProv->positions.push_back(
-          createPosition(neighbour->positionToNeighbour,
-                         Arda::PositionType::UnitMoving, 1 + counter, landForms));
-      gameProv->positions.push_back(
-          createPosition(neighbourRelations[counter].positionToNeighbour,
-                         Arda::PositionType::UnitMovingRG, 22 + counter, landForms));
+      gameProv->positions.push_back(createPosition(
+          neighbour->positionToNeighbour, Arda::PositionType::UnitMoving,
+          1 + counter, landForms));
+      gameProv->positions.push_back(createPosition(
+          neighbourRelations[counter].positionToNeighbour,
+          Arda::PositionType::UnitMovingRG, 22 + counter, landForms));
       if (sea) {
         // now we add the embark positions, which are the same as the
         // neighbour relations, but with a different type
@@ -1891,10 +1894,11 @@ void Generator::generatePositions() {
       }
     }
     // now sort by typeIndex
-    std::sort(gameProv->positions.begin(), gameProv->positions.end(),
+    std::sort(
+        gameProv->positions.begin(), gameProv->positions.end(),
         [](const Arda::ScenarioPosition &a, const Arda::ScenarioPosition &b) {
-                return a.typeIndex < b.typeIndex;
-              });
+          return a.typeIndex < b.typeIndex;
+        });
   }
 }
 
@@ -2068,12 +2072,13 @@ void Generator::generateCharacters() {
   for (auto &country : hoi4Countries) {
     if (!country->ownedRegions.size())
       continue;
+    country->characters.clear();
     // per country, we want to avoid duplicate names
     std::set<std::string> usedNames;
     // we want of every ideology: Neutral, Fascist, Communist, Democratic
-    std::vector<Arda::Ideology> ideologies = {Arda::Ideology::Neutral, Arda::Ideology::Fascist,
-                                        Arda::Ideology::Communist,
-                                        Arda::Ideology::Democratic};
+    std::vector<Arda::Ideology> ideologies = {
+        Arda::Ideology::Neutral, Arda::Ideology::Fascist,
+        Arda::Ideology::Communist, Arda::Ideology::Democratic};
 
     auto createCharacter = [&](Arda::Type type, Arda::Ideology ideology,
                                const std::vector<std::string> &traits,
@@ -2110,19 +2115,24 @@ void Generator::generateCharacters() {
       createCharacter(Arda::Type::Leader, ideology, leaderTraits[ideology], 1);
 
       // 6 Politicians
-      createCharacter(Arda::Type::Politician, ideology, leaderTraits[ideology], 6);
+      createCharacter(Arda::Type::Politician, ideology, leaderTraits[ideology],
+                      6);
 
       // 4 Command Generals
-      createCharacter(Arda::Type::ArmyChief, ideology, armyChiefTraits, 4, true);
+      createCharacter(Arda::Type::ArmyChief, ideology, armyChiefTraits, 4,
+                      true);
 
       // 2 Command Admirals
-      createCharacter(Arda::Type::NavyChief, ideology, navyChiefTraits, 2, true);
+      createCharacter(Arda::Type::NavyChief, ideology, navyChiefTraits, 2,
+                      true);
 
       // 2 Airforce Chiefs
-      createCharacter(Arda::Type::AirForceChief, ideology, airChiefTraits, 2, true);
+      createCharacter(Arda::Type::AirForceChief, ideology, airChiefTraits, 2,
+                      true);
 
       // 6 High Command
-      createCharacter(Arda::Type::HighCommand, ideology, highCommandTraits, 6, true);
+      createCharacter(Arda::Type::HighCommand, ideology, highCommandTraits, 6,
+                      true);
 
       // 2 Generals
       createCharacter(Arda::Type::ArmyGeneral, ideology, {}, 0);

@@ -2,8 +2,8 @@
 #include "UI/GUI.h"
 #include "eu4/Eu4Module.h"
 #include "generic/ArdaGen.h"
-#include "io/Textures.h"
 #include "hoi4/Hoi4Module.h"
+#include "io/Textures.h"
 #include "vic3/Vic3Module.h"
 #include <filesystem>
 

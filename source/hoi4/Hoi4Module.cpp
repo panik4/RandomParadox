@@ -196,12 +196,12 @@ void Hoi4Module::writeTextFiles() {
   Map::definition(pathcfg.gameModPath + "//map//definition.csv",
                   hoi4Gen->ardaProvinces);
   Map::strategicRegions(pathcfg.gameModPath + "//map//strategicregions",
-                        hoi4Gen->areaData.regions, hoi4Gen->strategicRegions);
+                        hoi4Gen->areaData.regions, hoi4Gen->superRegions);
   Map::unitStacks(pathcfg.gameModPath + "//map//unitstacks.txt",
                   hoi4Gen->ardaProvinces, hoi4Gen->hoi4States,
                   hoi4Gen->terrainData.detailedHeightMap);
   Map::weatherPositions(pathcfg.gameModPath + "//map//weatherpositions.txt",
-                        hoi4Gen->areaData.regions, hoi4Gen->strategicRegions);
+                        hoi4Gen->areaData.regions, hoi4Gen->superRegions);
 
   Countries::commonCountryTags(pathcfg.gameModPath +
                                    "//common//country_tags//02_countries.txt",
@@ -251,7 +251,7 @@ void Hoi4Module::writeLocalisation() {
   countryNames(pathcfg.gameModPath + "//localisation//english//",
                hoi4Gen->hoi4Countries, hoi4Gen->nData);
   strategicRegionNames(pathcfg.gameModPath + "//localisation//english//",
-                       hoi4Gen->strategicRegions);
+                       hoi4Gen->superRegions);
   victoryPointNames(pathcfg.gameModPath + "//localisation//english//",
                     hoi4Gen->hoi4States);
 }
@@ -429,7 +429,7 @@ void Hoi4Module::generate() {
     hoi4Gen->generatePositions();
 
     // non-country stuff
-    hoi4Gen->generateStrategicRegions();
+    hoi4Gen->generateStrategicRegions<StrategicRegion>();
     hoi4Gen->generateWeather();
   } catch (std::exception e) {
     std::string error = "Error while generating the Hoi4 Module.\n";

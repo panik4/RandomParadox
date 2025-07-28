@@ -88,17 +88,17 @@ void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
     ImGui::BeginDisabled();
   }
   if (activeGameConfig.gameName == "Hearts of Iron IV") {
-    auto hoi4Gen = std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
+    auto hoi4Gen = std::reinterpret_pointer_cast<Hoi4Gen, Rpx::ModGenerator>(
         activeModule->generator);
-    showStrategicRegionTab(cfg, hoi4Gen);
+    showStrategicRegionTab(cfg, activeModule->generator);
     showCountryTab(cfg);
     showHoi4Finalise(
         cfg, std::reinterpret_pointer_cast<Rpx::Hoi4::Hoi4Module,
                                            Rpx::GenericModule>(activeModule));
   } else if (activeGameConfig.gameName == "Victoria 3") {
-    auto vic3Gen = std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
+    auto vic3Gen = std::reinterpret_pointer_cast<Vic3Gen, Rpx::ModGenerator>(
         activeModule->generator);
-    showStrategicRegionTab(cfg, vic3Gen);
+    showStrategicRegionTab(cfg, activeModule->generator);
     showCountryTab(cfg);
     showNavmeshTab(cfg, *activeModule->generator);
     showVic3Finalise(
@@ -908,11 +908,13 @@ int GUI::showModuleGeneric(Fwg::Cfg &cfg,
 }
 
 int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
-                                std::shared_ptr<Rpx::ModGenerator> generator) {
+                                std::shared_ptr<Rpx::ModGenerator> &generator) {
   if (ImGui::BeginTabItem("Strategic Regions")) {
     // tab switch setting draw events as accepted
     if (uiUtils->tabSwitchEvent(true)) {
-      uiUtils->updateImage(0, generator->visualiseStrategicRegions());
+      uiUtils->updateImage(
+          0, Arda::Gfx::visualiseStrategicRegions(generator->superRegionMap,
+                                                  generator->superRegions));
       uiUtils->updateImage(1, Fwg::Gfx::Bitmap());
     }
     static int selectedStratRegionIndex = 0;
@@ -925,7 +927,7 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
       if (ImGui::Button("Generate strategic regions")) {
         // non-country stuff
         computationFutureBool = runAsync([&generator, &cfg, this]() {
-          generator->generateStrategicRegions();
+          generator->generateStrategicRegions<Rpx::StrategicRegion>();
           uiUtils->resetTexture();
           if (activeGameConfig.gameName == "Hearts of Iron IV") {
             auto hoi4Gen =
@@ -943,7 +945,8 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
       }
       ImGui::SameLine();
       if (ImGui::Button("Visualise current strategic regions")) {
-        generator->visualiseStrategicRegions();
+        Arda::Gfx::visualiseStrategicRegions(generator->superRegionMap,
+                                             generator->superRegions);
         uiUtils->resetTexture();
       }
       ImGui::Checkbox("Draw strategic regions", &drawBorders);
@@ -954,6 +957,7 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
           "No loading of strategic regions supported at this time");
       triggeredDrag = false;
     }
+
     auto &clickEvents = uiUtils->clickEvents;
     if (clickEvents.size()) {
       auto pix = clickEvents.front();
@@ -962,16 +966,34 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
       if (generator->areaData.provinceColourMap.find(colour)) {
         const auto &prov = generator->areaData.provinceColourMap[colour];
         auto &state = generator->ardaRegions[prov->regionID];
-        auto &stratRegion = generator->strategicRegions[state->superRegionID];
+        auto &stratRegion = generator->superRegions[state->superRegionID];
         if (drawBorders) {
-          auto &rootRegion =
-              generator->strategicRegions[selectedStratRegionIndex];
-          stratRegion.removeRegion(state);
-          rootRegion.addRegion(state);
+          auto &rootRegion = generator->superRegions[selectedStratRegionIndex];
+          stratRegion->removeRegion(state);
+          // if the stratRegion is now empty of regions, remove it
+          if (stratRegion->ardaRegions.empty()) {
+            generator->superRegions.erase(
+                std::remove(generator->superRegions.begin(),
+                            generator->superRegions.end(), stratRegion),
+                generator->superRegions.end());
+            // update all strategic regions IDs
+            for (size_t i = 0; i < generator->superRegions.size(); i++) {
+              generator->superRegions[i]->ID = i;
+              for (auto &region : generator->superRegions[i]->ardaRegions) {
+                region->superRegionID = i;
+              }
+            }
+            Fwg::Utils::Logging::logLine(
+                "Removed empty strategic region with ID: ", stratRegion->ID);
+          }
+
+          rootRegion->addRegion(state);
           uiUtils->updateImage(
-              0, generator->visualiseStrategicRegions(stratRegion.ID));
+              0, Arda::Gfx::visualiseStrategicRegions(generator->superRegionMap,
+                                                      generator->superRegions,
+                                                      stratRegion->ID));
         } else {
-          selectedStratRegionIndex = stratRegion.ID;
+          selectedStratRegionIndex = stratRegion->ID;
         }
       }
     }
@@ -1031,7 +1053,7 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg,
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
     auto &generator = hoi4Module->hoi4Gen;
-    if (generator->strategicRegions.size() && generator->provinceMap.size() &&
+    if (generator->superRegions.size() && generator->provinceMap.size() &&
         generator->statesInitialised && !requireCountryDetails) {
 
       if (ImGui::Button("Export complete mod")) {
@@ -1151,7 +1173,7 @@ int GUI::showVic3Finalise(Fwg::Cfg &cfg,
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
     const auto &generator = vic3Module->getGenerator();
-    if (generator->strategicRegions.size()) {
+    if (generator->superRegions.size()) {
       if (ImGui::Button("Export mod")) {
         computationFutureBool = runAsync([generator, vic3Module, &cfg, this]() {
           // Vic3 specifics:
