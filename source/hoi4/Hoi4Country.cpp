@@ -1,6 +1,7 @@
 #include "hoi4/Hoi4Country.h"
 
 namespace Rpx::Hoi4 {
+Hoi4Country::Hoi4Country() : Arda::Country() {}
 Hoi4Country::Hoi4Country(std::string tag, int ID, std::string name,
                          std::string adjective, Arda::Gfx::Flag flag)
     : Arda::Country(tag, ID, name, adjective, flag) {}
@@ -17,7 +18,7 @@ void Hoi4Country::addAirBase(int level) {
   if (region->airBase == nullptr) {
     region->airBase = std::make_shared<AirBase>();
     region->airBase->level = level;
-    // find the building for the airbase 
+    // find the building for the airbase
     for (const auto &building : region->buildings) {
       if (building.name == "air_base") {
         region->airBase->provinceID = building.provinceID;

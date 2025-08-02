@@ -1,6 +1,7 @@
 #pragma once
 #include "parsing/ParserUtils.h"
 #include "generic/ModGenerator.h"
+#include "countries/CountryGen.h"
 #include "utils/RpxUtils.h"
 #include "utils/Logging.h"
 #include <boost/property_tree/json_parser.hpp>

@@ -13,7 +13,7 @@ namespace Rpx::Hoi4 {
 
 class Hoi4Country : public Arda::Country {
 public:
-
+  Hoi4Country();
   Hoi4Country(std::string tag, int ID, std::string name, std::string adjective,
               Arda::Gfx::Flag flag);
   Hoi4Country(Arda::Country &country,

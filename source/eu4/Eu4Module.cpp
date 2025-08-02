@@ -6,9 +6,8 @@ Module::Module(const boost::property_tree::ptree &gamesConf,
                const std::string &configSubFolder,
                const std::string &username) {
   generator = std::make_shared<Rpx::Eu4::Generator>((configSubFolder));
-  eu4Gen =
-      std::reinterpret_pointer_cast<Rpx::Eu4::Generator, Arda::ArdaGen>(
-          generator);
+  eu4Gen = std::reinterpret_pointer_cast<Rpx::Eu4::Generator, Arda::ArdaGen>(
+      generator);
   // read eu4 configs and potentially overwrite settings for fwg
   readEu4Config(configSubFolder, username, gamesConf);
 
@@ -126,9 +125,13 @@ void Module::generate() {
     Arda::Civilization::generateWorldCivilizations(
         eu4Gen->ardaRegions, eu4Gen->ardaProvinces, eu4Gen->civData,
         eu4Gen->scenContinents);
-    eu4Gen->generateCountries<Arda::Country>();
-    eu4Gen->evaluateCountryNeighbours();
-    eu4Gen->visualiseCountries(generator->countryMap);
+
+    auto countryFactory = []() -> std::shared_ptr<Arda::Country> {
+      return std::make_shared<Arda::Country>();
+    };
+    // generate country data
+    eu4Gen->generateCountries(countryFactory);
+
     eu4Gen->generateRegions(eu4Gen->ardaRegions);
   } catch (std::exception e) {
     std::string error = "Error while generating the Eu4 Module.\n";

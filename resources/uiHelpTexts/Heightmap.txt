@@ -1,0 +1,25 @@
+
+Here, you can generate a heightmap or load one by dragging in an image.
+You can also skip this step if you have a terrain map that you want to input, you can do this in the Land Input tab.
+When generating an image, you have a large amount of settings available and can also manipulate settings for individual layers of the heightmap.
+	- SeaLevel: The target sealevel. The heightmap will be adjusted to match this, please note that for the different games these values are hardcoded, only change if you know what you are doing.
+	- LandPercentage: The target share of land
+	- Height Adjustments: Negative numbers lower the heightmap, positive numbers increase it
+	- Landlayer coastal distance factor: When land layers are applied to the generated heightmap, they keep a distance to the coast, from which on they decrease, to avoid mountains directly at the coasts. The higher, the larger the distance
+	- Maximum lake size factor: Determines which seabodies will be classified as lakes, e.g. the larger this is, the larger bodies of water can be before detected as lakes.
+	- Maximum land height: Determines the maximum height of the heightmap on land. Must be larger than sealevel. If equal to sealevel + 1, the map will be completely flat.
+
+Individual layer settings
+Heightmaps are generated from multiple combined layers. To edit these layers, check the "Layer Edit" box. Please note that this is pretty advanced and not necessary to edit in most cases! Each layer has different properties:
+	- type: the fractal type that is used
+	- landLayer: if this layer will be applied only to land after the basic continent shape has already been determined
+	- fractalFrequency: the higher, the smaller the fractals
+	- fractalOctaves: affects ruggedness
+	- fractalGain: how rugged the generation is
+	- seed: individual seed for a layer, if 0, it is automatically determined based on the base seed
+	- widthEdge: from when on terrain height falls towards the east/west edges of the map
+	- heightEdge: from when on terrain height falls towards the north/- south edges of the map
+	- weight: how much this single layer is weighted relative to the other layers
+	- maxHeight: what the total maximum height present in this layer can be. Should be between 1 and 255
+	- minHeight: what the total maximum height present in this layer can be. Should be between 1 and 255, and smaller maxHeight
+	- tanFactor: how quickly land height increases. Can produce really rugged layers, specifically good for e.g. mountain ranges. Range between 0.00 and 0.26
