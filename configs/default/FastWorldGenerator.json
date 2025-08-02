@@ -73,7 +73,6 @@
 			{
 				"auto" : true,
 				"landProvinceFactor" : 1.0,
-				"landProvinceFactor" : 1.0,
 				"seaProvinceFactor" : 1.0,
 				"minProvSize" : 20,
 				"provinceDensityEffects" : 1.0,

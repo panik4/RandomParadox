@@ -1,6 +1,7 @@
 #include "vic3/Vic3Country.h"
 
 namespace Rpx::Vic3 {
+Country::Country() : Arda::Country() {}
 Country::Country(std::string tag, int ID, std::string name,
                  std::string adjective, Arda::Gfx::Flag flag)
     : Arda::Country(tag, ID, name, adjective, flag) {}

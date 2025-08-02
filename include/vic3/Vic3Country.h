@@ -14,6 +14,7 @@ class Country : public Arda::Country {
   };
 
 public:
+  Country();
   Country(std::string tag, int ID, std::string name, std::string adjective,
           Arda::Gfx::Flag flag);
   Country(Arda::Country &country,

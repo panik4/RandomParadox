@@ -5,8 +5,8 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
                        const std::string &configSubFolder,
                        const std::string &username, const bool editMode) {
   generator = std::make_shared<Rpx::Hoi4::Generator>((configSubFolder));
-  hoi4Gen = std::reinterpret_pointer_cast<Rpx::Hoi4::Generator,
-                                          Arda::ArdaGen>(generator);
+  hoi4Gen = std::reinterpret_pointer_cast<Rpx::Hoi4::Generator, Arda::ArdaGen>(
+      generator);
   const auto &config = Fwg::Cfg::Values();
   // set the executable subpath
   this->executableSubPath = "hoi4.exe";
@@ -229,7 +229,7 @@ void Hoi4Module::writeTextFiles() {
                        hoi4Gen->hoi4Countries);
   Countries::states(pathcfg.gameModPath + "//history//states",
                     hoi4Gen->hoi4States);
-  
+
   aiStrategy(pathcfg.gameModPath + "//common//", hoi4Gen->scenContinents);
   events(pathcfg.gameModPath + "//");
   commonBookmarks(pathcfg.gameModPath + "//common//bookmarks//",
@@ -409,16 +409,12 @@ void Hoi4Module::generate() {
     // generate state information
     hoi4Gen->generateStateSpecifics();
     hoi4Gen->generateStateResources();
-
+    auto countryFactory = []() -> std::shared_ptr<Hoi4Country> {
+      return std::make_shared<Hoi4Country>();
+    };
     // generate country data
-    hoi4Gen->generateCountries<Hoi4::Hoi4Country>();
-    // first gather generic neighbours, they will be mapped to hoi4 countries in
-    // mapCountries
-    hoi4Gen->evaluateCountryNeighbours();
-    // build hoi4 countries out of basic countries
-    hoi4Gen->mapCountries();
-    // should work with countries = 0
-    hoi4Gen->evaluateCountries();
+    hoi4Gen->generateCountries(countryFactory);
+
     hoi4Gen->generateLogistics();
     // politics, etc
     hoi4Gen->generateCountrySpecifics();
@@ -429,7 +425,10 @@ void Hoi4Module::generate() {
     hoi4Gen->generatePositions();
 
     // non-country stuff
-    hoi4Gen->generateStrategicRegions<StrategicRegion>();
+    auto stratFactory = []() -> std::shared_ptr<StrategicRegion> {
+      return std::make_shared<StrategicRegion>();
+    };
+    hoi4Gen->generateStrategicRegions(stratFactory);
     hoi4Gen->generateWeather();
   } catch (std::exception e) {
     std::string error = "Error while generating the Hoi4 Module.\n";

@@ -265,6 +265,10 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
           ImGui::SameLine();
           imageWrapper(io);
           ImGui::End();
+
+          if (uiUtils->showExtendedHelp) {
+            uiUtils->showAdvancedTextBox();
+          }
         }
 
         // Rendering
@@ -707,7 +711,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
     if (uiUtils->tabSwitchEvent(true)) {
       uiUtils->updateImage(
           0, generator->visualiseCountries(generator->countryMap));
-      uiUtils->updateImage(1, generator->worldMap);
+      uiUtils->updateImage(1, Fwg::Gfx::Bitmap());
     }
 
     ImGui::Text(
@@ -729,39 +733,36 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
     if (isRelevantModuleActive("hoi4")) {
       auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
       if (ImGui::Button("Generate state data")) {
-        hoi4Gen->generateStateSpecifics();
-        hoi4Gen->generateStateResources();
-        // generate generic world data
-        Arda::Civilization::generateWorldCivilizations(
-            hoi4Gen->ardaRegions, hoi4Gen->ardaProvinces, hoi4Gen->civData,
-            hoi4Gen->scenContinents);
-        Arda::Civilization::generateImportance(hoi4Gen->ardaRegions);
+        computationFutureBool = runAsync([hoi4Gen, &cfg, this]() {
+          hoi4Gen->generateStateSpecifics();
+          hoi4Gen->generateStateResources();
+          // generate generic world data
+          Arda::Civilization::generateWorldCivilizations(
+              hoi4Gen->ardaRegions, hoi4Gen->ardaProvinces, hoi4Gen->civData,
+              hoi4Gen->scenContinents);
+          Arda::Civilization::generateImportance(hoi4Gen->ardaRegions);
+          requireCountryDetails = true;
+          return true;
+        });
       }
       if (!hoi4Gen->statesInitialised) {
         ImGui::Text("Generate state data first");
       } else {
         if (ImGui::Button("Randomly distribute countries")) {
-          computationFutureBool = runAsync([&hoi4Gen, &cfg, this]() {
-            // hoi4Gen->generateCountries<Rpx::Hoi4::Hoi4Country>();
+          computationFutureBool = runAsync([&generator, &cfg, this]() {
+            auto countryFactory =
+                []() -> std::shared_ptr<Rpx::Hoi4::Hoi4Country> {
+              return std::make_shared<Rpx::Hoi4::Hoi4Country>();
+            };
+            // generate country data
+            generator->generateCountries(countryFactory);
 
-            //// first gather generic neighbours, they will be mapped to hoi4
-            //// countries in mapCountries
-            // hoi4Gen->evaluateCountryNeighbours();
-            //// build hoi4 countries out of basic countries
-            // hoi4Gen->mapCountries();
-            // requireCountryDetails = true;
-            // uiUtils->resetTexture();
+            // build hoi4 countries out of basic countries
+            generator->mapCountries();
+            requireCountryDetails = true;
+            uiUtils->resetTexture();
             return true;
           });
-          hoi4Gen->generateCountries<Rpx::Hoi4::Hoi4Country>();
-
-          // first gather generic neighbours, they will be mapped to hoi4
-          // countries in mapCountries
-          hoi4Gen->evaluateCountryNeighbours();
-          // build hoi4 countries out of basic countries
-          hoi4Gen->mapCountries();
-          requireCountryDetails = true;
-          uiUtils->resetTexture();
         }
         ImGui::SameLine();
         if (requireCountryDetails) {
@@ -769,25 +770,21 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
                                 ImVec4(1.0f, 0.2f, 0.2f, 1.0f)); // Red
         }
         if (ImGui::Button("Generate country data")) {
-          computationFutureBool = runAsync([&hoi4Gen, &cfg, this]() {
-            // hoi4Gen->evaluateCountryNeighbours();
-            // hoi4Gen->evaluateCountries();
-            // hoi4Gen->generateLogistics();
-            // hoi4Gen->generateCountrySpecifics();
-            // hoi4Gen->generateFocusTrees();
-            // hoi4Gen->distributeVictoryPoints();
-            // hoi4Gen->generatePositions();
-            // requireCountryDetails = false;
+          computationFutureBool = runAsync([hoi4Gen, &cfg, this]() {
+            auto countryFactory =
+                []() -> std::shared_ptr<Rpx::Hoi4::Hoi4Country> {
+              return std::make_shared<Rpx::Hoi4::Hoi4Country>();
+            };
+            hoi4Gen->generateCountries(countryFactory);
+
+            hoi4Gen->generateLogistics();
+            hoi4Gen->generateCountrySpecifics();
+            hoi4Gen->generateFocusTrees();
+            hoi4Gen->distributeVictoryPoints();
+            hoi4Gen->generatePositions();
+            requireCountryDetails = false;
             return true;
           });
-          hoi4Gen->evaluateCountryNeighbours();
-          hoi4Gen->evaluateCountries();
-          hoi4Gen->generateLogistics();
-          hoi4Gen->generateCountrySpecifics();
-          hoi4Gen->generateFocusTrees();
-          hoi4Gen->distributeVictoryPoints();
-          hoi4Gen->generatePositions();
-          requireCountryDetails = false;
         }
         if (requireCountryDetails) {
           ImGui::PopStyleColor();
@@ -844,7 +841,9 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
             generator->loadCountries<Arda::Country>(
                 draggedFile, generator->countryMappingPath);
           }
-          generator->evaluateCountryNeighbours();
+          Arda::Countries::evaluateCountryNeighbours(
+              generator->areaData.regions, generator->ardaRegions,
+              generator->countries);
           // build module specific countries out of basic countries
           generator->mapCountries();
           uiUtils->resetTexture();
@@ -927,7 +926,11 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
       if (ImGui::Button("Generate strategic regions")) {
         // non-country stuff
         computationFutureBool = runAsync([&generator, &cfg, this]() {
-          generator->generateStrategicRegions<Rpx::StrategicRegion>();
+          // non-country stuff
+          auto factory = []() -> std::shared_ptr<Rpx::StrategicRegion> {
+            return std::make_shared<Rpx::StrategicRegion>();
+          };
+          generator->generateStrategicRegions(factory);
           uiUtils->resetTexture();
           if (activeGameConfig.gameName == "Hearts of Iron IV") {
             auto hoi4Gen =

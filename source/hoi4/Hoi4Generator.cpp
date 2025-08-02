@@ -2183,6 +2183,13 @@ bool Generator::loadRivers(Fwg::Cfg &config,
       {{0, 125, 0}, config.colours.at("riverStart")},
       {{0, 158, 0}, config.colours.at("riverStart")},
       {{24, 206, 0}, config.colours.at("riverStart")}};
+
+  // print all colours in the colourMapping
+  for (const auto &pair : colourMapping) {
+    Fwg::Utils::Logging::logLine("Colour Mapping: ", pair.first.toString(),
+                                 " -> ", pair.second.toString());
+  }
+
   // now replace the colours
   for (auto &pix : riverCopy.imageData) {
     if (colourMapping.find(pix) != colourMapping.end()) {

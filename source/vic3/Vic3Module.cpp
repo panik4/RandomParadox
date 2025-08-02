@@ -6,8 +6,8 @@ Module::Module(const boost::property_tree::ptree &gamesConf,
                const std::string &configSubFolder,
                const std::string &username) {
   generator = std::make_shared<Rpx::Vic3::Generator>((configSubFolder));
-  vic3Gen = std::reinterpret_pointer_cast<Rpx::Vic3::Generator,
-                                          Arda::ArdaGen>(generator);
+  vic3Gen = std::reinterpret_pointer_cast<Rpx::Vic3::Generator, Arda::ArdaGen>(
+      generator);
   // read eu4 configs and potentially overwrite settings for fwg
   readVic3Config(configSubFolder, username, gamesConf);
   // set the executable subpath
@@ -152,14 +152,20 @@ void Module::generate() {
     Arda::Civilization::generateWorldCivilizations(
         vic3Gen->ardaRegions, vic3Gen->ardaProvinces, vic3Gen->civData,
         vic3Gen->scenContinents);
-    vic3Gen->generateCountries<Vic3::Country>();
-    vic3Gen->evaluateCountryNeighbours();
-    vic3Gen->visualiseCountries(generator->countryMap);
-    vic3Gen->generateStrategicRegions<StrategicRegion>();
+    auto countryFactory = []() -> std::shared_ptr<Vic3::Country> {
+      return std::make_shared<Vic3::Country>();
+    };
+    // generate country data
+    vic3Gen->generateCountries(countryFactory);
+
+    // non-country stuff
+    auto factory = []() -> std::shared_ptr<StrategicRegion> {
+      return std::make_shared<StrategicRegion>();
+    };
+    vic3Gen->generateStrategicRegions(factory);
     // Vic3 specifics:
     vic3Gen->distributePops();
     vic3Gen->distributeResources();
-    vic3Gen->mapCountries();
     if (!vic3Gen->importData(this->pathcfg.gamePath + "//game//")) {
       Fwg::Utils::Logging::logLine("ERROR: Could not import data from game "
                                    "folder. The generation has FAILED");
