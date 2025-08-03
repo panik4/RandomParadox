@@ -1,0 +1,6 @@
+You can modify a factor on how many rivers you want. Rivers also affect climate generation, see the factors listed above in the climate overview. Rivers can be loaded, here is the list of colour inputs and their meaning:
+    -  River Colour: 0, 0, 255
+    -  River Start: 0, 255, 0
+    -  Tributary Start: 0, 128, 0
+    -  River End: 255, 100, 0
+For Hearts of Iron IV, you may also load a river map with the default colours from the vanilla rivers.bmp.

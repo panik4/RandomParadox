@@ -1,0 +1,19 @@
+Here, you can tweak many parameters to change how the world's climate will look like. Details on these can be found in the documentation. Note that you can also load and edit the temperature map and humidity map. Fantasy climate bases the whole climate on noise and therefore follows no real logic, don't forget to change the seed with "Get Random Seed" button if you want to see different variations.
+
+    - Fantasy Climate Frequency Modifier: The higher this is, the smaller each random area is
+    - Fantasy Climate: This creates completely random climate, which follows no real world rules
+    - Base humidity: How humid the overall world is. The lower, the drier.
+    - Base temperature: How hot the overall world is. The lower, the more ice. The higher, the more jungle/desert
+    - River effect range multiplier: How wide the effect of rivers on humidity and therefore climate is
+    - River humidity multiplier: How strong the effect of rivers on humidity and therefore climate is
+    - River amount multiplier: Affects how many rivers there are
+    - Latitude high: The upper bound of the latitude. 2.0=90 degrees north (North pole). Equator at 1.0
+    - Latitude low: The lower bound of the latitude. 0.0=90 degrees south (south pole). Equator at 1.0
+
+
+There are subtabs:
+	- Temperature: To generate or load temperature data
+	- Humidity: To generate or load humidity data
+	- Rivers: To generate or load rivers data
+	- Climate: To detect cliamte zones from the temperature and humidity data
+	- Forests: To generate or load forest coverage

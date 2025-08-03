@@ -1,0 +1,4 @@
+Civilisation: Here you can generate and edit development and population in multiple sub-tabs|
+	- Development: Affects industrialisation and cities. You can draw in this tab, either by setting values for whole continents or by enabling Draw mode and setting it for single provinces.
+	- Population: Affects population amount and city size. You can draw values for single provinces here.
+	- Locations: Affects world map look and scenario modules make use of this data. You can only generate here.

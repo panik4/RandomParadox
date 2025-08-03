@@ -1,0 +1,8 @@
+Here you can configure province generation and generate provinces until you are happy with the result. You can also load a province map, by dragging in the province map image you want to use. In case the generated province map is not quite what you want, you can find it in the Maps// folder, edit it with your favourite image editor, and then drag it in.
+Here you can configure province generation and generate provinces until you are happy with the result, or load a province map. Most important factors are:
+
+    - Landprovincefactor: The higher, the more provinces on land
+    - Seaprovincefactor: The higher, the more provinces on oceans
+    - Density Effects: The higher, the more the density map influences density and size of provinces
+    - Minimum size of provinces: The higher, the more pixels a province will have
+    - Maximum amount of provinces: An upper limit to province amount, increasing this drastically can have major effects on the generated game modules. For Hearts of Iron IV, this upper limit should not be larger than 20000, otherwise visual bugs start to appear!

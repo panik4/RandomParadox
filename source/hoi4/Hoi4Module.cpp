@@ -405,7 +405,14 @@ void Hoi4Module::generate() {
     // generate generic world data
     Arda::Civilization::generateWorldCivilizations(
         hoi4Gen->ardaRegions, hoi4Gen->ardaProvinces, hoi4Gen->civData,
-        hoi4Gen->scenContinents);
+        hoi4Gen->scenContinents, hoi4Gen->superRegions);
+
+    // non-country stuff
+    auto stratFactory = []() -> std::shared_ptr<StrategicRegion> {
+      return std::make_shared<StrategicRegion>();
+    };
+    hoi4Gen->generateStrategicRegions(stratFactory);
+    hoi4Gen->generateWeather();
     // generate state information
     hoi4Gen->generateStateSpecifics();
     hoi4Gen->generateStateResources();
@@ -424,12 +431,6 @@ void Hoi4Module::generate() {
     hoi4Gen->distributeVictoryPoints();
     hoi4Gen->generatePositions();
 
-    // non-country stuff
-    auto stratFactory = []() -> std::shared_ptr<StrategicRegion> {
-      return std::make_shared<StrategicRegion>();
-    };
-    hoi4Gen->generateStrategicRegions(stratFactory);
-    hoi4Gen->generateWeather();
   } catch (std::exception e) {
     std::string error = "Error while generating the Hoi4 Module.\n";
     error += "Error is: \n";

@@ -1,0 +1,1 @@
+Either automatically calculate the density of provinces and population from the climate, or drag and drop in a custom density map. White means dense, small provinces, black means large provinces. You may also simply use the auto generated one, which is based upon the habitability of the climate region. You can also edit this image with the brush.

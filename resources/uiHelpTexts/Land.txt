@@ -1,0 +1,15 @@
+Land Input:
+
+This tab gives the option to input either a simple image for a fully automatic heightmap generation from that input, or enabling the \textbf{Classify Land Input} option, dragging in an image and setting which input colour is supposed to be more or less mountainous.
+
+Heightmap Generation from Simple Input:
+
+Instead of generating a land mass from a heightmap, you may also derive a heightmap from a given land mass. For this, drag in an image. The tool will then automatically try to derive what land is and what is an ocean. If in doubt, try to stick to the colours which are otherwise generated, dark blue or black is considered water.
+
+
+Heightmap Generation from Complex Input:
+
+This extends the Simple Input case. By checking the Classify Land Input box, you enable this feature. Now, when dragging in an image, you can afterwards analyse an image and label every single colour to a land type.
+Make sure you have a good image without washed up borders, e.g. don't draw an image with a brush, but use a pencil. You might otherwise get far too many colours to label, this would be tedious.
+In this tab, you ONLY label the input, then proceed to the heightmap tab for the generation. Always click Analyse after labeling terrain, only then is it applied for the heightmap generation!
+See the image on the left to see how you generate from this labeled terrain in the heightmap tab.

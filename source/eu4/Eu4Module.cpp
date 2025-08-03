@@ -124,7 +124,7 @@ void Module::generate() {
     eu4Gen->mapContinents();
     Arda::Civilization::generateWorldCivilizations(
         eu4Gen->ardaRegions, eu4Gen->ardaProvinces, eu4Gen->civData,
-        eu4Gen->scenContinents);
+        eu4Gen->scenContinents,eu4Gen->superRegions);
 
     auto countryFactory = []() -> std::shared_ptr<Arda::Country> {
       return std::make_shared<Arda::Country>();

@@ -1,7 +1,7 @@
 LanguageGroup;Germanic
-MaleNames;Johann,Hans,Erik,Leif,Karl,Jens,Bjorn,Fritz,Arne,Willem,Dirk,Eirik
-FemaleNames;Greta,Inga,Elsa,Hilda,Freya,Brunhilde,Anke,Gerda,Heidi,Marit,Anneke,Ingrid
-Surnames;Schmidt,Jensen,Andersson,VanDijk,Bergstrom,Schneider,Larsen,Johansson,Hansen,Muller
+MaleNames;Johann,Hans,Erik,Leif,Karl,Jens,Bjorn,Fritz,Arne,Willem,Dirk,Eirik,Georg,Anders,Herman,Otto,Matthias,Lars,Alfred,Ulrich,Rolf,Sten,Soren,Magnus,Sigurd,Olaf,Hakon,Henrik,Thijs,Sven,Rudolf,Berend,Knut,Helmut,Heinrich,Kaspar,Anselm,Jan,Niels,Emil,Oskar,Harald,Reinhold,Franz,Volker,Wilhelm,Richard
+FemaleNames;Greta,Inga,Elsa,Hilda,Freya,Brunhilde,Anke,Gerda,Heidi,Marit,Anneke,Ingrid,Liv,Astrid,Gudrun,Birgit,Katja,Karen,Lene,Mathilde,Wilma,Frida,Thyra,Sigrid,Linnea,Agnes,Helga,Marlen,Sanne,Anneliese,Trude,Liselotte,Elke,Malin,Kristin
+Surnames;Schmidt,Jensen,Andersson,VanDijk,Bergstrom,Schneider,Larsen,Johansson,Hansen,Muller,Bakker,Fischer,Meier,DeVries,Richter,Koch,Keller,Brandt,Petersen,Gruber,Hoffmann,Bauer,Schulz,Krause,Neumann
 Region;Region,Gebiet,Gegend,Streek,Omrade,Landstrich,Omraade,Omraedi
 State;Staat,Bundesland,Delstat,Rijk,Landsdel,Stat
 Ocean;Ozean,Zee,Oceaan,Hav,Haf,Sjoo,Sjo
@@ -21,4 +21,4 @@ CitySuffix;burg,heim,stadt,dorp,vik,by,thorpe,stede
 CityPrefix;Neu,Alt,Van,Nieuw,Sankt,Ost,West,Noord,Zuid
 RiverNames;Rhein,Elbe,Donau,Main,Weser,Lech,Ems,IJssel,Ouse,Thames
 MountainNames;Alpen,Harz,Eifel,Schwarzwald,Jotunheimen,Dovrefjell,Fichtelgebirge,Kaisergebirge
-GenericWords;Wasser,Land,Mond,Sonne,Stern,Leben,Meer,Wald,Weg,Schicksal,Ehre,Stunde,Tag,Blume,Quelle,Feld,Gebiet,Stadt,Berg,Bruecke,See,Baum,Feuer,Himmel,Haus,Name,Tor,Zeit,Dorf,Wort,Liebe,Krieg,Friede,Stimme,Schluessel,Kuss,Lager,Nacht,Kultur,Geist,Koerper,Blut,Fels,Mauer,Markt,Schiff,Fluss,Reich,Ritter,Hain
+GenericWords;Wasser,Land,Feuer,Luft,Licht,Dunkelheit,Leben,Tod,Himmel,Nacht,Tag,Baum,Blume,Gras,Wald,Fluss,See,Meer,Berg,Tal,Feld,Wiese,Haus,Tor,Stadt,Dorf,Weg,Strasse,Bruecke,Turm,Burg,Festung,Schloss,Gold,Silber,Eisen,Holz,Stein,Hammer,Schwert,Speer,Bogen,Pfeil,Schild,Held,Koenig,Koenigin,Prinz,Prinzessin,Krieger,Friedensbringer,Hand,Arm,Bein,Kopf,Herz,Seele,Geist,Kraft,Macht,Ehre,Treue,Glaube,Hoffnung,Liebe,Furcht,Mut,Zorn,Wille,Traum,Schlaf,Torheit,Weisheit,Buch,Seite,Schrift,Name,Stimme,Lied,Ton,Klang,Geraeusch,Feind,Freund,Hilfe,Kind,Mutter,Vater,Bruder,Schwester,Familie,Volk,Reich,Stamm,Heimat,Grenze,Welt,Reise,Abenteuer,Karte,Insel,Kuesten,Schiff,Boot,Segel,Wind,Sturm,Regen,Schnee,Frost,Eis,Glut,Hitze,Wolke,Sonne,Mond,Stern,Horizont,Hafen,Lager,Herde,Feuerstelle,Ritual,Zauber,Magie,Fluch,Segen,Gott,Gottheit,Heiliger,Tempel,Kapelle,Glaube,Kirche,Kult,Runen,Spruch,Weise,Rat,Legende,Sage,Marsch,Wacht,Waffe,Kampf,Schlacht,Krieg,Frieden,Ruhm,Ruf,Gericht,Gesetz,Richter,Diener,Koenigshof,Gesandter,Bote,Botschaft,Vertrag,Eid,Gruft,Grab,Todestag,Wiederkehr,Ahn,Vorfahre,Erbe,Ahne

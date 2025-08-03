@@ -1,0 +1,2 @@
+Supersegments define the areas in which segments are generated. They are by default detected from land- and waterbodies, but can be loaded. Loaded supersegments are especially useful if you want to predefine larger areas for segments, such as countries.
+As Supersegments influence segment generation, and segment generation influences province generation, Supersegments define clear borders for provinces.

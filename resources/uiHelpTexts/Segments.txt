@@ -1,0 +1,2 @@
+Segments define the areas, in which provinces are generated. This tab allows generating and loading them.
+This divides the world into regions that are later used for province generation, and for states in the scenario modules for the generated games. If you want to input a map of states, you can do that here, and the provinces will be generated inside the borders of these segments. This process might take a while!
