@@ -291,7 +291,7 @@ std::vector<std::string> GUI::loadConfigs() {
   std::vector<std::string> configSubfolders;
   for (const auto &entry : std::filesystem::directory_iterator(
            Fwg::Cfg::Values().workingDirectory + "//configs")) {
-    if (entry.is_directory()) {
+    if (entry.is_directory() && !entry.path().string().contains("heightmap")) {
       configSubfolders.push_back(entry.path().string());
       Fwg::Utils::Logging::logLine(entry);
     }
@@ -364,7 +364,7 @@ int GUI::showConfigure(Fwg::Cfg &cfg,
 
 int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
                            std::shared_ptr<Rpx::GenericModule> &activeModule) {
-  static int item_current = 1;
+  static int item_current = 0;
   // remove the images, and set pretext for them to be auto
   // loaded after switching tabs again
   if (ImGui::BeginTabItem("RandomParadox Configuration")) {
@@ -549,7 +549,7 @@ int GUI::showScenarioTab(Fwg::Cfg &cfg,
             activeModule->generator->ardaRegions,
             activeModule->generator->ardaProvinces,
             activeModule->generator->civData,
-            activeModule->generator->scenContinents);
+            activeModule->generator->scenContinents, activeModule->generator->superRegions);
 
         configuredScenarioGen = true;
       }
@@ -736,10 +736,10 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
         computationFutureBool = runAsync([hoi4Gen, &cfg, this]() {
           hoi4Gen->generateStateSpecifics();
           hoi4Gen->generateStateResources();
-          // generate generic world data
-          Arda::Civilization::generateWorldCivilizations(
-              hoi4Gen->ardaRegions, hoi4Gen->ardaProvinces, hoi4Gen->civData,
-              hoi4Gen->scenContinents);
+          //// generate generic world data
+          //Arda::Civilization::generateWorldCivilizations(
+          //    hoi4Gen->ardaRegions, hoi4Gen->ardaProvinces, hoi4Gen->civData,
+          //    hoi4Gen->scenContinents, activeModule->generator->superRegions);
           Arda::Civilization::generateImportance(hoi4Gen->ardaRegions);
           requireCountryDetails = true;
           return true;
@@ -801,6 +801,8 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
     ImGui::Text(str.c_str());
     // drag event
     if (triggeredDrag) {
+      requireCountryDetails = true;
+      triggeredDrag = false;
       if (draggedFile.find(".txt") != std::string::npos) {
         if (draggedFile.find("states.txt") != std::string::npos ||
             draggedFile.find("stateMappings.txt") != std::string::npos) {
@@ -850,7 +852,6 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
           return true;
         });
       }
-      triggeredDrag = false;
     }
 
     ImGui::SameLine();

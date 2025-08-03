@@ -1,0 +1,1 @@
+A visualisation of detected continents. Dragging in images to specify continents is possible, black (rgb 0,0,0) is counted as water, while every other colour is counted as its own continent. Find the generated map in the Maps folder, to use this as a base to edit continents.

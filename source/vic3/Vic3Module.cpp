@@ -151,7 +151,7 @@ void Module::generate() {
     vic3Gen->mapContinents();
     Arda::Civilization::generateWorldCivilizations(
         vic3Gen->ardaRegions, vic3Gen->ardaProvinces, vic3Gen->civData,
-        vic3Gen->scenContinents);
+        vic3Gen->scenContinents, vic3Gen->superRegions);
     auto countryFactory = []() -> std::shared_ptr<Vic3::Country> {
       return std::make_shared<Vic3::Country>();
     };

@@ -1,5 +1,5 @@
 #pragma once
-#include "generic/ArdaGen.h"
+#include "ArdaGen.h"
 #include "io/ResourceLoading.h"
 #include "namegeneration/NameGenerator.h"
 #include "rendering/Images.h"

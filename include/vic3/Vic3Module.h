@@ -2,7 +2,7 @@
 #include "FastWorldGenerator.h"
 #include "vic3/Vic3FormatConverter.h"
 #include "generic/GenericModule.h"
-#include "generic/ArdaGen.h"
+#include "ArdaGen.h"
 #include "vic3/Vic3Generator.h"
 #include "vic3/Vic3Parsing.h"
 #include "vic3/Splnet.h"

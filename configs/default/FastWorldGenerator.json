@@ -1,7 +1,7 @@
 {
 	"module": 
 	{
-		"debugLevel": 9,
+		"debugLevel": 0,
 		"writeMaps" : true,
 		"scaleFactor" : 1,
 		"seed" : 0

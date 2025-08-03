@@ -1,0 +1,2 @@
+Here you can create a forest map. This will be overlaid over the climate zone map. You can increase density of trees in different zones with the density factors listed here.
+The bottom image shows the tree density, while the upper image visualises forest coverage on the worldmap.

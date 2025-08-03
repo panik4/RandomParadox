@@ -1,4 +1,3 @@
-
 Here, you can generate a heightmap or load one by dragging in an image.
 You can also skip this step if you have a terrain map that you want to input, you can do this in the Land Input tab.
 When generating an image, you have a large amount of settings available and can also manipulate settings for individual layers of the heightmap.
@@ -23,3 +22,6 @@ Heightmaps are generated from multiple combined layers. To edit these layers, ch
 	- maxHeight: what the total maximum height present in this layer can be. Should be between 1 and 255
 	- minHeight: what the total maximum height present in this layer can be. Should be between 1 and 255, and smaller maxHeight
 	- tanFactor: how quickly land height increases. Can produce really rugged layers, specifically good for e.g. mountain ranges. Range between 0.00 and 0.26
+	
+Heightmap generation from classified land input:
+Here is the explanation of how input works. Your input defines the overall distinction between land and water, and then the different types affeect how much elevation will be randomly generated. This is done via land layers and sea layers. You can edit these layers if you extend the layer editing. Furthermore, each type has a modifier for average altitude, overlaid over a noisemap that is built from the land layers in the heightmap layer config. This means, that the higher the input factor, the more likely you will actually see this terrain at this location. These modifiers are relative to each other and can be modified. Any elevation generation will be normalised to the range 0-maximumLandHeight.

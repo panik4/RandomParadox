@@ -1,0 +1,2 @@
+Load or generate the world humidity, white means humid and black means dry. Modify the overall humidity of the world with the Base humidity option.
+Humidity is a major factor for climate generation. If you don't want to handle climate zones in detail, you can simply drop in a humidity map and generate climate classification based on it.

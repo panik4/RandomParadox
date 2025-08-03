@@ -400,10 +400,15 @@ void commonCharacters(const std::string &path, const CountryMap &countries) {
       }
       Rpx::Parsing::replaceOccurences(characterText, "templateCountryTag",
                                       country->tag);
-      Rpx::Parsing::replaceOccurences(characterText, "templateName",
-                                      character.name);
+      // replace spaces with underscores in the name and surname
+      auto name = character.name;
+      auto surname = character.surname;
+      Rpx::Parsing::replaceOccurences(name, " ", "_");
+      Rpx::Parsing::replaceOccurences(surname, " ", "_");
+
+      Rpx::Parsing::replaceOccurences(characterText, "templateName", name);
       Rpx::Parsing::replaceOccurences(characterText, "templateLastName",
-                                      character.surname);
+                                      surname);
       Rpx::Parsing::replaceOccurences(characterText, "templateType",
                                       slotTypes[character.type]);
       Rpx::Parsing::replaceOccurences(
@@ -832,8 +837,12 @@ void historyCountries(const std::string &path, const CountryMap &countries,
     // now gather characters, with a line of "recruit_character = id"
     std::string characters = "";
     for (auto &character : country->characters) {
-      characters += "recruit_character = " + country->tag + "_" +
-                    character.name + "_" + character.surname + "\n";
+      auto name = character.name;
+      auto surname = character.surname;
+      Rpx::Parsing::replaceOccurences(name, " ", "_");
+      Rpx::Parsing::replaceOccurences(surname, " ", "_");
+      characters += "recruit_character = " + country->tag + "_" + name + "_" +
+                    surname + "\n";
     }
     Rpx::Parsing::replaceOccurences(countryText, "templateCharacters",
                                     characters);
@@ -1530,9 +1539,10 @@ void stateNames(const std::string &path, const CountryMap &countries) {
   std::string content = "l_english:\n";
 
   for (const auto &country : countries) {
-    for (const auto &region : country->hoi4Regions)
+    for (const auto &region : country->hoi4Regions) {
       content += " STATE_" + std::to_string(region->ID + 1) + ":0 \"" +
-                 region->name + "\"\n";
+                 Arda::Language::capitalisedWord(region->name) + "\"\n";
+    }
   }
   pU::writeFile(path + "state_names_l_english.yml", content, true);
 }
@@ -1544,7 +1554,7 @@ void strategicRegionNames(
   std::string content = "l_english:\n";
   for (auto i = 0; i < strategicRegions.size(); i++) {
     content += Fwg::Utils::varsToString(" STRATEGICREGION_", i, ":0 \"",
-                                        strategicRegions[i]->name, "\"\n");
+                                         Arda::Language::capitalisedWord(strategicRegions[i]->name), "\"\n");
   }
   pU::writeFile(path + "//strategic_region_names_l_english.yml", content, true);
 }

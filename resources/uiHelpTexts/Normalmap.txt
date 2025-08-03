@@ -1,0 +1,2 @@
+You can generate a normal map in this tab. Modifying the makes the land bumpier or smoother.
+You can also drag in a heightmap and it will output the sobelmap representation of it.

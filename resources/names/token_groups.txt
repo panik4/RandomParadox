@@ -1,9 +1,0 @@
-consonants;b;c;d;f;g;h;j;k;l;m;n;p;r;s;t;
-rareConsonants;q;x;y;z;
-vowels;a;e;i;o;u;
-groupStart;ch;sh;tr;str;qu;ph;sw;fr;
-groupMiddle;ch;sh;rt;tr;lt;rb;br;str;ng;qu;nd;sr;rd;ss;cht;mb;cc;nm;pp;rr;tt;nz;bw;
-groupEnd;rt;land;stan;lt;ng;nd;rd;ss;pp;
-groupGeneric;st;th;
-adjModifierConsonant;an;ian;ean;en;at;et;it;ot;
-adjModifierVowel;n;t;r;s;

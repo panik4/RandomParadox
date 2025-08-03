@@ -4,7 +4,7 @@
 #include "eu4/Eu4Parsing.h"
 #include "eu4/Eu4FormatConverter.h"
 #include "generic/GenericModule.h"
-#include "generic/ArdaGen.h"
+#include "ArdaGen.h"
 namespace Rpx::Eu4 {
 class Module : public GenericModule {
   std::shared_ptr<Generator> eu4Gen;
