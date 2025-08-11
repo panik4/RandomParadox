@@ -1,10 +1,5 @@
 #include "FastWorldGenerator.h"
 #include "UI/GUI.h"
-#include "eu4/Eu4Module.h"
-#include "ArdaGen.h"
-#include "hoi4/Hoi4Module.h"
-#include "io/Textures.h"
-#include "vic3/Vic3Module.h"
 #include <filesystem>
 
 using namespace Fwg;
@@ -19,7 +14,7 @@ void dumpInfo(const std::string &error, const std::string &configSubFolder) {
       dump += Fwg::Parsing::readFile(entry.path().string());
     }
   }
-  dump += std::to_string(Cfg::Values().seed);
+  dump += std::to_string(Cfg::Values().mapSeed);
   dump += "\n";
   for (auto layerSeed : Cfg::Values().seeds) {
     dump += std::to_string(layerSeed);

@@ -139,7 +139,7 @@ void Generator::totalArableLand(const std::vector<float> &arableLand) {
   for (auto &reg : vic3Regions) {
     auto resShare = 0.0;
     for (const auto &prov : reg->provinces) {
-      for (const auto &pix : prov->pixels) {
+      for (const auto pix : prov->getNonOwningPixelView()) {
         resShare += arableLand[pix];
       }
     }
@@ -562,7 +562,7 @@ void Generator::createLocators() {
     //     // gather all region pixels
     //     std::vector<int> regionPixels;
     //     for (auto &prov : region->provinces) {
-    //       for (auto &pix : prov->pixels) {
+    //       for (const auto pix : prov->getNonOwningPixelView()) {
     //         regionPixels.push_back(pix);
     //       }
     //     }

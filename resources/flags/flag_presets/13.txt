@@ -1,0 +1,2 @@
+#colourGroups;symbolColourGroups;symbolPlacement;symbolX;symbolY;symbolSize;
+p1,p2,p1;s1;true;0.05;0.05;0.45;

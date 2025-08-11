@@ -10,12 +10,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # For Release build (force optimizations)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Ob2")
 # Enable Link Time Optimization (LTO)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+#set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 # Enable MSVC-specific optimizations (if using MSVC compiler)
 if(MSVC)
     add_compile_options(/MP)  # Enables multi-threaded compilation
-    add_compile_options(/GL)  # Whole program optimization
+    add_compile_options(/GL-)  # Disable whole program optimization
     add_compile_options(/Gy)  # Enable function-level linking
 endif()
 

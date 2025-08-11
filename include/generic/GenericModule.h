@@ -18,7 +18,7 @@ protected:
                       const boost::property_tree::ptree &gamesConf);
 
   // optional for every game
-  std::string executableSubPath = "";
+  std::string gameSubPath = "";
   GameType gameType = GameType::Generic;
 
 public:

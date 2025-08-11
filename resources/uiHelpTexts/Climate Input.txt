@@ -1,1 +1,4 @@
 An optional tab, in case you want to specify climate types instead of generating them. To do this, drag in an image of climate zones, and label them accordingly with the given climate types that match best. The tool will then derive the rest from these zones, such as humidity, temperature and visuals. The table in the image shows what values of humidity + temperature map to climate zones.
+**- In general, it is recommended to spend some time preparing your input images, it is easier to add detail now than later in the generated mod.**
+**- It is also recommended to use different inputs for climate and land, otherwise the biomes will look very boring**
+- You can autogenerate climate first, and then find the file "climate_no_trees.png" next to the executable in the "Maps" folder, modify this and load them back in.

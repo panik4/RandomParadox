@@ -1,0 +1,3 @@
+A tab to edit settings for the currently selected module, and to prepare data for the following tabs.
+**Make sure you remap areas every single time you change things in the previous tabs**
+This is SUPER important, otherwise you will encounter crashes in the tool or in the exported mod.

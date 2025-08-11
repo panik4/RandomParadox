@@ -1,0 +1,3 @@
+A tab to generate strategic regions.
+Increasing the factor increases the amount of strategic regions.
+Does not support loading yet, but does support editing.

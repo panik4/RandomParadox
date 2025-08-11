@@ -277,7 +277,7 @@ void weatherPositions(
     const auto &region =
         Fwg::Utils::selectRandom(strategicRegions[i]->ardaRegions);
     const auto prov = Fwg::Utils::selectRandom(region->provinces);
-    const auto pix = Fwg::Utils::selectRandom(prov->pixels);
+    const auto pix = Fwg::Utils::selectRandom(prov->getPixelsForManipulation());
     auto widthPos = pix % Cfg::Values().width;
     auto heightPos = pix / Cfg::Values().width;
     std::vector<std::string> arguments{

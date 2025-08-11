@@ -10,8 +10,8 @@ Module::Module(const boost::property_tree::ptree &gamesConf,
       generator);
   // read eu4 configs and potentially overwrite settings for fwg
   readVic3Config(configSubFolder, username, gamesConf);
-  // set the executable subpath
-  this->executableSubPath = "binaries//victoria3.exe";
+  // set the game subpath
+  this->gameSubPath = "binaries//victoria3.exe";
   gameType = GameType::Vic3;
 }
 

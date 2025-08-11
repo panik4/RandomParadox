@@ -181,7 +181,7 @@ void Generator::mapCountries() {
     // Attempt to cast the shared pointer to Hoi4Country
     auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country.second);
     if (hoi4Country) {
-
+      hoi4Country->hoi4Regions.clear();
       // Successfully casted, add to hoi4Countries
       hoi4Countries.push_back(hoi4Country);
       // now for all ownedRegions, find the equivalent in Hoi4Regions
@@ -366,7 +366,9 @@ void Generator::generateStateSpecifics() {
   }
   totalWorldIndustry = militaryIndustry + civilianIndustry + navalIndustry;
   statesInitialised = true;
-  Arda::Parsing::dumpRegions(hoi4States);
+  Arda::Areas::saveRegions(ardaRegions,
+                           Fwg::Cfg::Values().mapsPath + "//areas//",
+                           Arda::Gfx::visualiseRegions(ardaRegions));
 }
 
 void Generator::generateCountrySpecifics() {
@@ -550,9 +552,9 @@ void Generator::generateWeather() {
         stratRegion->weatherMonths.push_back(
             {averageDeviation, averageTemperature, averagePrecipitation});
         // temperature low, 3
-        stratRegion->weatherMonths[i].push_back(Cfg::Values().minimumDegCelcius +
-                                         averageTemperature *
-                                             Cfg::Values().temperatureRange);
+        stratRegion->weatherMonths[i].push_back(
+            Cfg::Values().minimumDegCelcius +
+            averageTemperature * Cfg::Values().temperatureRange);
         // tempHigh, 4
         stratRegion->weatherMonths[i].push_back(
             Cfg::Values().minimumDegCelcius +
@@ -569,7 +571,8 @@ void Generator::generateWeather() {
         // mud chance, 7
         stratRegion->weatherMonths[i].push_back(
             this->weatherChances.at("baseMudChance") *
-            (2.0 * stratRegion->weatherMonths[i][6] + stratRegion->weatherMonths[i][5]));
+            (2.0 * stratRegion->weatherMonths[i][6] +
+             stratRegion->weatherMonths[i][5]));
         // blizzard chance, 8
         stratRegion->weatherMonths[i].push_back(
             std::clamp(this->weatherChances.at("baseBlizzardChance") -
@@ -591,8 +594,10 @@ void Generator::generateWeather() {
             averagePrecipitation);
         // no phenomenon chance, 11
         stratRegion->weatherMonths[i].push_back(
-            1.0 - stratRegion->weatherMonths[i][5] - stratRegion->weatherMonths[i][6] -
-            stratRegion->weatherMonths[i][8] - stratRegion->weatherMonths[i][9] -
+            1.0 - stratRegion->weatherMonths[i][5] -
+            stratRegion->weatherMonths[i][6] -
+            stratRegion->weatherMonths[i][8] -
+            stratRegion->weatherMonths[i][9] -
             stratRegion->weatherMonths[i][10]);
       }
     }
@@ -787,7 +792,8 @@ void Generator::generateLogistics() {
         i--;
         continue;
       }
-      for (auto pix : ardaProvinces[connection[i]]->baseProvince->pixels) {
+      for (const auto pix : ardaProvinces[connection[i]]
+                                ->baseProvince->getNonOwningPixelView()) {
         // don't overwrite capitals and supply nodes
         if (logistics[pix] == Colour{255, 255, 0} ||
             logistics[pix] == Colour{0, 255, 0})
@@ -1084,6 +1090,9 @@ void Generator::generateArmorVariants() {
   };
   Fwg::Utils::Logging::logLine("HOI4: Generating Armor Variants");
   for (auto &country : hoi4Countries) {
+    if (country->hoi4Regions.empty()) {
+      continue;
+    }
     // first check if we have any armor techs
     if (hasTechnology(country->armorTechs, "gwtank_chassis")) {
       auto combinedTech = country->armorTechs;
@@ -1175,6 +1184,9 @@ void Generator::generateAirVariants() {
   Fwg::Utils::Logging::logLine("HOI4: Generating Air Variants");
 
   for (auto &country : hoi4Countries) {
+    if (country->hoi4Regions.empty()) {
+      continue;
+    }
     country->planeVariants.clear();
     bool hasCarrier = false;
     for (auto &ship : country->ships) {
@@ -1941,6 +1953,9 @@ void Generator::distributeVictoryPoints() {
       if (!region->isLand())
         continue;
       region->victoryPointsMap.clear();
+      for (auto province : region->ardaProvinces) {
+        province->victoryPoint = nullptr;
+      }
       region->totalVictoryPoints =
           std::max<int>(region->relativeImportance * baseVPs, 1);
       std::map<int, double> provinceImportance;
