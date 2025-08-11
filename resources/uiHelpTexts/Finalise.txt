@@ -1,0 +1,2 @@
+A tab to export certain parts to the mod, or export everything, overwriting the whole mod.
+**If you can't export, you are missing previous steps, such as strategic regions or country details (in the country tab)**

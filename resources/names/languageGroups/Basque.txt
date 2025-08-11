@@ -1,6 +1,6 @@
 LanguageGroup;Basque
-MaleNames;Aitor,Gorka,Iker,Unai,Asier,Eneko,Ibai,Xabier,Mikel,Jon,Gaizka,Amaiur,Ekaitz,Koldo,Ander,Harkaitz,Xanti,Eder,Beñat,Iban
-FemaleNames;Ane,Maite,Nahia,Irati,Aiora,Leire,Nekane,Ainhoa,Itxaso,Edurne,Izaro,Lur,Libe,Haizea,Arantza,Nahia,Zuriñe,Maddi,Olatz,Ilargi
+MaleNames;Aitor,Gorka,Iker,Unai,Asier,Eneko,Ibai,Xabier,Mikel,Jon,Gaizka,Amaiur,Ekaitz,Koldo,Ander,Harkaitz,Xanti,Eder,Benat,Iban
+FemaleNames;Ane,Maite,Nahia,Irati,Aiora,Leire,Nekane,Ainhoa,Itxaso,Edurne,Izaro,Lur,Libe,Haizea,Arantza,Nahia,Zurine,Maddi,Olatz,Ilargi
 Surnames;Etxeberria,Aguirre,Zubizarreta,Aranburu,Mendieta,Uribe,Goikoetxea,Azkarate,Urrutia,Eguren,Altuna,Garate,Lazkano,Odriozola,Elorza,Murgia,Iturbe,Belasko,Irureta,Lasa
 Region;Eskualde,Eremu,Auzoa,Herri,Zona,Barrutia,Bailara,Ingurune,Lurralde
 State;Estatu,Egoera,Herrialde,Botere,Nazio,Erresuma,Burujabetza

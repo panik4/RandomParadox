@@ -1,0 +1,47 @@
+Configure:
+Set the paths to your game and mod folders. Only if validation succeeds can you continue.
+The tool automatically searches for these folder on startup at standard locations.
+	- Mod Name can be set to anything you like.
+	- Game Path is where the game is installed, some files are read from there.
+	- Mods Directory is where the games are looking for the descriptor files. This is usually something like C:\Users\user\Documents\Paradox Interactive\Hearts of Iron IV\mod
+	- Mod Path is where the mods files will be written to, the descriptor put into the mod directory will point there so the mod can be found by the game. This can be ANYWHERE on the disk, but is usually C:\Users\user\Documents\Paradox Interactive\Hearts of Iron IV\mod\modname
+	
+	
+Fwg config:
+In this subtab, you can set the resolution of a randomly generated map. It is not required to be changed if you load something in landinput or load in a heightmap.
+
+General overview of tabs:
+- Land: 
+	- load simple shapes for input land, let the generator handle land creation automatically
+	- load prepainted input land, label the areas, and generate a heightmap based off that
+	- load a heightmap, and detect the elevation types from the loaded heightmap
+- Climate Input: 
+	- Load and label a climate input map
+- Climate Generation: 
+	- Generate completely random climate with some degree of realism
+	- Generate fantasy climate
+	- Generate or load humidity
+	- Generate or load temperature
+	- Generate or load rivers
+- Areas:
+	- Generate or load density of areas
+	- Generate or load supersegments, which define areas in which states are generated
+	- Generate or load segments, which define areas in which provinces are generated
+	- Generate or load provinces
+	- Generate or load continents
+Civilisation:
+	- Generate or load development
+	- Generate or load population density
+	- Generate locations (no loading possible)
+- Scenario:
+	- Configure the game module
+	- Prepare data for the final tabs
+- Strategic regions:
+	- Generate strategic regions, modify how many with a factor
+- Countries:
+	- Generate or load countries
+	- Generate or load country details
+	- Generate or load state details
+	- Manually paint country borders
+	- Manually set state variables
+	- Manually set country variables

@@ -54,7 +54,8 @@ class GUI : public Arda::ArdaUI {
                         std::shared_ptr<Rpx::GenericModule> &genericModule);
   void showModLoader(Fwg::Cfg &cfg,
                      std::shared_ptr<Rpx::GenericModule> &genericModule);
-  bool scenarioGenReady(bool printIssue);
+  bool scenarioGenReady(bool printIssue,
+                        std::shared_ptr<Rpx::GenericModule> activeModule);
   // generic scenario stuff
   int showScenarioTab(Fwg::Cfg &cfg,
                       std::shared_ptr<Rpx::GenericModule> genericModule);

@@ -30,9 +30,9 @@ bool GenericModule::findGame(std::string &path, const std::string &game) {
       if (exists(drive + commonPath + game)) {
         path = drive + commonPath + game + "//";
         // now check if the executable is in the game folder
-        if (!exists(path + executableSubPath)) {
+        if (!exists(path + gameSubPath)) {
           Logging::logLine("Couldn't locate executable under ",
-                           path + executableSubPath,
+                           path + gameSubPath,
                            " are you sure this is the game folder?");
           return false;
         }

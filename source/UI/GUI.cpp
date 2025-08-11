@@ -84,7 +84,7 @@ void GUI::genericWrapper() {
 }
 
 void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
-  if (!scenarioGenReady(false)) {
+  if (!configuredScenarioGen) {
     ImGui::BeginDisabled();
   }
   if (activeGameConfig.gameName == "Hearts of Iron IV") {
@@ -106,7 +106,7 @@ void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
         std::reinterpret_pointer_cast<Rpx::Vic3::Module, Rpx::GenericModule>(
             activeModule));
   }
-  if (!scenarioGenReady(false)) {
+  if (!configuredScenarioGen) {
     ImGui::EndDisabled();
   }
 }
@@ -208,7 +208,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                   "Different Steps of the generation, usually go "
                   "from left to right");
 
-              if (ImGui::BeginTabBar("Steps", ImGuiTabBarFlags_None)) {
+              if (UI::Elements::BeginMainTabBar("Steps")) {
                 // Disable all inputs if computation is running
                 if (computationRunning) {
                   ImGui::BeginDisabled();
@@ -246,7 +246,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                   ImGui::Text("Ready!");
                 }
 
-                ImGui::EndTabBar();
+                UI::Elements::EndMainTabBar();
               }
 
               ImGui::PopStyleColor();
@@ -350,12 +350,12 @@ bool GUI::isRelevantModuleActive(const std::string &shortName) {
 int GUI::showConfigure(Fwg::Cfg &cfg,
                        std::shared_ptr<Rpx::GenericModule> &activeModule) {
 
-  if (ImGui::BeginTabItem("Configure")) {
+  if (UI::Elements::BeginMainTabItem("Configure")) {
     uiUtils->showHelpTextBox("Configure");
-    if (ImGui::BeginTabBar("Config tabs", ImGuiTabBarFlags_None)) {
+    if (UI::Elements::BeginSubTabBar("Config tabs", 0.0f)) {
       showRpdxConfigure(cfg, activeModule);
       showFwgConfigure(cfg);
-      ImGui::EndTabBar();
+      UI::Elements::EndSubTabBar();
     }
     ImGui::EndTabItem();
   }
@@ -367,7 +367,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
   static int item_current = 0;
   // remove the images, and set pretext for them to be auto
   // loaded after switching tabs again
-  if (ImGui::BeginTabItem("RandomParadox Configuration")) {
+  if (UI::Elements::BeginSubTabItem("RandomParadox Configuration")) {
     ImGui::PushItemWidth(200.0f);
     uiUtils->tabSwitchEvent();
     // find every subfolder of config folder
@@ -430,9 +430,9 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
     ImGui::PushItemWidth(600.0f);
     ImGui::InputText("Mod Name", &activeModule->pathcfg.modName);
     ImGui::InputText("Game Path", &activeModule->pathcfg.gamePath);
-    ImGui::InputText("Mod Path", &activeModule->pathcfg.gameModPath);
     ImGui::InputText("Mods Directory",
                      &activeModule->pathcfg.gameModsDirectory);
+    ImGui::InputText("Mod Path", &activeModule->pathcfg.gameModPath);
     if (ImGui::Button("Try to find game files")) {
       activeModule->findGame(activeModule->pathcfg.gamePath,
                              activeGameConfig.gameName);
@@ -461,7 +461,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
 
 void GUI::showModLoader(Fwg::Cfg &cfg,
                         std::shared_ptr<Rpx::GenericModule> &genericModule) {
-  if (ImGui::BeginTabItem("Modloader")) {
+  if (UI::Elements::BeginMainTabItem("Modloader")) {
     if (triggeredDrag) {
       auto hoi4Module =
           std::reinterpret_pointer_cast<Rpx::Hoi4::Hoi4Module,
@@ -474,43 +474,95 @@ void GUI::showModLoader(Fwg::Cfg &cfg,
   }
 }
 
-bool GUI::scenarioGenReady(bool printIssue) {
-  auto ready = configuredScenarioGen && !redoRegions && !redoProvinces;
-  const auto &generator = activeModule->generator;
-  if (!generator->areaData.provinces.size() ||
-      !generator->areaData.regions.size())
-    return false;
-  if (generator->areaData.provinces.size() != generator->ardaProvinces.size() ||
-      generator->areaData.regions.size() != generator->ardaRegions.size() ||
-      generator->areaData.provinces[0] !=
-          generator->ardaProvinces[0]->baseProvince) {
+bool GUI::scenarioGenReady(bool printIssue,
+                           std::shared_ptr<Rpx::GenericModule> activeModule) {
+  bool ready = true;
+
+  auto &generator = activeModule->generator;
+  auto &cfg = Fwg::Cfg::Values();
+  if (redoRegions) {
+    if (printIssue)
+      Fwg::Utils::Logging::logLine("Region redo is pending.");
     ready = false;
   }
-  auto &cfg = Fwg::Cfg::Values();
+
+  if (redoProvinces) {
+    if (printIssue)
+      Fwg::Utils::Logging::logLine("Province redo is pending.");
+    ready = false;
+  }
+
+  if (!generator->terrainData.detailedHeightMap.size()) {
+    if (printIssue)
+      Fwg::Utils::Logging::logLine("Detailed heightmap is missing.");
+    ready = false;
+  }
+
+  if (!generator->climateMap.initialised()) {
+    if (printIssue)
+      Fwg::Utils::Logging::logLine("Climate map not initialised.");
+    ready = false;
+  }
+
+  if (!generator->provinceMap.initialised()) {
+    if (printIssue)
+      Fwg::Utils::Logging::logLine("Province map not initialised.");
+    ready = false;
+  }
+
+  if (!generator->regionMap.initialised()) {
+    if (printIssue)
+      Fwg::Utils::Logging::logLine("Region map not initialised.");
+    ready = false;
+  }
+
+  if (!generator->worldMap.initialised()) {
+    if (printIssue)
+      Fwg::Utils::Logging::logLine("World map not initialised.");
+    ready = false;
+  }
+
+  if (!generator->areaData.provinces.size()) {
+    if (printIssue)
+      Fwg::Utils::Logging::logLine("No provinces defined.");
+    ready = false;
+  }
+
+  if (!generator->areaData.regions.size()) {
+    if (printIssue)
+      Fwg::Utils::Logging::logLine("No regions defined.");
+    ready = false;
+  }
+
   if (generator->civLayer.urbanisation.size() != cfg.bitmapSize ||
       generator->civLayer.agriculture.size() != cfg.bitmapSize) {
-    if (printIssue) {
-      Fwg::Utils::Logging::logLine("You seem to not have generated data in the "
-                                   "civilisation tab, or it is "
-                                   "of the wrong size");
-    }
+    if (printIssue)
+      Fwg::Utils::Logging::logLine(
+          "Civilisation tab data missing or wrong size.");
     ready = false;
   }
+
   if (!generator->civLayer.agriculture.size() ||
       !generator->locationMap.size()) {
-    if (printIssue) {
-      Fwg::Utils::Logging::logLine("You seem to not have generated data in the "
-                                   "locations tab");
-    }
+    if (printIssue)
+      Fwg::Utils::Logging::logLine("Locations tab data is missing.");
     ready = false;
   }
+
   return ready;
 }
 
 int GUI::showScenarioTab(Fwg::Cfg &cfg,
                          std::shared_ptr<Rpx::GenericModule> activeModule) {
   int retCode = 0;
-  if (ImGui::BeginTabItem("Scenario")) {
+  static bool scenGenReady = false;
+  scenGenReady = scenarioGenReady(false, activeModule);
+  // if we detect a change in the previous tabs, we also reset
+  // "configuredScenarioGen", to FORCE the user to remap areas
+  if (!scenGenReady) {
+    configuredScenarioGen = false;
+  }
+  if (UI::Elements::BeginMainTabItem("Scenario")) {
     if (uiUtils->tabSwitchEvent()) {
       uiUtils->updateImage(0, Fwg::Gfx::displayWorldCivilisationMap(
                                   activeModule->generator->climateData,
@@ -519,20 +571,31 @@ int GUI::showScenarioTab(Fwg::Cfg &cfg,
                                   activeModule->generator->civLayer,
                                   activeModule->generator->regionMap, ""));
       uiUtils->updateImage(1, Fwg::Gfx::Bitmap());
+      scenGenReady = scenarioGenReady(true, activeModule);
+      // if we detect a change in the previous tabs, we also reset
+      // "configuredScenarioGen", to FORCE the user to remap areas
+      if (!scenGenReady) {
+        configuredScenarioGen = false;
+      }
     }
 
     // allow printing why the scenario generation is not ready
-    scenarioGenReady(true);
-    if (activeModule->generator->terrainData.detailedHeightMap.size() &&
-        activeModule->generator->climateMap.initialised() &&
-        activeModule->generator->provinceMap.initialised() &&
-        activeModule->generator->regionMap.initialised() &&
-        activeModule->generator->worldMap.initialised()) {
-      // auto initialize
+    if (scenGenReady) {
+      //  auto initialize
       ImGui::SeparatorText(
           "Only remap when you have changed the maps in the previous tabs");
       uiUtils->showHelpTextBox("Scenario");
-      if (ImGui::Button("Remap areas")) {
+      ImGui::PushStyleColor(ImGuiCol_Button,
+                            ImVec4(0.2f, 0.6f, 0.9f, 1.0f)); // background
+      ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+                            ImVec4(0.3f, 0.7f, 1.0f, 1.0f)); // hover
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive,
+                            ImVec4(0.1f, 0.4f, 0.8f, 1.0f));  // clicked
+      ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f); // rounded corners
+      ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f); // add border
+      if (ImGui::Button("Remap areas every single time you change something in "
+                        "the previous tabs on the left.",
+                        ImVec2(ImGui::GetContentRegionAvail().x * 0.8f, 50))) {
         if (!activeModule->createPaths()) {
           Fwg::Utils::Logging::logLine("ERROR: Couldn't create paths");
           retCode = -1;
@@ -549,10 +612,13 @@ int GUI::showScenarioTab(Fwg::Cfg &cfg,
             activeModule->generator->ardaRegions,
             activeModule->generator->ardaProvinces,
             activeModule->generator->civData,
-            activeModule->generator->scenContinents, activeModule->generator->superRegions);
+            activeModule->generator->scenContinents,
+            activeModule->generator->superRegions);
 
         configuredScenarioGen = true;
       }
+      ImGui::PopStyleVar(2);
+      ImGui::PopStyleColor(3);
       ImGui::PushItemWidth(200.0f);
       ImGui::InputDouble("WorldPopulationFactor",
                          &activeModule->generator->worldPopulationFactor, 0.1);
@@ -568,6 +634,7 @@ int GUI::showScenarioTab(Fwg::Cfg &cfg,
         auto eu4Gen = getGeneratorPointer<Eu4Gen>();
       }
       ImGui::PopItemWidth();
+
     } else {
       ImGui::Text("Generate required maps in the other tabs first");
     }
@@ -586,7 +653,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
   if (clickEvents.size()) {
     auto pix = clickEvents.front();
     clickEvents.pop();
-    const auto &colour = generator->provinceMap[pix.pixel];
+    const auto colour = generator->provinceMap[pix.pixel];
     if (generator->areaData.provinceColourMap.find(colour)) {
       const auto &prov = generator->areaData.provinceColourMap[colour];
       if (prov->regionID < generator->ardaRegions.size()) {
@@ -706,7 +773,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
 }
 
 int GUI::showCountryTab(Fwg::Cfg &cfg) {
-  if (ImGui::BeginTabItem("Countries")) {
+  if (UI::Elements::BeginMainTabItem("Countries")) {
     auto &generator = activeModule->generator;
     if (uiUtils->tabSwitchEvent(true)) {
       uiUtils->updateImage(
@@ -729,17 +796,24 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
     // &generator->countryMappingPath); ImGui::InputText("Path to state list:
     // ", &generator->regionMappingPath);
     ImGui::Checkbox("Draw-borders", &drawBorders);
-
+    auto exportLocation =
+        Fwg::Cfg::Values().mapsPath + "//exports//";
+    if (ImGui::Button(("Export current state of countries and states to " +
+                       exportLocation)
+                          .c_str())) {
+      Arda::Countries::saveCountries(
+          generator->countries, Fwg::Cfg::Values().mapsPath + "//exports//",
+          Arda::Gfx::visualiseCountries(generator->countries));
+      Arda::Areas::saveRegions(
+          generator->ardaRegions, Fwg::Cfg::Values().mapsPath + "//exports//",
+          Arda::Gfx::visualiseRegions(generator->ardaRegions));
+    }
     if (isRelevantModuleActive("hoi4")) {
       auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
       if (ImGui::Button("Generate state data")) {
         computationFutureBool = runAsync([hoi4Gen, &cfg, this]() {
           hoi4Gen->generateStateSpecifics();
           hoi4Gen->generateStateResources();
-          //// generate generic world data
-          //Arda::Civilization::generateWorldCivilizations(
-          //    hoi4Gen->ardaRegions, hoi4Gen->ardaProvinces, hoi4Gen->civData,
-          //    hoi4Gen->scenContinents, activeModule->generator->superRegions);
           Arda::Civilization::generateImportance(hoi4Gen->ardaRegions);
           requireCountryDetails = true;
           return true;
@@ -771,11 +845,8 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
         }
         if (ImGui::Button("Generate country data")) {
           computationFutureBool = runAsync([hoi4Gen, &cfg, this]() {
-            auto countryFactory =
-                []() -> std::shared_ptr<Rpx::Hoi4::Hoi4Country> {
-              return std::make_shared<Rpx::Hoi4::Hoi4Country>();
-            };
-            hoi4Gen->generateCountries(countryFactory);
+            // generate only country details, no new countries
+            hoi4Gen->generateCountries(nullptr);
 
             hoi4Gen->generateLogistics();
             hoi4Gen->generateCountrySpecifics();
@@ -832,33 +903,34 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
         computationFutureBool = runAsync([&generator, &cfg, this]() {
           // load countries with correct type, dependent on the gamemodule
           // that is active
+          auto inputImage = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
           if (isRelevantModuleActive("hoi4")) {
             auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
-            hoi4Gen->loadCountries<Rpx::Hoi4::Hoi4Country>(
-                draggedFile, generator->countryMappingPath);
+            auto countryFactory =
+                []() -> std::shared_ptr<Rpx::Hoi4::Hoi4Country> {
+              return std::make_shared<Rpx::Hoi4::Hoi4Country>();
+            };
+            hoi4Gen->loadCountries(countryFactory, inputImage);
           } else if (isRelevantModuleActive("vic3")) {
-            generator->loadCountries<Rpx::Vic3::Country>(
-                draggedFile, generator->countryMappingPath);
+            auto countryFactory = []() -> std::shared_ptr<Rpx::Vic3::Country> {
+              return std::make_shared<Rpx::Vic3::Country>();
+            };
+            generator->loadCountries(countryFactory, inputImage);
           } else if (isRelevantModuleActive("eu4")) {
-            generator->loadCountries<Arda::Country>(
-                draggedFile, generator->countryMappingPath);
+            auto countryFactory = []() -> std::shared_ptr<Arda::Country> {
+              return std::make_shared<Arda::Country>();
+            };
+            generator->loadCountries(countryFactory, inputImage);
           }
-          Arda::Countries::evaluateCountryNeighbours(
-              generator->areaData.regions, generator->ardaRegions,
-              generator->countries);
-          // build module specific countries out of basic countries
-          generator->mapCountries();
+          // Arda::Countries::evaluateCountryNeighbours(
+          //     generator->areaData.regions, generator->ardaRegions,
+          //     generator->countries);
+          //// build module specific countries out of basic countries
+          // generator->mapCountries();
           uiUtils->resetTexture();
           return true;
         });
       }
-    }
-
-    ImGui::SameLine();
-    if (ImGui::Button("Export current countries as image after editing")) {
-      Fwg::Gfx::Png::save(generator->visualiseCountries(generator->countryMap),
-                          cfg.mapsPath + "countries.png");
-      uiUtils->resetTexture();
     }
 
     countryEdit(generator);
@@ -909,7 +981,7 @@ int GUI::showModuleGeneric(Fwg::Cfg &cfg,
 
 int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                                 std::shared_ptr<Rpx::ModGenerator> &generator) {
-  if (ImGui::BeginTabItem("Strategic Regions")) {
+  if (UI::Elements::BeginMainTabItem("Strategic Regions")) {
     // tab switch setting draw events as accepted
     if (uiUtils->tabSwitchEvent(true)) {
       uiUtils->updateImage(
@@ -990,8 +1062,9 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
             Fwg::Utils::Logging::logLine(
                 "Removed empty strategic region with ID: ", stratRegion->ID);
           }
-
-          rootRegion->addRegion(state);
+          if (rootRegion != nullptr) {
+            rootRegion->addRegion(state);
+          }
           uiUtils->updateImage(
               0, Arda::Gfx::visualiseStrategicRegions(generator->superRegionMap,
                                                       generator->superRegions,
@@ -1052,8 +1125,9 @@ void GUI::pathWarning(std::exception e) {
 
 int GUI::showHoi4Finalise(Fwg::Cfg &cfg,
                           std::shared_ptr<Rpx::Hoi4::Hoi4Module> hoi4Module) {
-  if (ImGui::BeginTabItem("Finalise")) {
+  if (UI::Elements::BeginMainTabItem("Finalise")) {
     uiUtils->tabSwitchEvent();
+    uiUtils->showHelpTextBox("Finalise");
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
     auto &generator = hoi4Module->hoi4Gen;
@@ -1061,7 +1135,6 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg,
         generator->statesInitialised && !requireCountryDetails) {
 
       if (ImGui::Button("Export complete mod")) {
-
         computationFutureBool = runAsync([generator, hoi4Module, &cfg, this]() {
           // now generate hoi4 specific stuff
           try {
@@ -1154,7 +1227,7 @@ int GUI::showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator) {
 
 void GUI::showSplineTab(Fwg::Cfg &cfg,
                         std::shared_ptr<Rpx::Vic3::Module> vic3Module) {
-  if (ImGui::BeginTabItem("Splines")) {
+  if (UI::Elements::BeginMainTabItem("Splines")) {
     uiUtils->tabSwitchEvent();
     const auto &generator = vic3Module->getGenerator();
 
@@ -1172,7 +1245,7 @@ void GUI::showSplineTab(Fwg::Cfg &cfg,
 
 int GUI::showVic3Finalise(Fwg::Cfg &cfg,
                           std::shared_ptr<Rpx::Vic3::Module> vic3Module) {
-  if (ImGui::BeginTabItem("Finalise")) {
+  if (UI::Elements::BeginMainTabItem("Finalise")) {
     uiUtils->tabSwitchEvent();
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");

@@ -8,8 +8,8 @@ Hoi4Module::Hoi4Module(const boost::property_tree::ptree &gamesConf,
   hoi4Gen = std::reinterpret_pointer_cast<Rpx::Hoi4::Generator, Arda::ArdaGen>(
       generator);
   const auto &config = Fwg::Cfg::Values();
-  // set the executable subpath
-  this->executableSubPath = "hoi4.exe";
+  // set the game subpath
+  this->gameSubPath = "hoi4.exe";
   gameType = GameType::Hoi4;
 
   // read hoi configs and potentially overwrite settings for fwg
@@ -135,7 +135,6 @@ void Hoi4Module::readHoiConfig(const std::string &configSubFolder,
   // settings for scenGen
   hoi4Gen->countryMappingPath =
       rpdConf.get<std::string>("randomScenario.countryColourMap");
-  Fwg::Parsing::attachTrailing(hoi4Gen->countryMappingPath);
 
   //  passed to generic Scenariohoi4Gen
   hoi4Gen->numCountries = hoi4Conf.get<int>("scenario.numCountries");

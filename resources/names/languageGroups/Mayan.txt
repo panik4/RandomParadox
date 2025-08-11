@@ -7,10 +7,10 @@ State;Ahauil,Kabnal,Yajawil,Kukulhanal,Halach,Mutal,Kaneknal,Bacabnal,Tzibatnal,
 Ocean;Kukab,UchbenHa,NohochHa,Chakha,NaachHa,Bakhalal
 Sea;Ha,NaalHa,ChakNa,HaTzuk,KukulHa
 Lake;HaSuut,NaalHa,ChakNaal,SuutHa,Kolha
-DeepOcean;Hulha,Chaknohoch,HaChik'in,SutsHa,HaKanan
+DeepOcean;Hulha,Chaknohoch,HaChikin,SutsHa,HaKanan
 Mountain;Witz,Tzuktun,Chakwitz,Kabwitz,Oxwitz,Kanwitz
-Plains;Bakabtun,NaalK'ab,Tzuktal,Yokatun,Yalahuitz
-Desert;Tzalamha,KaakTun,K'ank'in,Witz'Nal,HolTun
+Plains;Bakabtun,NaalKab,Tzuktal,Yokatun,Yalahuitz
+Desert;Tzalamha,KaakTun,Kankin,WitzNal,HolTun
 Tundra;IkHa,BakabIk,Tzalanil,SakIk,TohilIk
 Forest;Kaax,ChakKaax,SutsKaax,NaalKaax,YaxKaax
 Jungle;SutsKaax,BakabKaax,KabKaax,YalahKaax,TohilKaax
@@ -21,4 +21,4 @@ CitySuffix;tun,il,ha,kab,naal,witz,kaax
 CityPrefix;Balam,Yax,Chak,Mutal,Ah,Tzib,Kan
 RiverNames;Usumacinta,Pasion,Mopan,Belize,RioHondo,Tzaconeha,Lakantun,Chakamax,HaKan,NaHa
 MountainNames;WitzBalam,KanWitz,ChakWitz,NojochTun,BacabWitz,MutalTun,YaxTun,BaktunWitz
-GenericWords;Ha,Tun,Kaax,Naal,Witz,Bakab,Ahau,Kan,Chak,Yax,Kab,Tzib,Sak,Tohil,Balam,Ah,Ek,Imix,Oxib,Pop,Ik,Yaxkin,Chilan,Halach,Nacom,Bacab,Tzalam,Ahkin,Xul,Mutal,Kalomte,Nohol,Baluun,Itzam,Zamna,Kukulkan,Chakha,Tohilha,Yalah,Chichen,Kanek,Coba,Uxmal,Tikal,Palenque,Yaxuna,Uxul,Becan,Nakbe,Aguateca,Sayil,Bonampak,Kabah,Caracol,Naranjo,Calakmul,Lamanai,Cancuen,Ahcana,Cozumel,Baktun,Katun,Tzolkin,Haab,Kin,Akbal,Kawak,Manik,Chuwen,Ben,Etznab,Ikal,K'an,Bahlam,Sotz,Noj,Ix,Zotz,Tzikin,Kab'an,Kawak,Ajpu,Eb,Imox,Ajaw,Tojil,Nahual,Chilan,Ajtz'ib,Ch'ok,Tzolk'in,Katunil,Oxlahun,Bak'tunil,K'anil,Chilam,Itzamnaaj,ChakChel,Xbalanque,Hunahpu,Yaxche
+GenericWords;Ha,Tun,Kaax,Naal,Witz,Bakab,Ahau,Kan,Chak,Yax,Kab,Tzib,Sak,Tohil,Balam,Ah,Ek,Imix,Oxib,Pop,Ik,Yaxkin,Chilan,Halach,Nacom,Bacab,Tzalam,Ahkin,Xul,Mutal,Kalomte,Nohol,Baluun,Itzam,Zamna,Kukulkan,Chakha,Tohilha,Yalah,Chichen,Kanek,Coba,Uxmal,Tikal,Palenque,Yaxuna,Uxul,Becan,Nakbe,Aguateca,Sayil,Bonampak,Kabah,Caracol,Naranjo,Calakmul,Lamanai,Cancuen,Ahcana,Cozumel,Baktun,Katun,Tzolkin,Haab,Kin,Akbal,Kawak,Manik,Chuwen,Ben,Etznab,Ikal,Kan,Bahlam,Sotz,Noj,Ix,Zotz,Tzikin,Kaban,Kawak,Ajpu,Eb,Imox,Ajaw,Tojil,Nahual,Chilan,Ajtzib,Chok,Tzolkin,Katunil,Oxlahun,Baktunil,Kanil,Chilam,Itzamnaaj,ChakChel,Xbalanque,Hunahpu,Yaxche
