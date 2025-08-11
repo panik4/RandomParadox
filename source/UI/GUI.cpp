@@ -123,7 +123,7 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
 
     ::RegisterClassExW(&wc);
     HWND hwnd = uiUtils->createAndConfigureWindow(wc, wc.lpszClassName,
-                                                  L"RandomParadox 0.9.1");
+                                                  L"RandomParadox 0.9.2");
     initializeGraphics(hwnd);
     initializeImGui(hwnd);
     auto &io = ImGui::GetIO();
