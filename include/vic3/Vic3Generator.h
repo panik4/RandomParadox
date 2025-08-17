@@ -3,7 +3,6 @@
 #include "FastWorldGenerator.h"
 #include "Vic3Country.h"
 #include "Vic3Region.h"
-#include "generic/GenericModule.h"
 #include "vic3/Splnet.h"
 #include "vic3/Vic3FormatConverter.h"
 #include "vic3/Vic3Generator.h"
