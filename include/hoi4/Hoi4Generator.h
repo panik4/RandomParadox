@@ -8,7 +8,6 @@
 #include "hoi4/Hoi4FormatConverter.h"
 #include "hoi4/Hoi4Parsing.h"
 #include "hoi4/Hoi4Region.h"
-#include "hoi4/NationalFocus.h"
 #include "io/GenericParsing.h"
 #include "utils/RpxUtils.h"
 #include <array>

@@ -14,9 +14,7 @@ protected:
   const static std::map<std::string, std::map<Fwg::Gfx::Colour, int>>
       colourMaps;
   const static std::map<std::string, std::map<int, int>> indexMaps;
-  const static std::map<std::string,
-                        std::map<Fwg::Gfx::Colour, Fwg::Gfx::Colour>>
-      colourMaps2;
+
   std::map<std::string, std::vector<unsigned char>> colourTables;
   std::string gamePath;
   std::string gameTag;
@@ -41,9 +39,7 @@ public:
                        const Fwg::Civilization::CivilizationLayer &civLayer,
                        const std::string &path, const std::string &colourMapKey,
                        const bool cut = false) const;
-  void dump8BitCities(const Fwg::Gfx::Bitmap &climateIn,
-                      const std::string &path, const std::string &colourMapKey,
-                      const bool cut = false) const;
+
   void dump8BitRivers(const Fwg::Terrain::TerrainData &terrainData,
                       const Fwg::Climate::ClimateData &climateIn,
                       const std::string &path, const std::string &colourMapKey,

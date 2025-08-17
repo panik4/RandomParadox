@@ -1,21 +1,10 @@
 
 #include "hoi4/Hoi4Country.h"
-#include "hoi4/NationalFocus.h"
 #include "hoi4/goals/GoalGeneration.h"
 #include "parsing/ParserUtils.h"
 
 namespace Rpx::Hoi4 {
 namespace FocusGen {
-
-
-// build a focus from the chain
-NationalFocus buildFocus(const std::vector<std::string> chainStep,
-                         const Hoi4Country &source, const Hoi4Country &target);
-
-void mergeFocusBranches(Hoi4Country &source);
-
-// make a tree out of all focus chains and single foci
-void buildFocusTree(Hoi4Country &source);
 
 std::string addAvailableBlocks(std::shared_ptr<Hoi4Country> country,
                    std::shared_ptr<Goal> goal,

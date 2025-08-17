@@ -1,5 +1,4 @@
 #include "hoi4/Hoi4Parsing.h"
-#include "hoi4/NationalFocus.h"
 using namespace Fwg;
 namespace Logging = Fwg::Utils::Logging;
 namespace pU = Fwg::Parsing;
