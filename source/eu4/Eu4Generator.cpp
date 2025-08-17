@@ -3,10 +3,89 @@ namespace Rpx::Eu4 {
 using namespace Fwg;
 using namespace Fwg::Gfx;
 
-Generator::Generator() {}
+Generator::Generator(const std::string &configSubFolder,
+                     const boost::property_tree::ptree &rpdConf)
+    : Rpx::ModGenerator(configSubFolder, GameType::Eu4, "eu4.exe", rpdConf) {
+  configureModGen(configSubFolder, Fwg::Cfg::Values().username, rpdConf);
+}
 
-Generator::Generator(const std::string &configSubFolder)
-    : Rpx::ModGenerator(configSubFolder) {}
+bool Generator::createPaths() { // prepare folder structure
+  try {
+    using namespace std::filesystem;
+    // generic cleanup and path creation
+    create_directory(pathcfg.gameModPath);
+    // map
+    remove_all(pathcfg.gameModPath + "//map//");
+    remove_all(pathcfg.gameModPath + "//gfx");
+    remove_all(pathcfg.gameModPath + "//history");
+    remove_all(pathcfg.gameModPath + "//common//");
+    remove_all(pathcfg.gameModPath + "//localisation//");
+    create_directory(pathcfg.gameModPath + "//map//");
+    create_directory(pathcfg.gameModPath + "//map//terrain//");
+    // gfx
+    create_directory(pathcfg.gameModPath + "//gfx//");
+    create_directory(pathcfg.gameModPath + "//gfx//flags//");
+    // history
+    create_directory(pathcfg.gameModPath + "//history//");
+    // localisation
+    create_directory(pathcfg.gameModPath + "//localisation//");
+    // common
+    create_directory(pathcfg.gameModPath + "//common//");
+    create_directory(pathcfg.gameModPath + "//history//diplomacy//");
+    create_directory(pathcfg.gameModPath + "//history//provinces//");
+    create_directory(pathcfg.gameModPath + "//history//wars//");
+    create_directory(pathcfg.gameModPath + "//common//colonial_regions//");
+    create_directory(pathcfg.gameModPath + "//common//trade_companies//");
+    create_directory(pathcfg.gameModPath + "//common//trade_nodes//");
+    return true;
+  } catch (std::exception e) {
+    std::string error = "Configured paths seem to be messed up, check Europa "
+                        "Universalis IVModule.json\n";
+    error += "You can try fixing it yourself. Error is:\n ";
+    error += e.what();
+    throw(std::exception(error.c_str()));
+    return false;
+  }
+}
+
+void Generator::configureModGen(const std::string &configSubFolder,
+                                const std::string &username,
+                                const boost::property_tree::ptree &rpdConf) {
+  Fwg::Utils::Logging::logLine("Reading Eu4 Config");
+  Rpx::Utils::configurePaths(username, "Europa Universalis IV", rpdConf,
+                             this->pathcfg);
+  auto &config = Cfg::Values();
+  namespace pt = boost::property_tree;
+  pt::ptree eu4Conf;
+  try {
+    // Read the basic settings
+    std::ifstream f(configSubFolder + "//Europa Universalis IVModule.json");
+    std::stringstream buffer;
+    if (!f.good())
+      Fwg::Utils::Logging::logLine("Config could not be loaded");
+    buffer << f.rdbuf();
+    Fwg::Parsing::replaceInStringStream(buffer, "//", "//");
+
+    pt::read_json(buffer, eu4Conf);
+  } catch (std::exception e) {
+    Fwg::Utils::Logging::logLine(
+        "Incorrect config \"Europa Universalis IVModule.json\"");
+    Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
+                                 e.what());
+    Fwg::Utils::Logging::logLine(
+        "Otherwise try running it through a json validator, e.g. "
+        "\"https://jsonlint.com/\" or search for \"json validator\"");
+    system("pause");
+  }
+  //  passed to generic ScenarioGenerator
+  this->numCountries = eu4Conf.get<int>("scenario.numCountries");
+  config.seaLevel = 95;
+  config.seaProvFactor *= 0.7;
+  config.landProvFactor *= 0.7;
+  config.loadMapsPath = eu4Conf.get<std::string>("fastworldgen.loadMapsPath");
+  // check if config settings are fine
+  config.sanityCheck();
+}
 
 void Generator::generateRegions(
     std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions) {
@@ -51,4 +130,132 @@ void Generator::generateRegions(
 }
 // initialize states
 void Generator::mapCountries() {}
+
+void Generator::initFormatConverter() {
+  formatConverter = Gfx::Eu4::FormatConverter(pathcfg.gamePath, "Eu4");
+}
+void Generator::writeTextFiles() {}
+void Generator::writeImages() {}
+void Generator::generate() {
+  if (!createPaths())
+    return;
+
+  try {
+    // start with the generic stuff in the Scenario Generator
+    mapProvinces();
+    mapRegions();
+
+    mapTerrain();
+    mapContinents();
+    Arda::Civilization::generateWorldCivilizations(
+        ardaRegions, ardaProvinces, civData, scenContinents, superRegions);
+
+    auto countryFactory = []() -> std::shared_ptr<Arda::Country> {
+      return std::make_shared<Arda::Country>();
+    };
+    // generate country data
+    generateCountries(countryFactory);
+
+    generateRegions(ardaRegions);
+  } catch (std::exception e) {
+    std::string error = "Error while generating the Eu4 Module.\n";
+    error += "Error is: \n";
+    error += e.what();
+    throw(std::exception(error.c_str()));
+  }
+  try {
+    // generate map files. Format must be converted and colours mapped to eu4
+    // compatible colours
+    formatConverter.dump8BitTerrain(terrainData, climateData, civLayer,
+                                    pathcfg.gameModPath + "//map//terrain.bmp",
+                                    "terrain", false);
+    formatConverter.dump8BitRivers(terrainData, climateData,
+                                   pathcfg.gameModPath + "//map//rivers",
+                                   "rivers", false);
+    formatConverter.dump8BitTrees(terrainData, climateData,
+                                  pathcfg.gameModPath + "//map//trees.bmp",
+                                  "trees", false);
+    formatConverter.dump8BitHeightmap(terrainData.detailedHeightMap,
+                                      pathcfg.gameModPath + "//map//heightmap",
+                                      "heightmap");
+    std::vector<Fwg::Gfx::Bitmap> seasonalColourmaps;
+    genSeasons(Cfg::Values(), seasonalColourmaps);
+    formatConverter.dumpTerrainColourmap(seasonalColourmaps[0], civLayer,
+                                         pathcfg.gameModPath,
+                                         "//map//terrain//colormap_spring.dds",
+                                         DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
+    formatConverter.dumpTerrainColourmap(seasonalColourmaps[1], civLayer,
+                                         pathcfg.gameModPath,
+                                         "//map//terrain//colormap_summer.dds",
+                                         DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
+    formatConverter.dumpTerrainColourmap(seasonalColourmaps[2], civLayer,
+                                         pathcfg.gameModPath,
+                                         "//map//terrain//colormap_autumn.dds",
+                                         DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
+    formatConverter.dumpTerrainColourmap(seasonalColourmaps[3], civLayer,
+                                         pathcfg.gameModPath,
+                                         "//map//terrain//colormap_winter.dds",
+                                         DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
+    formatConverter.dumpDDSFiles(
+        terrainData.detailedHeightMap,
+        pathcfg.gameModPath + "//map//terrain//colormap_water", false, 2);
+    formatConverter.dumpWorldNormal(
+        Fwg::Gfx::Bitmap(Cfg::Values().width, Cfg::Values().height, 24,
+                         terrainData.sobelData),
+        pathcfg.gameModPath + "//map//world_normal.bmp", false);
+
+    using namespace Fwg::Gfx;
+    // just copy over provinces.bmp, already in a compatible format
+    Bmp::save(provinceMap, pathcfg.gameModPath + "//map//provinces.bmp");
+    {
+      using namespace Parsing;
+      // now do text
+      writeAdj(pathcfg.gameModPath + "//map//adjacencies.csv", ardaProvinces);
+      writeAmbientObjects(pathcfg.gameModPath + "//map//ambient_object.txt",
+                          ardaProvinces);
+      writeAreas(pathcfg.gameModPath + "//map//area.txt", ardaRegions,
+                 pathcfg.gamePath);
+      writeColonialRegions(
+          pathcfg.gameModPath +
+              "//common//colonial_regions//00_colonial_regions.txt",
+          pathcfg.gamePath, ardaProvinces);
+      writeClimate(pathcfg.gameModPath + "//map//climate.txt", ardaProvinces);
+      writeContinent(pathcfg.gameModPath + "//map//continent.txt",
+                     ardaProvinces);
+      writeDefaultMap(pathcfg.gameModPath + "//map//default.map",
+                      ardaProvinces);
+      writeDefinition(pathcfg.gameModPath + "//map//definition.csv",
+                      ardaProvinces);
+      writePositions(pathcfg.gameModPath + "//map//positions.txt",
+                     ardaProvinces);
+      writeRegions(pathcfg.gameModPath + "//map//region.txt", pathcfg.gamePath,
+                   getEu4Regions());
+      writeSuperregion(pathcfg.gameModPath + "//map//superregion.txt",
+                       pathcfg.gamePath, ardaRegions);
+      writeTerrain(pathcfg.gameModPath + "//map//terrain.txt", ardaProvinces);
+      writeTradeCompanies(
+          pathcfg.gameModPath +
+              "//common//trade_companies//00_trade_companies.txt",
+          pathcfg.gamePath, ardaProvinces);
+      writeTradewinds(pathcfg.gameModPath + "//map//trade_winds.txt",
+                      ardaProvinces);
+
+      copyDescriptorFile(
+          Fwg::Cfg::Values().resourcePath + "//eu4//descriptor.mod",
+          pathcfg.gameModPath, pathcfg.gameModsDirectory, pathcfg.modName);
+
+      writeProvinces(pathcfg.gameModPath + "//history//provinces//",
+                     ardaProvinces, ardaRegions);
+      writeLoc(pathcfg.gameModPath + "//localisation//", pathcfg.gamePath,
+               ardaRegions, ardaProvinces, getEu4Regions());
+      Fwg::Utils::Logging::logLine("Done with the eu4 export");
+    }
+  } catch (std::exception e) {
+    std::string error = "Error while dumping and writing files.\n";
+    error += "Error is: \n";
+    error += e.what();
+    throw(std::exception(error.c_str()));
+  }
+}
+
 } // namespace Rpx::Eu4

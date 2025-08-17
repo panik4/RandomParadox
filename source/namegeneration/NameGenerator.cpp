@@ -3,7 +3,6 @@
 namespace Rpx {
 namespace NameGeneration {
 
-
 std::string generateFactionName(const std::string &ideology,
                                 const std::string name,
                                 const std::string adjective,
@@ -17,14 +16,15 @@ std::string modifyWithIdeology(const std::string &ideology,
                                const Arda::Names::NameData &nameData) {
   auto stateName{Detail::getRandomMapElement(ideology, nameData.ideologyNames)};
   if (stateName.find("templateAdj") != std::string::npos)
-    Rpx::Parsing::replaceOccurences(stateName, "templateAdj",
-                                              adjective);
+    Rpx::Parsing::replaceOccurences(stateName, "templateAdj", adjective);
   else
     Rpx::Parsing::replaceOccurences(stateName, "template", name);
   return stateName;
 }
 
-Arda::Names::NameData prepare(const std::string &path, const std::string &gamePath, const GameType gameType) {
+Arda::Names::NameData prepare(const std::string &path,
+                              const std::string &gamePath,
+                              const GameType gameType) {
   Fwg::Utils::Logging::logLine("Preparing name generation from path: ", path);
   Arda::Names::NameData nameData;
 
@@ -42,6 +42,9 @@ Arda::Names::NameData prepare(const std::string &path, const std::string &gamePa
         const auto forbiddenTags = ResourceLoading::loadForbiddenTags(gamePath);
         for (const auto &tag : forbiddenTags)
           nameData.disallowedTokens.insert(tag);
+      } else {
+        Fwg::Utils::Logging::logLine(
+            "ERROR: Path to game does not exist, can't load forbidden tags");
       }
     } catch (std::exception e) {
       Fwg::Utils::Logging::logLine("ERROR: Path to game does not exist",

@@ -1,7 +1,14 @@
 #pragma once
+#include "ArdaGen.h"
+#include "FastWorldGenerator.h"
 #include "Vic3Country.h"
 #include "Vic3Region.h"
+#include "generic/GenericModule.h"
+#include "vic3/Splnet.h"
+#include "vic3/Vic3FormatConverter.h"
+#include "vic3/Vic3Generator.h"
 #include "vic3/Vic3Importer.h"
+#include "vic3/Vic3Parsing.h"
 #include "vic3/Vic3Utils.h"
 #include <cmath>
 #include <generic/ModGenerator.h>
@@ -261,6 +268,7 @@ class Generator : public Rpx::ModGenerator {
       productionMethodToBuildingTypes;
   // to search for buildings that produce this good
   std::map<std::string, std::vector<BuildingType>> goodToBuildingTypes;
+  Rpx::Gfx::FormatConverter formatConverter;
 
 public:
   std::vector<Arda::Utils::ResConfig> &getResConfigs() {
@@ -268,8 +276,14 @@ public:
   }
   std::vector<std::shared_ptr<Region>> vic3Regions;
   std::map<std::string, std::shared_ptr<Country>> vic3Countries;
-  Generator();
-  Generator(const std::string &configSubFolder);
+  Generator(const std::string &configSubFolder,
+            const boost::property_tree::ptree &rpdConf);
+  // clear and create all the mod paths at each run
+  bool createPaths();
+
+  void configureModGen(const std::string &configSubFolder,
+                       const std::string &username,
+                       const boost::property_tree::ptree &rpdConf) override;
   virtual Fwg::Gfx::Bitmap mapTerrain();
   virtual void mapRegions();
   void distributePops();
@@ -298,5 +312,11 @@ public:
 
   // calculate naval exits
   void calculateNavalExits();
+
+  virtual void generate();
+  virtual void initFormatConverter();
+  virtual void writeTextFiles();
+  virtual void writeImages();
+  void writeSplnet();
 };
 } // namespace Rpx::Vic3

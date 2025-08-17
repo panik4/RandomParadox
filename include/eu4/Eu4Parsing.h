@@ -1,4 +1,5 @@
-#include "eu4/Eu4Generator.h"
+#pragma once
+#include "eu4/Eu4Region.h"
 #include "parsing/ParserUtils.h"
 #include <areas/ArdaProvince.h>
 #include <areas/ArdaRegion.h>
@@ -6,8 +7,9 @@
 namespace Rpx::Eu4::Parsing {
 std::string loadVanillaFile(const std::string &path,
                             const std::vector<std::string> &&filters);
-void writeAdj(const std::string &path,
-              const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
+void writeAdj(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
 void writeAmbientObjects(
     const std::string &path,
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
@@ -15,8 +17,9 @@ void writeAmbientObjects(
 void writeAreas(const std::string &path,
                 const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions,
                 const std::string &gamePath);
-void writeClimate(const std::string &path,
-                  const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
+void writeClimate(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
 void writeColonialRegions(
     const std::string &path, const std::string &gamePath,
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
@@ -37,10 +40,12 @@ void writePositions(
 void writeRegions(const std::string &path, const std::string &gamePath,
                   const std::vector<eu4Region> &eu4regions);
 // superregions consist of multiple regions
-void writeSuperregion(const std::string &path, const std::string &gamePath,
+void writeSuperregion(
+    const std::string &path, const std::string &gamePath,
     const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions);
-void writeTerrain(const std::string &path,
-                  const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
+void writeTerrain(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
 void writeTradeCompanies(
     const std::string &path, const std::string &gamePath,
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
@@ -52,8 +57,9 @@ void copyDescriptorFile(const std::string &sourcePath,
                         const std::string &modsDirectory,
                         const std::string &modName);
 
-void writeProvinces(const std::string &path,
-                    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
+void writeProvinces(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
     const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions);
 
 void writeLoc(const std::string &path, const std::string &gamePath,

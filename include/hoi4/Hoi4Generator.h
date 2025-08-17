@@ -1,14 +1,16 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "countries/Country.h"
-#include "io/GenericParsing.h"
 #include "generic/ModGenerator.h"
-#include "utils/RpxUtils.h"
 #include "hoi4/Hoi4Army.h"
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4FocusGen.h"
+#include "hoi4/Hoi4FormatConverter.h"
+#include "hoi4/Hoi4Parsing.h"
 #include "hoi4/Hoi4Region.h"
 #include "hoi4/NationalFocus.h"
+#include "io/GenericParsing.h"
+#include "utils/RpxUtils.h"
 #include <array>
 #include <set>
 
@@ -34,7 +36,7 @@ class Generator : public Rpx::ModGenerator {
   // vars
   int focusID = 0;
   std::map<std::string, int> totalResources;
-
+  Gfx::Hoi4::FormatConverter formatConverter;
 
 public:
   // containers
@@ -54,9 +56,14 @@ public:
 
   // member functions
   // constructors/destructors
-  Generator();
-  Generator(const std::string &configSubFolder);
+  Generator(const std::string &configSubFolder,
+            const boost::property_tree::ptree &rpdConf);
   ~Generator();
+  bool createPaths();
+  void configureModGen(const std::string &configSubFolder,
+                       const std::string &username,
+                       const boost::property_tree::ptree &rpdConf) override;
+
   void mapRegions();
   virtual Fwg::Gfx::Bitmap mapTerrain();
   void cutFromFiles(const std::string &gamePath);
@@ -109,5 +116,14 @@ public:
   void loadStates();
   virtual bool loadRivers(Fwg::Cfg &config,
                           const Fwg::Gfx::Bitmap &riverInput) override;
+
+  virtual void generate();
+  virtual void initFormatConverter();
+  void writeLocalisation();
+  virtual void writeTextFiles();
+  virtual void writeImages();
+  const Gfx::Hoi4::FormatConverter &getFormatConverter() const {
+    return formatConverter;
+  }
 };
 } // namespace Rpx::Hoi4
