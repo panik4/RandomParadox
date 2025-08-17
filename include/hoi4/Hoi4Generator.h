@@ -125,5 +125,9 @@ public:
   const Gfx::Hoi4::FormatConverter &getFormatConverter() const {
     return formatConverter;
   }
+
+  
+  void readHoi(std::string &gamePath);
+
 };
 } // namespace Rpx::Hoi4

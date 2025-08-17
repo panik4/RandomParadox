@@ -2501,4 +2501,99 @@ void Generator::generate() {
   printStatistics();
 }
 
+
+
+
+
+void Generator::readHoi(std::string &path) {
+  path.append("//");
+  auto &config = Fwg::Cfg::Values();
+  bool bufferedCut = config.cut;
+  config.cut = false;
+  auto heightmap = Fwg::IO::Reader::readGenericImage(
+      path + "map//heightmap.bmp", config, false);
+  loadHeight(config, heightmap);
+  genSobelMap(config);
+  genLand();
+  loadClimate(config, path + "map//terrain.bmp");
+  provinceMap =
+      Fwg::IO::Reader::readGenericImage(path + "map//provinces.bmp", config);
+  //// read in game or mod files
+  climateData.habitabilities.resize(provinceMap.size());
+  Hoi4::Parsing::Reading::readProvinces(terrainData,
+                                        climateData, path,
+                                        "provinces.bmp", areaData);
+  wrapupProvinces(config);
+  // get the provinces into ardaProvinces
+  mapProvinces();
+  // load existing states: we first get all the state files and parse their
+  // provinces for land regions (including lakes) then we need to get the
+  // strategic region files, and for every strategic region that is a sea state,
+  // we create a sea region?
+  // Hoi4::Parsing::Reading::readStates(path, hoi4Gen);
+
+  // ensure continents are created via the details in definition.csv.
+  // Which means we also need to load the existing continents file to match
+  // those with each other, so another export does not overwrite the continents
+  std::map<int, Areas::Continent> continents;
+  for (auto &prov : areaData.provinces) {
+    if (prov->continentID != -1) {
+      if (continents.find(prov->continentID) == continents.end()) {
+        Areas::Continent continent("", prov->continentID);
+        continents.insert({prov->continentID, continent});
+      } else {
+        continents.at(prov->continentID).provinces.push_back(prov);
+      }
+    }
+  }
+  areaData.continents.clear();
+  for (auto &c : continents) {
+    areaData.continents.push_back(c.second);
+  }
+
+  // get the provinces into ardaProvinces
+  // mapProvinces();
+  // get the states from files to initialize ardaRegions
+  // Hoi4::Parsing::Reading::readStates(gamePath, *hoi4Gen);
+  // try {
+  //  mapRegions();
+  //} catch (std::exception e) {
+  //  Fwg::Utils::Logging::logLine("Error while mapping regions, ", e.what());
+  //};
+  //// read the colour codes from the game/mod files
+  // countryColourMap =
+  //     Hoi4::Parsing::Reading::readColourMapping(pathcfg.gamePath);
+  //// now initialize hoi4 states from the ardaRegions
+  // mapTerrain();
+  // for (auto &c : countries) {
+  //   auto fCol = countryColourMap.valueSearch(c.first);
+  //   if (fCol != Fwg::Gfx::Colour{0, 0, 0}) {
+  //     c.second->colour = fCol;
+  //   } else {
+  //     do {
+  //       // generate random colour as long as we have a duplicate
+  //       c.second->colour = Fwg::Gfx::Colour(RandNum::getRandom(1, 254),
+  //                                           RandNum::getRandom(1, 254),
+  //                                           RandNum::getRandom(1, 254));
+  //     } while (countryColourMap.find(c.second->colour));
+  //     countryColourMap.setValue(c.second->colour, c.first);
+  //   }
+  // }
+  // mapCountries();
+  //// read in further state details from map files
+  // Hoi4::Parsing::Reading::readAirports(pathcfg.gamePath,
+  // hoi4States);
+  // Hoi4::Parsing::Reading::readRocketSites(pathcfg.gamePath,
+  //                                         hoi4States);
+  // Hoi4::Parsing::Reading::readBuildings(pathcfg.gamePath,
+  // hoi4States);
+  // Hoi4::Parsing::Reading::readSupplyNodes(pathcfg.gamePath,
+  //                                         hoi4States);
+  // Hoi4::Parsing::Reading::readWeatherPositions(pathcfg.gamePath,
+  //                                              hoi4States);
+  config.cut = bufferedCut;
+}
+
+
+
 } // namespace Rpx::Hoi4
