@@ -2474,7 +2474,6 @@ void Generator::generate() {
     // politics, etc
     generateCountrySpecifics();
 
-    NationalFocus::buildMaps();
     generateFocusTrees();
     distributeVictoryPoints();
     generatePositions();
@@ -2500,11 +2499,6 @@ void Generator::generate() {
   // see
   printStatistics();
 }
-
-
-
-
-
 void Generator::readHoi(std::string &path) {
   path.append("//");
   auto &config = Fwg::Cfg::Values();
@@ -2520,8 +2514,7 @@ void Generator::readHoi(std::string &path) {
       Fwg::IO::Reader::readGenericImage(path + "map//provinces.bmp", config);
   //// read in game or mod files
   climateData.habitabilities.resize(provinceMap.size());
-  Hoi4::Parsing::Reading::readProvinces(terrainData,
-                                        climateData, path,
+  Hoi4::Parsing::Reading::readProvinces(terrainData, climateData, path,
                                         "provinces.bmp", areaData);
   wrapupProvinces(config);
   // get the provinces into ardaProvinces
@@ -2593,7 +2586,5 @@ void Generator::readHoi(std::string &path) {
   //                                              hoi4States);
   config.cut = bufferedCut;
 }
-
-
 
 } // namespace Rpx::Hoi4

@@ -1,2 +1,0 @@
-key{tech_1}
-value{has_tech = motorised_infantry}};

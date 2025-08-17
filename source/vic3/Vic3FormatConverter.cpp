@@ -4,41 +4,6 @@ using namespace Arda::Gfx::Textures;
 using namespace Fwg;
 using namespace Fwg::Gfx;
 
-const std::map<std::string, std::map<Fwg::Gfx::Colour, Fwg::Gfx::Colour>>
-    colourMaps2{
-        {"terrainVic3",
-         {{Cfg::Values().colours["rockyHills"], Fwg::Gfx::Colour(14, 24, 23)},
-          {Cfg::Values().colours["snowyHills"], Fwg::Gfx::Colour(21, 12, 255)},
-          {Cfg::Values().colours["rockyMountains"],
-           Fwg::Gfx::Colour(24, 22, 15)},
-          {Cfg::Values().colours["snowyMountains"],
-           Fwg::Gfx::Colour(21, 12, 255)},
-          {Cfg::Values().colours["rockyPeaks"], Fwg::Gfx::Colour(24, 22, 15)},
-          {Cfg::Values().colours["snowyPeaks"], Fwg::Gfx::Colour(3, 2, 4)},
-          {Cfg::Values().colours["grassland"], Fwg::Gfx::Colour(23, 32, 15)},
-          {Cfg::Values().colours["grasslandHills"],
-           Fwg::Gfx::Colour(23, 32, 15)},
-          {Cfg::Values().colours["grasslandMountains"],
-           Fwg::Gfx::Colour(23, 32, 15)},
-          {Cfg::Values().colours["desert"], Fwg::Gfx::Colour(2, 4, 255)},
-          {Cfg::Values().colours["desertHills"], Fwg::Gfx::Colour(2, 4, 255)},
-          {Cfg::Values().colours["desertMountains"],
-           Fwg::Gfx::Colour(2, 4, 255)},
-          {Cfg::Values().colours["forest"], Fwg::Gfx::Colour(31, 28, 23)},
-          {Cfg::Values().colours["forestHills"], Fwg::Gfx::Colour(13, 21, 14)},
-          {Cfg::Values().colours["forestMountains"],
-           Fwg::Gfx::Colour(13, 21, 14)},
-          {Cfg::Values().colours["savanna"], Fwg::Gfx::Colour(26, 25, 24)},
-          {Cfg::Values().colours["drysavanna"], Fwg::Gfx::Colour(26, 25, 24)},
-          {Cfg::Values().colours["jungle"], Fwg::Gfx::Colour(32, 31, 23)},
-          {Cfg::Values().colours["tundra"], Fwg::Gfx::Colour(28, 24, 29)},
-          {Cfg::Values().colours["ice"], Fwg::Gfx::Colour(21, 12, 255)},
-          {Cfg::Values().colours["marsh"], Fwg::Gfx::Colour(7, 6, 23)},
-          {Cfg::Values().colours["urban"], Fwg::Gfx::Colour(23, 32, 15)},
-          {Cfg::Values().colours["farm"], Fwg::Gfx::Colour(23, 32, 15)},
-          {Cfg::Values().colours["sea"], Fwg::Gfx::Colour(13, 7, 255)}}},
-    };
-
 const std::map<std::string, std::map<Fwg::Gfx::Colour, int>> colourMaps{
     {"riversVic3",
      {{Cfg::Values().colours["land"], 255},
@@ -81,6 +46,12 @@ const std::map<std::string, std::map<Fwg::Gfx::Colour, int>> colourMaps{
       {Cfg::Values().colours["sea"], 0}}}
 
 };
+
+FormatConverter::FormatConverter(const std::string &gamePath,
+                                 const std::string &gameTag)
+    : Rpx::Gfx::FormatConverter(gamePath, gameTag) {}
+
+FormatConverter::~FormatConverter() {}
 
 void FormatConverter::writeTile(int xTiles, int yTiles,
                                 const Fwg::Gfx::Bitmap &basePackedHeightMap,
@@ -188,8 +159,7 @@ void FormatConverter::dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
   Fwg::Gfx::Png::save(indirectionMap, path, false, LCT_RGBA, 8U, 0);
 }
 void FormatConverter::Vic3ColourMaps(
-    const Fwg::Gfx::Bitmap &climateMap,
-    const Fwg::Gfx::Bitmap &heightMap,
+    const Fwg::Gfx::Bitmap &climateMap, const Fwg::Gfx::Bitmap &heightMap,
     Fwg::Climate::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer,
     const std::string &path) {
@@ -218,9 +188,9 @@ void FormatConverter::Vic3ColourMaps(
       writeBufferPixels(pixels, imageIndex, Fwg::Gfx::Colour(val), 255);
     }
   }
-  Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
-                           DXGI_FORMAT_B8G8R8A8_UNORM,
-                           path + "//textures//land_mask.dds", false);
+  Arda::Gfx::Textures::writeMipMapDDS(
+      imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
+      path + "//textures//land_mask.dds", false);
 
   // flatmap
   for (auto h = 0; h < imageHeight; h++) {
@@ -241,13 +211,13 @@ void FormatConverter::Vic3ColourMaps(
     }
   }
   Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
-                           DXGI_FORMAT_B8G8R8A8_UNORM,
-                           path + "//textures//flatmap.dds");
+                                      DXGI_FORMAT_B8G8R8A8_UNORM,
+                                      path + "//textures//flatmap.dds");
 
   std::fill(pixels.begin(), pixels.end(), 0);
   Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
-                           DXGI_FORMAT_B8G8R8A8_UNORM,
-                           path + "//textures//flatmap_overlay.dds");
+                                      DXGI_FORMAT_B8G8R8A8_UNORM,
+                                      path + "//textures//flatmap_overlay.dds");
   // terrain colour map
   scaledMap = Bmp::scale(climateMap, config.width, config.height, false);
   dumpTerrainColourmap(scaledMap, civLayer, path, "//textures//colormap.dds",
@@ -283,11 +253,11 @@ void FormatConverter::Vic3ColourMaps(
       path + "//water//watercolor_rgb_waterspec_a.dds", true);
   std::fill(pixels.begin(), pixels.end(), 0);
   Arda::Gfx::Textures::writeMipMapDDS(imageWidth / 4, imageHeight / 4, pixels,
-                           DXGI_FORMAT_B8G8R8A8_UNORM,
-                           path + "//water//foam_map.dds");
+                                      DXGI_FORMAT_B8G8R8A8_UNORM,
+                                      path + "//water//foam_map.dds");
   Arda::Gfx::Textures::writeMipMapDDS(imageWidth / 8, imageHeight / 8, pixels,
-                           DXGI_FORMAT_B8G8R8A8_UNORM,
-                           path + "//water//flowmap.dds");
+                                      DXGI_FORMAT_B8G8R8A8_UNORM,
+                                      path + "//water//flowmap.dds");
   // colormap_tree.dds
   auto humidityMap =
       Fwg::Gfx::Bitmap(config.width, config.height, 24, climateData.humidities);
@@ -317,8 +287,9 @@ void FormatConverter::Vic3ColourMaps(
       writeBufferPixels(pixels, imageIndex, col, 255);
     }
   }
-  Arda::Gfx::Textures::writeDDS(imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
-           path + "//textures//colormap_tree.dds");
+  Arda::Gfx::Textures::writeDDS(imageWidth, imageHeight, pixels,
+                                DXGI_FORMAT_B8G8R8A8_UNORM,
+                                path + "//textures//colormap_tree.dds");
 
   scaledHeight =
       Bmp::scale(heightMap, config.width / 8, config.height / 8, false);
@@ -342,14 +313,13 @@ void FormatConverter::Vic3ColourMaps(
       writeBufferPixels(pixels, imageIndex, Fwg::Gfx::Colour(col), 255);
     }
   }
-  Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
-                           DXGI_FORMAT_B8G8R8A8_UNORM,
-                           path + "//textures//windmap_tree.dds", true);
+  Arda::Gfx::Textures::writeMipMapDDS(
+      imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
+      path + "//textures//windmap_tree.dds", true);
 }
 
 void FormatConverter::dynamicMasks(
-    const std::string &path,
-    const Fwg::Climate::ClimateData &climateData,
+    const std::string &path, const Fwg::Climate::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer) {
   // TODO: exclusion_mask.dds
   //
@@ -386,8 +356,7 @@ void FormatConverter::dynamicMasks(
       path + "mask_dynamic_forestry.png", true, LCT_GREY);
 }
 void FormatConverter::contentSource(
-    const std::string &path,
-    const Fwg::Climate::ClimateData &climateData,
+    const std::string &path, const Fwg::Climate::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer) {
 
   Utils::Logging::logLine("Vic3::Writing content source masks");
@@ -601,9 +570,9 @@ void FormatConverter::detailMaps(
     }
   }
   Arda::Gfx::Textures::writeTGA(config.width, config.height, pixels,
-                     path + "//terrain//detail_index.tga");
+                                path + "//terrain//detail_index.tga");
   Arda::Gfx::Textures::writeTGA(config.width, config.height, intensityPixels,
-                     path + "//terrain//detail_intensity.tga");
+                                path + "//terrain//detail_intensity.tga");
 
   for (int i = 0; i < masks.size(); i++) {
     Fwg::Gfx::Png::save(masks[i],
@@ -611,10 +580,4 @@ void FormatConverter::detailMaps(
                         true, LCT_GREY, 8);
   }
 }
-
-FormatConverter::FormatConverter(const std::string &gamePath,
-                                 const std::string &gameTag)
-    : Rpx::Gfx::FormatConverter(gamePath, gameTag) {}
-
-FormatConverter::~FormatConverter() {}
 } // namespace Rpx::Gfx::Vic3

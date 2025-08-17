@@ -1,6 +1,5 @@
 #pragma once
 #include "Hoi4Region.h"
-#include "NationalFocus.h"
 #include "countries/Country.h"
 #include "hoi4/Hoi4Armor.h"
 #include "hoi4/Hoi4Army.h"
@@ -35,7 +34,6 @@ public:
   std::vector<std::shared_ptr<Region>> hoi4Regions;
   // typedef doctrineType mytype;
   // national focus
-  std::vector<FocusBranch> focusBranches;
   std::string focusTree;
   std::string ideas;
   // navy

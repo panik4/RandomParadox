@@ -332,6 +332,14 @@ const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
 
 };
 
+FormatConverter::FormatConverter() {}
+
+FormatConverter::FormatConverter(const std::string &gamePath,
+                                 const std::string &gameTag)
+    : gamePath{gamePath}, gameTag{gameTag} {}
+
+FormatConverter::~FormatConverter() {}
+
 void FormatConverter::writeBufferPixels(std::vector<unsigned char> &pixels,
                                         int index,
                                         const Fwg::Gfx::Colour &colour,
@@ -472,26 +480,6 @@ void FormatConverter::dump8BitTerrain(
     }
   }
   Bmp::save8bit(hoi4terrain, path);
-}
-
-void FormatConverter::dump8BitCities(const Bitmap &climateIn,
-                                     const std::string &path,
-                                     const std::string &colourMapKey,
-                                     const bool cut) const {
-  Utils::Logging::logLine("FormatConverter::Writing cities to ",
-                          Fwg::Utils::userFilter(path, Cfg::Values().username));
-  Bitmap cities(Cfg::Values().width, Cfg::Values().height, 8);
-  cities.colourtable = colourTables.at(colourMapKey + gameTag);
-  if (!cut) {
-    for (int i = 0; i < Cfg::Values().bitmapSize; i++)
-      cities.setColourAtIndex(
-          i, cities.lookUp(climateIn[i] == Cfg::Values().climateColours["ocean"]
-                               ? 15
-                               : 1));
-  } else {
-    cities = cutBaseMap("//cities.bmp");
-  }
-  Bmp::save8bit(cities, path);
 }
 
 void FormatConverter::dump8BitRivers(
@@ -729,11 +717,4 @@ void FormatConverter::dumpWorldNormal(const Bitmap &sobelMap,
             (path).c_str());
 }
 
-FormatConverter::FormatConverter() {}
-
-FormatConverter::FormatConverter(const std::string &gamePath,
-                                 const std::string &gameTag)
-    : gamePath{gamePath}, gameTag{gameTag} {}
-
-FormatConverter::~FormatConverter() {}
 } // namespace Rpx::Gfx
