@@ -47,7 +47,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 static bool drawBorders = false;
 void GUI::recover() {
   auto &cfg = Fwg::Cfg::Values();
-  auto &generator = *activeModule->generator;
+  auto &generator = *activeGenerator;
   generator.terrainData.deserialize(cfg.mapsPath + "terrainData.bin");
   generator.climateData.deserialize(cfg.mapsPath + "climateData.bin");
   generator.areaData.deserialize(cfg.mapsPath + "areaData.bin");
@@ -68,11 +68,11 @@ void GUI::genericWrapper() {
         false, window_flags);
     if (!validatedPaths)
       ImGui::BeginDisabled();
-    showGeneric(cfg, *activeModule->generator);
+    showGeneric(cfg, *activeGenerator);
     if (!validatedPaths)
       ImGui::EndDisabled();
     ImGui::SameLine();
-    showModuleGeneric(cfg, activeModule);
+    showModuleGeneric(cfg);
     ImGui::EndChild();
     // Draw a frame around the child region
     ImVec2 childMin = ImGui::GetItemRectMin();
@@ -89,22 +89,17 @@ void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
   }
   if (activeGameConfig.gameName == "Hearts of Iron IV") {
     auto hoi4Gen = std::reinterpret_pointer_cast<Hoi4Gen, Rpx::ModGenerator>(
-        activeModule->generator);
-    showStrategicRegionTab(cfg, activeModule->generator);
+        activeGenerator);
+    showStrategicRegionTab(cfg, activeGenerator);
     showCountryTab(cfg);
-    showHoi4Finalise(
-        cfg, std::reinterpret_pointer_cast<Rpx::Hoi4::Hoi4Module,
-                                           Rpx::GenericModule>(activeModule));
+    showHoi4Finalise(cfg);
   } else if (activeGameConfig.gameName == "Victoria 3") {
     auto vic3Gen = std::reinterpret_pointer_cast<Vic3Gen, Rpx::ModGenerator>(
-        activeModule->generator);
-    showStrategicRegionTab(cfg, activeModule->generator);
+        activeGenerator);
+    showStrategicRegionTab(cfg, activeGenerator);
     showCountryTab(cfg);
-    showNavmeshTab(cfg, *activeModule->generator);
-    showVic3Finalise(
-        cfg,
-        std::reinterpret_pointer_cast<Rpx::Vic3::Module, Rpx::GenericModule>(
-            activeModule));
+    showNavmeshTab(cfg, *activeGenerator);
+    showVic3Finalise(cfg);
   }
   if (!configuredScenarioGen) {
     ImGui::EndDisabled();
@@ -141,16 +136,15 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
     this->rpdConf = rpdConf;
     this->configSubFolder = configSubFolder;
     this->username = username;
-    activeModule = std::make_shared<Rpx::Hoi4::Hoi4Module>(
-        Rpx::Hoi4::Hoi4Module(rpdConf, configSubFolder, username, false));
-    activeModule->generator->climateData.addSecondaryColours(
-        Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
-                               "hoi4/colourMappings.txt"));
+    activeGenerator = std::make_shared<Rpx::Hoi4::Generator>(
+        Rpx::Hoi4::Generator(configSubFolder, rpdConf));
+    activeGenerator->climateData.addSecondaryColours(Fwg::Parsing::getLines(
+        Fwg::Cfg::Values().resourcePath + "hoi4/colourMappings.txt"));
     initGameConfigs();
 
-    activeModule->generator->configure(cfg);
+    activeGenerator->configure(cfg);
 
-    init(cfg, *activeModule->generator);
+    init(cfg, *activeGenerator);
 
     while (!done) {
       try {
@@ -213,17 +207,17 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
                 if (computationRunning) {
                   ImGui::BeginDisabled();
                 }
-                showConfigure(cfg, activeModule);
+                showConfigure(cfg);
                 if (!validatedPaths)
                   ImGui::BeginDisabled();
                 if (cfg.debugLevel == 9) {
-                  showModLoader(cfg, activeModule);
+                  showModLoader(cfg);
                 }
-                defaultTabs(cfg, *activeModule->generator);
-                showScenarioTab(cfg, activeModule);
+                defaultTabs(cfg, *activeGenerator);
+                showScenarioTab(cfg);
                 gameSpecificTabs(cfg);
-                auto ardaGen = std::static_pointer_cast<Arda::ArdaGen>(
-                    activeModule->generator);
+                auto ardaGen =
+                    std::static_pointer_cast<Arda::ArdaGen>(activeGenerator);
                 overview(ardaGen, cfg);
                 if (!validatedPaths)
                   ImGui::EndDisabled();
@@ -331,14 +325,19 @@ void GUI::initGameConfigs() {
 }
 
 bool GUI::validatePaths() {
-  validatedPaths = activeModule->findGame(activeModule->pathcfg.gamePath,
-                                          activeGameConfig.gameName);
+  validatedPaths = Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,
+                                        activeGameConfig.gameName,
+                                        activeGenerator->gameSubPath);
   if (validatedPaths)
-    validatedPaths =
-        activeModule->validateGameModFolder(activeGameConfig.gameName);
+    validatedPaths = Rpx::Utils::validateGameModFolder(
+        activeGameConfig.gameName, activeGenerator->pathcfg);
   if (validatedPaths)
-    validatedPaths = activeModule->validateModFolder(activeGameConfig.gameName);
-  activeModule->initFormatConverter();
+    validatedPaths = Rpx::Utils::validateModFolder(activeGameConfig.gameName,
+                                                   activeGenerator->pathcfg);
+  activeGenerator->initFormatConverter();
+  activeGenerator->nData = Rpx::NameGeneration::prepare(
+      Fwg::Cfg::Values().resourcePath + "names",
+      activeGenerator->pathcfg.gamePath, activeGenerator->gameType);
   return validatedPaths;
 }
 
@@ -347,13 +346,12 @@ bool GUI::isRelevantModuleActive(const std::string &shortName) {
 }
 
 // generic configure tab, containing a tab for fwg and rpdx configs
-int GUI::showConfigure(Fwg::Cfg &cfg,
-                       std::shared_ptr<Rpx::GenericModule> &activeModule) {
+int GUI::showConfigure(Fwg::Cfg &cfg) {
 
   if (UI::Elements::BeginMainTabItem("Configure")) {
     uiUtils->showHelpTextBox("Configure");
     if (UI::Elements::BeginSubTabBar("Config tabs", 0.0f)) {
-      showRpdxConfigure(cfg, activeModule);
+      showRpdxConfigure(cfg);
       showFwgConfigure(cfg);
       UI::Elements::EndSubTabBar();
     }
@@ -362,8 +360,7 @@ int GUI::showConfigure(Fwg::Cfg &cfg,
   return 0;
 }
 
-int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
-                           std::shared_ptr<Rpx::GenericModule> &activeModule) {
+int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
   static int item_current = 0;
   // remove the images, and set pretext for them to be auto
   // loaded after switching tabs again
@@ -377,9 +374,11 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
       activeConfig = configSubfolders[item_current];
       // on startup, try to auto locate game and game mod folder, then auto
       // validate
-      activeModule->findGame(activeModule->pathcfg.gamePath,
-                             activeGameConfig.gameName);
-      activeModule->autoLocateGameModFolder(activeGameConfig.gameName);
+      Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,
+                           activeGameConfig.gameName,
+                           activeGenerator->gameSubPath);
+      Rpx::Utils::autoLocateGameModFolder(activeGameConfig.gameName,
+                                          activeGenerator->pathcfg);
       validatePaths();
     }
 
@@ -390,26 +389,27 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
     if (ImGui::ListBox("Game Selection", &selectedGame, gameSelection.data(),
                        gameSelection.size())) {
       if (gameConfigs[selectedGame].gameName == "Hearts of Iron IV") {
-        activeModule = std::make_shared<Rpx::Hoi4::Hoi4Module>(
-            Rpx::Hoi4::Hoi4Module(rpdConf, configSubFolder, username, false));
-        activeModule->generator->climateData.addSecondaryColours(
-            Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
-                                   "hoi4/colourMappings.txt"));
+        activeGenerator = std::make_shared<Rpx::Hoi4::Generator>(
+            Rpx::Hoi4::Generator(configSubFolder, rpdConf));
+        activeGenerator->climateData.addSecondaryColours(Fwg::Parsing::getLines(
+            Fwg::Cfg::Values().resourcePath + "hoi4/colourMappings.txt"));
       } else if (gameConfigs[selectedGame].gameName ==
                  "Europa Universalis IV") {
-        activeModule = std::make_shared<Rpx::Eu4::Module>(
-            Rpx::Eu4::Module(rpdConf, configSubFolder, username));
+        activeGenerator = std::make_shared<Rpx::Eu4::Generator>(
+            Rpx::Eu4::Generator(configSubFolder, rpdConf));
       } else if (gameConfigs[selectedGame].gameName == "Victoria 3") {
-        activeModule = std::make_shared<Rpx::Vic3::Module>(
-            Rpx::Vic3::Module(rpdConf, configSubFolder, username));
+        activeGenerator = std::make_shared<Rpx::Vic3::Generator>(
+            Rpx::Vic3::Generator(configSubFolder, rpdConf));
       }
       activeGameConfig = gameConfigs[selectedGame];
-      activeModule->findGame(activeModule->pathcfg.gamePath,
-                             activeGameConfig.gameName);
-      activeModule->autoLocateGameModFolder(activeGameConfig.gameName);
+      Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,
+                           activeGameConfig.gameName,
+                           activeGenerator->gameSubPath);
+      Rpx::Utils::autoLocateGameModFolder(activeGameConfig.gameName,
+                                          activeGenerator->pathcfg);
       validatedPaths = false;
       validatePaths();
-      activeModule->generator->configure(cfg);
+      activeGenerator->configure(cfg);
     }
     std::vector<const char *> items;
     for (auto &item : configSubfolders)
@@ -423,23 +423,25 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
                                    "//FastWorldGenerator.json");
       cfg.readConfig(activeConfig);
       loadGameConfig(cfg);
-      activeModule->generator->configure(cfg);
+      activeGenerator->configure(cfg);
     }
 
     ImGui::PopItemWidth();
     ImGui::PushItemWidth(600.0f);
-    ImGui::InputText("Mod Name", &activeModule->pathcfg.modName);
-    ImGui::InputText("Game Path", &activeModule->pathcfg.gamePath);
+    ImGui::InputText("Mod Name", &activeGenerator->pathcfg.modName);
+    ImGui::InputText("Game Path", &activeGenerator->pathcfg.gamePath);
     ImGui::InputText("Mods Directory",
-                     &activeModule->pathcfg.gameModsDirectory);
-    ImGui::InputText("Mod Path", &activeModule->pathcfg.gameModPath);
+                     &activeGenerator->pathcfg.gameModsDirectory);
+    ImGui::InputText("Mod Path", &activeGenerator->pathcfg.gameModPath);
     if (ImGui::Button("Try to find game files")) {
-      activeModule->findGame(activeModule->pathcfg.gamePath,
-                             activeGameConfig.gameName);
+      Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,
+                           activeGameConfig.gameName,
+                           activeGenerator->gameSubPath);
     }
     ImGui::SameLine();
     if (ImGui::Button("Try to find the games mods folder")) {
-      activeModule->autoLocateGameModFolder(activeGameConfig.gameName);
+      Rpx::Utils::autoLocateGameModFolder(activeGameConfig.gameName,
+                                          activeGenerator->pathcfg);
     }
     ImGui::SameLine();
     if (ImGui::Button("Validate all paths")) {
@@ -451,7 +453,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
   // force path for cutting to gamePath + maps, but only if no other path
   // defined
   if (cfg.cut) {
-    cfg.loadMapsPath = activeModule->pathcfg.gamePath + "map//";
+    cfg.loadMapsPath = activeGenerator->pathcfg.gamePath + "map//";
   }
   cfg.climateMappingPath = Fwg::Cfg::Values().resourcePath + "" +
                            activeGameConfig.gameShortName +
@@ -459,14 +461,13 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg,
   return 0;
 }
 
-void GUI::showModLoader(Fwg::Cfg &cfg,
-                        std::shared_ptr<Rpx::GenericModule> &genericModule) {
+void GUI::showModLoader(Fwg::Cfg &cfg) {
   if (UI::Elements::BeginMainTabItem("Modloader")) {
     if (triggeredDrag) {
-      auto hoi4Module =
-          std::reinterpret_pointer_cast<Rpx::Hoi4::Hoi4Module,
-                                        Rpx::GenericModule>(genericModule);
-      hoi4Module->readHoi(draggedFile);
+      // auto hoi4Module =
+      //     std::reinterpret_pointer_cast<Rpx::Hoi4::Hoi4Module,
+      //                                   Rpx::GenericModule>(genericModule);
+      // hoi4Module->readHoi(draggedFile);
       triggeredDrag = false;
       uiUtils->resetTexture();
     }
@@ -474,11 +475,10 @@ void GUI::showModLoader(Fwg::Cfg &cfg,
   }
 }
 
-bool GUI::scenarioGenReady(bool printIssue,
-                           std::shared_ptr<Rpx::GenericModule> activeModule) {
+bool GUI::scenarioGenReady(bool printIssue) {
   bool ready = true;
 
-  auto &generator = activeModule->generator;
+  auto &generator = activeGenerator;
   auto &cfg = Fwg::Cfg::Values();
   if (redoRegions) {
     if (printIssue)
@@ -552,11 +552,10 @@ bool GUI::scenarioGenReady(bool printIssue,
   return ready;
 }
 
-int GUI::showScenarioTab(Fwg::Cfg &cfg,
-                         std::shared_ptr<Rpx::GenericModule> activeModule) {
+int GUI::showScenarioTab(Fwg::Cfg &cfg) {
   int retCode = 0;
   static bool scenGenReady = false;
-  scenGenReady = scenarioGenReady(false, activeModule);
+  scenGenReady = scenarioGenReady(false);
   // if we detect a change in the previous tabs, we also reset
   // "configuredScenarioGen", to FORCE the user to remap areas
   if (!scenGenReady) {
@@ -564,14 +563,13 @@ int GUI::showScenarioTab(Fwg::Cfg &cfg,
   }
   if (UI::Elements::BeginMainTabItem("Scenario")) {
     if (uiUtils->tabSwitchEvent()) {
-      uiUtils->updateImage(0, Fwg::Gfx::displayWorldCivilisationMap(
-                                  activeModule->generator->climateData,
-                                  activeModule->generator->provinceMap,
-                                  activeModule->generator->worldMap,
-                                  activeModule->generator->civLayer,
-                                  activeModule->generator->regionMap, ""));
+      uiUtils->updateImage(
+          0, Fwg::Gfx::displayWorldCivilisationMap(
+                 activeGenerator->climateData, activeGenerator->provinceMap,
+                 activeGenerator->worldMap, activeGenerator->civLayer,
+                 activeGenerator->regionMap, ""));
       uiUtils->updateImage(1, Fwg::Gfx::Bitmap());
-      scenGenReady = scenarioGenReady(true, activeModule);
+      scenGenReady = scenarioGenReady(true);
       // if we detect a change in the previous tabs, we also reset
       // "configuredScenarioGen", to FORCE the user to remap areas
       if (!scenGenReady) {
@@ -590,30 +588,27 @@ int GUI::showScenarioTab(Fwg::Cfg &cfg,
       ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
                             ImVec4(0.3f, 0.7f, 1.0f, 1.0f)); // hover
       ImGui::PushStyleColor(ImGuiCol_ButtonActive,
-                            ImVec4(0.1f, 0.4f, 0.8f, 1.0f));  // clicked
-      ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f); // rounded corners
+                            ImVec4(0.1f, 0.4f, 0.8f, 1.0f)); // clicked
+      ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding,
+                          6.0f); // rounded corners
       ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f); // add border
       if (ImGui::Button("Remap areas every single time you change something in "
                         "the previous tabs on the left.",
                         ImVec2(ImGui::GetContentRegionAvail().x * 0.8f, 50))) {
-        if (!activeModule->createPaths()) {
+        if (!activeGenerator->createPaths()) {
           Fwg::Utils::Logging::logLine("ERROR: Couldn't create paths");
           retCode = -1;
         }
-        activeModule->initNameData(Fwg::Cfg::Values().resourcePath + "names",
-                                   activeModule->pathcfg.gamePath);
         // start with the generic stuff in the Scenario Generator
-        activeModule->generator->wrapup(cfg);
-        activeModule->generator->mapProvinces();
-        activeModule->generator->mapRegions();
-        activeModule->generator->mapTerrain();
-        activeModule->generator->mapContinents();
+        activeGenerator->wrapup(cfg);
+        activeGenerator->mapProvinces();
+        activeGenerator->mapRegions();
+        activeGenerator->mapTerrain();
+        activeGenerator->mapContinents();
         Arda::Civilization::generateWorldCivilizations(
-            activeModule->generator->ardaRegions,
-            activeModule->generator->ardaProvinces,
-            activeModule->generator->civData,
-            activeModule->generator->scenContinents,
-            activeModule->generator->superRegions);
+            activeGenerator->ardaRegions, activeGenerator->ardaProvinces,
+            activeGenerator->civData, activeGenerator->scenContinents,
+            activeGenerator->superRegions);
 
         configuredScenarioGen = true;
       }
@@ -621,9 +616,9 @@ int GUI::showScenarioTab(Fwg::Cfg &cfg,
       ImGui::PopStyleColor(3);
       ImGui::PushItemWidth(200.0f);
       ImGui::InputDouble("WorldPopulationFactor",
-                         &activeModule->generator->worldPopulationFactor, 0.1);
+                         &activeGenerator->worldPopulationFactor, 0.1);
       ImGui::InputDouble("industryFactor",
-                         &activeModule->generator->worldIndustryFactor, 0.1);
+                         &activeGenerator->worldIndustryFactor, 0.1);
       if (isRelevantModuleActive("hoi4")) {
         auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
         showHoi4Configure(cfg, hoi4Gen);
@@ -774,7 +769,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
 
 int GUI::showCountryTab(Fwg::Cfg &cfg) {
   if (UI::Elements::BeginMainTabItem("Countries")) {
-    auto &generator = activeModule->generator;
+    auto &generator = activeGenerator;
     if (uiUtils->tabSwitchEvent(true)) {
       uiUtils->updateImage(
           0, generator->visualiseCountries(generator->countryMap));
@@ -796,8 +791,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
     // &generator->countryMappingPath); ImGui::InputText("Path to state list:
     // ", &generator->regionMappingPath);
     ImGui::Checkbox("Draw-borders", &drawBorders);
-    auto exportLocation =
-        Fwg::Cfg::Values().mapsPath + "//exports//";
+    auto exportLocation = Fwg::Cfg::Values().mapsPath + "//exports//";
     if (ImGui::Button(("Export current state of countries and states to " +
                        exportLocation)
                           .c_str())) {
@@ -941,24 +935,22 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
   return 0;
 }
 
-int GUI::showModuleGeneric(Fwg::Cfg &cfg,
-                           std::shared_ptr<Rpx::GenericModule> genericModule) {
+int GUI::showModuleGeneric(Fwg::Cfg &cfg) {
   if (!validatedPaths)
     ImGui::BeginDisabled();
-  if (genericModule->generator->terrainData.detailedHeightMap.size() &&
-      genericModule->generator->climateMap.initialised() &&
-      genericModule->generator->provinceMap.initialised() &&
-      genericModule->generator->regionMap.initialised()) {
+  if (activeGenerator->terrainData.detailedHeightMap.size() &&
+      activeGenerator->climateMap.initialised() &&
+      activeGenerator->provinceMap.initialised() &&
+      activeGenerator->regionMap.initialised()) {
     if (ImGui::Button(
             std::string("Generate " + activeGameConfig.gameName + " mod")
                 .c_str())) {
 
-      computationFutureBool =
-          runAsyncInitialDisable([genericModule, &cfg, this]() {
-            genericModule->generate();
-            configuredScenarioGen = true;
-            return true;
-          });
+      computationFutureBool = runAsyncInitialDisable([&cfg, this]() {
+        activeGenerator->generate();
+        configuredScenarioGen = true;
+        return true;
+      });
     }
   }
   ImGui::SameLine();
@@ -966,13 +958,12 @@ int GUI::showModuleGeneric(Fwg::Cfg &cfg,
                                 activeGameConfig.gameName + " mod in one go")
                         .c_str())) {
 
-    computationFutureBool =
-        runAsyncInitialDisable([genericModule, &cfg, this]() {
-          genericModule->generator->generateWorld();
-          genericModule->generate();
-          configuredScenarioGen = true;
-          return true;
-        });
+    computationFutureBool = runAsyncInitialDisable([&cfg, this]() {
+      activeGenerator->generateWorld();
+      activeGenerator->generate();
+      configuredScenarioGen = true;
+      return true;
+    });
   }
   if (!validatedPaths)
     ImGui::EndDisabled();
@@ -1008,12 +999,12 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
           if (activeGameConfig.gameName == "Hearts of Iron IV") {
             auto hoi4Gen =
                 std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
-                    activeModule->generator);
+                    activeGenerator);
             hoi4Gen->generateWeather();
           } else if (activeGameConfig.gameName == "Victoria 3") {
             auto vic3Gen =
                 std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
-                    activeModule->generator);
+                    activeGenerator);
             // do stuff
           }
           return true;
@@ -1111,11 +1102,11 @@ void GUI::pathWarning(std::exception e) {
       "Error in writing files: ", e.what(),
       " you probably have misconfigured paths to the mods directory. "
       "According to you, this is located at the following path: ",
-      activeModule->pathcfg.gameModPath);
+      activeGenerator->pathcfg.gameModPath);
   Fwg::Utils::Logging::logLine("The path to the mod folder is set to ",
-                               activeModule->pathcfg.gameModsDirectory,
+                               activeGenerator->pathcfg.gameModsDirectory,
                                " while the path to the game is set to ",
-                               activeModule->pathcfg.gamePath);
+                               activeGenerator->pathcfg.gamePath);
   Fwg::Utils::Logging::logLine(
       "Please check if the paths are correct, and if the mod folder is "
       "located in the mods directory of the game. You may now "
@@ -1123,27 +1114,26 @@ void GUI::pathWarning(std::exception e) {
       "again.");
 }
 
-int GUI::showHoi4Finalise(Fwg::Cfg &cfg,
-                          std::shared_ptr<Rpx::Hoi4::Hoi4Module> hoi4Module) {
+int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
   if (UI::Elements::BeginMainTabItem("Finalise")) {
     uiUtils->tabSwitchEvent();
     uiUtils->showHelpTextBox("Finalise");
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
-    auto &generator = hoi4Module->hoi4Gen;
+    auto generator = getGeneratorPointer<Rpx::Hoi4::Generator>();
     if (generator->superRegions.size() && generator->provinceMap.size() &&
         generator->statesInitialised && !requireCountryDetails) {
 
       if (ImGui::Button("Export complete mod")) {
-        computationFutureBool = runAsync([generator, hoi4Module, &cfg, this]() {
+        computationFutureBool = runAsync([generator, &cfg, this]() {
           // now generate hoi4 specific stuff
           try {
             // to recalc if state data was changed after country
             // generation
             generator->evaluateCountries();
-            hoi4Module->writeImages();
-            hoi4Module->writeTextFiles();
-            hoi4Module->writeLocalisation();
+            generator->writeImages();
+            generator->writeTextFiles();
+            generator->writeLocalisation();
             generator->printStatistics();
           } catch (std::exception e) {
             pathWarning(e);
@@ -1153,40 +1143,37 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg,
       }
 
       if (ImGui::Button("Export heightmap.bmp")) {
-        hoi4Module->formatConverter.dump8BitHeightmap(
-            hoi4Module->generator->terrainData.detailedHeightMap,
-            hoi4Module->pathcfg.gameModPath + "//map//heightmap", "heightmap");
+        generator->getFormatConverter().dump8BitHeightmap(
+            generator->terrainData.detailedHeightMap,
+            generator->pathcfg.gameModPath + "//map//heightmap", "heightmap");
       }
       if (ImGui::Button("Export world_normal.bmp")) {
-        hoi4Module->formatConverter.dumpWorldNormal(
-            Fwg::Gfx::displaySobelMap(
-                hoi4Module->generator->terrainData.sobelData),
-            hoi4Module->pathcfg.gameModPath + "//map//world_normal.bmp", false);
+        generator->getFormatConverter().dumpWorldNormal(
+            Fwg::Gfx::displaySobelMap(generator->terrainData.sobelData),
+            generator->pathcfg.gameModPath + "//map//world_normal.bmp", false);
       }
       if (ImGui::Button("Export terrain.bmp")) {
-        hoi4Module->formatConverter.dump8BitTerrain(
-            hoi4Module->generator->terrainData,
-            hoi4Module->generator->climateData, hoi4Module->generator->civLayer,
-            hoi4Module->pathcfg.gameModPath + "//map//terrain.bmp", "terrain",
+        generator->getFormatConverter().dump8BitTerrain(
+            generator->terrainData, generator->climateData, generator->civLayer,
+            generator->pathcfg.gameModPath + "//map//terrain.bmp", "terrain",
             false);
       }
       if (ImGui::Button("Export provinces.bmp")) {
         Fwg::Gfx::Bmp::save(
-            hoi4Module->generator->provinceMap,
-            (hoi4Module->pathcfg.gameModPath + ("//map//provinces.bmp"))
+            generator->provinceMap,
+            (generator->pathcfg.gameModPath + ("//map//provinces.bmp"))
                 .c_str());
       }
       if (ImGui::Button("Export treemap.bmp")) {
-        hoi4Module->formatConverter.dump8BitTrees(
-            hoi4Module->generator->terrainData,
-            hoi4Module->generator->climateData,
-            hoi4Module->pathcfg.gameModPath + "//map//trees.bmp", "trees",
+        generator->getFormatConverter().dump8BitTrees(
+            generator->terrainData, generator->climateData,
+            generator->pathcfg.gameModPath + "//map//trees.bmp", "trees",
             false);
       }
       if (ImGui::Button("Export colormap_rgb_cityemissivemask_a.dds")) {
-        hoi4Module->formatConverter.dumpTerrainColourmap(
-            hoi4Module->generator->worldMap, hoi4Module->generator->civLayer,
-            hoi4Module->pathcfg.gameModPath,
+        generator->getFormatConverter().dumpTerrainColourmap(
+            generator->worldMap, generator->civLayer,
+            generator->pathcfg.gameModPath,
             "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
             DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
       }
@@ -1225,11 +1212,9 @@ int GUI::showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator) {
   return 0;
 }
 
-void GUI::showSplineTab(Fwg::Cfg &cfg,
-                        std::shared_ptr<Rpx::Vic3::Module> vic3Module) {
+void GUI::showSplineTab(Fwg::Cfg &cfg) {
   if (UI::Elements::BeginMainTabItem("Splines")) {
     uiUtils->tabSwitchEvent();
-    const auto &generator = vic3Module->getGenerator();
 
     // drag event is ignored here
     if (triggeredDrag) {
@@ -1243,21 +1228,20 @@ void GUI::showSplineTab(Fwg::Cfg &cfg,
   }
 }
 
-int GUI::showVic3Finalise(Fwg::Cfg &cfg,
-                          std::shared_ptr<Rpx::Vic3::Module> vic3Module) {
+int GUI::showVic3Finalise(Fwg::Cfg &cfg) {
   if (UI::Elements::BeginMainTabItem("Finalise")) {
     uiUtils->tabSwitchEvent();
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
-    const auto &generator = vic3Module->getGenerator();
+    const auto &generator = getGeneratorPointer<Rpx::Vic3::Generator>();
     if (generator->superRegions.size()) {
       if (ImGui::Button("Export mod")) {
-        computationFutureBool = runAsync([generator, vic3Module, &cfg, this]() {
+        computationFutureBool = runAsync([generator, &cfg, this]() {
           // Vic3 specifics:
           generator->distributePops();
           generator->distributeResources();
           generator->mapCountries();
-          if (!generator->importData(vic3Module->pathcfg.gamePath +
+          if (!generator->importData(generator->pathcfg.gamePath +
                                      "//game//")) {
             Fwg::Utils::Logging::logLine(
                 "ERROR: Could not import data from game "
@@ -1271,9 +1255,9 @@ int GUI::showVic3Finalise(Fwg::Cfg &cfg,
             generator->calculateNeeds();
             generator->distributeBuildings();
             try {
-              vic3Module->writeSplnet();
-              vic3Module->writeImages();
-              vic3Module->writeTextFiles();
+              generator->writeSplnet();
+              generator->writeImages();
+              generator->writeTextFiles();
             } catch (std::exception e) {
               pathWarning(e);
             }

@@ -2,12 +2,150 @@
 using namespace Fwg;
 using namespace Fwg::Gfx;
 namespace Rpx::Hoi4 {
-Generator::Generator() {}
 
-Generator::Generator(const std::string &configSubFolder)
-    : Rpx::ModGenerator(configSubFolder) {}
+Generator::Generator(const std::string &configSubFolder,
+                     const boost::property_tree::ptree &rpdConf)
+    : Rpx::ModGenerator(configSubFolder, GameType::Hoi4, "hoi4.exe", rpdConf) {
+  configureModGen(configSubFolder, Fwg::Cfg::Values().username, rpdConf);
+}
 
 Generator::~Generator() {}
+
+bool Generator::createPaths() {
+  // prepare folder structure
+  try {
+    // generic cleanup and path creation
+    using namespace std::filesystem;
+    // GenericModule::createPaths(pathcfg.gameModPath);
+    create_directory(pathcfg.gameModPath);
+    // map
+    remove_all(pathcfg.gameModPath + "//map//");
+    remove_all(pathcfg.gameModPath + "//gfx");
+    remove_all(pathcfg.gameModPath + "//events//");
+    remove_all(pathcfg.gameModPath + "//history");
+    remove_all(pathcfg.gameModPath + "//common//");
+    remove_all(pathcfg.gameModPath + "//portraits//");
+    remove_all(pathcfg.gameModPath + "//localisation//");
+    create_directory(pathcfg.gameModPath + "//map//");
+    create_directory(pathcfg.gameModPath + "//map//terrain//");
+    // gfx
+    create_directory(pathcfg.gameModPath + "//gfx//");
+    create_directory(pathcfg.gameModPath + "//gfx//flags//");
+    // history
+    create_directory(pathcfg.gameModPath + "//history//");
+    // localisation
+    create_directory(pathcfg.gameModPath + "//localisation//");
+    // portraits
+    create_directory(pathcfg.gameModPath + "//portraits//");
+    // common
+    create_directory(pathcfg.gameModPath + "//common//");
+    // map
+    create_directory(pathcfg.gameModPath + "//map//strategicregions//");
+    // gfx
+    create_directory(pathcfg.gameModPath + "//gfx//flags//small//");
+    create_directory(pathcfg.gameModPath + "//gfx//flags//medium//");
+    // history
+    create_directory(pathcfg.gameModPath + "//history//units//");
+    create_directory(pathcfg.gameModPath + "//history//states//");
+    create_directory(pathcfg.gameModPath + "//history//countries//");
+    // localisation
+    create_directory(pathcfg.gameModPath + "//localisation//english//");
+    // common
+    create_directory(pathcfg.gameModPath + "//common//national_focus//");
+    create_directory(pathcfg.gameModPath + "//common//countries//");
+    create_directory(pathcfg.gameModPath + "//common//characters//");
+    create_directory(pathcfg.gameModPath + "//common//ideas//");
+    create_directory(pathcfg.gameModPath + "//common//bookmarks//");
+    create_directory(pathcfg.gameModPath + "//common//country_tags//");
+    create_directory(pathcfg.gameModPath + "//common//names//");
+    create_directory(pathcfg.gameModPath + "//common//scripted_triggers//");
+    //
+    create_directory(pathcfg.gameModPath + "//tutorial//");
+    return true;
+  } catch (std::exception e) {
+    std::string error =
+        "Configured paths seem to be messed up, check Hoi4Module.json\n";
+    error += "You can try fixing it yourself. Error is:\n ";
+    error += e.what();
+    Fwg::Utils::Logging::logLine(error);
+    throw(std::exception(error.c_str()));
+    return false;
+  }
+}
+
+void Generator::configureModGen(const std::string &configSubFolder,
+                                const std::string &username,
+                                const boost::property_tree::ptree &rpdConf) {
+  Fwg::Utils::Logging::logLine("Reading Hoi4 Config");
+  Rpx::Utils::configurePaths(username, "Hearts of Iron IV", rpdConf,
+                             this->pathcfg);
+
+  auto &config = Cfg::Values();
+  namespace pt = boost::property_tree;
+  pt::ptree hoi4Conf;
+  try {
+    // Read the basic settings
+    std::ifstream f(configSubFolder + "//Hearts of Iron IVModule.json");
+    std::stringstream buffer;
+    if (!f.good())
+      Fwg::Utils::Logging::logLine("Config could not be loaded");
+    buffer << f.rdbuf();
+    Fwg::Parsing::replaceInStringStream(buffer, "//", "//");
+
+    pt::read_json(buffer, hoi4Conf);
+  } catch (std::exception e) {
+    Fwg::Utils::Logging::logLine("Incorrect config \"RandomParadox.json\"");
+    Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
+                                 e.what());
+    Fwg::Utils::Logging::logLine(
+        "Otherwise try running it through a json validator, e.g. "
+        "\"https://jsonlint.com/\" or search for \"json validator\"");
+    system("pause");
+  }
+  // default values taken from base game
+  this->resources = {
+      {"aluminium",
+       {hoi4Conf.get<double>("hoi4.aluminiumFactor"), 1169.0, 0.3}},
+      {"chromium", {hoi4Conf.get<double>("hoi4.chromiumFactor"), 1250.0, 0.2}},
+      {"oil", {hoi4Conf.get<double>("hoi4.oilFactor"), 1220.0, 0.1}},
+      {"rubber", {hoi4Conf.get<double>("hoi4.rubberFactor"), 1029.0, 0.1}},
+      {"steel", {hoi4Conf.get<double>("hoi4.steelFactor"), 2562.0, 0.5}},
+      {"tungsten", {hoi4Conf.get<double>("hoi4.tungstenFactor"), 1188.0, 0.2}}};
+  this->weatherChances = {
+      {"baseLightRainChance", hoi4Conf.get<double>("hoi4.baseLightRainChance")},
+      {"baseHeavyRainChance", hoi4Conf.get<double>("hoi4.baseHeavyRainChance")},
+      {"baseMudChance", hoi4Conf.get<double>("hoi4.baseMudChance")},
+      {"baseBlizzardChance", hoi4Conf.get<double>("hoi4.baseBlizzardChance")},
+      {"baseSandstormChance", hoi4Conf.get<double>("hoi4.baseSandstormChance")},
+      {"baseSnowChance", hoi4Conf.get<double>("hoi4.baseSnowChance")}};
+  this->worldPopulationFactor =
+      hoi4Conf.get<double>("scenario.worldPopulationFactor");
+  this->worldIndustryFactor = hoi4Conf.get<double>("scenario.industryFactor");
+  this->resourceFactor = hoi4Conf.get<double>("hoi4.resourceFactor");
+
+  // settings for scenGen
+  this->countryMappingPath =
+      rpdConf.get<std::string>("randomScenario.countryColourMap");
+
+  //  passed to generic Scenariohoi4Gen
+  this->numCountries = hoi4Conf.get<int>("scenario.numCountries");
+  // force defaults for the game, if not set otherwise
+  if (config.targetLandRegionAmount == 0 && config.autoLandRegionParams)
+    config.targetLandRegionAmount = 640;
+  // force defaults for the game, if not set otherwise
+  if (config.targetSeaRegionAmount == 0 && config.autoSeaRegionParams)
+    config.targetSeaRegionAmount = 160;
+  config.forceResolutionBase = true;
+  config.resolutionBase = 256;
+  config.autoSplitProvinces = false;
+  config.miningPerRegion = 0;
+  config.forestryPerRegion = 0;
+  config.citiesPerRegion = 5;
+  config.portsPerRegion = 1;
+  config.agriculturePerRegion = 3;
+  // check if config settings are fine
+  config.sanityCheck();
+}
 
 void Generator::mapRegions() {
   Fwg::Utils::Logging::logLine("Mapping Regions");
@@ -2186,4 +2324,181 @@ bool Generator::loadRivers(Fwg::Cfg &config,
   // mapped river input
   return FastWorldGenerator::loadRivers(config, riverCopy);
 }
+
+void Generator::initFormatConverter() {
+  formatConverter = Gfx::Hoi4::FormatConverter(pathcfg.gamePath, "Hoi4");
+}
+
+void Generator::writeTextFiles() {
+  using namespace Parsing::Writing;
+  Fwg::Utils::Logging::logLine(
+      "Writing Hoi4 mod text files to path: ",
+      Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
+  Map::adj(pathcfg.gameModPath + "//map//adjacencies.csv");
+  Map::adjacencyRules(pathcfg.gameModPath + "//map//adjacency_rules.txt");
+  Map::ambientObjects(pathcfg.gameModPath + "//map//ambient_object.txt");
+  Map::supply(pathcfg.gameModPath + "//map//", supplyNodeConnections);
+  Map::buildings(pathcfg.gameModPath + "//map//buildings.txt", hoi4States);
+  Map::continents(pathcfg.gameModPath + "//map//continent.txt", scenContinents,
+                  pathcfg.gamePath,
+                  pathcfg.gameModPath +
+                      "//localisation//english//province_names_l_english.yml");
+  Map::definition(pathcfg.gameModPath + "//map//definition.csv", ardaProvinces);
+  Map::strategicRegions(pathcfg.gameModPath + "//map//strategicregions",
+                        areaData.regions, superRegions);
+  Map::unitStacks(pathcfg.gameModPath + "//map//unitstacks.txt", ardaProvinces,
+                  hoi4States, terrainData.detailedHeightMap);
+  Map::weatherPositions(pathcfg.gameModPath + "//map//weatherpositions.txt",
+                        areaData.regions, superRegions);
+
+  Countries::commonCountryTags(pathcfg.gameModPath +
+                                   "//common//country_tags//02_countries.txt",
+                               hoi4Countries);
+  Countries::commonCountries(
+      pathcfg.gameModPath + "//common//countries//",
+      pathcfg.gamePath + "//common//countries//colors.txt", hoi4Countries);
+  Countries::commonCharacters(pathcfg.gameModPath + "//common//characters//",
+                              hoi4Countries);
+  Countries::commonNames(pathcfg.gameModPath + "//common//names//00_names.txt",
+                         hoi4Countries);
+  Countries::foci(pathcfg.gameModPath + "//common//national_focus//",
+                  hoi4Countries, nData);
+  Countries::flags(pathcfg.gameModPath + "//gfx//flags//", hoi4Countries);
+  Countries::historyCountries(pathcfg.gameModPath + "//history//countries//",
+                              hoi4Countries, pathcfg.gamePath,
+                              areaData.regions);
+  Countries::historyUnits(pathcfg.gameModPath + "//history//units//",
+                          hoi4Countries);
+  Countries::ideas(pathcfg.gameModPath + "//common//ideas//", hoi4Countries);
+  Countries::portraits(pathcfg.gameModPath + "//portraits//", hoi4Countries);
+  Countries::states(pathcfg.gameModPath + "//history//states", hoi4States);
+
+  aiStrategy(pathcfg.gameModPath + "//common//", scenContinents);
+  events(pathcfg.gameModPath + "//");
+  commonBookmarks(pathcfg.gameModPath + "//common//bookmarks//", hoi4Countries,
+                  countryImportanceScores);
+  tutorials(pathcfg.gameModPath + "//tutorial//tutorial.txt");
+  copyDescriptorFile(Fwg::Cfg::Values().resourcePath + "hoi4//descriptor.mod",
+                     pathcfg.gameModPath, pathcfg.gameModsDirectory,
+                     pathcfg.modName);
+
+  /*scriptedTriggers(pathcfg.gamePath + "//common//scripted_triggers//",
+                   pathcfg.gameModPath + "//common//scripted_triggers//");*/
+  // commonFiltering(pathcfg.gamePath, pathcfg.gameModPath);
+}
+void Generator::writeLocalisation() {
+
+  using namespace Parsing::Writing::Localisation;
+  stateNames(pathcfg.gameModPath + "//localisation//english//", hoi4Countries);
+  countryNames(pathcfg.gameModPath + "//localisation//english//", hoi4Countries,
+               nData);
+  strategicRegionNames(pathcfg.gameModPath + "//localisation//english//",
+                       superRegions);
+  victoryPointNames(pathcfg.gameModPath + "//localisation//english//",
+                    hoi4States);
+}
+void Generator::writeImages() {
+  Fwg::Utils::Logging::logLine(
+      "Writing Hoi4 mod image files to path: ",
+      Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
+
+  formatConverter.dump8BitTerrain(terrainData, climateData, civLayer,
+                                  pathcfg.gameModPath + "//map//terrain.bmp",
+                                  "terrain", false);
+  formatConverter.dump8BitCities(
+      climateMap, pathcfg.gameModPath + "//map//cities.bmp", "cities", false);
+  formatConverter.dump8BitRivers(terrainData, climateData,
+                                 pathcfg.gameModPath + "//map//rivers",
+                                 "rivers", false);
+  formatConverter.dump8BitTrees(terrainData, climateData,
+                                pathcfg.gameModPath + "//map//trees.bmp",
+                                "trees", false);
+  formatConverter.dump8BitHeightmap(terrainData.detailedHeightMap,
+                                    pathcfg.gameModPath + "//map//heightmap",
+                                    "heightmap");
+  formatConverter.dumpTerrainColourmap(
+      worldMap, civLayer, pathcfg.gameModPath,
+      "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
+      DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
+  formatConverter.dumpDDSFiles(
+      terrainData.detailedHeightMap,
+      pathcfg.gameModPath + "//map//terrain//colormap_water_", false, 8);
+  formatConverter.dumpWorldNormal(
+      Fwg::Gfx::Bitmap(Cfg::Values().width, Cfg::Values().height, 24,
+                       terrainData.sobelData),
+      pathcfg.gameModPath + "//map//world_normal.bmp", false);
+
+  // just copy over provinces.bmp, already in a compatible format
+  Fwg::Gfx::Bmp::save(provinceMap,
+                      (pathcfg.gameModPath + ("//map//provinces.bmp")).c_str());
+}
+
+void Generator::generate() {
+  const auto &config = Fwg::Cfg::Values();
+  if (config.width % 64 || config.height % 64) {
+    throw(std::exception("Invalid format, both width and height of the image "
+                         "must be multiples of 64."));
+  } else if (config.scale && (config.scaleX % 64 || config.scaleY % 64)) {
+    throw(std::exception("Invalid target dimensions for scaling mode, both "
+                         "scaleX and scaleY of the image "
+                         "must be multiples of 64."));
+  }
+  if (!createPaths())
+    return;
+  try {
+    // start with the generic stuff in the Scenario hoi4Gen
+    mapProvinces();
+    mapRegions();
+    mapContinents();
+    mapTerrain();
+    // generate generic world data
+    Arda::Civilization::generateWorldCivilizations(
+        ardaRegions, ardaProvinces, civData, scenContinents, superRegions);
+
+    // non-country stuff
+    auto stratFactory = []() -> std::shared_ptr<StrategicRegion> {
+      return std::make_shared<StrategicRegion>();
+    };
+    generateStrategicRegions(stratFactory);
+    generateWeather();
+    // generate state information
+    generateStateSpecifics();
+    generateStateResources();
+    auto countryFactory = []() -> std::shared_ptr<Hoi4Country> {
+      return std::make_shared<Hoi4Country>();
+    };
+    // generate country data
+    generateCountries(countryFactory);
+
+    generateLogistics();
+    // politics, etc
+    generateCountrySpecifics();
+
+    NationalFocus::buildMaps();
+    generateFocusTrees();
+    distributeVictoryPoints();
+    generatePositions();
+
+  } catch (std::exception e) {
+    std::string error = "Error while generating the Hoi4 Module.\n";
+    error += "Error is: \n";
+    error += e.what();
+    Fwg::Utils::Logging::logLine(error);
+  }
+  // now start writing game files
+  try {
+    writeImages();
+    writeTextFiles();
+    writeLocalisation();
+  } catch (std::exception e) {
+    std::string error = "Error while dumping and writing files.\n";
+    error += "Error is: \n";
+    error += e.what();
+    Fwg::Utils::Logging::logLine(error);
+  }
+  // now if everything worked, print info about world and pause for user to
+  // see
+  printStatistics();
+}
+
 } // namespace Rpx::Hoi4

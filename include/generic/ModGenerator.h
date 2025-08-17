@@ -1,26 +1,31 @@
 #pragma once
 #include "ArdaGen.h"
+#include "generic/StrategicRegion.h"
 #include "io/ResourceLoading.h"
 #include "namegeneration/NameGenerator.h"
 #include "rendering/Images.h"
 #include <map>
 namespace Rpx {
-class StrategicRegion : public Arda::SuperRegion {
-public:
-  // weather: month{averageTemp, standard deviation, average precipitation,
-  // tempLow, tempHigh, tempNightly, snowChance, lightRainChance,
-  // heavyRainChance, blizzardChance,mudChance, sandstormChance}
-  std::vector<std::vector<double>> weatherMonths;
-};
 
 class ModGenerator : public Arda::ArdaGen {
 
 public:
   // vars - used for every game
-  ModGenerator();
-  ModGenerator(const std::string &configSubFolder);
-  ModGenerator(Arda::ArdaGen &scenGen);
+  GameType gameType = GameType::Generic;
+
+  // optional for every game
+  std::string gameSubPath = "";
+  Utils::Pathcfg pathcfg;
+  // constructors&destructor
+  ModGenerator(const std::string &configSubFolder, const GameType &gameType,
+               const std::string &gameSubpath,
+               const boost::property_tree::ptree &rpdConf);
   ~ModGenerator();
+  virtual bool createPaths() = 0;
+
+  virtual void configureModGen(const std::string &configSubFolder,
+                               const std::string &username,
+                               const boost::property_tree::ptree &rpdConf) = 0;
 
   // mapping terrain types of FastWorldGen to module
   // compatible terrains
@@ -29,6 +34,11 @@ public:
   virtual void mapCountries();
 
   virtual void cutFromFiles(const std::string &gamePath);
+
+  virtual void generate() = 0;
+  virtual void initFormatConverter() = 0;
+  virtual void writeTextFiles() = 0;
+  virtual void writeImages() = 0;
 
 }; // namespace Rpx
 } // namespace Rpx

@@ -1,13 +1,12 @@
 #pragma once
 #include "ArdaUI/ArdaUI.h"
 #include "FastWorldGenerator.h"
-#include "eu4/Eu4Module.h"
+#include "eu4/Eu4Generator.h"
 #include "hoi4/Hoi4Generator.h"
-#include "hoi4/Hoi4Module.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "utils/RpxUtils.h"
 #include "vic3/Splnet.h"
-#include "vic3/Vic3Module.h"
+#include "vic3/Vic3Generator.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <d3d11.h>
@@ -32,7 +31,8 @@ class GUI : public Arda::ArdaUI {
   pt::ptree rpdConf;
   std::string configSubFolder;
   std::string username;
-  std::shared_ptr<Rpx::GenericModule> activeModule;
+  // std::shared_ptr<Rpx::GenericModule> activeModule;
+  std::shared_ptr<Rpx::ModGenerator> activeGenerator;
   bool loadedConfigs = false;
   bool configuredScenarioGen = false;
   bool validatedPaths = false;
@@ -45,45 +45,36 @@ class GUI : public Arda::ArdaUI {
   bool validatePaths();
   bool isRelevantModuleActive(const std::string &shortName);
   template <class T> constexpr std::shared_ptr<T> getGeneratorPointer() {
-    return std::reinterpret_pointer_cast<T, Arda::ArdaGen>(
-        activeModule->generator);
+    return std::reinterpret_pointer_cast<T, Arda::ArdaGen>(activeGenerator);
   }
-  int showConfigure(Fwg::Cfg &cfg,
-                    std::shared_ptr<Rpx::GenericModule> &genericModule);
-  int showRpdxConfigure(Fwg::Cfg &cfg,
-                        std::shared_ptr<Rpx::GenericModule> &genericModule);
-  void showModLoader(Fwg::Cfg &cfg,
-                     std::shared_ptr<Rpx::GenericModule> &genericModule);
-  bool scenarioGenReady(bool printIssue,
-                        std::shared_ptr<Rpx::GenericModule> activeModule);
+  int showConfigure(Fwg::Cfg &cfg);
+  int showRpdxConfigure(Fwg::Cfg &cfg);
+  void showModLoader(Fwg::Cfg &cfg);
+  bool scenarioGenReady(bool printIssue);
   // generic scenario stuff
-  int showScenarioTab(Fwg::Cfg &cfg,
-                      std::shared_ptr<Rpx::GenericModule> genericModule);
+  int showScenarioTab(Fwg::Cfg &cfg);
   void countryEdit(std::shared_ptr<Arda::ArdaGen> generator);
   int showCountryTab(Fwg::Cfg &cfg);
 
-  int showModuleGeneric(Fwg::Cfg &cfg,
-                        std::shared_ptr<Rpx::GenericModule> genericModule);
+  int showModuleGeneric(Fwg::Cfg &cfg);
   int showStrategicRegionTab(Fwg::Cfg &cfg,
-                             std::shared_ptr<Rpx::ModGenerator>& generator);
+                             std::shared_ptr<Rpx::ModGenerator> &generator);
   // to display the terrain maps/masks etc
   int showTerrainTab(Fwg::Cfg &cfg, std::shared_ptr<Arda::ArdaGen> generator);
   // HOI stuff
   int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
   void pathWarning(std::exception e);
-  int showHoi4Finalise(Fwg::Cfg &cfg,
-                       std::shared_ptr<Rpx::Hoi4::Hoi4Module> hoi4Module);
+  int showHoi4Finalise(Fwg::Cfg &cfg);
   // Vic3 stuff
   int showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator);
-  void showSplineTab(Fwg::Cfg &cfg,
-                     std::shared_ptr<Rpx::Vic3::Module> vic3Module);
-  int showVic3Finalise(Fwg::Cfg &cfg,
-                       std::shared_ptr<Rpx::Vic3::Module> vic3Module);
+  void showSplineTab(Fwg::Cfg &cfg);
+  int showVic3Finalise(Fwg::Cfg &cfg);
 
   // generic stuff
   int showStatisticsTab();
 
-  void recover();;
+  void recover();
+  ;
 
   // std::vector<VisualLayer> layers = {
   //     {"World Map", 0.1f, false, &activeModule->generator->worldMap},

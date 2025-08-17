@@ -1,7 +1,8 @@
 #pragma once
+#include "ArdaGen.h"
 #include "FastWorldGenerator.h"
+#include "generic/StrategicRegion.h"
 #include "hoi4/Hoi4Country.h"
-#include "hoi4/Hoi4Generator.h"
 #include "io/Textures.h"
 #include "namegeneration/NameGenerator.h"
 #include "parsing/ParserUtils.h"
@@ -112,7 +113,7 @@ namespace Reading {
 struct ChangeHolder;
 
 Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path);
-void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen);
+void readStates(const std::string &path, Fwg::Areas::AreaData &areaData);
 
 std::vector<Fwg::Areas::Province> readProvinceMap(const std::string &path);
 void readAirports(const std::string &path,

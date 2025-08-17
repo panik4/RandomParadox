@@ -1640,43 +1640,43 @@ Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
 }
 // states are where tags are written down, expressing ownership of the map
 // read them in from path, map province IDs against states
-void readStates(const std::string &path, std::shared_ptr<Generator> &hoi4Gen) {
+void readStates(const std::string &path, Fwg::Areas::AreaData &areaData) {
   using namespace Rpx::Parsing;
-  auto states = pU::readFilesInDirectory(path + "/history/states");
+  //auto states = pU::readFilesInDirectory(path + "/history/states");
 
-  Fwg::Utils::ColourTMap<Fwg::Areas::Region> stateColours;
-  hoi4Gen->ardaRegions.clear();
-  hoi4Gen->countries.clear();
-  stateColours.clear();
+  //Fwg::Utils::ColourTMap<Fwg::Areas::Region> stateColours;
+  //hoi4Gen->ardaRegions.clear();
+  //hoi4Gen->countries.clear();
+  //stateColours.clear();
 
-  for (auto &state : states) {
-    Fwg::Areas::Region reg;
-    auto tag = pU::getValue(state, "owner");
-    reg.ID = std::stoi(pU::getValue(state, "id")) - 1;
-    removeCharacter(tag, ' ');
-    // reg->owner = tag;
-    auto readIDs = getNumberBlockMultiDelim(state, "provinces");
-    for (auto id : readIDs) {
-      // reg->ardaProvinces.push_back(hoi4Gen.ardaProvinces[id - 1]);
-      reg.provinces.push_back(hoi4Gen->ardaProvinces[id - 1]->baseProvince);
-      // hoi4Gen.ardaProvinces[id - 1]->baseProvince->regionID = reg.ID;
-    }
+  //for (auto &state : states) {
+  //  Fwg::Areas::Region reg;
+  //  auto tag = pU::getValue(state, "owner");
+  //  reg.ID = std::stoi(pU::getValue(state, "id")) - 1;
+  //  removeCharacter(tag, ' ');
+  //  // reg->owner = tag;
+  //  auto readIDs = getNumberBlockMultiDelim(state, "provinces");
+  //  for (auto id : readIDs) {
+  //    // reg->ardaProvinces.push_back(hoi4Gen.ardaProvinces[id - 1]);
+  //    reg.provinces.push_back(hoi4Gen->ardaProvinces[id - 1]->baseProvince);
+  //    // hoi4Gen.ardaProvinces[id - 1]->baseProvince->regionID = reg.ID;
+  //  }
 
-    Fwg::Gfx::Colour colour;
-    // pick a random, but unique colour
-    do {
-      colour.randomize();
-    } while (stateColours.find(colour));
-    reg.colour = colour;
-    // hoi4Gen.ardaRegions.push_back(reg);
-    stateColours.setValue(reg.colour, reg);
-    hoi4Gen->areaData.regions.push_back(reg);
-  }
+  //  Fwg::Gfx::Colour colour;
+  //  // pick a random, but unique colour
+  //  do {
+  //    colour.randomize();
+  //  } while (stateColours.find(colour));
+  //  reg.colour = colour;
+  //  // hoi4Gen.ardaRegions.push_back(reg);
+  //  stateColours.setValue(reg.colour, reg);
+  //  hoi4Gen->areaData.regions.push_back(reg);
+  //}
 
-  std::sort(hoi4Gen->areaData.regions.begin(), hoi4Gen->areaData.regions.end(),
-            [](auto l, auto r) { return l < r; });
-  Fwg::Gfx::regionMap(hoi4Gen->areaData.regions, hoi4Gen->areaData.provinces,
-                      hoi4Gen->regionMap);
+  //std::sort(hoi4Gen->areaData.regions.begin(), hoi4Gen->areaData.regions.end(),
+  //          [](auto l, auto r) { return l < r; });
+  //Fwg::Gfx::regionMap(hoi4Gen->areaData.regions, hoi4Gen->areaData.provinces,
+  //                    hoi4Gen->regionMap);
   // for (auto &region : hoi4Gen.ardaRegions) {
   //   if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end())
   //   {
