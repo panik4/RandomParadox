@@ -1,4 +1,4 @@
-#include "vic3/Vic3FormatConverter.h"
+#include "vic3/Vic3ImageExporter.h"
 namespace Rpx::Gfx::Vic3 {
 using namespace Arda::Gfx::Textures;
 using namespace Fwg;
@@ -47,13 +47,13 @@ const std::map<std::string, std::map<Fwg::Gfx::Colour, int>> colourMaps{
 
 };
 
-FormatConverter::FormatConverter(const std::string &gamePath,
+ImageExporter::ImageExporter(const std::string &gamePath,
                                  const std::string &gameTag)
-    : Rpx::Gfx::FormatConverter(gamePath, gameTag) {}
+    : Rpx::Gfx::ImageExporter(gamePath, gameTag) {}
 
-FormatConverter::~FormatConverter() {}
+ImageExporter::~ImageExporter() {}
 
-void FormatConverter::writeTile(int xTiles, int yTiles,
+void ImageExporter::writeTile(int xTiles, int yTiles,
                                 const Fwg::Gfx::Bitmap &basePackedHeightMap,
                                 Fwg::Gfx::Bitmap &packedHeightMap, int mapX,
                                 int mapY, int packedX) const {
@@ -95,10 +95,10 @@ void FormatConverter::writeTile(int xTiles, int yTiles,
 }
 
 Bitmap
-FormatConverter::dumpPackedHeightmap(const Bitmap &heightMap,
+ImageExporter::dumpPackedHeightmap(const Bitmap &heightMap,
                                      const std::string &path,
                                      const std::string &colourMapKey) const {
-  Utils::Logging::logLine("FormatConverter::Packing heightmap to ", path);
+  Utils::Logging::logLine("ImageExporter::Packing heightmap to ", path);
   int mapX = heightMap.width();
   int ogXTiles = mapX / 64;
   int mapY = heightMap.height();
@@ -141,7 +141,7 @@ FormatConverter::dumpPackedHeightmap(const Bitmap &heightMap,
     return packedHeightMap;
   }
 }
-void FormatConverter::dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
+void ImageExporter::dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
                                          const std::string &path) {
   int xTiles = heightMap.width() / 64;
   int yTiles = heightMap.height() / 64;
@@ -158,7 +158,7 @@ void FormatConverter::dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
   // }
   Fwg::Gfx::Png::save(indirectionMap, path, false, LCT_RGBA, 8U, 0);
 }
-void FormatConverter::Vic3ColourMaps(
+void ImageExporter::Vic3ColourMaps(
     const Fwg::Gfx::Bitmap &climateMap, const Fwg::Gfx::Bitmap &heightMap,
     Fwg::Climate::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer,
@@ -224,7 +224,7 @@ void FormatConverter::Vic3ColourMaps(
                        DXGI_FORMAT_B8G8R8A8_UNORM, 1, false);
 
   Utils::Logging::logLine(
-      "FormatConverter::Writing watercolor_rgb_waterspec_a to ", path);
+      "ImageExporter::Writing watercolor_rgb_waterspec_a to ", path);
   using namespace DirectX;
 
   scaledMap = Bmp::scale(heightMap, config.width / 2, config.height / 2, false);
@@ -318,7 +318,7 @@ void FormatConverter::Vic3ColourMaps(
       path + "//textures//windmap_tree.dds", true);
 }
 
-void FormatConverter::dynamicMasks(
+void ImageExporter::dynamicMasks(
     const std::string &path, const Fwg::Climate::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer) {
   // TODO: exclusion_mask.dds
@@ -355,7 +355,7 @@ void FormatConverter::dynamicMasks(
           config.width, config.height, false),
       path + "mask_dynamic_forestry.png", true, LCT_GREY);
 }
-void FormatConverter::contentSource(
+void ImageExporter::contentSource(
     const std::string &path, const Fwg::Climate::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer) {
 
@@ -401,7 +401,7 @@ void FormatConverter::contentSource(
                         LCT_GREY, 8);
   }
 }
-void FormatConverter::detailMaps(
+void ImageExporter::detailMaps(
     const Fwg::Terrain::TerrainData &terrainData,
     const Fwg::Climate::ClimateData &climateData,
     const Fwg::Civilization::CivilizationLayer &civLayer,

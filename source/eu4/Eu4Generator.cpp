@@ -78,7 +78,8 @@ void Generator::configureModGen(const std::string &configSubFolder,
     system("pause");
   }
   //  passed to generic ScenarioGenerator
-  this->numCountries = eu4Conf.get<int>("scenario.numCountries");
+  ardaConfig.numCountries = eu4Conf.get<int>("scenario.numCountries");
+  ardaConfig.generationAge = Arda::GenerationAge::Renaissance;
   config.seaLevel = 95;
   config.seaProvFactor *= 0.7;
   config.landProvFactor *= 0.7;
@@ -128,11 +129,16 @@ void Generator::generateRegions(
   Bmp::bufferBitmap("eu4regions", eu4RegionBmp);
   Bmp::save(eu4RegionBmp, Fwg::Cfg::Values().mapsPath + "//eu4Regions.bmp");
 }
+
+Fwg::Gfx::Bitmap Generator::mapTerrain() {
+  return Fwg::Gfx::Bitmap(Cfg::Values().width, Cfg::Values().height, 24);
+}
+
 // initialize states
 void Generator::mapCountries() {}
 
-void Generator::initFormatConverter() {
-  formatConverter = Gfx::Eu4::FormatConverter(pathcfg.gamePath, "Eu4");
+void Generator::initImageExporter() {
+  formatConverter = Gfx::Eu4::ImageExporter(pathcfg.gamePath, "Eu4");
 }
 void Generator::writeTextFiles() {}
 void Generator::writeImages() {}
@@ -148,7 +154,7 @@ void Generator::generate() {
     mapTerrain();
     mapContinents();
     Arda::Civilization::generateWorldCivilizations(
-        ardaRegions, ardaProvinces, civData, scenContinents, superRegions);
+        ardaRegions, ardaProvinces, civData, ardaContinents, superRegions);
 
     auto countryFactory = []() -> std::shared_ptr<Arda::Country> {
       return std::make_shared<Arda::Country>();

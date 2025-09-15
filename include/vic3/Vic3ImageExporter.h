@@ -1,18 +1,18 @@
 #pragma once
 #include "DirectXTex.h"
 #include "entities/Colour.h"
-#include "io/FormatConverter.h"
+#include "io/ImageExporter.h"
 #include "io/Textures.h"
 #include "rendering/Images.h"
 #include "utils/Cfg.h"
 #include <map>
 namespace Rpx::Gfx::Vic3 {
-class FormatConverter : public Rpx::Gfx::FormatConverter {
+class ImageExporter : public Rpx::Gfx::ImageExporter {
 
 public:
   // constructor/destructor
-  FormatConverter(const std::string &gamePath, const std::string &gameTag);
-  ~FormatConverter();
+  ImageExporter(const std::string &gamePath, const std::string &gameTag);
+  ~ImageExporter();
   // member functions
   void writeTile(int xTiles, int yTiles,
                  const Fwg::Gfx::Bitmap &basePackedHeightMap,

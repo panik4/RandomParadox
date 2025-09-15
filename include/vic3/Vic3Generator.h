@@ -4,8 +4,8 @@
 #include "Vic3Country.h"
 #include "Vic3Region.h"
 #include "vic3/Splnet.h"
-#include "vic3/Vic3FormatConverter.h"
 #include "vic3/Vic3Generator.h"
+#include "vic3/Vic3ImageExporter.h"
 #include "vic3/Vic3Importer.h"
 #include "vic3/Vic3Parsing.h"
 #include "vic3/Vic3Utils.h"
@@ -23,7 +23,7 @@ struct Vic3StratRegion {
   std::string name;
 };
 
-class Generator : public Rpx::ModGenerator {
+struct Vic3Config {
   using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
   std::vector<Arda::Utils::ResConfig> resConfigs{
       {"bg_coal_mining", true, 5.0, true, Arda::Utils::defaultNoise},
@@ -248,7 +248,12 @@ class Generator : public Rpx::ModGenerator {
        true,
        1.0,
        0.0}};
-
+};
+struct Vic3Data {
+  std::vector<std::shared_ptr<Region>> vic3Regions;
+  std::map<std::string, std::shared_ptr<Country>> vic3Countries;
+};
+struct Vic3GameData {
   std::map<std::string, Technology> techs;
   std::map<std::string, TechnologyLevel> techLevels;
   std::map<std::string, ProductionmethodGroup> productionmethodGroups;
@@ -267,14 +272,21 @@ class Generator : public Rpx::ModGenerator {
       productionMethodToBuildingTypes;
   // to search for buildings that produce this good
   std::map<std::string, std::vector<BuildingType>> goodToBuildingTypes;
-  Rpx::Gfx::FormatConverter formatConverter;
+};
+struct Vic3Stats {};
+
+class Generator : public Rpx::ModGenerator {
+  Vic3Config vic3Config;
+  Vic3Data modData;
+  Vic3GameData vic3GameData;
+  Vic3Stats vic3Stats;
+
+  Rpx::Gfx::ImageExporter formatConverter;
 
 public:
   std::vector<Arda::Utils::ResConfig> &getResConfigs() {
-    return this->resConfigs;
+    return this->vic3Config.resConfigs;
   }
-  std::vector<std::shared_ptr<Region>> vic3Regions;
-  std::map<std::string, std::shared_ptr<Country>> vic3Countries;
   Generator(const std::string &configSubFolder,
             const boost::property_tree::ptree &rpdConf);
   // clear and create all the mod paths at each run
@@ -313,7 +325,7 @@ public:
   void calculateNavalExits();
 
   virtual void generate();
-  virtual void initFormatConverter();
+  virtual void initImageExporter();
   virtual void writeTextFiles();
   virtual void writeImages();
   void writeSplnet();

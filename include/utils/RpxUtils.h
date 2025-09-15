@@ -12,6 +12,8 @@ struct Pathcfg {
   std::string gameModsDirectory;
   std::string mappingPath;
   std::string resourcePath;
+  // optional for every game
+  std::string gameSubPath = "";
 };
 
 // replace slash type and append slashes

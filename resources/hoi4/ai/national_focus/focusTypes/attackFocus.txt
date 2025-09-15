@@ -1,0 +1,35 @@
+	focus = {
+		id = templateSourceTagtemplateChainID.templateStepID
+		templatePrerequisite
+		templateExclusive
+		icon = GFX_goal_generic_political_pressure
+		available = {
+			templateAvailable
+			is_subject = no
+		}
+		bypass = {
+			templateBypasses
+			OR = {
+				has_war_with = templateDestTag
+				is_in_faction_with = templateDestTag
+				templateDestTag = { is_subject_of = templateSourceTag }
+				templateDestTag = { has_non_aggression_pact_with = templateSourceTag }
+			}
+		}
+		cancel_if_invalid = yes
+		x = templateXPosition
+		y = templateYPosition
+		cost = 1
+		ai_will_do = {
+			factor = 1
+		}	
+		search_filters = { FOCUS_FILTER_ANNEXATION }
+		completion_reward = {
+			templateCompletionRewards
+			create_wargoal = {
+				type = annex_everything
+				target = templateDestTag
+				expire = 0
+			}
+		}
+	}

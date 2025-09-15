@@ -39,7 +39,7 @@ Arda::Names::NameData prepare(const std::string &path,
     try {
 
       if (gamePath.size() && std::filesystem::exists(gamePath)) {
-        const auto forbiddenTags = ResourceLoading::loadForbiddenTags(gamePath);
+        const auto forbiddenTags = IO::loadForbiddenTags(gamePath);
         for (const auto &tag : forbiddenTags)
           nameData.disallowedTokens.insert(tag);
       } else {

@@ -1,10 +1,10 @@
-#include "io/FormatConverter.h"
+#include "io/ImageExporter.h"
 namespace Rpx::Gfx {
 using namespace Fwg;
 using namespace Fwg::Gfx;
 
 const std::map<std::string, std::map<Gfx::Colour, int>>
-    FormatConverter::colourMaps{
+    ImageExporter::colourMaps{
         {"terrainHoi4",
          {{Cfg::Values().colours["rockyHills"], 2},
           {Cfg::Values().colours["snowyHills"], 16},
@@ -138,7 +138,7 @@ const std::map<std::string, std::map<Gfx::Colour, int>>
 
     };
 using namespace Fwg::Climate::Detail;
-const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
+const std::map<std::string, std::map<int, int>> ImageExporter::indexMaps{
     {"terrainHoi4",
      {{(int)ClimateTypeIndex::TROPICSRAINFOREST, 21},
       {100 + (int)ClimateTypeIndex::TROPICSRAINFOREST, 22},
@@ -332,15 +332,15 @@ const std::map<std::string, std::map<int, int>> FormatConverter::indexMaps{
 
 };
 
-FormatConverter::FormatConverter() {}
+ImageExporter::ImageExporter() {}
 
-FormatConverter::FormatConverter(const std::string &gamePath,
+ImageExporter::ImageExporter(const std::string &gamePath,
                                  const std::string &gameTag)
     : gamePath{gamePath}, gameTag{gameTag} {}
 
-FormatConverter::~FormatConverter() {}
+ImageExporter::~ImageExporter() {}
 
-void FormatConverter::writeBufferPixels(std::vector<unsigned char> &pixels,
+void ImageExporter::writeBufferPixels(std::vector<unsigned char> &pixels,
                                         int index,
                                         const Fwg::Gfx::Colour &colour,
                                         unsigned char alphaValue) {
@@ -350,7 +350,7 @@ void FormatConverter::writeBufferPixels(std::vector<unsigned char> &pixels,
   pixels[index + 3] = alphaValue;
 }
 
-Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
+Bitmap ImageExporter::cutBaseMap(const std::string &path, const double factor,
                                    const int bit) const {
   auto &conf = Cfg::Values();
   std::string sourceMap{conf.loadMapsPath + path};
@@ -365,19 +365,19 @@ Bitmap FormatConverter::cutBaseMap(const std::string &path, const double factor,
   return cutBase;
 }
 
-void FormatConverter::dump8BitHeightmap(const std::vector<float> &altitudeData,
+void ImageExporter::dump8BitHeightmap(const std::vector<float> &altitudeData,
                                         const std::string &path,
                                         const std::string &colourMapKey) const {
-  Utils::Logging::logLine("FormatConverter::Copying heightmap to ",
+  Utils::Logging::logLine("ImageExporter::Copying heightmap to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
   auto &conf = Cfg::Values();
   auto heightMap = Fwg::Gfx::Bitmap(conf.width, conf.height, 24, altitudeData);
   if (!heightMap.initialised()) {
-    Utils::Logging::logLine("FormatConverter::Heightmap not yet initialised");
+    Utils::Logging::logLine("ImageExporter::Heightmap not yet initialised");
     return;
   }
   if (heightMap.size() != conf.bitmapSize) {
-    Utils::Logging::logLine("FormatConverter::Heightmap size mismatch");
+    Utils::Logging::logLine("ImageExporter::Heightmap size mismatch");
     return;
   }
   if (gameTag == "Vic3") {
@@ -399,20 +399,20 @@ void FormatConverter::dump8BitHeightmap(const std::vector<float> &altitudeData,
   }
 }
 
-void FormatConverter::dump8BitTerrain(
+void ImageExporter::dump8BitTerrain(
     const Fwg::Terrain::TerrainData &terrainData,
     const Fwg::Climate::ClimateData &climateIn,
     const Fwg::Civilization::CivilizationLayer &civLayer,
     const std::string &path, const std::string &colourMapKey,
     const bool cut) const {
-  Utils::Logging::logLine("FormatConverter::Writing terrain to ",
+  Utils::Logging::logLine("ImageExporter::Writing terrain to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
   auto &conf = Cfg::Values();
   if (climateIn.climates.size() != conf.bitmapSize ||
       climateIn.treeCoverage.size() != conf.bitmapSize ||
       climateIn.dominantForest.size() != conf.bitmapSize ||
       terrainData.landForms.size() != conf.bitmapSize) {
-    Utils::Logging::logLine("FormatConverter::Climate data size mismatch");
+    Utils::Logging::logLine("ImageExporter::Climate data size mismatch");
     // print all the sizes
     Utils::Logging::logLine("Climates size: ", climateIn.climates.size());
     Utils::Logging::logLine("TreeCoverage size: ",
@@ -426,7 +426,7 @@ void FormatConverter::dump8BitTerrain(
   if (civLayer.urbanisation.size() != conf.bitmapSize ||
       civLayer.agriculture.size() != conf.bitmapSize) {
     Utils::Logging::logLine(
-        "FormatConverter::Urbanisation/agriculture size mismatch");
+        "ImageExporter::Urbanisation/agriculture size mismatch");
     // print all the sizes
     Utils::Logging::logLine("Urbanisation size: ",
                             civLayer.urbanisation.size());
@@ -482,11 +482,11 @@ void FormatConverter::dump8BitTerrain(
   Bmp::save8bit(hoi4terrain, path);
 }
 
-void FormatConverter::dump8BitRivers(
+void ImageExporter::dump8BitRivers(
     const Fwg::Terrain::TerrainData &terrainData,
     const Fwg::Climate::ClimateData &climateIn, const std::string &path,
     const std::string &colourMapKey, const bool cut) const {
-  Utils::Logging::logLine("FormatConverter::Writing rivers to ",
+  Utils::Logging::logLine("ImageExporter::Writing rivers to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
 
   Bitmap riverMap(Cfg::Values().width, Cfg::Values().height, 8);
@@ -523,12 +523,12 @@ void FormatConverter::dump8BitRivers(
   }
 }
 
-void FormatConverter::dump8BitTrees(
+void ImageExporter::dump8BitTrees(
     const Fwg::Terrain::TerrainData &terrainData,
     const Fwg::Climate::ClimateData &climateIn, const std::string &path,
     const std::string &colourMapKey, const bool cut) const {
   auto &conf = Cfg::Values();
-  Utils::Logging::logLine("FormatConverter::Writing trees to ",
+  Utils::Logging::logLine("ImageExporter::Writing trees to ",
                           Fwg::Utils::userFilter(path, conf.username));
   const double width = conf.width;
   constexpr auto factor = 3.4133333333333333333333333333333;
@@ -541,12 +541,12 @@ void FormatConverter::dump8BitTrees(
 
   // check if treeCoverage is valid
   if (treeCoverage.size() != conf.bitmapSize) {
-    Utils::Logging::logLine("FormatConverter::Tree coverage size mismatch");
+    Utils::Logging::logLine("ImageExporter::Tree coverage size mismatch");
     return;
   }
   // check if dominantForest is valid
   if (climateIn.dominantForest.size() != conf.bitmapSize) {
-    Utils::Logging::logLine("FormatConverter::Dominant forest size mismatch");
+    Utils::Logging::logLine("ImageExporter::Dominant forest size mismatch");
     return;
   }
 
@@ -583,10 +583,10 @@ void FormatConverter::dump8BitTrees(
   Bmp::save8bit(trees, path);
 }
 
-void FormatConverter::dumpDDSFiles(const std::vector<float> &heightMap,
+void ImageExporter::dumpDDSFiles(const std::vector<float> &heightMap,
                                    const std::string &path, const bool cut,
                                    const int maxFactor) const {
-  Utils::Logging::logLine("FormatConverter::Writing DDS files");
+  Utils::Logging::logLine("ImageExporter::Writing DDS files");
   using namespace DirectX;
   const auto &width = Cfg::Values().width;
 
@@ -621,29 +621,29 @@ void FormatConverter::dumpDDSFiles(const std::vector<float> &heightMap,
       }
     }
     Utils::Logging::logLine(
-        "FormatConverter::Writing DDS files to ",
+        "ImageExporter::Writing DDS files to ",
         Fwg::Utils::userFilter(tempPath, Cfg::Values().username));
     Arda::Gfx::Textures::writeDDS(imageWidth, imageHeight, pixels,
                                   DXGI_FORMAT_B8G8R8A8_UNORM, tempPath);
   }
 }
 
-void FormatConverter::dumpTerrainColourmap(
+void ImageExporter::dumpTerrainColourmap(
     const Bitmap &climateMap,
     const Fwg::Civilization::CivilizationLayer &civLayer,
     const std::string &modPath, const std::string &mapName,
     const DXGI_FORMAT format, int scaleFactor, const bool cut) const {
   auto &cfg = Cfg::Values();
-  Utils::Logging::logLine("FormatConverter::Writing terrain colourmap to ",
+  Utils::Logging::logLine("ImageExporter::Writing terrain colourmap to ",
                           Utils::userFilter(modPath + mapName, cfg.username));
 
   // check if all inputs are valid
   if (climateMap.size() != cfg.bitmapSize) {
-    Utils::Logging::logLine("FormatConverter::Climate map size mismatch");
+    Utils::Logging::logLine("ImageExporter::Climate map size mismatch");
     return;
   }
   if (civLayer.urbanisation.size() != cfg.bitmapSize) {
-    Utils::Logging::logLine("FormatConverter::Urbanisation size mismatch");
+    Utils::Logging::logLine("ImageExporter::Urbanisation size mismatch");
     return;
   }
 
@@ -703,10 +703,10 @@ void FormatConverter::dumpTerrainColourmap(
   }
 }
 
-void FormatConverter::dumpWorldNormal(const Bitmap &sobelMap,
+void ImageExporter::dumpWorldNormal(const Bitmap &sobelMap,
                                       const std::string &path,
                                       const bool cut) const {
-  Utils::Logging::logLine("FormatConverter::Writing normalMap to ",
+  Utils::Logging::logLine("ImageExporter::Writing normalMap to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
   auto height = Cfg::Values().height;
   auto width = Cfg::Values().width;
