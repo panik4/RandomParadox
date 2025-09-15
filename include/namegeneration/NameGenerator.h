@@ -3,7 +3,7 @@
 #include "language/Language.h"
 #include "language/LanguageGroup.h"
 #include "parsing/ParserUtils.h"
-#include "io/ResourceLoading.h"
+#include "io/GameDataImporter.h"
 #include "utils/RpxUtils.h"
 #include "culture/NameUtils.h"
 #include <map>

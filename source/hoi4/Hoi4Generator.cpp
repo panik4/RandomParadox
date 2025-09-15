@@ -103,7 +103,8 @@ void Generator::configureModGen(const std::string &configSubFolder,
     system("pause");
   }
   // default values taken from base game
-  this->resources = {
+  this->ardaConfig.generationAge = Arda::GenerationAge::WorldWar;
+  this->modConfig.resources = {
       {"aluminium",
        {hoi4Conf.get<double>("hoi4.aluminiumFactor"), 1169.0, 0.3}},
       {"chromium", {hoi4Conf.get<double>("hoi4.chromiumFactor"), 1250.0, 0.2}},
@@ -111,24 +112,25 @@ void Generator::configureModGen(const std::string &configSubFolder,
       {"rubber", {hoi4Conf.get<double>("hoi4.rubberFactor"), 1029.0, 0.1}},
       {"steel", {hoi4Conf.get<double>("hoi4.steelFactor"), 2562.0, 0.5}},
       {"tungsten", {hoi4Conf.get<double>("hoi4.tungstenFactor"), 1188.0, 0.2}}};
-  this->weatherChances = {
+  this->modConfig.weatherChances = {
       {"baseLightRainChance", hoi4Conf.get<double>("hoi4.baseLightRainChance")},
       {"baseHeavyRainChance", hoi4Conf.get<double>("hoi4.baseHeavyRainChance")},
       {"baseMudChance", hoi4Conf.get<double>("hoi4.baseMudChance")},
       {"baseBlizzardChance", hoi4Conf.get<double>("hoi4.baseBlizzardChance")},
       {"baseSandstormChance", hoi4Conf.get<double>("hoi4.baseSandstormChance")},
       {"baseSnowChance", hoi4Conf.get<double>("hoi4.baseSnowChance")}};
-  this->worldPopulationFactor =
+  this->ardaConfig.worldPopulationFactor =
       hoi4Conf.get<double>("scenario.worldPopulationFactor");
-  this->worldIndustryFactor = hoi4Conf.get<double>("scenario.industryFactor");
-  this->resourceFactor = hoi4Conf.get<double>("hoi4.resourceFactor");
+  this->ardaConfig.worldIndustryFactor =
+      hoi4Conf.get<double>("scenario.industryFactor");
+  this->ardaConfig.resourceFactor = hoi4Conf.get<double>("hoi4.resourceFactor");
 
   // settings for scenGen
   this->countryMappingPath =
       rpdConf.get<std::string>("randomScenario.countryColourMap");
 
   //  passed to generic Scenariohoi4Gen
-  this->numCountries = hoi4Conf.get<int>("scenario.numCountries");
+  this->ardaConfig.numCountries = hoi4Conf.get<int>("scenario.numCountries");
   // force defaults for the game, if not set otherwise
   if (config.targetLandRegionAmount == 0 && config.autoLandRegionParams)
     config.targetLandRegionAmount = 640;
@@ -150,13 +152,13 @@ void Generator::configureModGen(const std::string &configSubFolder,
 void Generator::mapRegions() {
   Fwg::Utils::Logging::logLine("Mapping Regions");
   ardaRegions.clear();
-  hoi4States.clear();
-  worldPop = 0;
-  militaryIndustry = 0;
-  civilianIndustry = 0;
-  navalIndustry = 0;
-  totalWorldIndustry = 0;
-  statesInitialised = false;
+  modData.hoi4States.clear();
+  ardaData.worldPop = 0;
+  stats.militaryIndustry = 0;
+  stats.civilianIndustry = 0;
+  stats.navalIndustry = 0;
+  stats.totalWorldIndustry = 0;
+  modData.statesInitialised = false;
   for (auto &region : this->areaData.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
               [](const std::shared_ptr<Fwg::Areas::Province> a,
@@ -174,7 +176,7 @@ void Generator::mapRegions() {
     // save game region to generic module container and to hoi4 specific
     // container
     ardaRegions.push_back(ardaRegion);
-    hoi4States.push_back(ardaRegion);
+    modData.hoi4States.push_back(ardaRegion);
   }
   // sort by Arda::ArdaProvince ID
   std::sort(ardaRegions.begin(), ardaRegions.end(),
@@ -290,16 +292,8 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
   return typeMap;
 }
 
-/*Get the generator in the correct state first, e.g. load all the maps in.
- * They can be modified later still. However, generation of early steps
- * would then require generation and therefore overwriting of previously cut
- * parts */
-void Generator::cutFromFiles(const std::string &gamePath) {
-  // first, cut the heightmap
-  auto heightMapPath = gamePath + "//heightMap.bmp";
-}
 void Generator::mapCountries() {
-  hoi4Countries.clear();
+  modData.hoi4Countries.clear();
   std::vector<std::shared_ptr<Arda::Country>> countryVector;
   for (auto &country : countries) {
     countryVector.push_back(country.second);
@@ -312,19 +306,19 @@ void Generator::mapCountries() {
   for (auto &country : countries) {
     // construct a hoi4country with country from ScenarioGenerator.
     // We want a copy here
-    // Hoi4Country hC(*country.second, this->hoi4States);
+    // Hoi4Country hC(*country.second, this->modData.hoi4States);
     // push back cast to hoi4Country
-    // hoi4Countries.push_back(
-    //    std::make_shared<Hoi4Country>(country.second, hoi4States));
+    // modData.hoi4Countries.push_back(
+    //    std::make_shared<Hoi4Country>(country.second, modData.hoi4States));
     // Attempt to cast the shared pointer to Hoi4Country
     auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country.second);
     if (hoi4Country) {
       hoi4Country->hoi4Regions.clear();
-      // Successfully casted, add to hoi4Countries
-      hoi4Countries.push_back(hoi4Country);
+      // Successfully casted, add to modData.hoi4Countries
+      modData.hoi4Countries.push_back(hoi4Country);
       // now for all ownedRegions, find the equivalent in Hoi4Regions
       for (auto &region : country.second->ownedRegions) {
-        for (auto &hoi4Region : hoi4States) {
+        for (auto &hoi4Region : modData.hoi4States) {
           if (region->ID == hoi4Region->ID) {
             hoi4Country->hoi4Regions.push_back(hoi4Region);
           }
@@ -338,11 +332,11 @@ void Generator::mapCountries() {
   }
   // now also map the neighbours by replacing the pointer to the country with
   // the pointer to the hoi4Country
-  for (auto &country : hoi4Countries) {
+  for (auto &country : modData.hoi4Countries) {
     std::vector<std::shared_ptr<Hoi4Country>> neighboursTemp;
     for (auto &neighbour : country->neighbours) {
       if (neighbour) {
-        for (auto &hoi4Country : hoi4Countries) {
+        for (auto &hoi4Country : modData.hoi4Countries) {
           if (neighbour->ID == hoi4Country->ID) {
             neighboursTemp.push_back(hoi4Country);
           }
@@ -355,7 +349,7 @@ void Generator::mapCountries() {
       country->neighbours.insert(neighbour);
     }
   }
-  std::sort(hoi4States.begin(), hoi4States.end(),
+  std::sort(modData.hoi4States.begin(), modData.hoi4States.end(),
             [](auto l, auto r) { return *l < *r; });
 }
 
@@ -363,7 +357,7 @@ void Generator::generateStateResources() {
   Fwg::Utils::Logging::logLine("HOI4: Digging for resources");
 
   // config for all resource types
-  for (auto &resConfig : resConfigs) {
+  for (auto &resConfig : modConfig.resConfigs) {
     std::vector<float> resPrev;
     if (resConfig.random) {
       resPrev = Fwg::Civilization::Resources::randomResourceLayer(
@@ -385,7 +379,7 @@ void Generator::generateStateResources() {
     if (resPrev.size())
       totalResourceVal(resPrev,
                        resConfig.resourcePrevalence *
-                           resources.at(resConfig.name).at(0),
+                           modConfig.resources.at(resConfig.name).at(0),
                        resConfig);
   }
 }
@@ -394,18 +388,18 @@ void Generator::generateStateSpecifics() {
   Fwg::Utils::Logging::logLine("HOI4: Planning the economy");
   auto &config = Cfg::Values();
   // calculate the target industry amount
-  auto targetWorldIndustry = 1248.0 * worldIndustryFactor;
-  auto targetWorldPop = 3'000'000'000.0 * worldPopulationFactor;
+  auto targetWorldIndustry = 1248.0 * ardaConfig.worldIndustryFactor;
+  auto targetWorldPop = 3'000'000'000.0 * ardaConfig.worldPopulationFactor;
   // we need a reference to determine how industrious a state is
   double averageEconomicActivity = 1.0 / areaData.landRegions;
 
-  worldPop = 0;
-  militaryIndustry = 0;
-  civilianIndustry = 0;
-  navalIndustry = 0;
-  totalWorldIndustry = 0;
+  ardaData.worldPop = 0;
+  stats.militaryIndustry = 0;
+  stats.civilianIndustry = 0;
+  stats.navalIndustry = 0;
+  stats.totalWorldIndustry = 0;
   // cleanup work
-  for (auto &hoi4State : hoi4States) {
+  for (auto &hoi4State : modData.hoi4States) {
     hoi4State->dockyards = 0;
     hoi4State->civilianFactories = 0;
     hoi4State->armsFactories = 0;
@@ -414,7 +408,7 @@ void Generator::generateStateSpecifics() {
   // go through all states and figure out the importance of the largest port
   // in the state
   auto maxImportance = 0.0;
-  for (auto &hoi4State : hoi4States) {
+  for (auto &hoi4State : modData.hoi4States) {
     // create naval bases for all port locations
     for (auto &location : hoi4State->locations) {
       if (location->type == Fwg::Civilization::LocationType::Port ||
@@ -424,7 +418,7 @@ void Generator::generateStateSpecifics() {
     }
   }
   Fwg::Utils::Logging::logLine(config.landPercentage);
-  for (auto &hoi4State : hoi4States) {
+  for (auto &hoi4State : modData.hoi4States) {
     // skip sea and lake states
     if (!hoi4State->isLand())
       continue;
@@ -451,7 +445,7 @@ void Generator::generateStateSpecifics() {
 
     hoi4State->totalPopulation =
         static_cast<int>(targetWorldPop * hoi4State->worldPopulationShare);
-    worldPop += (long long)hoi4State->totalPopulation;
+    ardaData.worldPop += (long long)hoi4State->totalPopulation;
 
     // create naval bases for all port locations
     for (auto &location : hoi4State->locations) {
@@ -495,15 +489,16 @@ void Generator::generateStateSpecifics() {
         }
       }
     }
-    militaryIndustry += (int)hoi4State->armsFactories;
-    civilianIndustry += (int)hoi4State->civilianFactories;
-    navalIndustry += (int)hoi4State->dockyards;
+    stats.militaryIndustry += (int)hoi4State->armsFactories;
+    stats.civilianIndustry += (int)hoi4State->civilianFactories;
+    stats.navalIndustry += (int)hoi4State->dockyards;
     // get potential building positions
     hoi4State->calculateBuildingPositions(this->terrainData.detailedHeightMap,
                                           typeMap);
   }
-  totalWorldIndustry = militaryIndustry + civilianIndustry + navalIndustry;
-  statesInitialised = true;
+  stats.totalWorldIndustry =
+      stats.militaryIndustry + stats.civilianIndustry + stats.navalIndustry;
+  this->modData.statesInitialised = true;
   Arda::Areas::saveRegions(ardaRegions,
                            Fwg::Cfg::Values().mapsPath + "//areas//",
                            Arda::Gfx::visualiseRegions(ardaRegions));
@@ -517,7 +512,7 @@ void Generator::generateCountrySpecifics() {
 
   const std::vector<std::string> ideologies{"fascism", "democratic",
                                             "communism", "neutrality"};
-  for (auto &country : hoi4Countries) {
+  for (auto &country : modData.hoi4Countries) {
     if (!country->ownedRegions.size())
       continue;
     // clear some info from all owned regions
@@ -700,33 +695,33 @@ void Generator::generateWeather() {
             averageDeviation * Cfg::Values().deviationFactor);
         // light_rain chance: cold and humid -> high, 5
         stratRegion->weatherMonths[i].push_back(
-            this->weatherChances.at("baseLightRainChance") *
+            this->modConfig.weatherChances.at("baseLightRainChance") *
             (1.0 - averageTemperature) * averagePrecipitation);
         // heavy rain chance: warm and humid -> high, 6
         stratRegion->weatherMonths[i].push_back(
-            this->weatherChances.at("baseHeavyRainChance") *
+            this->modConfig.weatherChances.at("baseHeavyRainChance") *
             averageTemperature * averagePrecipitation);
         // mud chance, 7
         stratRegion->weatherMonths[i].push_back(
-            this->weatherChances.at("baseMudChance") *
+            this->modConfig.weatherChances.at("baseMudChance") *
             (2.0 * stratRegion->weatherMonths[i][6] +
              stratRegion->weatherMonths[i][5]));
         // blizzard chance, 8
         stratRegion->weatherMonths[i].push_back(
-            std::clamp(this->weatherChances.at("baseBlizzardChance") -
+            std::clamp(this->modConfig.weatherChances.at("baseBlizzardChance") -
                            averageTemperature,
                        0.0, 0.2) *
             averagePrecipitation);
         // sandstorm chance, 9
-        auto snadChance =
-            std::clamp((averageTemperature - 0.8) *
-                           this->weatherChances.at("baseSandstormChance"),
-                       0.0, 0.1) *
-            std::clamp(0.2 - averagePrecipitation, 0.0, 0.2);
-        stratRegion->weatherMonths[i].push_back(snadChance);
+        auto sandChance = std::clamp((averageTemperature - 0.8) *
+                                         this->modConfig.weatherChances.at(
+                                             "baseSandstormChance"),
+                                     0.0, 0.1) *
+                          std::clamp(0.2 - averagePrecipitation, 0.0, 0.2);
+        stratRegion->weatherMonths[i].push_back(sandChance);
         // snow chance, 10
         stratRegion->weatherMonths[i].push_back(
-            std::clamp(this->weatherChances.at("baseSnowChance") -
+            std::clamp(this->modConfig.weatherChances.at("baseSnowChance") -
                            averageTemperature,
                        0.0, 0.2) *
             averagePrecipitation);
@@ -744,12 +739,13 @@ void Generator::generateWeather() {
 
 void Generator::generateLogistics() {
   Fwg::Utils::Logging::logLine("HOI4: Building rail networks");
+  auto &supplyNodeConnections = this->modData.supplyNodeConnections;
   supplyNodeConnections.clear();
   auto width = Cfg::Values().width;
   // create a copy of the country map for
   // visualisation of the logistics
   auto logistics = this->countryMap;
-  for (auto &country : hoi4Countries) {
+  for (auto &country : modData.hoi4Countries) {
     // Arda::ArdaProvince ID, distance
     std::map<double, int> supplyHubs;
     // add capital
@@ -1070,7 +1066,7 @@ void Generator::generateTechLevels() {
   std::map<TechEra, std::vector<Technology>> navyTechs;
   createTech(navyTechsFile, navyTechs);
 
-  for (auto &country : hoi4Countries) {
+  for (auto &country : modData.hoi4Countries) {
     // clear all techs
     country->industryElectronicTechs = {
         {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
@@ -1111,7 +1107,7 @@ void Generator::generateTechLevels() {
     assignTechsRandomly(navyTechs, country->navyTechs, navyTechLevel, 1.0);
   }
 
-  for (auto &country : hoi4Countries) {
+  for (auto &country : modData.hoi4Countries) {
     // lets start with the navy. The higher our development and the more focues
     // we are on navy, the more advanced our navy#
     auto development = country->averageDevelopment;
@@ -1139,10 +1135,10 @@ void Generator::evaluateCountries() {
   Fwg::Utils::Logging::logLine("HOI4: Evaluating Country Strength");
   countryImportanceScores.clear();
   double maxScore = 0.0;
-  for (auto &country : hoi4Countries) {
+  for (auto &country : modData.hoi4Countries) {
     country->evaluatePopulations(civData.worldPopulationFactorSum);
     country->evaluateDevelopment();
-    country->evaluateEconomicActivity(worldEconomicActivity);
+    country->evaluateEconomicActivity(ardaData.worldEconomicActivity);
     country->evaluateProperties();
     country->capitalRegionID = 0;
     country->civilianIndustry = 0;
@@ -1168,19 +1164,20 @@ void Generator::evaluateCountries() {
       maxScore = country->importanceScore;
     }
     // global
-    totalWorldIndustry += (int)totalIndustry;
+    stats.totalWorldIndustry += (int)totalIndustry;
   }
 
-  int totalDeployedCountries = numCountries - countryImportanceScores.size()
-                                   ? (int)countryImportanceScores[0].size()
-                                   : 0;
+  int totalDeployedCountries =
+      ardaConfig.numCountries - countryImportanceScores.size()
+          ? (int)countryImportanceScores[0].size()
+          : 0;
 
   // sort countries by rank
 
-  int numMajorPowers = std::min<int>(numCountries / 10, 8);
-  int numSecondaryPowers = std::min<int>(numCountries / 10, 8);
-  int numRegionalPowers = numCountries / 6;
-  int numLocalPowers = numCountries / 6;
+  int numMajorPowers = std::min<int>(ardaConfig.numCountries / 10, 8);
+  int numSecondaryPowers = std::min<int>(ardaConfig.numCountries / 10, 8);
+  int numRegionalPowers = ardaConfig.numCountries / 6;
+  int numLocalPowers = ardaConfig.numCountries / 6;
   int numMinorPowers =
       totalDeployedCountries - numMajorPowers - numRegionalPowers;
 
@@ -1227,7 +1224,7 @@ void Generator::generateArmorVariants() {
     ArmorRole subType;
   };
   Fwg::Utils::Logging::logLine("HOI4: Generating Armor Variants");
-  for (auto &country : hoi4Countries) {
+  for (auto &country : modData.hoi4Countries) {
     if (country->hoi4Regions.empty()) {
       continue;
     }
@@ -1321,7 +1318,7 @@ void Generator::generateAirVariants() {
   };
   Fwg::Utils::Logging::logLine("HOI4: Generating Air Variants");
 
-  for (auto &country : hoi4Countries) {
+  for (auto &country : modData.hoi4Countries) {
     country->planeVariants.clear();
     country->airWings.clear();
     // clear all wings from the countries airbases
@@ -1517,7 +1514,7 @@ void Generator::generateCountryUnits() {
       DivisionType::Motorized,
       DivisionType::Armor};
 
-  for (auto &country : hoi4Countries) {
+  for (auto &country : modData.hoi4Countries) {
     // clear existing divisions
     country->divisions.clear();
     country->divisionTemplates.clear();
@@ -1677,7 +1674,7 @@ void Generator::generateCountryUnits() {
 
 void Generator::generateCountryNavies() {
 
-  for (auto &country : hoi4Countries) {
+  for (auto &country : modData.hoi4Countries) {
     country->fleets.clear();
     country->ships.clear();
     country->shipClasses.clear();
@@ -1838,7 +1835,7 @@ void Generator::generateCountryNavies() {
     }
   }
   // put all ships in one fleet
-  for (auto &country : hoi4Countries) {
+  for (auto &country : modData.hoi4Countries) {
     // we only set the designs if we're landlocked
     if (country->landlocked) {
       continue;
@@ -1877,7 +1874,8 @@ void Generator::generateCountryNavies() {
 }
 
 void Generator::generateFocusTrees() {
-  Hoi4::FocusGen::evaluateCountryGoals(this->hoi4Countries, this->ardaRegions);
+  Hoi4::FocusGen::evaluateCountryGoals(this->modData.hoi4Countries,
+                                       this->ardaRegions);
 }
 
 Arda::ScenarioPosition
@@ -2023,20 +2021,22 @@ void Generator::generatePositions() {
 }
 
 void Generator::printStatistics() {
-  Fwg::Utils::Logging::logLine(
-      "Total Industry: ", militaryIndustry + civilianIndustry + navalIndustry);
-  Fwg::Utils::Logging::logLine("Military Industry: ", militaryIndustry);
-  Fwg::Utils::Logging::logLine("Civilian Industry: ", civilianIndustry);
-  Fwg::Utils::Logging::logLine("Naval Industry: ", navalIndustry);
-  for (auto &res : totalResources) {
+  gatherStatistics();
+  Fwg::Utils::Logging::logLine("Total Industry: ", stats.militaryIndustry +
+                                                       stats.civilianIndustry +
+                                                       stats.navalIndustry);
+  Fwg::Utils::Logging::logLine("Military Industry: ", stats.militaryIndustry);
+  Fwg::Utils::Logging::logLine("Civilian Industry: ", stats.civilianIndustry);
+  Fwg::Utils::Logging::logLine("Naval Industry: ", stats.navalIndustry);
+  for (auto &res : ardaStats.totalResources) {
     Fwg::Utils::Logging::logLine(res.first, " ", res.second);
   }
 
-  Fwg::Utils::Logging::logLine("World Population: ", worldPop);
+  Fwg::Utils::Logging::logLine("World Population: ", ardaData.worldPop);
 
   for (auto &scores : countryImportanceScores) {
     for (auto &entry : scores.second) {
-      // auto &hoi4Country = hoi4Countries[entry->tag];
+      // auto &hoi4Country = modData.hoi4Countries[entry->tag];
       //  search the corresponding hoi4Country in hoi4COuntries by tag.
       // reinterpret this country as a shared pointer to Hoi4Country
       auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(entry);
@@ -2052,7 +2052,7 @@ void Generator::loadStates() {}
 void Generator::distributeVictoryPoints() {
   double baseVPs = 10000;
   double assignedVPs = 0;
-  for (auto country : hoi4Countries) {
+  for (auto country : modData.hoi4Countries) {
 
     if (!country->ownedRegions.size())
       continue;
@@ -2106,7 +2106,7 @@ void Generator::distributeVictoryPoints() {
 }
 
 void Generator::generateUrbanisation() {
-  for (auto &region : hoi4States) {
+  for (auto &region : modData.hoi4States) {
     for (auto &location : region->locations) {
       if (location->type == Fwg::Civilization::LocationType::City ||
           location->type == Fwg::Civilization::LocationType::Port) {
@@ -2192,7 +2192,7 @@ void Generator::generateCharacters() {
   std::vector<std::string> theoristTraits = {
       "military_theorist", "naval_theorist", "air_warfare_theorist"};
 
-  for (auto &country : hoi4Countries) {
+  for (auto &country : modData.hoi4Countries) {
     if (!country->ownedRegions.size())
       continue;
     country->characters.clear();
@@ -2325,8 +2325,8 @@ bool Generator::loadRivers(Fwg::Cfg &config,
   return FastWorldGenerator::loadRivers(config, riverCopy);
 }
 
-void Generator::initFormatConverter() {
-  formatConverter = Gfx::Hoi4::FormatConverter(pathcfg.gamePath, "Hoi4");
+void Generator::initImageExporter() {
+  imageExporter = Gfx::Hoi4::ImageExporter(pathcfg.gamePath, "Hoi4");
 }
 
 void Generator::writeTextFiles() {
@@ -2337,9 +2337,10 @@ void Generator::writeTextFiles() {
   Map::adj(pathcfg.gameModPath + "//map//adjacencies.csv");
   Map::adjacencyRules(pathcfg.gameModPath + "//map//adjacency_rules.txt");
   Map::ambientObjects(pathcfg.gameModPath + "//map//ambient_object.txt");
-  Map::supply(pathcfg.gameModPath + "//map//", supplyNodeConnections);
-  Map::buildings(pathcfg.gameModPath + "//map//buildings.txt", hoi4States);
-  Map::continents(pathcfg.gameModPath + "//map//continent.txt", scenContinents,
+  Map::supply(pathcfg.gameModPath + "//map//", modData.supplyNodeConnections);
+  Map::buildings(pathcfg.gameModPath + "//map//buildings.txt",
+                 modData.hoi4States);
+  Map::continents(pathcfg.gameModPath + "//map//continent.txt", ardaContinents,
                   pathcfg.gamePath,
                   pathcfg.gameModPath +
                       "//localisation//english//province_names_l_english.yml");
@@ -2347,36 +2348,41 @@ void Generator::writeTextFiles() {
   Map::strategicRegions(pathcfg.gameModPath + "//map//strategicregions",
                         areaData.regions, superRegions);
   Map::unitStacks(pathcfg.gameModPath + "//map//unitstacks.txt", ardaProvinces,
-                  hoi4States, terrainData.detailedHeightMap);
+                  modData.hoi4States, terrainData.detailedHeightMap);
   Map::weatherPositions(pathcfg.gameModPath + "//map//weatherpositions.txt",
                         areaData.regions, superRegions);
 
   Countries::commonCountryTags(pathcfg.gameModPath +
                                    "//common//country_tags//02_countries.txt",
-                               hoi4Countries);
-  Countries::commonCountries(
-      pathcfg.gameModPath + "//common//countries//",
-      pathcfg.gamePath + "//common//countries//colors.txt", hoi4Countries);
+                               modData.hoi4Countries);
+  Countries::commonCountries(pathcfg.gameModPath + "//common//countries//",
+                             pathcfg.gamePath +
+                                 "//common//countries//colors.txt",
+                             modData.hoi4Countries);
   Countries::commonCharacters(pathcfg.gameModPath + "//common//characters//",
-                              hoi4Countries);
+                              modData.hoi4Countries);
   Countries::commonNames(pathcfg.gameModPath + "//common//names//00_names.txt",
-                         hoi4Countries);
+                         modData.hoi4Countries);
   Countries::foci(pathcfg.gameModPath + "//common//national_focus//",
-                  hoi4Countries, nData);
-  Countries::flags(pathcfg.gameModPath + "//gfx//flags//", hoi4Countries);
+                  modData.hoi4Countries, nData);
+  Countries::flags(pathcfg.gameModPath + "//gfx//flags//",
+                   modData.hoi4Countries);
   Countries::historyCountries(pathcfg.gameModPath + "//history//countries//",
-                              hoi4Countries, pathcfg.gamePath,
+                              modData.hoi4Countries, pathcfg.gamePath,
                               areaData.regions);
   Countries::historyUnits(pathcfg.gameModPath + "//history//units//",
-                          hoi4Countries);
-  Countries::ideas(pathcfg.gameModPath + "//common//ideas//", hoi4Countries);
-  Countries::portraits(pathcfg.gameModPath + "//portraits//", hoi4Countries);
-  Countries::states(pathcfg.gameModPath + "//history//states", hoi4States);
+                          modData.hoi4Countries);
+  Countries::ideas(pathcfg.gameModPath + "//common//ideas//",
+                   modData.hoi4Countries);
+  Countries::portraits(pathcfg.gameModPath + "//portraits//",
+                       modData.hoi4Countries);
+  Countries::states(pathcfg.gameModPath + "//history//states",
+                    modData.hoi4States);
 
-  aiStrategy(pathcfg.gameModPath + "//common//", scenContinents);
+  aiStrategy(pathcfg.gameModPath + "//common//", ardaContinents);
   events(pathcfg.gameModPath + "//");
-  commonBookmarks(pathcfg.gameModPath + "//common//bookmarks//", hoi4Countries,
-                  countryImportanceScores);
+  commonBookmarks(pathcfg.gameModPath + "//common//bookmarks//",
+                  modData.hoi4Countries, countryImportanceScores);
   tutorials(pathcfg.gameModPath + "//tutorial//tutorial.txt");
   copyDescriptorFile(Fwg::Cfg::Values().resourcePath + "hoi4//descriptor.mod",
                      pathcfg.gameModPath, pathcfg.gameModsDirectory,
@@ -2389,41 +2395,42 @@ void Generator::writeTextFiles() {
 void Generator::writeLocalisation() {
 
   using namespace Parsing::Writing::Localisation;
-  stateNames(pathcfg.gameModPath + "//localisation//english//", hoi4Countries);
-  countryNames(pathcfg.gameModPath + "//localisation//english//", hoi4Countries,
-               nData);
+  stateNames(pathcfg.gameModPath + "//localisation//english//",
+             modData.hoi4Countries);
+  countryNames(pathcfg.gameModPath + "//localisation//english//",
+               modData.hoi4Countries, nData);
   strategicRegionNames(pathcfg.gameModPath + "//localisation//english//",
                        superRegions);
   victoryPointNames(pathcfg.gameModPath + "//localisation//english//",
-                    hoi4States);
+                    modData.hoi4States);
 }
 void Generator::writeImages() {
   Fwg::Utils::Logging::logLine(
       "Writing Hoi4 mod image files to path: ",
       Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
 
-  formatConverter.dump8BitTerrain(terrainData, climateData, civLayer,
+  imageExporter.dump8BitTerrain(terrainData, climateData, civLayer,
                                   pathcfg.gameModPath + "//map//terrain.bmp",
                                   "terrain", false);
-  formatConverter.dump8BitCities(
+  imageExporter.dump8BitCities(
       climateMap, pathcfg.gameModPath + "//map//cities.bmp", "cities", false);
-  formatConverter.dump8BitRivers(terrainData, climateData,
+  imageExporter.dump8BitRivers(terrainData, climateData,
                                  pathcfg.gameModPath + "//map//rivers",
                                  "rivers", false);
-  formatConverter.dump8BitTrees(terrainData, climateData,
+  imageExporter.dump8BitTrees(terrainData, climateData,
                                 pathcfg.gameModPath + "//map//trees.bmp",
                                 "trees", false);
-  formatConverter.dump8BitHeightmap(terrainData.detailedHeightMap,
+  imageExporter.dump8BitHeightmap(terrainData.detailedHeightMap,
                                     pathcfg.gameModPath + "//map//heightmap",
                                     "heightmap");
-  formatConverter.dumpTerrainColourmap(
+  imageExporter.dumpTerrainColourmap(
       worldMap, civLayer, pathcfg.gameModPath,
       "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
       DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
-  formatConverter.dumpDDSFiles(
+  imageExporter.dumpDDSFiles(
       terrainData.detailedHeightMap,
       pathcfg.gameModPath + "//map//terrain//colormap_water_", false, 8);
-  formatConverter.dumpWorldNormal(
+  imageExporter.dumpWorldNormal(
       Fwg::Gfx::Bitmap(Cfg::Values().width, Cfg::Values().height, 24,
                        terrainData.sobelData),
       pathcfg.gameModPath + "//map//world_normal.bmp", false);
@@ -2453,7 +2460,7 @@ void Generator::generate() {
     mapTerrain();
     // generate generic world data
     Arda::Civilization::generateWorldCivilizations(
-        ardaRegions, ardaProvinces, civData, scenContinents, superRegions);
+        ardaRegions, ardaProvinces, civData, ardaContinents, superRegions);
 
     // non-country stuff
     auto stratFactory = []() -> std::shared_ptr<StrategicRegion> {
@@ -2575,15 +2582,15 @@ void Generator::readHoi(std::string &path) {
   // mapCountries();
   //// read in further state details from map files
   // Hoi4::Parsing::Reading::readAirports(pathcfg.gamePath,
-  // hoi4States);
+  // modData.hoi4States);
   // Hoi4::Parsing::Reading::readRocketSites(pathcfg.gamePath,
-  //                                         hoi4States);
+  //                                         modData.hoi4States);
   // Hoi4::Parsing::Reading::readBuildings(pathcfg.gamePath,
-  // hoi4States);
+  // modData.hoi4States);
   // Hoi4::Parsing::Reading::readSupplyNodes(pathcfg.gamePath,
-  //                                         hoi4States);
+  //                                         modData.hoi4States);
   // Hoi4::Parsing::Reading::readWeatherPositions(pathcfg.gamePath,
-  //                                              hoi4States);
+  //                                              modData.hoi4States);
   config.cut = bufferedCut;
 }
 

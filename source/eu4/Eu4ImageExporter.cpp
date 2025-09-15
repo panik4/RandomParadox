@@ -1,14 +1,14 @@
-#include "hoi4/Hoi4FormatConverter.h"
-namespace Rpx::Gfx::Hoi4 {
+#include "eu4/Eu4ImageExporter.h"
+namespace Rpx::Gfx::Eu4 {
 using namespace Arda::Gfx::Textures;
 using namespace Fwg;
 using namespace Fwg::Gfx;
 
-FormatConverter::FormatConverter() {}
+ImageExporter::ImageExporter() {}
 
-FormatConverter::FormatConverter(const std::string &gamePath,
+ImageExporter::ImageExporter(const std::string &gamePath,
                                  const std::string &gameTag)
-    : Rpx::Gfx::FormatConverter(gamePath, gameTag) {
+    : Rpx::Gfx::ImageExporter(gamePath, gameTag) {
   auto &conf = Cfg::Values();
   std::string mapFolderName = "//map";
   std::string terrainsourceString =
@@ -38,26 +38,5 @@ FormatConverter::FormatConverter(const std::string &gamePath,
   colourTables["heightmap" + gameTag] = heightmap.colourtable;
 }
 
-FormatConverter::~FormatConverter() {}
-
-void FormatConverter::dump8BitCities(const Bitmap &climateIn,
-                                     const std::string &path,
-                                     const std::string &colourMapKey,
-                                     const bool cut) const {
-  Utils::Logging::logLine("FormatConverter::Writing cities to ",
-                          Fwg::Utils::userFilter(path, Cfg::Values().username));
-  Bitmap cities(Cfg::Values().width, Cfg::Values().height, 8);
-  cities.colourtable = colourTables.at(colourMapKey + gameTag);
-  if (!cut) {
-    for (int i = 0; i < Cfg::Values().bitmapSize; i++)
-      cities.setColourAtIndex(
-          i, cities.lookUp(climateIn[i] == Cfg::Values().climateColours["ocean"]
-                               ? 15
-                               : 1));
-  } else {
-    cities = cutBaseMap("//cities.bmp");
-  }
-  Bmp::save8bit(cities, path);
-}
-
-} // namespace Rpx::Gfx::Hoi4
+ImageExporter::~ImageExporter() {}
+} // namespace Rpx::Gfx::Eu4

@@ -5,7 +5,7 @@
 #include "hoi4/Hoi4Army.h"
 #include "hoi4/Hoi4Country.h"
 #include "hoi4/Hoi4FocusGen.h"
-#include "hoi4/Hoi4FormatConverter.h"
+#include "hoi4/Hoi4ImageExporter.h"
 #include "hoi4/Hoi4Parsing.h"
 #include "hoi4/Hoi4Region.h"
 #include "io/GenericParsing.h"
@@ -15,7 +15,11 @@
 
 namespace Rpx::Hoi4 {
 
-class Generator : public Rpx::ModGenerator {
+struct Hoi4Config {
+  // modifiers for prevalence of certain weather types
+  std::map<std::string, double> weatherChances;
+  // container holding the resource configurations
+  std::map<std::string, std::vector<double>> resources;
   using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
   std::vector<Arda::Utils::ResConfig> resConfigs{
       {"chromium", true, 1250.0, true, Arda::Utils::rareNoise},
@@ -32,32 +36,39 @@ class Generator : public Rpx::ModGenerator {
        {{CTI::TROPICSMONSOON, 1.0},
         {CTI::TROPICSRAINFOREST, 0.8},
         {CTI::TROPICSSAVANNA, 0.5}}}};
-  // vars
-  int focusID = 0;
-  std::map<std::string, int> totalResources;
-  Gfx::Hoi4::FormatConverter formatConverter;
+};
 
-public:
+struct Hoi4Data {
   // containers
   std::vector<std::shared_ptr<Region>> hoi4States;
   std::vector<std::shared_ptr<Hoi4Country>> hoi4Countries;
   // a list of connections: {sourceHub, destHub, provinces the rails go through}
   std::vector<std::vector<int>> supplyNodeConnections;
-  // container holding the resource configurations
-  std::map<std::string, std::vector<double>> resources;
-  std::map<std::string, double> weatherChances;
+  bool statesInitialised = false;
+};
+
+struct Hoi4Stats {
   // vars - track industry statistics
   int totalWorldIndustry = 0;
   int militaryIndustry = 0;
   int navalIndustry = 0;
   int civilianIndustry = 0;
-  bool statesInitialised = false;
+};
 
-  // member functions
+class Generator : public Rpx::ModGenerator {
+  // a hoi4 specific image exporter
+  Gfx::Hoi4::ImageExporter imageExporter;
+  Hoi4Stats stats;
+
+public:
+  Hoi4Config modConfig;
+  Hoi4Data modData;
+
   // constructors/destructors
   Generator(const std::string &configSubFolder,
             const boost::property_tree::ptree &rpdConf);
   ~Generator();
+  // member functions
   bool createPaths();
   void configureModGen(const std::string &configSubFolder,
                        const std::string &username,
@@ -65,7 +76,6 @@ public:
 
   void mapRegions();
   virtual Fwg::Gfx::Bitmap mapTerrain();
-  void cutFromFiles(const std::string &gamePath);
   // initialize states
   void mapCountries();
   // give resources to states
@@ -103,12 +113,6 @@ public:
 
   void generatePositions();
 
-  // see which countries are in need of unification
-  void evaluateBrotherlyWars();
-  // see which country needs to see some action
-  void evaluateCivilWars();
-  // create a strategy for this country
-  void evaluateCountryStrategy();
   // print world info to console
   void printStatistics();
 
@@ -117,16 +121,14 @@ public:
                           const Fwg::Gfx::Bitmap &riverInput) override;
 
   virtual void generate();
-  virtual void initFormatConverter();
+  virtual void initImageExporter();
   void writeLocalisation();
   virtual void writeTextFiles();
   virtual void writeImages();
-  const Gfx::Hoi4::FormatConverter &getFormatConverter() const {
-    return formatConverter;
+  const Gfx::Hoi4::ImageExporter &getImageExporter() const {
+    return imageExporter;
   }
 
-  
   void readHoi(std::string &gamePath);
-
 };
 } // namespace Rpx::Hoi4

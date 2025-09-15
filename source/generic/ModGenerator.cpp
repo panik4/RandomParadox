@@ -13,29 +13,12 @@ ModGenerator::ModGenerator(const std::string &configSubFolder,
   Arda::Gfx::Flag::readFlagTemplates();
   Arda::Gfx::Flag::readSymbolTemplates();
   superRegionMap = Bitmap(0, 0, 24);
-  this->gameSubPath = gameSubPath;
+  this->pathcfg.gameSubPath = gameSubPath;
   this->gameType = gameType;
 }
 
 ModGenerator::~ModGenerator() {}
 
 void ModGenerator::mapCountries() {}
-
-Fwg::Gfx::Bitmap ModGenerator::mapTerrain() {
-  Bitmap typeMap(climateMap.width(), climateMap.height(), 24);
-  auto &colours = Fwg::Cfg::Values().colours;
-  typeMap.fill(colours.at("sea"));
-  Logging::logLine("Mapping Terrain");
-  for (auto &ardaRegion : ardaRegions) {
-    for (auto &gameProv : ardaRegion->ardaProvinces) {
-    }
-  }
-  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "/typeMap.png");
-  return typeMap;
-}
-
-void ModGenerator::cutFromFiles(const std::string &gamePath) {
-  Fwg::Utils::Logging::logLine("Unimplemented cutting");
-}
 
 } // namespace Rpx

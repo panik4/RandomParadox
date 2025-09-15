@@ -115,7 +115,8 @@ void Generator::configureModGen(const std::string &configSubFolder,
         "\"https://jsonlint.com/\" or search for \"json validator\"");
   }
   //  passed to generic ScenarioGenerator
-  this->numCountries = vic3Conf.get<int>("scenario.numCountries");
+  ardaConfig.numCountries = vic3Conf.get<int>("scenario.numCountries");
+  ardaConfig.generationAge = Arda::GenerationAge::Victorian;
   config.seaLevel = 18;
   config.riverFactor = 0.0;
   config.seaProvFactor *= 0.10;
@@ -238,8 +239,8 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
 }
 
 void Generator::distributePops() {
-  auto targetWorldPop = 1'000'000'000.0 * worldPopulationFactor;
-  for (auto &region : vic3Regions) {
+  auto targetWorldPop = 1'000'000'000.0 * ardaConfig.worldPopulationFactor;
+  for (auto &region : modData.vic3Regions) {
     if (region->isSea())
       continue;
     // only init this when it hasn't been initialized via text input before
@@ -247,7 +248,7 @@ void Generator::distributePops() {
       region->totalPopulation =
           static_cast<int>(targetWorldPop * region->worldPopulationShare);
     }
-    worldPop += (long long)region->totalPopulation;
+    ardaData.worldPop += (long long)region->totalPopulation;
   }
 }
 void Generator::totalArableLand(const std::vector<float> &arableLand) {
@@ -256,7 +257,7 @@ void Generator::totalArableLand(const std::vector<float> &arableLand) {
   for (auto &val : arableLand) {
     totalArable += val;
   }
-  for (auto &reg : vic3Regions) {
+  for (auto &reg : modData.vic3Regions) {
     auto resShare = 0.0;
     for (const auto &prov : reg->provinces) {
       for (const auto pix : prov->getNonOwningPixelView()) {
@@ -278,7 +279,7 @@ void Generator::distributeResources() {
 
   // config for all resource types
 
-  for (auto &resConfig : resConfigs) {
+  for (auto &resConfig : vic3Config.resConfigs) {
     std::vector<float> resPrev;
     if (resConfig.random) {
       resPrev = Fwg::Civilization::Resources::randomResourceLayer(
@@ -305,7 +306,7 @@ void Generator::distributeResources() {
 void Generator::mapRegions() {
   Fwg::Utils::Logging::logLine("Mapping Regions");
   ardaRegions.clear();
-  vic3Regions.clear();
+  modData.vic3Regions.clear();
 
   for (auto &region : this->areaData.regions) {
     std::sort(region.provinces.begin(), region.provinces.end(),
@@ -324,7 +325,7 @@ void Generator::mapRegions() {
     // save game region to generic module container and to hoi4 specific
     // container
     ardaRegions.push_back(ardaRegion);
-    vic3Regions.push_back(ardaRegion);
+    modData.vic3Regions.push_back(ardaRegion);
   }
   // sort by Arda::ArdaProvince ID
   std::sort(ardaRegions.begin(), ardaRegions.end(),
@@ -360,15 +361,15 @@ void Generator::mapCountries() {
       Fwg::Utils::Logging::logLine("Warning: Country ", country.first,
                                    " not found in Vic3 countries");
     }
-    vic3Countries.emplace(country.first, vic3Country);
+    modData.vic3Countries.emplace(country.first, vic3Country);
   }
 }
-// set tech levels, give techs, count pops, cultures and religions, set
-// diplomatic relations (e.g. puppets, markets, protectorates)
+// set tech levels, give vic3GameData.techs, count pops, cultures and religions,
+// set diplomatic relations (e.g. puppets, markets, protectorates)
 void Generator::generateCountrySpecifics() {
   auto &cfg = Fwg::Cfg::Values();
   // count pops
-  for (auto &cEntry : vic3Countries) {
+  for (auto &cEntry : modData.vic3Countries) {
     auto &c = cEntry.second;
     auto totalPop = 0;
     auto averageDevelopment = 0.0;
@@ -383,7 +384,7 @@ void Generator::generateCountrySpecifics() {
                             ((double)state->totalPopulation / (double)totalPop);
     }
     c->averageDevelopment = averageDevelopment;
-    c->evaluateTechLevel(techLevels);
+    c->evaluateTechLevel(vic3GameData.techLevels);
     if (cfg.debugLevel > 5) {
       Fwg::Utils::Logging::logLine(c->tag, " has a population of ", c->pop);
     }
@@ -391,32 +392,38 @@ void Generator::generateCountrySpecifics() {
 }
 bool Generator::importData(const std::string &path) {
   try {
-    techs =
+    vic3GameData.techs =
         Vic3::Importing::readTechs(path + "common//technology//technologies//");
-    techLevels = Vic3::Importing::readTechLevels(
-        path + "common//scripted_effects//00_starting_inventions.txt", techs);
-    goods = Vic3::Importing::readGoods(path + "common//goods//00_goods.txt");
-    productionmethods = Vic3::Importing::readProdMethods(
-        path + "common//production_methods//", goods, techs);
-    productionmethodGroups = Vic3::Importing::readProdMethodGroups(
-        path + "common//production_method_groups//", productionmethods);
-    buildingsTypes = Vic3::Importing::readBuildings(
-        path + "common//buildings//", productionmethodGroups, techs);
-    popNeeds = Vic3::Importing::readPopNeeds(
-        path + "common//pop_needs//00_pop_needs.txt", goods);
-    buypackages = Vic3::Importing::readBuypackages(
-        path + "//common//buy_packages//00_buy_packages.txt", popNeeds);
+    vic3GameData.techLevels = Vic3::Importing::readTechLevels(
+        path + "common//scripted_effects//00_starting_inventions.txt",
+        vic3GameData.techs);
+    vic3GameData.goods = Vic3::Importing::readGoods(
+        path + "common//vic3GameData.goods//00_goods.txt");
+    vic3GameData.productionmethods = Vic3::Importing::readProdMethods(
+        path + "common//production_methods//", vic3GameData.goods,
+        vic3GameData.techs);
+    vic3GameData.productionmethodGroups = Vic3::Importing::readProdMethodGroups(
+        path + "common//production_method_groups//",
+        vic3GameData.productionmethods);
+    vic3GameData.buildingsTypes = Vic3::Importing::readBuildings(
+        path + "common//buildings//", vic3GameData.productionmethodGroups,
+        vic3GameData.techs);
+    vic3GameData.popNeeds = Vic3::Importing::readPopNeeds(
+        path + "common//pop_needs//00_pop_needs.txt", vic3GameData.goods);
+    vic3GameData.buypackages = Vic3::Importing::readBuypackages(
+        path + "//common//buy_packages//00_buy_packages.txt",
+        vic3GameData.popNeeds);
     nData.disallowedTokens =
         Vic3::Importing::readTags(path + "common//history//countries//");
   } catch (std::exception e) {
     Fwg::Utils::Logging::logLine("Error: ", e.what());
     return false;
   }
-  Fwg::Utils::Logging::logLine("Reading goods");
-  // now map goods to building types
-  for (auto &good : goods) {
+  Fwg::Utils::Logging::logLine("Reading vic3GameData.goods");
+  // now map vic3GameData.goods to building types
+  for (auto &good : vic3GameData.goods) {
     std::vector<Productionmethod> prodMethods;
-    for (auto &productionmethod : productionmethods) {
+    for (auto &productionmethod : vic3GameData.productionmethods) {
       // ignore subsistence buildings
       if (productionmethod.first.find("subsistence") != std::string::npos) {
         continue;
@@ -424,8 +431,8 @@ bool Generator::importData(const std::string &path) {
       for (auto &outputGood : productionmethod.second.outputs) {
         // this building has a production method that outputs this good
         if (good.first == outputGood.first.name && outputGood.second > 0) {
-          if (goodToProdMethodsOutput.count(good.first)) {
-            goodToProdMethodsOutput[good.first].push_back(
+          if (vic3GameData.goodToProdMethodsOutput.count(good.first)) {
+            vic3GameData.goodToProdMethodsOutput[good.first].push_back(
                 productionmethod.second);
           } else {
             Fwg::Utils::Logging::logLine("Cannot find output good: ",
@@ -436,8 +443,8 @@ bool Generator::importData(const std::string &path) {
       for (auto &inputGood : productionmethod.second.inputs) {
         // this building has a production method that inputs this good
         if (good.first == inputGood.first.name && inputGood.second > 0) {
-          if (goodToProdMethodsInput.count(good.first)) {
-            goodToProdMethodsInput[good.first].push_back(
+          if (vic3GameData.goodToProdMethodsInput.count(good.first)) {
+            vic3GameData.goodToProdMethodsInput[good.first].push_back(
                 productionmethod.second);
           } else {
             Fwg::Utils::Logging::logLine("Cannot find input good: ",
@@ -448,14 +455,14 @@ bool Generator::importData(const std::string &path) {
     }
   }
   Fwg::Utils::Logging::logLine("Reading building types");
-  for (const auto &buildingType : buildingsTypes) {
+  for (const auto &buildingType : vic3GameData.buildingsTypes) {
     for (const auto &buildingProdGroups : buildingType.productionMethodGroups) {
       for (const auto &buildingProductionmethod :
            buildingProdGroups.productionMethods) {
-        for (const auto &prodMethod : productionmethods) {
+        for (const auto &prodMethod : vic3GameData.productionmethods) {
           if (prodMethod.first == buildingProductionmethod.first) {
-            productionMethodToBuildingTypes[prodMethod.first].push_back(
-                buildingType);
+            vic3GameData.productionMethodToBuildingTypes[prodMethod.first]
+                .push_back(buildingType);
           }
         }
       }
@@ -468,7 +475,7 @@ void Generator::createMarkets() {}
 
 void Generator::calculateNeeds() {
 
-  for (auto &country : vic3Countries) {
+  for (auto &country : modData.vic3Countries) {
     std::map<std::string, double> summedPopNeeds;
     auto wealth = country.second->averageDevelopment;
     // guesstimate size of wealth groups from development
@@ -477,7 +484,8 @@ void Generator::calculateNeeds() {
     for (int i = 0; i < wealthDispersion.size(); i++) {
       // get the buypackage, it tells us which popneeds we have for this
       // wealth
-      auto buyPackage = buypackages.at("wealth_" + std::to_string(i + 1));
+      auto buyPackage =
+          vic3GameData.buypackages.at("wealth_" + std::to_string(i + 1));
       // this is the pop of that wealth, needing the above buypackage contents
       auto affectedPopFactor = wealthDispersion[i] * pop / 10000.0;
       for (auto &popNeed : buyPackage.popNeeds) {
@@ -493,7 +501,8 @@ void Generator::calculateNeeds() {
     }
 
     Fwg::Utils::Logging::logLineLevel(
-        5, country.first, " requires goods with development: ", wealth);
+        5, country.first,
+        " requires vic3GameData.goods with development: ", wealth);
     for (auto &rq : summedPopNeeds) {
       Fwg::Utils::Logging::logLineLevel(5, rq.first, " needed ", rq.second);
     }
@@ -501,12 +510,12 @@ void Generator::calculateNeeds() {
   }
 }
 void Generator::distributeBuildings() {
-  for (auto &countryEntry : vic3Countries) {
+  for (auto &countryEntry : modData.vic3Countries) {
     auto &country = countryEntry.second;
     for (auto &need : country->summedPopNeeds) {
-      auto &popNeed = popNeeds.at(need.first);
+      auto &popNeed = vic3GameData.popNeeds.at(need.first);
       auto amount = need.second;
-      // this is the goods used in the popneed to fuilfill demand
+      // this is the vic3GameData.goods used in the popneed to fuilfill demand
       // we want to produce optimally all of them a bit, if possible
       // if not, try to produce some of them with a larger share
       auto goods = popNeed.goods;
@@ -520,16 +529,16 @@ void Generator::distributeBuildings() {
                                      actualDemand);
         // filter out tiny demands for now: TODO
         if (actualDemand > 5.0 &&
-            goodToProdMethodsOutput.count(produceableGood.name)) {
+            vic3GameData.goodToProdMethodsOutput.count(produceableGood.name)) {
           // find production methods that produce this good
           const auto &potentialProdMethods =
-              goodToProdMethodsOutput.at(produceableGood.name);
+              vic3GameData.goodToProdMethodsOutput.at(produceableGood.name);
 
           // now find all buildings for all the production methods, so we get
           // a complete list of prod methods we support
           std::map<std::string, BuildingType> buildingTypes;
           for (auto &entry : potentialProdMethods) {
-            // check against techs, this is the decisive factor in
+            // check against vic3GameData.techs, this is the decisive factor in
             // evaluating if a building can actually be built already to
             // fulfill the demand
             if (!country->canUseProductionMethod(entry)) {
@@ -537,9 +546,11 @@ void Generator::distributeBuildings() {
             }
 
             try {
-              if (productionMethodToBuildingTypes.find(entry.name) !=
-                  productionMethodToBuildingTypes.end()) {
-                auto &entry2 = productionMethodToBuildingTypes.at(entry.name);
+              if (vic3GameData.productionMethodToBuildingTypes.find(
+                      entry.name) !=
+                  vic3GameData.productionMethodToBuildingTypes.end()) {
+                auto &entry2 =
+                    vic3GameData.productionMethodToBuildingTypes.at(entry.name);
                 for (auto &entry3 : entry2) {
                   if (entry3.name.find("subsistence") == std::string::npos)
                     buildingTypes.emplace(entry3.name, entry3);
@@ -630,13 +641,13 @@ void Generator::distributeBuildings() {
           auto portLocator =
               region->getLocation(Fwg::Civilization::LocationType::Port);
           if (portLocator != nullptr) {
-            // find the building in buildingsTypes with the name
+            // find the building in vic3GameData.buildingsTypes with the name
             // building_port. This is a vector we search in
-            auto portBuilding =
-                std::find_if(buildingsTypes.begin(), buildingsTypes.end(),
-                             [](BuildingType &building) {
-                               return building.name == "building_port";
-                             });
+            auto portBuilding = std::find_if(
+                vic3GameData.buildingsTypes.begin(),
+                vic3GameData.buildingsTypes.end(), [](BuildingType &building) {
+                  return building.name == "building_port";
+                });
             region->buildings.emplace(
                 "building_port",
                 Building{*portBuilding, 1,
@@ -658,7 +669,7 @@ void Generator::createLocators() {
   }
   auto searchVector = Fwg::Utils::getCircularOffsets(config.width, 10);
 
-  for (auto &region : vic3Regions) {
+  for (auto &region : modData.vic3Regions) {
     region->significantLocations.clear();
     if (region->isLand()) {
       // create a locator for each building in the region
@@ -737,7 +748,7 @@ void Generator::createLocators() {
 }
 
 void Generator::calculateNavalExits() {
-  for (auto &region : vic3Regions) {
+  for (auto &region : modData.vic3Regions) {
     if (!region->isSea()) {
       //  check if we have a port locator, and take its naval exit ID
       for (auto &location : region->significantLocations) {
@@ -750,7 +761,7 @@ void Generator::calculateNavalExits() {
   }
 }
 
-void Generator::initFormatConverter() {}
+void Generator::initImageExporter() {}
 
 void Generator::generate() {
   if (!createPaths())
@@ -764,7 +775,7 @@ void Generator::generate() {
     mapTerrain();
     mapContinents();
     Arda::Civilization::generateWorldCivilizations(
-        ardaRegions, ardaProvinces, civData, scenContinents, superRegions);
+        ardaRegions, ardaProvinces, civData, ardaContinents, superRegions);
     auto countryFactory = []() -> std::shared_ptr<Vic3::Country> {
       return std::make_shared<Vic3::Country>();
     };
@@ -821,10 +832,10 @@ void Generator::writeTextFiles() {
   using namespace Parsing::Writing;
   auto foundRegions = compatRegions(
       pathcfg.gamePath + "//game//map_data//state_regions//",
-      pathcfg.gameModPath + "//map_data//state_regions//", vic3Regions);
+      pathcfg.gameModPath + "//map_data//state_regions//", modData.vic3Regions);
   compatStratRegions(pathcfg.gamePath + "//game//common//strategic_regions//",
                      pathcfg.gameModPath + "//common//strategic_regions//",
-                     vic3Regions, foundRegions);
+                     modData.vic3Regions, foundRegions);
   // compatReleasable(pathcfg.gamePath + "//game//common//country_creation//",
   //                  pathcfg.gameModPath + "//common//country_creation//");
   adj(pathcfg.gameModPath + "//map_data//adjacencies.csv");
@@ -833,15 +844,15 @@ void Generator::writeTextFiles() {
   provinceTerrains(pathcfg.gameModPath + "//map_data//province_terrains.txt",
                    ardaProvinces);
   stateFiles(pathcfg.gameModPath + "//map_data//state_regions//00_regions.txt",
-             vic3Regions);
+             modData.vic3Regions);
   Parsing::History::writeBuildings(
       pathcfg.gameModPath + "//common//history//buildings//00_buildings.txt",
-      vic3Regions);
+      modData.vic3Regions);
   writeMetadata(pathcfg.gameModPath + "//.metadata//metadata.json");
   strategicRegions(
       pathcfg.gameModPath +
           "//common//strategic_regions//randVic_strategic_regions.txt",
-      superRegions, vic3Regions);
+      superRegions, modData.vic3Regions);
   cultureCommon(pathcfg.gameModPath + "//common//cultures//00_cultures.txt",
                 civData.cultures);
   religionCommon(pathcfg.gameModPath + "//common//religions//religions.txt",
@@ -850,7 +861,7 @@ void Generator::writeTextFiles() {
                   civData.cultures, civData.religions);
   countryCommon(pathcfg.gameModPath +
                     "//common//country_definitions//00_countries.txt",
-                vic3Countries, vic3Regions);
+                modData.vic3Countries, modData.vic3Regions);
 
   compatFile(pathcfg.gameModPath +
              "//common//country_creation//00_releasable_countries.txt");
@@ -865,11 +876,11 @@ void Generator::writeTextFiles() {
   compatFile(pathcfg.gameModPath +
              "//common//country_formation//00_major_formables.txt");
   stateHistory(pathcfg.gameModPath + "//common//history//states//00_states.txt",
-               vic3Regions);
+               modData.vic3Regions);
   popsHistory(pathcfg.gameModPath + "//common//history//pops//00_world.txt",
-              vic3Regions);
+              modData.vic3Regions);
   countryHistory(pathcfg.gameModPath + "//common//history//countries",
-                 vic3Countries);
+                 modData.vic3Countries);
   compatFile(pathcfg.gameModPath + "//common//decisions//canal_decisions.txt");
   compatFile(pathcfg.gameModPath + "//events//canal_events.txt");
   compatFile(pathcfg.gameModPath +
@@ -884,7 +895,7 @@ void Generator::writeTextFiles() {
 }
 
 void Generator::writeImages() {
-  Gfx::Vic3::FormatConverter formatConverter(pathcfg.gamePath, "Vic3");
+  Gfx::Vic3::ImageExporter formatConverter(pathcfg.gamePath, "Vic3");
   // TODO: improve handling of altitude data to not rely on image
   auto heightMap = Fwg::Gfx::displayHeightMap(terrainData.detailedHeightMap);
 
@@ -929,8 +940,9 @@ void Generator::writeImages() {
 
 void Generator::writeSplnet() {
   createLocators();
-  Parsing::Writing::locators(
-      pathcfg.gameModPath + "//gfx//map//map_object_data//", vic3Regions);
+  Parsing::Writing::locators(pathcfg.gameModPath +
+                                 "//gfx//map//map_object_data//",
+                             modData.vic3Regions);
   genNavmesh(Fwg::Cfg::Values());
   calculateNavalExits();
 

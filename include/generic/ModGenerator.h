@@ -1,7 +1,7 @@
 #pragma once
 #include "ArdaGen.h"
 #include "generic/StrategicRegion.h"
-#include "io/ResourceLoading.h"
+#include "io/GameDataImporter.h"
 #include "namegeneration/NameGenerator.h"
 #include "rendering/Images.h"
 #include <map>
@@ -13,8 +13,6 @@ public:
   // vars - used for every game
   GameType gameType = GameType::Generic;
 
-  // optional for every game
-  std::string gameSubPath = "";
   Utils::Pathcfg pathcfg;
   // constructors&destructor
   ModGenerator(const std::string &configSubFolder, const GameType &gameType,
@@ -29,14 +27,12 @@ public:
 
   // mapping terrain types of FastWorldGen to module
   // compatible terrains
-  virtual Fwg::Gfx::Bitmap mapTerrain();
+  virtual Fwg::Gfx::Bitmap mapTerrain() = 0;
   // initialize countries
   virtual void mapCountries();
 
-  virtual void cutFromFiles(const std::string &gamePath);
-
   virtual void generate() = 0;
-  virtual void initFormatConverter() = 0;
+  virtual void initImageExporter() = 0;
   virtual void writeTextFiles() = 0;
   virtual void writeImages() = 0;
 

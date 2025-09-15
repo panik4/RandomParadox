@@ -110,8 +110,6 @@ void victoryPointNames(const std::string &path,
 
 namespace Reading {
 
-struct ChangeHolder;
-
 Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path);
 void readStates(const std::string &path, Fwg::Areas::AreaData &areaData);
 
@@ -139,7 +137,4 @@ void readWeatherPositions(const std::string &path,
                           std::vector<std::shared_ptr<Region>> &regions);
 } // namespace Reading
 
-// history - National Focus
-std::vector<std::string> readTypeMap();
-std::map<std::string, std::string> readRewardMap(const std::string &path);
 } // namespace Rpx::Hoi4::Parsing

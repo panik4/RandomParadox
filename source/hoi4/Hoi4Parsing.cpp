@@ -1818,7 +1818,7 @@ void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
   // time
   Fwg::Areas::Provinces::loadProvinces(
       terrainData, climateData, provMap, areaData.provinces,
-      areaData.provinceColourMap, areaData.segments, true);
+      areaData.provinceColourMap, areaData.segments, areaData.landBodies, true);
 }
 void readRocketSites(const std::string &path,
                      std::vector<std::shared_ptr<Region>> &regions) {
@@ -1868,21 +1868,5 @@ void readWeatherPositions(const std::string &path,
 }
 } // namespace Reading
 
-std::vector<std::string> readTypeMap() {
-  return pU::getLines(Fwg::Cfg::Values().resourcePath +
-                      "hoi4//ai//national_focus//baseFiles//foci.txt");
-}
-
-std::map<std::string, std::string> readRewardMap(const std::string &path) {
-  auto file = pU::readFile(path);
-  auto split = pU::getTokens(file, ';');
-  std::map<std::string, std::string> rewardMap;
-  for (const auto &elem : split) {
-    auto key = Rpx::Parsing::getBracketBlockContent(elem, "key");
-    auto value = Rpx::Parsing::getBracketBlockContent(elem, "value");
-    rewardMap[key] = value;
-  }
-  return {rewardMap};
-}
 
 } // namespace Rpx::Hoi4::Parsing

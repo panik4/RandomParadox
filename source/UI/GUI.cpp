@@ -327,14 +327,14 @@ void GUI::initGameConfigs() {
 bool GUI::validatePaths() {
   validatedPaths = Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,
                                         activeGameConfig.gameName,
-                                        activeGenerator->gameSubPath);
+                                        activeGenerator->pathcfg.gameSubPath);
   if (validatedPaths)
     validatedPaths = Rpx::Utils::validateGameModFolder(
         activeGameConfig.gameName, activeGenerator->pathcfg);
   if (validatedPaths)
     validatedPaths = Rpx::Utils::validateModFolder(activeGameConfig.gameName,
                                                    activeGenerator->pathcfg);
-  activeGenerator->initFormatConverter();
+  activeGenerator->initImageExporter();
   activeGenerator->nData = Rpx::NameGeneration::prepare(
       Fwg::Cfg::Values().resourcePath + "names",
       activeGenerator->pathcfg.gamePath, activeGenerator->gameType);
@@ -376,7 +376,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
       // validate
       Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,
                            activeGameConfig.gameName,
-                           activeGenerator->gameSubPath);
+                           activeGenerator->pathcfg.gameSubPath);
       Rpx::Utils::autoLocateGameModFolder(activeGameConfig.gameName,
                                           activeGenerator->pathcfg);
       validatePaths();
@@ -404,7 +404,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
       activeGameConfig = gameConfigs[selectedGame];
       Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,
                            activeGameConfig.gameName,
-                           activeGenerator->gameSubPath);
+                           activeGenerator->pathcfg.gameSubPath);
       Rpx::Utils::autoLocateGameModFolder(activeGameConfig.gameName,
                                           activeGenerator->pathcfg);
       validatedPaths = false;
@@ -436,7 +436,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
     if (ImGui::Button("Try to find game files")) {
       Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,
                            activeGameConfig.gameName,
-                           activeGenerator->gameSubPath);
+                           activeGenerator->pathcfg.gameSubPath);
     }
     ImGui::SameLine();
     if (ImGui::Button("Try to find the games mods folder")) {
@@ -480,11 +480,6 @@ bool GUI::scenarioGenReady(bool printIssue) {
 
   auto &generator = activeGenerator;
   auto &cfg = Fwg::Cfg::Values();
-  if (redoRegions) {
-    if (printIssue)
-      Fwg::Utils::Logging::logLine("Region redo is pending.");
-    ready = false;
-  }
 
   if (redoProvinces) {
     if (printIssue)
@@ -607,7 +602,7 @@ int GUI::showScenarioTab(Fwg::Cfg &cfg) {
         activeGenerator->mapContinents();
         Arda::Civilization::generateWorldCivilizations(
             activeGenerator->ardaRegions, activeGenerator->ardaProvinces,
-            activeGenerator->civData, activeGenerator->scenContinents,
+            activeGenerator->civData, activeGenerator->ardaContinents,
             activeGenerator->superRegions);
 
         configuredScenarioGen = true;
@@ -616,9 +611,10 @@ int GUI::showScenarioTab(Fwg::Cfg &cfg) {
       ImGui::PopStyleColor(3);
       ImGui::PushItemWidth(200.0f);
       ImGui::InputDouble("WorldPopulationFactor",
-                         &activeGenerator->worldPopulationFactor, 0.1);
+                         &activeGenerator->ardaConfig.worldPopulationFactor,
+                         0.1);
       ImGui::InputDouble("industryFactor",
-                         &activeGenerator->worldIndustryFactor, 0.1);
+                         &activeGenerator->ardaConfig.worldIndustryFactor, 0.1);
       if (isRelevantModuleActive("hoi4")) {
         auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
         showHoi4Configure(cfg, hoi4Gen);
@@ -786,7 +782,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
                 "dragged in, this example file is used.");
     ImGui::PushItemWidth(300.0f);
     uiUtils->showHelpTextBox("Countries");
-    ImGui::InputInt("Number of countries", &generator->numCountries);
+    ImGui::InputInt("Number of countries", &generator->ardaConfig.numCountries);
     // ImGui::InputText("Path to country list: ",
     // &generator->countryMappingPath); ImGui::InputText("Path to state list:
     // ", &generator->regionMappingPath);
@@ -813,7 +809,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
           return true;
         });
       }
-      if (!hoi4Gen->statesInitialised) {
+      if (!hoi4Gen->modData.statesInitialised) {
         ImGui::Text("Generate state data first");
       } else {
         if (ImGui::Button("Randomly distribute countries")) {
@@ -985,8 +981,8 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
         "This generates strategic regions, they cannot be loaded");
     uiUtils->showHelpTextBox("Strategic Regions");
     if (generator->ardaRegions.size()) {
-      ImGui::InputFloat(
-          "Strategic region factor: ", &generator->superRegionFactor, 0.1f);
+      ImGui::InputFloat("Strategic region factor: ",
+                        &generator->ardaConfig.superRegionFactor, 0.1f);
       if (ImGui::Button("Generate strategic regions")) {
         // non-country stuff
         computationFutureBool = runAsync([&generator, &cfg, this]() {
@@ -1072,28 +1068,38 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
 
 // HOI4
 int GUI::showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
-  ImGui::InputDouble("resourceFactor", &generator->resourceFactor, 0.1);
-  ImGui::InputDouble("aluminiumFactor", &generator->resources["aluminium"][2],
+  ImGui::InputDouble("resourceFactor", &generator->ardaConfig.resourceFactor,
                      0.1);
-  ImGui::InputDouble("chromiumFactor", &generator->resources["chromium"][2],
+  ImGui::InputDouble("aluminiumFactor",
+                     &generator->modConfig.resources["aluminium"][2], 0.1);
+  ImGui::InputDouble("chromiumFactor",
+                     &generator->modConfig.resources["chromium"][2], 0.1);
+  ImGui::InputDouble("oilFactor", &generator->modConfig.resources["oil"][2],
                      0.1);
-  ImGui::InputDouble("oilFactor", &generator->resources["oil"][2], 0.1);
-  ImGui::InputDouble("rubberFactor", &generator->resources["rubber"][2], 0.1);
-  ImGui::InputDouble("steelFactor", &generator->resources["steel"][2], 0.1);
-  ImGui::InputDouble("tungstenFactor", &generator->resources["tungsten"][2],
+  ImGui::InputDouble("rubberFactor",
+                     &generator->modConfig.resources["rubber"][2], 0.1);
+  ImGui::InputDouble("steelFactor", &generator->modConfig.resources["steel"][2],
                      0.1);
-  ImGui::InputDouble("baseLightRainChance",
-                     &generator->weatherChances["baseLightRainChance"], 0.1);
-  ImGui::InputDouble("baseHeavyRainChance",
-                     &generator->weatherChances["baseHeavyRainChance"], 0.1);
+  ImGui::InputDouble("tungstenFactor",
+                     &generator->modConfig.resources["tungsten"][2], 0.1);
+  ImGui::InputDouble(
+      "baseLightRainChance",
+      &generator->modConfig.weatherChances["baseLightRainChance"], 0.1);
+  ImGui::InputDouble(
+      "baseHeavyRainChance",
+      &generator->modConfig.weatherChances["baseHeavyRainChance"], 0.1);
   ImGui::InputDouble("baseMudChance",
-                     &generator->weatherChances["baseMudChance"], 0.1);
+                     &generator->modConfig.weatherChances["baseMudChance"],
+                     0.1);
   ImGui::InputDouble("baseBlizzardChance",
-                     &generator->weatherChances["baseBlizzardChance"], 0.1);
-  ImGui::InputDouble("baseSandstormChance",
-                     &generator->weatherChances["baseSandstormChance"], 0.1);
+                     &generator->modConfig.weatherChances["baseBlizzardChance"],
+                     0.1);
+  ImGui::InputDouble(
+      "baseSandstormChance",
+      &generator->modConfig.weatherChances["baseSandstormChance"], 0.1);
   ImGui::InputDouble("baseSnowChance",
-                     &generator->weatherChances["baseSnowChance"], 0.1);
+                     &generator->modConfig.weatherChances["baseSnowChance"],
+                     0.1);
   return 0;
 }
 
@@ -1122,7 +1128,7 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
                 "configured paths");
     auto generator = getGeneratorPointer<Rpx::Hoi4::Generator>();
     if (generator->superRegions.size() && generator->provinceMap.size() &&
-        generator->statesInitialised && !requireCountryDetails) {
+        generator->modData.statesInitialised && !requireCountryDetails) {
 
       if (ImGui::Button("Export complete mod")) {
         computationFutureBool = runAsync([generator, &cfg, this]() {
@@ -1143,17 +1149,17 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
       }
 
       if (ImGui::Button("Export heightmap.bmp")) {
-        generator->getFormatConverter().dump8BitHeightmap(
+        generator->getImageExporter().dump8BitHeightmap(
             generator->terrainData.detailedHeightMap,
             generator->pathcfg.gameModPath + "//map//heightmap", "heightmap");
       }
       if (ImGui::Button("Export world_normal.bmp")) {
-        generator->getFormatConverter().dumpWorldNormal(
+        generator->getImageExporter().dumpWorldNormal(
             Fwg::Gfx::displaySobelMap(generator->terrainData.sobelData),
             generator->pathcfg.gameModPath + "//map//world_normal.bmp", false);
       }
       if (ImGui::Button("Export terrain.bmp")) {
-        generator->getFormatConverter().dump8BitTerrain(
+        generator->getImageExporter().dump8BitTerrain(
             generator->terrainData, generator->climateData, generator->civLayer,
             generator->pathcfg.gameModPath + "//map//terrain.bmp", "terrain",
             false);
@@ -1165,13 +1171,13 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
                 .c_str());
       }
       if (ImGui::Button("Export treemap.bmp")) {
-        generator->getFormatConverter().dump8BitTrees(
+        generator->getImageExporter().dump8BitTrees(
             generator->terrainData, generator->climateData,
             generator->pathcfg.gameModPath + "//map//trees.bmp", "trees",
             false);
       }
       if (ImGui::Button("Export colormap_rgb_cityemissivemask_a.dds")) {
-        generator->getFormatConverter().dumpTerrainColourmap(
+        generator->getImageExporter().dumpTerrainColourmap(
             generator->worldMap, generator->civLayer,
             generator->pathcfg.gameModPath,
             "//map//terrain//colormap_rgb_cityemissivemask_a.dds",

@@ -7,7 +7,7 @@
 #include "utils/Cfg.h"
 #include <map>
 namespace Rpx::Gfx {
-class FormatConverter {
+class ImageExporter {
 protected:
   // map of maps of colours, defines which FastWorldGen colour
   // should be mapped to which game compatible colour
@@ -21,9 +21,9 @@ protected:
 
 public:
   // constructor/destructor
-  FormatConverter();
-  FormatConverter(const std::string &gamePath, const std::string &gameTag);
-  ~FormatConverter();
+  ImageExporter();
+  ImageExporter(const std::string &gamePath, const std::string &gameTag);
+  ~ImageExporter();
   // member functions
   void writeBufferPixels(std::vector<unsigned char> &pixels, int index,
                          const Fwg::Gfx::Colour &colour,
