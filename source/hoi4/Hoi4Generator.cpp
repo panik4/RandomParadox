@@ -103,7 +103,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
     system("pause");
   }
   // default values taken from base game
-  this->ardaConfig.generationAge = Arda::GenerationAge::WorldWar;
+  this->ardaConfig.generationAge = Arda::Utils::GenerationAge::WorldWar;
   this->modConfig.resources = {
       {"aluminium",
        {hoi4Conf.get<double>("hoi4.aluminiumFactor"), 1169.0, 0.3}},
@@ -621,18 +621,6 @@ void Generator::generateCountrySpecifics() {
     country->fullName = NameGeneration::modifyWithIdeology(
         country->ideology, country->name, country->adjective, nData);
 
-    // military focus: first gather info about position of the country, taking
-    // coastline into account
-    auto coastalRegions = 0.0;
-    for (auto &region : country->hoi4Regions) {
-      if (region->coastal) {
-        coastalRegions++;
-      }
-    }
-    // naval focus goes from 0-50%. If we have a lot of coastal regions, we
-    // focus on naval
-    country->navalFocus = std::clamp(
-        (coastalRegions / country->hoi4Regions.size() * 100.0), 0.0, 50.0);
     // gather all naval bases from all regions
     std::vector<int> navalBases;
     for (auto &region : country->hoi4Regions) {
@@ -648,13 +636,6 @@ void Generator::generateCountrySpecifics() {
       country->landFocus += country->navalFocus;
       country->navalFocus = 0;
     }
-
-    // TODO: Increase if our position is very remote?
-    // now let's get the air focus, which primarily depends on randomness,
-    // should be between 5 and 35%
-    country->airFocus = RandNum::getRandom(5.0, 35.0);
-    // land focus is the rest
-    country->landFocus = 100.0 - country->navalFocus - country->airFocus;
   }
   generateTechLevels();
   generateArmorVariants();
@@ -1079,7 +1060,7 @@ void Generator::generateTechLevels() {
     country->navyTechs = {
         {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};
 
-    // a few techs are guranteed, such as infantry_weapons
+    // a few techs are guaranteed, such as infantry_weapons
     country->infantryTechs.at(TechEra::Interwar)
         .push_back({"infantry_weapons", "", TechEra::Interwar});
     // gurantee we have sonar and basic_battery
@@ -1178,8 +1159,6 @@ void Generator::evaluateCountries() {
   int numSecondaryPowers = std::min<int>(ardaConfig.numCountries / 10, 8);
   int numRegionalPowers = ardaConfig.numCountries / 6;
   int numLocalPowers = ardaConfig.numCountries / 6;
-  int numMinorPowers =
-      totalDeployedCountries - numMajorPowers - numRegionalPowers;
 
   // init countriesByRank
   countriesByRank = {{Arda::Rank::GreatPower, {}},
@@ -1473,8 +1452,8 @@ void Generator::generateAirVariants() {
       country->planeVariants.push_back(airVariant);
     }
 
-    int airforceStrength = country->airFocus * country->armsFactories;
-    int airBaseAmount = 1 + airforceStrength / 10;
+    double airforceStrength = country->airFocus * country->armsFactories;
+    int airBaseAmount = 1 + airforceStrength / 10.0;
     if (country->planeVariants.size() && airforceStrength > 0) {
       // lets distribute airbases throughout the country
       for (int i = 0; i < airBaseAmount; i++) {
@@ -1598,10 +1577,6 @@ void Generator::generateCountryUnits() {
     country->divisionTemplates =
         createDivisionTemplates(desiredDivisionTemplates, allowedRegimentTypes,
                                 allowedSupportRegimentTypes);
-
-    // now find names for the divisions
-    for (auto &division : country->divisionTemplates) {
-    }
 
     // at the end, we evaluate which of these templates is used with which
     // share, as a developed country for example will NOT use irregular
@@ -2410,19 +2385,19 @@ void Generator::writeImages() {
       Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
 
   imageExporter.dump8BitTerrain(terrainData, climateData, civLayer,
-                                  pathcfg.gameModPath + "//map//terrain.bmp",
-                                  "terrain", false);
+                                pathcfg.gameModPath + "//map//terrain.bmp",
+                                "terrain", false);
   imageExporter.dump8BitCities(
       climateMap, pathcfg.gameModPath + "//map//cities.bmp", "cities", false);
   imageExporter.dump8BitRivers(terrainData, climateData,
-                                 pathcfg.gameModPath + "//map//rivers",
-                                 "rivers", false);
+                               pathcfg.gameModPath + "//map//rivers", "rivers",
+                               false);
   imageExporter.dump8BitTrees(terrainData, climateData,
-                                pathcfg.gameModPath + "//map//trees.bmp",
-                                "trees", false);
+                              pathcfg.gameModPath + "//map//trees.bmp", "trees",
+                              false);
   imageExporter.dump8BitHeightmap(terrainData.detailedHeightMap,
-                                    pathcfg.gameModPath + "//map//heightmap",
-                                    "heightmap");
+                                  pathcfg.gameModPath + "//map//heightmap",
+                                  "heightmap");
   imageExporter.dumpTerrainColourmap(
       worldMap, civLayer, pathcfg.gameModPath,
       "//map//terrain//colormap_rgb_cityemissivemask_a.dds",

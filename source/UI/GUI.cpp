@@ -106,8 +106,9 @@ void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
   }
 }
 
-int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
-               const std::string &username) {
+int GUI::shiny(const pt::ptree &rpdConfRef,
+               const std::string &configSubFolderRef,
+               const std::string &usernameRef) {
 
   try {
     //  Create application window
@@ -133,9 +134,9 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
     uiUtils->device = g_pd3dDevice;
 
     // rpx related
-    this->rpdConf = rpdConf;
-    this->configSubFolder = configSubFolder;
-    this->username = username;
+    this->rpdConf = rpdConfRef;
+    this->configSubFolder = configSubFolderRef;
+    this->username = usernameRef;
     activeGenerator = std::make_shared<Rpx::Hoi4::Generator>(
         Rpx::Hoi4::Generator(configSubFolder, rpdConf));
     activeGenerator->climateData.addSecondaryColours(Fwg::Parsing::getLines(
@@ -281,8 +282,8 @@ int GUI::shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
   }
 }
 
-std::vector<std::string> GUI::loadConfigs() {
-  std::vector<std::string> configSubfolders;
+void GUI::loadConfigs() {
+  configSubfolders.clear();
   for (const auto &entry : std::filesystem::directory_iterator(
            Fwg::Cfg::Values().workingDirectory + "//configs")) {
     if (entry.is_directory() && !entry.path().string().contains("heightmap")) {
@@ -290,8 +291,6 @@ std::vector<std::string> GUI::loadConfigs() {
       Fwg::Utils::Logging::logLine(entry);
     }
   }
-
-  return configSubfolders;
 }
 
 void GUI::loadGameConfig(Fwg::Cfg &cfg) {
@@ -329,11 +328,10 @@ bool GUI::validatePaths() {
                                         activeGameConfig.gameName,
                                         activeGenerator->pathcfg.gameSubPath);
   if (validatedPaths)
-    validatedPaths = Rpx::Utils::validateGameModFolder(
-        activeGameConfig.gameName, activeGenerator->pathcfg);
+    validatedPaths =
+        Rpx::Utils::validateGameModFolder(activeGenerator->pathcfg);
   if (validatedPaths)
-    validatedPaths = Rpx::Utils::validateModFolder(activeGameConfig.gameName,
-                                                   activeGenerator->pathcfg);
+    validatedPaths = Rpx::Utils::validateModFolder(activeGenerator->pathcfg);
   activeGenerator->initImageExporter();
   activeGenerator->nData = Rpx::NameGeneration::prepare(
       Fwg::Cfg::Values().resourcePath + "names",
@@ -370,7 +368,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
     // find every subfolder of config folder
     if (!loadedConfigs) {
       loadedConfigs = true;
-      configSubfolders = loadConfigs();
+      loadConfigs();
       activeConfig = configSubfolders[item_current];
       // on startup, try to auto locate game and game mod folder, then auto
       // validate
@@ -387,7 +385,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
       gameSelection.push_back(gameConfig.gameName.c_str());
     }
     if (ImGui::ListBox("Game Selection", &selectedGame, gameSelection.data(),
-                       gameSelection.size())) {
+                       static_cast<int>(gameSelection.size()))) {
       if (gameConfigs[selectedGame].gameName == "Hearts of Iron IV") {
         activeGenerator = std::make_shared<Rpx::Hoi4::Generator>(
             Rpx::Hoi4::Generator(configSubFolder, rpdConf));
@@ -417,7 +415,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
     ImGui::SeparatorText(
         "Click an entry in the list to choose a config preset");
     if (ImGui::ListBox("Config Presets", &item_current, items.data(),
-                       items.size())) {
+                       static_cast<int>(items.size()))) {
       activeConfig = items[item_current];
       Fwg::Utils::Logging::logLine("Switched to ", activeConfig,
                                    "//FastWorldGenerator.json");
@@ -1041,7 +1039,7 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                 generator->superRegions.end());
             // update all strategic regions IDs
             for (size_t i = 0; i < generator->superRegions.size(); i++) {
-              generator->superRegions[i]->ID = i;
+              generator->superRegions[i]->ID = static_cast<int>(i);
               for (auto &region : generator->superRegions[i]->ardaRegions) {
                 region->superRegionID = i;
               }

@@ -164,8 +164,8 @@ void unitStacks(
           std::to_string(position.position.widthCenter),
           std::to_string(
               9.5 + std::max<float>(
-                        0.0f, position.position.altitude * 0.1 *
-                                  static_cast<double>(255 - cfg.seaLevel))),
+                        0.0f, position.position.altitude * 0.1f *
+                                  static_cast<float>(255 - cfg.seaLevel))),
           std::to_string(position.position.heightCenter),
           std::to_string(1.57 + position.position.rotation),
           std::to_string(0.01f + RandNum::getRandom<float>(0.0f, 0.5f))};
@@ -1028,24 +1028,6 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
         "templateCountryTag version_name = "
         "\"templateClassName\" } }	}\n";
 
-    std::map<ShipClassType, std::string> ShipClassTypeDefinitions = {
-        {ShipClassType::Destroyer, "destroyer"},
-        {ShipClassType::LightCruiser, "light_cruiser"},
-        {ShipClassType::HeavyCruiser, "heavy_cruiser"},
-        {ShipClassType::BattleCruiser, "battle_cruiser"},
-        {ShipClassType::BattleShip, "battleship"},
-        {ShipClassType::Carrier, "carrier"},
-        {ShipClassType::Submarine, "submarine"}};
-    // for mtg
-    std::map<ShipClassType, std::string> shipHullDefinitions = {
-        {ShipClassType::Destroyer, "ship_hull_light_1"},
-        {ShipClassType::LightCruiser, "ship_hull_light_1"},
-        {ShipClassType::HeavyCruiser, "heavy_cruiser_1"},
-        {ShipClassType::BattleCruiser, "heavy_cruiser_1"},
-        {ShipClassType::BattleShip, "battleship_1"},
-        {ShipClassType::Carrier, "carrier_1"},
-        {ShipClassType::Submarine, "submarine_1"}};
-
     auto navyFile = baseNavyFile;
     auto mtgNavyFile = baseNavyFile;
     std::string fleets = "";
@@ -1465,6 +1447,10 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
         Rpx::Parsing::removeSurroundingBracketBlockFromLineBreak(content,
                                                                  block.content);
       }
+      if (block.name.contains("1939.1.1")) {
+        Rpx::Parsing::removeSurroundingBracketBlockFromLineBreak(content,
+                                                                 block.content);
+      }
     }
     std::smatch m;
     do {
@@ -1488,6 +1474,8 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
         }
       }
     }
+    // now find the token "1939.1.1" and remove every bracket block that starts with it
+
 
     pU::writeFile(path + filename, content);
   }

@@ -22,7 +22,7 @@ inline void sanitizePath(std::string &path) {
   Fwg::Parsing::attachTrailing(path);
 }
 // try to find parent directory of where the mod should be
-inline bool validateModFolder(const std::string &game, const Pathcfg &pathcfg) {
+inline bool validateModFolder(const Pathcfg &pathcfg) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
   std::string tempPath = pathcfg.gameModPath;
@@ -90,8 +90,7 @@ inline bool findGame(std::string &path, const std::string &game,
   return false;
 }
 
-inline bool validateGameModFolder(const std::string &game,
-                                  const Pathcfg &pathcfg) {
+inline bool validateGameModFolder(const Pathcfg &pathcfg) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
   // find the usermod directory of the relevant game
@@ -108,11 +107,28 @@ inline bool validateGameModFolder(const std::string &game,
     return false;
   }
 }
+
+inline std::string getEnvVar(const char *name) {
+  size_t len = 0;
+  errno_t err = getenv_s(&len, nullptr, 0, name); // query required size
+  if (err || len == 0) {
+    return {}; // empty string if not found
+  }
+
+  std::vector<char> buffer(len); // allocate buffer
+  err = getenv_s(&len, buffer.data(), buffer.size(), name);
+  if (err) {
+    throw std::runtime_error("Failed to get environment variable");
+  }
+
+  return std::string(buffer.data());
+}
+
 inline bool autoLocateGameModFolder(const std::string &game, Pathcfg &pathcfg) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
   Logging::logLine("Trying to auto locate mod directory path for ", game);
-  std::string autoPath = getenv("USERPROFILE");
+  std::string autoPath = getEnvVar("USERPROFILE");
   autoPath += "//Documents//Paradox Interactive//" + game + "//mod//";
 
   if (exists(autoPath)) {

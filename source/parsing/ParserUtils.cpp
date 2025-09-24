@@ -185,7 +185,7 @@ std::string removeSurroundingBracketBlockFromLineBreak(std::string &content,
                                                        const std::string key) {
   auto pos = content.find(key);
   if (pos != std::string::npos) {
-    auto pos2 = content.rfind("}", pos);
+    //auto pos2 = content.rfind("}", pos);
     pos = content.rfind("{", pos);
     pos = content.rfind("\n", pos);
     auto blockEnd = findClosingBracket(content, pos);

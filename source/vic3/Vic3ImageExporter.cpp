@@ -46,17 +46,18 @@ const std::map<std::string, std::map<Fwg::Gfx::Colour, int>> colourMaps{
       {Cfg::Values().colours["sea"], 0}}}
 
 };
+ImageExporter::ImageExporter() {}
 
 ImageExporter::ImageExporter(const std::string &gamePath,
-                                 const std::string &gameTag)
+                             const std::string &gameTag)
     : Rpx::Gfx::ImageExporter(gamePath, gameTag) {}
 
 ImageExporter::~ImageExporter() {}
 
 void ImageExporter::writeTile(int xTiles, int yTiles,
-                                const Fwg::Gfx::Bitmap &basePackedHeightMap,
-                                Fwg::Gfx::Bitmap &packedHeightMap, int mapX,
-                                int mapY, int packedX) const {
+                              const Fwg::Gfx::Bitmap &basePackedHeightMap,
+                              Fwg::Gfx::Bitmap &packedHeightMap, int mapX,
+                              int mapY, int packedX) const {
   const int tilesize = 64;
   const int scaledTilesize = 65;
   for (auto tilex = 0; tilex < xTiles; tilex++) {
@@ -96,13 +97,11 @@ void ImageExporter::writeTile(int xTiles, int yTiles,
 
 Bitmap
 ImageExporter::dumpPackedHeightmap(const Bitmap &heightMap,
-                                     const std::string &path,
-                                     const std::string &colourMapKey) const {
+                                   const std::string &path,
+                                   const std::string &colourMapKey) const {
   Utils::Logging::logLine("ImageExporter::Packing heightmap to ", path);
   int mapX = heightMap.width();
-  int ogXTiles = mapX / 64;
   int mapY = heightMap.height();
-  int ogYTiles = mapY / 64;
 
   int xTiles = mapX / 64;
   int yTiles = mapY / 64;
@@ -142,7 +141,7 @@ ImageExporter::dumpPackedHeightmap(const Bitmap &heightMap,
   }
 }
 void ImageExporter::dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
-                                         const std::string &path) {
+                                       const std::string &path) {
   int xTiles = heightMap.width() / 64;
   int yTiles = heightMap.height() / 64;
   auto indirectionMap = Fwg::Gfx::Bitmap(xTiles, yTiles, 24);
@@ -197,7 +196,6 @@ void ImageExporter::Vic3ColourMaps(
     for (auto w = 0; w < imageWidth; w++) {
       auto colourmapIndex = factor * h * width + factor * w;
       const auto &c = scaledMap[colourmapIndex];
-      int val = 0;
       Fwg::Gfx::Colour col;
       if (c.getBlue() > config.seaLevel) {
         col = {150, 150, 150};
@@ -481,24 +479,25 @@ void ImageExporter::detailMaps(
 
     for (auto chanceIndex = 0; chanceIndex < 3; chanceIndex++) {
       auto type = climateData.climates[i].getChances(chanceIndex).second;
-      auto intensity = climateData.climates[i].getChances(chanceIndex).first *
-                       (1.0 / pow(2.0, (double)chanceIndex));
+      auto intensity = static_cast<float>(
+          climateData.climates[i].getChances(chanceIndex).first *
+          (1.0 / pow(2.0, (double)chanceIndex)));
       auto mappedType = climateMap.at(type);
-      colour[chanceIndex] = mappedType;
+      colour[chanceIndex] = static_cast<unsigned char>(mappedType);
       intensities[chanceIndex] = intensity;
     }
 
     auto elevType = terrainData.landForms[i].landForm;
     if (elevType != Terrain::ElevationTypeIndex::PLAINS &&
         elevType != Terrain::ElevationTypeIndex::HIGHLANDS) {
-      colour[2] = elevationMap.at(elevType);
+      colour[2] = static_cast<unsigned char>(elevationMap.at(elevType));
       intensities[2] =
           std::clamp(terrainData.landForms[i].inclination * 0.5f, 0.0f, 1.0f);
     }
 
     auto treeType = climateData.treeCoverage[i];
     if (treeType != ft::NONE) {
-      colour[1] = treeMap.at(treeType);
+      colour[1] = static_cast<unsigned char>(treeMap.at(treeType));
       intensities[1] = 1.0;
     }
     double intensitySum = intensities[0] + intensities[1] + intensities[2];
@@ -553,9 +552,6 @@ void ImageExporter::detailMaps(
         pixels[imageIndex + 3] = 255;
         // get the intensity of the colours
         const auto &intensity = scaledDetailIntensity[colourmapIndex];
-        // now for every current channel, write the mask using both index and
-        // colour
-        Fwg::Gfx::Colour intensityColour;
         for (int i = 0; i < 3; i++) {
           auto maskIndex = pixels[imageIndex + i];
           // now locate which mask index we need to write to

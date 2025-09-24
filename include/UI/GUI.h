@@ -38,7 +38,7 @@ class GUI : public Arda::ArdaUI {
   bool validatedPaths = false;
   std::string activeConfig;
   std::vector<std::string> configSubfolders;
-  std::vector<std::string> loadConfigs();
+  void loadConfigs();
   // configuration
   void loadGameConfig(Fwg::Cfg &cfg);
   void initGameConfigs();

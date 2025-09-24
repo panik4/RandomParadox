@@ -110,8 +110,8 @@ std::map<std::string, ProductionmethodGroup> readProdMethodGroups(
       auto innerblocks = Rpx::Parsing::getOuterBlocks(
           Fwg::Parsing::splitLines(block.content));
       for (auto &innerblock : innerblocks) {
-        auto lines = PU::splitLines(innerblock.content);
-        for (auto &line : lines) {
+        auto innerLines = PU::splitLines(innerblock.content);
+        for (auto &line : innerLines) {
           PUS::removeSpecials(line);
           PUS::removeCharacter(line, ' ');
           try {
@@ -245,7 +245,7 @@ std::vector<BuildingType> readBuildings(
           }
         }
       }
-      bool input, output = false;
+      bool input = false, output = false;
       // designate classification of the building
       for (auto &productionMethod : bt.productionMethods) {
         if (productionMethod.second.inputs.size()) {
@@ -283,8 +283,8 @@ readBuypackages(const std::string &inFolder,
     auto innerblocks = Rpx::Parsing::getOuterBlocks(
         Fwg::Parsing::splitLines(block.content));
     for (auto &innerblock : innerblocks) {
-      auto lines = PU::splitLines(innerblock.content);
-      for (auto &line : lines) {
+      auto innerLines = PU::splitLines(innerblock.content);
+      for (auto &line : innerLines) {
         auto popneedname = PUS::getEntrenched(line, "\t", "=");
         PUS::removeSpecials(popneedname);
         PUS::removeCharacter(popneedname, ' ');
@@ -335,8 +335,8 @@ std::map<std::string, Good> readGoods(const std::string &inFolder) {
     Good good;
     PUS::removeSpecials(block.name);
     good.name = block.name;
-    auto lines = PU::splitLines(block.content);
-    for (auto &line : lines) {
+    auto innerLines = PU::splitLines(block.content);
+    for (auto &line : innerLines) {
       if (line.find("cost") != std::string::npos &&
           line.find("_cost") == std::string::npos) {
         good.cost = PUS::getNumber(line);

@@ -23,7 +23,6 @@ public:
   // politics
   std::string ideology;
   bool allowElections;
-  double bully;
   std::array<int, 4> parties;
   std::string lastElection;
   int warSupport;
@@ -37,7 +36,6 @@ public:
   std::string focusTree;
   std::string ideas;
   // navy
-  double navalFocus;
   int totalNavyStrength;
   std::map<NavalHullType, std::vector<TechEra>> hullTech;
   std::map<TechEra, std::vector<Technology>> navyTechs;
@@ -47,7 +45,6 @@ public:
   int convoyAmount;
 
   // army
-  double landFocus;
   int totalArmyStrength;
   std::vector<int> units;
   std::vector<int> unitCount;
@@ -57,7 +54,6 @@ public:
   std::vector<DivisionTemplate> divisionTemplates;
   std::vector<Division> divisions;
   // airforce
-  double airFocus;
   int totalAirStrength;
   std::map<TechEra, std::vector<Technology>> airTechs;
   std::vector<PlaneVariant> planeVariants;

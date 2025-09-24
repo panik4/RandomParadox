@@ -5,7 +5,6 @@ cmake_minimum_required(VERSION 3.15)
 project(RandomParadox VERSION 1.0 LANGUAGES CXX)
 
 # Specify the C++ standard
-set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 # For Release build (force optimizations)
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Ob2")
@@ -19,15 +18,16 @@ if(MSVC)
     add_compile_options(/Gy)  # Enable function-level linking
 endif()
 
-if(MSVC)
-    add_compile_options(/std:c++latest)
-endif()
+add_compile_options(/std:c++latest)
 # Add the include and source directories for RandomParadox
 file(GLOB_RECURSE SOURCE_FILES source/*.cpp)
 file(GLOB_RECURSE HEADER_FILES include/*.h include/*.hpp)
 
 # Add the library target
 add_library(RandomParadoxLib ${SOURCE_FILES} ${HEADER_FILES})
+
+target_compile_options(RandomParadoxLib PRIVATE /W4)
+
 # Add the ArdaGen subdirectory first
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/ArdaSuite/ArdaGen)
 # Query the include directories for ArdaGen to ensure they are properly set
