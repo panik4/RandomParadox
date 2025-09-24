@@ -44,12 +44,13 @@ getBuilding(const std::string &type, const Fwg::Areas::Province &prov,
             neighbourPix = {cPix - 1, cPix + 1, cPix + Fwg::Cfg::Values().width,
                             cPix - Fwg::Cfg::Values().width};
             // check every neighbour for contact to ocean
-            for (auto nPix : neighbourPix) {
+            for (auto potentianlOceanPix : neighbourPix) {
               // if in range of image
-              if (nPix >= 0 && nPix < typeMap.imageData.size()) {
+              if (potentianlOceanPix >= 0 &&
+                  potentianlOceanPix < typeMap.imageData.size()) {
                 // if it is sea
-                if (typeMap[nPix] == cfg.colours.at("sea")) {
-                  pix = nPix;
+                if (typeMap[potentianlOceanPix] == cfg.colours.at("sea")) {
+                  pix = potentianlOceanPix;
                   done = true;
                 }
               }

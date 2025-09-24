@@ -8,7 +8,7 @@ Hoi4Country::Hoi4Country(std::string tag, int ID, std::string name,
 
 Hoi4Country::Hoi4Country(Country &c,
                          std::vector<std::shared_ptr<Hoi4::Region>> &hoi4Region)
-    : Country(c), allowElections{true}, bully{0.0}, parties{25, 25, 25, 25} {}
+    : Country(c), allowElections{true}, parties{25, 25, 25, 25} {}
 
 Hoi4Country::~Hoi4Country() {}
 

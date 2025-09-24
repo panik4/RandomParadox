@@ -116,7 +116,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
   }
   //  passed to generic ScenarioGenerator
   ardaConfig.numCountries = vic3Conf.get<int>("scenario.numCountries");
-  ardaConfig.generationAge = Arda::GenerationAge::Victorian;
+  ardaConfig.generationAge = Arda::Utils::GenerationAge::Victorian;
   config.seaLevel = 18;
   config.riverFactor = 0.0;
   config.seaProvFactor *= 0.10;
@@ -272,13 +272,11 @@ void Generator::totalArableLand(const std::vector<float> &arableLand) {
 }
 
 void Generator::distributeResources() {
-  const auto &cfg = Fwg::Cfg::Values();
 
   // distribute arable land to states
   totalArableLand(climateData.arableLand);
 
   // config for all resource types
-
   for (auto &resConfig : vic3Config.resConfigs) {
     std::vector<float> resPrev;
     if (resConfig.random) {
@@ -604,8 +602,8 @@ void Generator::distributeBuildings() {
               std::vector<std::pair<std::shared_ptr<Region>, int>>
                   potentialRegions;
               for (auto &region : country->ownedVic3Regions) {
-                int retVal = 0;
-                if (retVal = region->supportsBuilding(type.second)) {
+                int retVal = region->supportsBuilding(type.second);
+                if (retVal) {
                   potentialRegions.push_back({region, retVal});
                 }
               }
@@ -761,7 +759,9 @@ void Generator::calculateNavalExits() {
   }
 }
 
-void Generator::initImageExporter() {}
+void Generator::initImageExporter() {
+  imageExporter = Gfx::Vic3::ImageExporter(pathcfg.gamePath, "Vic3");
+}
 
 void Generator::generate() {
   if (!createPaths())
@@ -895,21 +895,20 @@ void Generator::writeTextFiles() {
 }
 
 void Generator::writeImages() {
-  Gfx::Vic3::ImageExporter formatConverter(pathcfg.gamePath, "Vic3");
   // TODO: improve handling of altitude data to not rely on image
   auto heightMap = Fwg::Gfx::displayHeightMap(terrainData.detailedHeightMap);
 
-  formatConverter.Vic3ColourMaps(worldMap, heightMap, climateData, civLayer,
+  imageExporter.Vic3ColourMaps(worldMap, heightMap, climateData, civLayer,
                                  pathcfg.gameModPath + "//gfx//map//");
-  // formatConverter.dump8BitRivers(riverMap,
+  // imageExporter.dump8BitRivers(riverMap,
   //                                pathcfg.gameModPath +
   //                                "//map_data//rivers", "rivers", false);
 
-  formatConverter.detailMaps(terrainData, climateData, civLayer,
+  imageExporter.detailMaps(terrainData, climateData, civLayer,
                              pathcfg.gameModPath + "//gfx//map//");
-  formatConverter.dynamicMasks(pathcfg.gameModPath + "//gfx//map//masks//",
+  imageExporter.dynamicMasks(pathcfg.gameModPath + "//gfx//map//masks//",
                                climateData, civLayer);
-  formatConverter.contentSource(pathcfg.gameModPath +
+  imageExporter.contentSource(pathcfg.gameModPath +
                                     "//content_source//map_objects//masks//",
                                 climateData, civLayer);
   // save this and reset the heightmap later. The map will be scaled and the
@@ -917,13 +916,13 @@ void Generator::writeImages() {
   // we reset this after
   auto temporaryHeightmap = heightMap;
   // also dump uncompressed packed heightmap
-  formatConverter.dump8BitHeightmap(
+  imageExporter.dump8BitHeightmap(
       terrainData.detailedHeightMap,
       pathcfg.gameModPath + "//map_data//heightmap", "heightmap");
-  auto packedHeightmap = formatConverter.dumpPackedHeightmap(
+  auto packedHeightmap = imageExporter.dumpPackedHeightmap(
       heightMap, pathcfg.gameModPath + "//map_data//packed_heightmap",
       "heightmap");
-  formatConverter.dumpIndirectionMap(
+  imageExporter.dumpIndirectionMap(
       heightMap, pathcfg.gameModPath + "//map_data//indirection_heightmap.png");
   Parsing::Writing::heightmap(pathcfg.gameModPath +
                                   "//map_data//heightmap.heightmap",

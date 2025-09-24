@@ -79,7 +79,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
   }
   //  passed to generic ScenarioGenerator
   ardaConfig.numCountries = eu4Conf.get<int>("scenario.numCountries");
-  ardaConfig.generationAge = Arda::GenerationAge::Renaissance;
+  ardaConfig.generationAge = Arda::Utils::GenerationAge::Renaissance;
   config.seaLevel = 95;
   config.seaProvFactor *= 0.7;
   config.landProvFactor *= 0.7;

@@ -26,8 +26,6 @@ std::shared_ptr<Rpx::Hoi4::Hoi4Country> getOpposingIdeologyNeighbour(
         &hoi4Countries) {
   const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
       potentialTargets;
-  for (auto &neighbour : country.neighbours) {
-  }
 
   return nullptr;
 }

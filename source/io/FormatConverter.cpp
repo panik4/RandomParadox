@@ -676,10 +676,10 @@ void ImageExporter::dumpTerrainColourmap(
   } else {
     // load base game colourmap
     pixels = Arda::Gfx::Textures::readDDS(gamePath + mapName);
-    auto maxY = 1024 - cfg.maxY / (double)factor;
-    auto minY = 1024 - cfg.minY / (double)factor;
-    auto maxX = cfg.maxX / (double)factor;
-    auto minX = cfg.minX / (double)factor;
+    int maxY = static_cast<int>(1024 - cfg.maxY / (double)factor);
+    int minY = static_cast<int>(1024 - cfg.minY / (double)factor);
+    int maxX = static_cast<int>(cfg.maxX / (double)factor);
+    int minX = static_cast<int>(cfg.minX / (double)factor);
     std::swap(minY, maxY);
     // cut it and reassign it
     pixels = Utils::cutBuffer(pixels, 2816, 1024, minX, maxX, minY, maxY, 4);
@@ -708,9 +708,6 @@ void ImageExporter::dumpWorldNormal(const Bitmap &sobelMap,
                                       const bool cut) const {
   Utils::Logging::logLine("ImageExporter::Writing normalMap to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
-  auto height = Cfg::Values().height;
-  auto width = Cfg::Values().width;
-
   int factor = 2; // image width and height are halved
 
   Bmp::save(Fwg::Gfx::Bmp::scaleInterpolation(sobelMap, factor),

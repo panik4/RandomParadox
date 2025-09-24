@@ -131,8 +131,8 @@ void Splnet::constructSplnet(
       } else {
         anchor.ID = (1 + region->ID) * 100 + locatorTypeToID.at(location->type);
       }
-      anchor.xPos = location->position.widthCenter;
-      anchor.yPos = location->position.heightCenter;
+      anchor.xPos = static_cast<float>(location->position.widthCenter);
+      anchor.yPos = static_cast<float>(location->position.heightCenter);
       locationToAnchorID[location] = anchor.ID;
       anchors.push_back(anchor);
     }
@@ -195,8 +195,8 @@ void Splnet::constructSplnet(
 
             // now shift bit 28 to 1
             anchor.ID |= 0x10000000;
-            anchor.xPos = pixel % width;
-            anchor.yPos = pixel / width;
+            anchor.xPos = static_cast<float>(pixel % width);
+            anchor.yPos = static_cast<float>(pixel / width);
             anchors.push_back(anchor);
             strip.anchorEntries.push_back(StripAnchorEntry{0x14, anchor.ID});
           }
@@ -244,9 +244,9 @@ void Splnet::constructSplnet(
     segments.back().unknown13 = 0x04;
   if (anchors.size())
     anchors.back().unknown9 = 4;
-  header.anchorAmount = anchors.size();
-  header.stripAmount = strips.size();
-  header.segmentAmount = segments.size();
+  header.anchorAmount = static_cast<unsigned int>(anchors.size());
+  header.stripAmount = static_cast<unsigned int>(strips.size());
+  header.segmentAmount = static_cast<unsigned int>(segments.size());
   if (segments.size() != strips.size()) {
     std::cerr << "Segments and strips size mismatch" << std::endl;
   }
@@ -408,7 +408,7 @@ void Splnet::parseFile(const std::string &path) {
   header.printHeader();
 
   read_from_stream(stream, anchorHeader);
-  for (int i = 0; i < header.anchorAmount; i++) {
+  for (auto i = 0u; i < header.anchorAmount; i++) {
 
     Anchor anchor;
     std::array<char, 34> anchorData;
@@ -472,7 +472,7 @@ void Splnet::writeFile(const std::string &path) {
   stream.write(reinterpret_cast<const char *>(&header), sizeof(header));
   stream.write(reinterpret_cast<const char *>(&anchorHeader),
                sizeof(anchorHeader));
-  for (int i = 0; i < header.anchorAmount; i++) {
+  for (auto i = 0u; i < header.anchorAmount; i++) {
     stream.write(reinterpret_cast<const char *>(&anchors[i]), sizeof(Anchor));
   }
   if (strips.size()) {

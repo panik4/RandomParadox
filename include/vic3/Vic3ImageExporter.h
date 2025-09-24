@@ -11,6 +11,7 @@ class ImageExporter : public Rpx::Gfx::ImageExporter {
 
 public:
   // constructor/destructor
+  ImageExporter();
   ImageExporter(const std::string &gamePath, const std::string &gameTag);
   ~ImageExporter();
   // member functions

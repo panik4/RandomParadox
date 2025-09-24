@@ -281,7 +281,7 @@ class Generator : public Rpx::ModGenerator {
   Vic3GameData vic3GameData;
   Vic3Stats vic3Stats;
 
-  Rpx::Gfx::ImageExporter formatConverter;
+  Rpx::Gfx::Vic3::ImageExporter imageExporter;
 
 public:
   std::vector<Arda::Utils::ResConfig> &getResConfigs() {
