@@ -7,6 +7,9 @@ Generator::Generator(const std::string &configSubFolder,
                      const boost::property_tree::ptree &rpdConf)
     : Rpx::ModGenerator(configSubFolder, GameType::Hoi4, "hoi4.exe", rpdConf) {
   configureModGen(configSubFolder, Fwg::Cfg::Values().username, rpdConf);
+  factories.regionFactory = []() {
+    return std::make_shared<Rpx::Hoi4::Region>();
+  };
 }
 
 Generator::~Generator() {}
@@ -160,15 +163,15 @@ void Generator::mapRegions() {
   stats.totalWorldIndustry = 0;
   modData.statesInitialised = false;
   for (auto &region : this->areaData.regions) {
-    std::sort(region.provinces.begin(), region.provinces.end(),
+    std::sort(region->provinces.begin(), region->provinces.end(),
               [](const std::shared_ptr<Fwg::Areas::Province> a,
                  const std::shared_ptr<Fwg::Areas::Province> b) {
                 return (*a < *b);
               });
-    auto ardaRegion = std::make_shared<Region>(region);
+    auto ardaRegion = std::dynamic_pointer_cast<Rpx::Hoi4::Region>(region);
     // generate random name for region
     ardaRegion->name = "";
-    ardaRegion->identifier = "STATE_" + std::to_string(region.ID + 1);
+    ardaRegion->identifier = "STATE_" + std::to_string(region->ID + 1);
 
     for (auto &province : ardaRegion->provinces) {
       ardaRegion->ardaProvinces.push_back(ardaProvinces[province->ID]);
@@ -179,8 +182,8 @@ void Generator::mapRegions() {
     modData.hoi4States.push_back(ardaRegion);
   }
   // sort by Arda::ArdaProvince ID
-  std::sort(ardaRegions.begin(), ardaRegions.end(),
-            [](auto l, auto r) { return *l < *r; });
+  //std::sort(ardaRegions.begin(), ardaRegions.end(),
+  //          [](auto l, auto r) { return *l < *r; });
   // check if we have the same amount of ardaProvinces as FastWorldGen provinces
   if (ardaProvinces.size() != this->areaData.provinces.size())
     throw(std::exception("Fatal: Lost provinces, terminating"));
@@ -349,8 +352,8 @@ void Generator::mapCountries() {
       country->neighbours.insert(neighbour);
     }
   }
-  std::sort(modData.hoi4States.begin(), modData.hoi4States.end(),
-            [](auto l, auto r) { return *l < *r; });
+  //std::sort(modData.hoi4States.begin(), modData.hoi4States.end(),
+  //          [](auto l, auto r) { return *l < *r; });
 }
 
 void Generator::generateStateResources() {
@@ -2025,6 +2028,7 @@ void Generator::printStatistics() {
 void Generator::loadStates() {}
 
 void Generator::distributeVictoryPoints() {
+  Fwg::Utils::Logging::logLine("Distributing victory points");
   double baseVPs = 10000;
   double assignedVPs = 0;
   for (auto country : modData.hoi4Countries) {
@@ -2521,10 +2525,10 @@ void Generator::readHoi(std::string &path) {
       }
     }
   }
-  areaData.continents.clear();
-  for (auto &c : continents) {
-    areaData.continents.push_back(c.second);
-  }
+  // areaData.continents.clear();
+  // for (auto &c : continents) {
+  //   areaData.continents.push_back(c.second);
+  // }
 
   // get the provinces into ardaProvinces
   // mapProvinces();

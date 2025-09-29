@@ -20,15 +20,16 @@ void ambientObjects(const std::string &path);
 void buildings(const std::string &path,
                const std::vector<std::shared_ptr<Region>> &regions);
 
-void continents(const std::string &path,
-                const std::vector<Arda::ArdaContinent> &continents,
-                const std::string &hoiPath,
-                const std::string &localisationPath);
+void continents(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaContinent>> &continents,
+    const std::string &hoiPath, const std::string &localisationPath);
 void definition(
     const std::string &path,
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
 void strategicRegions(
-    const std::string &path, const std::vector<Fwg::Areas::Region> &regions,
+    const std::string &path,
+    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
     const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions);
 void supply(const std::string &path,
             const std::vector<std::vector<int>> &supplyNodeConnections);
@@ -38,7 +39,8 @@ void unitStacks(
     const std::vector<std::shared_ptr<Region>> regions,
     const std::vector<float> &heightMap);
 void weatherPositions(
-    const std::string &path, const std::vector<Fwg::Areas::Region> &regions,
+    const std::string &path,
+    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
     std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions);
 
 } // namespace Map
@@ -60,7 +62,7 @@ void states(const std::string &path,
             const std::vector<std::shared_ptr<Region>> &regions);
 void historyCountries(const std::string &path, const CountryMap &countries,
                       const std::string &gamePath,
-                      const std::vector<Fwg::Areas::Region> &regions);
+    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions);
 void historyUnits(const std::string &path, const CountryMap &countries);
 void ideas(const std::string &path, const CountryMap &countries);
 
@@ -69,8 +71,9 @@ void portraits(const std::string &path, const CountryMap &countries);
 
 } // namespace Countries
 
-void aiStrategy(const std::string &path,
-                const std::vector<Arda::ArdaContinent> &continents);
+void aiStrategy(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaContinent>> &continents);
 void events(const std::string &path);
 
 // common
@@ -82,7 +85,7 @@ void commonBookmarks(
 void tutorials(const std::string &path);
 // copy base game countries and remove certain lines to reduce crashes
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
-                          const std::vector<Fwg::Areas::Region> &regions);
+    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions);
 void scriptedTriggers(std::string gamePath, std::string modPath);
 
 void commonFiltering(const std::string &gamePath, const std::string &modPath);

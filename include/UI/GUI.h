@@ -34,7 +34,6 @@ class GUI : public Arda::ArdaUI {
   // std::shared_ptr<Rpx::GenericModule> activeModule;
   std::shared_ptr<Rpx::ModGenerator> activeGenerator;
   bool loadedConfigs = false;
-  bool configuredScenarioGen = false;
   bool validatedPaths = false;
   std::string activeConfig;
   std::vector<std::string> configSubfolders;
@@ -50,7 +49,6 @@ class GUI : public Arda::ArdaUI {
   int showConfigure(Fwg::Cfg &cfg);
   int showRpdxConfigure(Fwg::Cfg &cfg);
   void showModLoader(Fwg::Cfg &cfg);
-  bool scenarioGenReady(bool printIssue);
   // generic scenario stuff
   int showScenarioTab(Fwg::Cfg &cfg);
   void countryEdit(std::shared_ptr<Arda::ArdaGen> generator);
