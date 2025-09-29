@@ -4,8 +4,7 @@ namespace Rpx::Hoi4 {
 Region::Region() {}
 
 Region::Region(const Arda::ArdaRegion &ardaRegion)
-    : Arda::ArdaRegion(ardaRegion), armsFactories{0},
-      civilianFactories{0},
+    : Arda::ArdaRegion(ardaRegion), armsFactories{0}, civilianFactories{0},
       dockyards{0}, stateCategory{0}, stratID{0} {}
 
 Region::~Region() {}
@@ -67,35 +66,35 @@ getBuilding(const std::string &type, const Fwg::Areas::Province &prov,
   auto heightPos = pix / Fwg::Cfg::Values().width;
 
   building.name = type;
-  building.position = Arda::Utils::Coordinate{
-      widthPos, heightPos, heightmap[pix] / 10.0, -1.57};
+  building.position = Arda::Utils::Coordinate{widthPos, heightPos,
+                                              heightmap[pix] / 10.0, -1.57};
   building.relativeID = relativeID;
   building.provinceID = prov.ID;
   return building;
 }
 
-Arda::Utils::Building getBuilding(const std::string &type,
-                                      const Fwg::Areas::Region &region,
-                                      const bool coastal,
-                                      const std::vector<float> &heightmap,
-                                      int relativeID = 0) {
+Arda::Utils::Building
+getBuilding(const std::string &type,
+            const std::vector<std::shared_ptr<Fwg::Areas::Province>> &provinces,
+            const bool coastal, const std::vector<float> &heightmap,
+            int relativeID = 0) {
   auto pix = 0;
   Arda::Utils::Building building;
-  auto prov = Fwg::Utils::selectRandom(region.provinces);
+  auto prov = Fwg::Utils::selectRandom(provinces);
   if (coastal) {
     while (!prov->coastal)
-      prov = Fwg::Utils::selectRandom(region.provinces);
+      prov = Fwg::Utils::selectRandom(provinces);
     pix = Fwg::Utils::selectRandom(prov->coastalPixels);
   } else {
     while (prov->isLake())
-      prov = Fwg::Utils::selectRandom(region.provinces);
+      prov = Fwg::Utils::selectRandom(provinces);
     pix = Fwg::Utils::selectRandom(prov->pixels);
   }
   auto widthPos = pix % Fwg::Cfg::Values().width;
   auto heightPos = pix / Fwg::Cfg::Values().width;
   building.name = type;
-  building.position = Arda::Utils::Coordinate{
-      widthPos, heightPos, heightmap[pix] / 10.0, -1.57};
+  building.position = Arda::Utils::Coordinate{widthPos, heightPos,
+                                              heightmap[pix] / 10.0, -1.57};
   building.relativeID = relativeID;
   building.provinceID = prov->ID;
   return building;
@@ -111,28 +110,33 @@ void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
     if (prov->coastal)
       coastal = true;
     // add supply node buildings for each province
-    buildings.push_back(getBuilding("supply_node", *this, coastal, heightmap));
+    buildings.push_back(
+        getBuilding("supply_node", this->provinces, coastal, heightmap));
   }
   for (const auto &type : buildingTypes) {
     if (type == "arms_factory" || type == "industrial_complex") {
       for (auto i = 0; i < 6; i++) {
-        buildings.push_back(getBuilding(type, *this, false, heightmap));
+        buildings.push_back(
+            getBuilding(type, this->provinces, false, heightmap));
       }
     } else if (type == "bunker") {
       for (const auto &prov : provinces) {
         if (!prov->isLake() && !prov->isSea()) {
-          buildings.push_back(getBuilding(type, *this, false, heightmap));
+          buildings.push_back(
+              getBuilding(type, this->provinces, false, heightmap));
         }
       }
     } else if (type == "special_project_facility_spawn") {
       for (const auto &prov : provinces) {
         if (!prov->isLake() && !prov->isSea()) {
-          buildings.push_back(getBuilding(type, *this, false, heightmap));
+          buildings.push_back(
+              getBuilding(type, this->provinces, false, heightmap));
         }
       }
     } else if (type == "anti_air_building") {
       for (auto i = 0; i < 3; i++)
-        buildings.push_back(getBuilding(type, *this, false, heightmap));
+        buildings.push_back(
+            getBuilding(type, this->provinces, false, heightmap));
     } else if (type == "coastal_bunker" || type == "naval_base_spawn") {
       for (const auto &prov : provinces) {
         if (prov->coastal) {
@@ -161,7 +165,7 @@ void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
       buildings.push_back(
           getBuilding(type, *prov, coastal, heightmap, typeMap));
     } else {
-      buildings.push_back(getBuilding(type, *this, false, heightmap));
+      buildings.push_back(getBuilding(type, this->provinces, false, heightmap));
     }
   }
 }

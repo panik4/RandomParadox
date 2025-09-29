@@ -307,7 +307,7 @@ void Generator::mapRegions() {
   modData.vic3Regions.clear();
 
   for (auto &region : this->areaData.regions) {
-    std::sort(region.provinces.begin(), region.provinces.end(),
+    std::sort(region->provinces.begin(), region->provinces.end(),
               [](const std::shared_ptr<Fwg::Areas::Province> a,
                  const std::shared_ptr<Fwg::Areas::Province> b) {
                 return (*a < *b);
@@ -326,8 +326,8 @@ void Generator::mapRegions() {
     modData.vic3Regions.push_back(ardaRegion);
   }
   // sort by Arda::ArdaProvince ID
-  std::sort(ardaRegions.begin(), ardaRegions.end(),
-            [](auto l, auto r) { return *l < *r; });
+  //std::sort(ardaRegions.begin(), ardaRegions.end(),
+  //          [](auto l, auto r) { return *l < *r; });
   // check if we have the same amount of ardaProvinces as FastWorldGen
   // provinces
   if (ardaProvinces.size() != this->areaData.provinces.size())

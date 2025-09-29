@@ -58,7 +58,8 @@ void buildings(const std::string &path,
 }
 
 void continents(const std::string &path,
-                const std::vector<Arda::ArdaContinent> &continents,
+                const std::vector < std::shared_ptr<Arda::ArdaContinent>> &
+                    continents,
                 const std::string &hoiPath,
                 const std::string &localisationPath) {
   Logging::logLine("HOI4 Parser: Map: Writing Continents");
@@ -69,7 +70,7 @@ void continents(const std::string &path,
   try {
     std::string continentList;
     for (auto &continent : continents) {
-      continentList.append(continent.name + "\n\t");
+      continentList.append(continent->name + "\n\t");
     }
     pU::replaceOccurences(content, "templateContinents", continentList);
     pU::writeFile(path, content);
@@ -83,10 +84,10 @@ void continents(const std::string &path,
       hoiPath + "//localisation//english//province_names_l_english.yml");
   // add the continents to the localisation file
   for (auto &continent : continents) {
-    continentLocalisation.append(" " + continent.name + ":0 \"" +
-                                 continent.name + "\"\n");
-    continentLocalisation.append(" " + continent.name + "_adj:0 \"" +
-                                 continent.adjective + "\"\n");
+    continentLocalisation.append(" " + continent->name + ":0 \"" +
+                                 continent->name + "\"\n");
+    continentLocalisation.append(" " + continent->name + "_adj:0 \"" +
+                                 continent->adjective + "\"\n");
   }
   pU::writeFile(localisationPath, continentLocalisation);
 }
@@ -176,7 +177,8 @@ void unitStacks(
 }
 
 void strategicRegions(
-    const std::string &path, const std::vector<Fwg::Areas::Region> &regions,
+    const std::string &path,
+    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
     const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions) {
   constexpr std::array<int, 12> daysInMonth{30, 27, 30, 29, 30, 29,
                                             30, 30, 29, 30, 29, 30};
@@ -251,7 +253,8 @@ void strategicRegions(
   }
 }
 void weatherPositions(
-    const std::string &path, const std::vector<Fwg::Areas::Region> &regions,
+    const std::string &path,
+    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
     std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions) {
   Logging::logLine("HOI4 Parser: Map: Creating Storms");
   // 1; 2781.24; 9.90; 1571.49; small
@@ -537,7 +540,7 @@ void flags(const std::string &path, const CountryMap &countries) {
 
 void historyCountries(const std::string &path, const CountryMap &countries,
                       const std::string &gamePath,
-                      const std::vector<Fwg::Areas::Region> &regions) {
+    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions) {
   Logging::logLine("HOI4 Parser: History: Writing Country History");
   Fwg::IO::Utils::clearFilesOfType(path, ".txt");
   // now compat countries
@@ -1247,7 +1250,8 @@ void portraits(const std::string &path, const CountryMap &countries) {
 
 } // namespace Countries
 void aiStrategy(const std::string &path,
-                const std::vector<Arda::ArdaContinent> &continents) {
+                const std::vector < std::shared_ptr<Arda::ArdaContinent>> &
+                    continents) {
   // copy folders ai_areas and ai_strategy from cfg::Values().resourcePath +
   // "/hoi4//common// to path//common//
   Logging::logLine("HOI4 Parser: Map: Writing AI Strategies");
@@ -1285,7 +1289,7 @@ void aiStrategy(const std::string &path,
   std::string aiStrategyContent = "";
 
   for (const auto &continent : continents) {
-    auto name = continent.name;
+    auto name = continent->name;
     // create lowercase continent
     std::transform(name.begin(), name.end(), name.begin(),
                    [](unsigned char c) { return std::tolower(c); });
@@ -1417,7 +1421,7 @@ void tutorials(const std::string &path) {
 }
 
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
-                          const std::vector<Fwg::Areas::Region> &regions) {
+    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions) {
   Logging::logLine("HOI4 Parser: History: Writing Compatibility Files");
   const std::filesystem::path hoiDir{hoiPath + "//history//countries//"};
   Logging::logLine("HOI4 Parser: History: Reading Files from " +
