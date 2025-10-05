@@ -160,7 +160,7 @@ void ImageExporter::dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
 void ImageExporter::Vic3ColourMaps(
     const Fwg::Gfx::Bitmap &climateMap, const Fwg::Gfx::Bitmap &heightMap,
     Fwg::Climate::ClimateData &climateData,
-    const Fwg::Civilization::CivilizationLayer &civLayer,
+    const Arda::Civilization::CivilizationLayer &civLayer,
     const std::string &path) {
   Fwg::Utils::Logging::logLine("Vic3 Format Converter: Writing colour maps");
 
@@ -318,7 +318,7 @@ void ImageExporter::Vic3ColourMaps(
 
 void ImageExporter::dynamicMasks(
     const std::string &path, const Fwg::Climate::ClimateData &climateData,
-    const Fwg::Civilization::CivilizationLayer &civLayer) {
+    const Arda::Civilization::CivilizationLayer &civLayer) {
   // TODO: exclusion_mask.dds
   //
 
@@ -331,10 +331,11 @@ void ImageExporter::dynamicMasks(
           Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask),
           config.width, config.height, false),
       path + "mask_dynamic_mining.png", true, LCT_GREY);
-  for (int i = 0; i < civLayer.agriculture.size(); i++) {
-    auto val = civLayer.agriculture[i];
-    dynamicMask[i] = val;
-  }
+  // TODO: Readd agriculture from locations
+  // for (int i = 0; i < civLayer.agriculture.size(); i++) {
+  //  auto val = civLayer.agriculture[i];
+  //  dynamicMask[i] = val;
+  //}
   Fwg::Gfx::Png::save(
       Fwg::Gfx::Bmp::scale(
           Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask),
@@ -355,7 +356,7 @@ void ImageExporter::dynamicMasks(
 }
 void ImageExporter::contentSource(
     const std::string &path, const Fwg::Climate::ClimateData &climateData,
-    const Fwg::Civilization::CivilizationLayer &civLayer) {
+    const Arda::Civilization::CivilizationLayer &civLayer) {
 
   Utils::Logging::logLine("Vic3::Writing content source masks");
   const auto &config = Fwg::Cfg::Values();
@@ -402,7 +403,7 @@ void ImageExporter::contentSource(
 void ImageExporter::detailMaps(
     const Fwg::Terrain::TerrainData &terrainData,
     const Fwg::Climate::ClimateData &climateData,
-    const Fwg::Civilization::CivilizationLayer &civLayer,
+    const Arda::Civilization::CivilizationLayer &civLayer,
     const std::string &path) {
   using Et = Fwg::Terrain::ElevationTypeIndex;
   using Clt = Fwg::Climate::Detail::ClimateTypeIndex;

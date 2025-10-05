@@ -106,7 +106,8 @@ void Generator::configureModGen(const std::string &configSubFolder,
     system("pause");
   }
   // default values taken from base game
-  this->ardaConfig.generationAge = Arda::Utils::GenerationAge::WorldWar;
+
+  ;
   this->modConfig.resources = {
       {"aluminium",
        {hoi4Conf.get<double>("hoi4.aluminiumFactor"), 1169.0, 0.3}},
@@ -143,11 +144,14 @@ void Generator::configureModGen(const std::string &configSubFolder,
   config.forceResolutionBase = true;
   config.resolutionBase = 256;
   config.autoSplitProvinces = false;
-  config.miningPerRegion = 0;
-  config.forestryPerRegion = 0;
-  config.citiesPerRegion = 5;
-  config.portsPerRegion = 1;
-  config.agriculturePerRegion = 3;
+  ardaConfig.locationConfig.miningPerRegion = 0;
+  ardaConfig.locationConfig.forestryPerRegion = 0;
+  ardaConfig.locationConfig.citiesPerRegion = 5;
+  ardaConfig.locationConfig.portsPerRegion = 1;
+  ardaConfig.locationConfig.agriculturePerRegion = 3;
+  this->ardaConfig.generationAge = Arda::Utils::GenerationAge::WorldWar;
+  ardaConfig.calculateTargetWorldPopulation();
+  ardaConfig.calculateTargetWorldGdp();
   // check if config settings are fine
   config.sanityCheck();
 }
@@ -156,7 +160,6 @@ void Generator::mapRegions() {
   Fwg::Utils::Logging::logLine("Mapping Regions");
   ardaRegions.clear();
   modData.hoi4States.clear();
-  ardaData.worldPop = 0;
   stats.militaryIndustry = 0;
   stats.civilianIndustry = 0;
   stats.navalIndustry = 0;
@@ -182,7 +185,7 @@ void Generator::mapRegions() {
     modData.hoi4States.push_back(ardaRegion);
   }
   // sort by Arda::ArdaProvince ID
-  //std::sort(ardaRegions.begin(), ardaRegions.end(),
+  // std::sort(ardaRegions.begin(), ardaRegions.end(),
   //          [](auto l, auto r) { return *l < *r; });
   // check if we have the same amount of ardaProvinces as FastWorldGen provinces
   if (ardaProvinces.size() != this->areaData.provinces.size())
@@ -210,7 +213,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
   for (auto &ardaRegion : ardaRegions) {
     for (auto &gameProv : ardaRegion->ardaProvinces) {
       gameProv->terrainType = "plains";
-      const auto &baseProv = gameProv->baseProvince;
+      const auto &baseProv = gameProv;
       if (baseProv->isLake()) {
         gameProv->terrainType = "lake";
         for (auto &pix : baseProv->pixels) {
@@ -352,8 +355,8 @@ void Generator::mapCountries() {
       country->neighbours.insert(neighbour);
     }
   }
-  //std::sort(modData.hoi4States.begin(), modData.hoi4States.end(),
-  //          [](auto l, auto r) { return *l < *r; });
+  // std::sort(modData.hoi4States.begin(), modData.hoi4States.end(),
+  //           [](auto l, auto r) { return *l < *r; });
 }
 
 void Generator::generateStateResources() {
@@ -363,16 +366,16 @@ void Generator::generateStateResources() {
   for (auto &resConfig : modConfig.resConfigs) {
     std::vector<float> resPrev;
     if (resConfig.random) {
-      resPrev = Fwg::Civilization::Resources::randomResourceLayer(
+      resPrev = Fwg::Resources::randomResourceLayer(
           resConfig.name, resConfig.noiseConfig.fractalFrequency,
           resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
           resConfig.noiseConfig.mountainBonus);
     } else if (resConfig.considerSea) {
-      resPrev = Fwg::Civilization::Resources::coastDependentLayer(
+      resPrev = Fwg::Resources::coastDependentLayer(
           resConfig.name, resConfig.oceanFactor, resConfig.lakeFactor,
           areaData.provinces);
     } else {
-      resPrev = Fwg::Civilization::Resources::climateDependentLayer(
+      resPrev = Fwg::Resources::climateDependentLayer(
           resConfig.name, resConfig.noiseConfig.fractalFrequency,
           resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
           resConfig.noiseConfig.mountainBonus, resConfig.considerClimate,
@@ -392,11 +395,9 @@ void Generator::generateStateSpecifics() {
   auto &config = Cfg::Values();
   // calculate the target industry amount
   auto targetWorldIndustry = 1248.0 * ardaConfig.worldIndustryFactor;
-  auto targetWorldPop = 3'000'000'000.0 * ardaConfig.worldPopulationFactor;
   // we need a reference to determine how industrious a state is
   double averageEconomicActivity = 1.0 / areaData.landRegions;
 
-  ardaData.worldPop = 0;
   stats.militaryIndustry = 0;
   stats.civilianIndustry = 0;
   stats.navalIndustry = 0;
@@ -437,7 +438,7 @@ void Generator::generateStateSpecifics() {
                          (hoi4State->worldEconomicActivityShare /
                           averageEconomicActivity) *
                              0.5 +
-                         3.0 * hoi4State->developmentFactor),
+                         3.0 * hoi4State->averageDevelopment),
                    1, 5);
     // one province state? Must be an island state
     if (hoi4State->ardaProvinces.size() == 1) {
@@ -445,10 +446,6 @@ void Generator::generateStateSpecifics() {
       // if it isn't more developed
       hoi4State->stateCategory = std::max<int>(1, hoi4State->stateCategory);
     }
-
-    hoi4State->totalPopulation =
-        static_cast<int>(targetWorldPop * hoi4State->worldPopulationShare);
-    ardaData.worldPop += (long long)hoi4State->totalPopulation;
 
     // create naval bases for all port locations
     for (auto &location : hoi4State->locations) {
@@ -657,9 +654,9 @@ void Generator::generateWeather() {
         double averageDeviation = 0.0;
         double averagePrecipitation = 0.0;
         for (auto &prov : reg->ardaProvinces) {
-          averageDeviation += prov->baseProvince->weatherMonths[i][0];
-          averageTemperature += prov->baseProvince->weatherMonths[i][1];
-          averagePrecipitation += prov->baseProvince->weatherMonths[i][2];
+          averageDeviation += prov->weatherMonths[i][0];
+          averageTemperature += prov->weatherMonths[i][1];
+          averagePrecipitation += prov->weatherMonths[i][2];
         }
         double divisor = (int)reg->ardaProvinces.size();
         averageDeviation /= divisor;
@@ -754,7 +751,7 @@ void Generator::generateLogistics() {
         // select a random Arda::ArdaProvince of the state
         int lakeCounter = 0;
         auto hubProvince{Fwg::Utils::selectRandom(region->ardaProvinces)};
-        while (hubProvince->baseProvince->isLake() && lakeCounter++ < 1000) {
+        while (hubProvince->isLake() && lakeCounter++ < 1000) {
           hubProvince = Fwg::Utils::selectRandom(region->ardaProvinces);
         }
         // just skip a lake
@@ -776,10 +773,10 @@ void Generator::generateLogistics() {
 
         // save the province under the provinces ID
         supplyHubProvinces[hubProvince->ID] = hubProvince;
-        navalBases[hubProvince->ID] = hubProvince->baseProvince->coastal;
+        navalBases[hubProvince->ID] = hubProvince->coastal;
         // get the distance between this supply hub and the capital
-        auto distance = Fwg::getPositionDistance(
-            capitalPosition, hubProvince->baseProvince->position, width);
+        auto distance = Fwg::getPositionDistance(capitalPosition,
+                                                 hubProvince->position, width);
         // save the distance under the province ID
         supplyHubs[distance] = hubProvince->ID;
         // save the distance
@@ -810,9 +807,8 @@ void Generator::generateLogistics() {
               // now find distance2, the distance between us and the other
               // already assigned supply hubs
               auto dist3 = Fwg::getPositionDistance(
-                  ardaProvinces[supplyHubs[distance2]]->baseProvince->position,
-                  ardaProvinces[supplyHubs[distance]]->baseProvince->position,
-                  width);
+                  ardaProvinces[supplyHubs[distance2]]->position,
+                  ardaProvinces[supplyHubs[distance]]->position, width);
               if (dist3 < tempDistance) {
                 sourceNodeID = ardaProvinces[supplyHubs[distance2]]->ID;
                 tempDistance = dist3;
@@ -826,13 +822,12 @@ void Generator::generateLogistics() {
           sourceNodeID = passthroughProvinceIDs.back();
         }
         // break if this is another landmass. We can't reach it anyway
-        if (ardaProvinces[sourceNodeID]->baseProvince->landMassID !=
-            ardaProvinces[destNodeID]->baseProvince->landMassID)
+        if (ardaProvinces[sourceNodeID]->landMassID !=
+            ardaProvinces[destNodeID]->landMassID)
           break;
         ;
         // the origins position
-        auto sourceNodePosition =
-            ardaProvinces[sourceNodeID]->baseProvince->position;
+        auto sourceNodePosition = ardaProvinces[sourceNodeID]->position;
         // save the distance in a temp variable
         double tempMinDistance = width;
         auto closestID = INT_MAX;
@@ -842,8 +837,7 @@ void Generator::generateLogistics() {
              ardaProvinces[sourceNodeID]->neighbours) {
           // check if this belongs to us and is an eligible province
           if (gProvIDs.find(neighbourGProvince.ID) == gProvIDs.end() ||
-              neighbourGProvince.baseProvince->isLake() ||
-              neighbourGProvince.baseProvince->isSea())
+              neighbourGProvince.isLake() || neighbourGProvince.isSea())
             continue;
           bool cont = false;
           for (auto passThroughID : passthroughProvinceIDs) {
@@ -853,9 +847,9 @@ void Generator::generateLogistics() {
           if (cont)
             continue;
           // the distance to the sources neighbours
-          auto nodeDistance = Fwg::getPositionDistance(
-              ardaProvinces[destNodeID]->baseProvince->position,
-              neighbourGProvince.baseProvince->position, width);
+          auto nodeDistance =
+              Fwg::getPositionDistance(ardaProvinces[destNodeID]->position,
+                                       neighbourGProvince.position, width);
           if (nodeDistance < tempMinDistance) {
             tempMinDistance = nodeDistance;
             closestID = neighbourGProvince.ID;
@@ -888,11 +882,11 @@ void Generator::generateLogistics() {
       }
     }
 
-    for (auto &pix : capitalProvince->baseProvince->pixels) {
+    for (auto &pix : capitalProvince->pixels) {
       logistics.setColourAtIndex(pix, {255, 255, 0});
     }
     for (auto &supplyHubProvince : supplyHubProvinces) {
-      for (auto &pix : supplyHubProvince.second->baseProvince->pixels) {
+      for (auto &pix : supplyHubProvince.second->pixels) {
         logistics.setColourAtIndex(pix, {0, 255, 0});
       }
     }
@@ -901,8 +895,8 @@ void Generator::generateLogistics() {
     for (int i = 0; i < connection.size(); i++) {
       // check if we accidentally added a sea province or lake province to the
       // connection
-      if (ardaProvinces[connection[i]]->baseProvince->isSea() ||
-          ardaProvinces[connection[i]]->baseProvince->isLake()) {
+      if (ardaProvinces[connection[i]]->isSea() ||
+          ardaProvinces[connection[i]]->isLake()) {
         Fwg::Utils::Logging::logLine("Error: Skipping an invalid connection "
                                      "due to sea or lake province "
                                      "in it in logistics");
@@ -910,8 +904,8 @@ void Generator::generateLogistics() {
         i--;
         continue;
       }
-      for (const auto pix : ardaProvinces[connection[i]]
-                                ->baseProvince->getNonOwningPixelView()) {
+      for (const auto pix :
+           ardaProvinces[connection[i]]->getNonOwningPixelView()) {
         // don't overwrite capitals and supply nodes
         if (logistics[pix] == Colour{255, 255, 0} ||
             logistics[pix] == Colour{0, 255, 0})
@@ -1120,7 +1114,6 @@ void Generator::evaluateCountries() {
   countryImportanceScores.clear();
   double maxScore = 0.0;
   for (auto &country : modData.hoi4Countries) {
-    country->evaluatePopulations(civData.worldPopulationFactorSum);
     country->evaluateDevelopment();
     country->evaluateEconomicActivity(ardaData.worldEconomicActivity);
     country->evaluateProperties();
@@ -1894,7 +1887,7 @@ void Generator::generatePositions() {
     if (gameProv->victoryPoint) {
       position = gameProv->victoryPoint->position;
     } else {
-      position = gameProv->baseProvince->position;
+      position = gameProv->position;
     }
     gameProv->positions.push_back(createPosition(
         position, Arda::PositionType::VictoryPoint, 38, landForms));
@@ -1902,7 +1895,7 @@ void Generator::generatePositions() {
     // now we get neighbour relations for a province, but in a very short
     // distance to the centre.
     std::vector<Fwg::Areas::NeighbourProvince> neighbourRelations;
-    const auto &prov = gameProv->baseProvince;
+    const auto &prov = gameProv;
     neighbourRelations = getNeighbourRelations(prov, cfg, 0.2f);
 
     //  We use those for standstill, standstill RG, defending, attacking
@@ -1928,12 +1921,12 @@ void Generator::generatePositions() {
     // commonality for all: standstill (0), standstill RG (21), defending (10),
     // attacking (9), per neighbour: moving (1 + x), moving RG (22 + x), victory
     // point (38)
-    auto sea = gameProv->baseProvince->isSea();
+    auto sea = gameProv->isSea();
 
     // evaluate if we need ship in port positions
-    if (gameProv->baseProvince->isLand() && gameProv->baseProvince->coastal) {
+    if (gameProv->isLand() && gameProv->coastal) {
       // now check if we have a port location
-      auto &locations = gameProv->baseProvince->locations;
+      auto &locations = gameProv->locations;
       // get the port if we have one
       auto portLocation =
           std::find_if(locations.begin(), locations.end(), [](const auto &loc) {
@@ -1943,8 +1936,7 @@ void Generator::generatePositions() {
         // no port location, so we take random coastal pixels from the
         // baseProvince
         position = Fwg::Position(
-            Fwg::Utils::selectRandom(gameProv->baseProvince->coastalPixels),
-            cfg.width);
+            Fwg::Utils::selectRandom(gameProv->coastalPixels), cfg.width);
       } else {
         position = (*portLocation)->position;
       }
@@ -1960,11 +1952,10 @@ void Generator::generatePositions() {
     auto embarkRgNeighbourRelations = getNeighbourRelations(prov, cfg, 0.8f);
 
     // all need moving, and moving RG. Moving we take from the
-    // gameProv->baseProvince->neighbourRelations, while moving RG we take
+    // gameProv->neighbourRelations, while moving RG we take
     // from neighbourRelations, as they are closer to the center of the
     // province
-    for (auto counter = 0;
-         auto &neighbour : gameProv->baseProvince->neighbourRelations) {
+    for (auto counter = 0; auto &neighbour : gameProv->neighbourRelations) {
       if (counter > 7) {
         // hoi4 only supports 8 moving positions, so we break here
         break;
@@ -2010,7 +2001,9 @@ void Generator::printStatistics() {
     Fwg::Utils::Logging::logLine(res.first, " ", res.second);
   }
 
-  Fwg::Utils::Logging::logLine("World Population: ", ardaData.worldPop);
+  Fwg::Utils::Logging::logLine("World Gdp: ", ardaStats.totalWorldGdp);
+  Fwg::Utils::Logging::logLine("World Population: ",
+                               ardaStats.totalWorldPopulation);
 
   for (auto &scores : countryImportanceScores) {
     for (auto &entry : scores.second) {
@@ -2090,7 +2083,7 @@ void Generator::generateUrbanisation() {
       if (location->type == Fwg::Civilization::LocationType::City ||
           location->type == Fwg::Civilization::LocationType::Port) {
         for (auto &pix : location->pixels) {
-          this->civLayer.urbanisation[pix] = 255;
+          // this->civLayer.urbanisation[pix] = 255;
         }
       }
     }
@@ -2388,7 +2381,7 @@ void Generator::writeImages() {
       "Writing Hoi4 mod image files to path: ",
       Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
 
-  imageExporter.dump8BitTerrain(terrainData, climateData, civLayer,
+  imageExporter.dump8BitTerrain(terrainData, climateData, ardaData.civLayer,
                                 pathcfg.gameModPath + "//map//terrain.bmp",
                                 "terrain", false);
   imageExporter.dump8BitCities(
@@ -2403,7 +2396,7 @@ void Generator::writeImages() {
                                   pathcfg.gameModPath + "//map//heightmap",
                                   "heightmap");
   imageExporter.dumpTerrainColourmap(
-      worldMap, civLayer, pathcfg.gameModPath,
+      worldMap, ardaData.civLayer, pathcfg.gameModPath,
       "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
       DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
   imageExporter.dumpDDSFiles(
@@ -2438,8 +2431,7 @@ void Generator::generate() {
     mapContinents();
     mapTerrain();
     // generate generic world data
-    Arda::Civilization::generateWorldCivilizations(
-        ardaRegions, ardaProvinces, civData, ardaContinents, superRegions);
+    genCivilisationData();
 
     // non-country stuff
     auto stratFactory = []() -> std::shared_ptr<StrategicRegion> {

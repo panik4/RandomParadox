@@ -117,6 +117,9 @@ void Generator::configureModGen(const std::string &configSubFolder,
   //  passed to generic ScenarioGenerator
   ardaConfig.numCountries = vic3Conf.get<int>("scenario.numCountries");
   ardaConfig.generationAge = Arda::Utils::GenerationAge::Victorian;
+  ardaConfig.targetWorldPopulation = 1'000'000'000;
+  ardaConfig.targetWorldGdp = 1'000'000'000'000;
+
   config.seaLevel = 18;
   config.riverFactor = 0.0;
   config.seaProvFactor *= 0.10;
@@ -129,11 +132,11 @@ void Generator::configureModGen(const std::string &configSubFolder,
   // allow massive images for Vic3
   config.targetMaxImageSize = 160'000'000;
   config.loadMapsPath = vic3Conf.get<std::string>("fastworldgen.loadMapsPath");
-  config.miningPerRegion = 1;
-  config.forestryPerRegion = 1;
-  config.citiesPerRegion = 1;
-  config.portsPerRegion = 1;
-  config.agriculturePerRegion = 1;
+  ardaConfig.locationConfig.miningPerRegion = 1;
+  ardaConfig.locationConfig.forestryPerRegion = 1;
+  ardaConfig.locationConfig.citiesPerRegion = 1;
+  ardaConfig.locationConfig.portsPerRegion = 1;
+  ardaConfig.locationConfig.agriculturePerRegion = 1;
   // check if config settings are fine
   config.sanityCheck();
 }
@@ -154,7 +157,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
   for (auto &ardaRegion : ardaRegions) {
     for (auto &gameProv : ardaRegion->ardaProvinces) {
       gameProv->terrainType = "plains";
-      const auto &baseProv = gameProv->baseProvince;
+      const auto &baseProv = gameProv;
       if (baseProv->isLake()) {
         gameProv->terrainType = "lake";
         for (auto &pix : baseProv->pixels) {
@@ -238,19 +241,6 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
   return typeMap;
 }
 
-void Generator::distributePops() {
-  auto targetWorldPop = 1'000'000'000.0 * ardaConfig.worldPopulationFactor;
-  for (auto &region : modData.vic3Regions) {
-    if (region->isSea())
-      continue;
-    // only init this when it hasn't been initialized via text input before
-    if (region->totalPopulation < 0) {
-      region->totalPopulation =
-          static_cast<int>(targetWorldPop * region->worldPopulationShare);
-    }
-    ardaData.worldPop += (long long)region->totalPopulation;
-  }
-}
 void Generator::totalArableLand(const std::vector<float> &arableLand) {
   const auto baseWorldArableSlots = 50000.0;
   auto totalArable = 0.0f;
@@ -280,16 +270,16 @@ void Generator::distributeResources() {
   for (auto &resConfig : vic3Config.resConfigs) {
     std::vector<float> resPrev;
     if (resConfig.random) {
-      resPrev = Fwg::Civilization::Resources::randomResourceLayer(
+      resPrev = Fwg::Resources::randomResourceLayer(
           resConfig.name, resConfig.noiseConfig.fractalFrequency,
           resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
           resConfig.noiseConfig.mountainBonus);
     } else if (resConfig.considerSea) {
-      resPrev = Fwg::Civilization::Resources::coastDependentLayer(
+      resPrev = Fwg::Resources::coastDependentLayer(
           resConfig.name, resConfig.oceanFactor, resConfig.lakeFactor,
           areaData.provinces);
     } else {
-      resPrev = Fwg::Civilization::Resources::climateDependentLayer(
+      resPrev = Fwg::Resources::climateDependentLayer(
           resConfig.name, resConfig.noiseConfig.fractalFrequency,
           resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
           resConfig.noiseConfig.mountainBonus, resConfig.considerClimate,
@@ -326,7 +316,7 @@ void Generator::mapRegions() {
     modData.vic3Regions.push_back(ardaRegion);
   }
   // sort by Arda::ArdaProvince ID
-  //std::sort(ardaRegions.begin(), ardaRegions.end(),
+  // std::sort(ardaRegions.begin(), ardaRegions.end(),
   //          [](auto l, auto r) { return *l < *r; });
   // check if we have the same amount of ardaProvinces as FastWorldGen
   // provinces
@@ -378,7 +368,7 @@ void Generator::generateCountrySpecifics() {
     c->pop = totalPop;
     for (auto &state : c->ownedVic3Regions) {
       // development should be weighed by the pop in the state
-      averageDevelopment += state->developmentFactor *
+      averageDevelopment += state->averageDevelopment *
                             ((double)state->totalPopulation / (double)totalPop);
     }
     c->averageDevelopment = averageDevelopment;
@@ -774,8 +764,7 @@ void Generator::generate() {
 
     mapTerrain();
     mapContinents();
-    Arda::Civilization::generateWorldCivilizations(
-        ardaRegions, ardaProvinces, civData, ardaContinents, superRegions);
+    genCivilisationData();
     auto countryFactory = []() -> std::shared_ptr<Vic3::Country> {
       return std::make_shared<Vic3::Country>();
     };
@@ -788,7 +777,6 @@ void Generator::generate() {
     };
     generateStrategicRegions(factory);
     // Vic3 specifics:
-    distributePops();
     distributeResources();
     if (!importData(this->pathcfg.gamePath + "//game//")) {
       Fwg::Utils::Logging::logLine("ERROR: Could not import data from game "
@@ -898,27 +886,28 @@ void Generator::writeImages() {
   // TODO: improve handling of altitude data to not rely on image
   auto heightMap = Fwg::Gfx::displayHeightMap(terrainData.detailedHeightMap);
 
-  imageExporter.Vic3ColourMaps(worldMap, heightMap, climateData, civLayer,
-                                 pathcfg.gameModPath + "//gfx//map//");
+  imageExporter.Vic3ColourMaps(worldMap, heightMap, climateData,
+                               ardaData.civLayer,
+                               pathcfg.gameModPath + "//gfx//map//");
   // imageExporter.dump8BitRivers(riverMap,
   //                                pathcfg.gameModPath +
   //                                "//map_data//rivers", "rivers", false);
 
-  imageExporter.detailMaps(terrainData, climateData, civLayer,
-                             pathcfg.gameModPath + "//gfx//map//");
+  imageExporter.detailMaps(terrainData, climateData, ardaData.civLayer,
+                           pathcfg.gameModPath + "//gfx//map//");
   imageExporter.dynamicMasks(pathcfg.gameModPath + "//gfx//map//masks//",
-                               climateData, civLayer);
+                             climateData, ardaData.civLayer);
   imageExporter.contentSource(pathcfg.gameModPath +
-                                    "//content_source//map_objects//masks//",
-                                climateData, civLayer);
+                                  "//content_source//map_objects//masks//",
+                              climateData, ardaData.civLayer);
   // save this and reset the heightmap later. The map will be scaled and the
   // scaled one then used for the packed heightmap generation. It is important
   // we reset this after
   auto temporaryHeightmap = heightMap;
   // also dump uncompressed packed heightmap
-  imageExporter.dump8BitHeightmap(
-      terrainData.detailedHeightMap,
-      pathcfg.gameModPath + "//map_data//heightmap", "heightmap");
+  imageExporter.dump8BitHeightmap(terrainData.detailedHeightMap,
+                                  pathcfg.gameModPath + "//map_data//heightmap",
+                                  "heightmap");
   auto packedHeightmap = imageExporter.dumpPackedHeightmap(
       heightMap, pathcfg.gameModPath + "//map_data//packed_heightmap",
       "heightmap");
@@ -942,7 +931,7 @@ void Generator::writeSplnet() {
   Parsing::Writing::locators(pathcfg.gameModPath +
                                  "//gfx//map//map_object_data//",
                              modData.vic3Regions);
-  genNavmesh(Fwg::Cfg::Values());
+  genNavmesh();
   calculateNavalExits();
 
   Splnet splnet;

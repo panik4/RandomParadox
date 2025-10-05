@@ -107,35 +107,35 @@ void definition(
   // Bitmap typeMap(512, 512, 24);
   std::string content{"0;0;0;0;land;false;unknown;0\n"};
   for (const auto &prov : provinces) {
-    auto seaType = prov->baseProvince->isSea() ? "sea" : "land";
-    auto coastal = prov->baseProvince->coastal ? "true" : "false";
-    if (prov->baseProvince->isSea()) {
-      for (auto prov2 : prov->baseProvince->neighbours) {
-        if (!prov2->isSea())
+    auto seaType = prov->isSea() ? "sea" : "land";
+    auto coastal = prov->coastal ? "true" : "false";
+    if (prov->isSea()) {
+      for (auto prov2 : prov->neighbours) {
+        if (!prov2.isSea())
           coastal = "true";
       }
     }
     std::string terraintype;
-    if (prov->baseProvince->isSea())
+    if (prov->isSea())
       terraintype = "ocean";
     else
       terraintype = prov->terrainType;
-    if (prov->baseProvince->isLake()) {
+    if (prov->isLake()) {
       terraintype = "lakes";
       seaType = "lake";
     }
     std::vector<std::string> arguments{
-        std::to_string(prov->baseProvince->ID + 1),
-        std::to_string(prov->baseProvince->colour.getRed()),
-        std::to_string(prov->baseProvince->colour.getGreen()),
-        std::to_string(prov->baseProvince->colour.getBlue()),
+        std::to_string(prov->ID + 1),
+        std::to_string(prov->colour.getRed()),
+        std::to_string(prov->colour.getGreen()),
+        std::to_string(prov->colour.getBlue()),
         seaType,
         coastal,
         terraintype,
-        std::to_string(prov->baseProvince->isSea() ||
-                               prov->baseProvince->isLake()
+        std::to_string(prov->isSea() ||
+                               prov->isLake()
                            ? 0
-                           : prov->baseProvince->continentID +
+                           : prov->continentID +
                                  1) // 0 is for sea, no continent
     };
     content.append(pU::csvFormat(arguments, ';', false));
@@ -456,7 +456,7 @@ void commonNames(const std::string &path, const CountryMap &countries) {
     for (auto &culture : country->cultures) {
       // get the share of the culture in the country
       auto share =
-          std::min<double>(culture.second / country->populationFactor, 1.0);
+          std::min<double>(culture.second / country->totalPopulation, 1.0);
       auto language = culture.first->language;
       // get the names for the culture
       for (int i = 1; i < (int)(share * (double)language->maleNames.size());
@@ -903,7 +903,7 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     std::vector<int> allowedProvinces;
     for (auto &region : country->hoi4Regions) {
       for (auto &prov : region->ardaProvinces) {
-        if (!prov->baseProvince->isLake())
+        if (!prov->isLake())
           allowedProvinces.push_back(prov->ID);
       }
     }
@@ -1649,8 +1649,8 @@ void readStates(const std::string &path, Fwg::Areas::AreaData &areaData) {
   //  auto readIDs = getNumberBlockMultiDelim(state, "provinces");
   //  for (auto id : readIDs) {
   //    // reg->ardaProvinces.push_back(hoi4Gen.ardaProvinces[id - 1]);
-  //    reg.provinces.push_back(hoi4Gen->ardaProvinces[id - 1]->baseProvince);
-  //    // hoi4Gen.ardaProvinces[id - 1]->baseProvince->regionID = reg.ID;
+  //    reg.provinces.push_back(hoi4Gen->ardaProvinces[id - 1]);
+  //    // hoi4Gen.ardaProvinces[id - 1]->regionID = reg.ID;
   //  }
 
   //  Fwg::Gfx::Colour colour;
@@ -1808,9 +1808,9 @@ void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
   }
   // call it with special idsort bool to make sure we sort by ID only this
   // time
-  Fwg::Areas::Provinces::loadProvinces(
-      terrainData, climateData, provMap, areaData.provinces,
-      areaData.provinceColourMap, areaData.segments, areaData.landBodies, true);
+  //Fwg::Areas::Provinces::loadProvinces(
+  //    terrainData, climateData, provMap, areaData.provinces,
+  //    areaData.provinceColourMap, areaData.segments, areaData.landBodies, );
 }
 void readRocketSites(const std::string &path,
                      std::vector<std::shared_ptr<Region>> &regions) {

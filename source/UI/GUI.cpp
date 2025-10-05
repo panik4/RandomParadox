@@ -98,7 +98,7 @@ void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
         activeGenerator);
     showStrategicRegionTab(cfg, activeGenerator);
     showCountryTab(cfg);
-    showNavmeshTab(cfg, *activeGenerator);
+    showNavmeshTab(cfg);
     showVic3Finalise(cfg);
   }
   if (!configuredScenarioGen) {
@@ -215,11 +215,11 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
                   showModLoader(cfg);
                 }
                 defaultTabs(cfg, *activeGenerator);
-                showCivilizationTab(cfg, *activeGenerator);
+                showCivilizationTab(cfg);
                 gameSpecificTabs(cfg);
                 auto ardaGen =
                     std::static_pointer_cast<Arda::ArdaGen>(activeGenerator);
-                overview(ardaGen, cfg);
+                overview(cfg);
                 if (!validatedPaths)
                   ImGui::EndDisabled();
                 // Re-enable inputs if computation is running
@@ -378,7 +378,6 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
       Rpx::Utils::autoLocateGameModFolder(activeGameConfig.gameName,
                                           activeGenerator->pathcfg);
       validatePaths();
-
     }
 
     std::vector<const char *> gameSelection;
@@ -449,10 +448,19 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
     }
     ImGui::PopItemWidth();
     ImGui::PushItemWidth(200.0f);
-    ImGui::InputDouble("WorldPopulationFactor",
-                       &activeGenerator->ardaConfig.worldPopulationFactor, 0.1);
-    ImGui::InputDouble("industryFactor",
-                       &activeGenerator->ardaConfig.worldIndustryFactor, 0.1);
+    if (ImGui::InputDouble("WorldPopulationFactor",
+                           &activeGenerator->ardaConfig.worldPopulationFactor,
+                           0.1)) {
+      activeGenerator->ardaConfig.calculateTargetWorldPopulation();
+    }
+    ImGui::SameLine();
+    ImGui::Text("Target world population: %f Mio",
+                ardaGen->ardaConfig.targetWorldPopulation / 1000'000.0);
+    if (ImGui::InputDouble("industryFactor",
+                           &activeGenerator->ardaConfig.worldIndustryFactor,
+                           0.1)) {
+      activeGenerator->ardaConfig.calculateTargetWorldGdp();
+    }
     if (isRelevantModuleActive("hoi4")) {
       auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
       showHoi4Configure(cfg, hoi4Gen);
@@ -600,7 +608,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
       if (modifiableState->owner) {
         ImGui::Text("State owner", &modifiableState->owner->tag);
       }
-      if (ImGui::InputInt("Population", &modifiableState->totalPopulation)) {
+      if (ImGui::InputDouble("Population", &modifiableState->totalPopulation)) {
         requireCountryDetails = true;
       }
     });
@@ -1025,7 +1033,8 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
       }
       if (ImGui::Button("Export terrain.bmp")) {
         generator->getImageExporter().dump8BitTerrain(
-            generator->terrainData, generator->climateData, generator->civLayer,
+            generator->terrainData, generator->climateData,
+            generator->ardaData.civLayer,
             generator->pathcfg.gameModPath + "//map//terrain.bmp", "terrain",
             false);
       }
@@ -1043,7 +1052,7 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
       }
       if (ImGui::Button("Export colormap_rgb_cityemissivemask_a.dds")) {
         generator->getImageExporter().dumpTerrainColourmap(
-            generator->worldMap, generator->civLayer,
+            generator->worldMap, generator->ardaData.civLayer,
             generator->pathcfg.gameModPath,
             "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
             DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
@@ -1109,7 +1118,6 @@ int GUI::showVic3Finalise(Fwg::Cfg &cfg) {
       if (ImGui::Button("Export mod")) {
         computationFutureBool = runAsync([generator, &cfg, this]() {
           // Vic3 specifics:
-          generator->distributePops();
           generator->distributeResources();
           generator->mapCountries();
           if (!generator->importData(generator->pathcfg.gamePath +

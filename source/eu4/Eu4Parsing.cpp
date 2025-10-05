@@ -101,7 +101,7 @@ void writeClimate(const std::string &path,
     auto minTemp = 400.0;
     auto maxTemp = -200.0;
     auto maxPrecipitation = 0.0;
-    for (const auto &temp : province->baseProvince->weatherMonths) {
+    for (const auto &temp : province->weatherMonths) {
       // find min and max temperatures
       Fwg::Utils::switchIfComparator(temp[1], minTemp, std::less());
       Fwg::Utils::switchIfComparator(temp[1], maxTemp, std::greater());
@@ -175,11 +175,11 @@ void writeContinent(
   // must not be more than 6 continents!
   std::array<std::vector<int>, 6> continentMap;
   for (const auto &province : provinces) {
-    if (province->baseProvince->continentID >= 0 &&
-        province->baseProvince->continentID != -1 &&
-        province->baseProvince->continentID < continentMap.size()) {
+    if (province->continentID >= 0 &&
+        province->continentID != -1 &&
+        province->continentID < continentMap.size()) {
 
-        continentMap.at(province->baseProvince->continentID)
+        continentMap.at(province->continentID)
             .push_back(province->ID + 1);
     }
   }
@@ -209,11 +209,11 @@ void writeDefaultMap(
   std::string seaStarts{""};
   std::string lakes{""};
   for (const auto &province : provinces) {
-    if (province->baseProvince->isSea()) {
+    if (province->isSea()) {
       seaStarts.append(std::to_string(province->ID + 1) + " ");
       if (seaStarts.size() % 76 < 10 && seaStarts.size() >= 10)
         seaStarts.append("\n\t\t\t\t");
-    } else if (province->baseProvince->isLake()) {
+    } else if (province->isLake()) {
       lakes.append(std::to_string(province->ID + 1) + " ");
       if (lakes.size() % 76 < 10 && lakes.size() >= 10)
         lakes.append("\n\t\t\t");
@@ -231,10 +231,10 @@ void writeDefinition(
   std::string content{"province;red;green;blue;x;x\n"};
   for (const auto &prov : provinces) {
     std::vector<std::string> arguments{
-        std::to_string(prov->baseProvince->ID + 1),
-        std::to_string(prov->baseProvince->colour.getRed()),
-        std::to_string(prov->baseProvince->colour.getGreen()),
-        std::to_string(prov->baseProvince->colour.getBlue()),
+        std::to_string(prov->ID + 1),
+        std::to_string(prov->colour.getRed()),
+        std::to_string(prov->colour.getGreen()),
+        std::to_string(prov->colour.getBlue()),
         "x",
         "x"};
     content.append(pU::csvFormat(arguments, ';', false));
@@ -262,8 +262,8 @@ void writePositions(
   for (const auto &prov : provinces) {
     std::string provincePositions{templateProvince};
     Rpx::Parsing::replaceOccurences(provincePositions, "templateID",
-                                    std::to_string(prov->baseProvince->ID + 1));
-    const auto &baseProv = prov->baseProvince;
+                                    std::to_string(prov->ID + 1));
+    const auto &baseProv = prov;
     ;
     const std::string centerString = {
         std::to_string((double)baseProv->position.widthCenter) + " " +
@@ -370,7 +370,7 @@ void writeProvinces(const std::string &path,
   for (const auto &region : regions) {
     for (const auto &prov : region->ardaProvinces) {
       // make sure lakes and wastelands are empty
-      if (prov->baseProvince->isLake() ||
+      if (prov->isLake() ||
           prov->terrainType == "rockyMountains") {
         pU::writeFile(path + "//" + std::to_string(prov->ID + 1) + "-a.txt",
                       "");
