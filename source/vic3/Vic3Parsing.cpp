@@ -25,12 +25,12 @@ void defaultMap(const std::string &path,
   auto seaFormatCounter = 1;
   auto lakeFormatCounter = 1;
   for (const auto &province : provinces) {
-    if (province->baseProvince->isSea()) {
+    if (province->isSea()) {
       seaStarts.append(province->toHexString() + " ");
       if (seaFormatCounter++ % 5 == 0) {
         seaStarts.append("\n\t");
       }
-    } else if (province->baseProvince->isLake()) {
+    } else if (province->isLake()) {
       lakes.append(province->toHexString() + " ");
       if (lakeFormatCounter++ % 5 == 0) {
         lakes.append("\n\t");
@@ -124,7 +124,7 @@ void stateFiles(const std::string &path,
 
       // check if we are a coastal region
       for (auto &prov : region->ardaProvinces) {
-        if (prov->baseProvince->isSea()) {
+        if (prov->isSea()) {
           Rpx::Parsing::replaceOccurences(content, "template_naval_exit",
                                           prov->toHexString());
         }
@@ -182,11 +182,11 @@ void provinceTerrains(
     content.append(province->toHexString());
     content.append("=\"");
     std::string terraintype;
-    if (province->baseProvince->isSea())
+    if (province->isSea())
       terraintype = "ocean";
     else
       terraintype = province->terrainType;
-    if (province->baseProvince->isLake()) {
+    if (province->isLake()) {
       terraintype = "lakes";
     }
 
@@ -294,9 +294,9 @@ void countryCommon(
     Rpx::Parsing::replaceOccurences(cString, "templateCapital",
                                     capitalRegion->name);
 
-    using pair_type = decltype(capitalRegion->cultureShares)::value_type;
-    auto pr = std::max_element(std::begin(capitalRegion->cultureShares),
-                               std::end(capitalRegion->cultureShares),
+    using pair_type = decltype(capitalRegion->cultures)::value_type;
+    auto pr = std::max_element(std::begin(capitalRegion->cultures),
+                               std::end(capitalRegion->cultures),
                                [](const pair_type &p1, const pair_type &p2) {
                                  return p1.second < p2.second;
                                });
@@ -330,7 +330,7 @@ void popsHistory(const std::string &path,
                                     region->owner->tag);
 
     std::string listOfPops{""};
-    for (auto &culture : region->cultureShares) {
+    for (auto &culture : region->cultures) {
       std::string pop = popsSingleTemplate;
       Rpx::Parsing::replaceOccurences(pop, "templateCulture",
                                       culture.first->name);
@@ -369,7 +369,7 @@ void stateHistory(const std::string &path,
     Rpx::Parsing::replaceOccurences(content, "templateProvinces",
                                     provinceString);
     std::string cultures;
-    for (auto &culture : region->cultureShares) {
+    for (auto &culture : region->cultures) {
       cultures.append("add_homeland = cu:" + culture.first->name + "\n\t\t");
     }
     Rpx::Parsing::replaceOccurences(content, "templateCulture", cultures);

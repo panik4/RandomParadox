@@ -5,6 +5,7 @@
 #include "entities/Colour.h"
 #include "rendering/Images.h"
 #include "utils/Cfg.h"
+#include "civilisation/CivilisationLayer.h"
 #include <map>
 namespace Rpx::Gfx {
 class ImageExporter {
@@ -36,7 +37,7 @@ public:
                          const std::string &colourMapKey) const;
   void dump8BitTerrain(const Fwg::Terrain::TerrainData &terrainData,
                        const Fwg::Climate::ClimateData &climateIn,
-                       const Fwg::Civilization::CivilizationLayer &civLayer,
+                       const Arda::Civilization::CivilizationLayer &civLayer,
                        const std::string &path, const std::string &colourMapKey,
                        const bool cut = false) const;
 
@@ -53,7 +54,7 @@ public:
                     const int maxFactor = 2) const;
   void
   dumpTerrainColourmap(const Fwg::Gfx::Bitmap &climateMap,
-                       const Fwg::Civilization::CivilizationLayer &civLayer,
+                       const Arda::Civilization::CivilizationLayer &civLayer,
                        const std::string &modPath, const std::string &mapName,
                        const DXGI_FORMAT format, int scaleFactor,
                        const bool cut = false) const;

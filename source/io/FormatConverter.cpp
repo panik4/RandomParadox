@@ -402,7 +402,7 @@ void ImageExporter::dump8BitHeightmap(const std::vector<float> &altitudeData,
 void ImageExporter::dump8BitTerrain(
     const Fwg::Terrain::TerrainData &terrainData,
     const Fwg::Climate::ClimateData &climateIn,
-    const Fwg::Civilization::CivilizationLayer &civLayer,
+    const Arda::Civilization::CivilizationLayer &civLayer,
     const std::string &path, const std::string &colourMapKey,
     const bool cut) const {
   Utils::Logging::logLine("ImageExporter::Writing terrain to ",
@@ -423,16 +423,16 @@ void ImageExporter::dump8BitTerrain(
 
     return;
   }
-  if (civLayer.urbanisation.size() != conf.bitmapSize ||
-      civLayer.agriculture.size() != conf.bitmapSize) {
-    Utils::Logging::logLine(
-        "ImageExporter::Urbanisation/agriculture size mismatch");
-    // print all the sizes
-    Utils::Logging::logLine("Urbanisation size: ",
-                            civLayer.urbanisation.size());
-    Utils::Logging::logLine("Agriculture size: ", civLayer.agriculture.size());
-    return;
-  }
+  //if (civLayer.urbanisation.size() != conf.bitmapSize ||
+  //    civLayer.agriculture.size() != conf.bitmapSize) {
+  //  Utils::Logging::logLine(
+  //      "ImageExporter::Urbanisation/agriculture size mismatch");
+  //  // print all the sizes
+  //  Utils::Logging::logLine("Urbanisation size: ",
+  //                          civLayer.urbanisation.size());
+  //  Utils::Logging::logLine("Agriculture size: ", civLayer.agriculture.size());
+  //  return;
+  //}
   Bitmap hoi4terrain(conf.width, conf.height, 8);
   hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
   // hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
@@ -468,15 +468,15 @@ void ImageExporter::dump8BitTerrain(
                    indexMaps.at("tree" + colourMapKey + gameTag).at(treeType)));
       }
 
-      if (conf.bitmapSize == civLayer.urbanisation.size() &&
-          civLayer.urbanisation[i]) {
-        // urban texture
-        hoi4terrain.setColourAtIndex(i, hoi4terrain.lookUp(13));
-      } else if (conf.bitmapSize == civLayer.agriculture.size() &&
-                 civLayer.agriculture[i]) {
-        // farm texture
-        hoi4terrain.setColourAtIndex(i, hoi4terrain.lookUp(5));
-      }
+      //if (conf.bitmapSize == civLayer.urbanisation.size() &&
+      //    civLayer.urbanisation[i]) {
+      //  // urban texture
+      //  hoi4terrain.setColourAtIndex(i, hoi4terrain.lookUp(13));
+      //} else if (conf.bitmapSize == civLayer.agriculture.size() &&
+      //           civLayer.agriculture[i]) {
+      //  // farm texture
+      //  hoi4terrain.setColourAtIndex(i, hoi4terrain.lookUp(5));
+      //}
     }
   }
   Bmp::save8bit(hoi4terrain, path);
@@ -630,7 +630,7 @@ void ImageExporter::dumpDDSFiles(const std::vector<float> &heightMap,
 
 void ImageExporter::dumpTerrainColourmap(
     const Bitmap &climateMap,
-    const Fwg::Civilization::CivilizationLayer &civLayer,
+    const Arda::Civilization::CivilizationLayer &civLayer,
     const std::string &modPath, const std::string &mapName,
     const DXGI_FORMAT format, int scaleFactor, const bool cut) const {
   auto &cfg = Cfg::Values();
@@ -642,10 +642,10 @@ void ImageExporter::dumpTerrainColourmap(
     Utils::Logging::logLine("ImageExporter::Climate map size mismatch");
     return;
   }
-  if (civLayer.urbanisation.size() != cfg.bitmapSize) {
-    Utils::Logging::logLine("ImageExporter::Urbanisation size mismatch");
-    return;
-  }
+  //if (civLayer.urbanisation.size() != cfg.bitmapSize) {
+  //  Utils::Logging::logLine("ImageExporter::Urbanisation size mismatch");
+  //  return;
+  //}
 
   const auto &height = climateMap.height();
   const auto &width = climateMap.width();
@@ -667,10 +667,11 @@ void ImageExporter::dumpTerrainColourmap(
         pixels[imageIndex + 2] = c.getRed();
         if (gameTag == "Eu4" || gameTag == "Vic3") {
           pixels[imageIndex + 3] = 255;
-        } else
+        } else {
           // alpha for city lights
-          if (civLayer.urbanisation.size() == cfg.bitmapSize)
-            pixels[imageIndex + 3] = civLayer.urbanisation[colourmapIndex];
+          //if (civLayer.urbanisation.size() == cfg.bitmapSize)
+          //  pixels[imageIndex + 3] = civLayer.urbanisation[colourmapIndex];
+        }
       }
     }
   } else {

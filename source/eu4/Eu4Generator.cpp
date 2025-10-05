@@ -80,6 +80,8 @@ void Generator::configureModGen(const std::string &configSubFolder,
   //  passed to generic ScenarioGenerator
   ardaConfig.numCountries = eu4Conf.get<int>("scenario.numCountries");
   ardaConfig.generationAge = Arda::Utils::GenerationAge::Renaissance;
+  ardaConfig.targetWorldPopulation = 500'000'000;
+  ardaConfig.targetWorldGdp = 50'000'000'000;
   config.seaLevel = 95;
   config.seaProvFactor *= 0.7;
   config.landProvFactor *= 0.7;
@@ -120,7 +122,7 @@ void Generator::generateRegions(
     for (auto &area : stratRegion.areaIDs) {
       c.setBlue(regions[area]->isSea() ? 255 : 0);
       for (auto &prov : regions[area]->ardaProvinces) {
-        for (auto &pix : prov->baseProvince->pixels) {
+        for (auto &pix : prov->pixels) {
           eu4RegionBmp.setColourAtIndex(pix, c);
         }
       }
@@ -153,8 +155,7 @@ void Generator::generate() {
 
     mapTerrain();
     mapContinents();
-    Arda::Civilization::generateWorldCivilizations(
-        ardaRegions, ardaProvinces, civData, ardaContinents, superRegions);
+    genCivilisationData();
 
     auto countryFactory = []() -> std::shared_ptr<Arda::Country> {
       return std::make_shared<Arda::Country>();
@@ -172,7 +173,7 @@ void Generator::generate() {
   try {
     // generate map files. Format must be converted and colours mapped to eu4
     // compatible colours
-    formatConverter.dump8BitTerrain(terrainData, climateData, civLayer,
+    formatConverter.dump8BitTerrain(terrainData, climateData, ardaData.civLayer,
                                     pathcfg.gameModPath + "//map//terrain.bmp",
                                     "terrain", false);
     formatConverter.dump8BitRivers(terrainData, climateData,
@@ -186,19 +187,22 @@ void Generator::generate() {
                                       "heightmap");
     std::vector<Fwg::Gfx::Bitmap> seasonalColourmaps;
     genSeasons(Cfg::Values(), seasonalColourmaps);
-    formatConverter.dumpTerrainColourmap(seasonalColourmaps[0], civLayer,
+    formatConverter.dumpTerrainColourmap(seasonalColourmaps[0], ardaData.civLayer,
                                          pathcfg.gameModPath,
                                          "//map//terrain//colormap_spring.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
-    formatConverter.dumpTerrainColourmap(seasonalColourmaps[1], civLayer,
+    formatConverter.dumpTerrainColourmap(seasonalColourmaps[1],
+                                         ardaData.civLayer,
                                          pathcfg.gameModPath,
                                          "//map//terrain//colormap_summer.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
-    formatConverter.dumpTerrainColourmap(seasonalColourmaps[2], civLayer,
+    formatConverter.dumpTerrainColourmap(seasonalColourmaps[2],
+                                         ardaData.civLayer,
                                          pathcfg.gameModPath,
                                          "//map//terrain//colormap_autumn.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
-    formatConverter.dumpTerrainColourmap(seasonalColourmaps[3], civLayer,
+    formatConverter.dumpTerrainColourmap(seasonalColourmaps[3],
+                                         ardaData.civLayer,
                                          pathcfg.gameModPath,
                                          "//map//terrain//colormap_winter.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);

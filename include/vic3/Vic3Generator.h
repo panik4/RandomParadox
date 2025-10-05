@@ -297,7 +297,6 @@ public:
                        const boost::property_tree::ptree &rpdConf) override;
   virtual Fwg::Gfx::Bitmap mapTerrain();
   virtual void mapRegions();
-  void distributePops();
   void totalArableLand(const std::vector<float> &arableLand);
   void distributeResources();
   // map scenario countries to vic3 countries

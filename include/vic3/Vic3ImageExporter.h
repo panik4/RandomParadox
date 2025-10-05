@@ -5,6 +5,7 @@
 #include "io/Textures.h"
 #include "rendering/Images.h"
 #include "utils/Cfg.h"
+#include "civilisation/CivilisationLayer.h"
 #include <map>
 namespace Rpx::Gfx::Vic3 {
 class ImageExporter : public Rpx::Gfx::ImageExporter {
@@ -26,21 +27,21 @@ public:
   void Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
                       const Fwg::Gfx::Bitmap &heightMap,
                       Fwg::Climate::ClimateData &climateData,
-                      const Fwg::Civilization::CivilizationLayer &civLayer,
+                      const Arda::Civilization::CivilizationLayer &civLayer,
                       const std::string &path);
 
   void dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
                           const std::string &path);
   void dynamicMasks(const std::string &path,
                     const Fwg::Climate::ClimateData &climateData,
-                    const Fwg::Civilization::CivilizationLayer &civLayer);
+                    const Arda::Civilization::CivilizationLayer &civLayer);
 
   void contentSource(const std::string &path,
                      const Fwg::Climate::ClimateData &climateData,
-                     const Fwg::Civilization::CivilizationLayer &civLayer);
+                     const Arda::Civilization::CivilizationLayer &civLayer);
   void detailMaps(const Fwg::Terrain::TerrainData &terrainData,
                   const Fwg::Climate::ClimateData &climateData,
-                  const Fwg::Civilization::CivilizationLayer &civLayer,
+                  const Arda::Civilization::CivilizationLayer &civLayer,
                   const std::string &path);
 };
 } // namespace Rpx::Gfx::Vic3
