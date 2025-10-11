@@ -84,7 +84,8 @@ void GUI::genericWrapper() {
 }
 
 void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
-  if (!configuredScenarioGen) {
+  if (!configuredScenarioGen || redoDevelopment || redoPopulation ||
+      redoCulture) {
     ImGui::BeginDisabled();
   }
   if (activeGameConfig.gameName == "Hearts of Iron IV") {
@@ -101,7 +102,8 @@ void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
     showNavmeshTab(cfg);
     showVic3Finalise(cfg);
   }
-  if (!configuredScenarioGen) {
+  if (!configuredScenarioGen || redoDevelopment || redoPopulation ||
+      redoCulture) {
     ImGui::EndDisabled();
   }
 }
@@ -215,6 +217,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
                   showModLoader(cfg);
                 }
                 defaultTabs(cfg, *activeGenerator);
+                automapAreas();
                 showCivilizationTab(cfg);
                 gameSpecificTabs(cfg);
                 auto ardaGen =
@@ -850,40 +853,38 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
     ImGui::SeparatorText(
         "This generates strategic regions, they cannot be loaded");
     uiUtils->showHelpTextBox("Strategic Regions");
-    if (generator->ardaRegions.size()) {
-      ImGui::InputFloat("Strategic region factor: ",
-                        &generator->ardaConfig.superRegionFactor, 0.1f);
-      if (ImGui::Button("Generate strategic regions")) {
+
+    ImGui::InputFloat("Strategic region factor: ",
+                      &generator->ardaConfig.superRegionFactor, 0.1f);
+    if (ImGui::Button("Generate strategic regions")) {
+      // non-country stuff
+      computationFutureBool = runAsync([&generator, &cfg, this]() {
         // non-country stuff
-        computationFutureBool = runAsync([&generator, &cfg, this]() {
-          // non-country stuff
-          auto factory = []() -> std::shared_ptr<Rpx::StrategicRegion> {
-            return std::make_shared<Rpx::StrategicRegion>();
-          };
-          generator->generateStrategicRegions(factory);
-          uiUtils->resetTexture();
-          if (activeGameConfig.gameName == "Hearts of Iron IV") {
-            auto hoi4Gen =
-                std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
-                    activeGenerator);
-            hoi4Gen->generateWeather();
-          } else if (activeGameConfig.gameName == "Victoria 3") {
-            auto vic3Gen =
-                std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
-                    activeGenerator);
-            // do stuff
-          }
-          return true;
-        });
-      }
-      ImGui::SameLine();
-      if (ImGui::Button("Visualise current strategic regions")) {
-        Arda::Gfx::visualiseStrategicRegions(generator->superRegionMap,
-                                             generator->superRegions);
+        auto factory = []() -> std::shared_ptr<Rpx::StrategicRegion> {
+          return std::make_shared<Rpx::StrategicRegion>();
+        };
+        generator->generateStrategicRegions(factory);
         uiUtils->resetTexture();
-      }
-      ImGui::Checkbox("Draw strategic regions", &drawBorders);
+        if (activeGameConfig.gameName == "Hearts of Iron IV") {
+          auto hoi4Gen = std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
+              activeGenerator);
+          hoi4Gen->generateWeather();
+        } else if (activeGameConfig.gameName == "Victoria 3") {
+          auto vic3Gen = std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
+              activeGenerator);
+          // do stuff
+        }
+        return true;
+      });
     }
+    ImGui::SameLine();
+    if (ImGui::Button("Visualise current strategic regions")) {
+      Arda::Gfx::visualiseStrategicRegions(generator->superRegionMap,
+                                           generator->superRegions);
+      uiUtils->resetTexture();
+    }
+    ImGui::Checkbox("Draw strategic regions", &drawBorders);
+
     // drag event is ignored here
     if (triggeredDrag) {
       Fwg::Utils::Logging::logLine(

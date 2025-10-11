@@ -302,10 +302,11 @@ void Generator::mapRegions() {
                  const std::shared_ptr<Fwg::Areas::Province> b) {
                 return (*a < *b);
               });
-    auto ardaRegion = std::make_shared<Region>(region);
+    auto ardaRegion = std::dynamic_pointer_cast<Rpx::Vic3::Region>(region);
 
     // generate random name for region
     ardaRegion->name = "";
+    ardaRegion->ardaProvinces.clear();
 
     for (auto &province : ardaRegion->provinces) {
       ardaRegion->ardaProvinces.push_back(ardaProvinces[province->ID]);

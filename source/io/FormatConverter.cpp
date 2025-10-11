@@ -335,15 +335,14 @@ const std::map<std::string, std::map<int, int>> ImageExporter::indexMaps{
 ImageExporter::ImageExporter() {}
 
 ImageExporter::ImageExporter(const std::string &gamePath,
-                                 const std::string &gameTag)
+                             const std::string &gameTag)
     : gamePath{gamePath}, gameTag{gameTag} {}
 
 ImageExporter::~ImageExporter() {}
 
 void ImageExporter::writeBufferPixels(std::vector<unsigned char> &pixels,
-                                        int index,
-                                        const Fwg::Gfx::Colour &colour,
-                                        unsigned char alphaValue) {
+                                      int index, const Fwg::Gfx::Colour &colour,
+                                      unsigned char alphaValue) {
   pixels[index] = colour.getRed();
   pixels[index + 1] = colour.getGreen();
   pixels[index + 2] = colour.getBlue();
@@ -351,7 +350,7 @@ void ImageExporter::writeBufferPixels(std::vector<unsigned char> &pixels,
 }
 
 Bitmap ImageExporter::cutBaseMap(const std::string &path, const double factor,
-                                   const int bit) const {
+                                 const int bit) const {
   auto &conf = Cfg::Values();
   std::string sourceMap{conf.loadMapsPath + path};
   Fwg::Utils::Logging::logLine("CUTTING mode: Cutting Map from ", sourceMap);
@@ -366,8 +365,8 @@ Bitmap ImageExporter::cutBaseMap(const std::string &path, const double factor,
 }
 
 void ImageExporter::dump8BitHeightmap(const std::vector<float> &altitudeData,
-                                        const std::string &path,
-                                        const std::string &colourMapKey) const {
+                                      const std::string &path,
+                                      const std::string &colourMapKey) const {
   Utils::Logging::logLine("ImageExporter::Copying heightmap to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
   auto &conf = Cfg::Values();
@@ -423,16 +422,7 @@ void ImageExporter::dump8BitTerrain(
 
     return;
   }
-  //if (civLayer.urbanisation.size() != conf.bitmapSize ||
-  //    civLayer.agriculture.size() != conf.bitmapSize) {
-  //  Utils::Logging::logLine(
-  //      "ImageExporter::Urbanisation/agriculture size mismatch");
-  //  // print all the sizes
-  //  Utils::Logging::logLine("Urbanisation size: ",
-  //                          civLayer.urbanisation.size());
-  //  Utils::Logging::logLine("Agriculture size: ", civLayer.agriculture.size());
-  //  return;
-  //}
+
   Bitmap hoi4terrain(conf.width, conf.height, 8);
   hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
   // hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
@@ -467,25 +457,26 @@ void ImageExporter::dump8BitTerrain(
             i, hoi4terrain.lookUp(
                    indexMaps.at("tree" + colourMapKey + gameTag).at(treeType)));
       }
-
-      //if (conf.bitmapSize == civLayer.urbanisation.size() &&
-      //    civLayer.urbanisation[i]) {
-      //  // urban texture
-      //  hoi4terrain.setColourAtIndex(i, hoi4terrain.lookUp(13));
-      //} else if (conf.bitmapSize == civLayer.agriculture.size() &&
-      //           civLayer.agriculture[i]) {
-      //  // farm texture
-      //  hoi4terrain.setColourAtIndex(i, hoi4terrain.lookUp(5));
-      //}
+    }
+    auto cityIndices =
+        civLayer.getAll(Arda::Civilization::TopographyType::CITY);
+    for (auto cityIndex : cityIndices) {
+      hoi4terrain.setColourAtIndex(cityIndex, hoi4terrain.lookUp(13));
+    }
+    auto farmIndices =
+        civLayer.getAll(Arda::Civilization::TopographyType::FARMLAND);
+    for (auto farmIndex : farmIndices) {
+      hoi4terrain.setColourAtIndex(farmIndex, hoi4terrain.lookUp(5));
     }
   }
   Bmp::save8bit(hoi4terrain, path);
 }
 
-void ImageExporter::dump8BitRivers(
-    const Fwg::Terrain::TerrainData &terrainData,
-    const Fwg::Climate::ClimateData &climateIn, const std::string &path,
-    const std::string &colourMapKey, const bool cut) const {
+void ImageExporter::dump8BitRivers(const Fwg::Terrain::TerrainData &terrainData,
+                                   const Fwg::Climate::ClimateData &climateIn,
+                                   const std::string &path,
+                                   const std::string &colourMapKey,
+                                   const bool cut) const {
   Utils::Logging::logLine("ImageExporter::Writing rivers to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
 
@@ -523,10 +514,11 @@ void ImageExporter::dump8BitRivers(
   }
 }
 
-void ImageExporter::dump8BitTrees(
-    const Fwg::Terrain::TerrainData &terrainData,
-    const Fwg::Climate::ClimateData &climateIn, const std::string &path,
-    const std::string &colourMapKey, const bool cut) const {
+void ImageExporter::dump8BitTrees(const Fwg::Terrain::TerrainData &terrainData,
+                                  const Fwg::Climate::ClimateData &climateIn,
+                                  const std::string &path,
+                                  const std::string &colourMapKey,
+                                  const bool cut) const {
   auto &conf = Cfg::Values();
   Utils::Logging::logLine("ImageExporter::Writing trees to ",
                           Fwg::Utils::userFilter(path, conf.username));
@@ -584,8 +576,8 @@ void ImageExporter::dump8BitTrees(
 }
 
 void ImageExporter::dumpDDSFiles(const std::vector<float> &heightMap,
-                                   const std::string &path, const bool cut,
-                                   const int maxFactor) const {
+                                 const std::string &path, const bool cut,
+                                 const int maxFactor) const {
   Utils::Logging::logLine("ImageExporter::Writing DDS files");
   using namespace DirectX;
   const auto &width = Cfg::Values().width;
@@ -642,10 +634,10 @@ void ImageExporter::dumpTerrainColourmap(
     Utils::Logging::logLine("ImageExporter::Climate map size mismatch");
     return;
   }
-  //if (civLayer.urbanisation.size() != cfg.bitmapSize) {
-  //  Utils::Logging::logLine("ImageExporter::Urbanisation size mismatch");
-  //  return;
-  //}
+  // if (civLayer.urbanisation.size() != cfg.bitmapSize) {
+  //   Utils::Logging::logLine("ImageExporter::Urbanisation size mismatch");
+  //   return;
+  // }
 
   const auto &height = climateMap.height();
   const auto &width = climateMap.width();
@@ -654,6 +646,8 @@ void ImageExporter::dumpTerrainColourmap(
   auto imageHeight = height / factor;
 
   std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
+  auto cityIndices = civLayer.getAll(Arda::Civilization::TopographyType::CITY);
+
   if (!cut) {
     for (auto h = 0; h < imageHeight; h++) {
       for (auto w = 0; w < imageWidth; w++) {
@@ -667,13 +661,29 @@ void ImageExporter::dumpTerrainColourmap(
         pixels[imageIndex + 2] = c.getRed();
         if (gameTag == "Eu4" || gameTag == "Vic3") {
           pixels[imageIndex + 3] = 255;
-        } else {
-          // alpha for city lights
-          //if (civLayer.urbanisation.size() == cfg.bitmapSize)
-          //  pixels[imageIndex + 3] = civLayer.urbanisation[colourmapIndex];
         }
       }
     }
+    if (gameTag == "Hoi4") // add city lights
+    {
+      for (int cityIndex : cityIndices) {
+        int cityY = cityIndex / width;
+        int cityX = cityIndex % width;
+
+        // Adjust for factor (if climate map < image size)
+        int imageY = cityY / factor;
+        int imageX = cityX / factor;
+
+        // Flip Y if image is stored bottom-up
+        int flippedY = imageHeight - imageY - 1;
+
+        int imageIndex = (flippedY * imageWidth + imageX) * 4;
+
+        // Bright city lights: set alpha based on some heuristic
+        pixels[imageIndex + 3] = 255; // or e.g. 128 for dimmer lights
+      }
+    }
+
   } else {
     // load base game colourmap
     pixels = Arda::Gfx::Textures::readDDS(gamePath + mapName);
@@ -705,8 +715,8 @@ void ImageExporter::dumpTerrainColourmap(
 }
 
 void ImageExporter::dumpWorldNormal(const Bitmap &sobelMap,
-                                      const std::string &path,
-                                      const bool cut) const {
+                                    const std::string &path,
+                                    const bool cut) const {
   Utils::Logging::logLine("ImageExporter::Writing normalMap to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
   int factor = 2; // image width and height are halved
