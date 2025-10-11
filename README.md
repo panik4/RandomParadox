@@ -14,6 +14,17 @@ Please note that this repository depends on the repository ArdaSuite, which cont
 
 It contains a simple GUI built using Dear Imgui (https://github.com/ocornut/imgui)
 
+## Installation
+There is no installer, just releases for windows. Find the latest releases here: https://github.com/panik4/RandomParadox/releases.
+The only requirement is a relatively up-to-date version of the Microsoft Visual Studio Redistributable.
+In case the application doesn't really start at all, please install the latest Visual Studio redistributable version from here:
+	- https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022
+You will likely need this for a system with more than 4GB of memory/RAM:
+	- https://aka.ms/vs/17/release/vc_redist.x64.exe
+
+## Documentation
+Documentation can both be found in the RandomParadox_Documentation.pdf that is part of the release, and integrated into the tool in a help window per tab.
+
 ## Generation of random worlds/steps along the way
 ![worldmap](https://github.com/panik4/RandomParadox/blob/main/images/generated/worldMap.png?raw=true)
 A generated fully random world map.

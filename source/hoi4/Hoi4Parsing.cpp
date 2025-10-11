@@ -1217,21 +1217,24 @@ void portraits(const std::string &path, const CountryMap &countries) {
     if (!country->ownedRegions.size())
       continue;
     auto culture = country->getPrimaryCulture();
+    Arda::VisualType visualType = Arda::VisualType::ASIAN;
+    if (culture)
+      visualType = culture->visualType;
     std::string portraitTemplate;
     std::string scientistTemplate;
-    if (culture->visualType == Arda::VisualType::AFRICAN) {
+    if (visualType == Arda::VisualType::AFRICAN) {
       portraitTemplate = africanTemplate;
       scientistTemplate = africanScientistTemplate;
-    } else if (culture->visualType == Arda::VisualType::ASIAN) {
+    } else if (visualType == Arda::VisualType::ASIAN) {
       portraitTemplate = asianTemplate;
       scientistTemplate = asianScientistTemplate;
-    } else if (culture->visualType == Arda::VisualType::CAUCASIAN) {
+    } else if (visualType == Arda::VisualType::CAUCASIAN) {
       portraitTemplate = caucasianTemplate;
       scientistTemplate = caucasianScientistTemplate;
-    } else if (culture->visualType == Arda::VisualType::ARABIC) {
+    } else if (visualType == Arda::VisualType::ARABIC) {
       portraitTemplate = arabicTemplate;
       scientistTemplate = arabicScientistTemplate;
-    } else if (culture->visualType == Arda::VisualType::SOUTH_AMERICAN) {
+    } else if (visualType == Arda::VisualType::SOUTH_AMERICAN) {
       portraitTemplate = southAmericanTemplate;
       scientistTemplate = southAmericanScientistTemplate;
     }

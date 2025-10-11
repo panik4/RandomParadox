@@ -149,6 +149,8 @@ void Generator::configureModGen(const std::string &configSubFolder,
   ardaConfig.locationConfig.citiesPerRegion = 5;
   ardaConfig.locationConfig.portsPerRegion = 1;
   ardaConfig.locationConfig.agriculturePerRegion = 3;
+  ardaConfig.locationConfig.agricultureFactor = 0.3;
+  ardaConfig.locationConfig.urbanFactor = 2.0;
   this->ardaConfig.generationAge = Arda::Utils::GenerationAge::WorldWar;
   ardaConfig.calculateTargetWorldPopulation();
   ardaConfig.calculateTargetWorldGdp();
@@ -175,7 +177,7 @@ void Generator::mapRegions() {
     // generate random name for region
     ardaRegion->name = "";
     ardaRegion->identifier = "STATE_" + std::to_string(region->ID + 1);
-
+    ardaRegion->ardaProvinces.clear();
     for (auto &province : ardaRegion->provinces) {
       ardaRegion->ardaProvinces.push_back(ardaProvinces[province->ID]);
     }
@@ -521,22 +523,27 @@ void Generator::generateCountrySpecifics() {
     }
     // refresh the provinces
     country->evaluateProvinces();
-    switch (country->getPrimaryCulture()->visualType) {
-    case Arda::VisualType::ASIAN:
+    auto primaryCulture = country->getPrimaryCulture();
+    if (primaryCulture == nullptr) {
       country->gfxCulture = "asian";
-      break;
-    case Arda::VisualType::AFRICAN:
-      country->gfxCulture = "african";
-      break;
-    case Arda::VisualType::ARABIC:
-      country->gfxCulture = "middle_eastern";
-      break;
-    case Arda::VisualType::CAUCASIAN:
-      country->gfxCulture = Fwg::Utils::selectRandom(caucasianGfxCultures);
-      break;
-    case Arda::VisualType::SOUTH_AMERICAN:
-      country->gfxCulture = "southamerican";
-      break;
+    } else {
+      switch (primaryCulture->visualType) {
+      case Arda::VisualType::ASIAN:
+        country->gfxCulture = "asian";
+        break;
+      case Arda::VisualType::AFRICAN:
+        country->gfxCulture = "african";
+        break;
+      case Arda::VisualType::ARABIC:
+        country->gfxCulture = "middle_eastern";
+        break;
+      case Arda::VisualType::CAUCASIAN:
+        country->gfxCulture = Fwg::Utils::selectRandom(caucasianGfxCultures);
+        break;
+      case Arda::VisualType::SOUTH_AMERICAN:
+        country->gfxCulture = "southamerican";
+        break;
+      }
     }
     // select a random country ideology
     double totalPopularity = 0;
@@ -1670,10 +1677,18 @@ void Generator::generateCountryNavies() {
         ShipClass shipClass;
         shipClass.type = shipclassType;
         shipClass.era = shipera;
-        shipClass.name =
-            Fwg::Utils::selectRandom(
-                country->getPrimaryCulture()->language->shipNames) +
-            " Class";
+        auto primaryCulture = country->getPrimaryCulture();
+        if (!primaryCulture) {
+          shipClass.name =
+              std::to_string(country->shipClasses.size()) + " Class";
+          Fwg::Utils::Logging::logLine(
+              "Warning: Country " + country->name +
+              " has no primary culture, cannot generate ship names");
+        } else {
+          shipClass.name =
+              Fwg::Utils::selectRandom(primaryCulture->language->shipNames) +
+              " Class";
+        }
         shipClass.vanillaShipType =
             ShipClassTypeDefinitions[shipclassType] +
             (shipClass.era == TechEra::Interwar ? "_1" : "_2");
@@ -1815,8 +1830,16 @@ void Generator::generateCountryNavies() {
     Fleet fleet;
     fleet.name = country->name + " Fleet";
     for (auto &ship : country->ships) {
-      ship->name = Fwg::Utils::selectRandom(
-          country->getPrimaryCulture()->language->shipNames);
+      auto primaryCulture = country->getPrimaryCulture();
+      if (!primaryCulture) {
+        ship->name = "Unnamed";
+        Fwg::Utils::Logging::logLine(
+            "Warning: Country " + country->name +
+            " has no primary culture, cannot generate ship names");
+      } else {
+        ship->name =
+            Fwg::Utils::selectRandom(primaryCulture->language->shipNames);
+      }
       if (utilisedShipNames.find(ship->name) != utilisedShipNames.end()) {
         utilisedShipNames[ship->name]++;
         ship->name += " " + std::to_string(utilisedShipNames[ship->name]);
@@ -2028,7 +2051,7 @@ void Generator::distributeVictoryPoints() {
 
     if (!country->ownedRegions.size())
       continue;
-    auto language = country->getPrimaryCulture()->language;
+    auto primaryCulture = country->getPrimaryCulture();
     for (auto &region : country->hoi4Regions) {
       if (!region->isLand())
         continue;
@@ -2066,7 +2089,12 @@ void Generator::distributeVictoryPoints() {
                                return l->importance < r->importance;
                              });
         vp.position = (*mostImportantLocation)->position;
-        vp.name = Fwg::Utils::selectRandom(language->cityNames);
+        if (primaryCulture != nullptr) {
+          vp.name =
+              Fwg::Utils::selectRandom(primaryCulture->language->cityNames);
+        } else {
+          vp.name = "Unnamed";
+        }
         if ((int)vps > 0) {
           region->victoryPointsMap[province.first] =
               std::make_shared<Arda::VictoryPoint>(vp);
@@ -2164,6 +2192,7 @@ void Generator::generateCharacters() {
   std::vector<std::string> theoristTraits = {
       "military_theorist", "naval_theorist", "air_warfare_theorist"};
 
+  Fwg::Utils::Logging::logLine("Hoi4:: Generating characters");
   for (auto &country : modData.hoi4Countries) {
     if (!country->ownedRegions.size())
       continue;
@@ -2182,10 +2211,21 @@ void Generator::generateCharacters() {
         Arda::Character character;
         character.gender = Arda::Gender::Male;
         do {
-          character.name = Fwg::Utils::selectRandom(
-              country->getPrimaryCulture()->language->maleNames);
-          character.surname = Fwg::Utils::selectRandom(
-              country->getPrimaryCulture()->language->surnames);
+          auto primaryCulture = country->getPrimaryCulture();
+          if (!primaryCulture) {
+            Fwg::Utils::Logging::logLine(
+                "Warning: Country " + country->name +
+                " has no primary culture, cannot generate character names");
+            character.name = "John";
+            character.surname =
+                "Doe " + std::to_string(country->characters.size());
+          } else {
+            character.name =
+                Fwg::Utils::selectRandom(primaryCulture->language->maleNames);
+            character.surname =
+                Fwg::Utils::selectRandom(primaryCulture->language->surnames);
+          }
+
         } while (usedNames.find(character.name + " " + character.surname) !=
                  usedNames.end());
 
@@ -2241,10 +2281,20 @@ void Generator::generateCharacters() {
       Arda::Character theorist;
       theorist.gender = Arda::Gender::Male;
       do {
-        theorist.name = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->maleNames);
-        theorist.surname = Fwg::Utils::selectRandom(
-            country->getPrimaryCulture()->language->surnames);
+        auto primaryCulture = country->getPrimaryCulture();
+        if (!primaryCulture) {
+          Fwg::Utils::Logging::logLine(
+              "Warning: Country " + country->name +
+              " has no primary culture, cannot generate theorist names");
+          theorist.name = "John";
+          theorist.surname =
+              "Doe " + std::to_string(country->characters.size());
+        } else {
+          theorist.name =
+              Fwg::Utils::selectRandom(primaryCulture->language->maleNames);
+          theorist.surname =
+              Fwg::Utils::selectRandom(primaryCulture->language->surnames);
+        }
       } while (usedNames.find(theorist.name + " " + theorist.surname) !=
                usedNames.end());
 
@@ -2510,7 +2560,7 @@ void Generator::readHoi(std::string &path) {
   for (auto &prov : areaData.provinces) {
     if (prov->continentID != -1) {
       if (continents.find(prov->continentID) == continents.end()) {
-        Areas::Continent continent("", prov->continentID);
+        Areas::Continent continent(prov->continentID);
         continents.insert({prov->continentID, continent});
       } else {
         continents.at(prov->continentID).provinces.push_back(prov);
