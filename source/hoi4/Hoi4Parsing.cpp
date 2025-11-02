@@ -57,11 +57,10 @@ void buildings(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void continents(const std::string &path,
-                const std::vector < std::shared_ptr<Arda::ArdaContinent>> &
-                    continents,
-                const std::string &hoiPath,
-                const std::string &localisationPath) {
+void continents(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaContinent>> &continents,
+    const std::string &hoiPath, const std::string &localisationPath) {
   Logging::logLine("HOI4 Parser: Map: Writing Continents");
   // copy continents file from cfg::Values().resourcePath + "/hoi4//map// to
   // path//map//
@@ -132,8 +131,7 @@ void definition(
         seaType,
         coastal,
         terraintype,
-        std::to_string(prov->isSea() ||
-                               prov->isLake()
+        std::to_string(prov->isSea() || prov->isLake()
                            ? 0
                            : prov->continentID +
                                  1) // 0 is for sea, no continent
@@ -163,10 +161,10 @@ void unitStacks(
           std::to_string(prov->ID + 1), // province ID
           std::to_string(position.typeIndex),
           std::to_string(position.position.widthCenter),
-          std::to_string(
-              9.5 + std::max<float>(
-                        0.0f, position.position.altitude * 0.1f *
-                                  static_cast<float>(255 - cfg.seaLevel))),
+          std::to_string(9.5 +
+                         std::max<float>(
+                             0.0f, position.position.altitude * 0.1f *
+                                       static_cast<float>(255 - cfg.seaLevel))),
           std::to_string(position.position.heightCenter),
           std::to_string(1.57 + position.position.rotation),
           std::to_string(0.01f + RandNum::getRandom<float>(0.0f, 0.5f))};
@@ -538,8 +536,9 @@ void flags(const std::string &path, const CountryMap &countries) {
   }
 }
 
-void historyCountries(const std::string &path, const CountryMap &countries,
-                      const std::string &gamePath,
+void historyCountries(
+    const std::string &path, const CountryMap &countries,
+    const std::string &gamePath,
     const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions) {
   Logging::logLine("HOI4 Parser: History: Writing Country History");
   Fwg::IO::Utils::clearFilesOfType(path, ".txt");
@@ -1129,7 +1128,7 @@ void states(const std::string &path,
     }
     Rpx::Parsing::replaceOccurences(
         content, "templateInfrastructure",
-        std::to_string(std::clamp(region->infrastructure, 1, 5)));
+        std::to_string(std::clamp(region->infrastructure, 0, 5)));
     Rpx::Parsing::replaceOccurences(
         content, "templateCivilianFactory",
         std::to_string((int)region->civilianFactories));
@@ -1142,6 +1141,9 @@ void states(const std::string &path,
     Rpx::Parsing::replaceOccurences(
         content, "templateStateCategory",
         stateCategories[(int)region->stateCategory]);
+    if (region->stateCategory == 0) {
+      Rpx::Parsing::replaceOccurences(content, "#impassable", "impassable");
+    }
     std::string navalBaseContent = "";
     for (auto &[provID, navalBase] : region->navalBases) {
       navalBaseContent +=
@@ -1252,9 +1254,9 @@ void portraits(const std::string &path, const CountryMap &countries) {
 }
 
 } // namespace Countries
-void aiStrategy(const std::string &path,
-                const std::vector < std::shared_ptr<Arda::ArdaContinent>> &
-                    continents) {
+void aiStrategy(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaContinent>> &continents) {
   // copy folders ai_areas and ai_strategy from cfg::Values().resourcePath +
   // "/hoi4//common// to path//common//
   Logging::logLine("HOI4 Parser: Map: Writing AI Strategies");
@@ -1423,7 +1425,8 @@ void tutorials(const std::string &path) {
   pU::writeFile(path, "tutorial = { }");
 }
 
-void compatibilityHistory(const std::string &path, const std::string &hoiPath,
+void compatibilityHistory(
+    const std::string &path, const std::string &hoiPath,
     const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions) {
   Logging::logLine("HOI4 Parser: History: Writing Compatibility Files");
   const std::filesystem::path hoiDir{hoiPath + "//history//countries//"};
@@ -1481,8 +1484,8 @@ void compatibilityHistory(const std::string &path, const std::string &hoiPath,
         }
       }
     }
-    // now find the token "1939.1.1" and remove every bracket block that starts with it
-
+    // now find the token "1939.1.1" and remove every bracket block that starts
+    // with it
 
     pU::writeFile(path + filename, content);
   }
@@ -1547,8 +1550,9 @@ void strategicRegionNames(
   Logging::logLine("HOI4 Parser: Map: Naming the Regions");
   std::string content = "l_english:\n";
   for (auto i = 0; i < strategicRegions.size(); i++) {
-    content += Fwg::Utils::varsToString(" STRATEGICREGION_", i, ":0 \"",
-                                         Arda::Language::capitalisedWord(strategicRegions[i]->name), "\"\n");
+    content += Fwg::Utils::varsToString(
+        " STRATEGICREGION_", i, ":0 \"",
+        Arda::Language::capitalisedWord(strategicRegions[i]->name), "\"\n");
   }
   pU::writeFile(path + "//strategic_region_names_l_english.yml", content, true);
 }
@@ -1636,25 +1640,25 @@ Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
 // read them in from path, map province IDs against states
 void readStates(const std::string &path, Fwg::Areas::AreaData &areaData) {
   using namespace Rpx::Parsing;
-  //auto states = pU::readFilesInDirectory(path + "/history/states");
+  // auto states = pU::readFilesInDirectory(path + "/history/states");
 
-  //Fwg::Utils::ColourTMap<Fwg::Areas::Region> stateColours;
-  //hoi4Gen->ardaRegions.clear();
-  //hoi4Gen->countries.clear();
-  //stateColours.clear();
+  // Fwg::Utils::ColourTMap<Fwg::Areas::Region> stateColours;
+  // hoi4Gen->ardaRegions.clear();
+  // hoi4Gen->countries.clear();
+  // stateColours.clear();
 
-  //for (auto &state : states) {
-  //  Fwg::Areas::Region reg;
-  //  auto tag = pU::getValue(state, "owner");
-  //  reg.ID = std::stoi(pU::getValue(state, "id")) - 1;
-  //  removeCharacter(tag, ' ');
-  //  // reg->owner = tag;
-  //  auto readIDs = getNumberBlockMultiDelim(state, "provinces");
-  //  for (auto id : readIDs) {
-  //    // reg->ardaProvinces.push_back(hoi4Gen.ardaProvinces[id - 1]);
-  //    reg.provinces.push_back(hoi4Gen->ardaProvinces[id - 1]);
-  //    // hoi4Gen.ardaProvinces[id - 1]->regionID = reg.ID;
-  //  }
+  // for (auto &state : states) {
+  //   Fwg::Areas::Region reg;
+  //   auto tag = pU::getValue(state, "owner");
+  //   reg.ID = std::stoi(pU::getValue(state, "id")) - 1;
+  //   removeCharacter(tag, ' ');
+  //   // reg->owner = tag;
+  //   auto readIDs = getNumberBlockMultiDelim(state, "provinces");
+  //   for (auto id : readIDs) {
+  //     // reg->ardaProvinces.push_back(hoi4Gen.ardaProvinces[id - 1]);
+  //     reg.provinces.push_back(hoi4Gen->ardaProvinces[id - 1]);
+  //     // hoi4Gen.ardaProvinces[id - 1]->regionID = reg.ID;
+  //   }
 
   //  Fwg::Gfx::Colour colour;
   //  // pick a random, but unique colour
@@ -1667,25 +1671,27 @@ void readStates(const std::string &path, Fwg::Areas::AreaData &areaData) {
   //  hoi4Gen->areaData.regions.push_back(reg);
   //}
 
-  //std::sort(hoi4Gen->areaData.regions.begin(), hoi4Gen->areaData.regions.end(),
-  //          [](auto l, auto r) { return l < r; });
-  //Fwg::Gfx::regionMap(hoi4Gen->areaData.regions, hoi4Gen->areaData.provinces,
-  //                    hoi4Gen->regionMap);
-  // for (auto &region : hoi4Gen.ardaRegions) {
-  //   if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end())
-  //   {
-  //     hoi4Gen.countries.at(region->owner)->ownedRegions.push_back(region);
-  //   } else {
-  //     Country c;
-  //     c.tag = region->owner;
-  //     c.ownedRegions.push_back(region);
-  //     hoi4Gen.countries.insert({c.tag, std::make_shared<Country>(c)});
-  //   }
-  // }
-  // Fwg::Gfx::Bitmap regionMap(5632, 2048, 24);
+  // std::sort(hoi4Gen->areaData.regions.begin(),
+  // hoi4Gen->areaData.regions.end(),
+  //           [](auto l, auto r) { return l < r; });
   // Fwg::Gfx::regionMap(hoi4Gen->areaData.regions, hoi4Gen->areaData.provinces,
-  //                    regionMap);
-  // Fwg::Gfx::Bmp::save(regionMap, path + "/map/regions.bmp");
+  //                     hoi4Gen->regionMap);
+  //  for (auto &region : hoi4Gen.ardaRegions) {
+  //    if (hoi4Gen.countries.find(region->owner) != hoi4Gen.countries.end())
+  //    {
+  //      hoi4Gen.countries.at(region->owner)->ownedRegions.push_back(region);
+  //    } else {
+  //      Country c;
+  //      c.tag = region->owner;
+  //      c.ownedRegions.push_back(region);
+  //      hoi4Gen.countries.insert({c.tag, std::make_shared<Country>(c)});
+  //    }
+  //  }
+  //  Fwg::Gfx::Bitmap regionMap(5632, 2048, 24);
+  //  Fwg::Gfx::regionMap(hoi4Gen->areaData.regions,
+  //  hoi4Gen->areaData.provinces,
+  //                     regionMap);
+  //  Fwg::Gfx::Bmp::save(regionMap, path + "/map/regions.bmp");
 }
 // get the bmp file info and extract the respective IDs from definition.csv
 std::vector<Fwg::Areas::Province> readProvinceMap(const std::string &path) {
@@ -1811,7 +1817,7 @@ void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
   }
   // call it with special idsort bool to make sure we sort by ID only this
   // time
-  //Fwg::Areas::Provinces::loadProvinces(
+  // Fwg::Areas::Provinces::loadProvinces(
   //    terrainData, climateData, provMap, areaData.provinces,
   //    areaData.provinceColourMap, areaData.segments, areaData.landBodies, );
 }
@@ -1862,6 +1868,5 @@ void readWeatherPositions(const std::string &path,
   }
 }
 } // namespace Reading
-
 
 } // namespace Rpx::Hoi4::Parsing

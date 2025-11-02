@@ -468,6 +468,11 @@ void ImageExporter::dump8BitTerrain(
     for (auto farmIndex : farmIndices) {
       hoi4terrain.setColourAtIndex(farmIndex, hoi4terrain.lookUp(5));
     }
+    auto marshIndices =
+        civLayer.getAll(Arda::Civilization::TopographyType::MARSH);
+    for (auto marshIndex : marshIndices) {
+      hoi4terrain.setColourAtIndex(marshIndex, hoi4terrain.lookUp(9));
+    }
   }
   Bmp::save8bit(hoi4terrain, path);
 }

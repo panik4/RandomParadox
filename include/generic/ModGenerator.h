@@ -25,9 +25,6 @@ public:
                                const std::string &username,
                                const boost::property_tree::ptree &rpdConf) = 0;
 
-  // mapping terrain types of FastWorldGen to module
-  // compatible terrains
-  virtual Fwg::Gfx::Bitmap mapTerrain() = 0;
   // initialize countries
   virtual void mapCountries();
 

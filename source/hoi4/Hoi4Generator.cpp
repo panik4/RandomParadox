@@ -174,18 +174,40 @@ void Generator::mapRegions() {
                 return (*a < *b);
               });
     auto ardaRegion = std::dynamic_pointer_cast<Rpx::Hoi4::Region>(region);
+    assert(dynamic_cast<Rpx::Hoi4::Region *>(ardaRegion.get()) != nullptr);
+    if (!ardaRegion) {
+      Fwg::Utils::Logging::logLine("SEVERE: Bad cast for region ID=",
+                                   region->ID);
+      continue;
+    }
+    if (ardaRegion->neighbours.size() == 0)
+      continue;
     // generate random name for region
     ardaRegion->name = "";
     ardaRegion->identifier = "STATE_" + std::to_string(region->ID + 1);
     ardaRegion->ardaProvinces.clear();
     for (auto &province : ardaRegion->provinces) {
-      ardaRegion->ardaProvinces.push_back(ardaProvinces[province->ID]);
+      if (province->ID >= 0 && province->ID < ardaProvinces.size() &&
+          ardaProvinces[province->ID])
+        ardaRegion->ardaProvinces.push_back(ardaProvinces[province->ID]);
+      else {
+        Fwg::Utils::Logging::logLine("Invalid province ID ", province->ID,
+                                     " in region ID ", ardaRegion->ID);
+      }
     }
     // save game region to generic module container and to hoi4 specific
     // container
     ardaRegions.push_back(ardaRegion);
     modData.hoi4States.push_back(ardaRegion);
   }
+
+  for (size_t i = 0; i < ardaRegions.size(); ++i) {
+    if (!ardaRegions[i]) {
+      Fwg::Utils::Logging::logLine("SEVERE: ardaRegions[", i, "] is null!");
+      continue;
+    }
+  }
+
   // sort by Arda::ArdaProvince ID
   // std::sort(ardaRegions.begin(), ardaRegions.end(),
   //          [](auto l, auto r) { return *l < *r; });
@@ -203,10 +225,11 @@ void Generator::mapRegions() {
 }
 
 Fwg::Gfx::Bitmap Generator::mapTerrain() {
-  Bitmap typeMap(climateMap.width(), climateMap.height(), 24);
+  Bitmap typeMap = ArdaGen::mapTerrain();
   auto &colours = Fwg::Cfg::Values().colours;
   auto &climateColours = Fwg::Cfg::Values().climateColours;
   auto &elevationColours = Fwg::Cfg::Values().elevationColours;
+  auto &topographyOverlayColours = Fwg::Cfg::Values().topographyOverlayColours;
   typeMap.fill(colours.at("sea"));
   Fwg::Utils::Logging::logLine("Mapping Terrain");
   const auto &landForms = terrainData.landForms;
@@ -238,6 +261,11 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
             forestPixels++;
           }
         }
+        int marshPixels = this->ardaData.civLayer.countOfTypeInRange(
+            baseProv->pixels, Arda::Civilization::TopographyType::MARSH);
+        int cityPixels = this->ardaData.civLayer.countOfTypeInRange(
+            baseProv->pixels, Arda::Civilization::TopographyType::CITY);
+
         auto dominantClimate =
             std::max_element(climateScores.begin(), climateScores.end(),
                              [](const auto &l, const auto &r) {
@@ -252,9 +280,16 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
                 ->first;
         // now first check the terrains, if e.g. mountains or peaks are too
         // dominant, this is a mountainous province
-        if (dominantTerrain == Fwg::Terrain::ElevationTypeIndex::MOUNTAINS ||
-            dominantTerrain == Fwg::Terrain::ElevationTypeIndex::PEAKS ||
-            dominantTerrain == Fwg::Terrain::ElevationTypeIndex::STEEPPEAKS) {
+        if (cityPixels > baseProv->pixels.size() / 4) {
+          gameProv->terrainType = "urban";
+          for (auto &pix : baseProv->pixels) {
+            typeMap.setColourAtIndex(pix, topographyOverlayColours.at("urban"));
+          }
+        } else if (dominantTerrain ==
+                       Fwg::Terrain::ElevationTypeIndex::MOUNTAINS ||
+                   dominantTerrain == Fwg::Terrain::ElevationTypeIndex::PEAKS ||
+                   dominantTerrain ==
+                       Fwg::Terrain::ElevationTypeIndex::STEEPPEAKS) {
           gameProv->terrainType = "mountain";
           for (auto &pix : baseProv->pixels) {
             typeMap.setColourAtIndex(pix, elevationColours.at("mountains"));
@@ -263,6 +298,11 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
           gameProv->terrainType = "hills";
           for (auto &pix : baseProv->pixels) {
             typeMap.setColourAtIndex(pix, elevationColours.at("hills"));
+          }
+        } else if (marshPixels > baseProv->pixels.size() / 2) {
+          gameProv->terrainType = "marsh";
+          for (auto &pix : baseProv->pixels) {
+            typeMap.setColourAtIndex(pix, topographyOverlayColours.at("marsh"));
           }
         } else if ((double)forestPixels / baseProv->pixels.size() > 0.5) {
           gameProv->terrainType = "forest";
@@ -295,7 +335,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
       }
     }
   }
-  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "Maps/typeMap.png");
+  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "typeMap.png");
   generateUrbanisation();
   return typeMap;
 }
@@ -428,72 +468,79 @@ void Generator::generateStateSpecifics() {
     // skip sea and lake states
     if (!hoi4State->isLand())
       continue;
+    if (hoi4State->topographyTypes.count(
+            Arda::Civilization::TopographyType::WASTELAND)) {
+      hoi4State->stateCategory = 0; // wasteland
+      hoi4State->infrastructure = 0;
+    } else {
 
-    double ratio =
-        hoi4State->worldEconomicActivityShare / averageEconomicActivity;
-    double biased =
-        std::pow(ratio, 0.6); // 0.6 flattens large values more than small ones
-    hoi4State->stateCategory = std::clamp((int)(1.0 + 4.0 * biased), 0, 9);
+      double ratio =
+          hoi4State->worldEconomicActivityShare / averageEconomicActivity;
+      double biased = std::pow(
+          ratio, 0.6); // 0.6 flattens large values more than small ones
+      hoi4State->stateCategory = std::clamp((int)(1.0 + 4.0 * biased), 0, 9);
 
-    hoi4State->infrastructure =
-        std::clamp((int)(1.0 +
-                         (hoi4State->worldEconomicActivityShare /
-                          averageEconomicActivity) *
-                             0.5 +
-                         3.0 * hoi4State->averageDevelopment),
-                   1, 5);
-    // one province state? Must be an island state
-    if (hoi4State->ardaProvinces.size() == 1) {
-      // if only one province, should be an island. Make it an island state,
-      // if it isn't more developed
-      hoi4State->stateCategory = std::max<int>(1, hoi4State->stateCategory);
-    }
+      hoi4State->infrastructure =
+          std::clamp((int)(1.0 +
+                           (hoi4State->worldEconomicActivityShare /
+                            averageEconomicActivity) *
+                               0.5 +
+                           3.0 * hoi4State->averageDevelopment),
+                     1, 5);
 
-    // create naval bases for all port locations
-    for (auto &location : hoi4State->locations) {
-      if (location->type == Fwg::Civilization::LocationType::Port ||
-          location->secondaryType == Fwg::Civilization::LocationType::Port) {
-        hoi4State->navalBases[location->provinceID] =
-            std::max<double>(location->importance / maxImportance, 1.0);
-        Fwg::Utils::Logging::logLineLevel(
-            8, "Naval base in ", hoi4State->name, " at ", location->provinceID,
-            " with importance ", location->importance);
-      }
-    }
-    double dockChance = 0.25;
-    double civChance = 0.5;
-    // distribute it to military, civilian and naval factories
-    if (!hoi4State->coastal) {
-      dockChance = 0.0;
-      civChance = 0.6;
-    }
-
-    // calculate total industry in this state
-    if (targetWorldIndustry != 0) {
-      auto stateIndustry = std::min<double>(
-          hoi4State->worldEconomicActivityShare * targetWorldIndustry, 12.0);
-      // if we're below one, randomize if this state gets a actory or not
-      if (stateIndustry < 1.0) {
-        stateIndustry =
-            RandNum::getRandom(0.0, 1.0) < stateIndustry ? 1.0 : 0.0;
+      // one province state? Must be an island state
+      if (hoi4State->ardaProvinces.size() == 1) {
+        // if only one province, should be an island. Make it an island state,
+        // if it isn't more developed
+        hoi4State->stateCategory = std::max<int>(1, hoi4State->stateCategory);
       }
 
-      while (--stateIndustry >= 0) {
-        auto choice = RandNum::getRandom(0.0, 1.0);
-        if (choice < dockChance) {
-          hoi4State->dockyards++;
-        } else if (Fwg::Utils::inRange(dockChance, dockChance + civChance,
-                                       choice)) {
-          hoi4State->civilianFactories++;
-
-        } else {
-          hoi4State->armsFactories++;
+      // create naval bases for all port locations
+      for (auto &location : hoi4State->locations) {
+        if (location->type == Fwg::Civilization::LocationType::Port ||
+            location->secondaryType == Fwg::Civilization::LocationType::Port) {
+          hoi4State->navalBases[location->provinceID] =
+              std::max<double>(location->importance / maxImportance, 1.0);
+          Fwg::Utils::Logging::logLineLevel(
+              8, "Naval base in ", hoi4State->name, " at ",
+              location->provinceID, " with importance ", location->importance);
         }
       }
+      double dockChance = 0.25;
+      double civChance = 0.5;
+      // distribute it to military, civilian and naval factories
+      if (!hoi4State->coastal) {
+        dockChance = 0.0;
+        civChance = 0.6;
+      }
+
+      // calculate total industry in this state
+      if (targetWorldIndustry != 0) {
+        auto stateIndustry = std::min<double>(
+            hoi4State->worldEconomicActivityShare * targetWorldIndustry, 12.0);
+        // if we're below one, randomize if this state gets a actory or not
+        if (stateIndustry < 1.0) {
+          stateIndustry =
+              RandNum::getRandom(0.0, 1.0) < stateIndustry ? 1.0 : 0.0;
+        }
+
+        while (--stateIndustry >= 0) {
+          auto choice = RandNum::getRandom(0.0, 1.0);
+          if (choice < dockChance) {
+            hoi4State->dockyards++;
+          } else if (Fwg::Utils::inRange(dockChance, dockChance + civChance,
+                                         choice)) {
+            hoi4State->civilianFactories++;
+
+          } else {
+            hoi4State->armsFactories++;
+          }
+        }
+      }
+      stats.militaryIndustry += (int)hoi4State->armsFactories;
+      stats.civilianIndustry += (int)hoi4State->civilianFactories;
+      stats.navalIndustry += (int)hoi4State->dockyards;
     }
-    stats.militaryIndustry += (int)hoi4State->armsFactories;
-    stats.civilianIndustry += (int)hoi4State->civilianFactories;
-    stats.navalIndustry += (int)hoi4State->dockyards;
     // get potential building positions
     hoi4State->calculateBuildingPositions(this->terrainData.detailedHeightMap,
                                           typeMap);
