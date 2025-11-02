@@ -5,6 +5,7 @@ state={
 	manpower = templatePopulation
 	
 	state_category = templateStateCategory
+	#impassable = yes
 	resources={
 		aluminium=templatealuminium
 		chromium=templatechromium

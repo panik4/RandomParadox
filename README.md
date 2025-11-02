@@ -15,12 +15,19 @@ Please note that this repository depends on the repository ArdaSuite, which cont
 It contains a simple GUI built using Dear Imgui (https://github.com/ocornut/imgui)
 
 ## Installation
-There is no installer, just releases for windows. Find the latest releases here: https://github.com/panik4/RandomParadox/releases.
-The only requirement is a relatively up-to-date version of the Microsoft Visual Studio Redistributable.
+There is no installer, just releases for windows. Find the latest releases here: https://github.com/panik4/RandomParadox/releases. Please make sure you download the "RandomParadox0.x.y-windows.zip", NOT the "Source Code.zip".
+
+The only requirement for running this program is a relatively up-to-date version of the Microsoft Visual Studio Redistributable. 
+
+
 In case the application doesn't really start at all, please install the latest Visual Studio redistributable version from here:
 	- https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022
+	
 You will likely need this for a system with more than 4GB of memory/RAM:
+
 	- https://aka.ms/vs/17/release/vc_redist.x64.exe
+
+For systems with 8GB Memory or less, make sure you close other applications to free up RAM. For Hearts of Iron IV, memory required is roughly ~3.5GB at peak. For Victoria 3, requirements are even higher.
 
 ## Documentation
 Documentation can both be found in the RandomParadox_Documentation.pdf that is part of the release, and integrated into the tool in a help window per tab.

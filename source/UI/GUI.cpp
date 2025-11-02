@@ -85,7 +85,8 @@ void GUI::genericWrapper() {
 
 void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
   if (!configuredScenarioGen || redoDevelopment || redoPopulation ||
-      redoCulture) {
+      redoTopography ||
+      redoCulture || redoLocations) {
     ImGui::BeginDisabled();
   }
   if (activeGameConfig.gameName == "Hearts of Iron IV") {
@@ -103,7 +104,7 @@ void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
     showVic3Finalise(cfg);
   }
   if (!configuredScenarioGen || redoDevelopment || redoPopulation ||
-      redoCulture) {
+      redoTopography || redoCulture || redoLocations) {
     ImGui::EndDisabled();
   }
 }
