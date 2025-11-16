@@ -85,8 +85,7 @@ void GUI::genericWrapper() {
 
 void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
   if (!configuredScenarioGen || redoDevelopment || redoPopulation ||
-      redoTopography ||
-      redoCulture || redoLocations) {
+      redoTopography || redoCulture || redoLocations) {
     ImGui::BeginDisabled();
   }
   if (activeGameConfig.gameName == "Hearts of Iron IV") {
@@ -102,6 +101,10 @@ void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
     showCountryTab(cfg);
     showNavmeshTab(cfg);
     showVic3Finalise(cfg);
+  } else if (activeGameConfig.gameName == "Europa Universalis V") {
+    auto eu5Gen =
+        std::reinterpret_pointer_cast<Rpx::Eu5::Generator, Rpx::ModGenerator>(
+            activeGenerator);
   }
   if (!configuredScenarioGen || redoDevelopment || redoPopulation ||
       redoTopography || redoCulture || redoLocations) {
@@ -122,7 +125,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
 
     ::RegisterClassExW(&wc);
     HWND hwnd = uiUtils->createAndConfigureWindow(wc, wc.lpszClassName,
-                                                  L"RandomParadox 0.9.2");
+                                                  L"RandomParadox 0.9.3");
     initializeGraphics(hwnd);
     initializeImGui(hwnd);
     auto &io = ImGui::GetIO();
@@ -324,6 +327,7 @@ void GUI::initGameConfigs() {
   gameConfigs.push_back({"Hearts of Iron IV", "hoi4"});
   gameConfigs.push_back({"Victoria 3", "vic3"});
   gameConfigs.push_back({"Europa Universalis IV", "eu4"});
+  // gameConfigs.push_back({"Europa Universalis V", "eu5"});
   activeGameConfig = gameConfigs[0];
 }
 
@@ -402,6 +406,9 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
       } else if (gameConfigs[selectedGame].gameName == "Victoria 3") {
         activeGenerator = std::make_shared<Rpx::Vic3::Generator>(
             Rpx::Vic3::Generator(configSubFolder, rpdConf));
+      } else if (gameConfigs[selectedGame].gameName == "Europa Universalis V") {
+        activeGenerator = std::make_shared<Rpx::Eu5::Generator>(
+            Rpx::Eu5::Generator(configSubFolder, rpdConf));
       }
       activeGameConfig = gameConfigs[selectedGame];
       Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,

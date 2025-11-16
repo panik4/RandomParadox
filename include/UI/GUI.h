@@ -2,6 +2,7 @@
 #include "ArdaUI/ArdaUI.h"
 #include "FastWorldGenerator.h"
 #include "eu4/Eu4Generator.h"
+#include "eu5/Eu5Generator.h"
 #include "hoi4/Hoi4Generator.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "utils/RpxUtils.h"

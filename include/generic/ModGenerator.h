@@ -12,7 +12,8 @@ class ModGenerator : public Arda::ArdaGen {
 public:
   // vars - used for every game
   GameType gameType = GameType::Generic;
-
+  int exportWidth = 16384;
+  int exportHeight = 8192;
   Utils::Pathcfg pathcfg;
   // constructors&destructor
   ModGenerator(const std::string &configSubFolder, const GameType &gameType,
