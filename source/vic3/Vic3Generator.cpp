@@ -128,6 +128,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
   config.autoSeaRegionParams = false;
   config.forceResolutionBase = false;
   config.autoSplitProvinces = false;
+  config.maxImageArea = 8192 * 3616;
   config.resolutionBase = 1;
   // allow massive images for Vic3
   config.targetMaxImageSize = 160'000'000;

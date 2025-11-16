@@ -143,14 +143,15 @@ void Generator::configureModGen(const std::string &configSubFolder,
     config.targetSeaRegionAmount = 160;
   config.forceResolutionBase = true;
   config.resolutionBase = 256;
+  config.maxImageArea = 5632 * 2304;
   config.autoSplitProvinces = false;
   ardaConfig.locationConfig.miningPerRegion = 0;
   ardaConfig.locationConfig.forestryPerRegion = 0;
-  ardaConfig.locationConfig.citiesPerRegion = 5;
+  ardaConfig.locationConfig.citiesPerRegion = 2;
   ardaConfig.locationConfig.portsPerRegion = 1;
   ardaConfig.locationConfig.agriculturePerRegion = 3;
-  ardaConfig.locationConfig.agricultureFactor = 0.3;
-  ardaConfig.locationConfig.urbanFactor = 2.0;
+  ardaConfig.locationConfig.agricultureFactor = 0.9;
+  ardaConfig.locationConfig.urbanFactor = 5.0;
   this->ardaConfig.generationAge = Arda::Utils::GenerationAge::WorldWar;
   ardaConfig.calculateTargetWorldPopulation();
   ardaConfig.calculateTargetWorldGdp();
@@ -1666,31 +1667,46 @@ void Generator::generateCountryUnits() {
     // the totalArmyStrength, and then we generate the divisions until their
     // cost reaches the typeshare
     if (country->ownedRegions.size()) {
+
+      // lets gather eligible provinces for division placement
+      std::vector<std::shared_ptr<Arda::ArdaProvince>> eligibleProvinces;
+      for (auto &region : country->hoi4Regions) {
+        if (region->isLand() &&
+            !region->topographyTypes.count(
+                Arda::Civilization::TopographyType::WASTELAND)) {
+          for (auto &province : region->ardaProvinces) {
+            eligibleProvinces.push_back(province);
+          }
+        }
+      }
+
       for (auto &divisionTemplate : country->divisionTemplates) {
         auto divisionMaxCost =
             divisionTemplate.armyShare * country->totalArmyStrength;
         int count = 1;
         while ((divisionMaxCost -= divisionTemplate.cost) > 0) {
-          Division division;
-          division.divisionTemplate = divisionTemplate;
-          division.name = std::to_string(count++);
-          if (count % 10 == 1)
-            division.name += "st";
-          else if (count % 10 == 2)
-            division.name += "nd";
-          else if (count % 10 == 3)
-            division.name += "rd";
-          else
-            division.name += "th";
-          division.location = Fwg::Utils::selectRandom(country->ownedProvinces);
-          division.name += " '" + division.location->name + "' " +
-                           division.divisionTemplate.name;
-          division.startingEquipmentFactor =
-              std::min<double>(0.7 + country->averageDevelopment * 0.3 +
-                                   RandNum::getRandom(0.0, 0.2),
-                               1.0);
-          division.startingExperienceFactor = RandNum::getRandom(0.0, 1.0);
-          country->divisions.push_back(division);
+          if (eligibleProvinces.size()) {
+            Division division;
+            division.divisionTemplate = divisionTemplate;
+            division.name = std::to_string(count++);
+            if (count % 10 == 1)
+              division.name += "st";
+            else if (count % 10 == 2)
+              division.name += "nd";
+            else if (count % 10 == 3)
+              division.name += "rd";
+            else
+              division.name += "th";
+            division.location = Fwg::Utils::selectRandom(eligibleProvinces);
+            division.name += " '" + division.location->name + "' " +
+                             division.divisionTemplate.name;
+            division.startingEquipmentFactor =
+                std::min<double>(0.7 + country->averageDevelopment * 0.3 +
+                                     RandNum::getRandom(0.0, 0.2),
+                                 1.0);
+            division.startingExperienceFactor = RandNum::getRandom(0.0, 1.0);
+            country->divisions.push_back(division);
+          }
         }
       }
     }
@@ -1906,11 +1922,12 @@ void Generator::generateCountryNavies() {
     }
     // check if no port was found
     if (fleet.startingPort == nullptr) {
-      // just take the capital
-      fleet.startingPort = ardaProvinces.at(country->capitalRegionID);
+      Fwg::Utils::Logging::logLine(
+          "Warning: Country " + country->name +
+          " has no naval base, cannot assign fleet port");
+    } else {
+      country->fleets.push_back(fleet);
     }
-
-    country->fleets.push_back(fleet);
   }
 }
 
@@ -1959,6 +1976,7 @@ void Generator::generatePositions() {
     } else {
       position = gameProv->position;
     }
+
     gameProv->positions.push_back(createPosition(
         position, Arda::PositionType::VictoryPoint, 38, landForms));
 
@@ -2100,7 +2118,9 @@ void Generator::distributeVictoryPoints() {
       continue;
     auto primaryCulture = country->getPrimaryCulture();
     for (auto &region : country->hoi4Regions) {
-      if (!region->isLand())
+      if (!region->isLand() ||
+          region->topographyTypes.count(
+              Arda::Civilization::TopographyType::WASTELAND))
         continue;
       region->victoryPointsMap.clear();
       for (auto province : region->ardaProvinces) {
@@ -2142,9 +2162,12 @@ void Generator::distributeVictoryPoints() {
         } else {
           vp.name = "Unnamed";
         }
-        if ((int)vps > 0) {
+        if (vps > 0) {
           region->victoryPointsMap[province.first] =
               std::make_shared<Arda::VictoryPoint>(vp);
+          // assign the victory point to the province as well
+          ardaProvinces.at(province.first)->victoryPoint =
+              region->victoryPointsMap[province.first];
           assignedVPs += region->victoryPointsMap[province.first]->amount;
         }
       }

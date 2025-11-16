@@ -3,7 +3,7 @@
 #include "parsing/ParserUtils.h"
 #include <string>
 #include <vector>
-enum class GameType { Generic, Hoi4, Vic3, Eu4 };
+enum class GameType { Generic, Hoi4, Vic3, Eu4, Eu5 };
 namespace Rpx::Utils {
 struct Pathcfg {
   std::string modName;

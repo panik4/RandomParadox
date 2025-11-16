@@ -139,20 +139,41 @@ void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
             getBuilding(type, this->provinces, false, heightmap));
     } else if (type == "coastal_bunker" || type == "naval_base_spawn") {
       for (const auto &prov : provinces) {
+        std::shared_ptr<Fwg::Civilization::Location> port = nullptr;
         if (prov->coastal) {
           auto pix = Fwg::Utils::selectRandom(prov->coastalPixels);
           int ID = 0;
           if (type == "naval_base_spawn") {
-            // find the ocean province this coastal building is next to
-            for (const auto &neighbour : prov->neighbours)
-              if (neighbour->isSea() && !neighbour->isLake())
-                for (const auto &provPix : neighbour->pixels)
-                  if (Fwg::Utils::getDistance(provPix, pix,
-                                              Fwg::Cfg::Values().width) < 2.0)
-                    ID = neighbour->ID;
+            for (const auto &loc : prov->locations) {
+              if (loc->type == Fwg::Civilization::LocationType::Port) {
+                ID = loc->provinceID;
+                port = loc;
+                break;
+              }
+            }
+            if (port) {
+              ID = port->portExitProvinceID;
+            } else {
+              // find the ocean province this coastal building is next to
+              for (const auto &neighbour : prov->neighbours)
+                if (neighbour->isSea() && !neighbour->isLake())
+                  for (const auto &provPix : neighbour->pixels)
+                    if (Fwg::Utils::getDistance(provPix, pix,
+                                                Fwg::Cfg::Values().width) < 2.0)
+                      ID = neighbour->ID;
+            }
           }
-          buildings.push_back(
-              getBuilding(type, *prov, true, heightmap, typeMap, ID));
+          auto building =
+              getBuilding(type, *prov, true, heightmap, typeMap, ID);
+          // overwrite the position to be exactly on the port
+          if (port) {
+            building.position.x =
+                port->portLocationPixel % Fwg::Cfg::Values().width;
+            building.position.z =
+                port->portLocationPixel / Fwg::Cfg::Values().width;
+          }
+
+          buildings.push_back(building);
         }
       }
     } else if (type == "dockyard" || type == "floating_harbor") {

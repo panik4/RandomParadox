@@ -82,6 +82,8 @@ void Generator::configureModGen(const std::string &configSubFolder,
   ardaConfig.generationAge = Arda::Utils::GenerationAge::Renaissance;
   ardaConfig.targetWorldPopulation = 500'000'000;
   ardaConfig.targetWorldGdp = 50'000'000'000;
+  config.maxImageArea = 5632 * 2304;
+  config.resolutionBase = 256;
   config.seaLevel = 95;
   config.seaProvFactor *= 0.7;
   config.landProvFactor *= 0.7;
