@@ -17,6 +17,13 @@
 		"modPath" : "exports//",
 		"modsDirectory" : "exports//"
 	},
+	"Europa Universalis V": 
+	{
+		"modName" : "randomEu5",
+		"gamePath" : "C://Steam//steamapps//common//Europa Universalis V",
+		"modPath" : "C:\Users\<username>\Documents\Paradox Interactive\Europa Universalis V\mod",
+		"modsDirectory" : "C:\Users\<username>\Documents\Paradox Interactive\Europa Universalis V\mod"
+	},
 	"Hearts of Iron IV": 
 	{
 		"modName" : "hoi4Mod1",
