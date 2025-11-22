@@ -1683,7 +1683,7 @@ void Generator::generateCountryUnits() {
       for (auto &divisionTemplate : country->divisionTemplates) {
         auto divisionMaxCost =
             divisionTemplate.armyShare * country->totalArmyStrength;
-        int count = 1;
+        int count = 0;
         while ((divisionMaxCost -= divisionTemplate.cost) > 0) {
           if (eligibleProvinces.size()) {
             Division division;
