@@ -22,30 +22,30 @@ public:
   std::string gfxCulture;
   // politics
   std::string ideology;
-  bool allowElections;
-  std::array<int, 4> parties;
-  std::string lastElection;
-  int warSupport;
-  int stability;
+  bool allowElections = false;
+  std::array<int, 4> parties = {25, 25, 25, 25};
+  std::string lastElection = "1.1.1933";
+  int warSupport = 0;
+  int stability = 0;
 
   // mapdata
-  int victoryPoints;
+  int victoryPoints = 0;
   std::vector<std::shared_ptr<Region>> hoi4Regions;
   // typedef doctrineType mytype;
   // national focus
   std::string focusTree;
   std::string ideas;
   // navy
-  int totalNavyStrength;
+  int totalNavyStrength = 0;
   std::map<NavalHullType, std::vector<TechEra>> hullTech;
   std::map<TechEra, std::vector<Technology>> navyTechs;
   std::map<ShipClassType, std::vector<ShipClass>> shipClasses;
   std::vector<std::shared_ptr<Ship>> ships;
   std::vector<Fleet> fleets;
-  int convoyAmount;
+  int convoyAmount = 0;
 
   // army
-  int totalArmyStrength;
+  int totalArmyStrength = 0;
   std::vector<int> units;
   std::vector<int> unitCount;
   std::map<TechEra, std::vector<Technology>> infantryTechs;
@@ -63,11 +63,13 @@ public:
 
   // industry
   std::map<TechEra, std::vector<Technology>> industryElectronicTechs;
-  int civilianIndustry;
-  int armsFactories;
-  int dockyards;
-  int researchSlots;
+  int civilianIndustry = 0;
+  int armsFactories = 0;
+  int dockyards = 0;
+  int researchSlots = 0;
 
   bool hasTech(const std::string &techname) const;
+
+  std::string exportLine() const;
 };
 } // namespace Rpx::Hoi4

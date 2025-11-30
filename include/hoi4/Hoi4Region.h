@@ -1,12 +1,11 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "areas/ArdaRegion.h"
-#include "utils/RpxUtils.h"
-#include "hoi4/Hoi4Airforce.h"
 #include "generic/VictoryPoint.h"
+#include "hoi4/Hoi4Airforce.h"
+#include "utils/RpxUtils.h"
 
 namespace Rpx::Hoi4 {
-
 
 class Region : public Arda::ArdaRegion {
   const std::vector<std::string> buildingTypes{
@@ -23,16 +22,16 @@ public:
   // member variables
   // the identifier the game uses for this state, referred to by localisation,
   // history, foci, etc
-  std::string identifier;
-  int armsFactories;
-  int civilianFactories;
-  int dockyards;
+  std::string identifier = "";
+  int armsFactories = 0;
+  int civilianFactories = 0;
+  int dockyards = 0;
 
-  int infrastructure;
-  int stateCategory;
-  int stratID;
-  int airport, rocketsite, supplyNode;
-  double totalVictoryPoints;
+  int infrastructure = 0;
+  int stateCategory = 0;
+  int stratID = 0;
+  int airport = 0, rocketsite = 0, supplyNode = 0;
+  double totalVictoryPoints = 0.0;
   Arda::Utils::WeatherPosition weatherPosition;
   // Containers
   std::vector<Arda::Utils::Building> buildings;
