@@ -293,10 +293,9 @@ void countryCommon(
     auto capitalRegion = regions[country.second->capitalRegionID];
     Rpx::Parsing::replaceOccurences(cString, "templateCapital",
                                     capitalRegion->name);
-
-    using pair_type = decltype(capitalRegion->cultures)::value_type;
-    auto pr = std::max_element(std::begin(capitalRegion->cultures),
-                               std::end(capitalRegion->cultures),
+    auto regCultures = capitalRegion->gatherCultures();
+    using pair_type = decltype(regCultures)::value_type;
+    auto pr = std::max_element(std::begin(regCultures), std::end(regCultures),
                                [](const pair_type &p1, const pair_type &p2) {
                                  return p1.second < p2.second;
                                });
@@ -330,7 +329,7 @@ void popsHistory(const std::string &path,
                                     region->owner->tag);
 
     std::string listOfPops{""};
-    for (auto &culture : region->cultures) {
+    for (auto &culture : region->gatherCultures()) {
       std::string pop = popsSingleTemplate;
       Rpx::Parsing::replaceOccurences(pop, "templateCulture",
                                       culture.first->name);
@@ -369,7 +368,7 @@ void stateHistory(const std::string &path,
     Rpx::Parsing::replaceOccurences(content, "templateProvinces",
                                     provinceString);
     std::string cultures;
-    for (auto &culture : region->cultures) {
+    for (auto &culture : region->gatherCultures()) {
       cultures.append("add_homeland = cu:" + culture.first->name + "\n\t\t");
     }
     Rpx::Parsing::replaceOccurences(content, "templateCulture", cultures);

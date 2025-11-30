@@ -2262,7 +2262,7 @@ void Generator::generateCharacters() {
   std::vector<std::string> theoristTraits = {
       "military_theorist", "naval_theorist", "air_warfare_theorist"};
 
-  Fwg::Utils::Logging::logLine("Hoi4:: Generating characters");
+  Fwg::Utils::Logging::logLine("Hoi4: Generating characters");
   for (auto &country : modData.hoi4Countries) {
     if (!country->ownedRegions.size())
       continue;

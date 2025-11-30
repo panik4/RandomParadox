@@ -438,11 +438,31 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
 
     ImGui::PopItemWidth();
     ImGui::PushItemWidth(600.0f);
-    ImGui::InputText("Mod Name", &activeGenerator->pathcfg.modName);
-    ImGui::InputText("Game Path", &activeGenerator->pathcfg.gamePath);
-    ImGui::InputText("Mods Directory",
-                     &activeGenerator->pathcfg.gameModsDirectory);
-    ImGui::InputText("Mod Path", &activeGenerator->pathcfg.gameModPath);
+    if (ImGui::InputText("Mod Name", &activeGenerator->pathcfg.modName)) {
+      Fwg::Parsing::replaceOccurences(activeGenerator->pathcfg.modName, "\\",
+                                      "//");
+      Fwg::Parsing::replaceOccurences(activeGenerator->pathcfg.modName, "///",
+                                      "//");
+    }
+    if (ImGui::InputText("Game Path", &activeGenerator->pathcfg.gamePath)) {
+      Fwg::Parsing::replaceOccurences(activeGenerator->pathcfg.gamePath, "\\",
+                                      "//");
+      Fwg::Parsing::replaceOccurences(activeGenerator->pathcfg.gamePath, "///",
+                                      "//");
+    }
+    if (ImGui::InputText("Mods Directory",
+                         &activeGenerator->pathcfg.gameModsDirectory)) {
+      Fwg::Parsing::replaceOccurences(
+          activeGenerator->pathcfg.gameModsDirectory, "\\", "//");
+      Fwg::Parsing::replaceOccurences(
+          activeGenerator->pathcfg.gameModsDirectory, "///", "//");
+    }
+    if (ImGui::InputText("Mod Path", &activeGenerator->pathcfg.gameModPath)) {
+      Fwg::Parsing::replaceOccurences(activeGenerator->pathcfg.gameModPath,
+                                      "\\", "//");
+      Fwg::Parsing::replaceOccurences(activeGenerator->pathcfg.gameModPath,
+                                      "///", "//");
+    }
     if (ImGui::Button("Try to find game files")) {
       Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,
                            activeGameConfig.gameName,
@@ -518,6 +538,7 @@ int GUI::showScenarioTab(Fwg::Cfg &cfg) {
 void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
   static int selectedStateIndex = 0;
   static std::string drawCountryTag;
+  ImGui::PushItemWidth(200.0f);
   if (!drawBorders) {
     drawCountryTag = "";
   }
@@ -552,6 +573,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
       static std::string bufferChangedTag = "";
 
       Elements::borderChild("CountryEdit", [&]() {
+        ImGui::PushItemWidth(200.0f);
         if (ImGui::InputText("Country tag", &tempTag)) {
           bufferChangedTag = tempTag;
         }
@@ -592,6 +614,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
           generator->visualiseCountries(generator->countryMap);
           uiUtils->resetTexture();
         }
+        ImGui::PopItemWidth();
       });
 
       if (drawBorders && drawCountryTag.size()) {
@@ -613,6 +636,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
     }
 
     Elements::borderChild("StateEdit", [&]() {
+      ImGui::PushItemWidth(200.0f);
       if (ImGui::InputText("State name", &modifiableState->name)) {
         requireCountryDetails = true;
       }
@@ -622,6 +646,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
       if (ImGui::InputDouble("Population", &modifiableState->totalPopulation)) {
         requireCountryDetails = true;
       }
+      ImGui::PopItemWidth();
     });
 
     if (isRelevantModuleActive("hoi4")) {
@@ -630,18 +655,25 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
               modifiableState);
 
       Elements::borderChild("StateEdit2", [&]() {
+        ImGui::PushItemWidth(200.0f);
         if (longCircuitLogicalOr(
                 ImGui::InputInt("Arms Industry", &hoi4Region->armsFactories),
                 ImGui::InputInt("Civilian Industry",
                                 &hoi4Region->civilianFactories),
-                ImGui::InputInt("Naval Industry", &hoi4Region->dockyards),
+                optionalInput(hoi4Region->coastal,
+                              [&] {
+                                return ImGui::InputInt("Naval Industry",
+                                                       &hoi4Region->dockyards);
+                              }),
                 ImGui::InputInt("State Category",
                                 &hoi4Region->stateCategory))) {
           requireCountryDetails = true;
         }
+        ImGui::PopItemWidth();
       });
     }
   }
+  ImGui::PopItemWidth();
 }
 
 int GUI::showCountryTab(Fwg::Cfg &cfg) {
@@ -661,13 +693,14 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
                 "with the following format: #r;g;b;tag;name;adjective. See "
                 "inputs//countryMappings.txt as an example. If no file is "
                 "dragged in, this example file is used.");
-    ImGui::PushItemWidth(300.0f);
+    ImGui::Checkbox("Draw-borders", &drawBorders);
+    ImGui::SameLine();
+    ImGui::PushItemWidth(150.0f);
     uiUtils->showHelpTextBox("Countries");
     ImGui::InputInt("Number of countries", &generator->ardaConfig.numCountries);
     // ImGui::InputText("Path to country list: ",
     // &generator->countryMappingPath); ImGui::InputText("Path to state list:
     // ", &generator->regionMappingPath);
-    ImGui::Checkbox("Draw-borders", &drawBorders);
     auto exportLocation = Fwg::Cfg::Values().mapsPath + "//exports//";
     if (ImGui::Button(("Export current state of countries and states to " +
                        exportLocation)
@@ -826,6 +859,11 @@ int GUI::showModuleGeneric(Fwg::Cfg &cfg) {
       computationFutureBool = runAsyncInitialDisable([&cfg, this]() {
         activeGenerator->generate();
         configuredScenarioGen = true;
+        redoTopography = false;
+        redoDevelopment = false;
+        redoPopulation = false;
+        redoCulture = false;
+        redoLocations = false;
         return true;
       });
     }
@@ -861,8 +899,8 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
     ImGui::SeparatorText(
         "This generates strategic regions, they cannot be loaded");
     uiUtils->showHelpTextBox("Strategic Regions");
-
-    ImGui::InputFloat("Strategic region factor: ",
+    ImGui::PushItemWidth(200.0f);
+    ImGui::InputFloat("<--Strategic region factor: ",
                       &generator->ardaConfig.superRegionFactor, 0.1f);
     if (ImGui::Button("Generate strategic regions")) {
       // non-country stuff
@@ -885,18 +923,20 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
         return true;
       });
     }
-    ImGui::SameLine();
-    if (ImGui::Button("Visualise current strategic regions")) {
-      Arda::Gfx::visualiseStrategicRegions(generator->superRegionMap,
-                                           generator->superRegions);
-      uiUtils->resetTexture();
-    }
-    ImGui::Checkbox("Draw strategic regions", &drawBorders);
+    // if (ImGui::Button("Visualise current strategic regions")) {
+    //   Arda::Gfx::visualiseStrategicRegions(generator->superRegionMap,
+    //                                        generator->superRegions);
+    //   uiUtils->resetTexture();
+    // }
+    // ImGui::Checkbox("Draw strategic regions", &drawBorders);
 
     // drag event is ignored here
     if (triggeredDrag) {
       Fwg::Utils::Logging::logLine(
           "No loading of strategic regions supported at this time");
+      activeGenerator->loadStrategicRegions(
+          activeGenerator->ardaFactories.superRegionFactory,
+          Fwg::IO::Reader::readGenericImage(draggedFile, cfg));
       triggeredDrag = false;
     }
 
@@ -1008,7 +1048,8 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
     auto generator = getGeneratorPointer<Rpx::Hoi4::Generator>();
     if (generator->superRegions.size() && generator->provinceMap.size() &&
         generator->modData.statesInitialised && !requireCountryDetails) {
-
+      ImGui::SeparatorText(
+          "Export everything into a (hopefully) functional mod.");
       if (ImGui::Button("Export complete mod")) {
         computationFutureBool = runAsync([generator, &cfg, this]() {
           // now generate hoi4 specific stuff
@@ -1030,6 +1071,8 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
         });
       }
 
+      ImGui::SeparatorText(
+          "Separate exports, if you know what you're doing...");
       if (ImGui::Button("Export heightmap.bmp")) {
         generator->getImageExporter().dump8BitHeightmap(
             generator->terrainData.detailedHeightMap,
@@ -1070,6 +1113,10 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
     } else {
       ImGui::Text("Have strategic regions, initialised states and generated "
                   "country data first before exporting the mod");
+
+      ImGui::Text("Check for any red tabs or buttons. Especially in the "
+                  "country and strategic region tab.");
+      ImGui::Text("Furthermore, check for any errors in the log.");
     }
     // drag event is ignored here
     if (triggeredDrag) {

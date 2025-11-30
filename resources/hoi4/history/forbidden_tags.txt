@@ -10,6 +10,7 @@ SPA
 CHI
 PHI
 SOT
+MOT
 
 # windows doesn't like these as files such as AUX.txt would be created
 # https://stackoverflow.com/questions/36225708/cannot-create-a-directory-named-aux-or-starting-by-aux-on-windows-8-1
