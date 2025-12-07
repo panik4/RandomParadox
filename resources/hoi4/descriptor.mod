@@ -13,6 +13,6 @@ tags={
 	"Gameplay"
 	"Historical"
 }
-supported_version="1.16.*"
+supported_version="1.17.*"
 templatePath
 remote_file_id="<ID>"

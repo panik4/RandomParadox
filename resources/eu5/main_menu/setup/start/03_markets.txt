@@ -1,0 +1,3 @@
+market_manager = {
+	add_market = testprovince1
+}

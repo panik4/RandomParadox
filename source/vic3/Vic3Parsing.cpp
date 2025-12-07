@@ -26,12 +26,12 @@ void defaultMap(const std::string &path,
   auto lakeFormatCounter = 1;
   for (const auto &province : provinces) {
     if (province->isSea()) {
-      seaStarts.append(province->toHexString() + " ");
+      seaStarts.append(province->toHexString(true, true) + " ");
       if (seaFormatCounter++ % 5 == 0) {
         seaStarts.append("\n\t");
       }
     } else if (province->isLake()) {
-      lakes.append(province->toHexString() + " ");
+      lakes.append(province->toHexString(true, true) + " ");
       if (lakeFormatCounter++ % 5 == 0) {
         lakes.append("\n\t");
       }
@@ -84,7 +84,7 @@ void stateFiles(const std::string &path,
                                     std::to_string(region->ID + 1));
     std::string provinceString{""};
     for (auto prov : region->ardaProvinces) {
-      provinceString.append("\"" + prov->toHexString() + "\" ");
+      provinceString.append("\"" + prov->toHexString(true, true) + "\" ");
     }
     Rpx::Parsing::replaceOccurences(content, "template_provinces",
                                     provinceString);
@@ -96,37 +96,37 @@ void stateFiles(const std::string &path,
           region
               ->ardaProvinces[std::clamp(counter++, 0,
                                          (int)region->provinces.size() - 1)]
-              ->toHexString());
+              ->toHexString(true, true));
       Rpx::Parsing::replaceOccurences(
           content, "template_port",
           region
               ->ardaProvinces[std::clamp(counter++, 0,
                                          (int)region->provinces.size() - 1)]
-              ->toHexString());
+              ->toHexString(true, true));
       Rpx::Parsing::replaceOccurences(
           content, "template_farm",
           region
               ->ardaProvinces[std::clamp(counter++, 0,
                                          (int)region->provinces.size() - 1)]
-              ->toHexString());
+              ->toHexString(true, true));
       Rpx::Parsing::replaceOccurences(
           content, "template_mine",
           region
               ->ardaProvinces[std::clamp(counter++, 0,
                                          (int)region->provinces.size() - 1)]
-              ->toHexString());
+              ->toHexString(true, true));
       Rpx::Parsing::replaceOccurences(
           content, "template_wood",
           region
               ->ardaProvinces[std::clamp(counter++, 0,
                                          (int)region->provinces.size() - 1)]
-              ->toHexString());
+              ->toHexString(true, true));
 
       // check if we are a coastal region
       for (auto &prov : region->ardaProvinces) {
         if (prov->isSea()) {
           Rpx::Parsing::replaceOccurences(content, "template_naval_exit",
-                                          prov->toHexString());
+                                          prov->toHexString(true, true));
         }
       }
       if (region->navalExit != -1) {
@@ -179,7 +179,7 @@ void provinceTerrains(
   Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Areas::Province Terrains");
   std::string content{""};
   for (const auto &province : provinces) {
-    content.append(province->toHexString());
+    content.append(province->toHexString(true, true));
     content.append("=\"");
     std::string terraintype;
     if (province->isSea())
@@ -220,7 +220,7 @@ void strategicRegions(const std::string &path,
       states.append(" STATE_" + state->name);
       if (!capitalSelected) {
         capitalSelected = true;
-        capital = state->ardaProvinces[0]->toHexString();
+        capital = state->ardaProvinces[0]->toHexString(true, true);
       }
     }
     Rpx::Parsing::replaceOccurences(content, "template_name", region->name);
@@ -363,7 +363,7 @@ void stateHistory(const std::string &path,
                                     region->owner->tag);
     std::string provinceString{""};
     for (auto prov : region->ardaProvinces) {
-      provinceString.append("\"" + prov->toHexString() + "\" ");
+      provinceString.append("\"" + prov->toHexString(true, true) + "\" ");
     }
     Rpx::Parsing::replaceOccurences(content, "templateProvinces",
                                     provinceString);
@@ -481,7 +481,7 @@ void compatStratRegions(const std::string &inFolder, const std::string &outPath,
       continue;
     std::string content = "";
     auto lines = pU::getLines(filePath.string());
-    auto hexID = regions[0]->ardaProvinces[0]->toHexString();
+    auto hexID = regions[0]->ardaProvinces[0]->toHexString(true, true);
     auto blocks = Rpx::Parsing::getOuterBlocks(lines);
     for (auto &block : blocks) {
       Rpx::Parsing::removeLines(block.content, "capital_province");

@@ -327,7 +327,7 @@ void GUI::initGameConfigs() {
   gameConfigs.push_back({"Hearts of Iron IV", "hoi4"});
   gameConfigs.push_back({"Victoria 3", "vic3"});
   gameConfigs.push_back({"Europa Universalis IV", "eu4"});
-  // gameConfigs.push_back({"Europa Universalis V", "eu5"});
+  gameConfigs.push_back({"Europa Universalis V", "eu5"});
   activeGameConfig = gameConfigs[0];
 }
 
@@ -1212,4 +1212,29 @@ int GUI::showVic3Finalise(Fwg::Cfg &cfg) {
   }
 
   return 0;
+}
+
+void GUI::showEu5Finalise(Fwg::Cfg &cfg) {
+  if (UI::Elements::BeginMainTabItem("Finalise")) {
+    uiUtils->tabSwitchEvent();
+    ImGui::Text("This will finish generating the mod and write it to the "
+                "configured paths");
+    const auto &generator = getGeneratorPointer<Rpx::Eu5::Generator>();
+    if (generator->superRegions.size()) {
+      if (ImGui::Button("Export mod")) {
+        computationFutureBool = runAsync([generator, &cfg, this]() {
+          generator->writeImages();
+          return true;
+
+        });
+      }
+    } else {
+      ImGui::Text("Generate strategic regions first before exporting the mod");
+    }
+    // drag event is ignored here
+    if (triggeredDrag) {
+      triggeredDrag = false;
+    }
+    ImGui::EndTabItem();
+  }
 }

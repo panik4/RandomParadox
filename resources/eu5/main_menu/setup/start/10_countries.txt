@@ -1,0 +1,35 @@
+current_age = age_1_traditions
+
+countries = {
+	countries = {
+		HAB = {	#Austria
+			own_control_core = {
+				testprovince1
+				testprovince2
+				testprovince3
+				testprovince4
+				testprovince5
+				testprovince6
+			}
+
+			starting_technology_level = 2
+			#include = "expl_western_europe"
+			#include = "catholic_monarchy_no_coast"
+			#include = "german_principality"
+			
+			discovered_regions = {
+				custom_region
+			}
+
+			government = {
+				type = monarchy
+				heir_selection = cognatic_primogeniture
+				ruler = hab_albrecht_ii_habsburg
+			}
+
+			country_rank = rank_duchy
+			dynasty = habsburg_dynasty
+			capital = testprovince1
+		}
+	}
+}

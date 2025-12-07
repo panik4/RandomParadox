@@ -1,0 +1,10 @@
+﻿game_object_locator={
+	name="volcano_eruption"
+	clamp_to_water_level=no
+	render_under_water=no
+	generated_content=no
+	layer="vfx_layer"
+	instances={
+
+	}
+}

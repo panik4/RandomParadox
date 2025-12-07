@@ -68,6 +68,7 @@ class GUI : public Arda::ArdaUI {
   int showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator);
   void showSplineTab(Fwg::Cfg &cfg);
   int showVic3Finalise(Fwg::Cfg &cfg);
+  void showEu5Finalise(Fwg::Cfg &cfg);
 
   // generic stuff
   int showStatisticsTab();

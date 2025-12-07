@@ -16,6 +16,9 @@ Generator::Generator(const std::string &configSubFolder,
   // "snow";
   // this->terrainTypeToString.at(Fwg::Areas::Province::TerrainType::arctic) =
   // "snow";
+  factories.regionFactory = []() {
+    return std::make_shared<Rpx::Vic3::Region>();
+  };
 }
 
 // prepare folder structure

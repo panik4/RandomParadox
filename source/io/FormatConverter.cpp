@@ -343,9 +343,9 @@ ImageExporter::~ImageExporter() {}
 void ImageExporter::writeBufferPixels(std::vector<unsigned char> &pixels,
                                       int index, const Fwg::Gfx::Colour &colour,
                                       unsigned char alphaValue) {
-  pixels[index] = colour.getRed();
+  pixels[index] = colour.getBlue();
   pixels[index + 1] = colour.getGreen();
-  pixels[index + 2] = colour.getBlue();
+  pixels[index + 2] = colour.getRed();
   pixels[index + 3] = alphaValue;
 }
 

@@ -4,7 +4,7 @@
 		"debugLevel": 0,
 		"writeMaps" : true,
 		"scaleFactor" : 1,
-		"seed" : 0
+		"seed" : 1
 	},
 	"paths":
 	{
@@ -30,12 +30,12 @@
 	},
 	"map": 
 	{
-		"width" : 512,
-		"height" : 512,
+		"width" : 2048,
+		"height" : 1024,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
-		"sobelFactor": 1,
+		"sobelFactor": 1.0,
 		"climate" : 
 		{
 			"fantasyClimate" : false,
