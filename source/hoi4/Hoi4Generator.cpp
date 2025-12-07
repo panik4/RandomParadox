@@ -2480,8 +2480,9 @@ void Generator::writeTextFiles() {
                      pathcfg.gameModPath, pathcfg.gameModsDirectory,
                      pathcfg.modName);
 
-  /*scriptedTriggers(pathcfg.gamePath + "//common//scripted_triggers//",
-                   pathcfg.gameModPath + "//common//scripted_triggers//");*/
+  scriptedTriggers(Fwg::Cfg::Values().resourcePath +
+                       "//hoi4////common//scripted_triggers//",
+                   pathcfg.gameModPath + "//common//scripted_triggers//");
   // commonFiltering(pathcfg.gamePath, pathcfg.gameModPath);
 }
 void Generator::writeLocalisation() {

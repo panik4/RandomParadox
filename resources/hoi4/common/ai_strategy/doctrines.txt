@@ -1,4 +1,21 @@
-stop_making_horsies = {
+############
+### LAND ###
+############
+# armor
+# infantry
+# motorized
+# mechanized
+# air_transport
+# anti_air
+# artillery
+# anti_tank
+# cavalry
+# marines
+# mountaineer
+
+##### AI strategies to discriminate against horses #####
+
+DOCTRINE_stop_making_horsies = {
 	enable = {
 		num_of_factories > 20
 		date > 1938.1.1
@@ -13,21 +30,6 @@ stop_making_horsies = {
 		value = -100 # -100% cav
 	}		
 }
-
-############
-### LAND ###
-############
-#armor
-#infantry
-#motorized
-#mechanized
-#air_transport
-#anti_air
-#artillery
-#anti_tank
-#cavalry
-#marines
-#mountaineer
 
 # No cav if we have motor inf
 DOCTRINE_no_cavalry = {
@@ -45,10 +47,12 @@ DOCTRINE_no_cavalry = {
 	}
 }
 
-#Mobile Warfare branch
-DOCTRINE_mobile_warfare_ratios = {
+
+##### Mobile Warfare branch #####
+
+DOCTRINE_MW_mobile_warfare_ratios = {
 	enable = {
-		has_tech = mobile_warfare
+		has_doctrine = new_mobile_warfare
 	}
 	abort = {
 		always = no
@@ -67,12 +71,67 @@ DOCTRINE_mobile_warfare_ratios = {
 	}
 }
 
-DOCTRINE_superior_firepower_ratios = {
+### AIFC stuff for Mobile Warfare
+# Base value comes from FORCE_CONCENTRATION_UNIT_RATIO_BASE
+
+DOCTRINE_MW_aifc_mobile_warfare = {
 	enable = {
-		has_tech = superior_firepower
+		has_doctrine = new_mobile_warfare
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 15  # base + 15 = 30 %
+	}
+}
+
+DOCTRINE_MW_aifc_mobile_infantry_or_armored_spearhead = {
+	enable = {
+		has_completed_track = infantry
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 15  # base + 15 + 15 = 45 %
+	}
+}
+
+DOCTRINE_MW_aifc_mechanised_offensive_or_blitzkrieg = {
+	enable = {
+		has_completed_track = armor
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 15  # base + 15 + 15 + 15 = 60 %
+	}
+}
+
+DOCTRINE_MW_aifc_modern_blitzkrieg = {
+	enable = {
+		has_completed_track = operations
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 10  # base + 15 + 15 + 15 + 10 = 70 %
+	}
+}
+
+
+##### Superior Firepower branch #####
+
+DOCTRINE_SF_superior_firepower_ratios = {
+	enable = {
+		has_doctrine = superior_firepower
 	}
 	abort = {
-		has_tech = concentrated_fire_plans
+		#has_tech = concentrated_fire_plans
+		always = no
 	}
 	
 	ai_strategy = {
@@ -88,10 +147,9 @@ DOCTRINE_superior_firepower_ratios = {
 	}
 }
 
-## Later in superior_firepower tree
-DOCTRINE_concentrated_fire_plans_ratios = {
+DOCTRINE_SF_concentrated_fire_plans_ratios = {
 	enable = {
-		has_tech = concentrated_fire_plans
+		has_completed_subdoctrine = fire_concentration
 	}
 	abort = {
 		always = no
@@ -108,7 +166,7 @@ DOCTRINE_concentrated_fire_plans_ratios = {
 		id = armor
 		value = 10
 	}
-
+	#TODO_JBE: Add an OR/AND scope for appropriate air doctrine for this
 	ai_strategy = {
 		type = role_ratio
 		id = cas
@@ -116,10 +174,51 @@ DOCTRINE_concentrated_fire_plans_ratios = {
 	}
 }
 
+### AIFC stuff for Superior Firepower
+# Base value comes from FORCE_CONCENTRATION_UNIT_RATIO_BASE
 
-DOCTRINE_grand_battle_plan_ratios = {
+DOCTRINE_SF_aifc_superior_firepower = {
 	enable = {
-		has_tech = trench_warfare
+		has_doctrine = superior_firepower
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 5  # base + 5 = 20 %
+	}
+}
+
+DOCTRINE_SF_aifc_mechanized_offensive = {
+	enable = {
+		has_completed_track = armor
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 20  # base + 5 + 20 = 40 %
+	}
+}
+
+DOCTRINE_SF_aifc_shock_and_awe = {
+	enable = {
+		has_completed_track = operations
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 15  # base + 5 + 20 + 15 = 55 %
+	}
+}
+
+
+##### Grand Battleplan branch #####
+
+DOCTRINE_GB_grand_battle_plan_ratios = {
+	enable = {
+		has_doctrine = grand_battleplan
 	}
 	abort = {
 		always = no
@@ -135,18 +234,95 @@ DOCTRINE_grand_battle_plan_ratios = {
 		type = role_ratio
 		id = anti_tank
 		value = 5
-	}	
+	}
+}
+
+### AIFC stuff for Grand Battleplan
+# Base value comes from FORCE_CONCENTRATION_UNIT_RATIO_BASE
+
+DOCTRINE_GB_aifc_grand_assault = {
+	enable = {
+		has_doctrine = grand_battleplan
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 5  # base + 5 = 20 %
+	}
+}
+
+DOCTRINE_GB_aifc_mechanized_offensive = {
+	enable = {
+		has_completed_track = armor
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 5  # base + 5 + 5 = 25 %
+	}
+}
+
+DOCTRINE_GB_aifc_assault_concentration = {
+	enable = {
+		has_doctrine = grand_assault
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 15  # base + 5 + 5 + 15 = 40 %
+	}
+}
+
+DOCTRINE_GB_aifc_assault_breakthrough = {
+	enable = {
+		has_completed_subdoctrine = grand_assault
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 10  # base + 5 + 5 + 15 + 10 = 50 %
+	}
+}
+
+DOCTRINE_GB_aifc_armored_operations = {
+	enable = {
+		has_doctrine = infiltration_tactics
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 10  # base + 5 + 10 = 30 %
+	}
+}
+
+DOCTRINE_GB_aifc_infiltration_in_depth = {
+	enable = {
+		has_completed_subdoctrine = infiltration_tactics
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 10  # base + 5 + 10 + 10 = 40 %
+	}
 }
 
 
-DOCTRINE_mass_assault_ratios = {
+##### Mass Assault branch #####
+
+DOCTRINE_MA_mass_assault_ratios = {
 	enable = {
-		has_tech = mass_assault
+		has_doctrine = deep_battle
 	}
 	abort = {
-		has_tech = large_front_operations
+		always = no
 	}
-	
+
 	ai_strategy = {
 		type = role_ratio
 		id = infantry
@@ -160,10 +336,9 @@ DOCTRINE_mass_assault_ratios = {
 	}
 }
 
-#Later in  mass_assault tree
-DOCTRINE_large_front_operations_ratios = {
+DOCTRINE_MA_large_front_operations_ratios = {
 	enable = {
-		has_tech = large_front_operations
+		has_completed_subdoctrine = deep_battle
 	}
 	abort = {
 		always = no
@@ -182,6 +357,57 @@ DOCTRINE_large_front_operations_ratios = {
 	}
 }
 
+### AIFC stuff for Mass Assault
+# Base value comes from FORCE_CONCENTRATION_UNIT_RATIO_BASE
+
+DOCTRINE_MA_aifc_mass_assault = {
+	enable = {
+		has_doctrine = mass_assault
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 5  # base + 5 = 20 %
+	}
+}
+
+DOCTRINE_MA_aifc_operational_concentration = {
+	enable = {
+		has_completed_track = armor
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 20  # base + 5 + 20 = 40 %
+	}
+}
+
+DOCTRINE_MA_aifc_breakthrough_priority = {
+	enable = {
+		has_completed_track = operations
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 20  # base + 5 + 20 + 20 = 60 %
+	}
+}
+
+DOCTRINE_MA_aifc_human_infantry_offensive = {
+	enable = {
+		has_completed_track = infantry
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = {
+		type = force_concentration_factor
+		value = 5  # base + 5 + 5 = 25 %
+	}
+}
+
 
 ##############
 ### NAVAL ####
@@ -196,7 +422,7 @@ DOCTRINE_large_front_operations_ratios = {
 #Fleet in being tree
 DOCTRINE_fleet_in_being_ratios = {
 	enable = {
-		has_tech = fleet_in_being
+		has_doctrine = new_fleet_in_being
 	}
 	abort = {
 		always = no
@@ -212,7 +438,7 @@ DOCTRINE_fleet_in_being_ratios = {
 #Trade Interdiction tree
 DOCTRINE_trade_interdiction_ratios = {
 	enable = {
-		has_tech = trade_interdiction
+		has_doctrine = new_convoy_raiding
 	}
 	abort = {
 		always = no
@@ -229,7 +455,7 @@ DOCTRINE_trade_interdiction_ratios = {
 #Base Strike tree
 DOCTRINE_base_strike_ratios = {
 	enable = {
-		has_tech = base_strike
+		has_doctrine = new_base_strike
 	}
 	abort = {
 		always = no
@@ -262,7 +488,7 @@ DOCTRINE_base_strike_ratios = {
 #Strategic Destruction tree
 DOCTRINE_air_superiority_ratios = {
 	enable = {
-		has_tech = air_superiority
+		has_doctrine = new_strategic_destruction
 	}
 	abort = {
 		always = no
@@ -277,10 +503,7 @@ DOCTRINE_air_superiority_ratios = {
 
 DOCTRINE_air_night_day_bombing_ratios = {
 	enable = {
-		OR = {
-			has_tech = night_bombing
-			has_tech = day_bombing		
-		}
+		has_doctrine = new_strategic_destruction
 	}
 	abort = {
 		always = no
@@ -296,7 +519,7 @@ DOCTRINE_air_night_day_bombing_ratios = {
 #Battlefield Support tree
 DOCTRINE_formation_flying = {
 	enable = {
-		has_tech = formation_flying
+		has_doctrine = new_battlefield_support
 	}
 	abort = {
 		always = no
@@ -318,7 +541,7 @@ DOCTRINE_formation_flying = {
 #Operational Integrity tree
 DOCTRINE_force_rotation = {
 	enable = {
-		has_tech = force_rotation
+		has_doctrine = new_operational_integrity
 	}
 	abort = {
 		always = no

@@ -86,7 +86,7 @@ void tutorials(const std::string &path);
 // copy base game countries and remove certain lines to reduce crashes
 void compatibilityHistory(const std::string &path, const std::string &hoiPath,
     const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions);
-void scriptedTriggers(std::string gamePath, std::string modPath);
+void scriptedTriggers(std::string resources, std::string modPath);
 
 void commonFiltering(const std::string &gamePath, const std::string &modPath);
 
