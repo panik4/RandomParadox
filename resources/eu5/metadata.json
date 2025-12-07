@@ -7,5 +7,16 @@
 "tags" : [],
 "relationships" : [],
 "game_custom_data" : {
+        "replace_paths" : [
+			"gfx/terrain2/decals/mountain_01/instances/",
+			"gfx/terrain2/decals/mountain_02/instances/",
+			"gfx/terrain2/decals/mountain_03/instances/",
+			"gfx/terrain2/decals/mountain_04/instances/",
+			"gfx/terrain2/decals/mountain_05/instances/",
+			"gfx/terrain2/decals/mountain_jagged_01/instances/",
+			"gfx/terrain2/decals/volcano_01/instances/",
+			"common/holy_sites",
+			"setup/countries"
+        ]
 }
 }

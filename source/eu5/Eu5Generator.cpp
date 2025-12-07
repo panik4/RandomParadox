@@ -8,6 +8,9 @@ Generator::Generator(const std::string &configSubFolder,
     : Rpx::ModGenerator(configSubFolder, GameType::Eu5, "binaries//eu5.exe",
                         rpdConf) {
   configureModGen(configSubFolder, Fwg::Cfg::Values().username, rpdConf);
+  factories.regionFactory = []() {
+    return std::make_shared<Arda::ArdaRegion>();
+  };
   // this->terrainTypeToString.at(Fwg::Areas::Province::TerrainType::marsh) =
   // "wetlands";
   // this->terrainTypeToString.at(Fwg::Areas::Province::TerrainType::savannah) =
@@ -23,54 +26,42 @@ bool Generator::createPaths() {
   try {
     using namespace std::filesystem;
     std::string prefix = "//in_game//";
+    std::vector<std::string> paths = {
+        "",
+        "//gfx//terrain2//",
+        "//gfx//terrain2//decals//",
+        "//gfx//terrain2//decals//mountain_01//instances",
+        "//gfx//terrain2//decals//mountain_02//instances",
+        "//gfx//terrain2//decals//mountain_03//instances",
+        "//gfx//terrain2//decals//mountain_04//instances",
+        "//gfx//terrain2//decals//mountain_jagged_01//instances",
+        "//gfx//terrain2//decals//volcano_01//instances",
+        "//gfx//terrain2//terrain_textures/masks",
+        "//gfx//map//water",
+        "//map_data",
+        "//map_data//named_locations//",
+        "//content_source//map_objects//masks",
 
-    std::vector<std::string> paths = {"",
-                                      "//.metadata//",
-                                      "//map_data//",
-                                      "//map_data//state_regions//",
-                                      "//common//",
-                                      "//common//defines",
-                                      "//common//strategic_regions",
-                                      "//common//cultures",
-                                      "//common//religions",
-                                      "//common//country_definitions",
-                                      "//common//country_formation",
-                                      "//common//history",
-                                      "//common//history//buildings",
-                                      "//common//history//countries",
-                                      "//common//history//pops",
-                                      "//common//history//states",
-                                      "//common//country_creation",
-                                      "//common//journal_entries",
-                                      "//common//scripted_triggers",
-                                      "//common//static_modifiers",
-                                      "//common//decisions",
-                                      "//events",
-                                      "//events//agitators_events",
-                                      "//gfx//",
-                                      "//gfx//map",
-                                      "//gfx//map//masks",
-                                      "//gfx//map//map_object_data",
-                                      "//gfx//map//terrain",
-                                      "//gfx//map//textures",
-                                      "//gfx//map//water",
-                                      "//gfx//map//spline_network",
-                                      "//content_source//",
-                                      "//content_source//map_objects",
-                                      "//content_source//map_objects//masks",
-                                      "//localization//"};
+    };
+    for (int i = 1; i <= 16; i++) {
+      paths.push_back("//gfx//terrain2//decals//heightmap_" +
+                      std::to_string(i) + "_16");
+    }
     std::vector<std::string> pathsToRemove = {"//common//", "//localization//",
                                               "//map_data//"};
 
     for (const auto &path : pathsToRemove) {
-      Fwg::Utils::Logging::logLine("Removing path: " + prefix +
-                                   pathcfg.gameModPath + path);
+      Fwg::Utils::Logging::logLine("Removing path: " + pathcfg.gameModPath +
+                                   prefix + path);
       remove_all(pathcfg.gameModPath + prefix + path);
     }
+    Fwg::Utils::Logging::logLine("Creating path: " + pathcfg.gameModPath +
+                                 "//.metadata");
+    create_directories(pathcfg.gameModPath + "//.metadata");
     for (const auto &path : paths) {
       Fwg::Utils::Logging::logLine("Creating path: " + pathcfg.gameModPath +
                                    prefix + path);
-      create_directory(pathcfg.gameModPath + prefix + path);
+      create_directories(pathcfg.gameModPath + prefix + path);
     }
     // specific debugging path
     if (Cfg::Values().debugLevel > 0)
@@ -122,7 +113,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
   ardaConfig.targetWorldPopulation = 1'000'000'000;
   ardaConfig.targetWorldGdp = 1'000'000'000'000;
 
-  config.seaLevel = 18;
+  config.seaLevel = 20;
   config.riverFactor = 0.0;
   config.seaProvFactor *= 0.10;
   config.landProvFactor *= 1.0;
@@ -149,98 +140,11 @@ void Generator::configureModGen(const std::string &configSubFolder,
 Fwg::Gfx::Bitmap Generator::mapTerrain() {
   const auto &climateMap = this->climateMap;
   Bitmap typeMap(climateMap.width(), climateMap.height(), 24);
-  auto &colours = Fwg::Cfg::Values().colours;
-  auto &climateColours = Fwg::Cfg::Values().climateColours;
-  auto &elevationColours = Fwg::Cfg::Values().elevationColours;
-  typeMap.fill(colours.at("sea"));
-  Fwg::Utils::Logging::logLine("Mapping Terrain");
-  const auto &landForms = terrainData.landForms;
-  const auto &climates = climateData.climates;
-  const auto &forests = climateData.dominantForest;
-  for (auto &ardaRegion : ardaRegions) {
-    for (auto &gameProv : ardaRegion->ardaProvinces) {
-      gameProv->terrainType = "plains";
-      const auto &baseProv = gameProv;
-      if (baseProv->isLake()) {
-        gameProv->terrainType = "lake";
-        for (auto &pix : baseProv->pixels) {
-          typeMap.setColourAtIndex(pix, colours.at("lake"));
-        }
-      } else if (baseProv->isSea()) {
-        gameProv->terrainType = "sea";
-        for (auto &pix : baseProv->pixels) {
-          typeMap.setColourAtIndex(pix, climateColours.at("ocean"));
-        }
-      } else {
-        int forestPixels = 0;
-        std::map<Fwg::Climate::Detail::ClimateTypeIndex, int> climateScores;
-        std::map<Fwg::Terrain::ElevationTypeIndex, int> terrainTypeScores;
-        // get the dominant climate of the province
-        for (auto &pix : baseProv->pixels) {
-          climateScores[climates[pix].getChances(0).second]++;
-          terrainTypeScores[landForms[pix].landForm]++;
-          if (forests[pix]) {
-            forestPixels++;
-          }
-        }
-        auto dominantClimate =
-            std::max_element(climateScores.begin(), climateScores.end(),
-                             [](const auto &l, const auto &r) {
-                               return l.second < r.second;
-                             })
-                ->first;
-        auto dominantTerrain =
-            std::max_element(terrainTypeScores.begin(), terrainTypeScores.end(),
-                             [](const auto &l, const auto &r) {
-                               return l.second < r.second;
-                             })
-                ->first;
-        // now first check the terrains, if e.g. mountains or peaks are too
-        // dominant, this is a mountainous province
-        if (dominantTerrain == Fwg::Terrain::ElevationTypeIndex::MOUNTAINS ||
-            dominantTerrain == Fwg::Terrain::ElevationTypeIndex::PEAKS ||
-            dominantTerrain == Fwg::Terrain::ElevationTypeIndex::STEEPPEAKS) {
-          gameProv->terrainType = "mountain";
-          for (auto &pix : baseProv->pixels) {
-            typeMap.setColourAtIndex(pix, elevationColours.at("mountains"));
-          }
-        } else if (dominantTerrain == Fwg::Terrain::ElevationTypeIndex::HILLS) {
-          gameProv->terrainType = "hills";
-          for (auto &pix : baseProv->pixels) {
-            typeMap.setColourAtIndex(pix, elevationColours.at("hills"));
-          }
-        } else if ((double)forestPixels / baseProv->pixels.size() > 0.5) {
-          gameProv->terrainType = "forest";
-          for (auto &pix : baseProv->pixels) {
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour(16, 40, 8));
-          }
-        } else {
-          using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
-          // now, if this is a more flat land, check the climate type
-          if (dominantClimate == CTI::TROPICSMONSOON ||
-              dominantClimate == CTI::TROPICSRAINFOREST) {
-            gameProv->terrainType = "jungle";
-            for (auto &pix : baseProv->pixels) {
-              typeMap.setColourAtIndex(pix,
-                                       climateColours.at("tropicsrainforest"));
-            }
-          } else if (dominantClimate == CTI::COLDDESERT ||
-                     dominantClimate == CTI::DESERT) {
-            gameProv->terrainType = "desert";
-            for (auto &pix : baseProv->pixels) {
-              typeMap.setColourAtIndex(pix, climateColours.at("desert"));
-            }
-          } else {
-            gameProv->terrainType = "plains";
-            for (auto &pix : baseProv->pixels) {
-              typeMap.setColourAtIndex(pix, elevationColours.at("plains"));
-            }
-          }
-        }
-      }
-    }
+  for (auto &prov : areaData.provinces) {
+    prov->calculateTerrainType(terrainData);
+    prov->calculateClimateType(climateData);
   }
-  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "/typeMap.png");
+
   return typeMap;
 }
 
@@ -294,47 +198,7 @@ void Generator::distributeResources() {
   // }
 }
 
-void Generator::mapRegions() {
-  // Fwg::Utils::Logging::logLine("Mapping Regions");
-  // ardaRegions.clear();
-  // modData.vic3Regions.clear();
-
-  // for (auto &region : this->areaData.regions) {
-  //   std::sort(region->provinces.begin(), region->provinces.end(),
-  //             [](const std::shared_ptr<Fwg::Areas::Province> a,
-  //                const std::shared_ptr<Fwg::Areas::Province> b) {
-  //               return (*a < *b);
-  //             });
-  //   auto ardaRegion = std::dynamic_pointer_cast<Rpx::Vic3::Region>(region);
-
-  //  // generate random name for region
-  //  ardaRegion->name = "";
-  //  ardaRegion->ardaProvinces.clear();
-
-  //  for (auto &province : ardaRegion->provinces) {
-  //    ardaRegion->ardaProvinces.push_back(ardaProvinces[province->ID]);
-  //  }
-  //  // save game region to generic module container and to hoi4 specific
-  //  // container
-  //  ardaRegions.push_back(ardaRegion);
-  //  modData.vic3Regions.push_back(ardaRegion);
-  //}
-  //// sort by Arda::ArdaProvince ID
-  //// std::sort(ardaRegions.begin(), ardaRegions.end(),
-  ////          [](auto l, auto r) { return *l < *r; });
-  //// check if we have the same amount of ardaProvinces as FastWorldGen
-  //// provinces
-  // if (ardaProvinces.size() != this->areaData.provinces.size())
-  //   throw(std::exception("Fatal: Lost provinces, terminating"));
-  // if (ardaRegions.size() != this->areaData.regions.size())
-  //   throw(std::exception("Fatal: Lost regions, terminating"));
-  // for (const auto &ardaRegion : ardaRegions) {
-  //   if (ardaRegion->ID > ardaRegions.size()) {
-  //     throw(std::exception("Fatal: Invalid region IDs, terminating"));
-  //   }
-  // }
-  // applyRegionInput();
-}
+void Generator::mapRegions() { ArdaGen::mapRegions(); }
 void Generator::mapCountries() {}
 // set tech levels, give vic3GameData.techs, count pops, cultures and religions,
 // set diplomatic relations (e.g. puppets, markets, protectorates)
@@ -399,8 +263,8 @@ void Generator::generate() {
     mapProvinces();
     mapRegions();
 
-    mapTerrain();
     mapContinents();
+    mapTerrain();
     // genCivilisationData();
     // auto countryFactory = []() -> std::shared_ptr<Arda::Country> {
     //   return std::make_shared<Arda::Country>();
@@ -455,82 +319,39 @@ void Generator::generate() {
 
 void Generator::writeTextFiles() {
   using namespace Parsing::Writing;
-  // auto foundRegions = compatRegions(
-  //     pathcfg.gamePath + "//game//map_data//state_regions//",
-  //     pathcfg.gameModPath + "//map_data//state_regions//",
-  //     modData.vic3Regions);
-  // compatStratRegions(pathcfg.gamePath +
-  // "//game//common//strategic_regions//",
-  //                    pathcfg.gameModPath + "//common//strategic_regions//",
-  //                    modData.vic3Regions, foundRegions);
-  //// compatReleasable(pathcfg.gamePath + "//game//common//country_creation//",
-  ////                  pathcfg.gameModPath + "//common//country_creation//");
-  // adj(pathcfg.gameModPath + "//map_data//adjacencies.csv");
-  // defaultMap(pathcfg.gameModPath + "//map_data//default.map", ardaProvinces);
-  // defines(pathcfg.gameModPath + "//common//defines//01_defines.txt");
-  // provinceTerrains(pathcfg.gameModPath + "//map_data//province_terrains.txt",
-  //                  ardaProvinces);
-  // stateFiles(pathcfg.gameModPath +
-  // "//map_data//state_regions//00_regions.txt",
-  //            modData.vic3Regions);
-  // Parsing::History::writeBuildings(
-  //     pathcfg.gameModPath + "//common//history//buildings//00_buildings.txt",
-  //     modData.vic3Regions);
-  writeMetadata(pathcfg.gameModPath + "//.metadata//metadata.json");
-  // strategicRegions(
-  //     pathcfg.gameModPath +
-  //         "//common//strategic_regions//randVic_strategic_regions.txt",
-  //     superRegions, modData.vic3Regions);
-  // cultureCommon(pathcfg.gameModPath + "//common//cultures//00_cultures.txt",
-  //               civData.cultures);
-  // religionCommon(pathcfg.gameModPath + "//common//religions//religions.txt",
-  //                civData.religions);
-  // staticModifiers(pathcfg.gameModPath + "//common//static_modifiers//",
-  //                 civData.cultures, civData.religions);
-  // countryCommon(pathcfg.gameModPath +
-  //                   "//common//country_definitions//00_countries.txt",
-  //               modData.vic3Countries, modData.vic3Regions);
 
-  // compatFile(pathcfg.gameModPath +
-  //            "//common//country_creation//00_releasable_countries.txt");
-  // compatFile(pathcfg.gameModPath +
-  //            "//common//cultures//00_additional_cultures.txt");
-  // compatFile(pathcfg.gameModPath +
-  //            "//common//country_definitions//01_africa.txt");
-  // compatFile(pathcfg.gameModPath +
-  //            "//common//country_definitions//01_pacific_and_australasia.txt");
-  // compatFile(pathcfg.gameModPath +
-  //            "//common//country_formation//00_formable_countries.txt");
-  // compatFile(pathcfg.gameModPath +
-  //            "//common//country_formation//00_major_formables.txt");
-  // stateHistory(pathcfg.gameModPath +
-  // "//common//history//states//00_states.txt",
-  //              modData.vic3Regions);
-  // popsHistory(pathcfg.gameModPath + "//common//history//pops//00_world.txt",
-  //             modData.vic3Regions);
-  // countryHistory(pathcfg.gameModPath + "//common//history//countries",
-  //                modData.vic3Countries);
-  // compatFile(pathcfg.gameModPath +
-  // "//common//decisions//canal_decisions.txt"); compatFile(pathcfg.gameModPath
-  // + "//events//canal_events.txt"); compatFile(pathcfg.gameModPath +
-  //            "//events//agitators_events//paris_commune_events.txt");
-  // compatFile(pathcfg.gameModPath +
-  //            "//events//agitators_events//paris_commune_events.txt");
-  // compatFile(pathcfg.gameModPath +
-  // "//common//journal_entries//00_canals.txt"); compatFile(pathcfg.gameModPath
-  // +
-  //            "//common//journal_entries//02_paris_commune.txt");
-  // compatTriggers(pathcfg.gamePath + "//game//common//scripted_triggers//",
-  //                pathcfg.gameModPath + "//common//scripted_triggers//");
+  writeMetadata(pathcfg.gameModPath + "//.metadata//metadata.json");
+  overwrites(pathcfg.gameModPath + "//in_game//");
+  mainMenuOverrides(pathcfg.gameModPath + "//main_menu");
 }
 
 void Generator::writeImages() {
   //// TODO: improve handling of altitude data to not rely on image
-  auto heightMap = Fwg::Gfx::displayHeightMap(terrainData.detailedHeightMap);
+  imageExporter.Eu5ColourMaps(terrainData, climateData, ardaData.civLayer,
+                              pathcfg.gameModPath + "//in_game//gfx//map//",
+                              this->exportWidth / 2, this->exportHeight / 2);
+  imageExporter.writeLocations(provinceMap, ardaProvinces, ardaRegions,
+                               ardaContinents, ardaData.civLayer,
+                               pathcfg.gameModPath + "//in_game//map_data//",
+                               this->exportWidth, this->exportHeight);
   imageExporter.dumpHeightmap(
-      heightMap, pathcfg.gameModPath + "//in_game//map_data//heightmap.png", "",
-      this->exportWidth, this->exportHeight);
+      terrainData.detailedHeightMap,
+      pathcfg.gameModPath + "//in_game//gfx//terrain2//decals//", "",
+      this->exportWidth * 2, this->exportHeight * 2);
+  imageExporter.dumpDecalMasks(
+      terrainData, climateData,
+      pathcfg.gameModPath + "//in_game//gfx//terrain2//decals//", "",
+      this->exportWidth * 2, this->exportHeight * 2);
+  // imageExporter.dumpTerrainMasks(
+  //     terrainData, climateData,
+  //     pathcfg.gameModPath +
+  //         "//in_game//gfx//terrain2//terrain_textures//masks//",
+  //     "", this->exportWidth, this->exportHeight);
 
+  imageExporter.mapObjectMasks(
+      terrainData, climateData, ardaData.civLayer,
+      pathcfg.gameModPath + "//in_game//content_source//map_objects//masks//",
+      this->exportWidth, this->exportHeight);
   // imageExporter.Vic3ColourMaps(worldMap, heightMap, climateData,
   //                              ardaData.civLayer,
   //                              pathcfg.gameModPath + "//gfx//map//");

@@ -1,0 +1,15 @@
+dynasty_manager = {
+
+	habsburg_dynasty = {
+		name = { name = habsburg_dynasty }
+		home = testprovince1
+		dynasty_name_type = location
+		male_names = {
+			name_albert name_frederick name_leopold name_otto name_rudolf name_vladislav
+		}
+		female_names = {
+			name_anna name_catherine name_elizabeth name_margaret
+		}
+	}
+
+}

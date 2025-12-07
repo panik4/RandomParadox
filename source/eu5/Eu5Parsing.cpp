@@ -8,43 +8,68 @@ namespace Writing {
 void writeMetadata(const std::string &path) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Mod: Writing metadata.json");
   const auto templateFile =
-      pU::readFile(Fwg::Cfg::Values().resourcePath + "vic3//metadata.json");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu5//metadata.json");
 
   pU::writeFile(path, templateFile);
 }
 
+void mainMenuOverrides(const std::string &path) {
+  Fwg::Utils::Logging::logLine("Eu5 Parser: Mod: Writing main menu overrides");
+  auto resourcePath = Fwg::Cfg::Values().resourcePath + "eu5/main_menu";
+  std::filesystem::copy(resourcePath, path,
+                        std::filesystem::copy_options::recursive |
+                            std::filesystem::copy_options::overwrite_existing);
+}
 
+void overwrites(const std::string &path) {
+  Fwg::Utils::Logging::logLine(
+      "Eu5 Parser: Mod: Writing some file replacements");
+  // lets copy in the overwrites file
+  auto resourcePath = Fwg::Cfg::Values().resourcePath + "eu5/";
+  std::vector<std::string> overwriteFolders = {"gfx/map/locators_override",
+                                               "gfx/map/map_objects"};
+  for (const auto &folder : overwriteFolders) {
+    Fwg::Utils::Logging::logLine("Eu5 Parser: Mod: Writing overwrites in " +
+                                 folder);
+    std::filesystem::copy(
+        resourcePath + folder, path + folder,
+        std::filesystem::copy_options::recursive |
+            std::filesystem::copy_options::overwrite_existing);
+  }
+}
 
-//void strategicRegions(
-//    const std::string &path,
-//    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions,
-//    const std::vector<std::shared_ptr<Region>> &regions) {
+// void strategicRegions(
+//     const std::string &path,
+//     const std::vector<std::shared_ptr<Arda::SuperRegion>>
+//     &strategicRegions, const std::vector<std::shared_ptr<Region>> &regions)
+//     {
 //
-//  Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Strategig Regions");
-//  const auto templateFile =
-//      pU::readFile(Fwg::Cfg::Values().resourcePath +
-//                   "vic3//common//strategic_regions//template.txt");
-//  std::string file = "";
-//  for (const auto &region : strategicRegions) {
-//    auto content = templateFile;
-//    std::string states{""};
-//    std::string capital;
-//    bool capitalSelected = false;
-//    for (const auto &state : region->ardaRegions) {
-//      states.append(" STATE_" + state->name);
-//      if (!capitalSelected) {
-//        capitalSelected = true;
-//        capital = state->ardaProvinces[0]->toHexString();
-//      }
-//    }
-//    Rpx::Parsing::replaceOccurences(content, "template_name", region->name);
-//    Rpx::Parsing::replaceOccurences(content, "template_states", states);
-//    Rpx::Parsing::replaceOccurences(content, "template_capital", capital);
+//   Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Strategig
+//   Regions"); const auto templateFile =
+//       pU::readFile(Fwg::Cfg::Values().resourcePath +
+//                    "vic3//common//strategic_regions//template.txt");
+//   std::string file = "";
+//   for (const auto &region : strategicRegions) {
+//     auto content = templateFile;
+//     std::string states{""};
+//     std::string capital;
+//     bool capitalSelected = false;
+//     for (const auto &state : region->ardaRegions) {
+//       states.append(" STATE_" + state->name);
+//       if (!capitalSelected) {
+//         capitalSelected = true;
+//         capital = state->ardaProvinces[0]->toHexString();
+//       }
+//     }
+//     Rpx::Parsing::replaceOccurences(content, "template_name",
+//     region->name); Rpx::Parsing::replaceOccurences(content,
+//     "template_states", states); Rpx::Parsing::replaceOccurences(content,
+//     "template_capital", capital);
 //
-//    file.append(content);
-//  }
-//  pU::writeFile(path, file, true);
-//}
+//     file.append(content);
+//   }
+//   pU::writeFile(path, file, true);
+// }
 
 // void adj(const std::string &path) {
 //   Logging::logLine("Vic3 Parser: Map: Writing Adjacencies");
@@ -80,9 +105,9 @@ void writeMetadata(const std::string &path) {
 //       }
 //     }
 //   }
-//   Rpx::Parsing::replaceOccurences(content, "TEMPLATE_SEA_STARTS", seaStarts);
-//   Rpx::Parsing::replaceOccurences(content, "TEMPLATE_LAKES", lakes);
-//   pU::writeFile(path, content);
+//   Rpx::Parsing::replaceOccurences(content, "TEMPLATE_SEA_STARTS",
+//   seaStarts); Rpx::Parsing::replaceOccurences(content, "TEMPLATE_LAKES",
+//   lakes); pU::writeFile(path, content);
 // }
 //
 // void defines(const std::string &pathOut) {
@@ -113,7 +138,8 @@ void writeMetadata(const std::string &path) {
 //
 // void stateFiles(const std::string &path,
 //                 const std::vector<std::shared_ptr<Region>> &regions) {
-//   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing state files");
+//   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing state
+//   files");
 //
 //   const auto templateFile = pU::readFile(Fwg::Cfg::Values().resourcePath +
 //                                          "vic3//map_data//state_template.txt");
@@ -123,8 +149,8 @@ void writeMetadata(const std::string &path) {
 //   std::string file = "";
 //   for (const auto &region : regions) {
 //     auto content = region->isSea() ? seaTemplateFile : templateFile;
-//     Rpx::Parsing::replaceOccurences(content, "template_name", region->name);
-//     Rpx::Parsing::replaceOccurences(content, "template_id",
+//     Rpx::Parsing::replaceOccurences(content, "template_name",
+//     region->name); Rpx::Parsing::replaceOccurences(content, "template_id",
 //                                     std::to_string(region->ID + 1));
 //     std::string provinceString{""};
 //     for (auto prov : region->ardaProvinces) {
@@ -139,31 +165,36 @@ void writeMetadata(const std::string &path) {
 //           content, "template_city",
 //           region
 //               ->ardaProvinces[std::clamp(counter++, 0,
-//                                          (int)region->provinces.size() - 1)]
+//                                          (int)region->provinces.size() -
+//                                          1)]
 //               ->toHexString());
 //       Rpx::Parsing::replaceOccurences(
 //           content, "template_port",
 //           region
 //               ->ardaProvinces[std::clamp(counter++, 0,
-//                                          (int)region->provinces.size() - 1)]
+//                                          (int)region->provinces.size() -
+//                                          1)]
 //               ->toHexString());
 //       Rpx::Parsing::replaceOccurences(
 //           content, "template_farm",
 //           region
 //               ->ardaProvinces[std::clamp(counter++, 0,
-//                                          (int)region->provinces.size() - 1)]
+//                                          (int)region->provinces.size() -
+//                                          1)]
 //               ->toHexString());
 //       Rpx::Parsing::replaceOccurences(
 //           content, "template_mine",
 //           region
 //               ->ardaProvinces[std::clamp(counter++, 0,
-//                                          (int)region->provinces.size() - 1)]
+//                                          (int)region->provinces.size() -
+//                                          1)]
 //               ->toHexString());
 //       Rpx::Parsing::replaceOccurences(
 //           content, "template_wood",
 //           region
 //               ->ardaProvinces[std::clamp(counter++, 0,
-//                                          (int)region->provinces.size() - 1)]
+//                                          (int)region->provinces.size() -
+//                                          1)]
 //               ->toHexString());
 //
 //       // check if we are a coastal region
@@ -178,7 +209,8 @@ void writeMetadata(const std::string &path) {
 //                                         "naval_exit_id = " +
 //                                             std::to_string(region->navalExit));
 //       } else {
-//         Rpx::Parsing::replaceOccurences(content, "template_naval_exit", "");
+//         Rpx::Parsing::replaceOccurences(content, "template_naval_exit",
+//         "");
 //       }
 //
 //       std::string agriResString = "";
@@ -221,7 +253,8 @@ void writeMetadata(const std::string &path) {
 //     const std::string &path,
 //     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
 //   Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Areas::Province
-//   Terrains"); std::string content{""}; for (const auto &province : provinces)
+//   Terrains"); std::string content{""}; for (const auto &province :
+//   provinces)
 //   {
 //     content.append(province->toHexString());
 //     content.append("=\"");
@@ -244,7 +277,8 @@ void writeMetadata(const std::string &path) {
 //     const std::vector<std::shared_ptr<Arda::Culture>> &cultures) {
 //   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing cultures");
 //   const auto culturesTemplate = pU::readFile(
-//       Fwg::Cfg::Values().resourcePath + "vic3//common//cultureTemplate.txt");
+//       Fwg::Cfg::Values().resourcePath +
+//       "vic3//common//cultureTemplate.txt");
 //   std::string cultureFile{""};
 //   for (const auto &culture : cultures) {
 //     auto cultString = culturesTemplate;
@@ -252,8 +286,9 @@ void writeMetadata(const std::string &path) {
 //     Rpx::Parsing::replaceOccurences(cultString, "templateCulture",
 //                                     culture->name);
 //     std::string colour = Fwg::Utils::varsToString(
-//         (int)culture->colour.getRed(), " ", (int)culture->colour.getGreen(),
-//         " ", (int)culture->colour.getBlue());
+//         (int)culture->colour.getRed(), " ",
+//         (int)culture->colour.getGreen(), " ",
+//         (int)culture->colour.getBlue());
 //     Rpx::Parsing::replaceOccurences(cultString, "templateColour", colour);
 //     // Rpx::Parsing::replaceOccurences(cultString, "templateReligion",
 //     //                                 culture->primaryReligion->name);
@@ -296,8 +331,8 @@ void writeMetadata(const std::string &path) {
 //                                     country.second->tag);
 //     std::string colour =
 //         Fwg::Utils::varsToString((int)country.second->colour.getRed(), " ",
-//                                  (int)country.second->colour.getGreen(), " ",
-//                                  (int)country.second->colour.getBlue());
+//                                  (int)country.second->colour.getGreen(), "
+//                                  ", (int)country.second->colour.getBlue());
 //     Rpx::Parsing::replaceOccurences(cString, "templateColour", colour);
 //     auto capitalRegion = regions[country.second->capitalRegionID];
 //     Rpx::Parsing::replaceOccurences(cString, "templateCapital",
@@ -306,7 +341,8 @@ void writeMetadata(const std::string &path) {
 //     using pair_type = decltype(capitalRegion->cultures)::value_type;
 //     auto pr = std::max_element(std::begin(capitalRegion->cultures),
 //                                std::end(capitalRegion->cultures),
-//                                [](const pair_type &p1, const pair_type &p2) {
+//                                [](const pair_type &p1, const pair_type &p2)
+//                                {
 //                                  return p1.second < p2.second;
 //                                });
 //
@@ -333,7 +369,8 @@ void writeMetadata(const std::string &path) {
 //     if (!region->isLand())
 //       continue;
 //     auto statePops = popsStateTemplate;
-//     Rpx::Parsing::replaceOccurences(statePops, "templateName", region->name);
+//     Rpx::Parsing::replaceOccurences(statePops, "templateName",
+//     region->name);
 //     // TODO: real country
 //     Rpx::Parsing::replaceOccurences(statePops, "templateTag",
 //                                     region->owner->tag);
@@ -380,7 +417,8 @@ void writeMetadata(const std::string &path) {
 //                                     provinceString);
 //     std::string cultures;
 //     for (auto &culture : region->cultures) {
-//       cultures.append("add_homeland = cu:" + culture.first->name + "\n\t\t");
+//       cultures.append("add_homeland = cu:" + culture.first->name +
+//       "\n\t\t");
 //     }
 //     Rpx::Parsing::replaceOccurences(content, "templateCulture", cultures);
 //     stateContent.append(content);
@@ -457,7 +495,8 @@ void writeMetadata(const std::string &path) {
 //       "Vic3 Parser: Map: Reading compatibility Regions from ", inFolder);
 //   int counter = regions.size() + 1;
 //   std::string foundRegionNames = "";
-//   for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder})
+//   for (auto const &dir_entry :
+//   std::filesystem::directory_iterator{inFolder})
 //   {
 //     std::string pathString = dir_entry.path().string();
 //     if (pathString.find(".txt") == std::string::npos)
@@ -465,7 +504,8 @@ void writeMetadata(const std::string &path) {
 //
 //     std::string filename =
 //         pathString.substr(pathString.find_last_of("//") + 1,
-//                           pathString.back() - pathString.find_last_of("//"));
+//                           pathString.back() -
+//                           pathString.find_last_of("//"));
 //     std::string content = "";
 //     auto lines = pU::getLines(pathString);
 //     for (auto &line : lines) {
@@ -484,13 +524,14 @@ void writeMetadata(const std::string &path) {
 // }
 // void compatStratRegions(const std::string &inFolder, const std::string
 // &outPath,
-//                         const std::vector<std::shared_ptr<Region>> &regions,
-//                         std::string &baseArdaRegions) {
+//                         const std::vector<std::shared_ptr<Region>>
+//                         &regions, std::string &baseArdaRegions) {
 //   return;
 //   Fwg::Utils::Logging::logLine(
 //       "Vic3 Parser: Map: Generating compatibility Strategic Regions from ",
 //       inFolder);
-//   for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder})
+//   for (auto const &dir_entry :
+//   std::filesystem::directory_iterator{inFolder})
 //   {
 //     auto filePath = dir_entry.path();
 //     std::string filename = filePath.filename().string();
@@ -526,14 +567,16 @@ void writeMetadata(const std::string &path) {
 //   Fwg::Utils::Logging::logLine(
 //       "Vic3 Parser: History: Compatibility Releasable Countries from ",
 //       inFolder);
-//   for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder})
+//   for (auto const &dir_entry :
+//   std::filesystem::directory_iterator{inFolder})
 //   {
 //     std::string pathString = dir_entry.path().string();
 //     if (pathString.find(".txt") == std::string::npos)
 //       continue;
 //     std::string filename =
 //         pathString.substr(pathString.find_last_of("//") + 1,
-//                           pathString.back() - pathString.find_last_of("//"));
+//                           pathString.back() -
+//                           pathString.find_last_of("//"));
 //     Fwg::Utils::Logging::logLine("Determined filename: ", filename);
 //     std::string content = pU::readFile(pathString);
 //     while (
@@ -545,18 +588,21 @@ void writeMetadata(const std::string &path) {
 //   }
 // }
 //
-// void compatTriggers(const std::string &inFolder, const std::string &outPath)
+// void compatTriggers(const std::string &inFolder, const std::string
+// &outPath)
 // {
 //   Fwg::Utils::Logging::logLine(
 //       "Vic3 Parser: Common: Compatibility scripted Triggers ", inFolder);
-//   for (auto const &dir_entry : std::filesystem::directory_iterator{inFolder})
+//   for (auto const &dir_entry :
+//   std::filesystem::directory_iterator{inFolder})
 //   {
 //     std::string pathString = dir_entry.path().string();
 //     if (pathString.find(".txt") == std::string::npos)
 //       continue;
 //     std::string filename =
 //         pathString.substr(pathString.find_last_of("//") + 1,
-//                           pathString.back() - pathString.find_last_of("//"));
+//                           pathString.back() -
+//                           pathString.find_last_of("//"));
 //     std::string content = pU::readFile(pathString);
 //     Rpx::Parsing::removeLines(content, "sr:region");
 //     Rpx::Parsing::removeLines(content, "STATE_");
@@ -616,15 +662,20 @@ void writeMetadata(const std::string &path) {
 //   pU::replaceOccurence(woodContent, "templateLocators",
 //                        locatorContent[LocationType::Forest]);
 //
-//   pU::writeFile(path + "generated_map_object_locators_city.txt", cityContent,
+//   pU::writeFile(path + "generated_map_object_locators_city.txt",
+//   cityContent,
 //                 true);
-//   pU::writeFile(path + "generated_map_object_locators_farm.txt", farmContent,
+//   pU::writeFile(path + "generated_map_object_locators_farm.txt",
+//   farmContent,
 //                 true);
-//   pU::writeFile(path + "generated_map_object_locators_mine.txt", mineContent,
+//   pU::writeFile(path + "generated_map_object_locators_mine.txt",
+//   mineContent,
 //                 true);
-//   pU::writeFile(path + "generated_map_object_locators_port.txt", portContent,
+//   pU::writeFile(path + "generated_map_object_locators_port.txt",
+//   portContent,
 //                 true);
-//   pU::writeFile(path + "generated_map_object_locators_wood.txt", woodContent,
+//   pU::writeFile(path + "generated_map_object_locators_wood.txt",
+//   woodContent,
 //                 true);
 // }
 

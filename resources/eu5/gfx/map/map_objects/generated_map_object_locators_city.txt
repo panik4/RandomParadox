@@ -1,0 +1,10 @@
+game_object_locator={
+	name="city"
+	clamp_to_water_level=no
+	render_under_water=no
+	generated_content=no
+	layer="cities_layer"
+	instances={
+
+	}
+}

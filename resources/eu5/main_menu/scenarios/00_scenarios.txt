@@ -1,0 +1,5 @@
+﻿HAB_scenario = {
+	country = HAB
+	player_playstyle = ADMINISTRATIVE
+	player_proficiency = EXPERIENCED
+}

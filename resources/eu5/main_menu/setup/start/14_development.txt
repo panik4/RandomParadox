@@ -1,0 +1,42 @@
+development = {
+# all valid values is added together
+#
+# region, area, province_definition or location can be used
+# location_rank, climate, topography or vegetation keys can be used
+# coastal, river
+
+
+	coastal = 2
+	river = 3
+	road = 2
+	
+	#location rank
+	city = 5
+	town = 2
+
+	# vegetation
+	grasslands = 1
+	farmland = 3
+	sparse = 0
+	forest = -2
+	woods = -1
+	desert = -3
+	jungle = -4
+
+	#climate
+	tropical = -3
+	subtropical = 2
+	oceanic = 1
+	arid = -2
+	cold_arid = -2
+	mediterranean = 2
+	continental = 1
+	arctic = -5
+	
+	#topography
+	flatland = 1
+	mountains = -3
+	hills = -1
+	plateau = 0
+	wetlands = -4
+}
