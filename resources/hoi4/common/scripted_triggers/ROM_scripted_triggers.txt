@@ -1,0 +1,109 @@
+#scripted trigger for Hungary
+
+is_available_fighter_ROM = {
+	OR = {
+		AND = {
+			has_tech = fighter1
+			ROM = { 
+				NOT = { has_tech = fighter1}
+			}
+		}
+		AND = {
+			has_tech = fighter2
+			ROM = { 
+				NOT = { has_tech = fighter2}
+			}
+		}
+		AND = {
+			has_tech = fighter3
+			ROM = { 
+				NOT = { has_tech = fighter3}
+			}
+		}
+	}
+	NOT = {
+		has_war_with = ROM
+	}
+}
+
+is_available_heavy_fighter_ROM = {
+	OR = {
+		AND = {
+			has_tech = heavy_fighter1
+			ROM = { 
+				NOT = { has_tech = heavy_fighter1}
+			}
+		}
+		AND = {
+			has_tech = heavy_fighter2
+			ROM = { 
+				NOT = { has_tech = heavy_fighter2}
+			}
+		}
+		AND = {
+			has_tech = heavy_fighter3
+			ROM = { 
+				NOT = { has_tech = heavy_fighter3}
+			}
+		}
+	}
+	NOT = {
+		has_war_with = ROM
+	}
+}
+
+is_available_cas_ROM = {
+	OR = {
+		AND = {
+			has_tech = CAS1
+			ROM = { 
+				NOT = { has_tech = CAS1}
+			}
+		}
+		AND = {
+			has_tech = CAS2
+			ROM = { 
+				NOT = { has_tech = CAS2}
+			}
+		}
+		AND = {
+			has_tech = CAS3
+			ROM = { 
+				NOT = { has_tech = CAS3}
+			}
+		}
+	}
+	NOT = {
+		has_war_with = ROM
+	}
+}
+
+is_available_tac_ROM = {
+	OR = {
+		AND = {
+			has_tech = tactical_bomber1
+			ROM = { 
+				NOT = { has_tech = tactical_bomber1}
+			}
+		}
+		AND = {
+			has_tech = tactical_bomber2
+			ROM = { 
+				NOT = { has_tech = tactical_bomber2}
+			}
+		}
+		AND = {
+			has_tech = tactical_bomber3
+			ROM = { 
+				NOT = { has_tech = tactical_bomber3}
+			}
+		}
+	}
+	NOT = {
+		has_war_with = ROM
+	}
+}
+
+has_anyone_else_claimed_ROM = {
+
+}

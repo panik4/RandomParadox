@@ -54,6 +54,10 @@ void buildings(const std::string &path,
       content.append(pU::csvFormat(arguments, ';', false));
     }
   }
+  // remove the last newline
+  if (!content.empty() && content.back() == '\n') {
+    content.pop_back();
+  }
   pU::writeFile(path, content);
 }
 
@@ -1383,20 +1387,12 @@ void commonBookmarks(
   pU::writeFile(path + "the_gathering_storm.txt", bookmarkTemplate);
 }
 
-void scriptedTriggers(std::string gamePath, std::string modPath) {
+void scriptedTriggers(std::string resources, std::string modPath) {
   Fwg::Utils::Logging::logLine("HOI4 Parser: Scripted Triggers: Copying Files");
   // copy files from gamePath to modPath
-  std::vector<std::string> filenames{"00_diplo_action_valid_triggers.txt",
-                                     "00_resistance_initiate_triggers.txt",
-                                     "00_scripted_triggers.txt",
-                                     "debug_triggers.txt",
-                                     "diplomacy_scripted_triggers.txt",
-                                     "Elections_scripted_triggers.txt",
-                                     "ideology_scripted_triggers.txt",
-                                     "laws_war_support.txt",
-                                     "unit_medals_scripted_triggers.txt"};
+  std::vector<std::string> filenames{"ROM_scripted_triggers.txt"};
   for (const auto &filename : filenames) {
-    std::filesystem::copy(gamePath + filename, modPath + filename,
+    std::filesystem::copy(resources + filename, modPath + filename,
                           std::filesystem::copy_options::overwrite_existing);
   }
 }
@@ -1445,6 +1441,9 @@ void compatibilityHistory(
     }
     Rpx::Parsing::replaceLine(content,
                               "capital =", "capital = " + std::to_string(1));
+    // make sure we correct a bad replacement. Ugly
+    Rpx::Parsing::replaceLine(content,
+                              "set_capital = 1", "set_capital = {");
     Rpx::Parsing::replaceLine(content,
                               "SWI_find_biggest_fascist_neighbor = yes", "");
     auto blocks = Rpx::Parsing::getOuterBlocks(pU::getLines(pathString));
