@@ -271,13 +271,13 @@ void ImageExporter::Vic3ColourMaps(
     for (auto w = 0; w < imageWidth; w++) {
       // use imagewidth here, as we simply compare two equally sized images
       auto referenceIndex = h * imageWidth + w;
-      double humidity = (double)scaledMap[referenceIndex].getBlue() / 255.0;
+      double referenceHumidity = (double)scaledMap[referenceIndex].getBlue() / 255.0;
       auto imageIndex =
           imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
       imageIndex *= 4;
       auto c = scaledMap[referenceIndex];
       Fwg::Gfx::Colour col =
-          baseColour * humidity + baseColour2 * (1.0 - humidity);
+          baseColour * referenceHumidity + baseColour2 * (1.0 - referenceHumidity);
       if (scaledHeight[referenceIndex].getBlue() <
           (double)Cfg::Values().seaLevel) {
         col = {74, 131, 129};
@@ -341,11 +341,11 @@ void ImageExporter::dynamicMasks(
           Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask),
           config.width, config.height, false),
       path + "mask_dynamic_farmland.png", true, LCT_GREY);
-  for (int i = 0; i < climateData.treeCoverage.size(); i++) {
+  for (int i = 0; i < climateData.forestTypes.size(); i++) {
     dynamicMask[i] = 0;
-    auto val = climateData.treeCoverage[i];
-    if (val != Fwg::Climate::Detail::TreeTypeIndex::NONE)
-      dynamicMask[i] = climateData.treeDensity[i] * 255.0;
+    auto val = climateData.forestTypes[i];
+    if (val != Fwg::Climate::Detail::ForestType::NONE)
+      dynamicMask[i] = climateData.forestDensity[i] * 255.0;
   }
 
   Fwg::Gfx::Png::save(
@@ -405,9 +405,9 @@ void ImageExporter::detailMaps(
     const Fwg::Climate::ClimateData &climateData,
     const Arda::Civilization::CivilizationLayer &civLayer,
     const std::string &path) {
-  using Et = Fwg::Terrain::ElevationTypeIndex;
-  using Clt = Fwg::Climate::Detail::ClimateTypeIndex;
-  using ft = Fwg::Climate::Detail::TreeTypeIndex;
+  using Et = Fwg::Terrain::LandformId;
+  using Clt = Fwg::Climate::Detail::ClimateClassId;
+  using ft = Fwg::Climate::Detail::ForestType;
   std::map<Et, int> elevationMap{
       {Et::CLIFF, 16},      {Et::DEEPOCEAN, 6}, {Et::LAKE, 6},
       {Et::HIGHLANDS, 18},  {Et::HILLS, 16},    {Et::LOWHILLS, 13},
@@ -474,29 +474,29 @@ void ImageExporter::detailMaps(
   const auto &config = Fwg::Cfg::Values();
   Fwg::Gfx::Bitmap detailIndexBmp(config.width, config.height, 24);
   Fwg::Gfx::Bitmap detailIntensity(config.width, config.height, 24);
-  for (auto i = 0; i < climateData.climates.size(); i++) {
+  for (auto i = 0; i < climateData.climateChances.size(); i++) {
     std::array<unsigned char, 3> colour;
     std::array<float, 3> intensities;
 
     for (auto chanceIndex = 0; chanceIndex < 3; chanceIndex++) {
-      auto type = climateData.climates[i].getChances(chanceIndex).second;
+      auto type = climateData.climateChances.getChance(chanceIndex, i).typeIndex;
       auto intensity = static_cast<float>(
-          climateData.climates[i].getChances(chanceIndex).first *
+          climateData.climateChances.getChance(chanceIndex, i).getChance()*
           (1.0 / pow(2.0, (double)chanceIndex)));
       auto mappedType = climateMap.at(type);
       colour[chanceIndex] = static_cast<unsigned char>(mappedType);
       intensities[chanceIndex] = intensity;
     }
 
-    auto elevType = terrainData.landForms[i].landForm;
-    if (elevType != Terrain::ElevationTypeIndex::PLAINS &&
-        elevType != Terrain::ElevationTypeIndex::HIGHLANDS) {
+    auto elevType = terrainData.landFormIds[i];
+    if (elevType != Terrain::LandformId::PLAINS &&
+        elevType != Terrain::LandformId::HIGHLANDS) {
       colour[2] = static_cast<unsigned char>(elevationMap.at(elevType));
       intensities[2] =
-          std::clamp(terrainData.landForms[i].inclination * 0.5f, 0.0f, 1.0f);
+          std::clamp(terrainData.inclination[i] * 0.5f, 0.0f, 1.0f);
     }
 
-    auto treeType = climateData.treeCoverage[i];
+    auto treeType = climateData.forestTypes[i];
     if (treeType != ft::NONE) {
       colour[1] = static_cast<unsigned char>(treeMap.at(treeType));
       intensities[1] = 1.0;

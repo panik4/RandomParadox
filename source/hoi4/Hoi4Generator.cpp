@@ -233,8 +233,8 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
   auto &topographyOverlayColours = Fwg::Cfg::Values().topographyOverlayColours;
   typeMap.fill(colours.at("sea"));
   Fwg::Utils::Logging::logLine("Mapping Terrain");
-  const auto &landForms = terrainData.landForms;
-  const auto &climates = climateData.climates;
+  const auto &landFormIds = terrainData.landFormIds;
+  const auto &climates = climateData.climateChances;
   const auto &forests = climateData.dominantForest;
   for (auto &ardaRegion : ardaRegions) {
     for (auto &gameProv : ardaRegion->ardaProvinces) {
@@ -252,12 +252,12 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
         }
       } else {
         int forestPixels = 0;
-        std::map<Fwg::Climate::Detail::ClimateTypeIndex, int> climateScores;
-        std::map<Fwg::Terrain::ElevationTypeIndex, int> terrainTypeScores;
+        std::map<Fwg::Climate::Detail::ClimateClassId, int> climateScores;
+        std::map<Fwg::Terrain::LandformId, int> terrainTypeScores;
         // get the dominant climate of the province
         for (auto &pix : baseProv->pixels) {
-          climateScores[climates[pix].getChances(0).second]++;
-          terrainTypeScores[landForms[pix].landForm]++;
+          climateScores[climates.getChance(0,pix).typeIndex]++;
+          terrainTypeScores[landFormIds[pix]]++;
           if (forests[pix]) {
             forestPixels++;
           }
@@ -287,15 +287,15 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
             typeMap.setColourAtIndex(pix, topographyOverlayColours.at("urban"));
           }
         } else if (dominantTerrain ==
-                       Fwg::Terrain::ElevationTypeIndex::MOUNTAINS ||
-                   dominantTerrain == Fwg::Terrain::ElevationTypeIndex::PEAKS ||
+                       Fwg::Terrain::LandformId::MOUNTAINS ||
+                   dominantTerrain == Fwg::Terrain::LandformId::PEAKS ||
                    dominantTerrain ==
-                       Fwg::Terrain::ElevationTypeIndex::STEEPPEAKS) {
+                       Fwg::Terrain::LandformId::STEEPPEAKS) {
           gameProv->terrainType = "mountain";
           for (auto &pix : baseProv->pixels) {
             typeMap.setColourAtIndex(pix, elevationColours.at("mountains"));
           }
-        } else if (dominantTerrain == Fwg::Terrain::ElevationTypeIndex::HILLS) {
+        } else if (dominantTerrain == Fwg::Terrain::LandformId::HILLS) {
           gameProv->terrainType = "hills";
           for (auto &pix : baseProv->pixels) {
             typeMap.setColourAtIndex(pix, elevationColours.at("hills"));
@@ -311,7 +311,7 @@ Fwg::Gfx::Bitmap Generator::mapTerrain() {
             typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour(16, 40, 8));
           }
         } else {
-          using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
+          using CTI = Fwg::Climate::Detail::ClimateClassId;
           // now, if this is a more flat land, check the climate type
           if (dominantClimate == CTI::TROPICSMONSOON ||
               dominantClimate == CTI::TROPICSRAINFOREST) {
@@ -720,7 +720,7 @@ void Generator::generateWeather() {
         // now save monthly data, 0, 1, 2
         stratRegion->weatherMonths.push_back(
             {averageDeviation, averageTemperature, averagePrecipitation});
-        // temperature low, 3
+        // referenceTemperature low, 3
         stratRegion->weatherMonths[i].push_back(
             Cfg::Values().minimumDegCelcius +
             averageTemperature * Cfg::Values().temperatureRange);
@@ -1938,11 +1938,11 @@ void Generator::generateFocusTrees() {
 
 Arda::ScenarioPosition
 createPosition(Fwg::Position &position, Arda::PositionType type, int typeIndex,
-               const std::vector<Fwg::Terrain::LandForm> &landForms) {
+               const std::vector<float> &altitudes) {
   Arda::ScenarioPosition scenarioPos;
   scenarioPos.position = position;
   scenarioPos.position.altitude =
-      landForms[scenarioPos.position.weightedCenter].altitude;
+      altitudes[scenarioPos.position.weightedCenter];
   scenarioPos.type = type;
   scenarioPos.typeIndex = typeIndex;
   return scenarioPos;
@@ -1967,7 +1967,7 @@ getNeighbourRelations(const std::shared_ptr<Fwg::Areas::Province> &prov,
 }
 
 void Generator::generatePositions() {
-  const auto &landForms = this->terrainData.landForms;
+  const auto &altitudes = this->terrainData.altitudes;
   const auto &cfg = Fwg::Cfg::Values();
   for (auto &gameProv : ardaProvinces) {
     Fwg::Position position;
@@ -1978,7 +1978,7 @@ void Generator::generatePositions() {
     }
 
     gameProv->positions.push_back(createPosition(
-        position, Arda::PositionType::VictoryPoint, 38, landForms));
+        position, Arda::PositionType::VictoryPoint, 38, altitudes));
 
     // now we get neighbour relations for a province, but in a very short
     // distance to the centre.
@@ -1990,16 +1990,16 @@ void Generator::generatePositions() {
     auto allowedSize = neighbourRelations.size() - 1;
     gameProv->positions.push_back(createPosition(
         neighbourRelations[std::min<int>(0, allowedSize)].positionToNeighbour,
-        Arda::PositionType::Standstill, 0, landForms));
+        Arda::PositionType::Standstill, 0, altitudes));
     gameProv->positions.push_back(createPosition(
         neighbourRelations[std::min<int>(1, allowedSize)].positionToNeighbour,
-        Arda::PositionType::StandstillRG, 21, landForms));
+        Arda::PositionType::StandstillRG, 21, altitudes));
     gameProv->positions.push_back(createPosition(
         neighbourRelations[std::min<int>(2, allowedSize)].positionToNeighbour,
-        Arda::PositionType::Defending, 10, landForms));
+        Arda::PositionType::Defending, 10, altitudes));
     gameProv->positions.push_back(createPosition(
         neighbourRelations[std::min<int>(3, allowedSize)].positionToNeighbour,
-        Arda::PositionType::Attacking, 9, landForms));
+        Arda::PositionType::Attacking, 9, altitudes));
 
     // for sea we need: standstill, standstill RG, defending, attacking, per
     // neighbour: moving, disembarck (11 + x), moving RG, disembarck RG (30 + x)
@@ -2030,9 +2030,9 @@ void Generator::generatePositions() {
       }
 
       gameProv->positions.push_back(createPosition(
-          position, Arda::PositionType::ShipInPort, 19, landForms));
+          position, Arda::PositionType::ShipInPort, 19, altitudes));
       gameProv->positions.push_back(createPosition(
-          position, Arda::PositionType::ShipInPortMoving, 20, landForms));
+          position, Arda::PositionType::ShipInPortMoving, 20, altitudes));
     }
     neighbourRelations = getNeighbourRelations(prov, cfg, 0.33f);
     // really close to the destination coast
@@ -2051,20 +2051,20 @@ void Generator::generatePositions() {
 
       gameProv->positions.push_back(createPosition(
           neighbour->positionToNeighbour, Arda::PositionType::UnitMoving,
-          1 + counter, landForms));
+          1 + counter, altitudes));
       gameProv->positions.push_back(createPosition(
           neighbourRelations[counter].positionToNeighbour,
-          Arda::PositionType::UnitMovingRG, 22 + counter, landForms));
+          Arda::PositionType::UnitMovingRG, 22 + counter, altitudes));
       if (sea) {
         // now we add the embark positions, which are the same as the
         // neighbour relations, but with a different type
         gameProv->positions.push_back(createPosition(
             embarkNeighbourRelations[counter].positionToNeighbour,
-            Arda::PositionType::UnitDisembarking, 11 + counter, landForms));
+            Arda::PositionType::UnitDisembarking, 11 + counter, altitudes));
 
         gameProv->positions.push_back(createPosition(
             embarkRgNeighbourRelations[counter].positionToNeighbour,
-            Arda::PositionType::UnitDisembarkingRG, 30 + counter, landForms));
+            Arda::PositionType::UnitDisembarkingRG, 30 + counter, altitudes));
         counter++;
       }
     }

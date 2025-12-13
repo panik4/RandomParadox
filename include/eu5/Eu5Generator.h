@@ -13,7 +13,7 @@
 namespace Rpx::Eu5 {
 
 struct Eu5Config {
-  using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
+  using CTI = Fwg::Climate::Detail::ClimateClassId;
   std::vector<Arda::Utils::ResConfig> resConfigs{};
 };
 struct Eu5Data {
