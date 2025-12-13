@@ -140,195 +140,195 @@ const std::map<std::string, std::map<Gfx::Colour, int>>
 using namespace Fwg::Climate::Detail;
 const std::map<std::string, std::map<int, int>> ImageExporter::indexMaps{
     {"terrainHoi4",
-     {{(int)ClimateTypeIndex::TROPICSRAINFOREST, 21},
-      {100 + (int)ClimateTypeIndex::TROPICSRAINFOREST, 22},
-      {200 + (int)ClimateTypeIndex::TROPICSRAINFOREST, 27},
-      {300 + (int)ClimateTypeIndex::TROPICSRAINFOREST, 27},
-      {(int)ClimateTypeIndex::TROPICSMONSOON, 22},
-      {100 + (int)ClimateTypeIndex::TROPICSMONSOON, 22},
-      {200 + (int)ClimateTypeIndex::TROPICSMONSOON, 27},
-      {300 + (int)ClimateTypeIndex::TROPICSMONSOON, 27},
-      {(int)ClimateTypeIndex::TROPICSSAVANNA, 5},
-      {100 + (int)ClimateTypeIndex::TROPICSSAVANNA, 18},
-      {200 + (int)ClimateTypeIndex::TROPICSSAVANNA, 18},
-      {300 + (int)ClimateTypeIndex::TROPICSSAVANNA, 27},
-      {(int)ClimateTypeIndex::DESERT, 7},
-      {100 + (int)ClimateTypeIndex::DESERT, 8},
-      {200 + (int)ClimateTypeIndex::DESERT, 10},
-      {300 + (int)ClimateTypeIndex::DESERT, 31},
-      {(int)ClimateTypeIndex::COLDDESERT, 3},
-      {100 + (int)ClimateTypeIndex::COLDDESERT, 8},
-      {200 + (int)ClimateTypeIndex::COLDDESERT, 19},
-      {300 + (int)ClimateTypeIndex::COLDDESERT, 16},
-      {(int)ClimateTypeIndex::HOTSEMIARID, 3},
-      {100 + (int)ClimateTypeIndex::HOTSEMIARID, 2},
-      {200 + (int)ClimateTypeIndex::HOTSEMIARID, 19},
-      {300 + (int)ClimateTypeIndex::HOTSEMIARID, 10},
-      {(int)ClimateTypeIndex::COLDSEMIARID, 12},
-      {100 + (int)ClimateTypeIndex::COLDSEMIARID, 18},
-      {200 + (int)ClimateTypeIndex::COLDSEMIARID, 19},
-      {300 + (int)ClimateTypeIndex::COLDSEMIARID, 11},
-      {(int)ClimateTypeIndex::TEMPERATEHOT, 0},
-      {100 + (int)ClimateTypeIndex::TEMPERATEHOT, 2},
-      {200 + (int)ClimateTypeIndex::TEMPERATEHOT, 20},
-      {300 + (int)ClimateTypeIndex::TEMPERATEHOT, 16},
-      {(int)ClimateTypeIndex::TEMPERATEWARM, 4},
-      {100 + (int)ClimateTypeIndex::TEMPERATEWARM, 2},
-      {200 + (int)ClimateTypeIndex::TEMPERATEWARM, 20},
-      {300 + (int)ClimateTypeIndex::TEMPERATEWARM, 16},
-      {(int)ClimateTypeIndex::TEMPERATECOLD, 17},
-      {100 + (int)ClimateTypeIndex::TEMPERATECOLD, 2},
-      {200 + (int)ClimateTypeIndex::TEMPERATECOLD, 16},
-      {300 + (int)ClimateTypeIndex::TEMPERATECOLD, 16},
-      {(int)ClimateTypeIndex::CONTINENTALHOT, 1},
-      {100 + (int)ClimateTypeIndex::CONTINENTALHOT, 2},
-      {200 + (int)ClimateTypeIndex::CONTINENTALHOT, 20},
-      {300 + (int)ClimateTypeIndex::CONTINENTALHOT, 16},
-      {(int)ClimateTypeIndex::CONTINENTALWARM, 4},
-      {100 + (int)ClimateTypeIndex::CONTINENTALWARM, 2},
-      {200 + (int)ClimateTypeIndex::CONTINENTALWARM, 20},
-      {300 + (int)ClimateTypeIndex::CONTINENTALWARM, 16},
-      {(int)ClimateTypeIndex::CONTINENTALCOLD, 1},
-      {100 + (int)ClimateTypeIndex::CONTINENTALCOLD, 2},
-      {200 + (int)ClimateTypeIndex::CONTINENTALCOLD, 16},
-      {300 + (int)ClimateTypeIndex::CONTINENTALCOLD, 16},
-      {(int)ClimateTypeIndex::POLARTUNDRA, 0},
-      {100 + (int)ClimateTypeIndex::POLARTUNDRA, 18},
-      {200 + (int)ClimateTypeIndex::POLARTUNDRA, 16},
-      {300 + (int)ClimateTypeIndex::POLARTUNDRA, 16},
-      {(int)ClimateTypeIndex::POLARARCTIC, 16},
-      {100 + (int)ClimateTypeIndex::POLARARCTIC, 16},
-      {200 + (int)ClimateTypeIndex::POLARARCTIC, 16},
-      {300 + (int)ClimateTypeIndex::POLARARCTIC, 16},
-      {(int)ClimateTypeIndex::SNOW, 16},
-      {100 + (int)ClimateTypeIndex::SNOW, 16},
-      {200 + (int)ClimateTypeIndex::SNOW, 16},
-      {300 + (int)ClimateTypeIndex::SNOW, 16},
-      {(int)ClimateTypeIndex::WATER, 15},
-      {100 + (int)ClimateTypeIndex::WATER, 15},
-      {200 + (int)ClimateTypeIndex::WATER, 15},
-      {300 + (int)ClimateTypeIndex::WATER, 15}
+     {{(int)ClimateClassId::TROPICSRAINFOREST, 21},
+      {100 + (int)ClimateClassId::TROPICSRAINFOREST, 22},
+      {200 + (int)ClimateClassId::TROPICSRAINFOREST, 27},
+      {300 + (int)ClimateClassId::TROPICSRAINFOREST, 27},
+      {(int)ClimateClassId::TROPICSMONSOON, 22},
+      {100 + (int)ClimateClassId::TROPICSMONSOON, 22},
+      {200 + (int)ClimateClassId::TROPICSMONSOON, 27},
+      {300 + (int)ClimateClassId::TROPICSMONSOON, 27},
+      {(int)ClimateClassId::TROPICSSAVANNA, 5},
+      {100 + (int)ClimateClassId::TROPICSSAVANNA, 18},
+      {200 + (int)ClimateClassId::TROPICSSAVANNA, 18},
+      {300 + (int)ClimateClassId::TROPICSSAVANNA, 27},
+      {(int)ClimateClassId::DESERT, 7},
+      {100 + (int)ClimateClassId::DESERT, 8},
+      {200 + (int)ClimateClassId::DESERT, 10},
+      {300 + (int)ClimateClassId::DESERT, 31},
+      {(int)ClimateClassId::COLDDESERT, 3},
+      {100 + (int)ClimateClassId::COLDDESERT, 8},
+      {200 + (int)ClimateClassId::COLDDESERT, 19},
+      {300 + (int)ClimateClassId::COLDDESERT, 16},
+      {(int)ClimateClassId::HOTSEMIARID, 3},
+      {100 + (int)ClimateClassId::HOTSEMIARID, 2},
+      {200 + (int)ClimateClassId::HOTSEMIARID, 19},
+      {300 + (int)ClimateClassId::HOTSEMIARID, 10},
+      {(int)ClimateClassId::COLDSEMIARID, 12},
+      {100 + (int)ClimateClassId::COLDSEMIARID, 18},
+      {200 + (int)ClimateClassId::COLDSEMIARID, 19},
+      {300 + (int)ClimateClassId::COLDSEMIARID, 11},
+      {(int)ClimateClassId::TEMPERATEHOT, 0},
+      {100 + (int)ClimateClassId::TEMPERATEHOT, 2},
+      {200 + (int)ClimateClassId::TEMPERATEHOT, 20},
+      {300 + (int)ClimateClassId::TEMPERATEHOT, 16},
+      {(int)ClimateClassId::TEMPERATEWARM, 4},
+      {100 + (int)ClimateClassId::TEMPERATEWARM, 2},
+      {200 + (int)ClimateClassId::TEMPERATEWARM, 20},
+      {300 + (int)ClimateClassId::TEMPERATEWARM, 16},
+      {(int)ClimateClassId::TEMPERATECOLD, 17},
+      {100 + (int)ClimateClassId::TEMPERATECOLD, 2},
+      {200 + (int)ClimateClassId::TEMPERATECOLD, 16},
+      {300 + (int)ClimateClassId::TEMPERATECOLD, 16},
+      {(int)ClimateClassId::CONTINENTALHOT, 1},
+      {100 + (int)ClimateClassId::CONTINENTALHOT, 2},
+      {200 + (int)ClimateClassId::CONTINENTALHOT, 20},
+      {300 + (int)ClimateClassId::CONTINENTALHOT, 16},
+      {(int)ClimateClassId::CONTINENTALWARM, 4},
+      {100 + (int)ClimateClassId::CONTINENTALWARM, 2},
+      {200 + (int)ClimateClassId::CONTINENTALWARM, 20},
+      {300 + (int)ClimateClassId::CONTINENTALWARM, 16},
+      {(int)ClimateClassId::CONTINENTALCOLD, 1},
+      {100 + (int)ClimateClassId::CONTINENTALCOLD, 2},
+      {200 + (int)ClimateClassId::CONTINENTALCOLD, 16},
+      {300 + (int)ClimateClassId::CONTINENTALCOLD, 16},
+      {(int)ClimateClassId::POLARTUNDRA, 0},
+      {100 + (int)ClimateClassId::POLARTUNDRA, 18},
+      {200 + (int)ClimateClassId::POLARTUNDRA, 16},
+      {300 + (int)ClimateClassId::POLARTUNDRA, 16},
+      {(int)ClimateClassId::POLARARCTIC, 16},
+      {100 + (int)ClimateClassId::POLARARCTIC, 16},
+      {200 + (int)ClimateClassId::POLARARCTIC, 16},
+      {300 + (int)ClimateClassId::POLARARCTIC, 16},
+      {(int)ClimateClassId::SNOW, 16},
+      {100 + (int)ClimateClassId::SNOW, 16},
+      {200 + (int)ClimateClassId::SNOW, 16},
+      {300 + (int)ClimateClassId::SNOW, 16},
+      {(int)ClimateClassId::WATER, 15},
+      {100 + (int)ClimateClassId::WATER, 15},
+      {200 + (int)ClimateClassId::WATER, 15},
+      {300 + (int)ClimateClassId::WATER, 15}
 
      }},
     {"treeterrainHoi4",
-     {{(int)TreeTypeIndex::NONE, 0},
-      {(int)TreeTypeIndex::BOREAL, 1},
-      {(int)TreeTypeIndex::TEMPERATENEEDLE, 1},
-      {(int)TreeTypeIndex::TEMPERATEMIXED, 4},
-      {(int)TreeTypeIndex::SPARSE, 4},
-      {(int)TreeTypeIndex::TROPICALDRY, 22},
-      {(int)TreeTypeIndex::TROPICALMOIST, 21}}},
+     {{(int)ForestType::NONE, 0},
+      {(int)ForestType::BOREAL, 1},
+      {(int)ForestType::TEMPERATENEEDLE, 1},
+      {(int)ForestType::TEMPERATEMIXED, 4},
+      {(int)ForestType::SPARSE, 4},
+      {(int)ForestType::TROPICALDRY, 22},
+      {(int)ForestType::TROPICALMOIST, 21}}},
     {"treesHoi4",
-     {{(int)TreeTypeIndex::NONE, 0},
-      {(int)TreeTypeIndex::BOREAL, 6},
-      {(int)TreeTypeIndex::TEMPERATENEEDLE, 6},
-      {(int)TreeTypeIndex::TEMPERATEMIXED, 5},
-      {(int)TreeTypeIndex::SPARSE, 3},
-      {(int)TreeTypeIndex::TROPICALDRY, 28},
-      {(int)TreeTypeIndex::TROPICALMOIST, 29}}},
+     {{(int)ForestType::NONE, 0},
+      {(int)ForestType::BOREAL, 6},
+      {(int)ForestType::TEMPERATENEEDLE, 6},
+      {(int)ForestType::TEMPERATEMIXED, 5},
+      {(int)ForestType::SPARSE, 3},
+      {(int)ForestType::TROPICALDRY, 28},
+      {(int)ForestType::TROPICALMOIST, 29}}},
     {"riversHoi4",
      {{(int)0, 0},
       {(int)1, 6},
       {(int)2, 6},
-      {(int)TreeTypeIndex::TEMPERATEMIXED, 5},
-      {(int)TreeTypeIndex::SPARSE, 3},
-      {(int)TreeTypeIndex::TROPICALDRY, 28},
-      {(int)TreeTypeIndex::TROPICALMOIST, 29}}},
+      {(int)ForestType::TEMPERATEMIXED, 5},
+      {(int)ForestType::SPARSE, 3},
+      {(int)ForestType::TROPICALDRY, 28},
+      {(int)ForestType::TROPICALMOIST, 29}}},
     {"terrainEu4",
-     {{(int)ClimateTypeIndex::TROPICSRAINFOREST, 21},
-      {100 + (int)ClimateTypeIndex::TROPICSRAINFOREST, 22},
-      {200 + (int)ClimateTypeIndex::TROPICSRAINFOREST, 27},
-      {300 + (int)ClimateTypeIndex::TROPICSRAINFOREST, 27},
-      {(int)ClimateTypeIndex::TROPICSMONSOON, 22},
-      {100 + (int)ClimateTypeIndex::TROPICSMONSOON, 22},
-      {200 + (int)ClimateTypeIndex::TROPICSMONSOON, 27},
-      {300 + (int)ClimateTypeIndex::TROPICSMONSOON, 27},
-      {(int)ClimateTypeIndex::TROPICSSAVANNA, 5},
-      {100 + (int)ClimateTypeIndex::TROPICSSAVANNA, 18},
-      {200 + (int)ClimateTypeIndex::TROPICSSAVANNA, 18},
-      {300 + (int)ClimateTypeIndex::TROPICSSAVANNA, 27},
-      {(int)ClimateTypeIndex::DESERT, 7},
-      {100 + (int)ClimateTypeIndex::DESERT, 8},
-      {200 + (int)ClimateTypeIndex::DESERT, 10},
-      {300 + (int)ClimateTypeIndex::DESERT, 31},
-      {(int)ClimateTypeIndex::COLDDESERT, 3},
-      {100 + (int)ClimateTypeIndex::COLDDESERT, 8},
-      {200 + (int)ClimateTypeIndex::COLDDESERT, 19},
-      {300 + (int)ClimateTypeIndex::COLDDESERT, 16},
-      {(int)ClimateTypeIndex::HOTSEMIARID, 3},
-      {100 + (int)ClimateTypeIndex::HOTSEMIARID, 2},
-      {200 + (int)ClimateTypeIndex::HOTSEMIARID, 19},
-      {300 + (int)ClimateTypeIndex::HOTSEMIARID, 10},
-      {(int)ClimateTypeIndex::COLDSEMIARID, 12},
-      {100 + (int)ClimateTypeIndex::COLDSEMIARID, 18},
-      {200 + (int)ClimateTypeIndex::COLDSEMIARID, 19},
-      {300 + (int)ClimateTypeIndex::COLDSEMIARID, 11},
-      {(int)ClimateTypeIndex::TEMPERATEHOT, 0},
-      {100 + (int)ClimateTypeIndex::TEMPERATEHOT, 2},
-      {200 + (int)ClimateTypeIndex::TEMPERATEHOT, 20},
-      {300 + (int)ClimateTypeIndex::TEMPERATEHOT, 16},
-      {(int)ClimateTypeIndex::TEMPERATEWARM, 4},
-      {100 + (int)ClimateTypeIndex::TEMPERATEWARM, 2},
-      {200 + (int)ClimateTypeIndex::TEMPERATEWARM, 20},
-      {300 + (int)ClimateTypeIndex::TEMPERATEWARM, 16},
-      {(int)ClimateTypeIndex::TEMPERATECOLD, 17},
-      {100 + (int)ClimateTypeIndex::TEMPERATECOLD, 2},
-      {200 + (int)ClimateTypeIndex::TEMPERATECOLD, 16},
-      {300 + (int)ClimateTypeIndex::TEMPERATECOLD, 16},
-      {(int)ClimateTypeIndex::CONTINENTALHOT, 1},
-      {100 + (int)ClimateTypeIndex::CONTINENTALHOT, 2},
-      {200 + (int)ClimateTypeIndex::CONTINENTALHOT, 20},
-      {300 + (int)ClimateTypeIndex::CONTINENTALHOT, 16},
-      {(int)ClimateTypeIndex::CONTINENTALWARM, 4},
-      {100 + (int)ClimateTypeIndex::CONTINENTALWARM, 2},
-      {200 + (int)ClimateTypeIndex::CONTINENTALWARM, 20},
-      {300 + (int)ClimateTypeIndex::CONTINENTALWARM, 16},
-      {(int)ClimateTypeIndex::CONTINENTALCOLD, 1},
-      {100 + (int)ClimateTypeIndex::CONTINENTALCOLD, 2},
-      {200 + (int)ClimateTypeIndex::CONTINENTALCOLD, 16},
-      {300 + (int)ClimateTypeIndex::CONTINENTALCOLD, 16},
-      {(int)ClimateTypeIndex::POLARTUNDRA, 0},
-      {100 + (int)ClimateTypeIndex::POLARTUNDRA, 18},
-      {200 + (int)ClimateTypeIndex::POLARTUNDRA, 16},
-      {300 + (int)ClimateTypeIndex::POLARTUNDRA, 16},
-      {(int)ClimateTypeIndex::POLARARCTIC, 16},
-      {100 + (int)ClimateTypeIndex::POLARARCTIC, 16},
-      {200 + (int)ClimateTypeIndex::POLARARCTIC, 16},
-      {300 + (int)ClimateTypeIndex::POLARARCTIC, 16},
-      {(int)ClimateTypeIndex::SNOW, 16},
-      {100 + (int)ClimateTypeIndex::SNOW, 16},
-      {200 + (int)ClimateTypeIndex::SNOW, 16},
-      {300 + (int)ClimateTypeIndex::SNOW, 16},
-      {(int)ClimateTypeIndex::WATER, 15},
-      {100 + (int)ClimateTypeIndex::WATER, 15},
-      {200 + (int)ClimateTypeIndex::WATER, 15},
-      {300 + (int)ClimateTypeIndex::WATER, 15}
+     {{(int)ClimateClassId::TROPICSRAINFOREST, 21},
+      {100 + (int)ClimateClassId::TROPICSRAINFOREST, 22},
+      {200 + (int)ClimateClassId::TROPICSRAINFOREST, 27},
+      {300 + (int)ClimateClassId::TROPICSRAINFOREST, 27},
+      {(int)ClimateClassId::TROPICSMONSOON, 22},
+      {100 + (int)ClimateClassId::TROPICSMONSOON, 22},
+      {200 + (int)ClimateClassId::TROPICSMONSOON, 27},
+      {300 + (int)ClimateClassId::TROPICSMONSOON, 27},
+      {(int)ClimateClassId::TROPICSSAVANNA, 5},
+      {100 + (int)ClimateClassId::TROPICSSAVANNA, 18},
+      {200 + (int)ClimateClassId::TROPICSSAVANNA, 18},
+      {300 + (int)ClimateClassId::TROPICSSAVANNA, 27},
+      {(int)ClimateClassId::DESERT, 7},
+      {100 + (int)ClimateClassId::DESERT, 8},
+      {200 + (int)ClimateClassId::DESERT, 10},
+      {300 + (int)ClimateClassId::DESERT, 31},
+      {(int)ClimateClassId::COLDDESERT, 3},
+      {100 + (int)ClimateClassId::COLDDESERT, 8},
+      {200 + (int)ClimateClassId::COLDDESERT, 19},
+      {300 + (int)ClimateClassId::COLDDESERT, 16},
+      {(int)ClimateClassId::HOTSEMIARID, 3},
+      {100 + (int)ClimateClassId::HOTSEMIARID, 2},
+      {200 + (int)ClimateClassId::HOTSEMIARID, 19},
+      {300 + (int)ClimateClassId::HOTSEMIARID, 10},
+      {(int)ClimateClassId::COLDSEMIARID, 12},
+      {100 + (int)ClimateClassId::COLDSEMIARID, 18},
+      {200 + (int)ClimateClassId::COLDSEMIARID, 19},
+      {300 + (int)ClimateClassId::COLDSEMIARID, 11},
+      {(int)ClimateClassId::TEMPERATEHOT, 0},
+      {100 + (int)ClimateClassId::TEMPERATEHOT, 2},
+      {200 + (int)ClimateClassId::TEMPERATEHOT, 20},
+      {300 + (int)ClimateClassId::TEMPERATEHOT, 16},
+      {(int)ClimateClassId::TEMPERATEWARM, 4},
+      {100 + (int)ClimateClassId::TEMPERATEWARM, 2},
+      {200 + (int)ClimateClassId::TEMPERATEWARM, 20},
+      {300 + (int)ClimateClassId::TEMPERATEWARM, 16},
+      {(int)ClimateClassId::TEMPERATECOLD, 17},
+      {100 + (int)ClimateClassId::TEMPERATECOLD, 2},
+      {200 + (int)ClimateClassId::TEMPERATECOLD, 16},
+      {300 + (int)ClimateClassId::TEMPERATECOLD, 16},
+      {(int)ClimateClassId::CONTINENTALHOT, 1},
+      {100 + (int)ClimateClassId::CONTINENTALHOT, 2},
+      {200 + (int)ClimateClassId::CONTINENTALHOT, 20},
+      {300 + (int)ClimateClassId::CONTINENTALHOT, 16},
+      {(int)ClimateClassId::CONTINENTALWARM, 4},
+      {100 + (int)ClimateClassId::CONTINENTALWARM, 2},
+      {200 + (int)ClimateClassId::CONTINENTALWARM, 20},
+      {300 + (int)ClimateClassId::CONTINENTALWARM, 16},
+      {(int)ClimateClassId::CONTINENTALCOLD, 1},
+      {100 + (int)ClimateClassId::CONTINENTALCOLD, 2},
+      {200 + (int)ClimateClassId::CONTINENTALCOLD, 16},
+      {300 + (int)ClimateClassId::CONTINENTALCOLD, 16},
+      {(int)ClimateClassId::POLARTUNDRA, 0},
+      {100 + (int)ClimateClassId::POLARTUNDRA, 18},
+      {200 + (int)ClimateClassId::POLARTUNDRA, 16},
+      {300 + (int)ClimateClassId::POLARTUNDRA, 16},
+      {(int)ClimateClassId::POLARARCTIC, 16},
+      {100 + (int)ClimateClassId::POLARARCTIC, 16},
+      {200 + (int)ClimateClassId::POLARARCTIC, 16},
+      {300 + (int)ClimateClassId::POLARARCTIC, 16},
+      {(int)ClimateClassId::SNOW, 16},
+      {100 + (int)ClimateClassId::SNOW, 16},
+      {200 + (int)ClimateClassId::SNOW, 16},
+      {300 + (int)ClimateClassId::SNOW, 16},
+      {(int)ClimateClassId::WATER, 15},
+      {100 + (int)ClimateClassId::WATER, 15},
+      {200 + (int)ClimateClassId::WATER, 15},
+      {300 + (int)ClimateClassId::WATER, 15}
 
      }},
     {"treeterrainEu4",
-     {{(int)TreeTypeIndex::NONE, 0},
-      {(int)TreeTypeIndex::BOREAL, 1},
-      {(int)TreeTypeIndex::TEMPERATENEEDLE, 1},
-      {(int)TreeTypeIndex::TEMPERATEMIXED, 4},
-      {(int)TreeTypeIndex::SPARSE, 4},
-      {(int)TreeTypeIndex::TROPICALDRY, 22},
-      {(int)TreeTypeIndex::TROPICALMOIST, 21}}},
+     {{(int)ForestType::NONE, 0},
+      {(int)ForestType::BOREAL, 1},
+      {(int)ForestType::TEMPERATENEEDLE, 1},
+      {(int)ForestType::TEMPERATEMIXED, 4},
+      {(int)ForestType::SPARSE, 4},
+      {(int)ForestType::TROPICALDRY, 22},
+      {(int)ForestType::TROPICALMOIST, 21}}},
     {"treesEu4",
-     {{(int)TreeTypeIndex::NONE, 0},
-      {(int)TreeTypeIndex::BOREAL, 6},
-      {(int)TreeTypeIndex::TEMPERATENEEDLE, 6},
-      {(int)TreeTypeIndex::TEMPERATEMIXED, 5},
-      {(int)TreeTypeIndex::SPARSE, 3},
-      {(int)TreeTypeIndex::TROPICALDRY, 28},
-      {(int)TreeTypeIndex::TROPICALMOIST, 29}}},
+     {{(int)ForestType::NONE, 0},
+      {(int)ForestType::BOREAL, 6},
+      {(int)ForestType::TEMPERATENEEDLE, 6},
+      {(int)ForestType::TEMPERATEMIXED, 5},
+      {(int)ForestType::SPARSE, 3},
+      {(int)ForestType::TROPICALDRY, 28},
+      {(int)ForestType::TROPICALMOIST, 29}}},
     {"riversEu4",
      {{(int)0, 0},
       {(int)1, 6},
       {(int)2, 6},
-      {(int)TreeTypeIndex::TEMPERATEMIXED, 5},
-      {(int)TreeTypeIndex::SPARSE, 3},
-      {(int)TreeTypeIndex::TROPICALDRY, 28},
-      {(int)TreeTypeIndex::TROPICALMOIST, 29}}}
+      {(int)ForestType::TEMPERATEMIXED, 5},
+      {(int)ForestType::SPARSE, 3},
+      {(int)ForestType::TROPICALDRY, 28},
+      {(int)ForestType::TROPICALMOIST, 29}}}
 
 };
 
@@ -407,18 +407,18 @@ void ImageExporter::dump8BitTerrain(
   Utils::Logging::logLine("ImageExporter::Writing terrain to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
   auto &conf = Cfg::Values();
-  if (climateIn.climates.size() != conf.bitmapSize ||
-      climateIn.treeCoverage.size() != conf.bitmapSize ||
+  if (climateIn.climateChances.size() != conf.bitmapSize ||
+      climateIn.forestTypes.size() != conf.bitmapSize ||
       climateIn.dominantForest.size() != conf.bitmapSize ||
-      terrainData.landForms.size() != conf.bitmapSize) {
+      terrainData.landFormIds.size() != conf.bitmapSize) {
     Utils::Logging::logLine("ImageExporter::Climate data size mismatch");
     // print all the sizes
-    Utils::Logging::logLine("Climates size: ", climateIn.climates.size());
+    Utils::Logging::logLine("Climates size: ", climateIn.climateChances.size());
     Utils::Logging::logLine("TreeCoverage size: ",
-                            climateIn.treeCoverage.size());
+                            climateIn.forestTypes.size());
     Utils::Logging::logLine("Dominant Forest size: ",
                             climateIn.dominantForest.size());
-    Utils::Logging::logLine("Landforms size: ", terrainData.landForms.size());
+    Utils::Logging::logLine("Landforms size: ", terrainData.landFormIds.size());
 
     return;
   }
@@ -432,26 +432,27 @@ void ImageExporter::dump8BitTerrain(
 
     for (auto i = 0; i < conf.bitmapSize; i++) {
       int elevationMod = 0;
-      const auto &elevationType = terrainData.landForms.at(i).landForm;
-      if (elevationType == Terrain::ElevationTypeIndex::HILLS) {
+      const auto &elevationType = terrainData.landFormIds.at(i);
+      if (elevationType == Terrain::LandformId::HILLS) {
         elevationMod = 100;
-      } else if (elevationType == Terrain::ElevationTypeIndex::MOUNTAINS) {
+      } else if (elevationType == Terrain::LandformId::MOUNTAINS) {
         elevationMod = 200;
-      } else if (elevationType == Terrain::ElevationTypeIndex::PEAKS) {
+      } else if (elevationType == Terrain::LandformId::PEAKS) {
         elevationMod = 300;
-      } else if (elevationType == Terrain::ElevationTypeIndex::STEEPPEAKS) {
+      } else if (elevationType == Terrain::LandformId::STEEPPEAKS) {
         elevationMod = 300;
-      } else if (elevationType == Terrain::ElevationTypeIndex::CLIFF) {
+      } else if (elevationType == Terrain::LandformId::CLIFF) {
         elevationMod = 200;
-      } else if (elevationType == Terrain::ElevationTypeIndex::LOWHILLS) {
+      } else if (elevationType == Terrain::LandformId::LOWHILLS) {
         elevationMod = 100;
       }
 
-      auto primaryClimateType = (int)climateIn.climates[i].getChances(0).second;
+      auto primaryClimateType =
+          (int)climateIn.climateChances.getChance(0, i).typeIndex;
       hoi4terrain.setColourAtIndex(
           i, hoi4terrain.lookUp(indexMaps.at(colourMapKey + gameTag)
                                     .at(elevationMod + primaryClimateType)));
-      auto treeType = (int)climateIn.treeCoverage[i];
+      auto treeType = (int)climateIn.forestTypes[i];
       if (treeType && climateIn.dominantForest[i]) {
         hoi4terrain.setColourAtIndex(
             i, hoi4terrain.lookUp(
@@ -489,7 +490,7 @@ void ImageExporter::dump8BitRivers(const Fwg::Terrain::TerrainData &terrainData,
   riverMap.colourtable = colourTables.at(colourMapKey + gameTag);
   if (!cut) {
     for (auto i = 0; i < riverMap.size(); i++) {
-      if (terrainData.landForms.at(i).altitude > 0.0) {
+      if (terrainData.altitudes.at(i) > 0.0) {
         riverMap.setColourAtIndex(i, riverMap.lookUp(255));
       } else {
         riverMap.setColourAtIndex(i, riverMap.lookUp(254));
@@ -534,10 +535,10 @@ void ImageExporter::dump8BitTrees(const Fwg::Terrain::TerrainData &terrainData,
   trees.colourtable = colourTables.at(colourMapKey + gameTag);
   // we have to remove all coastal trees, as the downscaling can cause trees to
   // appear in the water
-  auto treeCoverage = climateIn.treeCoverage;
+  auto forestTypes = climateIn.forestTypes;
 
-  // check if treeCoverage is valid
-  if (treeCoverage.size() != conf.bitmapSize) {
+  // check if forestTypes is valid
+  if (forestTypes.size() != conf.bitmapSize) {
     Utils::Logging::logLine("ImageExporter::Tree coverage size mismatch");
     return;
   }
@@ -549,11 +550,11 @@ void ImageExporter::dump8BitTrees(const Fwg::Terrain::TerrainData &terrainData,
 
   std::vector<int> offsets = {1, -1, conf.width,     -conf.width,
                               2, -2, 2 * conf.width, -2 * conf.width};
-  for (auto i = 0; i < treeCoverage.size(); i++) {
+  for (auto i = 0; i < forestTypes.size(); i++) {
     for (auto offset : offsets) {
-      if (i + offset < treeCoverage.size() && i + offset >= 0) {
-        if (terrainData.landForms.at(i + offset).altitude <= 0.0) {
-          treeCoverage[i] = Fwg::Climate::Detail::TreeTypeIndex::NONE;
+      if (i + offset < forestTypes.size() && i + offset >= 0) {
+        if (terrainData.altitudes.at(i + offset) <= 0.0) {
+          forestTypes[i] = Fwg::Climate::Detail::ForestType::NONE;
         }
       }
     }
@@ -565,7 +566,7 @@ void ImageExporter::dump8BitTrees(const Fwg::Terrain::TerrainData &terrainData,
         double refHeight = ceil((double)i * factor);
         double refWidth =
             std::clamp((double)w * factor, 0.0, (double)Cfg::Values().width);
-        auto treeType = (int)treeCoverage[refHeight * width + refWidth];
+        auto treeType = (int)forestTypes[refHeight * width + refWidth];
         if (climateIn.dominantForest[refHeight * width + refWidth]) {
           // map the colour from
           trees.setColourAtIndex(

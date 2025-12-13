@@ -24,7 +24,7 @@ struct Vic3StratRegion {
 };
 
 struct Vic3Config {
-  using CTI = Fwg::Climate::Detail::ClimateTypeIndex;
+  using CTI = Fwg::Climate::Detail::ClimateClassId;
   std::vector<Arda::Utils::ResConfig> resConfigs{
       {"bg_coal_mining", true, 5.0, true, Arda::Utils::defaultNoise},
       {"bg_gold_mining", true, 0.2, true, Arda::Utils::rareNoise},
