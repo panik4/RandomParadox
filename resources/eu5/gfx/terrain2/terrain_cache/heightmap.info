@@ -1,0 +1,10 @@
+source_resolution={ 65536 32768 }
+tile_size=128
+border_size=2
+num_channels=1
+bytes_per_channel=2
+empty_value={ 0 0 0 0 }
+raw=no
+tile_infos={
+templateTileInfos
+}

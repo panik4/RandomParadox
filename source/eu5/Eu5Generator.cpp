@@ -47,8 +47,8 @@ bool Generator::createPaths() {
       paths.push_back("//gfx//terrain2//decals//heightmap_" +
                       std::to_string(i) + "_16");
     }
-    std::vector<std::string> pathsToRemove = {"//common//", "//localization//",
-                                              "//map_data//"};
+    std::vector<std::string> pathsToRemove = {"//common//", "//localization//"
+                                              };
 
     for (const auto &path : pathsToRemove) {
       Fwg::Utils::Logging::logLine("Removing path: " + pathcfg.gameModPath +
@@ -330,67 +330,28 @@ void Generator::writeImages() {
   imageExporter.Eu5ColourMaps(terrainData, climateData, ardaData.civLayer,
                               pathcfg.gameModPath + "//in_game//gfx//map//",
                               this->exportWidth / 2, this->exportHeight / 2);
-  imageExporter.writeLocations(provinceMap, ardaProvinces, ardaRegions,
-                               ardaContinents, ardaData.civLayer,
-                               pathcfg.gameModPath + "//in_game//map_data//",
-                               this->exportWidth, this->exportHeight);
-  imageExporter.dumpHeightmap(
-      terrainData.detailedHeightMap,
-      pathcfg.gameModPath + "//in_game//gfx//terrain2//decals//", "",
-      this->exportWidth * 2, this->exportHeight * 2);
+   imageExporter.writeLocations(provinceMap, ardaProvinces, ardaRegions,
+                                ardaContinents, ardaData.civLayer,
+                                pathcfg.gameModPath + "//in_game//map_data//",
+                                this->exportWidth, this->exportHeight);
+  // imageExporter.dumpHeightmap(
+  //     terrainData.detailedHeightMap,
+  //     pathcfg.gameModPath + "//in_game//gfx//terrain2//", "",
+  //     this->exportWidth * 4, this->exportHeight * 4);
   imageExporter.dumpDecalMasks(
       terrainData, climateData,
       pathcfg.gameModPath + "//in_game//gfx//terrain2//decals//", "",
       this->exportWidth * 2, this->exportHeight * 2);
-  // imageExporter.dumpTerrainMasks(
-  //     terrainData, climateData,
-  //     pathcfg.gameModPath +
-  //         "//in_game//gfx//terrain2//terrain_textures//masks//",
-  //     "", this->exportWidth, this->exportHeight);
+  //imageExporter.dumpTerrainMasks(
+  //    terrainData, climateData,
+  //    pathcfg.gameModPath +
+  //        "//in_game//gfx//terrain2//terrain_textures//masks//",
+  //    "", this->exportWidth, this->exportHeight);
 
-  imageExporter.mapObjectMasks(
-      terrainData, climateData, ardaData.civLayer,
-      pathcfg.gameModPath + "//in_game//content_source//map_objects//masks//",
-      this->exportWidth, this->exportHeight);
-  // imageExporter.Vic3ColourMaps(worldMap, heightMap, climateData,
-  //                              ardaData.civLayer,
-  //                              pathcfg.gameModPath + "//gfx//map//");
-  //// imageExporter.dump8BitRivers(riverMap,
-  ////                                pathcfg.gameModPath +
-  ////                                "//map_data//rivers", "rivers", false);
-
-  // imageExporter.detailMaps(terrainData, climateData, ardaData.civLayer,
-  //                          pathcfg.gameModPath + "//gfx//map//");
-  // imageExporter.dynamicMasks(pathcfg.gameModPath + "//gfx//map//masks//",
-  //                            climateData, ardaData.civLayer);
-  // imageExporter.contentSource(pathcfg.gameModPath +
-  //                                 "//content_source//map_objects//masks//",
-  //                             climateData, ardaData.civLayer);
-  //// save this and reset the heightmap later. The map will be scaled and the
-  //// scaled one then used for the packed heightmap generation. It is important
-  //// we reset this after
-  // auto temporaryHeightmap = heightMap;
-  //// also dump uncompressed packed heightmap
-  // imageExporter.dump8BitHeightmap(terrainData.detailedHeightMap,
-  //                                 pathcfg.gameModPath +
-  //                                 "//map_data//heightmap", "heightmap");
-  // auto packedHeightmap = imageExporter.dumpPackedHeightmap(
-  //     heightMap, pathcfg.gameModPath + "//map_data//packed_heightmap",
-  //     "heightmap");
-  // imageExporter.dumpIndirectionMap(
-  //     heightMap, pathcfg.gameModPath +
-  //     "//map_data//indirection_heightmap.png");
-  // Parsing::Writing::heightmap(pathcfg.gameModPath +
-  //                                 "//map_data//heightmap.heightmap",
-  //                             heightMap, packedHeightmap);
-  // heightMap = temporaryHeightmap;
-  // temporaryHeightmap.clear();
-  // visualiseCountries(countryMap);
-  // Fwg::Gfx::Png::save(countryMap, Cfg::Values().mapsPath + "countries.png");
-  // using namespace Fwg::Gfx;
-  //// just copy over provinces.bmp as a .png, already in a compatible format
-  //// auto scaledMap = Bmp::scale(provinceMap, 8192, 3616, false);
-  // Png::save(provinceMap, pathcfg.gameModPath + "//map_data//provinces.png");
+  //imageExporter.mapObjectMasks(
+  //    terrainData, climateData, ardaData.civLayer,
+  //    pathcfg.gameModPath + "//in_game//content_source//map_objects//masks//",
+  //    this->exportWidth, this->exportHeight);
 }
 
 void Generator::writeSplnet() {

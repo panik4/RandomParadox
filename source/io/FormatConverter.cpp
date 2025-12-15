@@ -432,18 +432,18 @@ void ImageExporter::dump8BitTerrain(
 
     for (auto i = 0; i < conf.bitmapSize; i++) {
       int elevationMod = 0;
-      const auto &elevationType = terrainData.landFormIds.at(i);
-      if (elevationType == Terrain::LandformId::HILLS) {
+      const auto &landformId = terrainData.landFormIds.at(i);
+      if (landformId == Terrain::LandformId::HILLS) {
         elevationMod = 100;
-      } else if (elevationType == Terrain::LandformId::MOUNTAINS) {
+      } else if (landformId == Terrain::LandformId::MOUNTAINS) {
         elevationMod = 200;
-      } else if (elevationType == Terrain::LandformId::PEAKS) {
+      } else if (landformId == Terrain::LandformId::PEAKS) {
         elevationMod = 300;
-      } else if (elevationType == Terrain::LandformId::STEEPPEAKS) {
+      } else if (landformId == Terrain::LandformId::STEEPPEAKS) {
         elevationMod = 300;
-      } else if (elevationType == Terrain::LandformId::CLIFF) {
+      } else if (landformId == Terrain::LandformId::CLIFF) {
         elevationMod = 200;
-      } else if (elevationType == Terrain::LandformId::LOWHILLS) {
+      } else if (landformId == Terrain::LandformId::LOWHILLS) {
         elevationMod = 100;
       }
 

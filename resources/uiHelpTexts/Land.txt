@@ -11,4 +11,4 @@ Make sure you have a good image without washed up borders, e.g. don't draw an im
 	- See the example image, you can see how a multi colour mountain chain can have SMOOTH transitions and actually look nice, if you add multiple colours and make use of all the colours for lowhills, hills, mountains, and peaks. JUST using mountains next to plains will make for a very steep transition, which will simply not look as nice.
 	- In this tab, you ONLY label the input, then proceed to the heightmap tab for the generation. Always click Analyse after labeling terrain, only then is it applied for the heightmap generation!
 	- See the image on the left to see how you generate from this labeled terrain in the heightmap tab.
-	- You can autogenerate land from a simple shape first, and then find the map "elevationTypes.png" in the "Maps" folder next to the executable, modify those and load them back in
+	- You can autogenerate land from a simple shape first, and then find the map "landforms.png" in the "Maps" folder next to the executable, modify those and load them back in
