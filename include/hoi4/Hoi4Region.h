@@ -45,6 +45,6 @@ public:
 
   // member functions
   void calculateBuildingPositions(const std::vector<float> &heightmap,
-                                  const Fwg::Gfx::Bitmap &typeMap);
+                                  const Fwg::Gfx::Image &typeMap);
 };
 } // namespace Rpx::Hoi4

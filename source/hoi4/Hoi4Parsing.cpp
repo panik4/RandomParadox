@@ -107,7 +107,6 @@ void definition(
   // terraintypes: ocean, lakes, forest, hills, mountain, plains, urban, jungle,
   // marsh, desert, water_fjords, water_shallow_sea, water_deep_ocean TO DO:
   // properly map terrain types from climate
-  // Bitmap typeMap(512, 512, 24);
   std::string content{"0;0;0;0;land;false;unknown;0\n"};
   for (const auto &prov : provinces) {
     auto seaType = prov->isSea() ? "sea" : "land";
@@ -1686,7 +1685,7 @@ void readStates(const std::string &path, Fwg::Areas::AreaData &areaData) {
   //      hoi4Gen.countries.insert({c.tag, std::make_shared<Country>(c)});
   //    }
   //  }
-  //  Fwg::Gfx::Bitmap regionMap(5632, 2048, 24);
+  //  Fwg::Gfx::Image regionMap(5632, 2048, 24);
   //  Fwg::Gfx::regionMap(hoi4Gen->areaData.regions,
   //  hoi4Gen->areaData.provinces,
   //                     regionMap);

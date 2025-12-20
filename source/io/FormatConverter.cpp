@@ -349,16 +349,16 @@ void ImageExporter::writeBufferPixels(std::vector<unsigned char> &pixels,
   pixels[index + 3] = alphaValue;
 }
 
-Bitmap ImageExporter::cutBaseMap(const std::string &path, const double factor,
+Image ImageExporter::cutBaseMap(const std::string &path, const double factor,
                                  const int bit) const {
   auto &conf = Cfg::Values();
   std::string sourceMap{conf.loadMapsPath + path};
   Fwg::Utils::Logging::logLine("CUTTING mode: Cutting Map from ", sourceMap);
-  Bitmap baseMap = Fwg::IO::Reader::readGenericImage(sourceMap, conf);
-  auto cutBase = Bmp::cut(baseMap, conf.minX * factor, conf.maxX * factor,
+  Image baseMap = Fwg::IO::Reader::readGenericImage(sourceMap, conf);
+  auto cutBase = Util::cut(baseMap, conf.minX * factor, conf.maxX * factor,
                           conf.minY * factor, conf.maxY * factor, factor);
   if (conf.scale) {
-    cutBase = Bmp::scale(cutBase, conf.scaleX * factor, conf.scaleY * factor,
+    cutBase = Util::scale(cutBase, conf.scaleX * factor, conf.scaleY * factor,
                          conf.keepRatio);
   }
   return cutBase;
@@ -370,12 +370,12 @@ void ImageExporter::dump8BitHeightmap(const std::vector<float> &altitudeData,
   Utils::Logging::logLine("ImageExporter::Copying heightmap to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
   auto &conf = Cfg::Values();
-  auto heightMap = Fwg::Gfx::Bitmap(conf.width, conf.height, 24, altitudeData);
+  auto heightMap = Fwg::Gfx::Image(conf.width, conf.height, 24, altitudeData);
   if (!heightMap.initialised()) {
     Utils::Logging::logLine("ImageExporter::Heightmap not yet initialised");
     return;
   }
-  if (heightMap.size() != conf.bitmapSize) {
+  if (heightMap.size() != conf.processingArea) {
     Utils::Logging::logLine("ImageExporter::Heightmap size mismatch");
     return;
   }
@@ -384,14 +384,14 @@ void ImageExporter::dump8BitHeightmap(const std::vector<float> &altitudeData,
     int width = heightMap.width();
     int height = heightMap.height();
     //  save the bmp as a png
-    auto h2 = Bmp::scale(heightMap, width * 2, height * 2, false);
+    auto h2 = Util::scale(heightMap, width * 2, height * 2, false);
     Png::save(h2, path + ".png", true, LCT_GREY, 16);
     heightMap = h2;
   } else {
-    Bitmap outputMap(Cfg::Values().width, Cfg::Values().height, 8);
+    Image outputMap(Cfg::Values().width, Cfg::Values().height, 8);
     outputMap.colourtable = colourTables.at(colourMapKey + gameTag);
     // now map from 24 bit climate map
-    for (int i = 0; i < Cfg::Values().bitmapSize; i++)
+    for (int i = 0; i < Cfg::Values().processingArea; i++)
       outputMap.setColourAtIndex(i, outputMap.lookUp(heightMap[i].getRed()));
 
     Bmp::save8bit(outputMap, path + ".bmp");
@@ -407,10 +407,10 @@ void ImageExporter::dump8BitTerrain(
   Utils::Logging::logLine("ImageExporter::Writing terrain to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
   auto &conf = Cfg::Values();
-  if (climateIn.climateChances.size() != conf.bitmapSize ||
-      climateIn.forestTypes.size() != conf.bitmapSize ||
-      climateIn.dominantForest.size() != conf.bitmapSize ||
-      terrainData.landFormIds.size() != conf.bitmapSize) {
+  if (climateIn.climateChances.size() != conf.processingArea ||
+      climateIn.forestTypes.size() != conf.processingArea ||
+      climateIn.dominantForest.size() != conf.processingArea ||
+      terrainData.landFormIds.size() != conf.processingArea) {
     Utils::Logging::logLine("ImageExporter::Climate data size mismatch");
     // print all the sizes
     Utils::Logging::logLine("Climates size: ", climateIn.climateChances.size());
@@ -423,14 +423,14 @@ void ImageExporter::dump8BitTerrain(
     return;
   }
 
-  Bitmap hoi4terrain(conf.width, conf.height, 8);
+  Image hoi4terrain(conf.width, conf.height, 8);
   hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
   // hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
   if (cut) {
     hoi4terrain = cutBaseMap("//terrain.bmp");
   } else {
 
-    for (auto i = 0; i < conf.bitmapSize; i++) {
+    for (auto i = 0; i < conf.processingArea; i++) {
       int elevationMod = 0;
       const auto &landformId = terrainData.landFormIds.at(i);
       if (landformId == Terrain::LandformId::HILLS) {
@@ -486,7 +486,7 @@ void ImageExporter::dump8BitRivers(const Fwg::Terrain::TerrainData &terrainData,
   Utils::Logging::logLine("ImageExporter::Writing rivers to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
 
-  Bitmap riverMap(Cfg::Values().width, Cfg::Values().height, 8);
+  Image riverMap(Cfg::Values().width, Cfg::Values().height, 8);
   riverMap.colourtable = colourTables.at(colourMapKey + gameTag);
   if (!cut) {
     for (auto i = 0; i < riverMap.size(); i++) {
@@ -513,7 +513,7 @@ void ImageExporter::dump8BitRivers(const Fwg::Terrain::TerrainData &terrainData,
     riverMap = cutBaseMap("//rivers.bmp");
   }
   if (gameTag == "Vic3") {
-    auto scaledMap = Bmp::scale(riverMap, 8192, 3616, false);
+    auto scaledMap = Util::scale(riverMap, 8192, 3616, false);
     Png::save(scaledMap, path + ".png");
   } else {
     Bmp::save8bit(riverMap, path + ".bmp");
@@ -530,7 +530,7 @@ void ImageExporter::dump8BitTrees(const Fwg::Terrain::TerrainData &terrainData,
                           Fwg::Utils::userFilter(path, conf.username));
   const double width = conf.width;
   constexpr auto factor = 3.4133333333333333333333333333333;
-  Bitmap trees(((double)conf.width / factor), ((double)conf.height / factor),
+  Image trees(((double)conf.width / factor), ((double)conf.height / factor),
                8);
   trees.colourtable = colourTables.at(colourMapKey + gameTag);
   // we have to remove all coastal trees, as the downscaling can cause trees to
@@ -538,12 +538,12 @@ void ImageExporter::dump8BitTrees(const Fwg::Terrain::TerrainData &terrainData,
   auto forestTypes = climateIn.forestTypes;
 
   // check if forestTypes is valid
-  if (forestTypes.size() != conf.bitmapSize) {
+  if (forestTypes.size() != conf.processingArea) {
     Utils::Logging::logLine("ImageExporter::Tree coverage size mismatch");
     return;
   }
   // check if dominantForest is valid
-  if (climateIn.dominantForest.size() != conf.bitmapSize) {
+  if (climateIn.dominantForest.size() != conf.processingArea) {
     Utils::Logging::logLine("ImageExporter::Dominant forest size mismatch");
     return;
   }
@@ -627,7 +627,7 @@ void ImageExporter::dumpDDSFiles(const std::vector<float> &heightMap,
 }
 
 void ImageExporter::dumpTerrainColourmap(
-    const Bitmap &climateMap,
+    const Image &climateMap,
     const Arda::Civilization::CivilizationLayer &civLayer,
     const std::string &modPath, const std::string &mapName,
     const DXGI_FORMAT format, int scaleFactor, const bool cut) const {
@@ -636,11 +636,11 @@ void ImageExporter::dumpTerrainColourmap(
                           Utils::userFilter(modPath + mapName, cfg.username));
 
   // check if all inputs are valid
-  if (climateMap.size() != cfg.bitmapSize) {
+  if (climateMap.size() != cfg.processingArea) {
     Utils::Logging::logLine("ImageExporter::Climate map size mismatch");
     return;
   }
-  // if (civLayer.urbanisation.size() != cfg.bitmapSize) {
+  // if (civLayer.urbanisation.size() != cfg.processingArea) {
   //   Utils::Logging::logLine("ImageExporter::Urbanisation size mismatch");
   //   return;
   // }
@@ -720,14 +720,14 @@ void ImageExporter::dumpTerrainColourmap(
   }
 }
 
-void ImageExporter::dumpWorldNormal(const Bitmap &sobelMap,
+void ImageExporter::dumpWorldNormal(const Image &sobelMap,
                                     const std::string &path,
                                     const bool cut) const {
   Utils::Logging::logLine("ImageExporter::Writing normalMap to ",
                           Fwg::Utils::userFilter(path, Cfg::Values().username));
   int factor = 2; // image width and height are halved
 
-  Bmp::save(Fwg::Gfx::Bmp::scaleInterpolation(sobelMap, factor),
+  Bmp::save(Fwg::Gfx::Util::scaleInterpolation(sobelMap, factor),
             (path).c_str());
 }
 

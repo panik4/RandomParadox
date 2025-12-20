@@ -283,7 +283,7 @@ std::vector<float> pad128to132_strategyA(const std::vector<float> &src) {
   return out;
 }
 
-Fwg::Gfx::Bitmap ImageExporter::dumpHeightmap(
+Fwg::Gfx::Image ImageExporter::dumpHeightmap(
     const std::vector<float> &heightMap, const std::string &path,
     const std::string &colourMapKey, int exportWidth, int exportHeight) const {
   //  rasterize this image into 16 different images , based on the heightmap,
@@ -558,15 +558,15 @@ Fwg::Gfx::Bitmap ImageExporter::dumpHeightmap(
   Fwg::Utils::Logging::logLine("Writing heightmap info file: " + outInfoPath);
   Fwg::Parsing::writeFile(outInfoPath, outInfoTemplate);
 
-  return Fwg::Gfx::Bitmap(0, 0, 24);
+  return Fwg::Gfx::Image(0, 0, 24);
 }
 
-Fwg::Gfx::Bitmap ImageExporter::dumpDecalMasks(
+Fwg::Gfx::Image ImageExporter::dumpDecalMasks(
     const Fwg::Terrain::TerrainData &terrainData,
     const Fwg::Climate::ClimateData &climateData, const std::string &path,
     const std::string &colourMapKey, int exportWidth, int exportHeight) const {
   auto imageHumidity = climateData.humidities;
-  Fwg::Utils::normalizeVector(imageHumidity, 0.0f, 0.0f);
+  Fwg::Utils::normalizeVector(imageHumidity, 0.0f, 255.0f);
   auto scaledHeightmap = Fwg::Utils::scaleBufferWithInterpolation(
       imageHumidity, Fwg::Cfg::Values().width, Fwg::Cfg::Values().height,
       exportWidth, exportHeight);
@@ -581,6 +581,8 @@ Fwg::Gfx::Bitmap ImageExporter::dumpDecalMasks(
   // randomness for trees
   auto noiseMap = Noise::genNoise(noiseGenerator, exportWidth / 4,
                                   exportHeight / 4, 0.0, 0.0, 0, 255, 0.0);
+
+  // we want 
 
   // rasterize this image into 16 different images , based on the heightmap,
   // presenting 16 different chunks of the heightmap
@@ -611,10 +613,10 @@ Fwg::Gfx::Bitmap ImageExporter::dumpDecalMasks(
                         true, LCT_GREY);
   }
 
-  return Fwg::Gfx::Bitmap(0, 0, 24);
+  return Fwg::Gfx::Image(0, 0, 24);
 }
 
-Fwg::Gfx::Bitmap ImageExporter::dumpTerrainMasks(
+Fwg::Gfx::Image ImageExporter::dumpTerrainMasks(
     const Fwg::Terrain::TerrainData &terrainData,
     const Fwg::Climate::ClimateData &climateData, const std::string &path,
     const std::string &colourMapKey, int exportWidth, int exportHeight) const {
@@ -691,11 +693,11 @@ Fwg::Gfx::Bitmap ImageExporter::dumpTerrainMasks(
         treeNoiseMap, Fwg::Cfg::Values().width, Fwg::Cfg::Values().height,
         exportWidth, exportHeight);
     Fwg::Gfx::Png::save(
-        Fwg::Gfx::Bitmap(exportWidth, exportHeight, 24, scaledHeightmap),
+        Fwg::Gfx::Image(exportWidth, exportHeight, 24, scaledHeightmap),
         path + "//" + nameMapping.at(i) + ".png", true, LCT_GREY);
   }
 
-  return Fwg::Gfx::Bitmap(0, 0, 24);
+  return Fwg::Gfx::Image(0, 0, 24);
 }
 
 void ImageExporter::Eu5ColourMaps(
@@ -766,18 +768,18 @@ void ImageExporter::mapObjectMasks(
       "vegetation_forest_japan_mask",
       "vegetation_woods_japan_mask",
   };
-  std::shared_ptr<Fwg::Gfx::Bitmap> denseJungleMask =
-      std::make_shared<Fwg::Gfx::Bitmap>(width, height, 24);
-  std::shared_ptr<Fwg::Gfx::Bitmap> jungleMask =
-      std::make_shared<Fwg::Gfx::Bitmap>(width, height, 24);
+  std::shared_ptr<Fwg::Gfx::Image> denseJungleMask =
+      std::make_shared<Fwg::Gfx::Image>(width, height, 24);
+  std::shared_ptr<Fwg::Gfx::Image> jungleMask =
+      std::make_shared<Fwg::Gfx::Image>(width, height, 24);
 
-  std::shared_ptr<Fwg::Gfx::Bitmap> pineMask =
-      std::make_shared<Fwg::Gfx::Bitmap>(width, height, 24);
+  std::shared_ptr<Fwg::Gfx::Image> pineMask =
+      std::make_shared<Fwg::Gfx::Image>(width, height, 24);
 
-  std::shared_ptr<Fwg::Gfx::Bitmap> forestContinentalMask =
-      std::make_shared<Fwg::Gfx::Bitmap>(width, height, 24);
-  std::shared_ptr<Fwg::Gfx::Bitmap> woodsContinentalMask =
-      std::make_shared<Fwg::Gfx::Bitmap>(width, height, 24);
+  std::shared_ptr<Fwg::Gfx::Image> forestContinentalMask =
+      std::make_shared<Fwg::Gfx::Image>(width, height, 24);
+  std::shared_ptr<Fwg::Gfx::Image> woodsContinentalMask =
+      std::make_shared<Fwg::Gfx::Image>(width, height, 24);
 
   for (int i = 0; i < climateData.forestTypes.size(); i++) {
     auto treeCoverType = climateData.forestTypes[i];
@@ -813,33 +815,33 @@ void ImageExporter::mapObjectMasks(
     }
   }
   Fwg::Gfx::Png::save(
-      Fwg::Gfx::Bmp::scale(*denseJungleMask, exportWidth, exportHeight, false),
+      Fwg::Gfx::Util::scale(*denseJungleMask, exportWidth, exportHeight, false),
       path + "//jungle_dense_mask.png", false, LCT_GREY);
   Fwg::Gfx::Png::save(
-      Fwg::Gfx::Bmp::scale(*jungleMask, exportWidth, exportHeight, false),
+      Fwg::Gfx::Util::scale(*jungleMask, exportWidth, exportHeight, false),
       path + "//jungle_mask.png", false, LCT_GREY);
   Fwg::Gfx::Png::save(
-      Fwg::Gfx::Bmp::scale(*pineMask, exportWidth, exportHeight, false),
+      Fwg::Gfx::Util::scale(*pineMask, exportWidth, exportHeight, false),
       path + "//pine_mask.png", false, LCT_GREY);
-  Fwg::Gfx::Png::save(Fwg::Gfx::Bmp::scale(*forestContinentalMask, exportWidth,
+  Fwg::Gfx::Png::save(Fwg::Gfx::Util::scale(*forestContinentalMask, exportWidth,
                                            exportHeight, false),
                       path + "//vegetation_forest_continental_oceanic_mask.png",
                       false, LCT_GREY);
-  Fwg::Gfx::Png::save(Fwg::Gfx::Bmp::scale(*woodsContinentalMask, exportWidth,
+  Fwg::Gfx::Png::save(Fwg::Gfx::Util::scale(*woodsContinentalMask, exportWidth,
                                            exportHeight, false),
                       path + "//vegetation_woods_continental_oceanic_mask.png",
                       false, LCT_GREY);
 
-  auto blankBitmap = Fwg::Gfx::Bitmap(exportWidth, exportHeight, 24);
-  blankBitmap.setColourAtIndex(0, 255);
+  auto blankImage = Fwg::Gfx::Image(exportWidth, exportHeight, 24);
+  blankImage.setColourAtIndex(0, 255);
   for (auto &maskName : emptyMasks) {
-    Fwg::Gfx::Png::save(blankBitmap, path + "//" + maskName + ".png", true,
+    Fwg::Gfx::Png::save(blankImage, path + "//" + maskName + ".png", true,
                         LCT_GREY);
   }
 }
 
 void ImageExporter::writeLocations(
-    const Fwg::Gfx::Bitmap &provinceMap,
+    const Fwg::Gfx::Image &provinceMap,
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
     const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions,
     const std::vector<std::shared_ptr<Arda::ArdaContinent>> &continents,
@@ -907,7 +909,7 @@ void ImageExporter::writeLocations(
   };
 
   auto scaledProvinces =
-      Fwg::Gfx::Bmp::scale(provinceMap, exportWidth, exportHeight, false);
+      Fwg::Gfx::Util::scale(provinceMap, exportWidth, exportHeight, false);
   Fwg::Gfx::Png::save(scaledProvinces, path + "//locations.png", true);
 
   // vegetation: grassland, farmland, woods, forest, sparse, desert, jungle,

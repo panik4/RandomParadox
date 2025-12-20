@@ -295,7 +295,7 @@ public:
   void configureModGen(const std::string &configSubFolder,
                        const std::string &username,
                        const boost::property_tree::ptree &rpdConf) override;
-  virtual Fwg::Gfx::Bitmap mapTerrain();
+  virtual Fwg::Gfx::Image mapTerrain();
   virtual void mapRegions();
   void totalArableLand(const std::vector<float> &arableLand);
   void distributeResources();

@@ -147,9 +147,9 @@ void Generator::configureModGen(const std::string &configSubFolder,
 
 /* a visualisation of the final terrain types. This is not vic3 specific yet, a
  * TODO*/
-Fwg::Gfx::Bitmap Generator::mapTerrain() {
+Fwg::Gfx::Image Generator::mapTerrain() {
   const auto &climateMap = this->climateMap;
-  Bitmap typeMap(climateMap.width(), climateMap.height(), 24);
+  Image typeMap(climateMap.width(), climateMap.height(), 24);
   auto &colours = Fwg::Cfg::Values().colours;
   auto &climateColours = Fwg::Cfg::Values().climateColours;
   auto &elevationColours = Fwg::Cfg::Values().elevationColours;
@@ -927,7 +927,7 @@ void Generator::writeImages() {
   Fwg::Gfx::Png::save(countryMap, Cfg::Values().mapsPath + "countries.png");
   using namespace Fwg::Gfx;
   // just copy over provinces.bmp as a .png, already in a compatible format
-  // auto scaledMap = Bmp::scale(provinceMap, 8192, 3616, false);
+  // auto scaledMap = Util::scale(provinceMap, 8192, 3616, false);
   Png::save(provinceMap, pathcfg.gameModPath + "//map_data//provinces.png");
 }
 

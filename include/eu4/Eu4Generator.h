@@ -29,7 +29,7 @@ public:
                        const boost::property_tree::ptree &rpdConf) override;
   void generateRegions(std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions);
 
-  Fwg::Gfx::Bitmap mapTerrain() override;
+  Fwg::Gfx::Image mapTerrain() override;
   // initialize countries
   void mapCountries() override;
   std::vector<eu4Region> getEu4Regions() { return eu4regions; };
