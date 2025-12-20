@@ -53,8 +53,8 @@ void defines(const std::string &pathOut) {
   pU::writeFile(pathOut, templateContent);
 }
 
-void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap,
-               const Fwg::Gfx::Bitmap &packedHeightmap) {
+void heightmap(const std::string &path, const Fwg::Gfx::Image &heightMap,
+               const Fwg::Gfx::Image &packedHeightmap) {
   auto content = pU::readFile(Fwg::Cfg::Values().resourcePath +
                               "vic3//map_data//heightmap.heightmap");
   Logging::logLine("Vic3 Parser: Map: Writing heightmap.heightmap");

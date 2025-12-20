@@ -75,7 +75,7 @@ public:
                        const boost::property_tree::ptree &rpdConf) override;
 
   void mapRegions();
-  virtual Fwg::Gfx::Bitmap mapTerrain();
+  virtual Fwg::Gfx::Image mapTerrain();
   // initialize states
   void mapCountries();
   // give resources to states
@@ -118,7 +118,7 @@ public:
 
   void loadStates();
   virtual bool loadRivers(Fwg::Cfg &config,
-                          const Fwg::Gfx::Bitmap &riverInput) override;
+                          const Fwg::Gfx::Image &riverInput) override;
 
   virtual void generate();
   virtual void initImageExporter();

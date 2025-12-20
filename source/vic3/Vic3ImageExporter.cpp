@@ -55,20 +55,20 @@ ImageExporter::ImageExporter(const std::string &gamePath,
 ImageExporter::~ImageExporter() {}
 
 void ImageExporter::writeTile(int xTiles, int yTiles,
-                              const Fwg::Gfx::Bitmap &basePackedHeightMap,
-                              Fwg::Gfx::Bitmap &packedHeightMap, int mapX,
+                              const Fwg::Gfx::Image &basePackedHeightMap,
+                              Fwg::Gfx::Image &packedHeightMap, int mapX,
                               int mapY, int packedX) const {
   const int tilesize = 64;
   const int scaledTilesize = 65;
   for (auto tilex = 0; tilex < xTiles; tilex++) {
     for (auto tiley = 0; tiley < yTiles; tiley++) {
-      Fwg::Gfx::Bitmap tileMap(
+      Fwg::Gfx::Image tileMap(
           tilesize, tilesize, 24,
           (Fwg::Utils::cutBuffer(basePackedHeightMap.imageData, mapX, mapY,
                                  tilex * tilesize, (tilex + 1) * tilesize,
                                  tiley * tilesize, (tiley + 1) * tilesize, 1)));
       auto tileMap2 =
-          Bmp::scale(tileMap, scaledTilesize, scaledTilesize, false);
+          Fwg::Gfx::Util::scale(tileMap, scaledTilesize, scaledTilesize, false);
 
       for (auto x = 0; x < tileMap2.size(); x++) {
         auto baseX = tilex * scaledTilesize;
@@ -95,8 +95,8 @@ void ImageExporter::writeTile(int xTiles, int yTiles,
   }
 }
 
-Bitmap
-ImageExporter::dumpPackedHeightmap(const Bitmap &heightMap,
+Image
+ImageExporter::dumpPackedHeightmap(const Image &heightMap,
                                    const std::string &path,
                                    const std::string &colourMapKey) const {
   Utils::Logging::logLine("ImageExporter::Packing heightmap to ", path);
@@ -109,16 +109,16 @@ ImageExporter::dumpPackedHeightmap(const Bitmap &heightMap,
   int packedX = xTiles / 2 * 65;
   int packedY = yTiles * 2 * 65 + 5;
   if (gameTag == "Vic3") {
-    Fwg::Gfx::Bitmap packedHeightMap(packedX, packedY, 24);
+    Fwg::Gfx::Image packedHeightMap(packedX, packedY, 24);
     auto basePackedHeightMap = heightMap;
     // TODO: Threading
     // writeTile(xTiles, yTiles, basePackedHeightMap, packedHeightMap, mapX,
     // mapY,
     //          packedX);
-    // basePackedHeightMap = Fwg::Gfx::Bmp::scale(basePackedHeightMap, xTiles *
+    // basePackedHeightMap = Fwg::Gfx::Util::scale(basePackedHeightMap, xTiles *
     // 65,
     //                                           yTiles * 65, false);
-    // packedHeightMap = Fwg::Gfx::Bitmap(xTiles * 65, yTiles * 65 + 5, 24);
+    // packedHeightMap = Fwg::Gfx::Image(xTiles * 65, yTiles * 65 + 5, 24);
     // for (int i = 0; i < basePackedHeightMap.size(); i++) {
     //  packedHeightMap.setColourAtIndex(i, basePackedHeightMap[i]);
     //}
@@ -129,10 +129,10 @@ ImageExporter::dumpPackedHeightmap(const Bitmap &heightMap,
     return packedHeightMap;
   } else {
 
-    Bitmap packedHeightMap(Cfg::Values().width, Cfg::Values().height, 8);
+    Image packedHeightMap(Cfg::Values().width, Cfg::Values().height, 8);
     packedHeightMap.colourtable = colourTables.at(colourMapKey + gameTag);
     // now map from 24 bit climate map
-    for (int i = 0; i < Cfg::Values().bitmapSize; i++) {
+    for (int i = 0; i < Cfg::Values().processingArea; i++) {
       // packedHeightMap.bit8Buffer[i] = heightMap[i].getRed();
       packedHeightMap.setColourAtIndex(
           i, packedHeightMap.lookUp(heightMap[i].getRed()));
@@ -140,11 +140,11 @@ ImageExporter::dumpPackedHeightmap(const Bitmap &heightMap,
     return packedHeightMap;
   }
 }
-void ImageExporter::dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
+void ImageExporter::dumpIndirectionMap(const Fwg::Gfx::Image &heightMap,
                                        const std::string &path) {
   int xTiles = heightMap.width() / 64;
   int yTiles = heightMap.height() / 64;
-  auto indirectionMap = Fwg::Gfx::Bitmap(xTiles, yTiles, 24);
+  auto indirectionMap = Fwg::Gfx::Image(xTiles, yTiles, 24);
   indirectionMap.fill({0, 0, 0});
   for (int i = 0; i < indirectionMap.size(); i++) {
     indirectionMap.setColourAtIndex(i, {i % (xTiles / 2), i / (xTiles / 2), 1});
@@ -158,7 +158,7 @@ void ImageExporter::dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
   Fwg::Gfx::Png::save(indirectionMap, path, false, LCT_RGBA, 8U, 0);
 }
 void ImageExporter::Vic3ColourMaps(
-    const Fwg::Gfx::Bitmap &climateMap, const Fwg::Gfx::Bitmap &heightMap,
+    const Fwg::Gfx::Image &climateMap, const Fwg::Gfx::Image &heightMap,
     Fwg::Climate::ClimateData &climateData,
     const Arda::Civilization::CivilizationLayer &civLayer,
     const std::string &path) {
@@ -166,7 +166,7 @@ void ImageExporter::Vic3ColourMaps(
 
   auto &config = Cfg::Values();
   // need to scale to default vic3 map sizes, due to their compression
-  auto scaledMap = Bmp::scale(heightMap, config.width, config.height, false);
+  auto scaledMap = Util::scale(heightMap, config.width, config.height, false);
   const auto &height = scaledMap.height();
   const auto &width = scaledMap.width();
   int factor = 1;
@@ -217,7 +217,7 @@ void ImageExporter::Vic3ColourMaps(
                                       DXGI_FORMAT_B8G8R8A8_UNORM,
                                       path + "//textures//flatmap_overlay.dds");
   // terrain colour map
-  scaledMap = Bmp::scale(climateMap, config.width, config.height, false);
+  scaledMap = Util::scale(climateMap, config.width, config.height, false);
   dumpTerrainColourmap(scaledMap, civLayer, path, "//textures//colormap.dds",
                        DXGI_FORMAT_B8G8R8A8_UNORM, 1, false);
 
@@ -225,7 +225,7 @@ void ImageExporter::Vic3ColourMaps(
       "ImageExporter::Writing watercolor_rgb_waterspec_a to ", path);
   using namespace DirectX;
 
-  scaledMap = Bmp::scale(heightMap, config.width / 2, config.height / 2, false);
+  scaledMap = Util::scale(heightMap, config.width / 2, config.height / 2, false);
   imageWidth = scaledMap.width();
   imageHeight = scaledMap.height();
   for (auto h = 0; h < imageHeight; h++) {
@@ -258,11 +258,11 @@ void ImageExporter::Vic3ColourMaps(
                                       path + "//water//flowmap.dds");
   // colormap_tree.dds
   auto humidityMap =
-      Fwg::Gfx::Bitmap(config.width, config.height, 24, climateData.humidities);
+      Fwg::Gfx::Image(config.width, config.height, 24, climateData.humidities);
   scaledMap =
-      Bmp::scale(humidityMap, config.width / 8, config.height / 8, false);
+      Util::scale(humidityMap, config.width / 8, config.height / 8, false);
   auto scaledHeight =
-      Bmp::scale(heightMap, config.width / 8, config.height / 8, false);
+      Util::scale(heightMap, config.width / 8, config.height / 8, false);
   imageWidth = scaledMap.width();
   imageHeight = scaledMap.height();
   Fwg::Gfx::Colour baseColour = {40, 140, 120};
@@ -290,7 +290,7 @@ void ImageExporter::Vic3ColourMaps(
                                 path + "//textures//colormap_tree.dds");
 
   scaledHeight =
-      Bmp::scale(heightMap, config.width / 8, config.height / 8, false);
+      Util::scale(heightMap, config.width / 8, config.height / 8, false);
   imageWidth = scaledHeight.width();
   imageHeight = scaledHeight.height();
   for (auto h = 0; h < imageHeight; h++) {
@@ -325,10 +325,10 @@ void ImageExporter::dynamicMasks(
   Utils::Logging::logLine("Vic3::Writing dynamic masks");
   const auto &config = Fwg::Cfg::Values();
 
-  std::vector<double> dynamicMask(config.bitmapSize);
+  std::vector<double> dynamicMask(config.processingArea);
   Fwg::Gfx::Png::save(
-      Fwg::Gfx::Bmp::scale(
-          Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask),
+      Fwg::Gfx::Util::scale(
+          Fwg::Gfx::Image(config.width, config.height, 24, dynamicMask),
           config.width, config.height, false),
       path + "mask_dynamic_mining.png", true, LCT_GREY);
   // TODO: Readd agriculture from locations
@@ -337,8 +337,8 @@ void ImageExporter::dynamicMasks(
   //  dynamicMask[i] = val;
   //}
   Fwg::Gfx::Png::save(
-      Fwg::Gfx::Bmp::scale(
-          Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask),
+      Fwg::Gfx::Util::scale(
+          Fwg::Gfx::Image(config.width, config.height, 24, dynamicMask),
           config.width, config.height, false),
       path + "mask_dynamic_farmland.png", true, LCT_GREY);
   for (int i = 0; i < climateData.forestTypes.size(); i++) {
@@ -349,8 +349,8 @@ void ImageExporter::dynamicMasks(
   }
 
   Fwg::Gfx::Png::save(
-      Fwg::Gfx::Bmp::scale(
-          Fwg::Gfx::Bitmap(config.width, config.height, 24, dynamicMask),
+      Fwg::Gfx::Util::scale(
+          Fwg::Gfx::Image(config.width, config.height, 24, dynamicMask),
           config.width, config.height, false),
       path + "mask_dynamic_forestry.png", true, LCT_GREY);
 }
@@ -393,7 +393,7 @@ void ImageExporter::contentSource(
                                         "savanna_tree_01",
                                         "sparse_rainforest_01"};
 
-  Fwg::Gfx::Bitmap emptyMap(config.width / 2, config.height / 2, 24);
+  Fwg::Gfx::Image emptyMap(config.width / 2, config.height / 2, 24);
   emptyMap.fill({0, 0, 0});
   for (const auto &maskName : maskNames) {
     Fwg::Gfx::Png::save(emptyMap, path + "mask_" + maskName + ".png", true,
@@ -472,8 +472,8 @@ void ImageExporter::detailMaps(
                                          {35, "savanna_03"}};
   Utils::Logging::logLine("Vic3::Writing detailMaps");
   const auto &config = Fwg::Cfg::Values();
-  Fwg::Gfx::Bitmap detailIndexBmp(config.width, config.height, 24);
-  Fwg::Gfx::Bitmap detailIntensity(config.width, config.height, 24);
+  Fwg::Gfx::Image detailIndexBmp(config.width, config.height, 24);
+  Fwg::Gfx::Image detailIntensity(config.width, config.height, 24);
   for (auto i = 0; i < climateData.climateChances.size(); i++) {
     std::array<unsigned char, 3> colour;
     std::array<float, 3> intensities;
@@ -517,14 +517,14 @@ void ImageExporter::detailMaps(
   }
 
   auto scaledDetailIndex =
-      Fwg::Gfx::Bmp::scale(detailIndexBmp, config.width, config.height, false);
+      Fwg::Gfx::Util::scale(detailIndexBmp, config.width, config.height, false);
 
   if (Cfg::Values().debugLevel > 0) {
     Fwg::Gfx::Png::save(scaledDetailIndex,
                         config.mapsPath + "Vic3//" + "sdetailIndex.png");
   }
   auto scaledDetailIntensity =
-      Fwg::Gfx::Bmp::scale(detailIntensity, config.width, config.height, false);
+      Fwg::Gfx::Util::scale(detailIntensity, config.width, config.height, false);
   if (Cfg::Values().debugLevel > 0) {
     Fwg::Gfx::Png::save(scaledDetailIntensity,
                         config.mapsPath + "Vic3//" + "sdetailIntensity.png");
@@ -532,7 +532,7 @@ void ImageExporter::detailMaps(
 
   const auto &height = scaledDetailIndex.height();
   const auto &width = scaledDetailIndex.width();
-  std::vector<Fwg::Gfx::Bitmap> masks;
+  std::vector<Fwg::Gfx::Image> masks;
   auto inMap = scaledDetailIndex;
   inMap.fill(0);
   for (int i = 0; i < 36; i++) {

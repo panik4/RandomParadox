@@ -20,19 +20,19 @@ public:
   ~ImageExporter();
   // member functions
   void writeTile(int xTiles, int yTiles,
-                 const Fwg::Gfx::Bitmap &basePackedHeightMap,
-                 Fwg::Gfx::Bitmap &packedHeightMap, int mapX, int mapY,
+                 const Fwg::Gfx::Image &basePackedHeightMap,
+                 Fwg::Gfx::Image &packedHeightMap, int mapX, int mapY,
                  int packedX) const;
-  Fwg::Gfx::Bitmap dumpHeightmap(const std::vector<float> &heightMap,
+  Fwg::Gfx::Image dumpHeightmap(const std::vector<float> &heightMap,
                                  const std::string &path,
                                  const std::string &colourMapKey,
                                  int exportWidth, int exportHeight) const;
-  Fwg::Gfx::Bitmap dumpDecalMasks(const Fwg::Terrain::TerrainData &terrainData,
+  Fwg::Gfx::Image dumpDecalMasks(const Fwg::Terrain::TerrainData &terrainData,
                              const Fwg::Climate::ClimateData &climateData,
                              const std::string &path,
                              const std::string &colourMapKey, int exportWidth,
                              int exportHeight) const;
-  Fwg::Gfx::Bitmap
+  Fwg::Gfx::Image
   dumpTerrainMasks(const Fwg::Terrain::TerrainData &terrainData,
                    const Fwg::Climate::ClimateData &climateData,
                    const std::string &path, const std::string &colourMapKey,
@@ -52,7 +52,7 @@ public:
                       int exportHeight);
 
   void writeLocations(
-      const Fwg::Gfx::Bitmap &provinceMap,
+      const Fwg::Gfx::Image &provinceMap,
       const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
       const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions,
       const std::vector<std::shared_ptr<Arda::ArdaContinent>> &continents,

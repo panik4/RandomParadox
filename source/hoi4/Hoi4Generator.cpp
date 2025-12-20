@@ -225,8 +225,8 @@ void Generator::mapRegions() {
   applyRegionInput();
 }
 
-Fwg::Gfx::Bitmap Generator::mapTerrain() {
-  Bitmap typeMap = ArdaGen::mapTerrain();
+Fwg::Gfx::Image Generator::mapTerrain() {
+  Image typeMap = ArdaGen::mapTerrain();
   auto &colours = Fwg::Cfg::Values().colours;
   auto &climateColours = Fwg::Cfg::Values().climateColours;
   auto &elevationColours = Fwg::Cfg::Values().elevationColours;
@@ -2378,7 +2378,7 @@ void Generator::generateCharacters() {
 }
 
 bool Generator::loadRivers(Fwg::Cfg &config,
-                           const Fwg::Gfx::Bitmap &riverInput) {
+                           const Fwg::Gfx::Image &riverInput) {
   auto riverCopy = riverInput;
   // replace a few colours by the colours understood by FWG
   std::map<Fwg::Gfx::Colour, Fwg::Gfx::Colour> colourMapping{
@@ -2524,7 +2524,7 @@ void Generator::writeImages() {
       terrainData.detailedHeightMap,
       pathcfg.gameModPath + "//map//terrain//colormap_water_", false, 8);
   imageExporter.dumpWorldNormal(
-      Fwg::Gfx::Bitmap(Cfg::Values().width, Cfg::Values().height, 24,
+      Fwg::Gfx::Image(Cfg::Values().width, Cfg::Values().height, 24,
                        terrainData.sobelData),
       pathcfg.gameModPath + "//map//world_normal.bmp", false);
 

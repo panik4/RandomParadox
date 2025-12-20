@@ -10,8 +10,8 @@ void defaultMap(
     const std::string &path,
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
 void defines(const std::string &pathOut);
-void heightmap(const std::string &path, const Fwg::Gfx::Bitmap &heightMap,
-               const Fwg::Gfx::Bitmap &packedHeightmap);
+void heightmap(const std::string &path, const Fwg::Gfx::Image &heightMap,
+               const Fwg::Gfx::Image &packedHeightmap);
 
 void stateFiles(const std::string &path,
                 const std::vector<std::shared_ptr<Region>> &regions);

@@ -17,20 +17,20 @@ public:
   ~ImageExporter();
   // member functions
   void writeTile(int xTiles, int yTiles,
-                 const Fwg::Gfx::Bitmap &basePackedHeightMap,
-                 Fwg::Gfx::Bitmap &packedHeightMap, int mapX, int mapY,
+                 const Fwg::Gfx::Image &basePackedHeightMap,
+                 Fwg::Gfx::Image &packedHeightMap, int mapX, int mapY,
                  int packedX) const;
-  Fwg::Gfx::Bitmap dumpPackedHeightmap(const Fwg::Gfx::Bitmap &heightMap,
+  Fwg::Gfx::Image dumpPackedHeightmap(const Fwg::Gfx::Image &heightMap,
                                        const std::string &path,
                                        const std::string &colourMapKey) const;
 
-  void Vic3ColourMaps(const Fwg::Gfx::Bitmap &climateMap,
-                      const Fwg::Gfx::Bitmap &heightMap,
+  void Vic3ColourMaps(const Fwg::Gfx::Image &climateMap,
+                      const Fwg::Gfx::Image &heightMap,
                       Fwg::Climate::ClimateData &climateData,
                       const Arda::Civilization::CivilizationLayer &civLayer,
                       const std::string &path);
 
-  void dumpIndirectionMap(const Fwg::Gfx::Bitmap &heightMap,
+  void dumpIndirectionMap(const Fwg::Gfx::Image &heightMap,
                           const std::string &path);
   void dynamicMasks(const std::string &path,
                     const Fwg::Climate::ClimateData &climateData,

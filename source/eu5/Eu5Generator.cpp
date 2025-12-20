@@ -137,9 +137,9 @@ void Generator::configureModGen(const std::string &configSubFolder,
 
 /* a visualisation of the final terrain types. This is not vic3 specific yet, a
  * TODO*/
-Fwg::Gfx::Bitmap Generator::mapTerrain() {
+Fwg::Gfx::Image Generator::mapTerrain() {
   const auto &climateMap = this->climateMap;
-  Bitmap typeMap(climateMap.width(), climateMap.height(), 24);
+  Image typeMap(climateMap.width(), climateMap.height(), 24);
   for (auto &prov : areaData.provinces) {
     prov->calculateTerrainType(terrainData);
     prov->calculateClimateType(climateData);
@@ -330,10 +330,10 @@ void Generator::writeImages() {
   imageExporter.Eu5ColourMaps(terrainData, climateData, ardaData.civLayer,
                               pathcfg.gameModPath + "//in_game//gfx//map//",
                               this->exportWidth / 2, this->exportHeight / 2);
-   imageExporter.writeLocations(provinceMap, ardaProvinces, ardaRegions,
-                                ardaContinents, ardaData.civLayer,
-                                pathcfg.gameModPath + "//in_game//map_data//",
-                                this->exportWidth, this->exportHeight);
+   //imageExporter.writeLocations(provinceMap, ardaProvinces, ardaRegions,
+   //                             ardaContinents, ardaData.civLayer,
+   //                             pathcfg.gameModPath + "//in_game//map_data//",
+   //                             this->exportWidth, this->exportHeight);
   // imageExporter.dumpHeightmap(
   //     terrainData.detailedHeightMap,
   //     pathcfg.gameModPath + "//in_game//gfx//terrain2//", "",

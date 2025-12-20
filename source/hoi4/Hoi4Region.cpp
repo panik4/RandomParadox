@@ -12,7 +12,7 @@ Region::~Region() {}
 Arda::Utils::Building
 getBuilding(const std::string &type, const Fwg::Areas::Province &prov,
             const bool coastal, const std::vector<float> &heightmap,
-            const Fwg::Gfx::Bitmap &typeMap, int relativeID = 0) {
+            const Fwg::Gfx::Image &typeMap, int relativeID = 0) {
   auto pix = 0;
   auto &cfg = Fwg::Cfg::Values();
   Arda::Utils::Building building;
@@ -101,7 +101,7 @@ getBuilding(const std::string &type,
 }
 
 void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
-                                        const Fwg::Gfx::Bitmap &typeMap) {
+                                        const Fwg::Gfx::Image &typeMap) {
   if (!this->isLand())
     return;
   buildings.clear();

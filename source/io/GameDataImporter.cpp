@@ -2,12 +2,12 @@
 using namespace Fwg;
 using namespace Fwg::Gfx;
 namespace Rpx::IO {
-Bitmap loadProvinceMap(const std::string &gamePath) {
+Image loadProvinceMap(const std::string &gamePath) {
   return Fwg::IO::Reader::readGenericImage(gamePath + "//map//provinces.bmp",
                                            Fwg::Cfg::Values());
 }
 
-Bitmap loadHeightMap(const std::string &gamePath) {
+Image loadHeightMap(const std::string &gamePath) {
   return Fwg::IO::Reader::readGenericImage(gamePath + "//map//heightmap.bmp",
                                            Fwg::Cfg::Values());
 }

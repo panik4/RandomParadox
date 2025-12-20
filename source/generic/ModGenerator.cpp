@@ -12,7 +12,7 @@ ModGenerator::ModGenerator(const std::string &configSubFolder,
   Arda::Gfx::Flag::readFlagTypes();
   Arda::Gfx::Flag::readFlagTemplates();
   Arda::Gfx::Flag::readSymbolTemplates();
-  superRegionMap = Bitmap(0, 0, 24);
+  superRegionMap = Image(0, 0, 24);
   this->pathcfg.gameSubPath = gameSubPath;
   this->gameType = gameType;
 }

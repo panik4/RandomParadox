@@ -29,7 +29,7 @@ public:
   void writeBufferPixels(std::vector<unsigned char> &pixels, int index,
                          const Fwg::Gfx::Colour &colour,
                          unsigned char alphaValue);
-  Fwg::Gfx::Bitmap cutBaseMap(const std::string &path,
+  Fwg::Gfx::Image cutBaseMap(const std::string &path,
                               const double factor = 1.0,
                               const int bit = 8) const;
   void dump8BitHeightmap(const std::vector<float> &altitudeData,
@@ -53,12 +53,12 @@ public:
                     const std::string &path, const bool cut = false,
                     const int maxFactor = 2) const;
   void
-  dumpTerrainColourmap(const Fwg::Gfx::Bitmap &climateMap,
+  dumpTerrainColourmap(const Fwg::Gfx::Image &climateMap,
                        const Arda::Civilization::CivilizationLayer &civLayer,
                        const std::string &modPath, const std::string &mapName,
                        const DXGI_FORMAT format, int scaleFactor,
                        const bool cut = false) const;
-  void dumpWorldNormal(const Fwg::Gfx::Bitmap &sobelMap,
+  void dumpWorldNormal(const Fwg::Gfx::Image &sobelMap,
                        const std::string &path, const bool cut) const;
 };
 } // namespace Arda::Gfx

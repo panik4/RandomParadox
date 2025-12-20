@@ -115,7 +115,7 @@ void Generator::generateRegions(
       eu4regions.push_back(euR);
     }
   }
-  Bitmap eu4RegionBmp(Cfg::Values().width, Cfg::Values().height, 24);
+  Image eu4RegionBmp(Cfg::Values().width, Cfg::Values().height, 24);
   for (auto &stratRegion : eu4regions) {
     Colour c{
         static_cast<unsigned char>(RandNum::getRandom<unsigned char>() % 255),
@@ -130,12 +130,11 @@ void Generator::generateRegions(
       }
     }
   }
-  Bmp::bufferBitmap("eu4regions", eu4RegionBmp);
   Bmp::save(eu4RegionBmp, Fwg::Cfg::Values().mapsPath + "//eu4Regions.bmp");
 }
 
-Fwg::Gfx::Bitmap Generator::mapTerrain() {
-  return Fwg::Gfx::Bitmap(Cfg::Values().width, Cfg::Values().height, 24);
+Fwg::Gfx::Image Generator::mapTerrain() {
+  return Fwg::Gfx::Image(Cfg::Values().width, Cfg::Values().height, 24);
 }
 
 // initialize states
@@ -187,7 +186,7 @@ void Generator::generate() {
     formatConverter.dump8BitHeightmap(terrainData.detailedHeightMap,
                                       pathcfg.gameModPath + "//map//heightmap",
                                       "heightmap");
-    std::vector<Fwg::Gfx::Bitmap> seasonalColourmaps;
+    std::vector<Fwg::Gfx::Image> seasonalColourmaps;
     genSeasons(Cfg::Values(), seasonalColourmaps);
     formatConverter.dumpTerrainColourmap(seasonalColourmaps[0], ardaData.civLayer,
                                          pathcfg.gameModPath,
@@ -212,7 +211,7 @@ void Generator::generate() {
         terrainData.detailedHeightMap,
         pathcfg.gameModPath + "//map//terrain//colormap_water", false, 2);
     formatConverter.dumpWorldNormal(
-        Fwg::Gfx::Bitmap(Cfg::Values().width, Cfg::Values().height, 24,
+        Fwg::Gfx::Image(Cfg::Values().width, Cfg::Values().height, 24,
                          terrainData.sobelData),
         pathcfg.gameModPath + "//map//world_normal.bmp", false);
 

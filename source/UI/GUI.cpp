@@ -682,7 +682,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
     if (uiUtils->tabSwitchEvent(true)) {
       uiUtils->updateImage(
           0, generator->visualiseCountries(generator->countryMap));
-      uiUtils->updateImage(1, Fwg::Gfx::Bitmap());
+      uiUtils->updateImage(1, Fwg::Gfx::Image());
     }
 
     ImGui::Text(
@@ -893,7 +893,7 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
       uiUtils->updateImage(
           0, Arda::Gfx::visualiseStrategicRegions(generator->superRegionMap,
                                                   generator->superRegions));
-      uiUtils->updateImage(1, Fwg::Gfx::Bitmap());
+      uiUtils->updateImage(1, Fwg::Gfx::Image());
     }
     static int selectedStratRegionIndex = 0;
     ImGui::SeparatorText(
