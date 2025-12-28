@@ -1,20 +1,20 @@
 {
-	"hoi4":
-	{
+	"hoi4": {
 		"strategicRegionSize": 2,
 		"resourceFactor": 1.0,
 		"aluminiumFactor": 1.0,
+		"coalFactor": 1.0,
 		"chromiumFactor": 1.0,
 		"oilFactor": 1.0,
 		"rubberFactor": 1.0,
 		"steelFactor": 1.0,
 		"tungstenFactor": 1.0,
-		"baseLightRainChance" : 0.5,
-		"baseHeavyRainChance" : 0.5,
-		"baseMudChance" : 0.1,
-		"baseBlizzardChance" : 0.2,
-		"baseSandstormChance" : 0.07,
-		"baseSnowChance" : 0.3
+		"baseLightRainChance": 0.5,
+		"baseHeavyRainChance": 0.5,
+		"baseMudChance": 0.1,
+		"baseBlizzardChance": 0.2,
+		"baseSandstormChance": 0.07,
+		"baseSnowChance": 0.3
 	},
 	"scenario":
 	{

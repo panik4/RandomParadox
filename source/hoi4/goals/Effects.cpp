@@ -57,8 +57,9 @@ void constructEffects(std::vector<EffectGrouping> &effectGroupings,
         } else {
           // we have a single parameter, and we can keep it
           if (subParam == "anyRes") {
-            const std::array<std::string, 6> resources{
-                "oil", "steel", "tungsten", "aluminium", "rubber", "chromium"};
+            const std::array<std::string, 7> resources{
+                "oil",    "steel",    "tungsten", "aluminium",
+                "rubber", "chromium", "coal"};
             // we need to select a random resource
             auto selectedResource = Fwg::Utils::selectRandom(resources);
             subParam = selectedResource;
