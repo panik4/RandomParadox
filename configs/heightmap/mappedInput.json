@@ -5,7 +5,9 @@
 		{
 			"complexHeight" : true,
 			"layerAmount" : 11,
-			"overallFrequencyModifier" : 1.5,
+			"heightmapFrequencyModifier" : 1.5,
+			"heightmapWidthEdgeModifier" : 1.0,
+			"heightmapHeightEdgeModifier" : 1.0,
 			"removeChunkThreshold": 9,
 			"baseSeaLevel": 80,
 			"layers" :
@@ -130,18 +132,18 @@
 					"fractalType" : 1,
 					"landLayer" : true,
 					"seaLayer" : false,
-					"fractalFrequency" : 10.0,
+					"fractalFrequency" : 1.0,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.6,
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 1.2,
+					"weight" : 0.2,
 					"altitudeWeightStart" : 0.0,
 					"altitudeWeightEnd" : 0.0,
 					"maxHeight" : 50,
 					"minHeight" : 0,
-					"tanFactor": 0.0
+					"tanFactor": 6.0
 				},
 				"7" :
 				{
@@ -149,13 +151,13 @@
 					"fractalType" : 2,
 					"landLayer" : true,
 					"seaLayer" : false,
-					"fractalFrequency" : 0.3,
+					"fractalFrequency" : 0.9,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.7,
 					"seed" : 0,
 					"widthEdge" : 10,
 					"heightEdge" : 0,
-					"weight" : 1.0,
+					"weight" : 0.4,
 					"altitudeWeightStart" : 0.0,
 					"altitudeWeightEnd" : 0.0,
 					"maxHeight" : 40,
@@ -168,7 +170,7 @@
 					"fractalType" : 2,
 					"landLayer" : true,
 					"seaLayer" : false,
-					"fractalFrequency" : 1,
+					"fractalFrequency" : 2,
 					"fractalOctaves" : 11,
 					"fractalGain" : 0.7,
 					"seed" : 0,
@@ -179,7 +181,7 @@
 					"altitudeWeightEnd" : 0.0,
 					"maxHeight" : 40,
 					"minHeight" : 0,
-					"tanFactor": 8.0
+					"tanFactor": 7.0
 				},
 				"9" :
 				{

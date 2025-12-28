@@ -27,6 +27,7 @@ struct Hoi4Config {
       {"tungsten", true, 1188.0, true, Arda::Utils::semiRareNoise},
       {"aluminium", true, 1169, true, Arda::Utils::semiRareNoise},
       {"oil", true, 1220.0, true, Arda::Utils::rareLargePatch},
+      {"coal", true, 3000.0, true, Arda::Utils::semiRareNoise},
       {"rubber",
        true,
        1029.0,

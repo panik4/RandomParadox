@@ -579,10 +579,11 @@ Fwg::Gfx::Image ImageExporter::dumpDecalMasks(
       FastNoiseLite::NoiseType_ValueCubic); // Set the desired noise type
   noiseGenerator.SetFractalType(FastNoiseLite::FractalType_FBm);
   // randomness for trees
-  auto noiseMap = Noise::genNoise(noiseGenerator, exportWidth / 4,
-                                  exportHeight / 4, 0.0, 0.0, 0, 255, 0.0);
+  auto noiseMap =
+      Noise::genNoise(noiseGenerator, exportWidth / 4, exportHeight / 4, 0.0,
+                      0.0, 0, 255, 0.0, true);
 
-  // we want 
+  // we want
 
   // rasterize this image into 16 different images , based on the heightmap,
   // presenting 16 different chunks of the heightmap
@@ -688,7 +689,7 @@ Fwg::Gfx::Image ImageExporter::dumpTerrainMasks(
     // randomness for trees
     auto treeNoiseMap =
         Noise::genNoise(noiseGenerator, Fwg::Cfg::Values().width,
-                        Fwg::Cfg::Values().height, 0.0, 0.0, 0, 255, 0.0);
+                        Fwg::Cfg::Values().height, 0.0, 0.0, 0, 255, 0.0, true);
     auto scaledHeightmap = Fwg::Utils::scaleBufferWithInterpolation(
         treeNoiseMap, Fwg::Cfg::Values().width, Fwg::Cfg::Values().height,
         exportWidth, exportHeight);
@@ -824,11 +825,11 @@ void ImageExporter::mapObjectMasks(
       Fwg::Gfx::Util::scale(*pineMask, exportWidth, exportHeight, false),
       path + "//pine_mask.png", false, LCT_GREY);
   Fwg::Gfx::Png::save(Fwg::Gfx::Util::scale(*forestContinentalMask, exportWidth,
-                                           exportHeight, false),
+                                            exportHeight, false),
                       path + "//vegetation_forest_continental_oceanic_mask.png",
                       false, LCT_GREY);
   Fwg::Gfx::Png::save(Fwg::Gfx::Util::scale(*woodsContinentalMask, exportWidth,
-                                           exportHeight, false),
+                                            exportHeight, false),
                       path + "//vegetation_woods_continental_oceanic_mask.png",
                       false, LCT_GREY);
 

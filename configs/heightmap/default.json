@@ -5,7 +5,9 @@
 		{
 			"complexHeight" : true,
 			"layerAmount" : 11,
-			"overallFrequencyModifier" : 1.5,
+			"heightmapFrequencyModifier" : 1.5,
+			"heightmapWidthEdgeModifier" : 1.0,
+			"heightmapHeightEdgeModifier" : 1.0,
 			"removeChunkThreshold": 9,
 			"baseSeaLevel": 80,
 			"layers" :

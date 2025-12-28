@@ -111,6 +111,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
   this->modConfig.resources = {
       {"aluminium",
        {hoi4Conf.get<double>("hoi4.aluminiumFactor"), 1169.0, 0.3}},
+      {"coal", {hoi4Conf.get<double>("hoi4.chromiumFactor"), 1250.0, 0.2}},
       {"chromium", {hoi4Conf.get<double>("hoi4.chromiumFactor"), 1250.0, 0.2}},
       {"oil", {hoi4Conf.get<double>("hoi4.oilFactor"), 1220.0, 0.1}},
       {"rubber", {hoi4Conf.get<double>("hoi4.rubberFactor"), 1029.0, 0.1}},
@@ -256,7 +257,7 @@ Fwg::Gfx::Image Generator::mapTerrain() {
         std::map<Fwg::Terrain::LandformId, int> terrainTypeScores;
         // get the dominant climate of the province
         for (auto &pix : baseProv->pixels) {
-          climateScores[climates.getChance(0,pix).typeIndex]++;
+          climateScores[climates.getChance(0, pix).typeIndex]++;
           terrainTypeScores[landFormIds[pix]]++;
           if (forests[pix]) {
             forestPixels++;
@@ -286,11 +287,9 @@ Fwg::Gfx::Image Generator::mapTerrain() {
           for (auto &pix : baseProv->pixels) {
             typeMap.setColourAtIndex(pix, topographyOverlayColours.at("urban"));
           }
-        } else if (dominantTerrain ==
-                       Fwg::Terrain::LandformId::MOUNTAINS ||
+        } else if (dominantTerrain == Fwg::Terrain::LandformId::MOUNTAINS ||
                    dominantTerrain == Fwg::Terrain::LandformId::PEAKS ||
-                   dominantTerrain ==
-                       Fwg::Terrain::LandformId::STEEPPEAKS) {
+                   dominantTerrain == Fwg::Terrain::LandformId::STEEPPEAKS) {
           gameProv->terrainType = "mountain";
           for (auto &pix : baseProv->pixels) {
             typeMap.setColourAtIndex(pix, elevationColours.at("mountains"));
@@ -404,32 +403,51 @@ void Generator::mapCountries() {
 
 void Generator::generateStateResources() {
   Fwg::Utils::Logging::logLine("HOI4: Digging for resources");
+  struct ResourceGenResult {
+    const Arda::Utils::ResConfig *config;
+    std::vector<float> layer;
+  };
 
-  // config for all resource types
-  for (auto &resConfig : modConfig.resConfigs) {
-    std::vector<float> resPrev;
-    if (resConfig.random) {
-      resPrev = Fwg::Resources::randomResourceLayer(
-          resConfig.name, resConfig.noiseConfig.fractalFrequency,
-          resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
-          resConfig.noiseConfig.mountainBonus);
-    } else if (resConfig.considerSea) {
-      resPrev = Fwg::Resources::coastDependentLayer(
-          resConfig.name, resConfig.oceanFactor, resConfig.lakeFactor,
-          areaData.provinces);
-    } else {
-      resPrev = Fwg::Resources::climateDependentLayer(
-          resConfig.name, resConfig.noiseConfig.fractalFrequency,
-          resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
-          resConfig.noiseConfig.mountainBonus, resConfig.considerClimate,
-          resConfig.climateEffects, resConfig.considerTrees,
-          resConfig.treeEffects, climateData);
-    }
-    if (resPrev.size())
-      totalResourceVal(resPrev,
+  std::vector<std::future<ResourceGenResult>> futures;
+  futures.reserve(modConfig.resConfigs.size());
+
+  for (const auto &resConfig : modConfig.resConfigs) {
+    futures.emplace_back(std::async(
+        std::launch::async, [&resConfig, this]() -> ResourceGenResult {
+          std::vector<float> resPrev;
+
+          if (resConfig.random) {
+            resPrev = Fwg::Resources::randomResourceLayer(
+                resConfig.name, resConfig.noiseConfig.fractalFrequency,
+                resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
+                resConfig.noiseConfig.mountainBonus);
+          } else if (resConfig.considerSea) {
+            resPrev = Fwg::Resources::coastDependentLayer(
+                resConfig.name, resConfig.oceanFactor, resConfig.lakeFactor,
+                areaData.provinces);
+          } else {
+            resPrev = Fwg::Resources::climateDependentLayer(
+                resConfig.name, resConfig.noiseConfig.fractalFrequency,
+                resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
+                resConfig.noiseConfig.mountainBonus, resConfig.considerClimate,
+                resConfig.climateEffects, resConfig.considerTrees,
+                resConfig.treeEffects, climateData);
+          }
+
+          return {&resConfig, std::move(resPrev)};
+        }));
+  }
+  for (auto &fut : futures) {
+    ResourceGenResult result = fut.get();
+
+    if (!result.layer.empty()) {
+      const auto &resConfig = *result.config;
+
+      totalResourceVal(result.layer,
                        resConfig.resourcePrevalence *
                            modConfig.resources.at(resConfig.name).at(0),
                        resConfig);
+    }
   }
 }
 
@@ -1936,9 +1954,9 @@ void Generator::generateFocusTrees() {
                                        this->ardaRegions);
 }
 
-Arda::ScenarioPosition
-createPosition(Fwg::Position &position, Arda::PositionType type, int typeIndex,
-               const std::vector<float> &altitudes) {
+Arda::ScenarioPosition createPosition(Fwg::Position &position,
+                                      Arda::PositionType type, int typeIndex,
+                                      const std::vector<float> &altitudes) {
   Arda::ScenarioPosition scenarioPos;
   scenarioPos.position = position;
   scenarioPos.position.altitude =
@@ -2525,7 +2543,7 @@ void Generator::writeImages() {
       pathcfg.gameModPath + "//map//terrain//colormap_water_", false, 8);
   imageExporter.dumpWorldNormal(
       Fwg::Gfx::Image(Cfg::Values().width, Cfg::Values().height, 24,
-                       terrainData.sobelData),
+                      terrainData.sobelData),
       pathcfg.gameModPath + "//map//world_normal.bmp", false);
 
   // just copy over provinces.bmp, already in a compatible format

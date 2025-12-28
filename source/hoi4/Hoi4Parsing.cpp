@@ -1170,8 +1170,8 @@ void states(const std::string &path,
                                       "");
 
     // resources
-    for (const auto &resource : std::vector<std::string>{
-             "aluminium", "chromium", "oil", "rubber", "steel", "tungsten"}) {
+    for (const auto &resource : std::vector<std::string>{"aluminium", "chromium", "oil", "rubber",
+                                  "steel", "tungsten", "coal"}) {
       Rpx::Parsing::replaceOccurences(
           content, "template" + resource,
           std::to_string((int)region->resources.at(resource).amount));

@@ -13,6 +13,7 @@ state={
 		rubber=templaterubber
 		steel=templatesteel
 		tungsten=templatetungsten
+		coal=templatecoal
 	}
 
 	history={

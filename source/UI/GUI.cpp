@@ -902,6 +902,8 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
     ImGui::PushItemWidth(200.0f);
     ImGui::InputFloat("<--Strategic region factor: ",
                       &generator->ardaConfig.superRegionFactor, 0.1f);
+    ImGui::InputFloat("<--Strategic region mindistance factor: ",
+                      &generator->ardaConfig.superRegionMinDistanceFactor);
     if (ImGui::Button("Generate strategic regions")) {
       // non-country stuff
       computationFutureBool = runAsync([&generator, &cfg, this]() {
@@ -991,6 +993,8 @@ int GUI::showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
                      0.1);
   ImGui::InputDouble("aluminiumFactor",
                      &generator->modConfig.resources["aluminium"][2], 0.1);
+  ImGui::InputDouble("coalFactor",
+                     &generator->modConfig.resources["coal"][2], 0.1);
   ImGui::InputDouble("chromiumFactor",
                      &generator->modConfig.resources["chromium"][2], 0.1);
   ImGui::InputDouble("oilFactor", &generator->modConfig.resources["oil"][2],
@@ -1225,7 +1229,6 @@ void GUI::showEu5Finalise(Fwg::Cfg &cfg) {
         computationFutureBool = runAsync([generator, &cfg, this]() {
           generator->writeImages();
           return true;
-
         });
       }
     } else {
