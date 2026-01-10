@@ -15,6 +15,10 @@ ModGenerator::ModGenerator(const std::string &configSubFolder,
   superRegionMap = Image(0, 0, 24);
   this->pathcfg.gameSubPath = gameSubPath;
   this->gameType = gameType;
+  ardaFactories.superRegionFactory =
+      []() -> std::shared_ptr<Rpx::StrategicRegion> {
+    return std::make_shared<Rpx::StrategicRegion>();
+  };
 }
 
 ModGenerator::~ModGenerator() {}

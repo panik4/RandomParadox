@@ -209,7 +209,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
                   "Different Steps of the generation, usually go "
                   "from left to right");
 
-              if (UI::Elements::BeginMainTabBar("Steps")) {
+              if (Fwg::UI::Elements::BeginMainTabBar("Steps")) {
                 // Disable all inputs if computation is running
                 if (computationRunning) {
                   ImGui::BeginDisabled();
@@ -248,7 +248,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
                   ImGui::Text("Ready!");
                 }
 
-                UI::Elements::EndMainTabBar();
+                Fwg::UI::Elements::EndMainTabBar();
               }
 
               ImGui::PopStyleColor();
@@ -354,12 +354,12 @@ bool GUI::isRelevantModuleActive(const std::string &shortName) {
 // generic configure tab, containing a tab for fwg and rpdx configs
 int GUI::showConfigure(Fwg::Cfg &cfg) {
 
-  if (UI::Elements::BeginMainTabItem("Configure")) {
+  if (Fwg::UI::Elements::BeginMainTabItem("Configure")) {
     uiUtils->showHelpTextBox("Configure");
-    if (UI::Elements::BeginSubTabBar("Config tabs", 0.0f)) {
+    if (Fwg::UI::Elements::BeginSubTabBar("Config tabs", 0.0f)) {
       showRpdxConfigure(cfg);
       showFwgConfigure(cfg);
-      UI::Elements::EndSubTabBar();
+      Fwg::UI::Elements::EndSubTabBar();
     }
     ImGui::EndTabItem();
   }
@@ -370,7 +370,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
   static int item_current = 0;
   // remove the images, and set pretext for them to be auto
   // loaded after switching tabs again
-  if (UI::Elements::BeginSubTabItem("RandomParadox Configuration")) {
+  if (Fwg::UI::Elements::BeginSubTabItem("RandomParadox Configuration")) {
     ImGui::PushItemWidth(200.0f);
     uiUtils->tabSwitchEvent();
     // find every subfolder of config folder
@@ -516,7 +516,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
 }
 
 void GUI::showModLoader(Fwg::Cfg &cfg) {
-  if (UI::Elements::BeginMainTabItem("Modloader")) {
+  if (Fwg::UI::Elements::BeginMainTabItem("Modloader")) {
     if (triggeredDrag) {
       // auto hoi4Module =
       //     std::reinterpret_pointer_cast<Rpx::Hoi4::Hoi4Module,
@@ -572,7 +572,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
       std::string tempTag = selectedCountry->tag;
       static std::string bufferChangedTag = "";
 
-      Elements::borderChild("CountryEdit", [&]() {
+      Fwg::UI::Elements::borderChild("CountryEdit", [&]() {
         ImGui::PushItemWidth(200.0f);
         if (ImGui::InputText("Country tag", &tempTag)) {
           bufferChangedTag = tempTag;
@@ -635,7 +635,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
       }
     }
 
-    Elements::borderChild("StateEdit", [&]() {
+    Fwg::UI::Elements::borderChild("StateEdit", [&]() {
       ImGui::PushItemWidth(200.0f);
       if (ImGui::InputText("State name", &modifiableState->name)) {
         requireCountryDetails = true;
@@ -654,7 +654,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
           std::reinterpret_pointer_cast<Rpx::Hoi4::Region, Arda::ArdaRegion>(
               modifiableState);
 
-      Elements::borderChild("StateEdit2", [&]() {
+      Fwg::UI::Elements::borderChild("StateEdit2", [&]() {
         ImGui::PushItemWidth(200.0f);
         if (longCircuitLogicalOr(
                 ImGui::InputInt("Arms Industry", &hoi4Region->armsFactories),
@@ -676,8 +676,10 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
   ImGui::PopItemWidth();
 }
 
+static bool borderInput = false;
+
 int GUI::showCountryTab(Fwg::Cfg &cfg) {
-  if (UI::Elements::BeginMainTabItem("Countries")) {
+  if (Fwg::UI::Elements::BeginMainTabItem("Countries")) {
     auto &generator = activeGenerator;
     if (uiUtils->tabSwitchEvent(true)) {
       uiUtils->updateImage(
@@ -698,6 +700,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
     ImGui::PushItemWidth(150.0f);
     uiUtils->showHelpTextBox("Countries");
     ImGui::InputInt("Number of countries", &generator->ardaConfig.numCountries);
+    ImGui::Checkbox("Border input", &borderInput);
     // ImGui::InputText("Path to country list: ",
     // &generator->countryMappingPath); ImGui::InputText("Path to state list:
     // ", &generator->regionMappingPath);
@@ -805,32 +808,29 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
         }
       } else {
         computationFutureBool = runAsync([&generator, &cfg, this]() {
-          // load countries with correct type, dependent on the gamemodule
-          // that is active
-          auto inputImage = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
-          if (isRelevantModuleActive("hoi4")) {
-            auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
-            auto countryFactory =
-                []() -> std::shared_ptr<Rpx::Hoi4::Hoi4Country> {
-              return std::make_shared<Rpx::Hoi4::Hoi4Country>();
-            };
-            hoi4Gen->loadCountries(countryFactory, inputImage);
-          } else if (isRelevantModuleActive("vic3")) {
-            auto countryFactory = []() -> std::shared_ptr<Rpx::Vic3::Country> {
-              return std::make_shared<Rpx::Vic3::Country>();
-            };
-            generator->loadCountries(countryFactory, inputImage);
-          } else if (isRelevantModuleActive("eu4")) {
-            auto countryFactory = []() -> std::shared_ptr<Arda::Country> {
-              return std::make_shared<Arda::Country>();
-            };
-            generator->loadCountries(countryFactory, inputImage);
+          auto evaluationAreas =
+              Fwg::UI::Utils::Masks::getLandmaskEvaluationAreas(
+                  generator->terrainData.landMask);
+          if (!borderInput) {
+            activeGenerator->loadCountries(
+                generator->ardaFactories.countryFactory,
+                Fwg::IO::Reader::readGenericImageWithBorders(draggedFile, cfg,
+                                                             evaluationAreas));
+          } else {
+            auto image = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
+
+            // detect all areas, give them unique colours
+            Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(
+                image, evaluationAreas);
+            Fwg::Gfx::Png::save(image, cfg.mapsPath + "test.png");
+
+            // now that we have modified the input image with colours filling
+            // the areas between borders, we can remove the borders
+            Fwg::Gfx::Filter::fillBlackPixelsByArea(image, evaluationAreas);
+            Fwg::Gfx::Png::save(image, cfg.mapsPath + "test2.png");
+            activeGenerator->loadCountries(
+                activeGenerator->ardaFactories.countryFactory, image);
           }
-          // Arda::Countries::evaluateCountryNeighbours(
-          //     generator->areaData.regions, generator->ardaRegions,
-          //     generator->countries);
-          //// build module specific countries out of basic countries
-          // generator->mapCountries();
           uiUtils->resetTexture();
           return true;
         });
@@ -887,7 +887,7 @@ int GUI::showModuleGeneric(Fwg::Cfg &cfg) {
 
 int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                                 std::shared_ptr<Rpx::ModGenerator> &generator) {
-  if (UI::Elements::BeginMainTabItem("Strategic Regions")) {
+  if (Fwg::UI::Elements::BeginMainTabItem("Strategic Regions")) {
     // tab switch setting draw events as accepted
     if (uiUtils->tabSwitchEvent(true)) {
       uiUtils->updateImage(
@@ -904,14 +904,19 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                       &generator->ardaConfig.superRegionFactor, 0.1f);
     ImGui::InputFloat("<--Strategic region mindistance factor: ",
                       &generator->ardaConfig.superRegionMinDistanceFactor);
+
+    ImGui::Checkbox("Border input", &borderInput);
+    if (ImGui::Button("Generate strategic region template")) {
+      Arda::Gfx::generateStrategicRegionTemplate(generator->areaData.provinces,
+                                                 generator->areaData.regions);
+    }
+
     if (ImGui::Button("Generate strategic regions")) {
       // non-country stuff
       computationFutureBool = runAsync([&generator, &cfg, this]() {
         // non-country stuff
-        auto factory = []() -> std::shared_ptr<Rpx::StrategicRegion> {
-          return std::make_shared<Rpx::StrategicRegion>();
-        };
-        generator->generateStrategicRegions(factory);
+        generator->generateStrategicRegions(
+            activeGenerator->ardaFactories.superRegionFactory);
         uiUtils->resetTexture();
         if (activeGameConfig.gameName == "Hearts of Iron IV") {
           auto hoi4Gen = std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
@@ -925,21 +930,38 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
         return true;
       });
     }
-    // if (ImGui::Button("Visualise current strategic regions")) {
-    //   Arda::Gfx::visualiseStrategicRegions(generator->superRegionMap,
-    //                                        generator->superRegions);
-    //   uiUtils->resetTexture();
-    // }
-    // ImGui::Checkbox("Draw strategic regions", &drawBorders);
-
-    // drag event is ignored here
     if (triggeredDrag) {
-      Fwg::Utils::Logging::logLine(
-          "No loading of strategic regions supported at this time");
-      activeGenerator->loadStrategicRegions(
-          activeGenerator->ardaFactories.superRegionFactory,
-          Fwg::IO::Reader::readGenericImage(draggedFile, cfg));
+
+      if (!borderInput) {
+        activeGenerator->loadStrategicRegions(
+            activeGenerator->ardaFactories.superRegionFactory,
+            Fwg::IO::Reader::readGenericImageWithBorders(draggedFile, cfg, {}));
+      } else {
+        auto image = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
+
+        // detect all areas, give them unique colours
+        Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(image, {});
+        Fwg::Gfx::Png::save(image, cfg.mapsPath + "test.png");
+
+        // now that we have modified the input image with colours filling
+        // the areas between borders, we can remove the borders
+        Fwg::Gfx::Filter::fillBlackPixelsByArea(image, {});
+        Fwg::Gfx::Png::save(image, cfg.mapsPath + "test2.png");
+        activeGenerator->loadStrategicRegions(
+            activeGenerator->ardaFactories.superRegionFactory, image);
+      }
+
+      if (activeGameConfig.gameName == "Hearts of Iron IV") {
+        auto hoi4Gen = std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
+            activeGenerator);
+        hoi4Gen->generateWeather();
+      } else if (activeGameConfig.gameName == "Victoria 3") {
+        auto vic3Gen = std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
+            activeGenerator);
+        // do stuff
+      }
       triggeredDrag = false;
+      uiUtils->resetTexture();
     }
 
     auto &clickEvents = uiUtils->clickEvents;
@@ -993,8 +1015,8 @@ int GUI::showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
                      0.1);
   ImGui::InputDouble("aluminiumFactor",
                      &generator->modConfig.resources["aluminium"][2], 0.1);
-  ImGui::InputDouble("coalFactor",
-                     &generator->modConfig.resources["coal"][2], 0.1);
+  ImGui::InputDouble("coalFactor", &generator->modConfig.resources["coal"][2],
+                     0.1);
   ImGui::InputDouble("chromiumFactor",
                      &generator->modConfig.resources["chromium"][2], 0.1);
   ImGui::InputDouble("oilFactor", &generator->modConfig.resources["oil"][2],
@@ -1044,7 +1066,7 @@ void GUI::pathWarning(std::exception e) {
 }
 
 int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
-  if (UI::Elements::BeginMainTabItem("Finalise")) {
+  if (Fwg::UI::Elements::BeginMainTabItem("Finalise")) {
     uiUtils->tabSwitchEvent();
     uiUtils->showHelpTextBox("Finalise");
     ImGui::Text("This will finish generating the mod and write it to the "
@@ -1153,7 +1175,7 @@ int GUI::showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator) {
 }
 
 void GUI::showSplineTab(Fwg::Cfg &cfg) {
-  if (UI::Elements::BeginMainTabItem("Splines")) {
+  if (Fwg::UI::Elements::BeginMainTabItem("Splines")) {
     uiUtils->tabSwitchEvent();
 
     // drag event is ignored here
@@ -1169,7 +1191,7 @@ void GUI::showSplineTab(Fwg::Cfg &cfg) {
 }
 
 int GUI::showVic3Finalise(Fwg::Cfg &cfg) {
-  if (UI::Elements::BeginMainTabItem("Finalise")) {
+  if (Fwg::UI::Elements::BeginMainTabItem("Finalise")) {
     uiUtils->tabSwitchEvent();
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
@@ -1219,7 +1241,7 @@ int GUI::showVic3Finalise(Fwg::Cfg &cfg) {
 }
 
 void GUI::showEu5Finalise(Fwg::Cfg &cfg) {
-  if (UI::Elements::BeginMainTabItem("Finalise")) {
+  if (Fwg::UI::Elements::BeginMainTabItem("Finalise")) {
     uiUtils->tabSwitchEvent();
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");

@@ -213,34 +213,36 @@ void strategicRegions(
                                       "0." + std::to_string(mo) + " " +
                                           std::to_string(daysInMonth[mo]) +
                                           "." + std::to_string(mo));
-      Rpx::Parsing::replaceOccurences(
-          month, "templateTemperatureRange",
-          std::to_string(round((float)stratRegion->weatherMonths[mo][3]))
-                  .substr(0, 5) +
-              " " +
-              std::to_string(round((float)stratRegion->weatherMonths[mo][4]))
-                  .substr(0, 5));
-      Rpx::Parsing::replaceOccurences(
-          month, "templateRainLightChance",
-          std::to_string((float)stratRegion->weatherMonths[mo][5]));
-      Rpx::Parsing::replaceOccurences(
-          month, "templateRainHeavyChance",
-          std::to_string((float)stratRegion->weatherMonths[mo][6]));
-      Rpx::Parsing::replaceOccurences(
-          month, "templateMud",
-          std::to_string((float)stratRegion->weatherMonths[mo][7]));
-      Rpx::Parsing::replaceOccurences(
-          month, "templateBlizzard",
-          std::to_string((float)stratRegion->weatherMonths[mo][8]));
-      Rpx::Parsing::replaceOccurences(
-          month, "templateSandStorm",
-          std::to_string((float)stratRegion->weatherMonths[mo][9]));
-      Rpx::Parsing::replaceOccurences(
-          month, "templateSnow",
-          std::to_string((float)stratRegion->weatherMonths[mo][10]));
-      Rpx::Parsing::replaceOccurences(
-          month, "templateNoPhenomenon",
-          std::to_string((float)stratRegion->weatherMonths[mo][11]));
+      if (stratRegion->weatherMonths.size()) {
+        Rpx::Parsing::replaceOccurences(
+            month, "templateTemperatureRange",
+            std::to_string(round((float)stratRegion->weatherMonths[mo][3]))
+                    .substr(0, 5) +
+                " " +
+                std::to_string(round((float)stratRegion->weatherMonths[mo][4]))
+                    .substr(0, 5));
+        Rpx::Parsing::replaceOccurences(
+            month, "templateRainLightChance",
+            std::to_string((float)stratRegion->weatherMonths[mo][5]));
+        Rpx::Parsing::replaceOccurences(
+            month, "templateRainHeavyChance",
+            std::to_string((float)stratRegion->weatherMonths[mo][6]));
+        Rpx::Parsing::replaceOccurences(
+            month, "templateMud",
+            std::to_string((float)stratRegion->weatherMonths[mo][7]));
+        Rpx::Parsing::replaceOccurences(
+            month, "templateBlizzard",
+            std::to_string((float)stratRegion->weatherMonths[mo][8]));
+        Rpx::Parsing::replaceOccurences(
+            month, "templateSandStorm",
+            std::to_string((float)stratRegion->weatherMonths[mo][9]));
+        Rpx::Parsing::replaceOccurences(
+            month, "templateSnow",
+            std::to_string((float)stratRegion->weatherMonths[mo][10]));
+        Rpx::Parsing::replaceOccurences(
+            month, "templateNoPhenomenon",
+            std::to_string((float)stratRegion->weatherMonths[mo][11]));
+      }
       // Rpx::Parsing::replaceOccurences(month, "templateDateRange", "0." +
       // std::to_string(i) + " 30." + std::to_string(i));
       // Rpx::Parsing::replaceOccurences(month, "templateDateRange", "0." +
@@ -1170,7 +1172,8 @@ void states(const std::string &path,
                                       "");
 
     // resources
-    for (const auto &resource : std::vector<std::string>{"aluminium", "chromium", "oil", "rubber",
+    for (const auto &resource :
+         std::vector<std::string>{"aluminium", "chromium", "oil", "rubber",
                                   "steel", "tungsten", "coal"}) {
       Rpx::Parsing::replaceOccurences(
           content, "template" + resource,
@@ -1441,8 +1444,7 @@ void compatibilityHistory(
     Rpx::Parsing::replaceLine(content,
                               "capital =", "capital = " + std::to_string(1));
     // make sure we correct a bad replacement. Ugly
-    Rpx::Parsing::replaceLine(content,
-                              "set_capital = 1", "set_capital = {");
+    Rpx::Parsing::replaceLine(content, "set_capital = 1", "set_capital = {");
     Rpx::Parsing::replaceLine(content,
                               "SWI_find_biggest_fascist_neighbor = yes", "");
     auto blocks = Rpx::Parsing::getOuterBlocks(pU::getLines(pathString));
