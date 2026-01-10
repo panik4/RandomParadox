@@ -10,6 +10,10 @@ Generator::Generator(const std::string &configSubFolder,
   factories.regionFactory = []() {
     return std::make_shared<Rpx::Hoi4::Region>();
   };
+
+  ardaFactories.countryFactory = []() -> std::shared_ptr<Rpx::Hoi4::Hoi4Country> {
+    return std::make_shared<Rpx::Hoi4::Hoi4Country>();
+  };
 }
 
 Generator::~Generator() {}

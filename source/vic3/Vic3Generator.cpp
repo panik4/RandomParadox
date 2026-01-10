@@ -19,6 +19,10 @@ Generator::Generator(const std::string &configSubFolder,
   factories.regionFactory = []() {
     return std::make_shared<Rpx::Vic3::Region>();
   };
+
+  ardaFactories.countryFactory = []() -> std::shared_ptr<Rpx::Vic3::Country> {
+    return std::make_shared<Rpx::Vic3::Country>();
+  };
 }
 
 // prepare folder structure
