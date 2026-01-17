@@ -822,12 +822,10 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
             // detect all areas, give them unique colours
             Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(
                 image, evaluationAreas);
-            Fwg::Gfx::Png::save(image, cfg.mapsPath + "test.png");
 
             // now that we have modified the input image with colours filling
             // the areas between borders, we can remove the borders
             Fwg::Gfx::Filter::fillBlackPixelsByArea(image, evaluationAreas);
-            Fwg::Gfx::Png::save(image, cfg.mapsPath + "test2.png");
             activeGenerator->loadCountries(
                 activeGenerator->ardaFactories.countryFactory, image);
           }
@@ -931,7 +929,6 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
       });
     }
     if (triggeredDrag) {
-
       if (!borderInput) {
         activeGenerator->loadStrategicRegions(
             activeGenerator->ardaFactories.superRegionFactory,
@@ -941,12 +938,10 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
 
         // detect all areas, give them unique colours
         Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(image, {});
-        Fwg::Gfx::Png::save(image, cfg.mapsPath + "test.png");
 
         // now that we have modified the input image with colours filling
         // the areas between borders, we can remove the borders
         Fwg::Gfx::Filter::fillBlackPixelsByArea(image, {});
-        Fwg::Gfx::Png::save(image, cfg.mapsPath + "test2.png");
         activeGenerator->loadStrategicRegions(
             activeGenerator->ardaFactories.superRegionFactory, image);
       }

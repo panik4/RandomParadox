@@ -113,7 +113,7 @@ void definition(
     auto coastal = prov->coastal ? "true" : "false";
     if (prov->isSea()) {
       for (auto prov2 : prov->neighbours) {
-        if (!prov2.isSea())
+        if (!prov2->isSea())
           coastal = "true";
       }
     }

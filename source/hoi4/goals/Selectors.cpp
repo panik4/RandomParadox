@@ -35,7 +35,7 @@ Rpx::Hoi4::Selectors::getOpposingIdeologyNeighbours(
     const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
         &hoi4Countries) {
   std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> potentialTargets;
-  for (auto &neighbour : country->neighbours) {
+  for (auto &neighbour : country->neighbourCountries) {
     // cast the neighbour to a std::shared_ptr<Rpx::Hoi4::Hoi4Country
 
     auto neighbourHoi4 =
@@ -65,7 +65,7 @@ Rpx::Hoi4::Selectors::getOpposingIdeologyNeighboursNeighbours(
     auto directNeighbourHoi4 =
         std::dynamic_pointer_cast<Rpx::Hoi4::Hoi4Country>(directNeighbour);
 
-    for (auto &indirectNeighbour : directNeighbourHoi4->neighbours) {
+    for (auto &indirectNeighbour : directNeighbourHoi4->neighbourCountries) {
       // cast the neighbour to a std::shared_ptr<Rpx::Hoi4::Hoi4Country
       auto indirectNeighbourHoi4 =
           std::dynamic_pointer_cast<Rpx::Hoi4::Hoi4Country>(

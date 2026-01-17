@@ -104,12 +104,12 @@ void Generator::generateRegions(
       assignedIdeas.insert(region->ID);
       for (auto &neighbour : region->neighbours) {
         // should be equal in sea/land
-        if (neighbour > regions.size())
+        if (neighbour->ID > regions.size())
           continue;
-        if (regions[neighbour]->isSea() == region->isSea() &&
-            assignedIdeas.find(neighbour) == assignedIdeas.end()) {
-          euR.areaIDs.insert(neighbour);
-          assignedIdeas.insert(neighbour);
+        if (regions[neighbour->ID]->isSea() == region->isSea() &&
+            assignedIdeas.find(neighbour->ID) == assignedIdeas.end()) {
+          euR.areaIDs.insert(neighbour->ID);
+          assignedIdeas.insert(neighbour->ID);
         }
       }
       eu4regions.push_back(euR);
@@ -188,23 +188,20 @@ void Generator::generate() {
                                       "heightmap");
     std::vector<Fwg::Gfx::Image> seasonalColourmaps;
     genSeasons(Cfg::Values(), seasonalColourmaps);
-    formatConverter.dumpTerrainColourmap(seasonalColourmaps[0], ardaData.civLayer,
-                                         pathcfg.gameModPath,
+    formatConverter.dumpTerrainColourmap(seasonalColourmaps[0],
+                                         ardaData.civLayer, pathcfg.gameModPath,
                                          "//map//terrain//colormap_spring.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
     formatConverter.dumpTerrainColourmap(seasonalColourmaps[1],
-                                         ardaData.civLayer,
-                                         pathcfg.gameModPath,
+                                         ardaData.civLayer, pathcfg.gameModPath,
                                          "//map//terrain//colormap_summer.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
     formatConverter.dumpTerrainColourmap(seasonalColourmaps[2],
-                                         ardaData.civLayer,
-                                         pathcfg.gameModPath,
+                                         ardaData.civLayer, pathcfg.gameModPath,
                                          "//map//terrain//colormap_autumn.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
     formatConverter.dumpTerrainColourmap(seasonalColourmaps[3],
-                                         ardaData.civLayer,
-                                         pathcfg.gameModPath,
+                                         ardaData.civLayer, pathcfg.gameModPath,
                                          "//map//terrain//colormap_winter.dds",
                                          DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
     formatConverter.dumpDDSFiles(
@@ -212,7 +209,7 @@ void Generator::generate() {
         pathcfg.gameModPath + "//map//terrain//colormap_water", false, 2);
     formatConverter.dumpWorldNormal(
         Fwg::Gfx::Image(Cfg::Values().width, Cfg::Values().height, 24,
-                         terrainData.sobelData),
+                        terrainData.sobelData),
         pathcfg.gameModPath + "//map//world_normal.bmp", false);
 
     using namespace Fwg::Gfx;

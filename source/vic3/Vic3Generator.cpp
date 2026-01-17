@@ -940,7 +940,7 @@ void Generator::writeSplnet() {
   Parsing::Writing::locators(pathcfg.gameModPath +
                                  "//gfx//map//map_object_data//",
                              modData.vic3Regions);
-  genNavmesh();
+  genNavmesh({});
   calculateNavalExits();
 
   Splnet splnet;

@@ -87,6 +87,12 @@ public:
   void generateCountrySpecifics();
   // generate weather per strategic region, from baseprovinces
   void generateWeather();
+  std::vector<int> findProvinceBridge(
+      int startID, int endID,
+      const std::vector<std::shared_ptr<Arda::ArdaProvince>> &ardaProvinces);
+  std::vector<int> extractProvincesFromConnection(
+      const Fwg::Civilization::Connection &conn,
+      const std::vector<std::shared_ptr<Arda::ArdaProvince>> &ardaProvinces);
   // supply hubs and railroads
   void generateLogistics();
   // generate tech levels
