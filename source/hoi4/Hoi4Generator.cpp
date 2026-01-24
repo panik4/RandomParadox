@@ -57,9 +57,18 @@ bool Generator::createPaths() {
     create_directory(pathcfg.gameModPath + "//history//states//");
     create_directory(pathcfg.gameModPath + "//history//countries//");
     // localisation
+    create_directory(pathcfg.gameModPath + "//localisation//braz_por//");
     create_directory(pathcfg.gameModPath + "//localisation//english//");
+    create_directory(pathcfg.gameModPath + "//localisation//french//");
+    create_directory(pathcfg.gameModPath + "//localisation//german//");
+    create_directory(pathcfg.gameModPath + "//localisation//japanese//");
+    create_directory(pathcfg.gameModPath + "//localisation//korean//");
+    create_directory(pathcfg.gameModPath + "//localisation//polish//");
+    create_directory(pathcfg.gameModPath + "//localisation//russian//");
+    create_directory(pathcfg.gameModPath + "//localisation//simp_chinese//");
+    create_directory(pathcfg.gameModPath + "//localisation//spanish//");
     // common
-    create_directory(pathcfg.gameModPath + "//common//national_focus//");
+    // create_directory(pathcfg.gameModPath + "//common//national_focus//");
     create_directory(pathcfg.gameModPath + "//common//countries//");
     create_directory(pathcfg.gameModPath + "//common//characters//");
     create_directory(pathcfg.gameModPath + "//common//ideas//");
@@ -149,7 +158,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
     config.targetSeaRegionAmount = 160;
   config.forceResolutionBase = true;
   config.resolutionBase = 256;
-  config.maxImageArea = 5632 * 2304;
+  config.maxImageArea = 10240 * 1280;
   config.autoSplitProvinces = false;
   ardaConfig.locationConfig.miningPerRegion = 0;
   ardaConfig.locationConfig.forestryPerRegion = 0;
@@ -157,7 +166,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
   ardaConfig.locationConfig.portsPerRegion = 1;
   ardaConfig.locationConfig.agriculturePerRegion = 3;
   ardaConfig.locationConfig.agricultureFactor = 0.9;
-  ardaConfig.locationConfig.urbanFactor = 5.0;
+  ardaConfig.locationConfig.urbanFactor = 1.0;
   this->ardaConfig.generationAge = Arda::Utils::GenerationAge::WorldWar;
   ardaConfig.calculateTargetWorldPopulation();
   ardaConfig.calculateTargetWorldGdp();
@@ -340,7 +349,7 @@ Fwg::Gfx::Image Generator::mapTerrain() {
       }
     }
   }
-  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "typeMap.png");
+  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "debug/typeMap.png");
   generateUrbanisation();
   return typeMap;
 }
@@ -460,7 +469,7 @@ void Generator::generateStateSpecifics() {
   Fwg::Utils::Logging::logLine("HOI4: Planning the economy");
   auto &config = Cfg::Values();
   // calculate the target industry amount
-  auto targetWorldIndustry = 1248.0 * ardaConfig.worldIndustryFactor;
+  auto targetWorldIndustry = 1500 * ardaConfig.worldIndustryFactor;
   // we need a reference to determine how industrious a state is
   double averageEconomicActivity = 1.0 / areaData.landRegions;
 
@@ -583,8 +592,9 @@ void Generator::generateCountrySpecifics() {
   const std::vector<std::string> caucasianGfxCultures{
       "western_european", "eastern_european", "commonwealth"};
 
-  const std::vector<std::string> ideologies{"fascism", "democratic",
-                                            "communism", "neutrality"};
+  const std::vector<Arda::Utils::Ideology> ideologies{
+      Arda::Utils::Ideology::FASCISM, Arda::Utils::Ideology::DEMOCRATIC,
+      Arda::Utils::Ideology::COMMUNISM, Arda::Utils::Ideology::NEUTRALITY};
   for (auto &country : modData.hoi4Countries) {
     if (!country->ownedRegions.size())
       continue;
@@ -651,10 +661,14 @@ void Generator::generateCountrySpecifics() {
                      country->parties.begin()];
     }
 
+    if (country->ideology == Arda::Utils::Ideology::NONE) {
+      Fwg::Utils::Logging::logLine("Unassigned country ideology");
+    }
+
     // allow or forbid elections
-    if (country->ideology == "democratic")
+    if (country->ideology == Arda::Utils::Ideology::DEMOCRATIC)
       country->allowElections = 1;
-    else if (country->ideology == "neutrality")
+    else if (country->ideology == Arda::Utils::Ideology::NEUTRALITY)
       country->allowElections = RandNum::getRandom(0, 1);
     else
       country->allowElections = 0;
@@ -672,10 +686,11 @@ void Generator::generateCountrySpecifics() {
     country->stability = RandNum::getRandom(0, 100);
     // random war support between 0 and 100, higher for fascist and communist
     // countries
-    if (country->ideology == "fascism" || country->ideology == "communism") {
+    if (country->ideology == Arda::Utils::Ideology::FASCISM ||
+        country->ideology == Arda::Utils::Ideology::COMMUNISM) {
       country->warSupport = RandNum::getRandom(40, 80);
     } else {
-      country->warSupport = RandNum::getRandom(0, 60);
+      country->warSupport = RandNum::getRandom(20, 60);
     }
 
     // amount of research slots between 3 and 6, depending on average
@@ -693,7 +708,7 @@ void Generator::generateCountrySpecifics() {
 
     // rounded to the nearest integer
     country->researchSlots =
-        std::round(3.0 + 2.0 * country->averageDevelopment + rankModifier);
+        std::round(3.0 + 2.0 * country->technologyLevel + rankModifier);
 
     // now get the full name of the country
     country->fullName = NameGeneration::modifyWithIdeology(
@@ -721,6 +736,8 @@ void Generator::generateCountrySpecifics() {
   generateCountryNavies();
   generateAirVariants();
   generateCharacters();
+
+  generateWorldState();
 }
 
 void Generator::generateWeather() {
@@ -916,9 +933,10 @@ void Generator::generateLogistics() {
 
   std::vector<Fwg::Civilization::Locations::AreaLocationSet> navmeshLocations;
 
-  for (const auto &country : this->countries) {
+  for (auto countryID = 0; auto &country : this->countries) {
     Fwg::Civilization::Locations::AreaLocationSet areaLocationSet;
     areaLocationSet.area = country.second; // or &state, depending on your model
+    country.second->ID = countryID++;
     for (const auto &state : country.second->ownedRegions) {
 
       std::shared_ptr<Fwg::Civilization::Location> largestCity = nullptr;
@@ -947,7 +965,12 @@ void Generator::generateLogistics() {
     }
     navmeshLocations.push_back(areaLocationSet);
   }
-  genNavmesh(navmeshLocations);
+  std::vector<std::shared_ptr<Fwg::Areas::Area>> customNavigationPoints;
+  customNavigationPoints.reserve(areaData.provinces.size());
+  for (auto &province : areaData.provinces) {
+    customNavigationPoints.push_back(province);
+  }
+  genNavmesh(navmeshLocations, customNavigationPoints);
 
   std::set<std::pair<const std::shared_ptr<Fwg::Civilization::Location>,
                      const std::shared_ptr<Fwg::Civilization::Location>>>
@@ -977,198 +1000,6 @@ void Generator::generateLogistics() {
       }
     }
   }
-
-  return;
-
-  for (auto &country : modData.hoi4Countries) {
-    // Arda::ArdaProvince ID, distance
-    std::map<double, int> supplyHubs;
-    // add capital
-    auto capitalPosition = ardaRegions[country->capitalRegionID]->position;
-    auto &capitalProvince = Fwg::Utils::selectRandom(
-        ardaRegions[country->capitalRegionID]->ardaProvinces);
-    std::vector<double> distances;
-    // region ID, provinceID
-    std::map<int, std::shared_ptr<Arda::ArdaProvince>> supplyHubProvinces;
-    std::map<int, bool> navalBases;
-    std::set<int> gProvIDs;
-    for (auto &region : country->hoi4Regions) {
-      if ((region->stateCategory > 4 && region->ID != country->capitalRegionID)
-          // if we're nearing the end of our region std::vector, and don't
-          // have more than 25% of our regions as supply bases generate
-          // supply bases for the last two regions
-          || (country->hoi4Regions.size() > 2 &&
-              (region->ID == (*(country->hoi4Regions.end() - 2))->ID) &&
-              supplyHubProvinces.size() < (country->hoi4Regions.size() / 4))) {
-        if (!region->isLand())
-          continue;
-        // select a random Arda::ArdaProvince of the state
-        int lakeCounter = 0;
-        auto hubProvince{Fwg::Utils::selectRandom(region->ardaProvinces)};
-        while (hubProvince->isLake() && lakeCounter++ < 1000) {
-          hubProvince = Fwg::Utils::selectRandom(region->ardaProvinces);
-        }
-        // just skip a lake
-        if (lakeCounter >= 1000) {
-          Fwg::Utils::Logging::logLine("Error: Skipping a region for logistics "
-                                       "as it only contains lakes");
-          continue;
-        }
-        // search for a port location in this region. If we have one, overwrtie
-        // hubProvince with the location province
-        for (auto &location : region->locations) {
-          if (location->type == Fwg::Civilization::LocationType::Port ||
-              location->secondaryType ==
-                  Fwg::Civilization::LocationType::Port) {
-            hubProvince = ardaProvinces[location->provinceID];
-            break;
-          }
-        }
-
-        // save the province under the provinces ID
-        supplyHubProvinces[hubProvince->ID] = hubProvince;
-        navalBases[hubProvince->ID] = hubProvince->coastal;
-        // get the distance between this supply hub and the capital
-        auto distance = Fwg::getPositionDistance(capitalPosition,
-                                                 hubProvince->position, width);
-        // save the distance under the province ID
-        supplyHubs[distance] = hubProvince->ID;
-        // save the distance
-        distances.push_back(distance); // save distances to ensure ordering
-      }
-      for (auto &gProv : region->ardaProvinces) {
-        gProvIDs.insert(gProv->ID);
-      }
-    }
-    std::sort(distances.begin(), distances.end());
-    for (const auto distance : distances) {
-      std::vector<int> passthroughProvinceIDs;
-      int attempts = 0;
-      auto sourceNodeID = capitalProvince->ID;
-      supplyNodeConnections.push_back({sourceNodeID});
-      do {
-        attempts++;
-        // the region we want to connect to the source
-        auto destNodeID = supplyHubs[distance];
-        if (sourceNodeID == capitalProvince->ID) {
-          // we are at the start of the search
-          // distance to capital
-          auto tempDistance = distance;
-          for (auto distance2 : distances) {
-            // only check hubs that were already assigned
-            if (distance2 < distance) {
-              // distance is the distance between us and the capital
-              // now find distance2, the distance between us and the other
-              // already assigned supply hubs
-              auto dist3 = Fwg::getPositionDistance(
-                  ardaProvinces[supplyHubs[distance2]]->position,
-                  ardaProvinces[supplyHubs[distance]]->position, width);
-              if (dist3 < tempDistance) {
-                sourceNodeID = ardaProvinces[supplyHubs[distance2]]->ID;
-                tempDistance = dist3;
-              }
-            }
-            supplyNodeConnections.back()[0] = sourceNodeID;
-          }
-        } else {
-          // NOT at the start of the search, therefore sourceNodeID must be
-          // the last element of passThroughStates
-          sourceNodeID = passthroughProvinceIDs.back();
-        }
-        // break if this is another landmass. We can't reach it anyway
-        if (ardaProvinces[sourceNodeID]->landMassID !=
-            ardaProvinces[destNodeID]->landMassID)
-          break;
-        ;
-        // the origins position
-        auto sourceNodePosition = ardaProvinces[sourceNodeID]->position;
-        // save the distance in a temp variable
-        double tempMinDistance = width;
-        auto closestID = INT_MAX;
-        // now check every sourceNode neighbour for distance to
-        // destinationNode
-        for (auto &neighbourGProvince :
-             ardaProvinces[sourceNodeID]->neighbours) {
-          // check if this belongs to us and is an eligible province
-          if (gProvIDs.find(neighbourGProvince->ID) == gProvIDs.end() ||
-              neighbourGProvince->isLake() || neighbourGProvince->isSea())
-            continue;
-          bool cont = false;
-          for (auto passThroughID : passthroughProvinceIDs) {
-            if (passThroughID == neighbourGProvince->ID)
-              cont = true;
-          }
-          if (cont)
-            continue;
-          // the distance to the sources neighbours
-          auto nodeDistance =
-              Fwg::getPositionDistance(ardaProvinces[destNodeID]->position,
-                                       neighbourGProvince->position, width);
-          if (nodeDistance < tempMinDistance) {
-            tempMinDistance = nodeDistance;
-            closestID = neighbourGProvince->ID;
-          }
-        }
-        if (closestID != INT_MAX) {
-          // we found the next best state to go through in this direction
-          passthroughProvinceIDs.push_back(closestID);
-          // now save source
-          sourceNodeID = passthroughProvinceIDs.back();
-        }
-        // if we can't end this rail line, wrap up. Rails shouldn't be
-        // longer than 200 provinces anyway
-        else if (attempts == 200) {
-          // clean it up: if we can't reach our target, the railway must be
-          // cleared
-          supplyNodeConnections.back().clear();
-          passthroughProvinceIDs.clear();
-          break;
-        } else
-          break;
-      }
-      // are we done? If no, find the next state, but the source is now the
-      // currently chosen neighbour
-      while (passthroughProvinceIDs.back() != supplyHubs[distance] &&
-             attempts < 200);
-      // we are done, as we have reached the destination node
-      for (auto &passState : passthroughProvinceIDs) {
-        supplyNodeConnections.back().push_back(passState);
-      }
-    }
-
-    for (auto &pix : capitalProvince->pixels) {
-      logistics.setColourAtIndex(pix, {255, 255, 0});
-    }
-    for (auto &supplyHubProvince : supplyHubProvinces) {
-      for (auto &pix : supplyHubProvince.second->pixels) {
-        logistics.setColourAtIndex(pix, {0, 255, 0});
-      }
-    }
-  }
-  for (auto &connection : supplyNodeConnections) {
-    for (int i = 0; i < connection.size(); i++) {
-      // check if we accidentally added a sea province or lake province to the
-      // connection
-      if (ardaProvinces[connection[i]]->isSea() ||
-          ardaProvinces[connection[i]]->isLake()) {
-        Fwg::Utils::Logging::logLine("Error: Skipping an invalid connection "
-                                     "due to sea or lake province "
-                                     "in it in logistics");
-        connection.erase(connection.begin() + i);
-        i--;
-        continue;
-      }
-      for (const auto pix :
-           ardaProvinces[connection[i]]->getNonOwningPixelView()) {
-        // don't overwrite capitals and supply nodes
-        if (logistics[pix] == Colour{255, 255, 0} ||
-            logistics[pix] == Colour{0, 255, 0})
-          continue;
-        logistics.setColourAtIndex(pix, {255, 255, 255});
-      }
-    }
-  }
-  Bmp::save(logistics, Fwg::Cfg::Values().mapsPath + "//logistics.bmp");
 }
 
 void createTech(const std::vector<std::string> &fileLines,
@@ -1319,7 +1150,7 @@ void Generator::generateTechLevels() {
         .push_back({"sonar", "", TechEra::Interwar});
     country->navyTechs.at(TechEra::Interwar)
         .push_back({"basic_battery", "", TechEra::Interwar});
-    auto development = country->averageDevelopment;
+    auto development = country->technologyLevel;
     auto navyTechLevel = development * country->navalFocus / 10.0;
     auto infantryTechLevel = development * country->landFocus / 10.0;
     auto armorTechLevel = development * country->landFocus / 10.0;
@@ -1342,7 +1173,7 @@ void Generator::generateTechLevels() {
   for (auto &country : modData.hoi4Countries) {
     // lets start with the navy. The higher our development and the more focues
     // we are on navy, the more advanced our navy#
-    auto development = country->averageDevelopment;
+    auto development = country->technologyLevel;
     auto navyTechLevel = development * country->navalFocus / 10.0;
     // generate a tech level for each hull type, either Interwar or BuildUp. The
     // higher the navy tech level, the more likely we are to get BuildUp
@@ -1368,8 +1199,7 @@ void Generator::evaluateCountries() {
   countryImportanceScores.clear();
   double maxScore = 0.0;
   for (auto &country : modData.hoi4Countries) {
-    country->evaluateDevelopment();
-    country->evaluateEconomicActivity(ardaData.worldEconomicActivity);
+    country->evaluateTechnologyLevel();
     country->evaluateProperties();
     country->capitalRegionID = 0;
     country->civilianIndustry = 0;
@@ -1701,8 +1531,12 @@ void Generator::generateAirVariants() {
       addPlaneModules(airVariant, country->airTechs);
       country->planeVariants.push_back(airVariant);
     }
-
-    double airforceStrength = country->airFocus * country->armsFactories;
+    // lets distribute at least ONE airbase throughout every country, even those
+    // without plane tech. This is due to hoi4 ai not building airforces
+    // properly otherwise after researching the techs
+    country->addAirBase(1);
+    double airforceStrength = country->airFocus * country->armsFactories *
+                              this->modConfig.startingAirforceStrengthFactor;
     int airBaseAmount = 1 + airforceStrength / 10.0;
     if (country->planeVariants.size() && airforceStrength > 0) {
       // lets distribute airbases throughout the country
@@ -1742,14 +1576,16 @@ void Generator::generateCountryUnits() {
       DivisionType::Cavalry,
       DivisionType::Motorized,
       DivisionType::Armor};
-
+  this->stats.resetDivisionStats();
   for (auto &country : modData.hoi4Countries) {
     // clear existing divisions
     country->divisions.clear();
     country->divisionTemplates.clear();
+
     // first determine total army strength based on arms industry
     // TODO add a factor to settings
-    country->totalArmyStrength = country->armsFactories * 10;
+    country->totalArmyStrength = country->armsFactories * 10 *
+                                 this->modConfig.startingArmyStrengthFactor;
 
     // basic idea: we create unit templates first. We start with irregulars,
     // then infantry only, then infantry with support, then infantry with
@@ -1832,7 +1668,7 @@ void Generator::generateCountryUnits() {
     // share, as a developed country for example will NOT use irregular
     // infantry in its army, but a minor power might. the more developed we
     // are, the more likely we are to use the more expensive divisions
-    auto &development = country->averageDevelopment;
+    auto &development = country->technologyLevel;
     for (auto &division : country->divisionTemplates) {
       if (division.type == DivisionType::Militia) {
         division.armyShare = 0.35 - development;
@@ -1900,10 +1736,11 @@ void Generator::generateCountryUnits() {
             division.name += " '" + division.location->name + "' " +
                              division.divisionTemplate.name;
             division.startingEquipmentFactor =
-                std::min<double>(0.7 + country->averageDevelopment * 0.3 +
+                std::min<double>(0.7 + country->technologyLevel * 0.3 +
                                      RandNum::getRandom(0.0, 0.2),
                                  1.0);
             division.startingExperienceFactor = RandNum::getRandom(0.0, 1.0);
+            this->stats.divisionsByType[division.divisionTemplate.type]++;
             country->divisions.push_back(division);
           }
         }
@@ -1972,7 +1809,8 @@ void Generator::generateCountryNavies() {
 
     // determine the total tonnage by taking the naval focus times the
     // countries naval industry
-    auto totalTonnage = country->navalFocus * country->dockyards * 100.0;
+    auto totalTonnage = country->navalFocus * country->dockyards * 400.0 *
+                        this->modConfig.startingNavyStrengthFactor;
 
     // calculate amount of convoys based on tonnage
     country->convoyAmount = totalTonnage / 500;
@@ -2082,6 +1920,7 @@ void Generator::generateCountryNavies() {
       }
     }
   }
+  this->stats.resetShipStats();
   // put all ships in one fleet
   for (auto &country : modData.hoi4Countries) {
     // we only set the designs if we're landlocked
@@ -2108,6 +1947,7 @@ void Generator::generateCountryNavies() {
       } else {
         utilisedShipNames[ship->name] = 1;
       }
+      this->stats.shipsByClass[ship->shipClass.type]++;
       fleet.ships.push_back(ship);
     }
     // find some random port location
@@ -2126,6 +1966,144 @@ void Generator::generateCountryNavies() {
           " has no naval base, cannot assign fleet port");
     } else {
       country->fleets.push_back(fleet);
+    }
+  }
+}
+
+void Generator::generateWorldState() {
+  // let's start with faction leaders. Only great powers can have starting
+  // factions
+  auto greatPowers = countriesByRank.at(Arda::Rank::GreatPower);
+
+  std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> hoi4GreatPowers;
+  for (auto &greatPower : greatPowers) {
+    if (auto gpHoi4 =
+            std::dynamic_pointer_cast<Rpx::Hoi4::Hoi4Country>(greatPower)) {
+      hoi4GreatPowers.push_back(gpHoi4);
+    }
+  }
+
+  // ideology -> great power countries
+  std::map<Arda::Utils::Ideology,
+           std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>>
+      greatPowerIdeologyMap = {{Arda::Utils::Ideology::FASCISM, {}},
+                               {Arda::Utils::Ideology::DEMOCRATIC, {}},
+                               {Arda::Utils::Ideology::COMMUNISM, {}},
+                               {Arda::Utils::Ideology::NEUTRALITY, {}}};
+
+  for (auto &greatPower : hoi4GreatPowers) {
+    greatPowerIdeologyMap.at(greatPower->ideology).push_back(greatPower);
+  }
+
+  // determine which ideologies are missing among great powers
+  std::vector<Arda::Utils::Ideology> missingIdeologies;
+  for (const auto &[ideology, countries] : greatPowerIdeologyMap) {
+    if (countries.empty()) {
+      missingIdeologies.push_back(ideology);
+    }
+  }
+
+  // if one or more ideologies are missing, we need to flip countries
+  for (auto missingIdeology : missingIdeologies) {
+    // find the ideology with the most great powers
+    Arda::Utils::Ideology sourceIdeology = Arda::Utils::Ideology::NEUTRALITY;
+    size_t maxSize = 0;
+
+    for (const auto &[ideology, countries] : greatPowerIdeologyMap) {
+      if (countries.size() > maxSize) {
+        maxSize = countries.size();
+        sourceIdeology = ideology;
+      }
+    }
+
+    auto &sourceCountries = greatPowerIdeologyMap.at(sourceIdeology);
+    if (sourceCountries.empty()) {
+      // should not happen, but fail safely
+      continue;
+    }
+
+    // select a random country to flip
+    auto chosenCountry = Fwg::Utils::selectRandom(sourceCountries);
+
+    // remove from source ideology vector
+    sourceCountries.erase(std::remove(sourceCountries.begin(),
+                                      sourceCountries.end(), chosenCountry),
+                          sourceCountries.end());
+
+    // flip ideology
+    chosenCountry->ideology = missingIdeology;
+
+    // add to missing ideology vector
+    greatPowerIdeologyMap.at(missingIdeology).push_back(chosenCountry);
+  }
+
+  // now create one faction per ideology (leader selection only)
+  for (const auto &[ideology, countries] : greatPowerIdeologyMap) {
+    if (countries.empty()) {
+      continue;
+    }
+
+    auto factionLeader = Fwg::Utils::selectRandom(countries);
+    Faction faction;
+    faction.name = "Unassigned";
+    faction.ideology = factionLeader->ideology;
+    faction.factionLeader = factionLeader->tag;
+    faction.memberTags.push_back(faction.factionLeader);
+    faction.faction_template = "faction_template_generic";
+    switch (faction.ideology) {
+    case Arda::Utils::Ideology::FASCISM: {
+      faction.faction_template =
+          Fwg::Utils::selectRandom(std::vector<std::string>{
+              "faction_template_generic_dominance",
+              "faction_template_regional_anti_communist",
+              "faction_template_regional_anti_democratic"});
+      break;
+    }
+    case Arda::Utils::Ideology::DEMOCRATIC: {
+      faction.faction_template = Fwg::Utils::selectRandom(
+          std::vector<std::string>{"faction_template_defensive_democratic",
+                                   "faction_template_industrial_focus"});
+      break;
+    }
+    case Arda::Utils::Ideology::NEUTRALITY: {
+      faction.faction_template =
+          Fwg::Utils::selectRandom(std::vector<std::string>{
+              "faction_template_generic_dominance",
+              "faction_template_anti_communist",
+              "faction_template_anti_fascist",
+              "faction_template_regional_anti_communist",
+              "faction_template_regional_anti_democratic"});
+      break;
+    }
+    case Arda::Utils::Ideology::COMMUNISM: {
+      faction.faction_template = Fwg::Utils::selectRandom(
+          std::vector<std::string>{"faction_template_generic_dominance",
+                                   "faction_template_anti_fascist",
+                                   "faction_template_world_revolution"});
+
+      break;
+    }
+    }
+    auto ptrFaction = std::make_shared<Faction>(faction);
+    factionLeader->faction = ptrFaction;
+    modData.factions.push_back(ptrFaction);
+  }
+
+  // also track overall amount of ideologies (all countries, not just great
+  // powers)
+  std::map<Arda::Utils::Ideology,
+           std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>>
+      genericIdeologyMap = {{Arda::Utils::Ideology::FASCISM, {}},
+                            {Arda::Utils::Ideology::DEMOCRATIC, {}},
+                            {Arda::Utils::Ideology::COMMUNISM, {}},
+                            {Arda::Utils::Ideology::NEUTRALITY, {}}};
+
+  for (const auto &[rank, countries] : countriesByRank) {
+    for (const auto &country : countries) {
+      if (auto hoi4Country =
+              std::dynamic_pointer_cast<Rpx::Hoi4::Hoi4Country>(country)) {
+        genericIdeologyMap.at(hoi4Country->ideology).push_back(hoi4Country);
+      }
     }
   }
 }
@@ -2278,6 +2256,18 @@ void Generator::generatePositions() {
 
 void Generator::printStatistics() {
   gatherStatistics();
+
+  for (auto &scores : countryImportanceScores) {
+    for (auto &entry : scores.second) {
+      // auto &hoi4Country = modData.hoi4Countries[entry->tag];
+      //  search the corresponding hoi4Country in hoi4COuntries by tag.
+      // reinterpret this country as a shared pointer to Hoi4Country
+      auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(entry);
+      Fwg::Utils::Logging::logLine(
+          "Strength: ", scores.first, " ", hoi4Country->fullName, " ",
+          Arda::Utils::ideologyToString.at(hoi4Country->ideology), "");
+    }
+  }
   Fwg::Utils::Logging::logLine("Total Industry: ", stats.militaryIndustry +
                                                        stats.civilianIndustry +
                                                        stats.navalIndustry);
@@ -2291,17 +2281,23 @@ void Generator::printStatistics() {
   Fwg::Utils::Logging::logLine("World Gdp: ", ardaStats.totalWorldGdp);
   Fwg::Utils::Logging::logLine("World Population: ",
                                ardaStats.totalWorldPopulation);
+  Fwg::Utils::Logging::logLine(
+      "Over all countries distributed, the following amount of divisions was "
+      "deployed: ");
 
-  for (auto &scores : countryImportanceScores) {
-    for (auto &entry : scores.second) {
-      // auto &hoi4Country = modData.hoi4Countries[entry->tag];
-      //  search the corresponding hoi4Country in hoi4COuntries by tag.
-      // reinterpret this country as a shared pointer to Hoi4Country
-      auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(entry);
-      Fwg::Utils::Logging::logLine("Strength: ", scores.first, " ",
-                                   hoi4Country->fullName, " ",
-                                   hoi4Country->ideology, "");
-    }
+  for (const auto &divisionTypeAmount : this->stats.divisionsByType) {
+    Fwg::Utils::Logging::logLine(
+        divisionTypeAmount.second, " ",
+        Hoi4::divisionTypeMap.at(divisionTypeAmount.first), "s");
+  }
+
+  Fwg::Utils::Logging::logLine(
+      "Over all countries distributed, the following amount of ships was "
+      "deployed: ");
+  for (const auto shipTypeAmount : this->stats.shipsByClass) {
+    Fwg::Utils::Logging::logLine(
+        shipTypeAmount.second, " ",
+        Hoi4::shipClassTypeMap.at(shipTypeAmount.first), "s");
   }
 }
 
@@ -2388,30 +2384,28 @@ void Generator::generateUrbanisation() {
 }
 
 void Generator::generateCharacters() {
-  std::map<Arda::Ideology, std::vector<std::string>> leaderTraits = {
-      {Arda::Ideology::None,
-       {"cabinet_crisis", "exiled", "headstrong", "humble",
-        "inexperienced_monarch", "socialite_connections",
-        "staunch_constitutionalist", "gentle_scholar", "the_statist",
-        "the_academic"}},
-      {Arda::Ideology::Neutral,
-       {"cabinet_crisis", "exiled", "headstrong", "humble",
-        "inexperienced_monarch", "socialite_connections",
-        "staunch_constitutionalist", "celebrity_junta_leader"}},
-      {Arda::Ideology::Fascist,
+  std::map<Arda::Utils::Ideology, std::vector<std::string>> leaderTraits = {
+      {Arda::Utils::Ideology::NONE,
+       {"cabinet_crisis", "headstrong", "humble", "inexperienced_monarch",
+        "socialite_connections", "staunch_constitutionalist", "gentle_scholar",
+        "the_statist", "the_academic"}},
+      {Arda::Utils::Ideology::NEUTRALITY,
+       {"cabinet_crisis", "headstrong", "humble", "inexperienced_monarch",
+        "socialite_connections", "staunch_constitutionalist",
+        "celebrity_junta_leader"}},
+      {Arda::Utils::Ideology::FASCISM,
        {"autocratic_imperialist", "collaborator_king", "generallissimo",
         "inexperienced_imperialist", "spirit_of_genghis", "warmonger",
         "the_young_magnate", "polemarch", "archon_basileus", "autokrator",
         "basileus", "infirm", "celebrity_junta_leader"}},
-      {Arda::Ideology::Communist,
+      {Arda::Utils::Ideology::COMMUNISM,
        {"political_dancer", "indomitable_perseverance",
         "mastermind_code_cracker", "polemarch", "infirm",
         "reluctant_stalinist"}},
-      {Arda::Ideology::Democratic,
-       {"british_bulldog", "chamberlain_appeaser", "conservative_grandee",
-        "famous_aviator", "first_lady", "rearmer", "staunch_constitutionalist",
-        "the_banker", "the_young_magnate", "infirm",
-        "liberal_democratic_paragon"}}};
+      {Arda::Utils::Ideology::DEMOCRATIC,
+       {"conservative_grandee", "famous_aviator", "first_lady", "rearmer",
+        "staunch_constitutionalist", "the_banker", "the_young_magnate",
+        "infirm", "liberal_democratic_paragon"}}};
 
   std::vector<std::string> armyChiefTraits = {
       "army_chief_defensive_",      "army_chief_offensive_",
@@ -2469,11 +2463,11 @@ void Generator::generateCharacters() {
     // per country, we want to avoid duplicate names
     std::set<std::string> usedNames;
     // we want of every ideology: Neutral, Fascist, Communist, Democratic
-    std::vector<Arda::Ideology> ideologies = {
-        Arda::Ideology::Neutral, Arda::Ideology::Fascist,
-        Arda::Ideology::Communist, Arda::Ideology::Democratic};
+    std::vector<Arda::Utils::Ideology> ideologies = {
+        Arda::Utils::Ideology::NEUTRALITY, Arda::Utils::Ideology::FASCISM,
+        Arda::Utils::Ideology::COMMUNISM, Arda::Utils::Ideology::DEMOCRATIC};
 
-    auto createCharacter = [&](Arda::Type type, Arda::Ideology ideology,
+    auto createCharacter = [&](Arda::Type type, Arda::Utils::Ideology ideology,
                                const std::vector<std::string> &traits,
                                int count, bool addLevel = false) {
       for (int i = 0; i < count; i++) {
@@ -2568,7 +2562,7 @@ void Generator::generateCharacters() {
                usedNames.end());
 
       usedNames.insert(theorist.name + " " + theorist.surname);
-      theorist.ideology = Arda::Ideology::Neutral;
+      theorist.ideology = Arda::Utils::Ideology::NEUTRALITY;
       theorist.type = Arda::Type::Theorist;
       theorist.traits.push_back(theoristTraits.at(i));
       country->characters.push_back(theorist);
@@ -2631,10 +2625,11 @@ void Generator::writeTextFiles() {
   Map::supply(pathcfg.gameModPath + "//map//", modData.supplyNodeConnections);
   Map::buildings(pathcfg.gameModPath + "//map//buildings.txt",
                  modData.hoi4States);
-  Map::continents(pathcfg.gameModPath + "//map//continent.txt", ardaContinents,
-                  pathcfg.gamePath,
-                  pathcfg.gameModPath +
-                      "//localisation//english//province_names_l_english.yml");
+  Map::continents(
+      pathcfg.gameModPath + "//map//continent.txt", ardaContinents,
+      pathcfg.gamePath,
+      pathcfg.gameModPath +
+          "//localisation//language//province_names_l_language.yml");
   Map::definition(pathcfg.gameModPath + "//map//definition.csv", ardaProvinces);
   Map::strategicRegions(pathcfg.gameModPath + "//map//strategicregions",
                         areaData.regions, superRegions);
@@ -2654,13 +2649,13 @@ void Generator::writeTextFiles() {
                               modData.hoi4Countries);
   Countries::commonNames(pathcfg.gameModPath + "//common//names//00_names.txt",
                          modData.hoi4Countries);
-  Countries::foci(pathcfg.gameModPath + "//common//national_focus//",
-                  modData.hoi4Countries, nData);
+  // Countries::foci(pathcfg.gameModPath + "//common//national_focus//",
+  //                 modData.hoi4Countries, nData);
   Countries::flags(pathcfg.gameModPath + "//gfx//flags//",
                    modData.hoi4Countries);
   Countries::historyCountries(pathcfg.gameModPath + "//history//countries//",
                               modData.hoi4Countries, pathcfg.gamePath,
-                              areaData.regions);
+                              areaData.regions, Rpx::Hoi4::shipClassTypeMap);
   Countries::historyUnits(pathcfg.gameModPath + "//history//units//",
                           modData.hoi4Countries);
   Countries::ideas(pathcfg.gameModPath + "//common//ideas//",
@@ -2687,13 +2682,13 @@ void Generator::writeTextFiles() {
 void Generator::writeLocalisation() {
 
   using namespace Parsing::Writing::Localisation;
-  stateNames(pathcfg.gameModPath + "//localisation//english//",
+  stateNames(pathcfg.gameModPath + "//localisation//language//",
              modData.hoi4Countries);
-  countryNames(pathcfg.gameModPath + "//localisation//english//",
+  countryNames(pathcfg.gameModPath + "//localisation//language//",
                modData.hoi4Countries, nData);
-  strategicRegionNames(pathcfg.gameModPath + "//localisation//english//",
+  strategicRegionNames(pathcfg.gameModPath + "//localisation//language//",
                        superRegions);
-  victoryPointNames(pathcfg.gameModPath + "//localisation//english//",
+  victoryPointNames(pathcfg.gameModPath + "//localisation//language//",
                     modData.hoi4States);
 }
 void Generator::writeImages() {
@@ -2772,7 +2767,7 @@ void Generator::generate() {
     // politics, etc
     generateCountrySpecifics();
 
-    generateFocusTrees();
+    // generateFocusTrees();
     distributeVictoryPoints();
     generatePositions();
 
@@ -2828,12 +2823,12 @@ void Generator::readHoi(std::string &path) {
   // those with each other, so another export does not overwrite the continents
   std::map<int, Areas::Continent> continents;
   for (auto &prov : areaData.provinces) {
-    if (prov->continentID != -1) {
-      if (continents.find(prov->continentID) == continents.end()) {
-        Areas::Continent continent(prov->continentID);
-        continents.insert({prov->continentID, continent});
+    if (prov->continent->ID != -1) {
+      if (continents.find(prov->continent->ID) == continents.end()) {
+        Areas::Continent continent(prov->continent->ID);
+        continents.insert({prov->continent->ID, continent});
       } else {
-        continents.at(prov->continentID).provinces.push_back(prov);
+        continents.at(prov->continent->ID).provinces.push_back(prov);
       }
     }
   }

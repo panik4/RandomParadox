@@ -63,6 +63,6 @@ set_popularities = {
 }
 
 
-#create_faction = templateFactionName
-#add_to_faction = templateTag
+templateFactionTemplate
+templateFactionAdd
 

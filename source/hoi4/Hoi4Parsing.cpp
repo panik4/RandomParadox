@@ -4,6 +4,25 @@ namespace Logging = Fwg::Utils::Logging;
 namespace pU = Fwg::Parsing;
 namespace Rpx::Hoi4::Parsing {
 namespace Writing {
+namespace Detail {
+void localisationWrite(const std::string &templatepath,
+                       const std::string &content, bool utf8) {
+
+  const std::vector<std::string> locPaths = {
+      "braz_por", "english", "french",  "german",       "japanese",
+      "korean",   "polish",  "russian", "simp_chinese", "spanish"};
+
+  for (auto locPath : locPaths) {
+    auto dedicatedPath = templatepath;
+    auto dedicatedContent = content;
+    pU::replaceOccurences(dedicatedPath, "language", locPath);
+    pU::replaceOccurences(dedicatedContent, "l_language", "l_" + locPath);
+
+    pU::writeFile(dedicatedPath, dedicatedContent, utf8);
+  }
+}
+} // namespace Detail
+
 namespace Map {
 void adj(const std::string &path) {
   Logging::logLine("HOI4 Parser: Map: Writing Adjacencies");
@@ -83,8 +102,9 @@ void continents(
   }
   // read the localisation file  from the gamePath+ "/localisation// to
   // localisation//
-  auto continentLocalisation = pU::readFile(
-      hoiPath + "//localisation//english//province_names_l_english.yml");
+  auto continentLocalisation =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4/localisation/province_names_l_language.yml");
   // add the continents to the localisation file
   for (auto &continent : continents) {
     continentLocalisation.append(" " + continent->name + ":0 \"" +
@@ -92,7 +112,7 @@ void continents(
     continentLocalisation.append(" " + continent->name + "_adj:0 \"" +
                                  continent->adjective + "\"\n");
   }
-  pU::writeFile(localisationPath, continentLocalisation);
+  Detail::localisationWrite(localisationPath, continentLocalisation, false);
 }
 
 void definition(
@@ -136,7 +156,7 @@ void definition(
         terraintype,
         std::to_string(prov->isSea() || prov->isLake()
                            ? 0
-                           : prov->continentID +
+                           : prov->continent->ID +
                                  1) // 0 is for sea, no continent
     };
     content.append(pU::csvFormat(arguments, ';', false));
@@ -379,14 +399,15 @@ void commonCharacters(const std::string &path, const CountryMap &countries) {
       {Arda::Type::Theorist, "theorist"},
       {Arda::Type::HighCommand, "high_command"}};
   // map to randomly get one of the ideologies
-  std::map<Arda::Ideology, std::vector<std::string>> ideologyMap{
-      {Arda::Ideology::Fascist,
+  std::map<Arda::Utils::Ideology, std::vector<std::string>> ideologyMap{
+      {Arda::Utils::Ideology::FASCISM,
        {"rexism", "falangism", "fascism_ideology", "nazism"}},
-      {Arda::Ideology::Communist,
+      {Arda::Utils::Ideology::COMMUNISM,
        {"marxism", "leninism", "stalinism", "anti_revisionism",
         "anarchist_communism"}},
-      {Arda::Ideology::Democratic, {"conservatism", "liberalism", "socialism"}},
-      {Arda::Ideology::Neutral,
+      {Arda::Utils::Ideology::DEMOCRATIC,
+       {"conservatism", "liberalism", "socialism"}},
+      {Arda::Utils::Ideology::NEUTRALITY,
        {"despotism", "oligarchism", "moderatism", "centrism"}}};
 
   for (const auto &country : countries) {
@@ -459,7 +480,7 @@ void commonNames(const std::string &path, const CountryMap &countries) {
     for (auto &culture : country->cultures) {
       // get the share of the culture in the country
       auto share =
-          std::min<double>(culture.second / country->totalPopulation, 1.0);
+          std::min<double>(culture.second / country->getTotalPopulation(), 1.0);
       auto language = culture.first->language;
       // get the names for the culture
       for (int i = 1; i < (int)(share * (double)language->maleNames.size());
@@ -544,7 +565,8 @@ void flags(const std::string &path, const CountryMap &countries) {
 void historyCountries(
     const std::string &path, const CountryMap &countries,
     const std::string &gamePath,
-    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions) {
+    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
+    const std::map<ShipClassType, std::string> &shipClassTypeMap) {
   Logging::logLine("HOI4 Parser: History: Writing Country History");
   Fwg::IO::Utils::clearFilesOfType(path, ".txt");
   // now compat countries
@@ -609,8 +631,9 @@ void historyCountries(
     Rpx::Parsing::replaceOccurences(countryText, "templateWarSupport",
                                     std::to_string(country->warSupport));
     Rpx::Parsing::replaceOccurences(countryText, "templateTag", country->tag);
-    Rpx::Parsing::replaceOccurences(countryText, "templateParty",
-                                    country->ideology);
+    Rpx::Parsing::replaceOccurences(
+        countryText, "templateParty",
+        Arda::Utils::ideologyToString.at(country->ideology));
 
     Rpx::Parsing::replaceOccurences(countryText, "templateAllowElections",
                                     country->allowElections ? "yes" : "no");
@@ -624,6 +647,23 @@ void historyCountries(
                                     std::to_string(country->parties[2]));
     Rpx::Parsing::replaceOccurences(countryText, "templateNeuPop",
                                     std::to_string(country->parties[3]));
+
+    if (country->faction != nullptr) {
+      if (country->tag == country->faction->factionLeader) {
+        ////    factionsContent.append(
+        ////        "create_faction_from_template = " +
+        /// faction->faction_template +
+        Rpx::Parsing::replaceOccurences(countryText, "templateFactionTemplate",
+                                        "create_faction_from_template = " +
+                                            country->faction->faction_template);
+      }
+      Rpx::Parsing::replaceOccurences(countryText, "templateFactionAdd",
+                                      "add_to_faction = " + country->tag);
+    } else {
+      Rpx::Parsing::replaceOccurences(countryText, "templateFactionTemplate",
+                                      "");
+      Rpx::Parsing::replaceOccurences(countryText, "templateFactionAdd", "");
+    }
 
     // to map from bba techs to vanilla air techs
     std::map<std::string, std::string> airTechMap{
@@ -715,16 +755,6 @@ void historyCountries(
     Rpx::Parsing::replaceOccurences(countryText, "templateTankVariants",
                                     armorVariants);
 
-    // map from shipclassType to string
-    std::map<ShipClassType, std::string> shipClassTypeMap{
-        {ShipClassType::Destroyer, "Destroyer"},
-        {ShipClassType::LightCruiser, "LightCruiser"},
-        {ShipClassType::HeavyCruiser, "HeavyCruiser"},
-        {ShipClassType::BattleCruiser, "BattleCruiser"},
-        {ShipClassType::BattleShip, "BattleShip"},
-        {ShipClassType::Carrier, "Carrier"},
-        {ShipClassType::Submarine, "Submarine"}};
-
     std::string navyTechs = "";
     std::string mtgNavyTechs = "";
     std::set<std::string> ownedVanillaTechs;
@@ -747,7 +777,7 @@ void historyCountries(
         } else if (shipClass.era == TechEra::Buildup) {
           searchKey += "1,";
         }
-        searchKey += shipClassTypeMap[eraShipClasses.first];
+        searchKey += shipClassTypeMap.at(eraShipClasses.first);
         std::string vanillaHullType =
             pU::getValue(navyTechFile, "vanilla" + searchKey);
         ownedVanillaTechs.insert(vanillaHullType);
@@ -1364,8 +1394,9 @@ void commonBookmarks(
           // reinterpret this country as a Hoi4Country
           auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country);
           auto majorString{majorTemplate};
-          Rpx::Parsing::replaceOccurences(majorString, "templateIdeology",
-                                          hoi4Country->ideology);
+          Rpx::Parsing::replaceOccurences(
+              majorString, "templateIdeology",
+              Arda::Utils::ideologyToString.at(hoi4Country->ideology));
           bookmarkCountries.append(Rpx::Parsing::replaceOccurences(
               majorString, "templateMajorTAG", hoi4Country->tag));
           count++;
@@ -1375,8 +1406,9 @@ void commonBookmarks(
         for (const auto &country : iter->second) {
           auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country);
           auto minorString{minorTemplate};
-          Rpx::Parsing::replaceOccurences(minorString, "templateIdeology",
-                                          hoi4Country->ideology);
+          Rpx::Parsing::replaceOccurences(
+              minorString, "templateIdeology",
+              Arda::Utils::ideologyToString.at(hoi4Country->ideology));
           bookmarkCountries.append(Rpx::Parsing::replaceOccurences(
               minorString, "templateMinorTAG", hoi4Country->tag));
           count++;
@@ -1510,30 +1542,32 @@ namespace Localisation {
 void countryNames(const std::string &path, const CountryMap &countries,
                   const Arda::Names::NameData &nData) {
   Logging::logLine("HOI4 Parser: Localisation: Writing Country Names");
-  std::string content = "l_english:\n";
-  std::vector<std::string> ideologies{"fascism", "communism", "neutrality",
-                                      "democratic"};
+  std::string content = "l_language:\n";
+  std::vector<Arda::Utils::Ideology> ideologies{
+      Arda::Utils::Ideology::FASCISM, Arda::Utils::Ideology::COMMUNISM,
+      Arda::Utils::Ideology::NEUTRALITY, Arda::Utils::Ideology::DEMOCRATIC};
 
   for (const auto &country : countries) {
     for (const auto &ideology : ideologies) {
       auto ideologyName = NameGeneration::modifyWithIdeology(
           ideology, country->name, country->adjective, nData);
-      content +=
-          " " + country->tag + "_" + ideology + ":0 \"" + ideologyName + "\"\n";
-      content += " " + country->tag + "_" + ideology + "_DEF:0 \"" +
+      auto ideologyString = Arda::Utils::ideologyToString.at(ideology);
+      content += " " + country->tag + "_" + ideologyString + ":0 \"" +
+                 ideologyName + "\"\n";
+      content += " " + country->tag + "_" + ideologyString + "_DEF:0 \"" +
                  ideologyName + "\"\n";
       ;
-      content += " " + country->tag + "_" + ideology + "_ADJ:0 \"" +
+      content += " " + country->tag + "_" + ideologyString + "_ADJ:0 \"" +
                  country->adjective + "\"\n";
       ;
     }
   }
-  pU::writeFile(path + "countries_l_english.yml", content, true);
+  Detail::localisationWrite(path + "countries_l_language.yml", content, true);
 }
 
 void stateNames(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: Localisation: Writing State Names");
-  std::string content = "l_english:\n";
+  std::string content = "l_language:\n";
 
   for (const auto &country : countries) {
     for (const auto &region : country->hoi4Regions) {
@@ -1541,33 +1575,35 @@ void stateNames(const std::string &path, const CountryMap &countries) {
                  Arda::Language::capitalisedWord(region->name) + "\"\n";
     }
   }
-  pU::writeFile(path + "state_names_l_english.yml", content, true);
+  Detail::localisationWrite(path + "state_names_l_language.yml", content, true);
 }
 
 void strategicRegionNames(
     const std::string &path,
     const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions) {
   Logging::logLine("HOI4 Parser: Map: Naming the Regions");
-  std::string content = "l_english:\n";
+  std::string content = "l_language:\n";
   for (auto i = 0; i < strategicRegions.size(); i++) {
     content += Fwg::Utils::varsToString(
         " STRATEGICREGION_", i, ":0 \"",
         Arda::Language::capitalisedWord(strategicRegions[i]->name), "\"\n");
   }
-  pU::writeFile(path + "//strategic_region_names_l_english.yml", content, true);
+  Detail::localisationWrite(path + "strategic_region_names_l_language.yml",
+                            content, true);
 }
 
 void victoryPointNames(const std::string &path,
                        const std::vector<std::shared_ptr<Region>> &regions) {
   Logging::logLine("HOI4 Parser: Map: Naming the Regions");
-  std::string content = "l_english:\n";
+  std::string content = "l_language:\n";
   for (auto region : regions) {
     for (auto vp : region->victoryPointsMap) {
       content += Fwg::Utils::varsToString(" VICTORY_POINTS_", vp.first + 1,
                                           ":0 \"", vp.second->name, "\"\n");
     }
   }
-  pU::writeFile(path + "//victory_points_l_english.yml", content, true);
+  Detail::localisationWrite(path + "victory_points_l_language.yml", content,
+                            true);
 }
 
 } // namespace Localisation
@@ -1810,7 +1846,7 @@ void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
       if (p->isLake()) {
         p->coastal = false;
       }
-      p->continentID = stoi(tokens[7]) - 1;
+      p->continent->ID = stoi(tokens[7]) - 1;
       areaData.provinceColourMap.setValue(p->colour, p);
       areaData.provinces.push_back(p);
     }

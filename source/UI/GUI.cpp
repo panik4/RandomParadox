@@ -125,7 +125,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
 
     ::RegisterClassExW(&wc);
     HWND hwnd = uiUtils->createAndConfigureWindow(wc, wc.lpszClassName,
-                                                  L"RandomParadox 0.9.3");
+                                                  L"RandomParadox 0.10.0");
     initializeGraphics(hwnd);
     initializeImGui(hwnd);
     auto &io = ImGui::GetIO();
@@ -757,7 +757,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
 
             hoi4Gen->generateLogistics();
             hoi4Gen->generateCountrySpecifics();
-            hoi4Gen->generateFocusTrees();
+            //hoi4Gen->generateFocusTrees();
             hoi4Gen->distributeVictoryPoints();
             hoi4Gen->generatePositions();
             requireCountryDetails = false;
@@ -902,12 +902,11 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                       &generator->ardaConfig.superRegionFactor, 0.1f);
     ImGui::InputFloat("<--Strategic region mindistance factor: ",
                       &generator->ardaConfig.superRegionMinDistanceFactor);
-
-    ImGui::Checkbox("Border input", &borderInput);
     if (ImGui::Button("Generate strategic region template")) {
       Arda::Gfx::generateStrategicRegionTemplate(generator->areaData.provinces,
                                                  generator->areaData.regions);
     }
+    ImGui::Checkbox("Border input", &borderInput);
 
     if (ImGui::Button("Generate strategic regions")) {
       // non-country stuff
@@ -1006,6 +1005,12 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
 
 // HOI4
 int GUI::showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
+  ImGui::InputFloat("Starting Army Size Factor",
+                    &generator->modConfig.startingArmyStrengthFactor, 0.1);
+  ImGui::InputFloat("Starting Navy Size Factor",
+                    &generator->modConfig.startingNavyStrengthFactor, 0.1);
+  ImGui::InputFloat("Starting Airforce Size Factor",
+                    &generator->modConfig.startingAirforceStrengthFactor, 0.1);
   ImGui::InputDouble("resourceFactor", &generator->ardaConfig.resourceFactor,
                      0.1);
   ImGui::InputDouble("aluminiumFactor",

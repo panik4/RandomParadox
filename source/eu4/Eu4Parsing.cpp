@@ -175,11 +175,11 @@ void writeContinent(
   // must not be more than 6 continents!
   std::array<std::vector<int>, 6> continentMap;
   for (const auto &province : provinces) {
-    if (province->continentID >= 0 &&
-        province->continentID != -1 &&
-        province->continentID < continentMap.size()) {
+    if (province->continent->ID >= 0 &&
+        province->continent->ID != -1 &&
+        province->continent->ID < continentMap.size()) {
 
-        continentMap.at(province->continentID)
+        continentMap.at(province->continent->ID)
             .push_back(province->ID + 1);
     }
   }

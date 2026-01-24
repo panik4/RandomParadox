@@ -37,6 +37,9 @@ struct Hoi4Config {
        {{CTI::TROPICSMONSOON, 1.0},
         {CTI::TROPICSRAINFOREST, 0.8},
         {CTI::TROPICSSAVANNA, 0.5}}}};
+  float startingArmyStrengthFactor = 1.0f;
+  float startingNavyStrengthFactor = 1.0f;
+  float startingAirforceStrengthFactor = 1.0f;
 };
 
 struct Hoi4Data {
@@ -46,6 +49,7 @@ struct Hoi4Data {
   // a list of connections: {sourceHub, destHub, provinces the rails go through}
   std::vector<std::vector<int>> supplyNodeConnections;
   bool statesInitialised = false;
+  std::vector<std::shared_ptr<Faction>> factions;
 };
 
 struct Hoi4Stats {
@@ -54,6 +58,44 @@ struct Hoi4Stats {
   int militaryIndustry = 0;
   int navalIndustry = 0;
   int civilianIndustry = 0;
+
+  std::map<Rpx::Hoi4::DivisionType, int> divisionsByType = {
+      {Rpx::Hoi4::DivisionType::Irregulars, 0},
+      {Rpx::Hoi4::DivisionType::Militia, 0},
+      {Rpx::Hoi4::DivisionType::Infantry, 0},
+      {Rpx::Hoi4::DivisionType::SupportedInfantry, 0},
+      {Rpx::Hoi4::DivisionType::HeavyArtilleryInfantry, 0},
+      {Rpx::Hoi4::DivisionType::Cavalry, 0},
+      {Rpx::Hoi4::DivisionType::Motorized, 0},
+      {Rpx::Hoi4::DivisionType::SupportedMotorized, 0},
+      {Rpx::Hoi4::DivisionType::HeavyArtilleryMotorized, 0},
+      {Rpx::Hoi4::DivisionType::Armor, 0}};
+
+  void resetDivisionStats() {
+    for (auto &[divisionType, count] : divisionsByType) {
+      count = 0;
+    }
+  }
+
+  std::map<Rpx::Hoi4::ShipClassType, int> shipsByClass = {
+      {Rpx::Hoi4::ShipClassType::Destroyer, 0},
+      {Rpx::Hoi4::ShipClassType::LightCruiser, 0},
+      {Rpx::Hoi4::ShipClassType::HeavyCruiser, 0},
+      {Rpx::Hoi4::ShipClassType::BattleCruiser, 0},
+      {Rpx::Hoi4::ShipClassType::BattleShip, 0},
+      {Rpx::Hoi4::ShipClassType::Carrier, 0},
+      {Rpx::Hoi4::ShipClassType::Submarine, 0}};
+
+  void resetShipStats() {
+    for (auto &[shipClass, count] : shipsByClass) {
+      count = 0;
+    }
+  }
+
+  int totalFighters = 0;
+  int totalCAS = 0;
+  int totalMediumPlanes = 0;
+  int totalHeavyPlanes = 0;
 };
 
 class Generator : public Rpx::ModGenerator {
@@ -115,6 +157,8 @@ public:
   void generateCountryUnits();
   // determine unit composition, templates
   void generateCountryNavies();
+  // create factions, determine rivalries, try to spin a story?
+  void generateWorldState();
 
   void generateFocusTrees();
 

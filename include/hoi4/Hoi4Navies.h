@@ -2,10 +2,9 @@
 #include "hoi4/Hoi4Region.h"
 #include "hoi4/Hoi4Tech.h"
 #include <array>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-
 
 namespace Rpx::Hoi4 {
 
@@ -18,7 +17,18 @@ enum class ShipClassType {
   Carrier,
   Submarine
 };
-  // map from the ShipClassType to the required NavalHullType
+
+// map from shipclassType to string
+inline std::map<ShipClassType, std::string> shipClassTypeMap{
+    {ShipClassType::Destroyer, "Destroyer"},
+    {ShipClassType::LightCruiser, "LightCruiser"},
+    {ShipClassType::HeavyCruiser, "HeavyCruiser"},
+    {ShipClassType::BattleCruiser, "BattleCruiser"},
+    {ShipClassType::BattleShip, "BattleShip"},
+    {ShipClassType::Carrier, "Carrier"},
+    {ShipClassType::Submarine, "Submarine"}};
+
+// map from the ShipClassType to the required NavalHullType
 inline std::map<ShipClassType, NavalHullType> shipClassToHullType = {
     {ShipClassType::Destroyer, NavalHullType::Light},
     {ShipClassType::LightCruiser, NavalHullType::Cruiser},
@@ -61,7 +71,6 @@ inline std::map<ShipClassType, std::string> shipHullDefinitions = {
     {ShipClassType::Carrier, "ship_hull_carrier"},
     {ShipClassType::Submarine, "ship_hull_submarine"}};
 
-
 struct ShipClass {
   ShipClassType type;
   TechEra era;
@@ -88,7 +97,7 @@ struct Fleet {
 };
 
 void addShipClassModules(
-    ShipClass& shipClass,
+    ShipClass &shipClass,
     const std::map<TechEra, std::vector<Technology>> &availableModuleTech,
     const std::map<TechEra, std::vector<Technology>> &availableArmyTech);
 

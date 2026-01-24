@@ -326,6 +326,8 @@ void ImageExporter::dynamicMasks(
   const auto &config = Fwg::Cfg::Values();
 
   std::vector<double> dynamicMask(config.processingArea);
+  dynamicMask[0] = 128.0;
+  dynamicMask[1] = 255.0;
   Fwg::Gfx::Png::save(
       Fwg::Gfx::Util::scale(
           Fwg::Gfx::Image(config.width, config.height, 24, dynamicMask),
@@ -572,6 +574,9 @@ void ImageExporter::detailMaps(
                                 path + "//terrain//detail_intensity.tga");
 
   for (int i = 0; i < masks.size(); i++) {
+
+    masks[i].setColourAtIndex(0, 255);
+    masks[i].setColourAtIndex(1, 128);
     Fwg::Gfx::Png::save(masks[i],
                         path + "//terrain//mask_" + nameMapping.at(i) + ".png",
                         true, LCT_GREY, 8);

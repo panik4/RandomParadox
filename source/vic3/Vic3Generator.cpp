@@ -245,7 +245,7 @@ Fwg::Gfx::Image Generator::mapTerrain() {
       }
     }
   }
-  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "/typeMap.png");
+  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "debug/typeMap.png");
   return typeMap;
 }
 
@@ -371,19 +371,14 @@ void Generator::generateCountrySpecifics() {
     auto totalPop = 0;
     auto averageDevelopment = 0.0;
     for (auto &state : c->ownedVic3Regions) {
-      // to count total pop
-      totalPop += state->totalPopulation;
-    }
-    c->pop = totalPop;
-    for (auto &state : c->ownedVic3Regions) {
       // development should be weighed by the pop in the state
       averageDevelopment += state->averageDevelopment *
                             ((double)state->totalPopulation / (double)totalPop);
     }
-    c->averageDevelopment = averageDevelopment;
+    c->technologyLevel = averageDevelopment;
     c->evaluateTechLevel(vic3GameData.techLevels);
     if (cfg.debugLevel > 5) {
-      Fwg::Utils::Logging::logLine(c->tag, " has a population of ", c->pop);
+      Fwg::Utils::Logging::logLine(c->tag, " has a population of ", c->getTotalPopulation());
     }
   }
 }
@@ -395,7 +390,7 @@ bool Generator::importData(const std::string &path) {
         path + "common//scripted_effects//00_starting_inventions.txt",
         vic3GameData.techs);
     vic3GameData.goods = Vic3::Importing::readGoods(
-        path + "common//vic3GameData.goods//00_goods.txt");
+        path + "common//goods//00_goods.txt");
     vic3GameData.productionmethods = Vic3::Importing::readProdMethods(
         path + "common//production_methods//", vic3GameData.goods,
         vic3GameData.techs);
@@ -474,10 +469,10 @@ void Generator::calculateNeeds() {
 
   for (auto &country : modData.vic3Countries) {
     std::map<std::string, double> summedPopNeeds;
-    auto wealth = country.second->averageDevelopment;
+    auto wealth = country.second->technologyLevel;
     // guesstimate size of wealth groups from development
     auto wealthDispersion = shiftedGaussian(wealth);
-    double pop = country.second->pop;
+    double pop = country.second->getTotalPopulation();
     for (int i = 0; i < wealthDispersion.size(); i++) {
       // get the buypackage, it tells us which popneeds we have for this
       // wealth
@@ -940,7 +935,7 @@ void Generator::writeSplnet() {
   Parsing::Writing::locators(pathcfg.gameModPath +
                                  "//gfx//map//map_object_data//",
                              modData.vic3Regions);
-  genNavmesh({});
+  genNavmesh({}, {});
   calculateNavalExits();
 
   Splnet splnet;

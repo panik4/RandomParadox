@@ -49,6 +49,22 @@ enum class DivisionType {
   Armor
 };
 
+inline std::map<Rpx::Hoi4::DivisionType, std::string> divisionTypeMap{
+    {Rpx::Hoi4::DivisionType::Irregulars, "Irregulars Division"},
+    {Rpx::Hoi4::DivisionType::Militia, "Militia Division"},
+    {Rpx::Hoi4::DivisionType::Infantry, "Infantry Division"},
+    {Rpx::Hoi4::DivisionType::SupportedInfantry, "Supported Infantry Division"},
+    {Rpx::Hoi4::DivisionType::HeavyArtilleryInfantry, "Artillery Division"},
+    {Rpx::Hoi4::DivisionType::Cavalry, "Cavalry Division"},
+    {Rpx::Hoi4::DivisionType::Motorized, "Motorized Division"},
+    {Rpx::Hoi4::DivisionType::SupportedMotorized,
+     "Supported Motorized Division"},
+    {Rpx::Hoi4::DivisionType::HeavyArtilleryMotorized,
+     "Motorized Artillery Division"},
+    {Rpx::Hoi4::DivisionType::Armor, "Armored Division"}};
+
+
+
 static const std::map<CombatRegimentType, double> regimentCost = {
     {CombatRegimentType::Irregulars, 0.5},
     {CombatRegimentType::Infantry, 1.0},

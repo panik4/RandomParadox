@@ -4,6 +4,7 @@
 #include "hoi4/Hoi4Armor.h"
 #include "hoi4/Hoi4Army.h"
 #include "hoi4/Hoi4Navies.h"
+#include "hoi4/Hoi4Utils.h"
 #include <array>
 #include <string>
 #include <vector>
@@ -21,12 +22,12 @@ public:
   std::string fullName;
   std::string gfxCulture;
   // politics
-  std::string ideology;
   bool allowElections = false;
   std::array<int, 4> parties = {25, 25, 25, 25};
   std::string lastElection = "1.1.1933";
   int warSupport = 0;
   int stability = 0;
+  std::shared_ptr<Faction> faction = nullptr;
 
   // mapdata
   int victoryPoints = 0;

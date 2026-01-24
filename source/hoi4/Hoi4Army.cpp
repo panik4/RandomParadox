@@ -175,21 +175,21 @@ std::vector<DivisionTemplate> Rpx::Hoi4::createDivisionTemplates(
       int totalRegiments = RandNum::getRandom(4, 12);
       int columnAmount = RandNum::getRandom(2, 4);
       auto templ = createInfantryTemplate(totalRegiments, columnAmount);
-      templ.name = "Infantry Division";
+      templ.name = divisionTypeMap.at(type);
       divisionTemplates.push_back(templ);
     } else if (type == DivisionType::Militia) {
       int totalRegiments = RandNum::getRandom(4, 6);
       int columnAmount = RandNum::getRandom(2, 3);
       auto templ = createInfantryTemplate(totalRegiments, columnAmount);
-      templ.name = "Militia Division";
+      templ.name = divisionTypeMap.at(type);
       divisionTemplates.push_back(templ);
     } else if (type == DivisionType::SupportedInfantry) {
       int totalRegiments = RandNum::getRandom(6, 12);
       int columnAmount = RandNum::getRandom(2, 4);
       int maximumSupportRegiments = RandNum::getRandom(1, 3);
       auto templ = createInfantryTemplate(totalRegiments, columnAmount);
-      templ.name = "Supported Infantry Division";
-      templ.type = DivisionType::SupportedInfantry;
+      templ.name = divisionTypeMap.at(type);
+      templ.type = type;
       addSupportRegiments(templ, availableSupportRegimentTypes,
                           maximumSupportRegiments);
       divisionTemplates.push_back(templ);
@@ -197,8 +197,8 @@ std::vector<DivisionTemplate> Rpx::Hoi4::createDivisionTemplates(
       int totalRegiments = RandNum::getRandom(4, 12);
       int columnAmount = RandNum::getRandom(2, 4);
       auto templ = createInfantryTemplate(totalRegiments, columnAmount);
-      templ.name = "Artillery Division";
-      templ.type = DivisionType::HeavyArtilleryInfantry;
+      templ.name = divisionTypeMap.at(type);
+      templ.type = type;
       int maximumArtilleryRegiments = RandNum::getRandom(1, 4);
       addArtilleryRegiments(templ, availableRegimentTypes,
                             maximumArtilleryRegiments);
@@ -211,14 +211,14 @@ std::vector<DivisionTemplate> Rpx::Hoi4::createDivisionTemplates(
       int totalRegiments = RandNum::getRandom(4, 12);
       int columnAmount = RandNum::getRandom(2, 4);
       auto templ = createCavalryTemplate(totalRegiments, columnAmount);
-      templ.name = "Cavalry Division";
+      templ.name = divisionTypeMap.at(type);
       divisionTemplates.push_back(templ);
     } else if (type == DivisionType::Motorized) {
       // simple uniform motorized infantry
       int totalRegiments = RandNum::getRandom(4, 12);
       int columnAmount = RandNum::getRandom(2, 4);
       auto templ = createMotorizedTemplate(totalRegiments, columnAmount);
-      templ.name = "Motorized Division";
+      templ.name = divisionTypeMap.at(type);
       divisionTemplates.push_back(templ);
     } else if (type == DivisionType::SupportedMotorized) {
       int totalRegiments = RandNum::getRandom(4, 8);
@@ -226,7 +226,7 @@ std::vector<DivisionTemplate> Rpx::Hoi4::createDivisionTemplates(
       int maximumSupportRegiments = RandNum::getRandom(1, 3);
       auto templ = createMotorizedTemplate(totalRegiments, columnAmount);
       templ.type = DivisionType::SupportedMotorized;
-      templ.name = "Supported Motorized Division";
+      templ.name = divisionTypeMap.at(type);
       addSupportRegiments(templ, availableSupportRegimentTypes,
                           maximumSupportRegiments);
       divisionTemplates.push_back(templ);
@@ -236,7 +236,7 @@ std::vector<DivisionTemplate> Rpx::Hoi4::createDivisionTemplates(
       int maximumArtilleryRegiments = RandNum::getRandom(1, 3);
       auto templ = createMotorizedTemplate(totalRegiments, columnAmount);
       templ.type = DivisionType::HeavyArtilleryMotorized;
-      templ.name = "Motorized Artillery Division";
+      templ.name = divisionTypeMap.at(type);
       addArtilleryRegiments(templ, availableRegimentTypes,
                             maximumArtilleryRegiments);
       // we may also add support

@@ -56,7 +56,7 @@ bool Hoi4Country::hasTech(const std::string &techname) const {
 std::string Hoi4Country::exportLine() const {
   auto base = Arda::Country::exportLine();
   base += fullName + ";";
-  base += ideology + ";";
+  base += Arda::Utils::ideologyToString.at(ideology) + ";";
   base += std::to_string(allowElections) + ";";
   base += std::to_string(parties[0]) + ";";
   base += std::to_string(parties[1]) + ";";

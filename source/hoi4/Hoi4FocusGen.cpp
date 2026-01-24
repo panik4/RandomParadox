@@ -31,7 +31,7 @@ addAvailableBlocks(std::shared_ptr<Hoi4Country> country,
         }
         // replace the ideology
         Fwg::Parsing::replaceOccurences(blockText, "templateIdeology",
-                                        country->ideology);
+                                        Arda::Utils::ideologyToString.at(country->ideology));
 
         availableBlock.append(blockText);
       }
@@ -73,7 +73,7 @@ addBypassBlocks(std::shared_ptr<Hoi4Country> country,
         }
         // replace the ideology
         Fwg::Parsing::replaceOccurences(blockText, "templateIdeology",
-                                        country->ideology);
+                                        Arda::Utils::ideologyToString.at(country->ideology));
 
         bypassBlock.append(blockText);
       }
@@ -109,7 +109,7 @@ addAiModifierBlocks(std::shared_ptr<Hoi4Country> country,
       }
       // replace the ideology
       Fwg::Parsing::replaceOccurences(blockText, "templateIdeology",
-                                      country->ideology);
+                                      Arda::Utils::ideologyToString.at(country->ideology));
 
       aiModifierBlock.append(blockText);
     }

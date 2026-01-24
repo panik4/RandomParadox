@@ -12,6 +12,12 @@ namespace Rpx::Hoi4::Parsing {
 using CountryMap = std::vector<std::shared_ptr<Hoi4Country>>;
 
 namespace Writing {
+
+namespace Detail {
+// a simple method to write the localisation files for ALL languages at once
+void localisationWrite(const std::string &path, const std::string &content,
+                       bool utf8);
+} // namespace Detail
 namespace Map {
 
 void adj(const std::string &path);
@@ -60,9 +66,11 @@ void flags(const std::string &path, const CountryMap &countries);
 // history
 void states(const std::string &path,
             const std::vector<std::shared_ptr<Region>> &regions);
-void historyCountries(const std::string &path, const CountryMap &countries,
-                      const std::string &gamePath,
-    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions);
+void historyCountries(
+    const std::string &path, const CountryMap &countries,
+    const std::string &gamePath,
+    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
+    const std::map<ShipClassType, std::string> &shipClassTypeMap);
 void historyUnits(const std::string &path, const CountryMap &countries);
 void ideas(const std::string &path, const CountryMap &countries);
 
@@ -84,7 +92,8 @@ void commonBookmarks(
 
 void tutorials(const std::string &path);
 // copy base game countries and remove certain lines to reduce crashes
-void compatibilityHistory(const std::string &path, const std::string &hoiPath,
+void compatibilityHistory(
+    const std::string &path, const std::string &hoiPath,
     const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions);
 void scriptedTriggers(std::string resources, std::string modPath);
 
