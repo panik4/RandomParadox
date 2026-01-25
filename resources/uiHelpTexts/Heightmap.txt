@@ -8,6 +8,8 @@ When generating an image, you have a large amount of settings available and can 
 	- Maximum lake size factor: Determines which seabodies will be classified as lakes, e.g. the larger this is, the larger bodies of water can be before detected as lakes.
 	- Maximum land height: Determines the maximum height of the heightmap on land. Must be larger than sealevel. If equal to sealevel + 1, the map will be completely flat.
 
+You can load presets that have different effects.
+
 Individual layer settings
 Heightmaps are generated from multiple combined layers. To edit these layers, check the "Layer Edit" box. Please note that this is pretty advanced and not necessary to edit in most cases! Each layer has different properties:
 	- type: the fractal type that is used
@@ -23,5 +25,5 @@ Heightmaps are generated from multiple combined layers. To edit these layers, ch
 	- minHeight: what the total maximum height present in this layer can be. Should be between 1 and 255, and smaller maxHeight
 	- tanFactor: how quickly land height increases. Can produce really rugged layers, specifically good for e.g. mountain ranges. Range between 0.00 and 0.26
 	
-Heightmap generation from classified land input:
+Heightmap generation from landfrom input:
 Here is the explanation of how input works. Your input defines the overall distinction between land and water, and then the different types affeect how much elevation will be randomly generated. This is done via land layers and sea layers. You can edit these layers if you extend the layer editing. Furthermore, each type has a modifier for average altitude, overlaid over a noisemap that is built from the land layers in the heightmap layer config. This means, that the higher the input factor, the more likely you will actually see this terrain at this location. These modifiers are relative to each other and can be modified. Any elevation generation will be normalised to the range 0-maximumLandHeight.

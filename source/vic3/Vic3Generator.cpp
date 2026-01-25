@@ -922,7 +922,7 @@ void Generator::writeImages() {
                               heightMap, packedHeightmap);
   heightMap = temporaryHeightmap;
   temporaryHeightmap.clear();
-  visualiseCountries(countryMap);
+  visualiseCountries(countryMap, worldMap);
   Fwg::Gfx::Png::save(countryMap, Cfg::Values().mapsPath + "countries.png");
   using namespace Fwg::Gfx;
   // just copy over provinces.bmp as a .png, already in a compatible format

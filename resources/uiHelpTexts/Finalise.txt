@@ -1,2 +1,10 @@
 A tab to export certain parts to the mod, or export everything, overwriting the whole mod.
 **If you can't export, you are missing previous steps, such as strategic regions or country details (in the country tab)**
+DO NOT CLOSE THIS PROGRAM DIRECTLY AFTER EXPORTING!
+FAQ:
+- If it crashes directly at the start, at the second "loading databases", this is likely a bug with strategic regions. KEEP GENERATING STRATEGIC REGIONS in the tab until it works. It should at some point, but no guarantees.
+- If it crashes later, ensure you have the debug mode on!
+- Also enable crash_data_log as a launch option. Check the modding wikis for more general info on modding.
+- Please read the documentation!
+- You can find help regarding this tool in the discord channel:  https://discord.gg/m85TndzufD
+- If you want to play the generated random mods and have things happening, you NEED to install better generic focus tree mods. I also recommend a better ai mod!

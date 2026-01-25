@@ -547,7 +547,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
     auto pix = clickEvents.front();
     clickEvents.pop();
     const auto colour = generator->provinceMap[pix.pixel];
-    if (generator->areaData.provinceColourMap.find(colour)) {
+    if (generator->areaData.provinceColourMap.contains(colour)) {
       const auto &prov = generator->areaData.provinceColourMap[colour];
       if (prov->regionID < generator->ardaRegions.size()) {
         auto &state = generator->ardaRegions[prov->regionID];
@@ -595,7 +595,8 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
               }
             }
             requireCountryDetails = true;
-            generator->visualiseCountries(generator->countryMap);
+            generator->visualiseCountries(generator->countryMap,
+                                          generator->worldMap);
           }
         }
         ImGui::InputText("Country name", &selectedCountry->name);
@@ -611,7 +612,8 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
                                   ImGuiColorEditFlags_HDR)) {
           selectedCountry->colour = Fwg::Gfx::Colour(
               color.x * 255.0, color.y * 255.0, color.z * 255.0);
-          generator->visualiseCountries(generator->countryMap);
+          generator->visualiseCountries(generator->countryMap,
+                                        generator->worldMap);
           uiUtils->resetTexture();
         }
         ImGui::PopItemWidth();
@@ -628,8 +630,8 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
           modifiableState->owner = selectedCountry;
           selectedCountry->addRegion(modifiableState);
           requireCountryDetails = true;
-          generator->visualiseCountries(generator->countryMap,
-                                        modifiableState->ID);
+          generator->visualiseCountries(
+              generator->countryMap, generator->worldMap, modifiableState->ID);
           uiUtils->updateImage(0, generator->countryMap);
         }
       }
@@ -676,17 +678,16 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
   ImGui::PopItemWidth();
 }
 
-static bool borderInput = false;
-
 int GUI::showCountryTab(Fwg::Cfg &cfg) {
   if (Fwg::UI::Elements::BeginMainTabItem("Countries")) {
     auto &generator = activeGenerator;
     if (uiUtils->tabSwitchEvent(true)) {
-      uiUtils->updateImage(
-          0, generator->visualiseCountries(generator->countryMap));
+      uiUtils->updateImage(0, generator->visualiseCountries(
+                                  generator->countryMap, generator->worldMap));
       uiUtils->updateImage(1, Fwg::Gfx::Image());
     }
 
+    uiUtils->showHelpTextBox("Countries");
     ImGui::Text(
         "Use auto generated country map or drop it in. You may also first "
         "generate a country map, then edit it in the Maps folder, and then "
@@ -698,21 +699,18 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
     ImGui::Checkbox("Draw-borders", &drawBorders);
     ImGui::SameLine();
     ImGui::PushItemWidth(150.0f);
-    uiUtils->showHelpTextBox("Countries");
     ImGui::InputInt("Number of countries", &generator->ardaConfig.numCountries);
-    ImGui::Checkbox("Border input", &borderInput);
+    areaInputSelector(cfg);
     // ImGui::InputText("Path to country list: ",
     // &generator->countryMappingPath); ImGui::InputText("Path to state list:
     // ", &generator->regionMappingPath);
-    auto exportLocation = Fwg::Cfg::Values().mapsPath + "//exports//";
+    auto exportLocation = Fwg::Cfg::Values().mapsPath + "//areas//";
     if (ImGui::Button(("Export current state of countries and states to " +
                        exportLocation)
                           .c_str())) {
-      Arda::Countries::saveCountries(
-          generator->countries, Fwg::Cfg::Values().mapsPath + "//exports//",
-          Arda::Gfx::visualiseCountries(generator->countries));
+      Arda::Countries::saveCountries(generator->countries, exportLocation);
       Arda::Areas::saveRegions(
-          generator->ardaRegions, Fwg::Cfg::Values().mapsPath + "//exports//",
+          generator->ardaRegions, exportLocation,
           Arda::Gfx::visualiseRegions(generator->ardaRegions));
     }
     if (isRelevantModuleActive("hoi4")) {
@@ -757,7 +755,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
 
             hoi4Gen->generateLogistics();
             hoi4Gen->generateCountrySpecifics();
-            //hoi4Gen->generateFocusTrees();
+            // hoi4Gen->generateFocusTrees();
             hoi4Gen->distributeVictoryPoints();
             hoi4Gen->generatePositions();
             requireCountryDetails = false;
@@ -797,9 +795,12 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
           Fwg::Utils::Logging::logLine(
               "Applying country input from file: ",
               Fwg::Utils::userFilter(draggedFile, cfg.username));
-          generator->countryMappingPath = draggedFile;
-          generator->applyCountryInput();
-          requireCountryDetails = true;
+          activeGenerator->loadCountries(
+              activeGenerator->ardaFactories.countryFactory, draggedFile);
+
+          // generator->countryMappingPath = draggedFile;
+          // generator->applyCountryInput();
+          // requireCountryDetails = true;
         } else {
           Fwg::Utils::Logging::logLine(
               "No valid file dragged in, the filename must either be "
@@ -811,23 +812,27 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
           auto evaluationAreas =
               Fwg::UI::Utils::Masks::getLandmaskEvaluationAreas(
                   generator->terrainData.landMask);
-          if (!borderInput) {
-            activeGenerator->loadCountries(
-                generator->ardaFactories.countryFactory,
-                Fwg::IO::Reader::readGenericImageWithBorders(draggedFile, cfg,
-                                                             evaluationAreas));
+          if (cfg.areaInputMode == Fwg::Areas::AreaInputType::SOLID) {
+            auto img = Fwg::IO::Reader::readGenericImageWithBorders(
+                draggedFile, cfg, evaluationAreas);
+            if (img.size()) {
+              activeGenerator->loadCountries(
+                  generator->ardaFactories.countryFactory, img);
+            }
           } else {
             auto image = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
 
-            // detect all areas, give them unique colours
-            Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(
-                image, evaluationAreas);
+            if (image.size()) {
+              // detect all areas, give them unique colours
+              Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(
+                  image, evaluationAreas);
 
-            // now that we have modified the input image with colours filling
-            // the areas between borders, we can remove the borders
-            Fwg::Gfx::Filter::fillBlackPixelsByArea(image, evaluationAreas);
-            activeGenerator->loadCountries(
-                activeGenerator->ardaFactories.countryFactory, image);
+              // now that we have modified the input image with colours filling
+              // the areas between borders, we can remove the borders
+              Fwg::Gfx::Filter::fillBlackPixelsByArea(image, evaluationAreas);
+              activeGenerator->loadCountries(
+                  activeGenerator->ardaFactories.countryFactory, image);
+            }
           }
           uiUtils->resetTexture();
           return true;
@@ -893,10 +898,9 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                                                   generator->superRegions));
       uiUtils->updateImage(1, Fwg::Gfx::Image());
     }
-    static int selectedStratRegionIndex = 0;
-    ImGui::SeparatorText(
-        "This generates strategic regions, they cannot be loaded");
     uiUtils->showHelpTextBox("Strategic Regions");
+    areaInputSelector(cfg);
+    static int selectedStratRegionIndex = 0;
     ImGui::PushItemWidth(200.0f);
     ImGui::InputFloat("<--Strategic region factor: ",
                       &generator->ardaConfig.superRegionFactor, 0.1f);
@@ -906,10 +910,8 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
       Arda::Gfx::generateStrategicRegionTemplate(generator->areaData.provinces,
                                                  generator->areaData.regions);
     }
-    ImGui::Checkbox("Border input", &borderInput);
 
     if (ImGui::Button("Generate strategic regions")) {
-      // non-country stuff
       computationFutureBool = runAsync([&generator, &cfg, this]() {
         // non-country stuff
         generator->generateStrategicRegions(
@@ -928,34 +930,38 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
       });
     }
     if (triggeredDrag) {
-      if (!borderInput) {
-        activeGenerator->loadStrategicRegions(
-            activeGenerator->ardaFactories.superRegionFactory,
-            Fwg::IO::Reader::readGenericImageWithBorders(draggedFile, cfg, {}));
-      } else {
-        auto image = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
+      computationFutureBool = runAsync([&generator, &cfg, this]() {
+        if (cfg.areaInputMode == Fwg::Areas::AreaInputType::SOLID) {
+          activeGenerator->loadStrategicRegions(
+              activeGenerator->ardaFactories.superRegionFactory,
+              Fwg::IO::Reader::readGenericImageWithBorders(draggedFile, cfg,
+                                                           {}));
+        } else {
+          auto image = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
 
-        // detect all areas, give them unique colours
-        Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(image, {});
+          // detect all areas, give them unique colours
+          Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(image, {});
 
-        // now that we have modified the input image with colours filling
-        // the areas between borders, we can remove the borders
-        Fwg::Gfx::Filter::fillBlackPixelsByArea(image, {});
-        activeGenerator->loadStrategicRegions(
-            activeGenerator->ardaFactories.superRegionFactory, image);
-      }
+          // now that we have modified the input image with colours filling
+          // the areas between borders, we can remove the borders
+          Fwg::Gfx::Filter::fillBlackPixelsByArea(image, {});
+          activeGenerator->loadStrategicRegions(
+              activeGenerator->ardaFactories.superRegionFactory, image);
+        }
 
-      if (activeGameConfig.gameName == "Hearts of Iron IV") {
-        auto hoi4Gen = std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
-            activeGenerator);
-        hoi4Gen->generateWeather();
-      } else if (activeGameConfig.gameName == "Victoria 3") {
-        auto vic3Gen = std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
-            activeGenerator);
-        // do stuff
-      }
-      triggeredDrag = false;
-      uiUtils->resetTexture();
+        if (activeGameConfig.gameName == "Hearts of Iron IV") {
+          auto hoi4Gen = std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
+              activeGenerator);
+          hoi4Gen->generateWeather();
+        } else if (activeGameConfig.gameName == "Victoria 3") {
+          auto vic3Gen = std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
+              activeGenerator);
+          // do stuff
+        }
+        triggeredDrag = false;
+        uiUtils->resetTexture();
+        return true;
+      });
     }
 
     auto &clickEvents = uiUtils->clickEvents;
@@ -963,7 +969,7 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
       auto pix = clickEvents.front();
       clickEvents.pop();
       const auto &colour = generator->provinceMap[pix.pixel];
-      if (generator->areaData.provinceColourMap.find(colour)) {
+      if (generator->areaData.provinceColourMap.contains(colour)) {
         const auto &prov = generator->areaData.provinceColourMap[colour];
         auto &state = generator->ardaRegions[prov->regionID];
         auto &stratRegion = generator->superRegions[state->superRegionID];

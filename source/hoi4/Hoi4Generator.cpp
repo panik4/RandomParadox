@@ -145,8 +145,6 @@ void Generator::configureModGen(const std::string &configSubFolder,
   this->ardaConfig.resourceFactor = hoi4Conf.get<double>("hoi4.resourceFactor");
 
   // settings for scenGen
-  this->countryMappingPath =
-      rpdConf.get<std::string>("randomScenario.countryColourMap");
 
   //  passed to generic Scenariohoi4Gen
   this->ardaConfig.numCountries = hoi4Conf.get<int>("scenario.numCountries");

@@ -1663,7 +1663,7 @@ Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
         }
       }
       Fwg::Gfx::Colour colour{std::vector<int>{rgb[2], rgb[1], rgb[0]}};
-      while (colourMap.find(colour)) {
+      while (colourMap.contains(colour)) {
         // duplicate country colour
         colour++;
       }

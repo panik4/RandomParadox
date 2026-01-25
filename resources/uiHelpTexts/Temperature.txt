@@ -1,2 +1,3 @@
 Load or generate the world temperatures, white means hot and black means cold. Modify the overall temperature of the world with the Base temperature option. 
 Temperature is a major factor for climate generation. If you don't want to handle climate zones in detail, you can simply drop in a temperature map and generate climate classification based on it.
+If you check Apply elevation effect when loading, the elevation will have an influence on the temperature. This allows to input a more simple map while still getting the detailed output that elevation produces.
