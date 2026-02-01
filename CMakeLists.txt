@@ -1,57 +1,93 @@
-# Minimum CMake version
 cmake_minimum_required(VERSION 3.15)
 
-# Project name and version
 project(RandomParadox VERSION 1.0 LANGUAGES CXX)
 
-# Specify the C++ standard
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-# For Release build (force optimizations)
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Ob2")
-# Enable Link Time Optimization (LTO)
-#set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+# -----------------------------
+# C++ Standard
+# -----------------------------
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Enable MSVC-specific optimizations (if using MSVC compiler)
-if(MSVC)
-    add_compile_options(/MP)  # Enables multi-threaded compilation
-    add_compile_options(/GL-)  # Disable whole program optimization
-    add_compile_options(/Gy)  # Enable function-level linking
+# -----------------------------
+# Compiler flags
+# -----------------------------
+if (MSVC)
+    # Multi-threaded compilation
+    add_compile_options(/MP)
+    # Enable function-level linking
+    add_compile_options(/Gy)
+    # Warning level
+    add_compile_options(/W4)
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-Wall -Wextra -Wpedantic)
+    # Optional: optimization for Release
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
 endif()
 
-add_compile_options(/std:c++latest)
-# Add the include and source directories for RandomParadox
-file(GLOB_RECURSE SOURCE_FILES source/*.cpp)
-file(GLOB_RECURSE HEADER_FILES include/*.h include/*.hpp)
-
-# Add the library target
-add_library(RandomParadoxLib ${SOURCE_FILES} ${HEADER_FILES})
-
-target_compile_options(RandomParadoxLib PRIVATE /W4)
-
-# Add the ArdaGen subdirectory first
-add_subdirectory(${CMAKE_SOURCE_DIR}/external/ArdaSuite/ArdaGen)
-# Query the include directories for ArdaGen to ensure they are properly set
-get_target_property(inc_dirs ArdaGen INCLUDE_DIRECTORIES)
-message(STATUS "ArdaGen include directories: ${inc_dirs}")
-
-
-# Ensure that RandomParadox depends on ArdaGen so that the libraries are built first
-add_dependencies(RandomParadoxLib ArdaGen)
-
-# Link the ArdaGen library to RandomParadox
-target_link_libraries(RandomParadoxLib PUBLIC ArdaGen)
-# Link ImGui to RandomParadoxLib
-target_link_libraries(RandomParadoxLib PUBLIC ImGui)
-target_include_directories(RandomParadoxLib PUBLIC 
-${CMAKE_SOURCE_DIR}/include
+# -----------------------------
+# Source files
+# -----------------------------
+file(GLOB_RECURSE SOURCE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp
 )
+file(GLOB_RECURSE HEADER_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp
+)
+# -----------------------------
+# AddressSanitizer (Clang/GCC only)
+# -----------------------------
+option(ENABLE_ASAN "Enable AddressSanitizer" ON)
 
+if (ENABLE_ASAN AND CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    message(STATUS "Building with AddressSanitizer")
+
+    add_compile_options(
+        -fsanitize=address
+        -fsanitize=undefined
+        -fno-omit-frame-pointer
+        -g
+    )
+
+    add_link_options(
+        -fsanitize=address
+        -fsanitize=undefined
+        -fno-omit-frame-pointer
+    )
+
+elseif (ENABLE_ASAN AND MSVC)
+    message(WARNING "ASan requested but MSVC does NOT support it — use Clang on Windows.")
+endif()
+
+
+# -----------------------------
+# Library target
+# -----------------------------
+add_library(RandomParadoxLib ${SOURCE_FILES} ${HEADER_FILES})
+target_include_directories(RandomParadoxLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# -----------------------------
+# External dependencies
+# -----------------------------
+# ArdaGen
+add_subdirectory(${CMAKE_SOURCE_DIR}/external/ArdaSuite/ArdaGen)
+add_dependencies(RandomParadoxLib ArdaGen)
+target_link_libraries(RandomParadoxLib PUBLIC ArdaGen)
+
+# ImGui (optional GUI support)
+if (TARGET ImGui)
+    target_link_libraries(RandomParadoxLib PUBLIC ImGui)
+endif()
+
+# -----------------------------
+# Executable target
+# -----------------------------
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE RandomParadoxLib)
+
+# -----------------------------
+# Print include directories (optional)
+# -----------------------------
 get_target_property(rp_inc_dirs RandomParadoxLib INCLUDE_DIRECTORIES)
 message(STATUS "RandomParadox include directories: ${rp_inc_dirs}")
-
-# Executable target (FastWorldGen) ------------------------------------
-add_executable(${PROJECT_NAME} main.cpp)
-# Link executable with the library
-target_link_libraries(${PROJECT_NAME} PUBLIC RandomParadoxLib)
-
-   

@@ -30,7 +30,7 @@ std::shared_ptr<Rpx::Hoi4::Hoi4Country> getOpposingIdeologyNeighbour(
   return nullptr;
 }
 std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
-Rpx::Hoi4::Selectors::getOpposingIdeologyNeighbours(
+getOpposingIdeologyNeighbours(
     const std::shared_ptr<Rpx::Hoi4::Hoi4Country> country,
     const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
         &hoi4Countries) {
@@ -48,7 +48,7 @@ Rpx::Hoi4::Selectors::getOpposingIdeologyNeighbours(
   return potentialTargets;
 }
 std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
-Rpx::Hoi4::Selectors::getOpposingIdeologyNeighboursNeighbours(
+getOpposingIdeologyNeighboursNeighbours(
     const std::shared_ptr<Rpx::Hoi4::Hoi4Country> country,
     const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
         &hoi4Countries) {

@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <string>
 #include <vector>
+#include <algorithm>
 namespace Rpx::Hoi4 {
 
 enum class PlaneType { SmallFrame, MediumFrame, LargeFrame };

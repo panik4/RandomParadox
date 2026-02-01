@@ -43,7 +43,7 @@ bool Generator::createPaths() { // prepare folder structure
                         "Universalis IVModule.json\n";
     error += "You can try fixing it yourself. Error is:\n ";
     error += e.what();
-    throw(std::exception(error.c_str()));
+    throw(std::runtime_error(error.c_str()));
     return false;
   }
 }
@@ -165,11 +165,11 @@ void Generator::generate() {
     generateCountries(countryFactory);
 
     generateRegions(ardaRegions);
-  } catch (std::exception e) {
+  } catch (std::runtime_error e) {
     std::string error = "Error while generating the Eu4 Module.\n";
     error += "Error is: \n";
     error += e.what();
-    throw(std::exception(error.c_str()));
+    throw(std::runtime_error(error.c_str()));
   }
   try {
     // generate map files. Format must be converted and colours mapped to eu4
@@ -188,22 +188,22 @@ void Generator::generate() {
                                       "heightmap");
     std::vector<Fwg::Gfx::Image> seasonalColourmaps;
     genSeasons(Cfg::Values(), seasonalColourmaps);
-    formatConverter.dumpTerrainColourmap(seasonalColourmaps[0],
-                                         ardaData.civLayer, pathcfg.gameModPath,
-                                         "//map//terrain//colormap_spring.dds",
-                                         DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
-    formatConverter.dumpTerrainColourmap(seasonalColourmaps[1],
-                                         ardaData.civLayer, pathcfg.gameModPath,
-                                         "//map//terrain//colormap_summer.dds",
-                                         DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
-    formatConverter.dumpTerrainColourmap(seasonalColourmaps[2],
-                                         ardaData.civLayer, pathcfg.gameModPath,
-                                         "//map//terrain//colormap_autumn.dds",
-                                         DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
-    formatConverter.dumpTerrainColourmap(seasonalColourmaps[3],
-                                         ardaData.civLayer, pathcfg.gameModPath,
-                                         "//map//terrain//colormap_winter.dds",
-                                         DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
+    formatConverter.dumpTerrainColourmap(
+        seasonalColourmaps[0], ardaData.civLayer, pathcfg.gameModPath,
+        "//map//terrain//colormap_spring.dds",
+        gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
+    formatConverter.dumpTerrainColourmap(
+        seasonalColourmaps[1], ardaData.civLayer, pathcfg.gameModPath,
+        "//map//terrain//colormap_summer.dds",
+        gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
+    formatConverter.dumpTerrainColourmap(
+        seasonalColourmaps[2], ardaData.civLayer, pathcfg.gameModPath,
+        "//map//terrain//colormap_autumn.dds",
+        gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
+    formatConverter.dumpTerrainColourmap(
+        seasonalColourmaps[3], ardaData.civLayer, pathcfg.gameModPath,
+        "//map//terrain//colormap_winter.dds",
+        gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
     formatConverter.dumpDDSFiles(
         terrainData.detailedHeightMap,
         pathcfg.gameModPath + "//map//terrain//colormap_water", false, 2);
@@ -262,7 +262,7 @@ void Generator::generate() {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";
     error += e.what();
-    throw(std::exception(error.c_str()));
+    throw(std::runtime_error(error.c_str()));
   }
 }
 

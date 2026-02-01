@@ -76,7 +76,7 @@ std::string getRandomMapElement(
     auto str = "Error in Name Generation. Make sure the key: \"" +
                Arda::Utils::ideologyToString.at(key) +
                "\" of the namegroup or token group is present";
-    throw(std::exception(str.c_str()));
+    throw(std::runtime_error(str.c_str()));
   }
 }
 

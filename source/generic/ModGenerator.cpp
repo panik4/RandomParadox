@@ -8,6 +8,8 @@ ModGenerator::ModGenerator(const std::string &configSubFolder,
                            const std::string &gameSubPath,
                            const boost::property_tree::ptree &rpdConf)
     : Arda::ArdaGen(configSubFolder) {
+
+  Fwg::Utils::Logging::logLine("ModGenerator::ModGenerator");
   Arda::Gfx::Flag::readColourGroups();
   Arda::Gfx::Flag::readFlagTypes();
   Arda::Gfx::Flag::readFlagTemplates();
@@ -19,6 +21,7 @@ ModGenerator::ModGenerator(const std::string &configSubFolder,
       []() -> std::shared_ptr<Rpx::StrategicRegion> {
     return std::make_shared<Rpx::StrategicRegion>();
   };
+  Fwg::Utils::Logging::logLine("ModGenerator::ModGenerator finished");
 }
 
 ModGenerator::~ModGenerator() {}

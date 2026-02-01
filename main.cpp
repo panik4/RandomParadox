@@ -61,7 +61,7 @@ int main() {
   pt::ptree rpdConf;
   try {
     Fwg::Utils::Logging::logLine(
-        "Starting the loading of configs//RandomParadox.json");
+        "Starting the loading of ", workingDirectory, "configs//RandomParadox.json");
     // Read the basic settings
     std::ifstream f(workingDirectory + "configs//RandomParadox.json");
     std::stringstream buffer;

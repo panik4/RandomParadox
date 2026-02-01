@@ -89,7 +89,7 @@ bool Generator::createPaths() {
     error += "You can try fixing it yourself. Error is:\n ";
     error += e.what();
     Fwg::Utils::Logging::logLine(error);
-    throw(std::exception(error.c_str()));
+    throw(std::runtime_error(error.c_str()));
     return false;
   }
 }
@@ -330,12 +330,12 @@ void Generator::mapRegions() {
   // check if we have the same amount of ardaProvinces as FastWorldGen
   // provinces
   if (ardaProvinces.size() != this->areaData.provinces.size())
-    throw(std::exception("Fatal: Lost provinces, terminating"));
+    throw(std::runtime_error("Fatal: Lost provinces, terminating"));
   if (ardaRegions.size() != this->areaData.regions.size())
-    throw(std::exception("Fatal: Lost regions, terminating"));
+    throw(std::runtime_error("Fatal: Lost regions, terminating"));
   for (const auto &ardaRegion : ardaRegions) {
     if (ardaRegion->ID > ardaRegions.size()) {
-      throw(std::exception("Fatal: Invalid region IDs, terminating"));
+      throw(std::runtime_error("Fatal: Invalid region IDs, terminating"));
     }
   }
   applyRegionInput();
@@ -800,7 +800,7 @@ void Generator::generate() {
     error += "Error is: \n";
     error += e.what();
     Fwg::Utils::Logging::logLine(error);
-    throw(std::exception(error.c_str()));
+    throw(std::runtime_error(error.c_str()));
   }
   try {
     writeSplnet();
@@ -815,7 +815,7 @@ void Generator::generate() {
     error += "Error is: \n";
     error += e.what();
     Fwg::Utils::Logging::logLine(error);
-    throw(std::exception(error.c_str()));
+    throw(std::runtime_error(error.c_str()));
   }
   printStatistics();
 }

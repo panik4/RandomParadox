@@ -6,6 +6,8 @@ namespace Rpx::Hoi4 {
 Generator::Generator(const std::string &configSubFolder,
                      const boost::property_tree::ptree &rpdConf)
     : Rpx::ModGenerator(configSubFolder, GameType::Hoi4, "hoi4.exe", rpdConf) {
+  Fwg::Utils::Logging::logLine("Username configured is: ",
+                               Fwg::Cfg::Values().username);
   configureModGen(configSubFolder, Fwg::Cfg::Values().username, rpdConf);
   factories.regionFactory = []() {
     return std::make_shared<Rpx::Hoi4::Region>();
@@ -85,7 +87,7 @@ bool Generator::createPaths() {
     error += "You can try fixing it yourself. Error is:\n ";
     error += e.what();
     Fwg::Utils::Logging::logLine(error);
-    throw(std::exception(error.c_str()));
+    throw(std::runtime_error(error.c_str()));
     return false;
   }
 }
@@ -227,12 +229,12 @@ void Generator::mapRegions() {
   //          [](auto l, auto r) { return *l < *r; });
   // check if we have the same amount of ardaProvinces as FastWorldGen provinces
   if (ardaProvinces.size() != this->areaData.provinces.size())
-    throw(std::exception("Fatal: Lost provinces, terminating"));
+    throw(std::runtime_error("Fatal: Lost provinces, terminating"));
   if (ardaRegions.size() != this->areaData.regions.size())
-    throw(std::exception("Fatal: Lost regions, terminating"));
+    throw(std::runtime_error("Fatal: Lost regions, terminating"));
   for (const auto &ardaRegion : ardaRegions) {
     if (ardaRegion->ID > ardaRegions.size()) {
-      throw(std::exception("Fatal: Invalid region IDs, terminating"));
+      throw(std::runtime_error("Fatal: Invalid region IDs, terminating"));
     }
   }
   applyRegionInput();
@@ -2649,7 +2651,7 @@ void Generator::writeTextFiles() {
                          modData.hoi4Countries);
   // Countries::foci(pathcfg.gameModPath + "//common//national_focus//",
   //                 modData.hoi4Countries, nData);
-  Countries::flags(pathcfg.gameModPath + "//gfx//flags//",
+   Countries::flags(pathcfg.gameModPath + "//gfx//flags//",
                    modData.hoi4Countries);
   Countries::historyCountries(pathcfg.gameModPath + "//history//countries//",
                               modData.hoi4Countries, pathcfg.gamePath,
@@ -2711,7 +2713,7 @@ void Generator::writeImages() {
   imageExporter.dumpTerrainColourmap(
       worldMap, ardaData.civLayer, pathcfg.gameModPath,
       "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
-      DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
+      gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
   imageExporter.dumpDDSFiles(
       terrainData.detailedHeightMap,
       pathcfg.gameModPath + "//map//terrain//colormap_water_", false, 8);
@@ -2728,12 +2730,13 @@ void Generator::writeImages() {
 void Generator::generate() {
   const auto &config = Fwg::Cfg::Values();
   if (config.width % 64 || config.height % 64) {
-    throw(std::exception("Invalid format, both width and height of the image "
-                         "must be multiples of 64."));
+    throw(
+        std::runtime_error("Invalid format, both width and height of the image "
+                           "must be multiples of 64."));
   } else if (config.scale && (config.scaleX % 64 || config.scaleY % 64)) {
-    throw(std::exception("Invalid target dimensions for scaling mode, both "
-                         "scaleX and scaleY of the image "
-                         "must be multiples of 64."));
+    throw(std::runtime_error("Invalid target dimensions for scaling mode, both "
+                             "scaleX and scaleY of the image "
+                             "must be multiples of 64."));
   }
   if (!createPaths())
     return;

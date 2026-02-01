@@ -108,39 +108,64 @@ inline bool validateGameModFolder(const Pathcfg &pathcfg) {
 }
 
 inline std::string getEnvVar(const char *name) {
+#if defined(_WIN32)
+  // Windows: use secure getenv_s
   size_t len = 0;
-  errno_t err = getenv_s(&len, nullptr, 0, name); // query required size
-  if (err || len == 0) {
-    return {}; // empty string if not found
+  if (getenv_s(&len, nullptr, 0, name) != 0 || len == 0) {
+    return {};
   }
-
-  std::vector<char> buffer(len); // allocate buffer
-  err = getenv_s(&len, buffer.data(), buffer.size(), name);
-  if (err) {
+  std::vector<char> buffer(len);
+  if (getenv_s(&len, buffer.data(), buffer.size(), name) != 0) {
     throw std::runtime_error("Failed to get environment variable");
   }
-
   return std::string(buffer.data());
+#else
+  // POSIX: getenv returns nullptr if not found
+  const char *val = std::getenv(name);
+  if (!val)
+    return {};
+  return std::string(val);
+#endif
 }
 
+// Auto-locate Paradox mod folder cross-platform
 inline bool autoLocateGameModFolder(const std::string &game, Pathcfg &pathcfg) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
+
   Logging::logLine("Trying to auto locate mod directory path for ", game);
-  std::string autoPath = getEnvVar("USERPROFILE");
-  autoPath += "//Documents//Paradox Interactive//" + game + "//mod//";
+
+#if defined(_WIN32)
+  std::string home = getEnvVar("USERPROFILE");
+#elif defined(__APPLE__) || defined(__linux__)
+  std::string home = getEnvVar("HOME");
+#else
+  std::string home;
+#endif
+
+  if (home.empty()) {
+    Logging::logLine("Unable to locate user home directory.");
+    return false;
+  }
+
+  std::string autoPath =
+      home + "/Documents/Paradox Interactive/" + game + "/mod/";
 
   if (exists(autoPath)) {
     pathcfg.gameModsDirectory = autoPath;
     Rpx::Utils::sanitizePath(pathcfg.gameModsDirectory);
+
     Logging::logLine("Auto located game mod directory is ",
                      Fwg::Utils::userFilter(pathcfg.gameModsDirectory,
                                             Fwg::Cfg::Values().username));
+
     pathcfg.gameModPath = autoPath + pathcfg.modName;
     Rpx::Utils::sanitizePath(pathcfg.gameModPath);
+
     Logging::logLine("Auto located mod directory is ",
                      Fwg::Utils::userFilter(pathcfg.gameModPath,
                                             Fwg::Cfg::Values().username));
+    return true;
   }
 
   return false;

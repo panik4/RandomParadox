@@ -1,0 +1,44 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "windows-msvc-debug",
+      "displayName": "Windows MSVC x64 Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/x64-Debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "environment": {
+        "VSCMD_ARG_TGT_ARCH": "x64",
+        "CMAKE_PREFIX_PATH": "D:/lib/boost"
+      }
+    },
+    {
+      "name": "windows-msvc-release",
+      "displayName": "Windows MSVC x64 RelWithDebInfo",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/x64-Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      },
+      "environment": {
+        "VSCMD_ARG_TGT_ARCH": "x64",
+        "CMAKE_PREFIX_PATH": "D:/lib/boost"
+      }
+    },
+    {
+      "name": "windows-msvc-release-clean",
+      "displayName": "Windows MSVC x64 Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/x64-Release-clean",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "environment": {
+        "VSCMD_ARG_TGT_ARCH": "x64",
+        "CMAKE_PREFIX_PATH": "D:/lib/boost"
+      }
+    }
+  ]
+}

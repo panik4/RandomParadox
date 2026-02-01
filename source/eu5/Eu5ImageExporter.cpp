@@ -718,7 +718,6 @@ void ImageExporter::Eu5ColourMaps(
   std::vector<uint8_t> pixels(exportWidth * exportHeight * 4, 0);
   Utils::Logging::logLine(
       "ImageExporter::Writing watercolor_rgb_waterspec_a to ", path);
-  using namespace DirectX;
 
   for (auto h = 0; h < exportHeight; h++) {
     for (auto w = 0; w < exportWidth; w++) {
@@ -739,16 +738,16 @@ void ImageExporter::Eu5ColourMaps(
     }
   }
   Arda::Gfx::Textures::writeMipMapDDS(
-      exportWidth, exportHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
-      path + "//water//watercolor_rgb_waterspec_a.dds", true);
+      exportWidth, exportHeight, pixels,
+      path + "//water//watercolor_rgb_waterspec_a.dds");
   // std::fill(pixels.begin(), pixels.end(), 0);
   // Arda::Gfx::Textures::writeMipMapDDS(exportWidth / 4, exportHeight / 4,
   // pixels,
-  //                                     DXGI_FORMAT_B8G8R8A8_UNORM,
+  //                                     gli::format_B8G8R8A8_UNORM,
   //                                     path + "//water//foam_map.dds");
   // Arda::Gfx::Textures::writeMipMapDDS(exportWidth / 8, exportHeight / 8,
   // pixels,
-  //                                     DXGI_FORMAT_B8G8R8A8_UNORM,
+  //                                     gli::format_B8G8R8A8_UNORM,
   //                                     path + "//water//flowmap.dds");
 }
 

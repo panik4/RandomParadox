@@ -1,5 +1,4 @@
 #pragma once
-#include "DirectXTex.h"
 #include "civilisation/CivilisationLayer.h"
 #include "entities/Colour.h"
 #include "io/ImageExporter.h"

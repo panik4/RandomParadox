@@ -147,7 +147,7 @@ double calculateDivisionCost(const DivisionTemplate &divisionTemplate) {
   return cost;
 }
 
-std::vector<DivisionTemplate> Rpx::Hoi4::createDivisionTemplates(
+std::vector<DivisionTemplate> createDivisionTemplates(
     const std::set<DivisionType> &desiredTypes,
     const std::vector<CombatRegimentType> &availableRegimentTypes,
     const std::vector<SupportRegimentType> &availableSupportRegimentTypes) {

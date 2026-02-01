@@ -350,16 +350,16 @@ void ImageExporter::writeBufferPixels(std::vector<unsigned char> &pixels,
 }
 
 Image ImageExporter::cutBaseMap(const std::string &path, const double factor,
-                                 const int bit) const {
+                                const int bit) const {
   auto &conf = Cfg::Values();
   std::string sourceMap{conf.loadMapsPath + path};
   Fwg::Utils::Logging::logLine("CUTTING mode: Cutting Map from ", sourceMap);
   Image baseMap = Fwg::IO::Reader::readGenericImage(sourceMap, conf);
   auto cutBase = Util::cut(baseMap, conf.minX * factor, conf.maxX * factor,
-                          conf.minY * factor, conf.maxY * factor, factor);
+                           conf.minY * factor, conf.maxY * factor, factor);
   if (conf.scale) {
     cutBase = Util::scale(cutBase, conf.scaleX * factor, conf.scaleY * factor,
-                         conf.keepRatio);
+                          conf.keepRatio);
   }
   return cutBase;
 }
@@ -530,8 +530,7 @@ void ImageExporter::dump8BitTrees(const Fwg::Terrain::TerrainData &terrainData,
                           Fwg::Utils::userFilter(path, conf.username));
   const double width = conf.width;
   constexpr auto factor = 3.4133333333333333333333333333333;
-  Image trees(((double)conf.width / factor), ((double)conf.height / factor),
-               8);
+  Image trees(((double)conf.width / factor), ((double)conf.height / factor), 8);
   trees.colourtable = colourTables.at(colourMapKey + gameTag);
   // we have to remove all coastal trees, as the downscaling can cause trees to
   // appear in the water
@@ -585,7 +584,6 @@ void ImageExporter::dumpDDSFiles(const std::vector<float> &heightMap,
                                  const std::string &path, const bool cut,
                                  const int maxFactor) const {
   Utils::Logging::logLine("ImageExporter::Writing DDS files");
-  using namespace DirectX;
   const auto &width = Cfg::Values().width;
 
   for (auto factor = 2, counter = 0; factor <= maxFactor;
@@ -621,8 +619,8 @@ void ImageExporter::dumpDDSFiles(const std::vector<float> &heightMap,
     Utils::Logging::logLine(
         "ImageExporter::Writing DDS files to ",
         Fwg::Utils::userFilter(tempPath, Cfg::Values().username));
-    Arda::Gfx::Textures::writeDDS(imageWidth, imageHeight, pixels,
-                                  DXGI_FORMAT_B8G8R8A8_UNORM, tempPath);
+    Arda::Gfx::Textures::writeDDS(imageWidth, imageHeight, pixels, tempPath,
+                                  gli::format::FORMAT_BGR8_UNORM_PACK32);
   }
 }
 
@@ -630,7 +628,7 @@ void ImageExporter::dumpTerrainColourmap(
     const Image &climateMap,
     const Arda::Civilization::CivilizationLayer &civLayer,
     const std::string &modPath, const std::string &mapName,
-    const DXGI_FORMAT format, int scaleFactor, const bool cut) const {
+    const gli::format format, int scaleFactor, const bool cut) const {
   auto &cfg = Cfg::Values();
   Utils::Logging::logLine("ImageExporter::Writing terrain colourmap to ",
                           Utils::userFilter(modPath + mapName, cfg.username));
@@ -707,16 +705,16 @@ void ImageExporter::dumpTerrainColourmap(
     }
   }
   if (gameTag == "Vic3") {
-    Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels, format,
-                                        modPath + mapName, true);
+    Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
+                                        modPath + mapName, format, true);
   } else {
 
     if (cfg.scale)
       Arda::Gfx::Textures::writeDDS(cfg.scaleX / factor, cfg.scaleY / factor,
-                                    pixels, format, modPath + mapName);
+                                    pixels, modPath + mapName, format);
     else
-      Arda::Gfx::Textures::writeDDS(imageWidth, imageHeight, pixels, format,
-                                    modPath + mapName);
+      Arda::Gfx::Textures::writeDDS(imageWidth, imageHeight, pixels,
+                                    modPath + mapName, format);
   }
 }
 

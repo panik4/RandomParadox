@@ -95,10 +95,9 @@ void ImageExporter::writeTile(int xTiles, int yTiles,
   }
 }
 
-Image
-ImageExporter::dumpPackedHeightmap(const Image &heightMap,
-                                   const std::string &path,
-                                   const std::string &colourMapKey) const {
+Image ImageExporter::dumpPackedHeightmap(
+    const Image &heightMap, const std::string &path,
+    const std::string &colourMapKey) const {
   Utils::Logging::logLine("ImageExporter::Packing heightmap to ", path);
   int mapX = heightMap.width();
   int mapY = heightMap.height();
@@ -188,8 +187,8 @@ void ImageExporter::Vic3ColourMaps(
     }
   }
   Arda::Gfx::Textures::writeMipMapDDS(
-      imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
-      path + "//textures//land_mask.dds", false);
+      imageWidth, imageHeight, pixels, path + "//textures//land_mask.dds",
+      gli::format::FORMAT_BGR8_UNORM_PACK32, false);
 
   // flatmap
   for (auto h = 0; h < imageHeight; h++) {
@@ -209,23 +208,24 @@ void ImageExporter::Vic3ColourMaps(
     }
   }
   Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
-                                      DXGI_FORMAT_B8G8R8A8_UNORM,
-                                      path + "//textures//flatmap.dds");
+                                      path + "//textures//flatmap.dds",
+                                      gli::format::FORMAT_BGR8_UNORM_PACK32);
 
   std::fill(pixels.begin(), pixels.end(), 0);
   Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
-                                      DXGI_FORMAT_B8G8R8A8_UNORM,
-                                      path + "//textures//flatmap_overlay.dds");
+
+                                      path + "//textures//flatmap_overlay.dds",
+                                      gli::format::FORMAT_BGR8_UNORM_PACK32);
   // terrain colour map
   scaledMap = Util::scale(climateMap, config.width, config.height, false);
   dumpTerrainColourmap(scaledMap, civLayer, path, "//textures//colormap.dds",
-                       DXGI_FORMAT_B8G8R8A8_UNORM, 1, false);
+                       gli::format::FORMAT_BGR8_UNORM_PACK32, 1, false);
 
   Utils::Logging::logLine(
       "ImageExporter::Writing watercolor_rgb_waterspec_a to ", path);
-  using namespace DirectX;
 
-  scaledMap = Util::scale(heightMap, config.width / 2, config.height / 2, false);
+  scaledMap =
+      Util::scale(heightMap, config.width / 2, config.height / 2, false);
   imageWidth = scaledMap.width();
   imageHeight = scaledMap.height();
   for (auto h = 0; h < imageHeight; h++) {
@@ -247,15 +247,16 @@ void ImageExporter::Vic3ColourMaps(
     }
   }
   Arda::Gfx::Textures::writeMipMapDDS(
-      imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
-      path + "//water//watercolor_rgb_waterspec_a.dds", true);
+      imageWidth, imageHeight, pixels,
+      path + "//water//watercolor_rgb_waterspec_a.dds",
+      gli::format::FORMAT_BGR8_UNORM_PACK32, true);
   std::fill(pixels.begin(), pixels.end(), 0);
   Arda::Gfx::Textures::writeMipMapDDS(imageWidth / 4, imageHeight / 4, pixels,
-                                      DXGI_FORMAT_B8G8R8A8_UNORM,
-                                      path + "//water//foam_map.dds");
+                                      path + "//water//foam_map.dds",
+                                      gli::format::FORMAT_BGR8_UNORM_PACK32);
   Arda::Gfx::Textures::writeMipMapDDS(imageWidth / 8, imageHeight / 8, pixels,
-                                      DXGI_FORMAT_B8G8R8A8_UNORM,
-                                      path + "//water//flowmap.dds");
+                                      path + "//water//flowmap.dds",
+                                      gli::format::FORMAT_BGR8_UNORM_PACK32);
   // colormap_tree.dds
   auto humidityMap =
       Fwg::Gfx::Image(config.width, config.height, 24, climateData.humidities);
@@ -271,13 +272,14 @@ void ImageExporter::Vic3ColourMaps(
     for (auto w = 0; w < imageWidth; w++) {
       // use imagewidth here, as we simply compare two equally sized images
       auto referenceIndex = h * imageWidth + w;
-      double referenceHumidity = (double)scaledMap[referenceIndex].getBlue() / 255.0;
+      double referenceHumidity =
+          (double)scaledMap[referenceIndex].getBlue() / 255.0;
       auto imageIndex =
           imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
       imageIndex *= 4;
       auto c = scaledMap[referenceIndex];
-      Fwg::Gfx::Colour col =
-          baseColour * referenceHumidity + baseColour2 * (1.0 - referenceHumidity);
+      Fwg::Gfx::Colour col = baseColour * referenceHumidity +
+                             baseColour2 * (1.0 - referenceHumidity);
       if (scaledHeight[referenceIndex].getBlue() <
           (double)Cfg::Values().seaLevel) {
         col = {74, 131, 129};
@@ -286,8 +288,8 @@ void ImageExporter::Vic3ColourMaps(
     }
   }
   Arda::Gfx::Textures::writeDDS(imageWidth, imageHeight, pixels,
-                                DXGI_FORMAT_B8G8R8A8_UNORM,
-                                path + "//textures//colormap_tree.dds");
+                                path + "//textures//colormap_tree.dds",
+                                gli::format::FORMAT_BGR8_UNORM_PACK32);
 
   scaledHeight =
       Util::scale(heightMap, config.width / 8, config.height / 8, false);
@@ -312,8 +314,8 @@ void ImageExporter::Vic3ColourMaps(
     }
   }
   Arda::Gfx::Textures::writeMipMapDDS(
-      imageWidth, imageHeight, pixels, DXGI_FORMAT_B8G8R8A8_UNORM,
-      path + "//textures//windmap_tree.dds", true);
+      imageWidth, imageHeight, pixels, path + "//textures//windmap_tree.dds",
+      gli::format::FORMAT_BGR8_UNORM_PACK32, true);
 }
 
 void ImageExporter::dynamicMasks(
@@ -481,9 +483,10 @@ void ImageExporter::detailMaps(
     std::array<float, 3> intensities;
 
     for (auto chanceIndex = 0; chanceIndex < 3; chanceIndex++) {
-      auto type = climateData.climateChances.getChance(chanceIndex, i).typeIndex;
+      auto type =
+          climateData.climateChances.getChance(chanceIndex, i).typeIndex;
       auto intensity = static_cast<float>(
-          climateData.climateChances.getChance(chanceIndex, i).getChance()*
+          climateData.climateChances.getChance(chanceIndex, i).getChance() *
           (1.0 / pow(2.0, (double)chanceIndex)));
       auto mappedType = climateMap.at(type);
       colour[chanceIndex] = static_cast<unsigned char>(mappedType);
@@ -525,8 +528,8 @@ void ImageExporter::detailMaps(
     Fwg::Gfx::Png::save(scaledDetailIndex,
                         config.mapsPath + "Vic3//" + "sdetailIndex.png");
   }
-  auto scaledDetailIntensity =
-      Fwg::Gfx::Util::scale(detailIntensity, config.width, config.height, false);
+  auto scaledDetailIntensity = Fwg::Gfx::Util::scale(
+      detailIntensity, config.width, config.height, false);
   if (Cfg::Values().debugLevel > 0) {
     Fwg::Gfx::Png::save(scaledDetailIntensity,
                         config.mapsPath + "Vic3//" + "sdetailIntensity.png");

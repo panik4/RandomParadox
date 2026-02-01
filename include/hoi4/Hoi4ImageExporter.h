@@ -1,5 +1,4 @@
 #pragma once
-#include "DirectXTex.h"
 #include "entities/Colour.h"
 #include "io/ImageExporter.h"
 #include "io/Textures.h"

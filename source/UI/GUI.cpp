@@ -1,48 +1,10 @@
 #include "UI/GUI.h"
-// Data
-static UINT g_ResizeWidth = 0, g_ResizeHeight = 0;
 // to track which game was selected for generation
 static int selectedGame = 0;
 static bool showErrorPopup = false;
 static std::string errorLog;
 static bool requireCountryDetails = false;
-// Forward declare message handler from imgui_impl_win32.cpp
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd,
-                                                             UINT msg,
-                                                             WPARAM wParam,
-                                                             LPARAM lParam);
 
-// Win32 message handler
-// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if
-// dear imgui wants to use your inputs.
-// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your
-// main application, or clear/overwrite your copy of the mouse data.
-// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to
-// your main application, or clear/overwrite your copy of the keyboard data.
-// Generally you may always pass all inputs to dear imgui, and hide them from
-// your application based on those two flags.
-// LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-  if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-    return true;
-
-  switch (msg) {
-  case WM_SIZE:
-    if (wParam == SIZE_MINIMIZED)
-      return 0;
-    g_ResizeWidth = (UINT)LOWORD(lParam); // Queue resize
-    g_ResizeHeight = (UINT)HIWORD(lParam);
-    return 0;
-  case WM_SYSCOMMAND:
-    if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
-      return 0;
-    break;
-  case WM_DESTROY:
-    ::PostQuitMessage(0);
-    return 0;
-  }
-  return ::DefWindowProcW(hWnd, msg, wParam, lParam);
-}
 // for state/country/strategic region editing
 static bool drawBorders = false;
 void GUI::recover() {
@@ -112,33 +74,48 @@ void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
   }
 }
 
+bool setWindowIcon(GLFWwindow *window, const std::string &path) {
+  int width, height, channels;
+  unsigned char *pixels =
+      stbi_load(path.c_str(), &width, &height, &channels, 4);
+  if (!pixels) {
+    return false;
+  }
+
+  GLFWimage icon;
+  icon.width = width;
+  icon.height = height;
+  icon.pixels = pixels;
+
+  glfwSetWindowIcon(window, 1, &icon);
+
+  stbi_image_free(pixels);
+  return true;
+}
+
 int GUI::shiny(const pt::ptree &rpdConfRef,
                const std::string &configSubFolderRef,
                const std::string &usernameRef) {
 
   try {
-    //  Create application window
-    //  ImGui_ImplWin32_EnableDpiAwareness();
-    auto wc = initializeWindowClass();
+    CreateDeviceGL("RandomParadox 0.10.1", 0, 0);
 
-    HWND consoleWindow = GetConsoleWindow();
+    setWindowIcon(window, Fwg::Cfg::Values().workingDirectory +
+                              "//resources//worldMap.png");
+    uiUtils->setupImGuiContextAndStyle();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 450");
 
-    ::RegisterClassExW(&wc);
-    HWND hwnd = uiUtils->createAndConfigureWindow(wc, wc.lpszClassName,
-                                                  L"RandomParadox 0.10.0");
-    initializeGraphics(hwnd);
-    initializeImGui(hwnd);
-    auto &io = ImGui::GetIO();
+    glfwSetWindowUserPointer(window, this);
+    glfwSetDropCallback(
+        window, [](GLFWwindow *win, int count, const char **paths) {
+          auto *fwgui = reinterpret_cast<GUI *>(glfwGetWindowUserPointer(win));
+          fwgui->triggeredDrag = (count > 0);
+          fwgui->draggedFile = (count > 0) ? std::string(paths[count - 1]) : "";
+        });
 
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     auto &cfg = Fwg::Cfg::Values();
-    // Main loop
-    bool done = false;
-    //--- prior to main loop:
-    DragAcceptFiles(hwnd, TRUE);
-    uiUtils->primaryTexture = nullptr;
-    uiUtils->device = g_pd3dDevice;
-
+    auto &io = ImGui::GetIO();
     // rpx related
     this->rpdConf = rpdConfRef;
     this->configSubFolder = configSubFolderRef;
@@ -153,135 +130,156 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
 
     init(cfg, *activeGenerator);
 
-    while (!done) {
-      try {
-        initDraggingPoll(done);
-        // Start the Dear ImGui frame
-        ImGui_ImplDX11_NewFrame();
-        ImGui_ImplWin32_NewFrame();
-        ImGui::NewFrame();
+    while (!glfwWindowShouldClose(window)) {
+      glfwPollEvents();
+
+      ImGui_ImplOpenGL3_NewFrame();
+      ImGui_ImplGlfw_NewFrame();
+
+      ImGui::NewFrame();
+      {
+        ImGui::SetNextWindowPos({0, 0});
+        ImGui::SetNextWindowSize({io.DisplaySize.x, io.DisplaySize.y});
+        ImGui::Begin("RandomParadox");
         {
-          ImGui::SetNextWindowPos({0, 0});
-          ImGui::SetNextWindowSize({io.DisplaySize.x, io.DisplaySize.y});
-          ImGui::Begin("RandomParadox");
-          if (!validatedPaths) {
-            ImGui::TextColored({255, 0, 100, 255},
-                               "You need to validate paths successfully before "
-                               "being able to do anything else");
-          }
-          // observer checks for "Error"
-          // auto errors = observer.pollForMessage("Error");
-          // if (!errors.empty()) {
-          //   errorLog = errors;
-          //   showErrorPopup = true;
-          //   ImGui::OpenPopup("Error Log");
-          // }
+          // Push style to remove padding so we can place button in top-right
+          ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-          if (ImGui::BeginPopupModal("Error Log", NULL,
-                                     ImGuiWindowFlags_AlwaysAutoResize)) {
-            ImGui::TextWrapped("%s", errorLog.c_str());
+          // Calculate top-right position for button
+          ImVec2 buttonSize = ImVec2(50, 30); // width x height
+          ImVec2 windowSize = ImGui::GetWindowSize();
+          ImGui::SetCursorPos(ImVec2(windowSize.x - buttonSize.x - 10, 20));
 
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
-
-            if (ImGui::Button("Close", ImVec2(120, 0))) {
-              ImGui::CloseCurrentPopup();
-              showErrorPopup = false;
-            }
-
-            ImGui::EndPopup();
+          if (ImGui::Button("Exit", buttonSize)) {
+            glfwSetWindowShouldClose(window, true); // trigger close
           }
 
-          ImGui::BeginChild("LeftContent",
-                            ImVec2(ImGui::GetContentRegionAvail().x * 0.4f,
-                                   ImGui::GetContentRegionAvail().y * 1.0f),
-                            false);
-          {
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(78, 90, 204, 40));
-            // Create a child window for the left content
-            ImGui::BeginChild("SettingsContent",
-                              ImVec2(ImGui::GetContentRegionAvail().x * 1.0f,
-                                     ImGui::GetContentRegionAvail().y * 0.8f),
-                              false);
-            {
-              ImGui::SeparatorText(
-                  "Different Steps of the generation, usually go "
-                  "from left to right");
+          ImGui::PopStyleVar();
+        }
+        if (!validatedPaths) {
+          ImGui::TextColored({255, 0, 100, 255},
+                             "You need to validate paths successfully before "
+                             "being able to do anything else");
+        }
+        // observer checks for "Error"
+        // auto errors = observer.pollForMessage("Error");
+        // if (!errors.empty()) {
+        //   errorLog = errors;
+        //   showErrorPopup = true;
+        //   ImGui::OpenPopup("Error Log");
+        // }
 
-              if (Fwg::UI::Elements::BeginMainTabBar("Steps")) {
-                // Disable all inputs if computation is running
-                if (computationRunning) {
-                  ImGui::BeginDisabled();
-                }
-                showConfigure(cfg);
-                if (!validatedPaths)
-                  ImGui::BeginDisabled();
-                if (cfg.debugLevel == 9) {
-                  showModLoader(cfg);
-                }
-                defaultTabs(cfg, *activeGenerator);
-                automapAreas();
-                showCivilizationTab(cfg);
-                gameSpecificTabs(cfg);
-                auto ardaGen =
-                    std::static_pointer_cast<Arda::ArdaGen>(activeGenerator);
-                overview(cfg);
-                if (!validatedPaths)
-                  ImGui::EndDisabled();
-                // Re-enable inputs if computation is running
-                if (computationRunning && !computationStarted) {
-                  ImGui::EndDisabled();
-                }
-                // Check if the computation is done
-                if (computationRunning &&
-                    computationFutureBool.wait_for(std::chrono::seconds(0)) ==
-                        std::future_status::ready) {
-                  computationRunning = false;
-                  uiUtils->resetTexture();
-                }
+        if (ImGui::BeginPopupModal("Error Log", NULL,
+                                   ImGuiWindowFlags_AlwaysAutoResize)) {
+          ImGui::TextWrapped("%s", errorLog.c_str());
 
-                if (computationRunning) {
-                  computationStarted = false;
-                  ImGui::Text("Working, please be patient");
-                } else {
-                  ImGui::Text("Ready!");
-                }
+          ImGui::Spacing();
+          ImGui::Separator();
+          ImGui::Spacing();
 
-                Fwg::UI::Elements::EndMainTabBar();
-              }
-
-              ImGui::PopStyleColor();
-              ImGui::EndChild();
-              // Draw a frame around the child region
-              ImVec2 childMin = ImGui::GetItemRectMin();
-              ImVec2 childMax = ImGui::GetItemRectMax();
-              ImGui::GetWindowDrawList()->AddRect(childMin, childMax,
-                                                  IM_COL32(100, 90, 180, 255),
-                                                  0.0f, 0, 2.0f);
-            }
-
-            genericWrapper();
-            logWrapper();
+          if (ImGui::Button("Close", ImVec2(120, 0))) {
+            ImGui::CloseCurrentPopup();
+            showErrorPopup = false;
           }
-          ImGui::SameLine();
-          imageWrapper(io);
-          ImGui::End();
 
-          if (uiUtils->showExtendedHelp) {
-            uiUtils->showAdvancedTextBox();
-          }
+          ImGui::EndPopup();
         }
 
-        // Rendering
-        uiUtils->renderImGui(g_pd3dDeviceContext, g_mainRenderTargetView,
-                             clear_color, g_pSwapChain);
-      } catch (std::exception e) {
-        Fwg::Utils::Logging::logLine("Error in GUI main loop: ", e.what());
+        ImGui::BeginChild("LeftContent",
+                          ImVec2(ImGui::GetContentRegionAvail().x * 0.4f,
+                                 ImGui::GetContentRegionAvail().y * 1.0f),
+                          false);
+        {
+          ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(78, 90, 204, 40));
+          // Create a child window for the left content
+          ImGui::BeginChild("SettingsContent",
+                            ImVec2(ImGui::GetContentRegionAvail().x * 1.0f,
+                                   ImGui::GetContentRegionAvail().y * 0.8f),
+                            false);
+          {
+            ImGui::SeparatorText(
+                "Different Steps of the generation, usually go "
+                "from left to right");
+
+            if (Fwg::UI::Elements::BeginMainTabBar("Steps")) {
+              // Disable all inputs if computation is running
+              if (computationRunning) {
+                ImGui::BeginDisabled();
+              }
+              showConfigure(cfg);
+              if (!validatedPaths)
+                ImGui::BeginDisabled();
+              if (cfg.debugLevel == 9) {
+                showModLoader(cfg);
+              }
+              defaultTabs(cfg, *activeGenerator);
+              automapAreas();
+              showCivilizationTab(cfg);
+              gameSpecificTabs(cfg);
+              auto ardaGen =
+                  std::static_pointer_cast<Arda::ArdaGen>(activeGenerator);
+              overview(cfg);
+              if (!validatedPaths)
+                ImGui::EndDisabled();
+              // Re-enable inputs if computation is running
+              if (computationRunning && !computationStarted) {
+                ImGui::EndDisabled();
+              }
+              // Check if the computation is done
+              if (computationRunning &&
+                  computationFutureBool.wait_for(std::chrono::seconds(0)) ==
+                      std::future_status::ready) {
+                computationRunning = false;
+                uiUtils->resetTexture();
+              }
+
+              if (computationRunning) {
+                computationStarted = false;
+                ImGui::Text("Working, please be patient");
+              } else {
+                ImGui::Text("Ready!");
+              }
+
+              Fwg::UI::Elements::EndMainTabBar();
+            }
+
+            ImGui::PopStyleColor();
+            ImGui::EndChild();
+            // Draw a frame around the child region
+            ImVec2 childMin = ImGui::GetItemRectMin();
+            ImVec2 childMax = ImGui::GetItemRectMax();
+            ImGui::GetWindowDrawList()->AddRect(
+                childMin, childMax, IM_COL32(100, 90, 180, 255), 0.0f, 0, 2.0f);
+          }
+
+          genericWrapper();
+          logWrapper();
+        }
+        ImGui::SameLine();
+        imageWrapper(io);
+        ImGui::End();
+
+        if (uiUtils->showExtendedHelp) {
+          uiUtils->showAdvancedTextBox();
+        }
       }
+
+      // Render
+      ImGui::Render();
+      int display_w, display_h;
+      glfwGetFramebufferSize(window, &display_w, &display_h);
+      glViewport(0, 0, display_w, display_h);
+      glClearColor(0.45f, 0.55f, 0.60f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT);
+      ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+      glfwSwapBuffers(window);
     }
 
-    cleanup(hwnd, wc);
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+    CleanupDeviceGL();
     return 0;
   } catch (std::exception e) {
     Fwg::Utils::Logging::logLine("Error in GUI startup: ", e.what());
@@ -1139,7 +1137,7 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
             generator->worldMap, generator->ardaData.civLayer,
             generator->pathcfg.gameModPath,
             "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
-            DXGI_FORMAT_B8G8R8A8_UNORM, 2, false);
+            gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
       }
 
     } else {

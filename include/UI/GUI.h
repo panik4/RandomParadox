@@ -10,10 +10,9 @@
 #include "vic3/Vic3Generator.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <d3d11.h>
 #include <string>
-#include <tchar.h>
 #include <vector>
+#include "stb_image.h"
 
 // Short alias for this namespace
 namespace pt = boost::property_tree;

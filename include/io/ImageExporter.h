@@ -1,5 +1,4 @@
 #pragma once
-#include "DirectXTex.h"
 #include "io/Textures.h"
 #include "climate/ClimateData.h"
 #include "entities/Colour.h"
@@ -56,7 +55,7 @@ public:
   dumpTerrainColourmap(const Fwg::Gfx::Image &climateMap,
                        const Arda::Civilization::CivilizationLayer &civLayer,
                        const std::string &modPath, const std::string &mapName,
-                       const DXGI_FORMAT format, int scaleFactor,
+                       const gli::format format, int scaleFactor,
                        const bool cut = false) const;
   void dumpWorldNormal(const Fwg::Gfx::Image &sobelMap,
                        const std::string &path, const bool cut) const;
