@@ -6,12 +6,33 @@ NOT
 NUL
 SOU
 BLT
-SPA
+
+
 CHI
 PHI
-SOT
-MOT
 
+# aliases 
+SPA
+SPB
+SPC
+SPD
+VIC
+BUZ
+BUF
+SOS
+SOT
+SOB
+SOP
+SOU
+RSI
+RDS
+SB1
+SB2
+SB3
+SB4
+FNO
+FGR
+MOT
 # windows doesn't like these as files such as AUX.txt would be created
 # https://stackoverflow.com/questions/36225708/cannot-create-a-directory-named-aux-or-starting-by-aux-on-windows-8-1
 AUX

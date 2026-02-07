@@ -35,6 +35,7 @@ void GUI::genericWrapper() {
       ImGui::EndDisabled();
     ImGui::SameLine();
     showModuleGeneric(cfg);
+    // end genericwrapper
     ImGui::EndChild();
     // Draw a frame around the child region
     ImVec2 childMin = ImGui::GetItemRectMin();
@@ -131,6 +132,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
     init(cfg, *activeGenerator);
 
     while (!glfwWindowShouldClose(window)) {
+      triggeredDrag = false;
       glfwPollEvents();
 
       ImGui_ImplOpenGL3_NewFrame();
@@ -244,17 +246,20 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
             }
 
             ImGui::PopStyleColor();
-            ImGui::EndChild();
-            // Draw a frame around the child region
-            ImVec2 childMin = ImGui::GetItemRectMin();
-            ImVec2 childMax = ImGui::GetItemRectMax();
-            ImGui::GetWindowDrawList()->AddRect(
-                childMin, childMax, IM_COL32(100, 90, 180, 255), 0.0f, 0, 2.0f);
           }
+          // ends SettingsContent
+          ImGui::EndChild();
+          // Draw a frame around the child region
+          ImVec2 childMin = ImGui::GetItemRectMin();
+          ImVec2 childMax = ImGui::GetItemRectMax();
+          ImGui::GetWindowDrawList()->AddRect(
+              childMin, childMax, IM_COL32(100, 90, 180, 255), 0.0f, 0, 2.0f);
 
           genericWrapper();
           logWrapper();
         }
+        // ends LeftContent
+        ImGui::EndChild();
         ImGui::SameLine();
         imageWrapper(io);
         ImGui::End();
@@ -281,7 +286,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
     ImGui::DestroyContext();
     CleanupDeviceGL();
     return 0;
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     Fwg::Utils::Logging::logLine("Error in GUI startup: ", e.what());
     return -1;
   }
@@ -311,7 +316,7 @@ void GUI::loadGameConfig(Fwg::Cfg &cfg) {
     Fwg::Parsing::replaceInStringStream(buffer, "//", "//");
 
     pt::read_json(buffer, hoi4Conf);
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     Fwg::Utils::Logging::logLine("Incorrect config \"RandomParadox.json\"");
     Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                                  e.what());
@@ -1018,19 +1023,19 @@ int GUI::showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
   ImGui::InputDouble("resourceFactor", &generator->ardaConfig.resourceFactor,
                      0.1);
   ImGui::InputDouble("aluminiumFactor",
-                     &generator->modConfig.resources["aluminium"][2], 0.1);
-  ImGui::InputDouble("coalFactor", &generator->modConfig.resources["coal"][2],
+                     &generator->modConfig.resources["aluminium"][0], 0.1);
+  ImGui::InputDouble("coalFactor", &generator->modConfig.resources["coal"][0],
                      0.1);
   ImGui::InputDouble("chromiumFactor",
-                     &generator->modConfig.resources["chromium"][2], 0.1);
-  ImGui::InputDouble("oilFactor", &generator->modConfig.resources["oil"][2],
+                     &generator->modConfig.resources["chromium"][0], 0.1);
+  ImGui::InputDouble("oilFactor", &generator->modConfig.resources["oil"][0],
                      0.1);
   ImGui::InputDouble("rubberFactor",
-                     &generator->modConfig.resources["rubber"][2], 0.1);
-  ImGui::InputDouble("steelFactor", &generator->modConfig.resources["steel"][2],
+                     &generator->modConfig.resources["rubber"][0], 0.1);
+  ImGui::InputDouble("steelFactor", &generator->modConfig.resources["steel"][0],
                      0.1);
   ImGui::InputDouble("tungstenFactor",
-                     &generator->modConfig.resources["tungsten"][2], 0.1);
+                     &generator->modConfig.resources["tungsten"][0], 0.1);
   ImGui::InputDouble(
       "baseLightRainChance",
       &generator->modConfig.weatherChances["baseLightRainChance"], 0.1);
@@ -1094,7 +1099,7 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
             generator->writeTextFiles();
             generator->writeLocalisation();
             generator->printStatistics();
-          } catch (std::exception e) {
+          } catch (std::exception &e) {
             pathWarning(e);
           }
           return true;
@@ -1223,7 +1228,7 @@ int GUI::showVic3Finalise(Fwg::Cfg &cfg) {
               generator->writeSplnet();
               generator->writeImages();
               generator->writeTextFiles();
-            } catch (std::exception e) {
+            } catch (std::exception &e) {
               pathWarning(e);
             }
             generator->printStatistics();

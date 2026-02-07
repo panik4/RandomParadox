@@ -46,7 +46,7 @@ Arda::Names::NameData prepare(const std::string &path,
         Fwg::Utils::Logging::logLine(
             "ERROR: Path to game does not exist, can't load forbidden tags");
       }
-    } catch (std::exception e) {
+    } catch (std::exception& e) {
       Fwg::Utils::Logging::logLine("ERROR: Path to game does not exist",
                                    e.what());
     }
@@ -72,7 +72,7 @@ std::string getRandomMapElement(
     const std::map<Arda::Utils::Ideology, std::vector<std::string>> map) {
   try {
     return Fwg::Utils::selectRandom(map.at(key));
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     auto str = "Error in Name Generation. Make sure the key: \"" +
                Arda::Utils::ideologyToString.at(key) +
                "\" of the namegroup or token group is present";

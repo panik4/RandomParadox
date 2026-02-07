@@ -1,0 +1,336 @@
+@manifest_fulfilled_value = 0.75
+
+# Defense of Democracy
+faction_manifest_defense_of_democracy = {
+	name = defense_of_democracy_goal_name
+	description = defense_of_democracy_goal_desc
+	is_manifest = yes
+	ratio_progress = {
+		total_amount = 40
+		completed_amount_collection = collection:world_uncapitulated_democratic_countries_and_dominions
+			
+		scale = {
+			trade_opinion_factor = 0.20
+		}
+		
+		#reversed = { #Scaled upwards as you approach 0% fulfillment
+		#	stability_factor = 0.50
+		#}
+		
+		progress_sections = {
+			manifest_fulfilled = {
+				min = @manifest_fulfilled_value
+	
+				modifier = { 
+					democratic_drift_from_guarantees = 0.05
+					can_guarantee_other_ideologies = 1
+				}
+			}
+		}
+	}
+}
+
+# Defense of Democracy
+faction_manifest_defense_of_democracy_allies = {
+	name = defense_of_democracy_goal_name
+	description = defense_of_democracy_goal_desc
+	is_manifest = yes
+	ratio_progress = {
+		total_amount = 50
+		completed_amount_collection = collection:world_uncapitulated_democratic_countries_and_dominions
+			
+		scale = {
+			trade_opinion_factor = 0.20
+			guarantee_cost = -0.50
+		}
+		
+		progress_sections = {
+			manifest_fulfilled = {
+				min = @manifest_fulfilled_value
+	
+				modifier = { 
+					democratic_drift_from_guarantees = 0.08
+					can_guarantee_other_ideologies = 1
+				}
+			}
+		}
+	}
+}
+
+# Containment of Communism
+faction_manifest_containment_of_communism = {
+	name = containment_of_communism_goal_name
+	description = containment_of_communism_goal_desc
+	is_manifest = yes
+	ratio_progress = {
+		total_amount_collection = game:all_states
+		completed_amount_collection = collection:world_non_communist_states
+		
+		scale = {
+			communism_drift = -0.08
+		}
+		
+		progress_sections = {
+			manifest_fulfilled = {
+				min = @manifest_fulfilled_value
+	
+				modifier = { 
+					required_garrison_factor = -0.15
+					generate_wargoal_tension = -0.15
+				}
+			}
+		}
+	}
+}
+
+# Supress Regional Fascism
+faction_manifest_suppress_regional_fascism = {
+	name = suppress_regional_fascism_goal_name
+	description = suppress_regional_fascism_goal_desc
+	is_manifest = yes
+	ratio_progress = {
+		total_amount_collection = collection:states_on_my_continent
+		completed_amount_collection = collection:non_fascist_controlled_states_on_my_continent
+		
+		scale = {
+			fascism_drift = -0.08
+		}
+		
+		progress_sections = {
+			manifest_fulfilled = {
+				min = @manifest_fulfilled_value
+				modifier = { 
+					weekly_casualties_war_support = 0.006
+				}
+			}
+		}
+	}
+}
+
+# Generic Expansionism
+faction_manifest_regional_expansionism = {
+	name = regional_expansionism_goal_name
+	description = regional_expansionism_goal_desc
+	is_manifest = yes
+	ratio_progress = {
+		total_amount_collection = collection:states_on_my_continent
+		completed_amount_collection = collection:faction_states_on_my_continent
+
+		range = { 
+			max = 0.67
+		}
+		
+		scale = {
+			party_popularity_stability_factor = 0.10
+		}
+		
+		progress_sections = {
+			manifest_fulfilled = {
+				min = @manifest_fulfilled_value
+				modifier = { 
+					monthly_population = 0.15
+					generate_wargoal_tension = -0.15
+				}
+			}
+		}
+	}
+}
+
+# Supress Regional Communism
+faction_manifest_suppress_regional_communism = {
+	name = suppress_regional_communism_goal_name
+	description = suppress_regional_communism_goal_desc
+	is_manifest = yes
+	ratio_progress = {
+		total_amount_collection = collection:states_on_my_continent
+		completed_amount_collection = collection:non_communist_controlled_states_on_my_continent
+		
+		scale = {
+			communism_drift = -0.05
+		}
+		
+		progress_sections = {
+			manifest_fulfilled = {
+				min = @manifest_fulfilled_value
+	
+				modifier = { 
+					weekly_casualties_war_support = 0.003
+				}
+			}
+		}
+	}
+}
+
+# Supress Regional Democracy
+faction_manifest_suppress_regional_democracy = {
+	name = suppress_regional_democracy_goal_name
+	description = suppress_regional_democracy_goal_desc
+	is_manifest = yes
+	ratio_progress = {
+		total_amount_collection = collection:states_on_my_continent
+		completed_amount_collection = collection:non_democratic_controlled_states_on_my_continent
+		
+		scale = {
+			democratic_drift = -0.05
+		}
+		
+		progress_sections = {
+			manifest_fulfilled = {
+				min = @manifest_fulfilled_value
+	
+				modifier = { 
+					weekly_casualties_war_support = 0.003
+				}			
+			}
+		}
+	}
+}
+
+# Conquest of territory 
+faction_manifest_conquest_of_territory = {
+	name = conquest_of_territory_goal_name
+	description = conquest_of_territory_goal_desc
+	is_manifest = yes
+	ratio_progress = {
+		total_amount_collection = collection:faction_owned_core_states
+		completed_amount_collection = collection:faction_controlled_non_core_states
+		range = { 
+			max = 1
+		}
+		
+		scale = {
+			offensive_war_stability_factor = 0.15
+			justify_war_goal_time = -0.25
+		}
+		
+		progress_sections = {
+			manifest_fulfilled = {
+				min = @manifest_fulfilled_value
+	
+				modifier = { 
+					non_core_manpower = 0.03
+					generate_wargoal_tension = -0.25
+				}			
+			}
+		}
+	}
+}
+
+
+# Spread of Communism 
+faction_manifest_spread_of_communism = {
+	name = spread_of_communism_goal_name
+	description = spread_of_communism_goal_desc
+	is_manifest = yes
+	ratio_progress = {
+		total_amount_collection = game:all_countries
+		completed_amount_collection = collection:world_communist_countries
+		range = { 
+			max = 1
+		}
+		
+		scale = {
+			communism_drift = 0.1
+		}
+		
+		progress_sections = {
+			manifest_fulfilled = {
+				min = @manifest_fulfilled_value
+	
+				modifier = { 
+					conscription_factor = 0.05
+					party_popularity_stability_factor = 0.1
+				}			
+			}
+		}
+	}
+
+}
+
+# Strength in Unity 
+faction_manifest_strength_in_unity = {
+	name = strength_in_unity_goal_name
+	description = strength_in_unity_goal_desc
+	is_manifest = yes
+	ratio_progress = {
+		total_amount = 20
+		completed_amount_collection = {
+			input = game:scope
+			operators = { faction_members }
+			name = COLLECTION_FACTION_MEMBERS
+		}
+		
+		scale = {
+			trade_opinion_factor = 0.20
+		}
+		
+		progress_sections = {
+			manifest_fulfilled = {
+				min = @manifest_fulfilled_value
+	
+				modifier = { 
+					political_power_factor = 0.1
+				}			
+			}
+		}
+	}
+}
+
+# Protector of Peace
+faction_manifest_protector_of_peace = {
+	name = protector_of_peace_goal_name
+	description = protector_of_peace_goal_desc
+	is_manifest = yes
+	ratio_progress = {
+		total_amount_collection = game:all_countries
+		completed_amount_collection = collection:world_at_peace_countries
+		
+		scale = {
+			production_speed_buildings_factor = 0.1
+		}
+		
+		progress_sections = {
+			manifest_fulfilled = {
+				min = @manifest_fulfilled_value
+	
+				modifier = { 
+					trade_opinion_factor = 0.2
+				}			
+			}
+		}
+	}
+}
+
+
+# Strategic Resource Control
+faction_manifest_strategic_resource_control = {
+	name = strategic_resource_control_goal_name
+	description = strategic_resource_control_goal_desc
+	is_manifest = yes
+	ratio_progress = {
+		completed_amount_custom_tooltip = FACTION_RESOURCE_EXTRACTED_TOTAL_DESC
+		total_amount_custom_tooltip = GLOBAL_RESOURCE_EXTRACTED_TOTAL_DESC
+
+		total_amount = global.global_resource_extracted_total # All the units in the world
+		completed_amount = faction_resource_extracted_total # resources controlled by Faction Members
+
+		range = { 
+			max = 0.30 # goal is to have at least 30% 
+		}
+		
+		scale = {
+			industrial_capacity_dockyard = 0.1
+			industrial_capacity_factory = 0.1
+		}
+		
+		progress_sections = {
+			manifest_fulfilled = {
+				min = @manifest_fulfilled_value
+	
+				modifier = { 
+					production_speed_buildings_factor = 0.1
+				}
+			}
+		}
+	}
+}

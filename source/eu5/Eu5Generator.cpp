@@ -68,7 +68,7 @@ bool Generator::createPaths() {
       create_directory(Cfg::Values().mapsPath + "Eu5");
 
     return true;
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     std::string error = "Configured paths seem to be messed up, check EuIV "
                         "Module.json\n";
     error += "You can try fixing it yourself. Error is:\n ";
@@ -98,7 +98,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
     Fwg::Parsing::replaceInStringStream(buffer, "//", "//");
 
     pt::read_json(buffer, eu5Conf);
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     Fwg::Utils::Logging::logLine(
         "Incorrect config \"Europa Universalis IVModule.json\"");
     Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",

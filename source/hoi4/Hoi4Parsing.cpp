@@ -1479,6 +1479,8 @@ void compatibilityHistory(
     Rpx::Parsing::replaceLine(content, "set_capital = 1", "set_capital = {");
     Rpx::Parsing::replaceLine(content,
                               "SWI_find_biggest_fascist_neighbor = yes", "");
+    Rpx::Parsing::removeLine(content, "create_faction_from_template");
+    Rpx::Parsing::removeLine(content, "add_to_faction");
     auto blocks = Rpx::Parsing::getOuterBlocks(pU::getLines(pathString));
     for (auto &block : blocks) {
       if (block.content.contains("declare_war_on")) {
@@ -1536,6 +1538,54 @@ void copyDescriptorFile(const std::string &sourcePath,
       Fwg::Utils::varsToString("path=\"", destPath, "\""));
   pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
 }
+
+namespace Compatibility {
+void compatibilityFactionMechanics(const std::string &path,
+                                   const std::string &hoiPath) {
+
+  try {
+    std::filesystem::copy(
+        Fwg::Cfg::Values().resourcePath + "hoi4/common/factions", path,
+        std::filesystem::copy_options::overwrite_existing |
+            std::filesystem::copy_options::recursive);
+  } catch (const std::filesystem::filesystem_error &e) {
+    Fwg::Utils::Logging::logLine(e.what());
+  }
+}
+void compatibilityNationalFocus(const std::string &path,
+                                const std::string &hoiPath) {
+
+  Logging::logLine(
+      "HOI4 Parser: National Focus: Cleaning compatibility blocks");
+
+  const std::filesystem::path focusDir{hoiPath + "//common//national_focus//"};
+  Logging::logLine("HOI4 Parser: National Focus: Reading Files from " +
+                   focusDir.string());
+
+  for (auto const &dir_entry : std::filesystem::directory_iterator{focusDir}) {
+
+    std::string pathString = dir_entry.path().string();
+    std::string filename = dir_entry.path().filename().string();
+    if (filename[0] == '.')
+      continue;
+
+    auto content = pU::readFile(pathString);
+
+    Rpx::Parsing::replaceLines(content, "#", "");
+
+    static const std::vector<std::string> focusKeys{
+        "bypass =", "available =", "completion_reward ="};
+
+    for (const auto &k : focusKeys)
+      Rpx::Parsing::clearAllBracketBlockContents(content, k);
+
+    // normalizeEmptyLines(content);
+
+    pU::writeFile(path + filename, content);
+  }
+}
+
+} // namespace Compatibility
 
 namespace Localisation {
 

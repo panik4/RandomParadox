@@ -83,7 +83,7 @@ bool Generator::createPaths() {
       create_directory(Cfg::Values().mapsPath + "Vic3");
 
     return true;
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     std::string error = "Configured paths seem to be messed up, check Victoria "
                         "IIIModule.json\n";
     error += "You can try fixing it yourself. Error is:\n ";
@@ -112,7 +112,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
     Fwg::Parsing::replaceInStringStream(buffer, "//", "//");
 
     pt::read_json(buffer, vic3Conf);
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     Fwg::Utils::Logging::logLine(
         "Incorrect config \"Europa Universalis IVModule.json\"");
     Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
@@ -407,7 +407,7 @@ bool Generator::importData(const std::string &path) {
         vic3GameData.popNeeds);
     nData.disallowedTokens =
         Vic3::Importing::readTags(path + "common//history//countries//");
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     Fwg::Utils::Logging::logLine("Error: ", e.what());
     return false;
   }
@@ -548,7 +548,7 @@ void Generator::distributeBuildings() {
                     buildingTypes.emplace(entry3.name, entry3);
                 }
               }
-            } catch (std::exception e) {
+            } catch (std::exception& e) {
               Fwg::Utils::Logging::logLine(
                   "Warning: Couldn't match production method to building for "
                   "production method: ",
@@ -795,7 +795,7 @@ void Generator::generate() {
     calculateNeeds();
     distributeBuildings();
 
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     std::string error = "Error while generating the Vic3 Module.\n";
     error += "Error is: \n";
     error += e.what();
@@ -810,7 +810,7 @@ void Generator::generate() {
     //  compatible colours
     writeImages();
 
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";
     error += e.what();

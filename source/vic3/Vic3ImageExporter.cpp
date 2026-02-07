@@ -566,7 +566,7 @@ void ImageExporter::detailMaps(
           intensityPixels[imageIndex + i] = intensity.getBGR()[i];
         }
         intensityPixels[imageIndex + 4] = 0;
-      } catch (std::exception e) {
+      } catch (std::exception& e) {
         Fwg::Utils::Logging::logLine("Invalid colour: ", c);
       }
     }

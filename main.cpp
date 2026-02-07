@@ -42,7 +42,7 @@ int main() {
     buffer << f.rdbuf();
     Parsing::replaceInStringStream(buffer, "\\", "//");
     pt::read_json(buffer, metaConf);
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     Utils::Logging::logLine("Incorrect config \"MetaConf.json\"");
     Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                             e.what());
@@ -71,7 +71,7 @@ int main() {
     Parsing::replaceInStringStream(buffer, "\\", "//");
 
     pt::read_json(buffer, rpdConf);
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     Utils::Logging::logLine("Incorrect config \"RandomParadox.json\"");
     Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                             e.what());
@@ -91,7 +91,7 @@ int main() {
     Fwg::Utils::Logging::logLine("Starting the loading of ",
                                  configSubFolder + "FastWorldGenerator.json");
     config.readConfig(configSubFolder);
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     Utils::Logging::logLine("Incorrect config \"FastWorldGenerator.json\"");
     Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                             e.what());
@@ -110,7 +110,7 @@ int main() {
     gui2.shiny(rpdConf, configSubFolder, username);
     Fwg::Utils::Logging::logLine("Exited the GUI");
     dumpInfo("", configSubFolder);
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     Utils::Logging::logLine(e.what());
     dumpInfo(e.what(), configSubFolder);
     return -1;

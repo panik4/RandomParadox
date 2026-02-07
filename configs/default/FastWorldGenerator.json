@@ -13,25 +13,13 @@
 	},
 	"loadMaps":
 	{
-		"heightMap" : false,
-		"landMap" : false,
-		"continentMap" : false,
-		"climateMap" : false,
-		"riverMap" : false,
-		"humidityMap" : false,
-		"habitabilityMap" : false,
-		"provinceMap" : false,
-		"regionMap" : false,
 		"modifyHeight": false,
 		"heightAdjustments": 0
 	},
-	"cut":
-	{
-	},
 	"map": 
 	{
-		"width" : 512,
-		"height" : 512,
+		"width" : 5632,
+		"height" : 2048,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -80,8 +68,8 @@
 				"autoSeaRegions" : true,
 				"minProvPerLandRegion" : 8,
 				"minProvPerSeaRegion" : 0,
-				"targetLandRegionAmount" : 640,
-				"targetSeaRegionAmount" : 160
+				"targetLandRegionAmount" : 1200,
+				"targetSeaRegionAmount" : 240
 			}
 		},
 		"weather":

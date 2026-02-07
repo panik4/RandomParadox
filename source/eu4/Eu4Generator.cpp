@@ -38,7 +38,7 @@ bool Generator::createPaths() { // prepare folder structure
     create_directory(pathcfg.gameModPath + "//common//trade_companies//");
     create_directory(pathcfg.gameModPath + "//common//trade_nodes//");
     return true;
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     std::string error = "Configured paths seem to be messed up, check Europa "
                         "Universalis IVModule.json\n";
     error += "You can try fixing it yourself. Error is:\n ";
@@ -67,7 +67,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
     Fwg::Parsing::replaceInStringStream(buffer, "//", "//");
 
     pt::read_json(buffer, eu4Conf);
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     Fwg::Utils::Logging::logLine(
         "Incorrect config \"Europa Universalis IVModule.json\"");
     Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
@@ -130,7 +130,7 @@ void Generator::generateRegions(
       }
     }
   }
-  Bmp::save(eu4RegionBmp, Fwg::Cfg::Values().mapsPath + "//eu4Regions.bmp");
+  Png::save(eu4RegionBmp, Fwg::Cfg::Values().mapsPath + "//eu4Regions.png");
 }
 
 Fwg::Gfx::Image Generator::mapTerrain() {
@@ -258,7 +258,7 @@ void Generator::generate() {
                ardaRegions, ardaProvinces, getEu4Regions());
       Fwg::Utils::Logging::logLine("Done with the eu4 export");
     }
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";
     error += e.what();

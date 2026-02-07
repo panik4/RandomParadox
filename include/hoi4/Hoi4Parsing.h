@@ -104,6 +104,17 @@ void copyDescriptorFile(const std::string &sourcePath,
                         const std::string &destPath,
                         const std::string &modsDirectory,
                         const std::string &modName);
+namespace Compatibility {
+void compatibilityFactionMechanics(const std::string &path,
+                                  const std::string &hoiPath);
+
+void compatibilityNationalFocus(const std::string &path,
+                                   const std::string &hoiPath);
+
+}
+
+
+
 // localisation
 namespace Localisation {
 

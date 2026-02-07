@@ -17,7 +17,7 @@ struct Pathcfg {
 
 // replace slash type and append slashes
 inline void sanitizePath(std::string &path) {
-  Rpx::Parsing::replaceOccurences(path, "\\", "//");
+  Rpx::Parsing::replaceOccurences(path, "\\", "/");
   Fwg::Parsing::attachTrailing(path);
 }
 // try to find parent directory of where the mod should be
@@ -50,8 +50,8 @@ inline bool findGame(std::string &path, const std::string &game,
                      const std::string &gameSubPath) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
-  std::vector<std::string> drives{"C://", "D://", "E://",
-                                  "F://", "G://", "H://"};
+  std::vector<std::string> drives{"C:/", "D:/", "E:/",
+                                  "F:/", "G:/", "H:/"};
   // first try to find hoi4 at the configured location
   if (exists(path) && path.find(game) != std::string::npos) {
     Logging::logLine("Located game under ", path);
@@ -64,13 +64,13 @@ inline bool findGame(std::string &path, const std::string &game,
         "recommended to correctly configure the path");
   }
   const std::vector<std::string> commonPaths{
-      "Program Files (x86)//Steam//steamapps//common//",
-      "Program Files//Steam//steamapps//common//", "Steam//steamapps//common//",
-      "SteamLibrary//steamapps//common//"};
+      "Program Files (x86)/Steam/steamapps/common/",
+      "Program Files/Steam/steamapps/common/", "Steam/steamapps/common/",
+      "SteamLibrary/steamapps/common/"};
   for (const auto &drive : drives) {
     for (auto &commonPath : commonPaths) {
       if (exists(drive + commonPath + game)) {
-        path = drive + commonPath + game + "//";
+        path = drive + commonPath + game + "/";
         // now check if the executable is in the game folder
         if (!exists(path + gameSubPath)) {
           Logging::logLine("Couldn't locate executable under ",

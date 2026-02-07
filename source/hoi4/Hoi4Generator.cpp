@@ -6,8 +6,6 @@ namespace Rpx::Hoi4 {
 Generator::Generator(const std::string &configSubFolder,
                      const boost::property_tree::ptree &rpdConf)
     : Rpx::ModGenerator(configSubFolder, GameType::Hoi4, "hoi4.exe", rpdConf) {
-  Fwg::Utils::Logging::logLine("Username configured is: ",
-                               Fwg::Cfg::Values().username);
   configureModGen(configSubFolder, Fwg::Cfg::Values().username, rpdConf);
   factories.regionFactory = []() {
     return std::make_shared<Rpx::Hoi4::Region>();
@@ -29,59 +27,59 @@ bool Generator::createPaths() {
     // GenericModule::createPaths(pathcfg.gameModPath);
     create_directory(pathcfg.gameModPath);
     // map
-    remove_all(pathcfg.gameModPath + "//map//");
-    remove_all(pathcfg.gameModPath + "//gfx");
-    remove_all(pathcfg.gameModPath + "//events//");
-    remove_all(pathcfg.gameModPath + "//history");
-    remove_all(pathcfg.gameModPath + "//common//");
-    remove_all(pathcfg.gameModPath + "//portraits//");
-    remove_all(pathcfg.gameModPath + "//localisation//");
-    create_directory(pathcfg.gameModPath + "//map//");
-    create_directory(pathcfg.gameModPath + "//map//terrain//");
+    remove_all(pathcfg.gameModPath + "/map/");
+    remove_all(pathcfg.gameModPath + "/gfx");
+    remove_all(pathcfg.gameModPath + "/events/");
+    remove_all(pathcfg.gameModPath + "/history");
+    remove_all(pathcfg.gameModPath + "/common/");
+    remove_all(pathcfg.gameModPath + "/portraits/");
+    remove_all(pathcfg.gameModPath + "/localisation/");
+    create_directory(pathcfg.gameModPath + "/map/");
+    create_directory(pathcfg.gameModPath + "/map/terrain/");
     // gfx
-    create_directory(pathcfg.gameModPath + "//gfx//");
-    create_directory(pathcfg.gameModPath + "//gfx//flags//");
+    create_directory(pathcfg.gameModPath + "/gfx/");
+    create_directory(pathcfg.gameModPath + "/gfx/flags/");
     // history
-    create_directory(pathcfg.gameModPath + "//history//");
+    create_directory(pathcfg.gameModPath + "/history/");
     // localisation
-    create_directory(pathcfg.gameModPath + "//localisation//");
+    create_directory(pathcfg.gameModPath + "/localisation/");
     // portraits
-    create_directory(pathcfg.gameModPath + "//portraits//");
+    create_directory(pathcfg.gameModPath + "/portraits/");
     // common
-    create_directory(pathcfg.gameModPath + "//common//");
+    create_directory(pathcfg.gameModPath + "/common/");
     // map
-    create_directory(pathcfg.gameModPath + "//map//strategicregions//");
+    create_directory(pathcfg.gameModPath + "/map/strategicregions/");
     // gfx
-    create_directory(pathcfg.gameModPath + "//gfx//flags//small//");
-    create_directory(pathcfg.gameModPath + "//gfx//flags//medium//");
+    create_directory(pathcfg.gameModPath + "/gfx/flags/small/");
+    create_directory(pathcfg.gameModPath + "/gfx/flags/medium/");
     // history
-    create_directory(pathcfg.gameModPath + "//history//units//");
-    create_directory(pathcfg.gameModPath + "//history//states//");
-    create_directory(pathcfg.gameModPath + "//history//countries//");
+    create_directory(pathcfg.gameModPath + "/history/units/");
+    create_directory(pathcfg.gameModPath + "/history/states/");
+    create_directory(pathcfg.gameModPath + "/history/countries/");
     // localisation
-    create_directory(pathcfg.gameModPath + "//localisation//braz_por//");
-    create_directory(pathcfg.gameModPath + "//localisation//english//");
-    create_directory(pathcfg.gameModPath + "//localisation//french//");
-    create_directory(pathcfg.gameModPath + "//localisation//german//");
-    create_directory(pathcfg.gameModPath + "//localisation//japanese//");
-    create_directory(pathcfg.gameModPath + "//localisation//korean//");
-    create_directory(pathcfg.gameModPath + "//localisation//polish//");
-    create_directory(pathcfg.gameModPath + "//localisation//russian//");
-    create_directory(pathcfg.gameModPath + "//localisation//simp_chinese//");
-    create_directory(pathcfg.gameModPath + "//localisation//spanish//");
+    create_directory(pathcfg.gameModPath + "/localisation/braz_por/");
+    create_directory(pathcfg.gameModPath + "/localisation/english/");
+    create_directory(pathcfg.gameModPath + "/localisation/french/");
+    create_directory(pathcfg.gameModPath + "/localisation/german/");
+    create_directory(pathcfg.gameModPath + "/localisation/japanese/");
+    create_directory(pathcfg.gameModPath + "/localisation/korean/");
+    create_directory(pathcfg.gameModPath + "/localisation/polish/");
+    create_directory(pathcfg.gameModPath + "/localisation/russian/");
+    create_directory(pathcfg.gameModPath + "/localisation/simp_chinese/");
+    create_directory(pathcfg.gameModPath + "/localisation/spanish/");
     // common
-    // create_directory(pathcfg.gameModPath + "//common//national_focus//");
-    create_directory(pathcfg.gameModPath + "//common//countries//");
-    create_directory(pathcfg.gameModPath + "//common//characters//");
-    create_directory(pathcfg.gameModPath + "//common//ideas//");
-    create_directory(pathcfg.gameModPath + "//common//bookmarks//");
-    create_directory(pathcfg.gameModPath + "//common//country_tags//");
-    create_directory(pathcfg.gameModPath + "//common//names//");
-    create_directory(pathcfg.gameModPath + "//common//scripted_triggers//");
-    //
-    create_directory(pathcfg.gameModPath + "//tutorial//");
+    // create_directory(pathcfg.gameModPath + "/common/national_focus/");
+    create_directory(pathcfg.gameModPath + "/common/countries/");
+    create_directory(pathcfg.gameModPath + "/common/characters/");
+    create_directory(pathcfg.gameModPath + "/common/ideas/");
+    create_directory(pathcfg.gameModPath + "/common/bookmarks/");
+    create_directory(pathcfg.gameModPath + "/common/national_focus/");
+    create_directory(pathcfg.gameModPath + "/common/country_tags/");
+    create_directory(pathcfg.gameModPath + "/common/names/");
+    create_directory(pathcfg.gameModPath + "/common/scripted_triggers/");
+    create_directory(pathcfg.gameModPath + "/tutorial/");
     return true;
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     std::string error =
         "Configured paths seem to be messed up, check Hoi4Module.json\n";
     error += "You can try fixing it yourself. Error is:\n ";
@@ -112,7 +110,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
     Fwg::Parsing::replaceInStringStream(buffer, "//", "//");
 
     pt::read_json(buffer, hoi4Conf);
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     Fwg::Utils::Logging::logLine("Incorrect config \"RandomParadox.json\"");
     Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                                  e.what());
@@ -458,7 +456,8 @@ void Generator::generateStateResources() {
       const auto &resConfig = *result.config;
 
       totalResourceVal(result.layer,
-                       resConfig.resourcePrevalence *
+                       ardaConfig.resourceFactor *
+                           resConfig.resourcePrevalence *
                            modConfig.resources.at(resConfig.name).at(0),
                        resConfig);
     }
@@ -2651,7 +2650,7 @@ void Generator::writeTextFiles() {
                          modData.hoi4Countries);
   // Countries::foci(pathcfg.gameModPath + "//common//national_focus//",
   //                 modData.hoi4Countries, nData);
-   Countries::flags(pathcfg.gameModPath + "//gfx//flags//",
+  Countries::flags(pathcfg.gameModPath + "//gfx//flags//",
                    modData.hoi4Countries);
   Countries::historyCountries(pathcfg.gameModPath + "//history//countries//",
                               modData.hoi4Countries, pathcfg.gamePath,
@@ -2664,6 +2663,10 @@ void Generator::writeTextFiles() {
                        modData.hoi4Countries);
   Countries::states(pathcfg.gameModPath + "//history//states",
                     modData.hoi4States);
+  Compatibility::compatibilityFactionMechanics(
+      pathcfg.gameModPath + "/common/factions", "");
+  Compatibility::compatibilityNationalFocus(
+      pathcfg.gameModPath + "/common/national_focus/", pathcfg.gamePath);
 
   aiStrategy(pathcfg.gameModPath + "//common//", ardaContinents);
   events(pathcfg.gameModPath + "//");
@@ -2772,7 +2775,7 @@ void Generator::generate() {
     distributeVictoryPoints();
     generatePositions();
 
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     std::string error = "Error while generating the Hoi4 Module.\n";
     error += "Error is: \n";
     error += e.what();
@@ -2783,7 +2786,7 @@ void Generator::generate() {
     writeImages();
     writeTextFiles();
     writeLocalisation();
-  } catch (std::exception e) {
+  } catch (std::exception &e) {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";
     error += e.what();
@@ -2844,7 +2847,7 @@ void Generator::readHoi(std::string &path) {
   // Hoi4::Parsing::Reading::readStates(gamePath, *hoi4Gen);
   // try {
   //  mapRegions();
-  //} catch (std::exception e) {
+  //} catch (std::exception& e) {
   //  Fwg::Utils::Logging::logLine("Error while mapping regions, ", e.what());
   //};
   //// read the colour codes from the game/mod files

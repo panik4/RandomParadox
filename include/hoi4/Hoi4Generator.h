@@ -22,7 +22,7 @@ struct Hoi4Config {
   std::map<std::string, std::vector<double>> resources;
   using CTI = Fwg::Climate::Detail::ClimateClassId;
   std::vector<Arda::Utils::ResConfig> resConfigs{
-      {"chromium", true, 1250.0, true, Arda::Utils::rareNoise},
+      {"chromium", true, 1250.0, true, Arda::Utils::semiRareNoise},
       {"steel", true, 2562.0, true, Arda::Utils::defaultNoise},
       {"tungsten", true, 1188.0, true, Arda::Utils::semiRareNoise},
       {"aluminium", true, 1169, true, Arda::Utils::semiRareNoise},

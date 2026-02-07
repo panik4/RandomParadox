@@ -185,7 +185,7 @@ std::string removeSurroundingBracketBlockFromLineBreak(std::string &content,
                                                        const std::string key) {
   auto pos = content.find(key);
   if (pos != std::string::npos) {
-    //auto pos2 = content.rfind("}", pos);
+    // auto pos2 = content.rfind("}", pos);
     pos = content.rfind("{", pos);
     pos = content.rfind("\n", pos);
     auto blockEnd = findClosingBracket(content, pos);
@@ -195,6 +195,51 @@ std::string removeSurroundingBracketBlockFromLineBreak(std::string &content,
   }
   return "";
 };
+
+bool clearAllBracketBlockContents(std::string &content,
+                                  const std::string &key) {
+  bool changed = false;
+  size_t searchPos = 0;
+
+  while (true) {
+    // Look for the next key starting at searchPos
+    size_t pos = content.find(key, searchPos);
+    if (pos == std::string::npos)
+      break;
+
+    // Find opening brace after key
+    size_t open = content.find("{", pos);
+    if (open == std::string::npos)
+      break;
+
+    // Find the closing brace of this block
+    size_t close = findClosingBracket(content, open);
+    if (close == std::string::npos)
+      break;
+
+    // Determine the range to erase INSIDE the braces
+    size_t eraseStart = open + 1;
+    size_t eraseLen = close - eraseStart;
+
+    if (eraseLen > 0) {
+      // Remove the block contents (but keep the braces)
+      content.erase(eraseStart, eraseLen);
+      changed = true;
+
+      // Reset search position to the start of this block
+      // This prevents missing any additional occurrences
+      searchPos = open + 1;
+    } else {
+      // Empty block; move forward to prevent refinding
+      searchPos = close + 1;
+    }
+  }
+
+  return changed;
+}
+
+
+
 
 std::vector<Block> getOuterBlocks(const std::vector<std::string> &lines) {
   std::vector<Block> outermostBlocks;
