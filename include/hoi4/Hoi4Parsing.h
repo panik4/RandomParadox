@@ -51,6 +51,12 @@ void weatherPositions(
 
 } // namespace Map
 
+namespace Common {
+void commonDecisions(const std::string &path,
+                     const Rpx::Hoi4::DecisionData &resourceDecisions);
+
+}
+
 namespace Countries {
 // common
 void commonCountries(const std::string &path, const std::string &hoiPath,
@@ -106,18 +112,17 @@ void copyDescriptorFile(const std::string &sourcePath,
                         const std::string &modName);
 namespace Compatibility {
 void compatibilityFactionMechanics(const std::string &path,
-                                  const std::string &hoiPath);
-
-void compatibilityNationalFocus(const std::string &path,
                                    const std::string &hoiPath);
 
-}
+void compatibilityNationalFocus(const std::string &path,
+                                const std::string &hoiPath);
 
-
+} // namespace Compatibility
 
 // localisation
 namespace Localisation {
-
+void decisionNames(const std::string &path,
+                   const std::map<std::string, std::string> &decisionNames);
 void countryNames(const std::string &path, const CountryMap &countries,
                   const Arda::Names::NameData &nData);
 void stateNames(const std::string &path, const CountryMap &countries);

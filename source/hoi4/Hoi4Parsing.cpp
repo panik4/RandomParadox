@@ -299,10 +299,12 @@ void weatherPositions(
   }
 
   for (auto i = 0; i < strategicRegions.size(); i++) {
-    const auto &region =
-        Fwg::Utils::selectRandom(strategicRegions[i]->ardaRegions);
-    const auto prov = Fwg::Utils::selectRandom(region->provinces);
-    const auto pix = Fwg::Utils::selectRandom(prov->getPixelsForManipulation());
+    // const auto &region =
+    //     Fwg::Utils::selectRandom(strategicRegions[i]->ardaRegions);
+    // const auto prov = Fwg::Utils::selectRandom(region->provinces);
+    // const auto pix =
+    // Fwg::Utils::selectRandom(prov->getPixelsForManipulation());
+    const auto pix = strategicRegions[i]->position.weightedCenter;
     auto widthPos = pix % Cfg::Values().width;
     auto heightPos = pix / Cfg::Values().width;
     std::vector<std::string> arguments{
@@ -339,9 +341,37 @@ void supply(const std::string &path,
   pU::writeFile(path + "supply_nodes.txt", supplyNodes);
   pU::writeFile(path + "railways.txt", railways);
 }
-
 } // namespace Map
+
+namespace Common {
+void commonDecisions(const std::string &path,
+                     const Rpx::Hoi4::DecisionData &decisionData) {
+  std::string resourceContent =
+      "###rpx generated decisions.\nprospect_for_resources = {\n";
+
+  for (const auto &resDecision : decisionData.resourceDecisions) {
+    resourceContent.append(resDecision + "\n");
+  }
+
+  resourceContent.append("}\n");
+  pU::writeFile(path + "resource_prospecting.txt", resourceContent);
+
+
+
+
+
+
+
+
+
+
+
+
+}
+} // namespace Common
+
 namespace Countries {
+
 void commonCountries(const std::string &path, const std::string &hoiPath,
                      const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: Common: Writing Countries");
@@ -391,6 +421,9 @@ void commonCharacters(const std::string &path, const CountryMap &countries) {
   const auto leaderTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
                    "hoi4//common//characters//leaderTemplate.txt");
+  const auto civilianTemplate =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "hoi4//common//characters//civilianTemplate.txt");
   std::map<Arda::Type, std::string> slotTypes = {
       {Arda::Type::Politician, "political_advisor"},
       {Arda::Type::ArmyChief, "army_chief"},
@@ -446,6 +479,15 @@ void commonCharacters(const std::string &path, const CountryMap &countries) {
         traits.append(trait + " ");
       }
       Rpx::Parsing::replaceOccurences(characterText, "templateTraits", traits);
+      if (character.portraitPath != "") {
+        Rpx::Parsing::replaceOccurences(characterText, "templatePortraitBlock",
+                                        civilianTemplate);
+        Rpx::Parsing::replaceOccurences(characterText, "templatePortraitName",
+                                        character.portraitPath);
+      } else {
+        Rpx::Parsing::replaceOccurences(characterText, "templatePortraitBlock",
+                                        "");
+      }
 
       // Rpx::Parsing::replaceOccurences(characterText, "templateIdeology",
       //                                 character.ideology);
@@ -457,6 +499,7 @@ void commonCharacters(const std::string &path, const CountryMap &countries) {
     pU::writeFile(tempPath, content);
   }
 }
+
 void commonNames(const std::string &path, const CountryMap &countries) {
 
   Logging::logLine("HOI4 Parser: Common: Naming people");
@@ -968,7 +1011,7 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
         supports +=
             "\t\t\t" +
             supportRegimentTypeMap.at(divisionTemplate.supportRegiments[i]) +
-            " = {  x = " + std::to_string(i) + " y = 0 }\n";
+            " = {  x = 0" + " y = " + std::to_string(i) + " }\n";
       }
       Rpx::Parsing::replaceOccurences(tempDivisionTemplate,
                                       "templateSupportRegiments", supports);
@@ -1566,7 +1609,7 @@ void compatibilityNationalFocus(const std::string &path,
 
     std::string pathString = dir_entry.path().string();
     std::string filename = dir_entry.path().filename().string();
-    if (filename[0] == '.')
+    if (filename[0] == '.' || filename.contains("titlebar"))
       continue;
 
     auto content = pU::readFile(pathString);
@@ -1588,6 +1631,16 @@ void compatibilityNationalFocus(const std::string &path,
 } // namespace Compatibility
 
 namespace Localisation {
+
+void decisionNames(const std::string &path, const std::map<std::string, std::string> & decisionNames) {
+  Logging::logLine("HOI4 Parser: Localisation: Writing Decision Names");
+  std::string content = "l_language:\n";
+  for (auto &decision : decisionNames) {
+    content += " " + decision.first + ":0 \"" + decision.second + "\"\n";
+  }
+  Detail::localisationWrite(path + "rpx_decisions_l_language.yml", content, true);
+
+}
 
 void countryNames(const std::string &path, const CountryMap &countries,
                   const Arda::Names::NameData &nData) {
