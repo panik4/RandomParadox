@@ -12,4 +12,12 @@ struct Faction {
   std::vector<std::string> memberTags;
 };
 
+
+struct DecisionData {
+  std::map<std::string, std::string> decisionNames;
+  std::vector<std::string> resourceDecisions;
+
+
+};
+
 } // namespace Rpx::Hoi4

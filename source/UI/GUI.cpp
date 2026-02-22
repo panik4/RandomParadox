@@ -761,6 +761,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
             // hoi4Gen->generateFocusTrees();
             hoi4Gen->distributeVictoryPoints();
             hoi4Gen->generatePositions();
+            hoi4Gen->generateRandomDecisions();
             requireCountryDetails = false;
             return true;
           });

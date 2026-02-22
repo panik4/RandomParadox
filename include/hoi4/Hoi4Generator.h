@@ -8,6 +8,7 @@
 #include "hoi4/Hoi4ImageExporter.h"
 #include "hoi4/Hoi4Parsing.h"
 #include "hoi4/Hoi4Region.h"
+#include "hoi4/Hoi4DecisionGen.h"
 #include "io/GenericParsing.h"
 #include "utils/RpxUtils.h"
 #include <array>
@@ -50,6 +51,8 @@ struct Hoi4Data {
   std::vector<std::vector<int>> supplyNodeConnections;
   bool statesInitialised = false;
   std::vector<std::shared_ptr<Faction>> factions;
+  DecisionData decisionData;
+
 };
 
 struct Hoi4Stats {
@@ -161,6 +164,8 @@ public:
   void generateWorldState();
 
   void generateFocusTrees();
+
+  void generateRandomDecisions();
 
   void generatePositions();
 

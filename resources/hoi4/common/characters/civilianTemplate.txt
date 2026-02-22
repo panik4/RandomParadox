@@ -1,0 +1,5 @@
+		portraits = {
+			civilian = {
+				small = templatePortraitName
+			}
+		}

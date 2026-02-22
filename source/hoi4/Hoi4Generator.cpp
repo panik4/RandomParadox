@@ -71,6 +71,7 @@ bool Generator::createPaths() {
     // create_directory(pathcfg.gameModPath + "/common/national_focus/");
     create_directory(pathcfg.gameModPath + "/common/countries/");
     create_directory(pathcfg.gameModPath + "/common/characters/");
+    create_directory(pathcfg.gameModPath + "/common/decisions/");
     create_directory(pathcfg.gameModPath + "/common/ideas/");
     create_directory(pathcfg.gameModPath + "/common/bookmarks/");
     create_directory(pathcfg.gameModPath + "/common/national_focus/");
@@ -468,7 +469,7 @@ void Generator::generateStateSpecifics() {
   Fwg::Utils::Logging::logLine("HOI4: Planning the economy");
   auto &config = Cfg::Values();
   // calculate the target industry amount
-  auto targetWorldIndustry = 1500 * ardaConfig.worldIndustryFactor;
+  auto targetWorldIndustry = 2000 * ardaConfig.worldIndustryFactor;
   // we need a reference to determine how industrious a state is
   double averageEconomicActivity = 1.0 / areaData.landRegions;
 
@@ -491,6 +492,8 @@ void Generator::generateStateSpecifics() {
     for (auto &location : hoi4State->locations) {
       if (location->type == Fwg::Civilization::LocationType::Port ||
           location->secondaryType == Fwg::Civilization::LocationType::Port) {
+        std::cout << " Port with importance " << location->importance
+                  << std::endl;
         maxImportance = std::max<double>(maxImportance, location->importance);
       }
     }
@@ -531,8 +534,8 @@ void Generator::generateStateSpecifics() {
       for (auto &location : hoi4State->locations) {
         if (location->type == Fwg::Civilization::LocationType::Port ||
             location->secondaryType == Fwg::Civilization::LocationType::Port) {
-          hoi4State->navalBases[location->provinceID] =
-              std::max<double>(location->importance / maxImportance, 1.0);
+          hoi4State->navalBases[location->provinceID] = std::clamp<double>(
+              (location->importance / maxImportance) * 10.0, 1.0, 10.0);
           Fwg::Utils::Logging::logLineLevel(
               8, "Naval base in ", hoi4State->name, " at ",
               location->provinceID, " with importance ", location->importance);
@@ -742,72 +745,73 @@ void Generator::generateCountrySpecifics() {
 void Generator::generateWeather() {
   for (auto &superRegion : superRegions) {
     auto stratRegion = std::dynamic_pointer_cast<StrategicRegion>(superRegion);
-    for (auto &reg : stratRegion->ardaRegions) {
-      for (auto i = 0; i < 12; i++) {
-        double averageTemperature = 0.0;
-        double averageDeviation = 0.0;
-        double averagePrecipitation = 0.0;
+    // for every month, gather the averages from all regions and their provinces
+    for (auto i = 0; i < 12; i++) {
+      double averageTemperature = 0.0;
+      double averageDeviation = 0.0;
+      double averagePrecipitation = 0.0;
+      int provinceAmount = 0;
+      for (auto &reg : stratRegion->ardaRegions) {
         for (auto &prov : reg->ardaProvinces) {
           averageDeviation += prov->weatherMonths[i][0];
           averageTemperature += prov->weatherMonths[i][1];
           averagePrecipitation += prov->weatherMonths[i][2];
         }
-        double divisor = (int)reg->ardaProvinces.size();
-        averageDeviation /= divisor;
-        averageTemperature /= divisor;
-        averagePrecipitation /= divisor;
-        // now save monthly data, 0, 1, 2
-        stratRegion->weatherMonths.push_back(
-            {averageDeviation, averageTemperature, averagePrecipitation});
-        // referenceTemperature low, 3
-        stratRegion->weatherMonths[i].push_back(
-            Cfg::Values().minimumDegCelcius +
-            averageTemperature * Cfg::Values().temperatureRange);
-        // tempHigh, 4
-        stratRegion->weatherMonths[i].push_back(
-            Cfg::Values().minimumDegCelcius +
-            averageTemperature * Cfg::Values().temperatureRange +
-            averageDeviation * Cfg::Values().deviationFactor);
-        // light_rain chance: cold and humid -> high, 5
-        stratRegion->weatherMonths[i].push_back(
-            this->modConfig.weatherChances.at("baseLightRainChance") *
-            (1.0 - averageTemperature) * averagePrecipitation);
-        // heavy rain chance: warm and humid -> high, 6
-        stratRegion->weatherMonths[i].push_back(
-            this->modConfig.weatherChances.at("baseHeavyRainChance") *
-            averageTemperature * averagePrecipitation);
-        // mud chance, 7
-        stratRegion->weatherMonths[i].push_back(
-            this->modConfig.weatherChances.at("baseMudChance") *
-            (2.0 * stratRegion->weatherMonths[i][6] +
-             stratRegion->weatherMonths[i][5]));
-        // blizzard chance, 8
-        stratRegion->weatherMonths[i].push_back(
-            std::clamp(this->modConfig.weatherChances.at("baseBlizzardChance") -
-                           averageTemperature,
-                       0.0, 0.2) *
-            averagePrecipitation);
-        // sandstorm chance, 9
-        auto sandChance = std::clamp((averageTemperature - 0.8) *
-                                         this->modConfig.weatherChances.at(
-                                             "baseSandstormChance"),
-                                     0.0, 0.1) *
-                          std::clamp(0.2 - averagePrecipitation, 0.0, 0.2);
-        stratRegion->weatherMonths[i].push_back(sandChance);
-        // snow chance, 10
-        stratRegion->weatherMonths[i].push_back(
-            std::clamp(this->modConfig.weatherChances.at("baseSnowChance") -
-                           averageTemperature,
-                       0.0, 0.2) *
-            averagePrecipitation);
-        // no phenomenon chance, 11
-        stratRegion->weatherMonths[i].push_back(
-            1.0 - stratRegion->weatherMonths[i][5] -
-            stratRegion->weatherMonths[i][6] -
-            stratRegion->weatherMonths[i][8] -
-            stratRegion->weatherMonths[i][9] -
-            stratRegion->weatherMonths[i][10]);
+        provinceAmount += (int)reg->ardaProvinces.size();
       }
+      double divisor = provinceAmount;
+      averageDeviation /= divisor;
+      averageTemperature /= divisor;
+      averagePrecipitation /= divisor;
+      // now save monthly data, 0, 1, 2
+      stratRegion->weatherMonths.push_back(
+          {averageDeviation, averageTemperature, averagePrecipitation});
+      // referenceTemperature low, 3
+      stratRegion->weatherMonths[i].push_back(
+          Cfg::Values().minimumDegCelcius +
+          averageTemperature * Cfg::Values().temperatureRange);
+      // tempHigh, 4
+      stratRegion->weatherMonths[i].push_back(
+          Cfg::Values().minimumDegCelcius +
+          averageTemperature * Cfg::Values().temperatureRange +
+          averageDeviation * Cfg::Values().deviationFactor);
+      // light_rain chance: cold and humid -> high, 5
+      stratRegion->weatherMonths[i].push_back(
+          this->modConfig.weatherChances.at("baseLightRainChance") *
+          (1.0 - averageTemperature) * averagePrecipitation);
+      // heavy rain chance: warm and humid -> high, 6
+      stratRegion->weatherMonths[i].push_back(
+          this->modConfig.weatherChances.at("baseHeavyRainChance") *
+          averageTemperature * averagePrecipitation);
+      // mud chance, 7
+      stratRegion->weatherMonths[i].push_back(
+          this->modConfig.weatherChances.at("baseMudChance") *
+          (2.0 * stratRegion->weatherMonths[i][6] +
+           stratRegion->weatherMonths[i][5]));
+      // blizzard chance, 8
+      stratRegion->weatherMonths[i].push_back(
+          std::clamp(this->modConfig.weatherChances.at("baseBlizzardChance") -
+                         averageTemperature,
+                     0.0, 0.2) *
+          averagePrecipitation);
+      // sandstorm chance, 9
+      auto sandChance = std::clamp((averageTemperature - 0.8) *
+                                       this->modConfig.weatherChances.at(
+                                           "baseSandstormChance"),
+                                   0.0, 0.1) *
+                        std::clamp(0.2 - averagePrecipitation, 0.0, 0.2);
+      stratRegion->weatherMonths[i].push_back(sandChance);
+      // snow chance, 10
+      stratRegion->weatherMonths[i].push_back(
+          std::clamp(this->modConfig.weatherChances.at("baseSnowChance") -
+                         averageTemperature,
+                     0.0, 0.2) *
+          averagePrecipitation);
+      // no phenomenon chance, 11
+      stratRegion->weatherMonths[i].push_back(
+          1.0 - stratRegion->weatherMonths[i][5] -
+          stratRegion->weatherMonths[i][6] - stratRegion->weatherMonths[i][8] -
+          stratRegion->weatherMonths[i][9] - stratRegion->weatherMonths[i][10]);
     }
   }
 }
@@ -1717,20 +1721,33 @@ void Generator::generateCountryUnits() {
       for (auto &divisionTemplate : country->divisionTemplates) {
         auto divisionMaxCost =
             divisionTemplate.armyShare * country->totalArmyStrength;
-        int count = 0;
+        int count = 1;
         while ((divisionMaxCost -= divisionTemplate.cost) > 0) {
           if (eligibleProvinces.size()) {
             Division division;
             division.divisionTemplate = divisionTemplate;
-            division.name = std::to_string(count++);
-            if (count % 10 == 1)
-              division.name += "st";
-            else if (count % 10 == 2)
-              division.name += "nd";
-            else if (count % 10 == 3)
-              division.name += "rd";
-            else
+            division.name = std::to_string(count);
+
+            // Special-case 11, 12, 13
+            int lastTwo = count % 100;
+            if (lastTwo >= 11 && lastTwo <= 13) {
               division.name += "th";
+            } else {
+              switch (count % 10) {
+              case 1:
+                division.name += "st";
+                break;
+              case 2:
+                division.name += "nd";
+                break;
+              case 3:
+                division.name += "rd";
+                break;
+              default:
+                division.name += "th";
+                break;
+              }
+            }
             division.location = Fwg::Utils::selectRandom(eligibleProvinces);
             division.name += " '" + division.location->name + "' " +
                              division.divisionTemplate.name;
@@ -1741,6 +1758,7 @@ void Generator::generateCountryUnits() {
             division.startingExperienceFactor = RandNum::getRandom(0.0, 1.0);
             this->stats.divisionsByType[division.divisionTemplate.type]++;
             country->divisions.push_back(division);
+            count++;
           }
         }
       }
@@ -1858,8 +1876,7 @@ void Generator::generateCountryNavies() {
         carrierTargetTonnage -= randomCarrierShipClass.tonnage;
       }
     }
-    int heavyShipTargetTonnage =
-        carrierTargetTonnage + totalTonnage * battleshipShare;
+    int heavyShipTargetTonnage = totalTonnage * battleshipShare;
     // we randomly select Ship Classes Battleship and Heavy Cruiser
     const std::vector<ShipClass> &battleshipClasses =
         country->shipClasses.at(ShipClassType::BattleShip);
@@ -1893,8 +1910,7 @@ void Generator::generateCountryNavies() {
     }
 
     // now we have to distribute the remaining tonnage to screens
-    int screenTargetTonnage =
-        heavyShipTargetTonnage + totalTonnage * screenShare;
+    int screenTargetTonnage = totalTonnage * screenShare;
     const std::vector<ShipClass> &destroyerClasses =
         country->shipClasses.at(ShipClassType::Destroyer);
     const std::vector<ShipClass> &lightCruiserClasses =
@@ -2110,6 +2126,10 @@ void Generator::generateWorldState() {
 void Generator::generateFocusTrees() {
   Hoi4::FocusGen::evaluateCountryGoals(this->modData.hoi4Countries,
                                        this->ardaRegions);
+}
+
+void Generator::generateRandomDecisions() {
+  Hoi4::DecisionGen::generateDecisions(modData.decisionData, this->ardaRegions);
 }
 
 Arda::ScenarioPosition createPosition(Fwg::Position &position,
@@ -2389,22 +2409,77 @@ void Generator::generateCharacters() {
         "socialite_connections", "staunch_constitutionalist", "gentle_scholar",
         "the_statist", "the_academic"}},
       {Arda::Utils::Ideology::NEUTRALITY,
-       {"cabinet_crisis", "headstrong", "humble", "inexperienced_monarch",
-        "socialite_connections", "staunch_constitutionalist",
-        "celebrity_junta_leader"}},
+       {"cabinet_crisis",
+        "headstrong",
+        "humble",
+        "inexperienced_monarch",
+        "socialite_connections",
+        "staunch_constitutionalist",
+        "celebrity_junta_leader",
+        "he_who_bears_the_throne",
+        "conservative_grandee",
+        "famous_aviator",
+        "first_lady",
+        "rearmer",
+        "staunch_aristocrat",
+        "autocratic_archbishop",
+        "royal_dictator",
+        "right_industrialist",
+        "national_determinist",
+        "noble_beurocrat",
+        "veteran_anti_bolshevik",
+        "agricultural_capitalist",
+        "agricultural_nationalist",
+        "democratic_crusader"}},
       {Arda::Utils::Ideology::FASCISM,
        {"autocratic_imperialist", "collaborator_king", "generallissimo",
         "inexperienced_imperialist", "spirit_of_genghis", "warmonger",
         "the_young_magnate", "polemarch", "archon_basileus", "autokrator",
-        "basileus", "infirm", "celebrity_junta_leader"}},
+        "basileus", "celebrity_junta_leader", "falangist_militarist",
+        "subservient_ultranationalist", "vapsid_economist", "militant_minister",
+        "dictator"}},
       {Arda::Utils::Ideology::COMMUNISM,
        {"political_dancer", "indomitable_perseverance",
-        "mastermind_code_cracker", "polemarch", "infirm",
-        "reluctant_stalinist"}},
+        "mastermind_code_cracker", "polemarch", "reluctant_stalinist",
+        "socialist_autocrat", "leftist_independent", "devoted_marxist",
+        "anti_bolshevik_leftist", "leftist_intellectual", "leftist_legionary",
+        "patriotic_socialist", "marxist_fundamentalist", "socialist_justice",
+        "revolutionary_poet"}},
       {Arda::Utils::Ideology::DEMOCRATIC,
        {"conservative_grandee", "famous_aviator", "first_lady", "rearmer",
         "staunch_constitutionalist", "the_banker", "the_young_magnate",
-        "infirm", "liberal_democratic_paragon"}}};
+        "liberal_democratic_paragon", "leftist_independent",
+        "leftist_legionary", "veteran_minister"}}};
+
+  std::map<Arda::Utils::Ideology, std::vector<std::string>> advisorTraits = {
+      {Arda::Utils::Ideology::NONE,
+       {"headstrong", "humble", "socialite_connections",
+        "staunch_constitutionalist", "gentle_scholar", "the_statist",
+        "the_academic"}},
+      {Arda::Utils::Ideology::NEUTRALITY,
+       {"headstrong", "humble", "socialite_connections",
+        "staunch_constitutionalist", "gentle_scholar", "the_statist",
+        "the_academic", "celebrity_junta_leader", "right_industrialist",
+        "national_determinist", "noble_beurocrat", "veteran_anti_bolshevik",
+        "agricultural_capitalist", "agricultural_nationalist"}},
+      {Arda::Utils::Ideology::FASCISM,
+       {"autocratic_imperialist", "collaborator_king", "generallissimo",
+        "inexperienced_imperialist", "spirit_of_genghis", "warmonger",
+        "the_young_magnate", "polemarch", "archon_basileus", "autokrator",
+        "basileus", "celebrity_junta_leader", "subservient_ultranationalist",
+        "vapsid_economist", "militant_minister"}},
+      {Arda::Utils::Ideology::COMMUNISM,
+       {"political_dancer", "indomitable_perseverance",
+        "mastermind_code_cracker", "polemarch", "reluctant_stalinist",
+        "leftist_independent", "devoted_marxist", "anti_bolshevik_leftist",
+        "leftist_intellectual", "patriotic_socialist", "marxist_fundamentalist",
+        "socialist_justice", "revolutionary_poet"}},
+      {Arda::Utils::Ideology::DEMOCRATIC,
+       {"conservative_grandee", "first_lady", "rearmer",
+        "staunch_constitutionalist", "the_banker", "the_young_magnate",
+        "gentle_scholar", "the_statist", "the_academic",
+        "liberal_democratic_paragon", "leftist_legionary", "veteran_minister",
+        "democratic_crusader"}}};
 
   std::vector<std::string> armyChiefTraits = {
       "army_chief_defensive_",      "army_chief_offensive_",
@@ -2415,12 +2490,12 @@ void Generator::generateCharacters() {
 
   std::vector<std::string> airChiefTraits = {
       "air_chief_reform_",         "air_chief_safety_",
-      "air_chief_old_guard_",      "air_chief_night_operations_",
+      "air_chief_old_guard",       "air_chief_night_operations_",
       "air_chief_ground_support_", "air_chief_all_weather_"};
 
   std::vector<std::string> navyChiefTraits = {
       "navy_chief_naval_aviation_",   "navy_chief_decisive_battle_",
-      "navy_chief_commerce_raiding_", "navy_chief_old_guard_",
+      "navy_chief_commerce_raiding_", "navy_chief_old_guard",
       "navy_chief_reform_",           "navy_chief_maneuver_"};
 
   std::vector<std::string> highCommandTraits = {"navy_anti_submarine_",
@@ -2453,6 +2528,33 @@ void Generator::generateCharacters() {
                                                 "army_radio_intelligence_"};
   std::vector<std::string> theoristTraits = {
       "military_theorist", "naval_theorist", "air_warfare_theorist"};
+
+  std::map<std::string, std::vector<std::string>> politicalAdvisorPortraits = {
+      {"african",
+       {"GFX_idea_Africa_Generic_1",
+        "GFX_idea_South_Africa_Political_Leader_Generic_2",
+        "GFX_idea_South_Africa_Political_Leader_Generic"}},
+      {"asian",
+       {"GFX_idea_Asia_Generic_1", "GFX_idea_Asia_Generic_2",
+        "GFX_idea_Asia_Generic_3"}},
+      {"western_european",
+       {"GFX_idea_Europe_Generic_1", "GFX_idea_Europe_Generic_2",
+        "GFX_idea_Europe_Generic_3"}},
+      {"commonwealth",
+       {"GFX_idea_Europe_Generic_1", "GFX_idea_Europe_Generic_2",
+        "GFX_idea_Europe_Generic_3"}},
+      {"eastern_european",
+       {"GFX_idea_Europe_Generic_1", "GFX_idea_Europe_Generic_2",
+        "GFX_idea_Europe_Generic_3"}},
+      {"middle_eastern",
+       {"GFX_idea_Arabia_Generic_1", "GFX_idea_Arabia_Generic_2",
+        "GFX_idea_Arabia_Generic_3"}},
+      {"southamerican",
+       {"GFX_idea_South_America_Generic_1",
+        "GFX_idea_South_America_Generic_2",
+        "GFX_idea_South_America_Generic_3"}},
+
+  };
 
   Fwg::Utils::Logging::logLine("Hoi4: Generating characters");
   for (auto &country : modData.hoi4Countries) {
@@ -2494,13 +2596,20 @@ void Generator::generateCharacters() {
         usedNames.insert(character.name + " " + character.surname);
         character.ideology = ideology;
         character.type = type;
+        if (character.type == Arda::Type::Politician) {
+          // for politicians, we want to assign a portrait according to the
+          // country's primary culture
+          auto gfxCulture = country->gfxCulture;
+          auto portraits = politicalAdvisorPortraits.at(gfxCulture);
+          character.portraitPath = Fwg::Utils::selectRandom(portraits);
+        }
         if (traits.size()) {
-          if (addLevel) {
+          auto trait = Fwg::Utils::selectRandom(traits);
+          if (addLevel && !trait.contains("old_guard")) {
             int level = RandNum::getRandom(1, 3);
-            character.traits.push_back(Fwg::Utils::selectRandom(traits) +
-                                       std::to_string(level));
+            character.traits.push_back(trait + std::to_string(level));
           } else {
-            character.traits.push_back(Fwg::Utils::selectRandom(traits));
+            character.traits.push_back(trait);
           }
         }
         country->characters.push_back(character);
@@ -2512,7 +2621,7 @@ void Generator::generateCharacters() {
       createCharacter(Arda::Type::Leader, ideology, leaderTraits[ideology], 1);
 
       // 6 Politicians
-      createCharacter(Arda::Type::Politician, ideology, leaderTraits[ideology],
+      createCharacter(Arda::Type::Politician, ideology, advisorTraits[ideology],
                       6);
 
       // 4 Command Generals
@@ -2636,6 +2745,8 @@ void Generator::writeTextFiles() {
                   modData.hoi4States, terrainData.detailedHeightMap);
   Map::weatherPositions(pathcfg.gameModPath + "//map//weatherpositions.txt",
                         areaData.regions, superRegions);
+  Common::commonDecisions(pathcfg.gameModPath + "/common/decisions/",
+                          modData.decisionData);
 
   Countries::commonCountryTags(pathcfg.gameModPath +
                                    "//common//country_tags//02_countries.txt",
@@ -2685,6 +2796,8 @@ void Generator::writeTextFiles() {
 void Generator::writeLocalisation() {
 
   using namespace Parsing::Writing::Localisation;
+  decisionNames(pathcfg.gameModPath + "//localisation//language//",
+                modData.decisionData.decisionNames);
   stateNames(pathcfg.gameModPath + "//localisation//language//",
              modData.hoi4Countries);
   countryNames(pathcfg.gameModPath + "//localisation//language//",
@@ -2774,6 +2887,7 @@ void Generator::generate() {
     // generateFocusTrees();
     distributeVictoryPoints();
     generatePositions();
+    generateRandomDecisions();
 
   } catch (std::exception &e) {
     std::string error = "Error while generating the Hoi4 Module.\n";

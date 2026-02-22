@@ -15,7 +15,13 @@ ImageExporter::ImageExporter(const std::string &gamePath,
       (gamePath + mapFolderName + "//terrain.bmp");
   Image terrain =
       Fwg::IO::Reader::readGenericImage(terrainsourceString, conf, false);
-  colourTables["terrain" + gameTag] = terrain.colourtable;
+  auto colourTable = terrain.colourtable;
+  colourTable.push_back(0);
+  colourTable.push_back(0);
+  colourTable.push_back(0);
+  colourTable.push_back(0);
+  colourTables["terrain" + gameTag] = colourTable;
+
 
   std::string citySource = (gamePath + mapFolderName + "//terrain.bmp");
   Image cities = Fwg::IO::Reader::readGenericImage(citySource, conf, false);
