@@ -42,6 +42,7 @@ struct AirWing {
 struct AirBase {
   int level;
   std::vector<AirWing> wings;
+  int regionID = 0;
   int provinceID = 0;
 };
 

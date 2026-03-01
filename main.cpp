@@ -42,7 +42,7 @@ int main() {
     buffer << f.rdbuf();
     Parsing::replaceInStringStream(buffer, "\\", "//");
     pt::read_json(buffer, metaConf);
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     Utils::Logging::logLine("Incorrect config \"MetaConf.json\"");
     Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                             e.what());
@@ -55,13 +55,16 @@ int main() {
   std::string username = metaConf.get<std::string>("config.username");
   std::string workingDirectory =
       metaConf.get<std::string>("config.workingDirectory");
+  if (!Utils::Paths::validateAndSanitizeWorkingDirectory(workingDirectory)) {
+    return -1;
+  }
   std::string configSubFolder =
       workingDirectory + metaConf.get<std::string>("config.configSubFolder");
   // Create a ptree
   pt::ptree rpdConf;
   try {
-    Fwg::Utils::Logging::logLine(
-        "Starting the loading of ", workingDirectory, "configs//RandomParadox.json");
+    Fwg::Utils::Logging::logLine("Starting the loading of ", workingDirectory,
+                                 "configs//RandomParadox.json");
     // Read the basic settings
     std::ifstream f(workingDirectory + "configs//RandomParadox.json");
     std::stringstream buffer;
@@ -71,7 +74,7 @@ int main() {
     Parsing::replaceInStringStream(buffer, "\\", "//");
 
     pt::read_json(buffer, rpdConf);
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     Utils::Logging::logLine("Incorrect config \"RandomParadox.json\"");
     Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                             e.what());
@@ -91,7 +94,7 @@ int main() {
     Fwg::Utils::Logging::logLine("Starting the loading of ",
                                  configSubFolder + "FastWorldGenerator.json");
     config.readConfig(configSubFolder);
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     Utils::Logging::logLine("Incorrect config \"FastWorldGenerator.json\"");
     Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                             e.what());
@@ -110,7 +113,7 @@ int main() {
     gui2.shiny(rpdConf, configSubFolder, username);
     Fwg::Utils::Logging::logLine("Exited the GUI");
     dumpInfo("", configSubFolder);
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     Utils::Logging::logLine(e.what());
     dumpInfo(e.what(), configSubFolder);
     return -1;

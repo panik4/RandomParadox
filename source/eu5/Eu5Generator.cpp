@@ -330,28 +330,28 @@ void Generator::writeImages() {
   imageExporter.Eu5ColourMaps(terrainData, climateData, ardaData.civLayer,
                               pathcfg.gameModPath + "//in_game//gfx//map//",
                               this->exportWidth / 2, this->exportHeight / 2);
-   //imageExporter.writeLocations(provinceMap, ardaProvinces, ardaRegions,
-   //                             ardaContinents, ardaData.civLayer,
-   //                             pathcfg.gameModPath + "//in_game//map_data//",
-   //                             this->exportWidth, this->exportHeight);
-  // imageExporter.dumpHeightmap(
-  //     terrainData.detailedHeightMap,
-  //     pathcfg.gameModPath + "//in_game//gfx//terrain2//", "",
-  //     this->exportWidth * 4, this->exportHeight * 4);
+   imageExporter.writeLocations(provinceMap, ardaProvinces, ardaRegions,
+                                ardaContinents, ardaData.civLayer,
+                                pathcfg.gameModPath + "//in_game//map_data//",
+                                this->exportWidth, this->exportHeight);
+   imageExporter.dumpHeightmap(
+       terrainData.detailedHeightMap,
+       pathcfg.gameModPath + "//in_game//gfx//terrain2//", "",
+       this->exportWidth * 4, this->exportHeight * 4);
   imageExporter.dumpDecalMasks(
       terrainData, climateData,
       pathcfg.gameModPath + "//in_game//gfx//terrain2//decals//", "",
       this->exportWidth * 2, this->exportHeight * 2);
-  //imageExporter.dumpTerrainMasks(
-  //    terrainData, climateData,
-  //    pathcfg.gameModPath +
-  //        "//in_game//gfx//terrain2//terrain_textures//masks//",
-  //    "", this->exportWidth, this->exportHeight);
+  imageExporter.dumpTerrainMasks(
+      terrainData, climateData,
+      pathcfg.gameModPath +
+          "//in_game//gfx//terrain2//terrain_textures//masks//",
+      "", this->exportWidth, this->exportHeight);
 
-  //imageExporter.mapObjectMasks(
-  //    terrainData, climateData, ardaData.civLayer,
-  //    pathcfg.gameModPath + "//in_game//content_source//map_objects//masks//",
-  //    this->exportWidth, this->exportHeight);
+  imageExporter.mapObjectMasks(
+      terrainData, climateData, ardaData.civLayer,
+      pathcfg.gameModPath + "//in_game//content_source//map_objects//masks//",
+      this->exportWidth, this->exportHeight);
 }
 
 void Generator::writeSplnet() {

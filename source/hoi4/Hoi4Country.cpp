@@ -18,6 +18,7 @@ void Hoi4Country::addAirBase(int level) {
   if (region->airBase == nullptr) {
     region->airBase = std::make_shared<AirBase>();
     region->airBase->level = level;
+    region->airBase->regionID = region->ID;
     // find the building for the airbase
     for (const auto &building : region->buildings) {
       if (building.name == "air_base") {
@@ -25,7 +26,7 @@ void Hoi4Country::addAirBase(int level) {
         break;
       }
     }
-    airBases.insert({region, region->airBase});
+    airBases.push_back(region->airBase);
   } else {
     region->airBase->level += level;
     region->airBase->level = std::min<int>(region->airBase->level, 10);

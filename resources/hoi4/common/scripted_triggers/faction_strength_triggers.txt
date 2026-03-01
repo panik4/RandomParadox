@@ -1,0 +1,35 @@
+# Check if we have significant faction advantage
+has_faction_advantage = {
+	check_variable = { faction_strength_ratio > 1.3 }
+}
+
+# Check if we have overwhelming faction advantage
+has_overwhelming_faction_advantage = {
+	check_variable = { faction_strength_ratio > 2.0 }
+}
+
+# Check if target faction is stronger
+target_faction_stronger = {
+	check_variable = { faction_strength_ratio < 0.8 }
+}
+
+# Check if target faction is much stronger
+target_faction_much_stronger = {
+	check_variable = { faction_strength_ratio < 0.5 }
+}
+
+# Check if factions are roughly equal
+factions_roughly_equal = {
+	check_variable = { faction_strength_ratio > 0.8 }
+	check_variable = { faction_strength_ratio < 1.3 }
+}
+
+# Check if we're significantly stronger (more than 50% advantage)
+has_major_advantage = {
+	check_variable = { faction_strength_ratio > 1.5 }
+}
+
+# Check if we're dominant (3x or more)
+has_dominant_advantage = {
+	check_variable = { faction_strength_ratio > 3.0 }
+}

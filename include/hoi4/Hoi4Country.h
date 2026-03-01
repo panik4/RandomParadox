@@ -59,7 +59,7 @@ public:
   std::map<TechEra, std::vector<Technology>> airTechs;
   std::vector<PlaneVariant> planeVariants;
   std::vector<AirWing> airWings;
-  std::map<std::shared_ptr<Region>, std::shared_ptr<AirBase>> airBases;
+  std::vector<std::shared_ptr<AirBase>> airBases;
   void addAirBase(int level);
 
   // industry

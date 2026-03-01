@@ -420,20 +420,26 @@ void Generator::generateStateResources() {
     const Arda::Utils::ResConfig *config;
     std::vector<float> layer;
   };
+  Fwg::Utils::Randomisation::resetRandomisation();
 
   std::vector<std::future<ResourceGenResult>> futures;
   futures.reserve(modConfig.resConfigs.size());
+  std::vector<int> seeds(modConfig.resConfigs.size());
+  for (const auto &resConfig : modConfig.resConfigs) {
+    seeds.push_back(RandNum::getRandom<int>());
+  }
+
 
   for (const auto &resConfig : modConfig.resConfigs) {
     futures.emplace_back(std::async(
-        std::launch::async, [&resConfig, this]() -> ResourceGenResult {
+        std::launch::async, [&resConfig, this, &seeds]() -> ResourceGenResult {
           std::vector<float> resPrev;
 
           if (resConfig.random) {
             resPrev = Fwg::Resources::randomResourceLayer(
                 resConfig.name, resConfig.noiseConfig.fractalFrequency,
                 resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
-                resConfig.noiseConfig.mountainBonus);
+                resConfig.noiseConfig.mountainBonus, seeds[&resConfig - &modConfig.resConfigs[0]]);
           } else if (resConfig.considerSea) {
             resPrev = Fwg::Resources::coastDependentLayer(
                 resConfig.name, resConfig.oceanFactor, resConfig.lakeFactor,
@@ -467,6 +473,7 @@ void Generator::generateStateResources() {
 
 void Generator::generateStateSpecifics() {
   Fwg::Utils::Logging::logLine("HOI4: Planning the economy");
+  Fwg::Utils::Randomisation::resetRandomisation();
   auto &config = Cfg::Values();
   // calculate the target industry amount
   auto targetWorldIndustry = 2000 * ardaConfig.worldIndustryFactor;
@@ -492,8 +499,6 @@ void Generator::generateStateSpecifics() {
     for (auto &location : hoi4State->locations) {
       if (location->type == Fwg::Civilization::LocationType::Port ||
           location->secondaryType == Fwg::Civilization::LocationType::Port) {
-        std::cout << " Port with importance " << location->importance
-                  << std::endl;
         maxImportance = std::max<double>(maxImportance, location->importance);
       }
     }
@@ -591,6 +596,7 @@ void Generator::generateStateSpecifics() {
 void Generator::generateCountrySpecifics() {
   Fwg::Utils::Logging::logLine("HOI4: Choosing uniforms and electing Tyrants");
 
+  Fwg::Utils::Randomisation::resetRandomisation();
   const std::vector<std::string> caucasianGfxCultures{
       "western_european", "eastern_european", "commonwealth"};
 
@@ -927,6 +933,7 @@ std::vector<int> Generator::extractProvincesFromConnection(
 
 void Generator::generateLogistics() {
   Fwg::Utils::Logging::logLine("HOI4: Building rail networks");
+  Fwg::Utils::Randomisation::resetRandomisation();
   auto &supplyNodeConnections = this->modData.supplyNodeConnections;
   supplyNodeConnections.clear();
   auto width = Cfg::Values().width;
@@ -1385,7 +1392,7 @@ void Generator::generateAirVariants() {
     country->airWings.clear();
     // clear all wings from the countries airbases
     for (auto &airbase : country->airBases) {
-      airbase.second->wings.clear();
+      airbase->wings.clear();
     }
     country->airBases.clear();
 
@@ -1561,7 +1568,7 @@ void Generator::generateAirVariants() {
           wing.name = std::to_string(i) + ". " + country->planeVariants[i].name;
           wing.amount = std::min<int>(country->planeVariants[i].amount, 50);
           auto &randomAirbase = Fwg::Utils::selectRandom(country->airBases);
-          randomAirbase.second->wings.push_back(wing);
+          randomAirbase->wings.push_back(wing);
           country->airWings.push_back(wing);
         }
       }
@@ -2531,28 +2538,33 @@ void Generator::generateCharacters() {
 
   std::map<std::string, std::vector<std::string>> politicalAdvisorPortraits = {
       {"african",
-       {"GFX_idea_Africa_Generic_1",
-        "GFX_idea_South_Africa_Political_Leader_Generic_2",
-        "GFX_idea_South_Africa_Political_Leader_Generic"}},
+       {"GFX_Portrait_Africa_Generic_1_small",
+        "GFX_Portrait_South_Africa_Political_Leader_Generic_2_small",
+        "GFX_Portrait_South_Africa_Political_Leader_Generic_small"}},
       {"asian",
-       {"GFX_idea_Asia_Generic_1", "GFX_idea_Asia_Generic_2",
-        "GFX_idea_Asia_Generic_3"}},
+       {"GFX_Portrait_Asia_Generic_1_small",
+        "GFX_Portrait_Asia_Generic_2_small",
+        "GFX_Portrait_Asia_Generic_3_small"}},
       {"western_european",
-       {"GFX_idea_Europe_Generic_1", "GFX_idea_Europe_Generic_2",
-        "GFX_idea_Europe_Generic_3"}},
+       {"GFX_Portrait_Europe_Generic_1_small",
+        "GFX_Portrait_Europe_Generic_2_small",
+        "GFX_Portrait_Europe_Generic_3_small"}},
       {"commonwealth",
-       {"GFX_idea_Europe_Generic_1", "GFX_idea_Europe_Generic_2",
-        "GFX_idea_Europe_Generic_3"}},
+       {"GFX_Portrait_Europe_Generic_1_small",
+        "GFX_Portrait_Europe_Generic_2_small",
+        "GFX_Portrait_Europe_Generic_3_small"}},
       {"eastern_european",
-       {"GFX_idea_Europe_Generic_1", "GFX_idea_Europe_Generic_2",
-        "GFX_idea_Europe_Generic_3"}},
+       {"GFX_Portrait_Europe_Generic_1_small",
+        "GFX_Portrait_Europe_Generic_2_small",
+        "GFX_Portrait_Europe_Generic_3_small"}},
       {"middle_eastern",
-       {"GFX_idea_Arabia_Generic_1", "GFX_idea_Arabia_Generic_2",
-        "GFX_idea_Arabia_Generic_3"}},
+       {"GFX_Portrait_Arabia_Generic_1_small",
+        "GFX_Portrait_Arabia_Generic_2_small",
+        "GFX_Portrait_Arabia_Generic_3_small"}},
       {"southamerican",
-       {"GFX_idea_South_America_Generic_1",
-        "GFX_idea_South_America_Generic_2",
-        "GFX_idea_South_America_Generic_3"}},
+       {"GFX_Portrait_South_America_Generic_1_small",
+        "GFX_Portrait_South_America_Generic_2_small",
+        "GFX_Portrait_South_America_Generic_3_small"}},
 
   };
 

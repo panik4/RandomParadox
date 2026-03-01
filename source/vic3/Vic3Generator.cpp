@@ -273,7 +273,10 @@ void Generator::distributeResources() {
 
   // distribute arable land to states
   totalArableLand(climateData.arableLand);
-
+  std::vector<int> seeds(vic3Config.resConfigs.size());
+  for (const auto &resConfig : vic3Config.resConfigs) {
+    seeds.push_back(RandNum::getRandom<int>());
+  }
   // config for all resource types
   for (auto &resConfig : vic3Config.resConfigs) {
     std::vector<float> resPrev;
@@ -281,7 +284,7 @@ void Generator::distributeResources() {
       resPrev = Fwg::Resources::randomResourceLayer(
           resConfig.name, resConfig.noiseConfig.fractalFrequency,
           resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
-          resConfig.noiseConfig.mountainBonus);
+          resConfig.noiseConfig.mountainBonus, seeds[&resConfig - &vic3Config.resConfigs[0]]);
     } else if (resConfig.considerSea) {
       resPrev = Fwg::Resources::coastDependentLayer(
           resConfig.name, resConfig.oceanFactor, resConfig.lakeFactor,
@@ -405,7 +408,7 @@ bool Generator::importData(const std::string &path) {
     vic3GameData.buypackages = Vic3::Importing::readBuypackages(
         path + "//common//buy_packages//00_buy_packages.txt",
         vic3GameData.popNeeds);
-    nData.disallowedTokens =
+    nData.originalDisallowedTokens =
         Vic3::Importing::readTags(path + "common//history//countries//");
   } catch (std::exception& e) {
     Fwg::Utils::Logging::logLine("Error: ", e.what());

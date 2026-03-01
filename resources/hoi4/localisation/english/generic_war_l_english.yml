@@ -1,0 +1,26 @@
+﻿l_english:
+ generic_war.1.t:0 "The Faction Is at War"
+ generic_war.1.d:0 "Our faction leader, [Root.faction_leader.GetNameDef], is engaged in a major conflict against [event_target:war_target.GetNameDef]. As members of [Root.GetFactionName], we are expected to contribute to the war effort. Should we answer the call to arms?"
+ generic_war.1.a:0 "We stand with our allies"
+ generic_war.1.b:0 "This is not our fight"
+ 
+ generic_war.2.t:0 "We Need Our Allies"
+ generic_war.2.d:0 "Our war against [event_target:common_enemy.GetNameDef] grows more difficult each day. [event_target:potential_ally.GetNameDef], our fellow member of [Root.GetFactionName], has yet to commit forces. Perhaps we should formally request their assistance."
+ generic_war.2.a:0 "Request their support"
+ generic_war.2.b:0 "We can manage on our own"
+ 
+ generic_war.3.t:0 "[From.GetNameDef] Requests Our Aid"
+ generic_war.3.d:0 "[From.GetNameDef], our ally in [Root.GetFactionName], has requested our assistance in their war against [event_target:common_enemy.GetNameDef]. They argue that as fellow faction members, we have an obligation to stand together. Should we honor this request?"
+ generic_war.3.a:0 "We will fight alongside them"
+ generic_war.3.b:0 "We cannot commit at this time"
+ 
+ generic_war.4.t:0 "[From.GetNameDef] Joins the Fight"
+ generic_war.4.d:0 "Excellent news! [From.GetNameDef] has agreed to join our war effort against [event_target:common_enemy.GetNameDef]. With their support, victory is within reach."
+ generic_war.4.a:0 "Together we are stronger"
+ 
+ generic_war.5.t:0 "[From.GetNameDef] Refuses"
+ generic_war.5.d:0 "[From.GetNameDef] has declined to join our war against [event_target:common_enemy.GetNameDef]. We will have to continue the fight without their support."
+ generic_war.5.a:0 "Disappointing"
+ 
+ refused_call_to_arms:0 "Refused Call to Arms"
+ came_to_our_aid:0 "Came to Our Aid"

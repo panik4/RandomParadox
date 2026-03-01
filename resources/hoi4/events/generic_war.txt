@@ -1,0 +1,376 @@
+add_namespace = generic_war
+
+# Call to Arms - Join Faction's War
+country_event = {
+	id = generic_war.1
+	title = generic_war.1.t
+	desc = generic_war.1.d
+	picture = GFX_report_event_soldiers_marching
+	
+	trigger = {
+		is_in_faction = yes
+		NOT = { has_war = yes }
+		is_subject = no
+		
+		# Our faction leader is at war
+		faction_leader = {
+			has_war = yes
+			
+			# Fighting against a major threat
+			any_enemy_country = {
+				OR = {
+					is_major = yes
+					is_in_faction = yes
+				}
+			}
+		}
+		
+		# We have some military capability
+		has_army_manpower = {
+			size > 50000
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 60
+		
+		modifier = {
+			factor = 0.5
+			faction_leader = {
+				surrender_progress > 0.2
+			}
+		}
+		
+		modifier = {
+			factor = 0.7
+			has_war_support > 0.5
+		}
+		
+		modifier = {
+			factor = 1.5
+			has_war_support < 0.3
+		}
+		
+		modifier = {
+			factor = 0.6
+			has_idea = war_economy
+		}
+		
+		modifier = {
+			factor = 0.8
+			has_idea = partial_economic_mobilisation
+		}
+	}
+	
+	immediate = {
+		# Find a suitable target from faction leader's enemies
+		faction_leader = {
+			random_enemy_country = {
+				limit = {
+					OR = {
+						is_major = yes
+						is_in_faction = yes
+						num_of_factories > 20
+					}
+					NOT = { has_war_with = ROOT }
+				}
+				save_event_target_as = war_target
+			}
+		}
+	}
+	
+	# Answer the call to arms
+	option = {
+		name = generic_war.1.a
+		ai_chance = {
+			factor = 80
+			
+			modifier = {
+				factor = 1.5
+				faction_leader = {
+					surrender_progress > 0.2
+				}
+			}
+			
+			modifier = {
+				factor = 1.3
+				has_war_support > 0.5
+			}
+			
+			modifier = {
+				factor = 0.5
+				has_war_support < 0.2
+			}
+			
+			modifier = {
+				factor = 1.2
+				has_idea = war_economy
+			}
+		}
+		
+		# Create wargoal against faction leader's enemy
+		create_wargoal = {
+			type = take_state_focus
+			target = event_target:war_target
+			generator = { 5 }
+		}
+		
+		add_war_support = 0.05
+		add_political_power = -50
+	}
+	
+	# Refuse to participate
+	option = {
+		name = generic_war.1.b
+		ai_chance = {
+			factor = 20
+			
+			modifier = {
+				factor = 3.0
+				has_war_support < 0.2
+			}
+			
+			modifier = {
+				factor = 2.0
+				has_stability < 0.4
+			}
+		}
+		
+		add_stability = 0.03
+		
+		# Faction leader is displeased
+		faction_leader = {
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = refused_call_to_arms
+			}
+		}
+	}
+}
+
+# Faction Member Requests Support
+country_event = {
+	id = generic_war.2
+	title = generic_war.2.t
+	desc = generic_war.2.d
+	picture = GFX_report_event_military_planning
+	
+	trigger = {
+		is_in_faction = yes
+		NOT = { is_faction_leader = yes }
+		has_war = yes
+		
+		# We have faction members not in our wars
+		any_other_country = {
+			is_in_faction_with = ROOT
+			NOT = { has_war_with = ROOT }
+			NOT = { has_war = yes }
+			is_subject = no
+		}
+		
+		# We're fighting someone significant
+		any_enemy_country = {
+			OR = {
+				is_major = yes
+				is_in_faction = yes
+				num_of_factories > 30
+			}
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 90
+		
+		modifier = {
+			factor = 0.5
+			surrender_progress > 0.3
+		}
+		
+		modifier = {
+			factor = 0.7
+			enemies_strength_ratio > 1.2
+		}
+		
+		modifier = {
+			factor = 1.5
+			enemies_strength_ratio < 0.7
+		}
+	}
+	
+	immediate = {
+		# Select a faction member to ask for help
+		random_other_country = {
+			limit = {
+				is_in_faction_with = ROOT
+				NOT = { has_war_with = ROOT }
+				NOT = { has_war = yes }
+				is_subject = no
+			}
+			save_event_target_as = potential_ally
+		}
+		
+		# Select an enemy to target
+		random_enemy_country = {
+			limit = {
+				OR = {
+					is_major = yes
+					is_in_faction = yes
+					num_of_factories > 30
+				}
+			}
+			save_event_target_as = common_enemy
+		}
+	}
+	
+	# Request assistance
+	option = {
+		name = generic_war.2.a
+		ai_chance = {
+			factor = 90
+			
+			modifier = {
+				factor = 1.5
+				surrender_progress > 0.3
+			}
+		}
+		
+		event_target:potential_ally = {
+			country_event = { id = generic_war.3 days = 2 }
+		}
+		
+		add_political_power = -25
+	}
+	
+	# We fight alone for now
+	option = {
+		name = generic_war.2.b
+		ai_chance = {
+			factor = 10
+		}
+		
+		add_war_support = 0.03
+	}
+}
+
+# Ally Requests Our Support in War
+country_event = {
+	id = generic_war.3
+	title = generic_war.3.t
+	desc = generic_war.3.d
+	picture = GFX_report_event_soldiers_in_france
+	
+	is_triggered_only = yes
+	
+	# Join their war
+	option = {
+		name = generic_war.3.a
+		ai_chance = {
+			factor = 70
+			
+			modifier = {
+				factor = 1.5
+				FROM = {
+					surrender_progress > 0.3
+				}
+			}
+			
+			modifier = {
+				factor = 1.3
+				has_war_support > 0.4
+			}
+			
+			modifier = {
+				factor = 0.4
+				has_war_support < 0.2
+			}
+			
+			modifier = {
+				factor = 1.4
+				FROM = {
+					is_faction_leader = yes
+				}
+			}
+		}
+		
+		# Create wargoal against their enemy
+		create_wargoal = {
+			type = take_state_focus
+			target = event_target:common_enemy
+			generator = { 5 }
+		}
+		
+		FROM = {
+			country_event = { id = generic_war.4 days = 1 }
+		}
+		
+		add_war_support = 0.03
+		add_political_power = -75
+	}
+	
+	# Decline to help
+	option = {
+		name = generic_war.3.b
+		ai_chance = {
+			factor = 30
+			
+			modifier = {
+				factor = 3.0
+				has_war_support < 0.2
+			}
+			
+			modifier = {
+				factor = 2.0
+				has_stability < 0.3
+			}
+		}
+		
+		FROM = {
+			country_event = { id = generic_war.5 days = 1 }
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = refused_call_to_arms
+			}
+		}
+		
+		add_stability = 0.02
+	}
+}
+
+# Ally Agrees to Join
+country_event = {
+	id = generic_war.4
+	title = generic_war.4.t
+	desc = generic_war.4.d
+	picture = GFX_report_event_generic_sign_treaty3
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = generic_war.4.a
+		
+		add_opinion_modifier = {
+			target = FROM
+			modifier = came_to_our_aid
+		}
+		
+		add_war_support = 0.05
+		add_stability = 0.03
+	}
+}
+
+# Ally Refuses to Join
+country_event = {
+	id = generic_war.5
+	title = generic_war.5.t
+	desc = generic_war.5.d
+	picture = GFX_report_event_generic_read_write
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = generic_war.5.a
+		
+		add_stability = -0.03
+		add_war_support = -0.02
+	}
+}

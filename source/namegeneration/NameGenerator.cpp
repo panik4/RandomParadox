@@ -31,7 +31,7 @@ Arda::Names::NameData prepare(const std::string &path,
   auto additionalForbidden = Fwg::Parsing::getLines(
       Fwg::Cfg::Values().resourcePath + "hoi4//history//forbidden_tags.txt");
   for (const auto &tag : additionalForbidden)
-    nameData.disallowedTokens.insert(tag);
+    nameData.originalDisallowedTokens.insert(tag);
 
   if (gameType == GameType::Hoi4 && std::filesystem::exists(path)) {
     Detail::readMap(path + "//state_types.txt", nameData.ideologyNames);
@@ -41,7 +41,7 @@ Arda::Names::NameData prepare(const std::string &path,
       if (gamePath.size() && std::filesystem::exists(gamePath)) {
         const auto forbiddenTags = IO::loadForbiddenTags(gamePath);
         for (const auto &tag : forbiddenTags)
-          nameData.disallowedTokens.insert(tag);
+          nameData.originalDisallowedTokens.insert(tag);
       } else {
         Fwg::Utils::Logging::logLine(
             "ERROR: Path to game does not exist, can't load forbidden tags");
