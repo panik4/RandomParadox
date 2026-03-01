@@ -1,0 +1,483 @@
+add_namespace = faction_alignment
+
+# Under Threat - Seek Protection
+country_event = {
+	id = faction_alignment.1
+	title = faction_alignment.1.t
+	desc = faction_alignment.1.d
+	picture = GFX_report_event_generic_sign_treaty2
+	
+	trigger = {
+		is_subject = no
+		NOT = { is_in_faction = yes }
+		NOT = { has_war = yes }
+		any_neighbor_country = {
+			NOT = { has_government = ROOT }
+			OR = {
+				has_war_support > 0.5
+				has_idea = war_economy
+				has_idea = partial_economic_mobilisation
+			}
+			NOT = { is_in_faction_with = ROOT }
+			strength_ratio = {
+				tag = ROOT
+				ratio > 1.2
+			}
+		}
+		any_other_country = {
+			is_faction_leader = yes
+			has_government = ROOT
+			NOT = { has_war_with = ROOT }
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 120
+		
+		modifier = {
+			factor = 0.7
+			any_neighbor_country = {
+				has_wargoal_against = ROOT
+			}
+		}
+		
+		modifier = {
+			factor = 0.5
+			any_neighbor_country = {
+				has_war_with = ROOT
+			}
+		}
+		
+		modifier = {
+			factor = 0.8
+			has_defensive_war = yes
+		}
+	}
+	
+	# Seek their protection
+	option = {
+		name = faction_alignment.1.a
+		ai_chance = {
+			factor = 80
+			
+			modifier = {
+				factor = 1.5
+				any_neighbor_country = {
+					has_wargoal_against = ROOT
+				}
+			}
+			
+			modifier = {
+				factor = 2.0
+				has_defensive_war = yes
+			}
+		}
+		
+		random_other_country = {
+			limit = {
+				is_faction_leader = yes
+				has_government = ROOT
+				NOT = { has_war_with = ROOT }
+			}
+			country_event = { id = faction_alignment.2 days = 1 }
+			save_event_target_as = potential_faction_leader
+		}
+		
+		add_political_power = -50
+	}
+	
+	# We stand alone
+	option = {
+		name = faction_alignment.1.b
+		ai_chance = {
+			factor = 20
+		}
+		
+		add_stability = 0.03
+		add_war_support = 0.05
+	}
+}
+
+# Request to Join Faction
+country_event = {
+	id = faction_alignment.2
+	title = faction_alignment.2.t
+	desc = faction_alignment.2.d
+	picture = GFX_report_event_generic_sign_treaty1
+	
+	is_triggered_only = yes
+	
+	# Accept them
+	option = {
+		name = faction_alignment.2.a
+		ai_chance = {
+			factor = 70
+			
+			modifier = {
+				factor = 1.5
+				FROM = {
+					any_neighbor_country = {
+						has_wargoal_against = FROM
+					}
+				}
+			}
+			
+			modifier = {
+				factor = 2.0
+				FROM = {
+					has_defensive_war = yes
+				}
+			}
+			
+			modifier = {
+				factor = 0.5
+				FROM = {
+					surrender_progress > 0.5
+				}
+			}
+		}
+		
+		add_to_faction = FROM
+		FROM = {
+			country_event = { id = faction_alignment.3 days = 1 }
+		}
+	}
+	
+	# Decline
+	option = {
+		name = faction_alignment.2.b
+		ai_chance = {
+			factor = 30
+		}
+		
+		FROM = {
+			country_event = { id = faction_alignment.4 days = 1 }
+		}
+	}
+}
+
+# Accepted into Faction
+country_event = {
+	id = faction_alignment.3
+	title = faction_alignment.3.t
+	desc = faction_alignment.3.d
+	picture = GFX_report_event_generic_sign_treaty3
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = faction_alignment.3.a
+		
+		add_stability = 0.05
+		add_political_power = 50
+	}
+}
+
+# Rejected from Faction
+country_event = {
+	id = faction_alignment.4
+	title = faction_alignment.4.t
+	desc = faction_alignment.4.d
+	picture = GFX_report_event_generic_read_write
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = faction_alignment.4.a
+		
+		add_stability = -0.05
+		add_political_power = -25
+	}
+}
+
+# Expansionist Ambitions - Fascist
+country_event = {
+	id = faction_alignment.5
+	title = faction_alignment.5.t
+	desc = faction_alignment.5.d
+	picture = GFX_report_event_fascist_speech
+	
+	trigger = {
+		has_government = fascism
+		is_subject = no
+		NOT = { is_in_faction = yes }
+		NOT = { has_war = yes }
+		OR = {
+			has_war_support > 0.4
+			has_idea = partial_economic_mobilisation
+			has_idea = war_economy
+		}
+		any_other_country = {
+			is_faction_leader = yes
+			has_government = fascism
+			NOT = { has_war_with = ROOT }
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 240
+		
+		modifier = {
+			factor = 0.7
+			has_war_support > 0.6
+		}
+		
+		modifier = {
+			factor = 0.6
+			has_idea = war_economy
+		}
+		
+		modifier = {
+			factor = 0.8
+			any_neighbor_country = {
+				NOT = { has_government = fascism }
+				NOT = { is_in_faction_with = ROOT }
+			}
+		}
+		
+		modifier = {
+			factor = 1.5
+			has_stability > 0.7
+		}
+	}
+	
+	# Join forces with our ideological allies
+	option = {
+		name = faction_alignment.5.a
+		ai_chance = {
+			factor = 75
+			
+			modifier = {
+				factor = 1.3
+				has_war_support > 0.6
+			}
+			
+			modifier = {
+				factor = 1.2
+				has_idea = war_economy
+			}
+		}
+		
+		random_other_country = {
+			limit = {
+				is_faction_leader = yes
+				has_government = fascism
+				NOT = { has_war_with = ROOT }
+			}
+			country_event = { id = faction_alignment.6 days = 1 }
+			save_event_target_as = potential_faction_leader
+		}
+		
+		add_political_power = -75
+		add_war_support = 0.05
+	}
+	
+	# We forge our own path
+	option = {
+		name = faction_alignment.5.b
+		ai_chance = {
+			factor = 25
+		}
+		
+		add_stability = 0.05
+		add_political_power = 50
+	}
+}
+
+# Expansionist Request - Fascist
+country_event = {
+	id = faction_alignment.6
+	title = faction_alignment.6.t
+	desc = faction_alignment.6.d
+	picture = GFX_report_event_fascist_gathering
+	
+	is_triggered_only = yes
+	
+	# Welcome them
+	option = {
+		name = faction_alignment.6.a
+		ai_chance = {
+			factor = 80
+			
+			modifier = {
+				factor = 1.3
+				FROM = {
+					has_war_support > 0.6
+				}
+			}
+			
+			modifier = {
+				factor = 1.2
+				FROM = {
+					army_strength_ratio = {
+						tag = ROOT
+						ratio > 0.3
+					}
+				}
+			}
+		}
+		
+		add_to_faction = FROM
+		FROM = {
+			country_event = { id = faction_alignment.3 days = 1 }
+		}
+	}
+	
+	# They are not worthy
+	option = {
+		name = faction_alignment.6.b
+		ai_chance = {
+			factor = 20
+		}
+		
+		FROM = {
+			country_event = { id = faction_alignment.4 days = 1 }
+		}
+	}
+}
+
+# Expansionist Ambitions - Communist
+country_event = {
+	id = faction_alignment.7
+	title = faction_alignment.7.t
+	desc = faction_alignment.7.d
+	picture = GFX_report_event_iww_demonstration
+	
+	trigger = {
+		has_government = communism
+		is_subject = no
+		NOT = { is_in_faction = yes }
+		NOT = { has_war = yes }
+		OR = {
+			has_war_support > 0.4
+			has_idea = partial_economic_mobilisation
+			has_idea = war_economy
+		}
+		any_other_country = {
+			is_faction_leader = yes
+			has_government = communism
+			NOT = { has_war_with = ROOT }
+		}
+	}
+	
+	mean_time_to_happen = {
+		days = 240
+		
+		modifier = {
+			factor = 0.7
+			has_war_support > 0.6
+		}
+		
+		modifier = {
+			factor = 0.6
+			has_idea = war_economy
+		}
+		
+		modifier = {
+			factor = 0.8
+			any_neighbor_country = {
+				NOT = { has_government = communism }
+				NOT = { is_in_faction_with = ROOT }
+			}
+		}
+		
+		modifier = {
+			factor = 1.5
+			has_stability > 0.7
+		}
+	}
+	
+	# Unite with our comrades
+	option = {
+		name = faction_alignment.7.a
+		ai_chance = {
+			factor = 75
+			
+			modifier = {
+				factor = 1.3
+				has_war_support > 0.6
+			}
+			
+			modifier = {
+				factor = 1.2
+				has_idea = war_economy
+			}
+		}
+		
+		random_other_country = {
+			limit = {
+				is_faction_leader = yes
+				has_government = communism
+				NOT = { has_war_with = ROOT }
+			}
+			country_event = { id = faction_alignment.8 days = 1 }
+			save_event_target_as = potential_faction_leader
+		}
+		
+		add_political_power = -75
+		add_war_support = 0.05
+	}
+	
+	# We pursue our own revolution
+	option = {
+		name = faction_alignment.7.b
+		ai_chance = {
+			factor = 25
+		}
+		
+		add_stability = 0.05
+		add_political_power = 50
+	}
+}
+
+# Expansionist Request - Communist
+country_event = {
+	id = faction_alignment.8
+	title = faction_alignment.8.t
+	desc = faction_alignment.8.d
+	picture = GFX_report_event_worker_protests
+	
+	is_triggered_only = yes
+	
+	# Accept them into the fold
+	option = {
+		name = faction_alignment.8.a
+		ai_chance = {
+			factor = 80
+			
+			modifier = {
+				factor = 1.3
+				FROM = {
+					has_war_support > 0.6
+				}
+			}
+			
+			modifier = {
+				factor = 1.2
+				FROM = {
+					army_strength_ratio = {
+						tag = ROOT
+						ratio > 0.3
+					}
+				}
+			}
+		}
+		
+		add_to_faction = FROM
+		FROM = {
+			country_event = { id = faction_alignment.3 days = 1 }
+		}
+	}
+	
+	# They do not meet our standards
+	option = {
+		name = faction_alignment.8.b
+		ai_chance = {
+			factor = 20
+		}
+		
+		FROM = {
+			country_event = { id = faction_alignment.4 days = 1 }
+		}
+	}
+}

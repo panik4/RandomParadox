@@ -9,8 +9,7 @@ std::vector<double> shiftedGaussian(double input) {
   double stdDev = 0.1 + input * 5.0; // Scale std deviation between 0.1 and 2.1
 
   // Create a random number generator
-  std::random_device rd;
-  std::mt19937 gen(rd());
+  std::mt19937 gen(Fwg::Cfg::Values().mapSeed);
   std::normal_distribution<double> distribution(mean, stdDev);
 
   // Generate 15 values representing the distribution at each integer value

@@ -355,18 +355,6 @@ void commonDecisions(const std::string &path,
 
   resourceContent.append("}\n");
   pU::writeFile(path + "resource_prospecting.txt", resourceContent);
-
-
-
-
-
-
-
-
-
-
-
-
 }
 } // namespace Common
 
@@ -508,6 +496,7 @@ void commonNames(const std::string &path, const CountryMap &countries) {
                    "hoi4//common//names//countryNamesTemplate.txt");
   auto content = pU::readFile(Fwg::Cfg::Values().resourcePath +
                               "hoi4//common//names//00_names.txt");
+
   // gather a list of male, female and surnames, dependent on the cultures
   // and their share in the country
   std::map<std::string, std::vector<std::string>> names;
@@ -515,12 +504,23 @@ void commonNames(const std::string &path, const CountryMap &countries) {
   std::string femaleNames = "";
   std::string surnames = "";
   for (auto &country : countries) {
+
+    // gather a culture vector and sort it by share in the country to guarantee
+    // deterministic output
+    std::vector<std::pair<std::shared_ptr<Arda::Culture>, double>>
+        cultureShares;
+    for (auto &culture : country->cultures) {
+      cultureShares.push_back({culture.first, culture.second});
+    }
+    std::sort(cultureShares.begin(), cultureShares.end(),
+              [](const auto &a, const auto &b) { return a.second > b.second; });
+
     if (!country->cultures.size() || !country->ownedRegions.size()) {
       continue;
     }
 
     auto nameTemplate = countryNamesTemplate;
-    for (auto &culture : country->cultures) {
+    for (auto &culture : cultureShares) {
       // get the share of the culture in the country
       auto share =
           std::min<double>(culture.second / country->getTotalPopulation(), 1.0);
@@ -1055,13 +1055,13 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     std::string airbases = "";
     // for every airbase, for every wing, write the wing file
     for (auto &airbase : country->airBases) {
-      if (airbase.second->wings.empty())
+      if (airbase->wings.empty())
         continue;
       std::string airbaseFile = baseAirbaseFile;
       std::string wings = "";
       Rpx::Parsing::replaceOccurences(airbaseFile, "templateStateID",
-                                      std::to_string(airbase.first->ID + 1));
-      for (auto &wing : airbase.second->wings) {
+                                      std::to_string(airbase->regionID + 1));
+      for (auto &wing : airbase->wings) {
         std::string wingFile = baseWingFile;
         Rpx::Parsing::replaceOccurences(wingFile, "templateName",
                                         wing.variant.name);
@@ -1632,14 +1632,15 @@ void compatibilityNationalFocus(const std::string &path,
 
 namespace Localisation {
 
-void decisionNames(const std::string &path, const std::map<std::string, std::string> & decisionNames) {
+void decisionNames(const std::string &path,
+                   const std::map<std::string, std::string> &decisionNames) {
   Logging::logLine("HOI4 Parser: Localisation: Writing Decision Names");
   std::string content = "l_language:\n";
   for (auto &decision : decisionNames) {
     content += " " + decision.first + ":0 \"" + decision.second + "\"\n";
   }
-  Detail::localisationWrite(path + "rpx_decisions_l_language.yml", content, true);
-
+  Detail::localisationWrite(path + "rpx_decisions_l_language.yml", content,
+                            true);
 }
 
 void countryNames(const std::string &path, const CountryMap &countries,

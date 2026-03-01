@@ -102,7 +102,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
     CreateDeviceGL("RandomParadox 0.10.1", 0, 0);
 
     setWindowIcon(window, Fwg::Cfg::Values().workingDirectory +
-                              "//resources//worldMap.png");
+                              "resources/worldMap.png");
     uiUtils->setupImGuiContextAndStyle();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 450");
@@ -295,7 +295,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
 void GUI::loadConfigs() {
   configSubfolders.clear();
   for (const auto &entry : std::filesystem::directory_iterator(
-           Fwg::Cfg::Values().workingDirectory + "//configs")) {
+           Fwg::Cfg::Values().workingDirectory + "configs")) {
     if (entry.is_directory() && !entry.path().string().contains("heightmap")) {
       configSubfolders.push_back(entry.path().string());
       Fwg::Utils::Logging::logLine(entry);

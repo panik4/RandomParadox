@@ -1,0 +1,38 @@
+﻿l_english:
+ faction_alignment.1.t:0 "Growing Threat from [From.GetNameDef]"
+ faction_alignment.1.d:0 "Our neighbor [From.GetNameDef] grows increasingly aggressive and their military might far exceeds our own. Intelligence suggests they view us as a potential target. We may need to seek protection from like-minded nations before it is too late."
+ faction_alignment.1.a:0 "Reach out to potential allies"
+ faction_alignment.1.b:0 "We will defend ourselves"
+ 
+ faction_alignment.2.t:0 "[From.GetNameDef] Seeks Protection"
+ faction_alignment.2.d:0 "[From.GetNameDef] has approached us requesting membership in our faction. They face significant threats from hostile neighbors and believe alignment with us is their best chance for survival. Should we grant them the protection of our alliance?"
+ faction_alignment.2.a:0 "Welcome them into the fold"
+ faction_alignment.2.b:0 "We cannot take on this burden"
+ 
+ faction_alignment.3.t:0 "Accepted into [From.GetFactionName]"
+ faction_alignment.3.d:0 "Our request has been accepted! We are now members of [From.GetFactionName]. With the backing of [From.GetNameDef] and their allies, we can face our enemies with confidence."
+ faction_alignment.3.a:0 "Excellent news!"
+ 
+ faction_alignment.4.t:0 "Request Denied"
+ faction_alignment.4.d:0 "[From.GetNameDef] has rejected our request to join their faction. We remain alone in the face of our enemies. We must find another way to secure our survival."
+ faction_alignment.4.a:0 "So be it"
+ 
+ faction_alignment.5.t:0 "Expansionist Ambitions"
+ faction_alignment.5.d:0 "Our nation stands ready to expand its influence and spread our ideology across the world. However, we need not do this alone. There are other fascist powers who share our vision. By joining forces with them, we can achieve our goals more effectively."
+ faction_alignment.5.a:0 "Together we will reshape the world"
+ faction_alignment.5.b:0 "We need no one else"
+ 
+ faction_alignment.6.t:0 "[From.GetNameDef] Seeks Alliance"
+ faction_alignment.6.d:0 "[From.GetNameDef] has expressed interest in joining our faction to pursue expansionist goals. They are mobilized and ready for conflict. Adding them to our alliance would strengthen our position considerably."
+ faction_alignment.6.a:0 "Their strength will serve our cause"
+ faction_alignment.6.b:0 "We have no need of them"
+ 
+ faction_alignment.7.t:0 "Spreading the Revolution"
+ faction_alignment.7.d:0 "The revolution must spread beyond our borders, but we need not fight alone. Other communist nations share our vision for a worker's paradise. By uniting with them in a common front, we can accelerate the inevitable triumph of communism."
+ faction_alignment.7.a:0 "The workers of the world must unite!"
+ faction_alignment.7.b:0 "We chart our own revolutionary path"
+ 
+ faction_alignment.8.t:0 "[From.GetNameDef] Requests to Join"
+ faction_alignment.8.d:0 "[From.GetNameDef] wishes to join our faction to advance the cause of international communism. They are prepared for struggle and would add strength to our revolutionary alliance. Shall we accept them?"
+ faction_alignment.8.a:0 "Comrades are always welcome"
+ faction_alignment.8.b:0 "Their revolution is not aligned with ours"

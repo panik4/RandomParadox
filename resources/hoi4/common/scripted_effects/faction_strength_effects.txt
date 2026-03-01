@@ -1,0 +1,176 @@
+# Calculate faction strength comparison
+# Requires event_target:comparison_target to be set
+calculate_faction_strength_ratio = {
+	# Initialize variables
+	set_variable = { our_faction_strength = 0 }
+	set_variable = { target_faction_strength = 0 }
+	set_variable = { faction_strength_ratio = 1 }
+	
+	# Temporary variables for calculations
+	set_variable = { temp_strength = 0 }
+	set_variable = { temp_factories = 0 }
+	set_variable = { temp_divisions = 0 }
+	set_variable = { temp_manpower = 0 }
+	
+	# Calculate our faction strength
+	if = {
+		limit = { is_in_faction = yes }
+		every_country = {
+			limit = { is_in_faction_with = ROOT }
+			
+			# Calculate combined strength for this country
+			# Factories (weight: 2.0)
+			set_temp_variable = { temp_factories = num_of_factories }
+			multiply_temp_variable = { temp_factories = 2 }
+			
+			# Divisions (weight: 1.0)
+			set_temp_variable = { temp_divisions = num_divisions }
+			
+			# Manpower (weight: 0.5, divided by 1000 first)
+			set_temp_variable = { temp_manpower = manpower }
+			divide_temp_variable = { temp_manpower = 1000 }
+			multiply_temp_variable = { temp_manpower = 0.5 }
+			
+			# Combine
+			set_temp_variable = { temp_strength = temp_factories }
+			add_to_temp_variable = { temp_strength = temp_divisions }
+			add_to_temp_variable = { temp_strength = temp_manpower }
+			
+			# Add to ROOT's faction total
+			ROOT = {
+				add_to_variable = { our_faction_strength = PREV.temp_strength }
+			}
+		}
+	}
+	else = {
+		# Not in faction - calculate our own strength
+		# Factories (weight: 2.0)
+		set_temp_variable = { temp_factories = num_of_factories }
+		multiply_temp_variable = { temp_factories = 2 }
+		
+		# Divisions (weight: 1.0)
+		set_temp_variable = { temp_divisions = num_divisions }
+		
+		# Manpower (weight: 0.5, divided by 1000 first)
+		set_temp_variable = { temp_manpower = manpower }
+		divide_temp_variable = { temp_manpower = 1000 }
+		multiply_temp_variable = { temp_manpower = 0.5 }
+		
+		# Combine
+		set_variable = { our_faction_strength = temp_factories }
+		add_to_variable = { our_faction_strength = temp_divisions }
+		add_to_variable = { our_faction_strength = temp_manpower }
+	}
+	
+	# Calculate target's faction strength
+	if = {
+		limit = { 
+			event_target:comparison_target = { is_in_faction = yes }
+		}
+		every_country = {
+			limit = { 
+				is_in_faction_with = event_target:comparison_target
+			}
+			
+			# Calculate combined strength for this country
+			# Factories (weight: 2.0)
+			set_temp_variable = { temp_factories = num_of_factories }
+			multiply_temp_variable = { temp_factories = 2 }
+			
+			# Divisions (weight: 1.0)
+			set_temp_variable = { temp_divisions = num_divisions }
+			
+			# Manpower (weight: 0.5, divided by 1000 first)
+			set_temp_variable = { temp_manpower = manpower }
+			divide_temp_variable = { temp_manpower = 1000 }
+			multiply_temp_variable = { temp_manpower = 0.5 }
+			
+			# Combine
+			set_temp_variable = { temp_strength = temp_factories }
+			add_to_temp_variable = { temp_strength = temp_divisions }
+			add_to_temp_variable = { temp_strength = temp_manpower }
+			
+			# Add to ROOT's target faction total
+			ROOT = {
+				add_to_variable = { target_faction_strength = PREV.temp_strength }
+			}
+		}
+	}
+	else = {
+		# Target not in faction - calculate their strength
+		# Factories (weight: 2.0)
+		set_temp_variable = { temp_factories = event_target:comparison_target.num_of_factories }
+		multiply_temp_variable = { temp_factories = 2 }
+		
+		# Divisions (weight: 1.0)
+		set_temp_variable = { temp_divisions = event_target:comparison_target.num_divisions }
+		
+		# Manpower (weight: 0.5, divided by 1000 first)
+		set_temp_variable = { temp_manpower = event_target:comparison_target.manpower }
+		divide_temp_variable = { temp_manpower = 1000 }
+		multiply_temp_variable = { temp_manpower = 0.5 }
+		
+		# Combine
+		set_variable = { target_faction_strength = temp_factories }
+		add_to_variable = { target_faction_strength = temp_divisions }
+		add_to_variable = { target_faction_strength = temp_manpower }
+	}
+	
+	# Calculate ratio (prevent division by zero)
+	if = {
+		limit = { check_variable = { target_faction_strength > 0 } }
+		set_variable = { faction_strength_ratio = our_faction_strength }
+		divide_variable = { faction_strength_ratio = target_faction_strength }
+	}
+	
+	# Clean up temporary variables
+	clear_variable = temp_strength
+	clear_variable = temp_factories
+	clear_variable = temp_divisions
+	clear_variable = temp_manpower
+}
+
+# Alternative version using manpower instead of factories
+calculate_faction_manpower_ratio = {
+	set_variable = { our_faction_manpower = 0 }
+	set_variable = { target_faction_manpower = 0 }
+	set_variable = { faction_manpower_ratio = 1 }
+	
+	if = {
+		limit = { is_in_faction = yes }
+		every_country = {
+			limit = { is_in_faction_with = ROOT }
+			ROOT = {
+				add_to_variable = { our_faction_manpower = PREV.manpower }
+			}
+		}
+	}
+	else = {
+		set_variable = { our_faction_manpower = manpower }
+	}
+	
+	if = {
+		limit = { 
+			event_target:comparison_target = { is_in_faction = yes }
+		}
+		every_country = {
+			limit = { 
+				is_in_faction_with = event_target:comparison_target
+			}
+			ROOT = {
+				add_to_variable = { target_faction_manpower = PREV.manpower }
+			}
+		}
+	}
+	else = {
+		set_variable = { 
+			target_faction_manpower = event_target:comparison_target.manpower 
+		}
+	}
+	
+	if = {
+		limit = { check_variable = { target_faction_manpower > 0 } }
+		set_variable = { faction_manpower_ratio = our_faction_manpower }
+		divide_variable = { faction_manpower_ratio = target_faction_manpower }
+	}
+}

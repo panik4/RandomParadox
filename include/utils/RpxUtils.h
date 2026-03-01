@@ -19,6 +19,7 @@ struct Pathcfg {
 inline void sanitizePath(std::string &path) {
   Rpx::Parsing::replaceOccurences(path, "\\", "/");
   Fwg::Parsing::attachTrailing(path);
+  Rpx::Parsing::replaceOccurences(path, "//", "/");
 }
 // try to find parent directory of where the mod should be
 inline bool validateModFolder(const Pathcfg &pathcfg) {
@@ -50,8 +51,7 @@ inline bool findGame(std::string &path, const std::string &game,
                      const std::string &gameSubPath) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
-  std::vector<std::string> drives{"C:/", "D:/", "E:/",
-                                  "F:/", "G:/", "H:/"};
+  std::vector<std::string> drives{"C:/", "D:/", "E:/", "F:/", "G:/", "H:/"};
   // first try to find hoi4 at the configured location
   if (exists(path) && path.find(game) != std::string::npos) {
     Logging::logLine("Located game under ", path);
@@ -137,6 +137,7 @@ inline bool autoLocateGameModFolder(const std::string &game, Pathcfg &pathcfg) {
 
 #if defined(_WIN32)
   std::string home = getEnvVar("USERPROFILE");
+  sanitizePath(home);
 #elif defined(__APPLE__) || defined(__linux__)
   std::string home = getEnvVar("HOME");
 #else
@@ -148,27 +149,58 @@ inline bool autoLocateGameModFolder(const std::string &game, Pathcfg &pathcfg) {
     return false;
   }
 
-  std::string autoPath =
-      home + "/Documents/Paradox Interactive/" + game + "/mod/";
+  // Step 1: Try to find the Paradox Interactive game directory
+  std::string paradoxGamePath =
+      home + "/Documents/Paradox Interactive/" + game + "/";
 
-  if (exists(autoPath)) {
-    pathcfg.gameModsDirectory = autoPath;
-    Rpx::Utils::sanitizePath(pathcfg.gameModsDirectory);
-
-    Logging::logLine("Auto located game mod directory is ",
-                     Fwg::Utils::userFilter(pathcfg.gameModsDirectory,
-                                            Fwg::Cfg::Values().username));
-
-    pathcfg.gameModPath = autoPath + pathcfg.modName;
-    Rpx::Utils::sanitizePath(pathcfg.gameModPath);
-
-    Logging::logLine("Auto located mod directory is ",
-                     Fwg::Utils::userFilter(pathcfg.gameModPath,
-                                            Fwg::Cfg::Values().username));
-    return true;
+  if (!exists(paradoxGamePath)) {
+    Logging::logLine(
+        "Unable to locate Paradox Interactive game directory at ",
+        Fwg::Utils::userFilter(paradoxGamePath, Fwg::Cfg::Values().username));
+    return false;
   }
 
-  return false;
+  Logging::logLine(
+      "Located Paradox Interactive game directory at ",
+      Fwg::Utils::userFilter(paradoxGamePath, Fwg::Cfg::Values().username));
+
+  // Step 2: Create mod folder if it doesn't exist
+  std::string autoPath = paradoxGamePath + "mod/";
+
+  if (!exists(autoPath)) {
+    Logging::logLine(
+        "Mod folder does not exist, creating it at ",
+        Fwg::Utils::userFilter(autoPath, Fwg::Cfg::Values().username));
+    try {
+      create_directories(autoPath);
+      Logging::logLine(
+          "Successfully created mod folder at ",
+          Fwg::Utils::userFilter(autoPath, Fwg::Cfg::Values().username));
+    } catch (const std::filesystem::filesystem_error &e) {
+      Logging::logLine("Failed to create mod folder: ", e.what());
+      return false;
+    }
+  } else {
+    Logging::logLine(
+        "Mod folder already exists at ",
+        Fwg::Utils::userFilter(autoPath, Fwg::Cfg::Values().username));
+  }
+  sanitizePath(autoPath);
+  // Set the paths
+  pathcfg.gameModsDirectory = autoPath;
+  Rpx::Utils::sanitizePath(pathcfg.gameModsDirectory);
+
+  Logging::logLine("Auto located game mod directory is ",
+                   Fwg::Utils::userFilter(pathcfg.gameModsDirectory,
+                                          Fwg::Cfg::Values().username));
+
+  pathcfg.gameModPath = autoPath + pathcfg.modName;
+  Rpx::Utils::sanitizePath(pathcfg.gameModPath);
+
+  Logging::logLine(
+      "Auto located mod directory is ",
+      Fwg::Utils::userFilter(pathcfg.gameModPath, Fwg::Cfg::Values().username));
+  return true;
 }
 
 // reads generic configs for every module
