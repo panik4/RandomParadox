@@ -302,7 +302,7 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
   }
   auto mipmapWorkingWidth = exportWidth / 2;
   auto mipmapWorkingHeight = exportHeight / 2;
-  auto scaledHmap = Fwg::Utils::scaleBufferWithInterpolation(
+  auto scaledHmap = Fwg::Utils::Containers::scaleBufferWithInterpolation(
       hmapCopy, workingWidth, workingHeight, mipmapWorkingWidth,
       mipmapWorkingHeight);
 
@@ -311,7 +311,7 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
   int i = 0;
   for (auto &tile : tiles) {
     i++;
-    auto scaledTile = Fwg::Utils::scaleBufferWithInterpolation(
+    auto scaledTile = Fwg::Utils::Containers::scaleBufferWithInterpolation(
         tile, mipmapWorkingWidth / 4, mipmapWorkingHeight / 4, exportWidth / 8,
         exportHeight / 8);
     std::string num = std::to_string(i);
@@ -397,7 +397,7 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
           // --------------------------------------------------
           // 1. Upscale CENTER tile to 128x128
           // --------------------------------------------------
-          auto center = Fwg::Utils::scaleBufferWithInterpolation(
+          auto center = Fwg::Utils::Containers::scaleBufferWithInterpolation(
               d2TileGrid[srcRow][srcCol], tileSizeX, tileSizeY, baseTileSize,
               baseTileSize);
 
@@ -418,7 +418,7 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
           // LEFT
           // --------------------------------------------------
           if (hasLeft) {
-            auto left = Fwg::Utils::scaleBufferWithInterpolation(
+            auto left = Fwg::Utils::Containers::scaleBufferWithInterpolation(
                 d2TileGrid[srcRow][srcCol - 1], tileSizeX, tileSizeY,
                 baseTileSize, baseTileSize);
 
@@ -434,7 +434,7 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
           // RIGHT
           // --------------------------------------------------
           if (hasRight) {
-            auto right = Fwg::Utils::scaleBufferWithInterpolation(
+            auto right = Fwg::Utils::Containers::scaleBufferWithInterpolation(
                 d2TileGrid[srcRow][srcCol + 1], tileSizeX, tileSizeY,
                 baseTileSize, baseTileSize);
 
@@ -451,7 +451,7 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
           // TOP (north)
           // --------------------------------------------------
           if (hasTop) {
-            auto top = Fwg::Utils::scaleBufferWithInterpolation(
+            auto top = Fwg::Utils::Containers::scaleBufferWithInterpolation(
                 d2TileGrid[srcRow + 1][srcCol], tileSizeX, tileSizeY,
                 baseTileSize, baseTileSize);
 
@@ -467,7 +467,7 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
           // BOTTOM (south)
           // --------------------------------------------------
           if (hasBottom) {
-            auto bottom = Fwg::Utils::scaleBufferWithInterpolation(
+            auto bottom = Fwg::Utils::Containers::scaleBufferWithInterpolation(
                 d2TileGrid[srcRow - 1][srcCol], tileSizeX, tileSizeY,
                 baseTileSize, baseTileSize);
 
@@ -483,7 +483,7 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
           // BOTTOM-RIGHT corner
           // --------------------------------------------------
           if (hasBottom && hasRight) {
-            auto br = Fwg::Utils::scaleBufferWithInterpolation(
+            auto br = Fwg::Utils::Containers::scaleBufferWithInterpolation(
                 d2TileGrid[srcRow - 1][srcCol + 1], tileSizeX, tileSizeY,
                 baseTileSize, baseTileSize);
 
@@ -566,8 +566,8 @@ Fwg::Gfx::Image ImageExporter::dumpDecalMasks(
     const Fwg::Climate::ClimateData &climateData, const std::string &path,
     const std::string &colourMapKey, int exportWidth, int exportHeight) const {
   auto imageHumidity = climateData.humidities;
-  Fwg::Utils::normalizeVector(imageHumidity, 0.0f, 255.0f);
-  auto scaledHeightmap = Fwg::Utils::scaleBufferWithInterpolation(
+  Fwg::Utils::Containers::normalizeVector(imageHumidity, 0.0f, 255.0f);
+  auto scaledHeightmap = Fwg::Utils::Containers::scaleBufferWithInterpolation(
       imageHumidity, Fwg::Cfg::Values().width, Fwg::Cfg::Values().height,
       exportWidth, exportHeight);
   FastNoiseLite noiseGenerator;
@@ -676,7 +676,7 @@ Fwg::Gfx::Image ImageExporter::dumpTerrainMasks(
   };
 
   auto imageHumidity = climateData.humidities;
-  Fwg::Utils::normalizeVector(imageHumidity, 0.0f, 255.0f);
+  Fwg::Utils::Containers::normalizeVector(imageHumidity, 0.0f, 255.0f);
   for (int i = 0; i < 50; i++) {
     FastNoiseLite noiseGenerator;
     noiseGenerator.SetSeed(i);
@@ -690,7 +690,7 @@ Fwg::Gfx::Image ImageExporter::dumpTerrainMasks(
     auto treeNoiseMap =
         Noise::genNoise(noiseGenerator, Fwg::Cfg::Values().width,
                         Fwg::Cfg::Values().height, 0.0, 0.0, 0, 255, 0.0, true);
-    auto scaledHeightmap = Fwg::Utils::scaleBufferWithInterpolation(
+    auto scaledHeightmap = Fwg::Utils::Containers::scaleBufferWithInterpolation(
         treeNoiseMap, Fwg::Cfg::Values().width, Fwg::Cfg::Values().height,
         exportWidth, exportHeight);
     Fwg::Gfx::Png::save(
@@ -710,7 +710,7 @@ void ImageExporter::Eu5ColourMaps(
 
   auto &config = Cfg::Values();
   auto altitude = terrainData.detailedHeightMap;
-  auto scaledHeightmap = Fwg::Utils::scaleBufferWithInterpolation(
+  auto scaledHeightmap = Fwg::Utils::Containers::scaleBufferWithInterpolation(
       altitude, Fwg::Cfg::Values().width, Fwg::Cfg::Values().height,
       exportWidth, exportHeight);
   int factor = 1;
@@ -784,7 +784,7 @@ void ImageExporter::mapObjectMasks(
   for (int i = 0; i < climateData.forestTypes.size(); i++) {
     auto treeCoverType = climateData.forestTypes[i];
     auto forestDensity =
-        static_cast<float>(climateData.forestDensity[i]) / 255.0f;
+        static_cast<float>(climateData.forestDensity[i]);
     switch (treeCoverType) {
     case Fwg::Climate::Detail::ForestType::TROPICALMOIST: {
       denseJungleMask->setColourAtIndex(i, 255.0f * forestDensity);
@@ -947,7 +947,7 @@ void ImageExporter::writeLocations(
     } else if (province->isLake()) {
       locationTemplates.append(lakeText + "\n");
       lakeZones.append(provName + "\n");
-    } else if (province->coastal) {
+    } else if (province->isCoastalToOcean()) {
       locationTemplates.append(coastalText + "\n");
     } else {
       locationTemplates.append(landText + "\n");
@@ -970,7 +970,7 @@ void ImageExporter::writeLocations(
   // neighbouring province that is sea
   std::string oceanPortTemplate = "LandProvince;SeaZone;x;y;\n";
   for (auto &province : provinces) {
-    if (!province->coastal) {
+    if (!province->isCoastalToOcean()) {
       continue;
     }
     auto coastalProvName = "prov_" + std::to_string(province->ID);

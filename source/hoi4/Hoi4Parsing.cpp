@@ -130,7 +130,7 @@ void definition(
   std::string content{"0;0;0;0;land;false;unknown;0\n"};
   for (const auto &prov : provinces) {
     auto seaType = prov->isSea() ? "sea" : "land";
-    auto coastal = prov->coastal ? "true" : "false";
+    auto coastal = prov->isCoastalToOcean() ? "true" : "false";
     if (prov->isSea()) {
       for (auto prov2 : prov->neighbours) {
         if (!prov2->isSea())
@@ -300,10 +300,10 @@ void weatherPositions(
 
   for (auto i = 0; i < strategicRegions.size(); i++) {
     // const auto &region =
-    //     Fwg::Utils::selectRandom(strategicRegions[i]->ardaRegions);
-    // const auto prov = Fwg::Utils::selectRandom(region->provinces);
+    //     Fwg::Utils::Random::selectRandom(strategicRegions[i]->ardaRegions);
+    // const auto prov = Fwg::Utils::Random::selectRandom(region->provinces);
     // const auto pix =
-    // Fwg::Utils::selectRandom(prov->getPixelsForManipulation());
+    // Fwg::Utils::Random::selectRandom(prov->getPixelsForManipulation());
     const auto pix = strategicRegions[i]->position.weightedCenter;
     auto widthPos = pix % Cfg::Values().width;
     auto heightPos = pix / Cfg::Values().width;
@@ -460,7 +460,7 @@ void commonCharacters(const std::string &path, const CountryMap &countries) {
                                       slotTypes[character.type]);
       Rpx::Parsing::replaceOccurences(
           characterText, "templateIdeology",
-          Fwg::Utils::selectRandom(ideologyMap[character.ideology]));
+          Fwg::Utils::Random::selectRandom(ideologyMap[character.ideology]));
 
       std::string traits = "";
       for (const auto &trait : character.traits) {
@@ -1397,11 +1397,11 @@ void events(const std::string &path) {
 
   Logging::logLine("HOI4 Parser: Map: Writing events");
   std::filesystem::path sourceEvents =
-      Fwg::Cfg::Values().resourcePath + "hoi4//events";
+      Fwg::Cfg::Values().resourcePath + "hoi4/events";
   try {
 
     // Copy ai_areas folder
-    std::filesystem::copy(sourceEvents, path + "//events",
+    std::filesystem::copy(sourceEvents, path + "/events",
                           std::filesystem::copy_options::recursive);
   } catch (const std::filesystem::filesystem_error &e) {
     Logging::logLine("HOI4 Parser: Error copying Events: " +
@@ -1463,15 +1463,17 @@ void commonBookmarks(
                                   "templateMinorTAG=", bookmarkCountries);
   pU::writeFile(path + "the_gathering_storm.txt", bookmarkTemplate);
 }
-
+void scriptedEffects(std::string resources, std::string modPath) {
+  Fwg::Utils::Logging::logLine("HOI4 Parser: Scripted Effects: Copying Files");
+  // copy all files from resources to modPath
+  std::filesystem::copy(resources, modPath,
+                        std::filesystem::copy_options::overwrite_existing);
+}
 void scriptedTriggers(std::string resources, std::string modPath) {
   Fwg::Utils::Logging::logLine("HOI4 Parser: Scripted Triggers: Copying Files");
-  // copy files from gamePath to modPath
-  std::vector<std::string> filenames{"ROM_scripted_triggers.txt"};
-  for (const auto &filename : filenames) {
-    std::filesystem::copy(resources + filename, modPath + filename,
-                          std::filesystem::copy_options::overwrite_existing);
-  }
+  // copy all files from resources to modPath
+  std::filesystem::copy(resources, modPath,
+                        std::filesystem::copy_options::overwrite_existing);
 }
 // filter out simple to filter blocks from the common folder, removing
 // potential error sources from vanilla countries
@@ -1563,10 +1565,10 @@ void compatibilityHistory(
     }
     // now find the token "1939.1.1" and remove every bracket block that starts
     // with it
-
     pU::writeFile(path + filename, content);
   }
 }
+
 void copyDescriptorFile(const std::string &sourcePath,
                         const std::string &destPath,
                         const std::string &modsDirectory,
@@ -1710,8 +1712,35 @@ void victoryPointNames(const std::string &path,
                             true);
 }
 
-} // namespace Localisation
+void predefinedLocalisation(const std::string &path) {
+  // take folder from path/localisation/english, and copy it to all languages in
+  // path/localisation, replacing the language in the filename with the language
+  // of the folder
+  Logging::logLine(
+      "HOI4 Parser: Localisation: Copying Predefined Localisation");
+  std::filesystem::path sourceDir{Fwg::Cfg::Values().resourcePath +
+                                  "/hoi4/localisation/english/"};
 
+  for (const auto &dir_entry : std::filesystem::directory_iterator{sourceDir}) {
+    std::string pathString = dir_entry.path().string();
+    std::string filename = dir_entry.path().filename().string();
+    if (filename[0] == '.')
+      continue;
+    const auto content = pU::readFile(pathString);
+    for (const auto &language : std::vector<std::string>{
+             "braz_por", "english", "french", "german", "japanese", "korean",
+             "polish", "russian", "simp_chinese", "spanish"}) {
+      auto newFilename =
+          std::regex_replace(filename, std::regex("l_english"), language);
+      // also replace the language in the content, if it is specified in the
+      // content
+      auto modifiedContent =
+          std::regex_replace(content, std::regex("l_english"), "l_" + language);
+      pU::writeFile(path + language + "/" + newFilename, modifiedContent, true);
+    }
+  }
+}
+} // namespace Localisation
 } // namespace Writing
 
 namespace Reading {
@@ -1948,7 +1977,7 @@ void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
         p->areaType = Areas::AreaType::Lake;
       }
       if (p->isLake()) {
-        p->coastal = false;
+        p->areaTypeAdjacency = Fwg::Areas::AreaTypeAdjacencyFlags::None;
       }
       p->continent->ID = stoi(tokens[7]) - 1;
       areaData.provinceColourMap.setValue(p->colour, p);

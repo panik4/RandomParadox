@@ -143,7 +143,7 @@ void Generator::mapCountries() {}
 void Generator::initImageExporter() {
   formatConverter = Gfx::Eu4::ImageExporter(pathcfg.gamePath, "Eu4");
 }
-void Generator::writeTextFiles() {}
+void Generator::writeTextFiles(bool scenarioDetails) {}
 void Generator::writeImages() {}
 void Generator::generate() {
   if (!createPaths())

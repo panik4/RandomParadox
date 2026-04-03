@@ -5,20 +5,20 @@ getRandomRegion(const std::shared_ptr<Rpx::Hoi4::Hoi4Country> &country) {
   if (country->hoi4Regions.empty()) {
     return nullptr;
   }
-  return Fwg::Utils::selectRandom(country->hoi4Regions);
+  return Fwg::Utils::Random::selectRandom(country->hoi4Regions);
 }
 std::shared_ptr<Rpx::Hoi4::Region> getRandomCoastalRegion(
     const std::shared_ptr<Rpx::Hoi4::Hoi4Country> &country) {
   std::vector<std::shared_ptr<Rpx::Hoi4::Region>> coastalRegions;
   for (auto &region : country->hoi4Regions) {
-    if (region->coastal) {
+    if (region->isCoastalToOcean()) {
       coastalRegions.push_back(region);
     }
   }
   if (coastalRegions.empty()) {
     return nullptr;
   }
-  return Fwg::Utils::selectRandom(coastalRegions);
+  return Fwg::Utils::Random::selectRandom(coastalRegions);
 }
 std::shared_ptr<Rpx::Hoi4::Hoi4Country> getOpposingIdeologyNeighbour(
     const Hoi4Country &country,

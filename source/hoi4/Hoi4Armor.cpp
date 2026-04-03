@@ -13,7 +13,7 @@ std::string getBestTurretType(
     if (tankVariant.subType == ArmorRole::TankDestroyer) {
       return "tank_light_fixed_superstructure_turret";
     }
-    return Fwg::Utils::selectRandom(lightTurretTypes);
+    return Fwg::Utils::Random::selectRandom(lightTurretTypes);
   }
   std::vector<std::string> mediumTurretTypes = {
       "tank_medium_one_man_tank_turret", "tank_medium_two_man_tank_turret",
@@ -23,7 +23,7 @@ std::string getBestTurretType(
     if (tankVariant.subType == ArmorRole::TankDestroyer) {
       return "tank_medium_fixed_superstructure_turret";
     }
-    return Fwg::Utils::selectRandom(mediumTurretTypes);
+    return Fwg::Utils::Random::selectRandom(mediumTurretTypes);
   }
   std::vector<std::string> heavyTurretTypes = {
       "tank_heavy_two_man_tank_turret", "tank_heavy_three_man_tank_turret",
@@ -32,7 +32,7 @@ std::string getBestTurretType(
     if (tankVariant.subType == ArmorRole::TankDestroyer) {
       return "tank_heavy_fixed_superstructure_turret";
     }
-    return Fwg::Utils::selectRandom(heavyTurretTypes);
+    return Fwg::Utils::Random::selectRandom(heavyTurretTypes);
   }
 
   return "empty";
@@ -53,7 +53,7 @@ std::string getBestSuitedGun(
   }
   if (tankVariant.type == ArmorType::LightArmor) {
     if (tankVariant.subType == ArmorRole::Tank) {
-      return Fwg::Utils::selectRandom(lightGuns);
+      return Fwg::Utils::Random::selectRandom(lightGuns);
     } else if (tankVariant.subType == ArmorRole::TankDestroyer) {
       return "tank_high_velocity_cannon";
     } else if (tankVariant.subType == ArmorRole::AntiAir) {
@@ -96,7 +96,7 @@ std::string getBestEngineType(
                                                 "tank_diesel_engine",
                                                 "tank_petrol_electric_engine"};
   // return a random armor type
-  return Fwg::Utils::selectRandom(engineTypes);
+  return Fwg::Utils::Random::selectRandom(engineTypes);
 }
 
 std::string getBestSuitedArmorType(
@@ -113,7 +113,7 @@ std::string getBestSuitedArmorType(
     }
   }
   // return a random armor type
-  return Fwg::Utils::selectRandom(armorTypes);
+  return Fwg::Utils::Random::selectRandom(armorTypes);
 }
 
 std::string getBestSuitedSuspensionType(
@@ -124,7 +124,7 @@ std::string getBestSuitedSuspensionType(
       "tank_christie_suspension", "tank_bogie_suspension",
       "tank_interleaved_suspension", "tank_torsion_bar_suspension"};
   // return a random suspension type
-  return Fwg::Utils::selectRandom(suspensionTypes);
+  return Fwg::Utils::Random::selectRandom(suspensionTypes);
 }
 
 std::string getBestSuitedAdditionalModules(
@@ -135,7 +135,7 @@ std::string getBestSuitedAdditionalModules(
   if (wantAdditionalTurret) {
     std::vector<std::string> moduleTypes = {"secondary_turret_hmg",
                                             "secondary_turret_small_cannon"};
-    return Fwg::Utils::selectRandom(moduleTypes);
+    return Fwg::Utils::Random::selectRandom(moduleTypes);
 
   } else {
     std::vector<std::string> moduleTypes = {
@@ -154,7 +154,7 @@ std::string getBestSuitedAdditionalModules(
                       tankVariant.nsbModules.at(specialSlotName)));
       }
     }
-    return Fwg::Utils::selectRandom(moduleTypes);
+    return Fwg::Utils::Random::selectRandom(moduleTypes);
   }
 
   return "empty";

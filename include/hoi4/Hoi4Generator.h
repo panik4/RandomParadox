@@ -179,7 +179,7 @@ public:
   virtual void generate();
   virtual void initImageExporter();
   void writeLocalisation();
-  virtual void writeTextFiles();
+  virtual void writeTextFiles(bool scenarioDetails);
   virtual void writeImages();
   const Gfx::Hoi4::ImageExporter &getImageExporter() const {
     return imageExporter;

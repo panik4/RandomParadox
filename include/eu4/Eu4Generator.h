@@ -36,7 +36,7 @@ public:
 
   virtual void generate();
   virtual void initImageExporter();
-  virtual void writeTextFiles();
+  virtual void writeTextFiles(bool scenarioDetails);
   virtual void writeImages();
 };
 } // namespace Rpx::Eu4

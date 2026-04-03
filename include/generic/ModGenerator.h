@@ -31,7 +31,7 @@ public:
 
   virtual void generate() = 0;
   virtual void initImageExporter() = 0;
-  virtual void writeTextFiles() = 0;
+  virtual void writeTextFiles(bool scenarioDetails) = 0;
   virtual void writeImages() = 0;
 
 }; // namespace Rpx

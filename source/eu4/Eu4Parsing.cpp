@@ -103,9 +103,9 @@ void writeClimate(const std::string &path,
     auto maxPrecipitation = 0.0;
     for (const auto &temp : province->weatherMonths) {
       // find min and max temperatures
-      Fwg::Utils::switchIfComparator(temp[1], minTemp, std::less());
-      Fwg::Utils::switchIfComparator(temp[1], maxTemp, std::greater());
-      Fwg::Utils::switchIfComparator(temp[2], maxPrecipitation, std::greater());
+      Fwg::Utils::Math::switchIfComparator(temp[1], minTemp, std::less());
+      Fwg::Utils::Math::switchIfComparator(temp[1], maxTemp, std::greater());
+      Fwg::Utils::Math::switchIfComparator(temp[2], maxPrecipitation, std::greater());
     }
     if (minTemp < 0.1)
       severe_winter.append(provID + " ");

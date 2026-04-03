@@ -4,7 +4,7 @@ namespace Rpx::Hoi4::Effects {
 void constructEffects(std::vector<EffectGrouping> &effectGroupings,
                       std::shared_ptr<Hoi4Country> &country) {
   // randomly select one of the effectGroupings
-  auto effectGrouping = Fwg::Utils::selectRandom(effectGroupings);
+  auto effectGrouping = Fwg::Utils::Random::selectRandom(effectGroupings);
   // we need to clear the effectGroupings, and then add the new effects
   effectGroupings.clear();
   for (auto &effect : effectGrouping.effects) {
@@ -31,7 +31,7 @@ void constructEffects(std::vector<EffectGrouping> &effectGroupings,
             newParameters.push_back(part);
           }
           // we not determine randomly which parameter to use
-          auto &selectedParameter = Fwg::Utils::selectRandom(newParameters);
+          auto &selectedParameter = Fwg::Utils::Random::selectRandom(newParameters);
           // now we overwrite it
           subParam = selectedParameter;
         }
@@ -61,7 +61,7 @@ void constructEffects(std::vector<EffectGrouping> &effectGroupings,
                 "oil",    "steel",    "tungsten", "aluminium",
                 "rubber", "chromium", "coal"};
             // we need to select a random resource
-            auto selectedResource = Fwg::Utils::selectRandom(resources);
+            auto selectedResource = Fwg::Utils::Random::selectRandom(resources);
             subParam = selectedResource;
           } else if (subParam == "faction_name") {
             subParam = country->tag + "faction";

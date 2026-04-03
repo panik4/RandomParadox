@@ -19,7 +19,7 @@ void generateResourceDecisions(
     for (int i = 0; i < numDecisions / 7; ++i) {
       std::string decision = resourceTemplate;
 
-      const auto region = Fwg::Utils::selectRandom(ardaRegions);
+      const auto region = Fwg::Utils::Random::selectRandom(ardaRegions);
       // already have a decision for this resource in this state, skip
       if (stateResourceDecisions.contains(region->ID) &&
           stateResourceDecisions.at(region->ID).count(resource))

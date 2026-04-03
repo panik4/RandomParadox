@@ -141,7 +141,7 @@ Fwg::Gfx::Image Generator::mapTerrain() {
   const auto &climateMap = this->climateMap;
   Image typeMap(climateMap.width(), climateMap.height(), 24);
   for (auto &prov : areaData.provinces) {
-    prov->calculateTerrainType(terrainData);
+    prov->calculateAreaType(terrainData.landFormIds);
     prov->calculateClimateType(climateData);
   }
 
@@ -302,7 +302,7 @@ void Generator::generate() {
   try {
     writeSplnet();
     // now write the files
-    writeTextFiles();
+    writeTextFiles(true);
     //  generate map files. Format must be converted and colours mapped to vic3
     //  compatible colours
     writeImages();
@@ -317,7 +317,7 @@ void Generator::generate() {
   printStatistics();
 }
 
-void Generator::writeTextFiles() {
+void Generator::writeTextFiles(bool scenarioDetails) {
   using namespace Parsing::Writing;
 
   writeMetadata(pathcfg.gameModPath + "//.metadata//metadata.json");
