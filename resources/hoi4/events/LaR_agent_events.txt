@@ -1,4 +1,4 @@
-﻿add_namespace = lar_operative_event
+add_namespace = lar_operative_event
 
 #operative event - operative captured
 operative_leader_event = {

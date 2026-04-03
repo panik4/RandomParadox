@@ -22,7 +22,7 @@ getBuilding(const std::string &type, const Fwg::Areas::Province &prov,
     while (!done) {
       done = true;
       coastalAttempts++;
-      pix = Fwg::Utils::selectRandom(prov.coastalPixels);
+      pix = Fwg::Utils::Random::selectRandom(prov.coastalPixels);
       std::vector<int> neighbourPix = {pix - 1, pix + 1,
                                        pix + Fwg::Cfg::Values().width,
                                        pix - Fwg::Cfg::Values().width};
@@ -60,7 +60,7 @@ getBuilding(const std::string &type, const Fwg::Areas::Province &prov,
       }
     }
   } else {
-    pix = Fwg::Utils::selectRandom(prov.pixels);
+    pix = Fwg::Utils::Random::selectRandom(prov.pixels);
   }
   auto widthPos = pix % Fwg::Cfg::Values().width;
   auto heightPos = pix / Fwg::Cfg::Values().width;
@@ -80,15 +80,15 @@ getBuilding(const std::string &type,
             int relativeID = 0) {
   auto pix = 0;
   Arda::Utils::Building building;
-  auto prov = Fwg::Utils::selectRandom(provinces);
+  auto prov = Fwg::Utils::Random::selectRandom(provinces);
   if (coastal) {
-    while (!prov->coastal)
-      prov = Fwg::Utils::selectRandom(provinces);
-    pix = Fwg::Utils::selectRandom(prov->coastalPixels);
+    while (!prov->isCoastalToOcean())
+      prov = Fwg::Utils::Random::selectRandom(provinces);
+    pix = Fwg::Utils::Random::selectRandom(prov->coastalPixels);
   } else {
     while (prov->isLake())
-      prov = Fwg::Utils::selectRandom(provinces);
-    pix = Fwg::Utils::selectRandom(prov->pixels);
+      prov = Fwg::Utils::Random::selectRandom(provinces);
+    pix = Fwg::Utils::Random::selectRandom(prov->pixels);
   }
   auto widthPos = pix % Fwg::Cfg::Values().width;
   auto heightPos = pix / Fwg::Cfg::Values().width;
@@ -105,13 +105,10 @@ void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
   if (!this->isLand())
     return;
   buildings.clear();
-  bool coastal = false;
   for (const auto &prov : provinces) {
-    if (prov->coastal)
-      coastal = true;
     // add supply node buildings for each province
-    buildings.push_back(
-        getBuilding("supply_node", this->provinces, coastal, heightmap));
+    buildings.push_back(getBuilding("supply_node", this->provinces,
+                                    isCoastalToOcean(), heightmap));
   }
   for (const auto &type : buildingTypes) {
     if (type == "arms_factory" || type == "industrial_complex") {
@@ -140,8 +137,8 @@ void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
     } else if (type == "coastal_bunker" || type == "naval_base_spawn") {
       for (const auto &prov : provinces) {
         std::shared_ptr<Fwg::Civilization::Location> port = nullptr;
-        if (prov->coastal) {
-          auto pix = Fwg::Utils::selectRandom(prov->coastalPixels);
+        if (prov->isCoastalToOcean()) {
+          auto pix = Fwg::Utils::Random::selectRandom(prov->coastalPixels);
           int ID = 0;
           if (type == "naval_base_spawn") {
             for (const auto &loc : prov->locations) {
@@ -158,7 +155,7 @@ void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
               for (const auto &neighbour : prov->neighbours)
                 if (neighbour->isSea() && !neighbour->isLake())
                   for (const auto &provPix : neighbour->pixels)
-                    if (Fwg::Utils::getDistance(provPix, pix,
+                    if (Fwg::Utils::Math::getDistance(provPix, pix,
                                                 Fwg::Cfg::Values().width) < 2.0)
                       ID = neighbour->ID;
             }
@@ -177,14 +174,14 @@ void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
         }
       }
     } else if (type == "dockyard" || type == "floating_harbor") {
-      if (!coastal) {
+      if (!isCoastalToOcean()) {
         continue;
       }
-      auto prov = Fwg::Utils::selectRandom(provinces);
-      while (!prov->coastal)
-        prov = Fwg::Utils::selectRandom(provinces);
+      auto prov = Fwg::Utils::Random::selectRandom(provinces);
+      while (!prov->isCoastalToOcean())
+        prov = Fwg::Utils::Random::selectRandom(provinces);
       buildings.push_back(
-          getBuilding(type, *prov, coastal, heightmap, typeMap));
+          getBuilding(type, *prov, isCoastalToOcean(), heightmap, typeMap));
     } else {
       buildings.push_back(getBuilding(type, this->provinces, false, heightmap));
     }

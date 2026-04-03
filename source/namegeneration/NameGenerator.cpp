@@ -71,7 +71,7 @@ std::string getRandomMapElement(
     const Arda::Utils::Ideology key,
     const std::map<Arda::Utils::Ideology, std::vector<std::string>> map) {
   try {
-    return Fwg::Utils::selectRandom(map.at(key));
+    return Fwg::Utils::Random::selectRandom(map.at(key));
   } catch (std::exception& e) {
     auto str = "Error in Name Generation. Make sure the key: \"" +
                Arda::Utils::ideologyToString.at(key) +

@@ -697,9 +697,10 @@ void ImageExporter::dumpTerrainColourmap(
     int minX = static_cast<int>(cfg.minX / (double)factor);
     std::swap(minY, maxY);
     // cut it and reassign it
-    pixels = Utils::cutBuffer(pixels, 2816, 1024, minX, maxX, minY, maxY, 4);
+    pixels = Utils::Containers::cutBuffer(pixels, 2816, 1024, minX, maxX, minY, maxY, 4);
     if (cfg.scale) {
-      pixels = Utils::scaleBuffer(pixels, abs(maxX - minX), abs(maxY - minY),
+      pixels = Utils::Containers::scaleBuffer(
+          pixels, abs(maxX - minX), abs(maxY - minY),
                                   cfg.scaleX / factor, cfg.scaleY / factor, 4,
                                   cfg.keepRatio);
     }

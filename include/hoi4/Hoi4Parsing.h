@@ -101,6 +101,7 @@ void tutorials(const std::string &path);
 void compatibilityHistory(
     const std::string &path, const std::string &hoiPath,
     const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions);
+void scriptedEffects(std::string resources, std::string modPath);
 void scriptedTriggers(std::string resources, std::string modPath);
 
 void commonFiltering(const std::string &gamePath, const std::string &modPath);
@@ -131,6 +132,7 @@ void strategicRegionNames(
     const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions);
 void victoryPointNames(const std::string &path,
                        const std::vector<std::shared_ptr<Region>> &regions);
+void predefinedLocalisation(const std::string &path);
 
 } // namespace Localisation
 

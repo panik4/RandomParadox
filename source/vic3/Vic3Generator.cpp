@@ -581,7 +581,7 @@ void Generator::distributeBuildings() {
             if (buildingProdMethods.size()) {
               // then select the production method, by ordering them by output
               // of the good and checking if it is in the potentialProdMethods
-              auto &prodMethod = Fwg::Utils::selectRandom(buildingProdMethods);
+              auto &prodMethod = Fwg::Utils::Random::selectRandom(buildingProdMethods);
               auto outputAmount = 0;
               for (auto &prodMethodGood : prodMethod.outputs) {
                 if (produceableGood.name == prodMethodGood.first.name) {
@@ -631,7 +631,7 @@ void Generator::distributeBuildings() {
     // now distribute ports
     for (auto &region : country->ownedVic3Regions) {
       if (Cfg::Values().debugLevel > 9) {
-        if (region->coastal) {
+        if (region->isCoastalToOcean()) {
           // try to find a port location
           auto portLocator =
               region->getLocation(Fwg::Civilization::LocationType::Port);
@@ -662,7 +662,7 @@ void Generator::createLocators() {
     binaryLandMap[i] =
         terrainData.detailedHeightMap[i] <= config.seaLevel ? false : true;
   }
-  auto searchVector = Fwg::Utils::getCircularOffsets(config.width, 10);
+  auto searchVector = Fwg::Utils::Math::getCircularOffsets(config.width, 10);
 
   for (auto &region : modData.vic3Regions) {
     region->significantLocations.clear();
@@ -808,7 +808,7 @@ void Generator::generate() {
   try {
     writeSplnet();
     // now write the files
-    writeTextFiles();
+    writeTextFiles(true);
     //  generate map files. Format must be converted and colours mapped to vic3
     //  compatible colours
     writeImages();
@@ -823,7 +823,7 @@ void Generator::generate() {
   printStatistics();
 }
 
-void Generator::writeTextFiles() {
+void Generator::writeTextFiles(bool scenarioDetails) {
   using namespace Parsing::Writing;
   auto foundRegions = compatRegions(
       pathcfg.gamePath + "//game//map_data//state_regions//",

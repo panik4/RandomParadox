@@ -665,7 +665,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
                 ImGui::InputInt("Arms Industry", &hoi4Region->armsFactories),
                 ImGui::InputInt("Civilian Industry",
                                 &hoi4Region->civilianFactories),
-                optionalInput(hoi4Region->coastal,
+                optionalInput(hoi4Region->isCoastalToOcean(),
                               [&] {
                                 return ImGui::InputInt("Naval Industry",
                                                        &hoi4Region->dockyards);
@@ -1086,6 +1086,9 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
         generator->modData.statesInitialised && !requireCountryDetails) {
       ImGui::SeparatorText(
           "Export everything into a (hopefully) functional mod.");
+      static bool writeScenarioDetails = true;
+
+      ImGui::Checkbox("Write scenario details", &writeScenarioDetails);
       if (ImGui::Button("Export complete mod")) {
         computationFutureBool = runAsync([generator, &cfg, this]() {
           // now generate hoi4 specific stuff
@@ -1097,7 +1100,7 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
             // generation
             generator->evaluateCountries();
             generator->writeImages();
-            generator->writeTextFiles();
+            generator->writeTextFiles(writeScenarioDetails);
             generator->writeLocalisation();
             generator->printStatistics();
           } catch (std::exception &e) {
@@ -1228,7 +1231,7 @@ int GUI::showVic3Finalise(Fwg::Cfg &cfg) {
             try {
               generator->writeSplnet();
               generator->writeImages();
-              generator->writeTextFiles();
+              generator->writeTextFiles(true);
             } catch (std::exception &e) {
               pathWarning(e);
             }

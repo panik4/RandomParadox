@@ -64,7 +64,8 @@ void ImageExporter::writeTile(int xTiles, int yTiles,
     for (auto tiley = 0; tiley < yTiles; tiley++) {
       Fwg::Gfx::Image tileMap(
           tilesize, tilesize, 24,
-          (Fwg::Utils::cutBuffer(basePackedHeightMap.imageData, mapX, mapY,
+          (Fwg::Utils::Containers::cutBuffer(
+              basePackedHeightMap.imageData, mapX, mapY,
                                  tilex * tilesize, (tilex + 1) * tilesize,
                                  tiley * tilesize, (tiley + 1) * tilesize, 1)));
       auto tileMap2 =

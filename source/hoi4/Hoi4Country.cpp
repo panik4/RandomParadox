@@ -14,7 +14,7 @@ Hoi4Country::~Hoi4Country() {}
 
 void Hoi4Country::addAirBase(int level) {
   // selects a random region to add the airbase to
-  auto region = Fwg::Utils::selectRandom(hoi4Regions);
+  auto region = Fwg::Utils::Random::selectRandom(hoi4Regions);
   if (region->airBase == nullptr) {
     region->airBase = std::make_shared<AirBase>();
     region->airBase->level = level;

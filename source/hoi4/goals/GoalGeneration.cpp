@@ -277,7 +277,7 @@ void Rpx::Hoi4::GoalGeneration::evaluateGoals(
           break;
         }
         // select a random goal from a copy of the goal
-        auto categoryGoal = Fwg::Utils::selectRandom(categoryGoals);
+        auto categoryGoal = Fwg::Utils::Random::selectRandom(categoryGoals);
 
         // check if we fulfill the prerequisites
         bool valid = checkPrerequisites(categoryGoal, country, categoryGoals);

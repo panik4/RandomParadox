@@ -429,7 +429,6 @@ void Generator::generateStateResources() {
     seeds.push_back(RandNum::getRandom<int>());
   }
 
-
   for (const auto &resConfig : modConfig.resConfigs) {
     futures.emplace_back(std::async(
         std::launch::async, [&resConfig, this, &seeds]() -> ResourceGenResult {
@@ -439,7 +438,8 @@ void Generator::generateStateResources() {
             resPrev = Fwg::Resources::randomResourceLayer(
                 resConfig.name, resConfig.noiseConfig.fractalFrequency,
                 resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
-                resConfig.noiseConfig.mountainBonus, seeds[&resConfig - &modConfig.resConfigs[0]]);
+                resConfig.noiseConfig.mountainBonus,
+                seeds[&resConfig - &modConfig.resConfigs[0]]);
           } else if (resConfig.considerSea) {
             resPrev = Fwg::Resources::coastDependentLayer(
                 resConfig.name, resConfig.oceanFactor, resConfig.lakeFactor,
@@ -549,7 +549,7 @@ void Generator::generateStateSpecifics() {
       double dockChance = 0.25;
       double civChance = 0.5;
       // distribute it to military, civilian and naval factories
-      if (!hoi4State->coastal) {
+      if (!hoi4State->isCoastalToOcean()) {
         dockChance = 0.0;
         civChance = 0.6;
       }
@@ -568,7 +568,7 @@ void Generator::generateStateSpecifics() {
           auto choice = RandNum::getRandom(0.0, 1.0);
           if (choice < dockChance) {
             hoi4State->dockyards++;
-          } else if (Fwg::Utils::inRange(dockChance, dockChance + civChance,
+          } else if (Fwg::Utils::Math::inRange(dockChance, dockChance + civChance,
                                          choice)) {
             hoi4State->civilianFactories++;
 
@@ -627,7 +627,7 @@ void Generator::generateCountrySpecifics() {
         country->gfxCulture = "middle_eastern";
         break;
       case Arda::VisualType::CAUCASIAN:
-        country->gfxCulture = Fwg::Utils::selectRandom(caucasianGfxCultures);
+        country->gfxCulture = Fwg::Utils::Random::selectRandom(caucasianGfxCultures);
         break;
       case Arda::VisualType::SOUTH_AMERICAN:
         country->gfxCulture = "southamerican";
@@ -1555,7 +1555,7 @@ void Generator::generateAirVariants() {
       }
       // first gather the amount of planes per variant
       while (airforceStrength > 0) {
-        auto &variant = Fwg::Utils::selectRandom(country->planeVariants);
+        auto &variant = Fwg::Utils::Random::selectRandom(country->planeVariants);
         variant.amount++;
         airforceStrength -= variant.cost;
       }
@@ -1567,7 +1567,7 @@ void Generator::generateAirVariants() {
           wing.variant = country->planeVariants[i];
           wing.name = std::to_string(i) + ". " + country->planeVariants[i].name;
           wing.amount = std::min<int>(country->planeVariants[i].amount, 50);
-          auto &randomAirbase = Fwg::Utils::selectRandom(country->airBases);
+          auto &randomAirbase = Fwg::Utils::Random::selectRandom(country->airBases);
           randomAirbase->wings.push_back(wing);
           country->airWings.push_back(wing);
         }
@@ -1755,7 +1755,7 @@ void Generator::generateCountryUnits() {
                 break;
               }
             }
-            division.location = Fwg::Utils::selectRandom(eligibleProvinces);
+            division.location = Fwg::Utils::Random::selectRandom(eligibleProvinces);
             division.name += " '" + division.location->name + "' " +
                              division.divisionTemplate.name;
             division.startingEquipmentFactor =
@@ -1809,7 +1809,7 @@ void Generator::generateCountryNavies() {
               " has no primary culture, cannot generate ship names");
         } else {
           shipClass.name =
-              Fwg::Utils::selectRandom(primaryCulture->language->shipNames) +
+              Fwg::Utils::Random::selectRandom(primaryCulture->language->shipNames) +
               " Class";
         }
         shipClass.vanillaShipType =
@@ -1872,7 +1872,7 @@ void Generator::generateCountryNavies() {
     const std::vector<ShipClass> &carrierClasses =
         country->shipClasses.at(ShipClassType::Carrier);
     if (carrierClasses.size()) {
-      auto randomCarrierShipClass = Fwg::Utils::selectRandom(carrierClasses);
+      auto randomCarrierShipClass = Fwg::Utils::Random::selectRandom(carrierClasses);
       // as long as we have enough tonnage for a carrier, spawn one
       while (carrierTargetTonnage > randomCarrierShipClass.tonnage) {
         // create a carrier ship
@@ -1900,15 +1900,15 @@ void Generator::generateCountryNavies() {
         if (RandNum::getRandom(0, 2)) {
           if (!heavyCruiserClasses.size())
             continue;
-          heavyShip.shipClass = Fwg::Utils::selectRandom(heavyCruiserClasses);
+          heavyShip.shipClass = Fwg::Utils::Random::selectRandom(heavyCruiserClasses);
         } else if (RandNum::getRandom(0, 2)) {
           if (!battleCruiserClasses.size())
             continue;
-          heavyShip.shipClass = Fwg::Utils::selectRandom(battleCruiserClasses);
+          heavyShip.shipClass = Fwg::Utils::Random::selectRandom(battleCruiserClasses);
         } else {
           if (!battleshipClasses.size())
             continue;
-          heavyShip.shipClass = Fwg::Utils::selectRandom(battleshipClasses);
+          heavyShip.shipClass = Fwg::Utils::Random::selectRandom(battleshipClasses);
         }
         // push shared pointer to new ship
         country->ships.push_back(std::make_shared<Ship>(heavyShip));
@@ -1930,11 +1930,11 @@ void Generator::generateCountryNavies() {
         if (RandNum::getRandom(0, 2)) {
           if (!destroyerClasses.size())
             continue;
-          screenShip.shipClass = Fwg::Utils::selectRandom(destroyerClasses);
+          screenShip.shipClass = Fwg::Utils::Random::selectRandom(destroyerClasses);
         } else {
           if (!lightCruiserClasses.size())
             continue;
-          screenShip.shipClass = Fwg::Utils::selectRandom(lightCruiserClasses);
+          screenShip.shipClass = Fwg::Utils::Random::selectRandom(lightCruiserClasses);
         }
         // push shared pointer to new ship
         country->ships.push_back(std::make_shared<Ship>(screenShip));
@@ -1961,7 +1961,7 @@ void Generator::generateCountryNavies() {
             " has no primary culture, cannot generate ship names");
       } else {
         ship->name =
-            Fwg::Utils::selectRandom(primaryCulture->language->shipNames);
+            Fwg::Utils::Random::selectRandom(primaryCulture->language->shipNames);
       }
       if (utilisedShipNames.find(ship->name) != utilisedShipNames.end()) {
         utilisedShipNames[ship->name]++;
@@ -2045,7 +2045,7 @@ void Generator::generateWorldState() {
     }
 
     // select a random country to flip
-    auto chosenCountry = Fwg::Utils::selectRandom(sourceCountries);
+    auto chosenCountry = Fwg::Utils::Random::selectRandom(sourceCountries);
 
     // remove from source ideology vector
     sourceCountries.erase(std::remove(sourceCountries.begin(),
@@ -2065,7 +2065,7 @@ void Generator::generateWorldState() {
       continue;
     }
 
-    auto factionLeader = Fwg::Utils::selectRandom(countries);
+    auto factionLeader = Fwg::Utils::Random::selectRandom(countries);
     Faction faction;
     faction.name = "Unassigned";
     faction.ideology = factionLeader->ideology;
@@ -2075,21 +2075,21 @@ void Generator::generateWorldState() {
     switch (faction.ideology) {
     case Arda::Utils::Ideology::FASCISM: {
       faction.faction_template =
-          Fwg::Utils::selectRandom(std::vector<std::string>{
+          Fwg::Utils::Random::selectRandom(std::vector<std::string>{
               "faction_template_generic_dominance",
               "faction_template_regional_anti_communist",
               "faction_template_regional_anti_democratic"});
       break;
     }
     case Arda::Utils::Ideology::DEMOCRATIC: {
-      faction.faction_template = Fwg::Utils::selectRandom(
+      faction.faction_template = Fwg::Utils::Random::selectRandom(
           std::vector<std::string>{"faction_template_defensive_democratic",
                                    "faction_template_industrial_focus"});
       break;
     }
     case Arda::Utils::Ideology::NEUTRALITY: {
       faction.faction_template =
-          Fwg::Utils::selectRandom(std::vector<std::string>{
+          Fwg::Utils::Random::selectRandom(std::vector<std::string>{
               "faction_template_generic_dominance",
               "faction_template_anti_communist",
               "faction_template_anti_fascist",
@@ -2098,7 +2098,7 @@ void Generator::generateWorldState() {
       break;
     }
     case Arda::Utils::Ideology::COMMUNISM: {
-      faction.faction_template = Fwg::Utils::selectRandom(
+      faction.faction_template = Fwg::Utils::Random::selectRandom(
           std::vector<std::string>{"faction_template_generic_dominance",
                                    "faction_template_anti_fascist",
                                    "faction_template_world_revolution"});
@@ -2215,7 +2215,7 @@ void Generator::generatePositions() {
     auto sea = gameProv->isSea();
 
     // evaluate if we need ship in port positions
-    if (gameProv->isLand() && gameProv->coastal) {
+    if (gameProv->isLand() && gameProv->isCoastalToOcean()) {
       // now check if we have a port location
       auto &locations = gameProv->locations;
       // get the port if we have one
@@ -2227,7 +2227,7 @@ void Generator::generatePositions() {
         // no port location, so we take random coastal pixels from the
         // baseProvince
         position = Fwg::Position(
-            Fwg::Utils::selectRandom(gameProv->coastalPixels), cfg.width);
+            Fwg::Utils::Random::selectRandom(gameProv->coastalPixels), cfg.width);
       } else {
         position = (*portLocation)->position;
       }
@@ -2379,7 +2379,7 @@ void Generator::distributeVictoryPoints() {
         vp.position = (*mostImportantLocation)->position;
         if (primaryCulture != nullptr) {
           vp.name =
-              Fwg::Utils::selectRandom(primaryCulture->language->cityNames);
+              Fwg::Utils::Random::selectRandom(primaryCulture->language->cityNames);
         } else {
           vp.name = "Unnamed";
         }
@@ -2597,9 +2597,9 @@ void Generator::generateCharacters() {
                 "Doe " + std::to_string(country->characters.size());
           } else {
             character.name =
-                Fwg::Utils::selectRandom(primaryCulture->language->maleNames);
+                Fwg::Utils::Random::selectRandom(primaryCulture->language->maleNames);
             character.surname =
-                Fwg::Utils::selectRandom(primaryCulture->language->surnames);
+                Fwg::Utils::Random::selectRandom(primaryCulture->language->surnames);
           }
 
         } while (usedNames.find(character.name + " " + character.surname) !=
@@ -2613,10 +2613,10 @@ void Generator::generateCharacters() {
           // country's primary culture
           auto gfxCulture = country->gfxCulture;
           auto portraits = politicalAdvisorPortraits.at(gfxCulture);
-          character.portraitPath = Fwg::Utils::selectRandom(portraits);
+          character.portraitPath = Fwg::Utils::Random::selectRandom(portraits);
         }
         if (traits.size()) {
-          auto trait = Fwg::Utils::selectRandom(traits);
+          auto trait = Fwg::Utils::Random::selectRandom(traits);
           if (addLevel && !trait.contains("old_guard")) {
             int level = RandNum::getRandom(1, 3);
             character.traits.push_back(trait + std::to_string(level));
@@ -2674,9 +2674,9 @@ void Generator::generateCharacters() {
               "Doe " + std::to_string(country->characters.size());
         } else {
           theorist.name =
-              Fwg::Utils::selectRandom(primaryCulture->language->maleNames);
+              Fwg::Utils::Random::selectRandom(primaryCulture->language->maleNames);
           theorist.surname =
-              Fwg::Utils::selectRandom(primaryCulture->language->surnames);
+              Fwg::Utils::Random::selectRandom(primaryCulture->language->surnames);
         }
       } while (usedNames.find(theorist.name + " " + theorist.surname) !=
                usedNames.end());
@@ -2734,75 +2734,81 @@ void Generator::initImageExporter() {
   imageExporter = Gfx::Hoi4::ImageExporter(pathcfg.gamePath, "Hoi4");
 }
 
-void Generator::writeTextFiles() {
+void Generator::writeTextFiles(bool scenarioDetails) {
   using namespace Parsing::Writing;
   Fwg::Utils::Logging::logLine(
       "Writing Hoi4 mod text files to path: ",
       Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
-  Map::adj(pathcfg.gameModPath + "//map//adjacencies.csv");
-  Map::adjacencyRules(pathcfg.gameModPath + "//map//adjacency_rules.txt");
-  Map::ambientObjects(pathcfg.gameModPath + "//map//ambient_object.txt");
-  Map::supply(pathcfg.gameModPath + "//map//", modData.supplyNodeConnections);
-  Map::buildings(pathcfg.gameModPath + "//map//buildings.txt",
-                 modData.hoi4States);
-  Map::continents(
-      pathcfg.gameModPath + "//map//continent.txt", ardaContinents,
-      pathcfg.gamePath,
-      pathcfg.gameModPath +
-          "//localisation//language//province_names_l_language.yml");
-  Map::definition(pathcfg.gameModPath + "//map//definition.csv", ardaProvinces);
-  Map::strategicRegions(pathcfg.gameModPath + "//map//strategicregions",
-                        areaData.regions, superRegions);
-  Map::unitStacks(pathcfg.gameModPath + "//map//unitstacks.txt", ardaProvinces,
-                  modData.hoi4States, terrainData.detailedHeightMap);
-  Map::weatherPositions(pathcfg.gameModPath + "//map//weatherpositions.txt",
-                        areaData.regions, superRegions);
-  Common::commonDecisions(pathcfg.gameModPath + "/common/decisions/",
-                          modData.decisionData);
-
-  Countries::commonCountryTags(pathcfg.gameModPath +
-                                   "//common//country_tags//02_countries.txt",
-                               modData.hoi4Countries);
-  Countries::commonCountries(pathcfg.gameModPath + "//common//countries//",
-                             pathcfg.gamePath +
-                                 "//common//countries//colors.txt",
-                             modData.hoi4Countries);
-  Countries::commonCharacters(pathcfg.gameModPath + "//common//characters//",
-                              modData.hoi4Countries);
-  Countries::commonNames(pathcfg.gameModPath + "//common//names//00_names.txt",
-                         modData.hoi4Countries);
-  // Countries::foci(pathcfg.gameModPath + "//common//national_focus//",
-  //                 modData.hoi4Countries, nData);
-  Countries::flags(pathcfg.gameModPath + "//gfx//flags//",
-                   modData.hoi4Countries);
-  Countries::historyCountries(pathcfg.gameModPath + "//history//countries//",
-                              modData.hoi4Countries, pathcfg.gamePath,
-                              areaData.regions, Rpx::Hoi4::shipClassTypeMap);
-  Countries::historyUnits(pathcfg.gameModPath + "//history//units//",
-                          modData.hoi4Countries);
-  Countries::ideas(pathcfg.gameModPath + "//common//ideas//",
-                   modData.hoi4Countries);
-  Countries::portraits(pathcfg.gameModPath + "//portraits//",
-                       modData.hoi4Countries);
-  Countries::states(pathcfg.gameModPath + "//history//states",
-                    modData.hoi4States);
-  Compatibility::compatibilityFactionMechanics(
-      pathcfg.gameModPath + "/common/factions", "");
-  Compatibility::compatibilityNationalFocus(
-      pathcfg.gameModPath + "/common/national_focus/", pathcfg.gamePath);
-
-  aiStrategy(pathcfg.gameModPath + "//common//", ardaContinents);
-  events(pathcfg.gameModPath + "//");
-  commonBookmarks(pathcfg.gameModPath + "//common//bookmarks//",
-                  modData.hoi4Countries, countryImportanceScores);
-  tutorials(pathcfg.gameModPath + "//tutorial//tutorial.txt");
-  copyDescriptorFile(Fwg::Cfg::Values().resourcePath + "hoi4//descriptor.mod",
+  copyDescriptorFile(Fwg::Cfg::Values().resourcePath + "/hoi4/descriptor.mod",
                      pathcfg.gameModPath, pathcfg.gameModsDirectory,
                      pathcfg.modName);
+  tutorials(pathcfg.gameModPath + "tutorial/tutorial.txt");
+  Map::adj(pathcfg.gameModPath + "map/adjacencies.csv");
+  Map::adjacencyRules(pathcfg.gameModPath + "map/adjacency_rules.txt");
+  Map::ambientObjects(pathcfg.gameModPath + "map/ambient_object.txt");
+  Map::supply(pathcfg.gameModPath + "map/", modData.supplyNodeConnections);
+  Map::buildings(pathcfg.gameModPath + "map/buildings.txt", modData.hoi4States);
+  Map::continents(pathcfg.gameModPath + "map/continent.txt", ardaContinents,
+                  pathcfg.gamePath,
+                  pathcfg.gameModPath +
+                      "localisation/language/province_names_l_language.yml");
+  Map::definition(pathcfg.gameModPath + "map/definition.csv", ardaProvinces);
+  Map::strategicRegions(pathcfg.gameModPath + "map/strategicregions",
+                        areaData.regions, superRegions);
+  Map::unitStacks(pathcfg.gameModPath + "map/unitstacks.txt", ardaProvinces,
+                  modData.hoi4States, terrainData.detailedHeightMap);
+  Map::weatherPositions(pathcfg.gameModPath + "map/weatherpositions.txt",
+                        areaData.regions, superRegions);
 
+  Countries::commonCountryTags(pathcfg.gameModPath +
+                                   "common/country_tags/02_countries.txt",
+                               modData.hoi4Countries);
+  Countries::commonCountries(pathcfg.gameModPath + "common/countries/",
+                             pathcfg.gamePath + "common/countries/colors.txt",
+                             modData.hoi4Countries);
+
+  Countries::flags(pathcfg.gameModPath + "gfx/flags/", modData.hoi4Countries);
+  Countries::historyCountries(pathcfg.gameModPath + "history/countries/",
+                              modData.hoi4Countries, pathcfg.gamePath,
+                              areaData.regions, Rpx::Hoi4::shipClassTypeMap);
+  if (scenarioDetails) {
+    Common::commonDecisions(pathcfg.gameModPath + "/common/decisions/",
+                            modData.decisionData);
+
+    Countries::commonCharacters(pathcfg.gameModPath + "common/characters/",
+                                modData.hoi4Countries);
+
+    Countries::commonNames(pathcfg.gameModPath + "common/names/00_names.txt",
+                           modData.hoi4Countries);
+    Countries::historyUnits(pathcfg.gameModPath + "history/units/",
+                            modData.hoi4Countries);
+    Countries::ideas(pathcfg.gameModPath + "common/ideas/",
+                     modData.hoi4Countries);
+    // Countries::foci(pathcfg.gameModPath + "//common//national_focus//",
+    //                 modData.hoi4Countries, nData);
+  }
+
+  Countries::portraits(pathcfg.gameModPath + "portraits/",
+                       modData.hoi4Countries);
+  Countries::states(pathcfg.gameModPath + "history/states/",
+                    modData.hoi4States);
+  Compatibility::compatibilityFactionMechanics(
+      pathcfg.gameModPath + "common/factions/", "");
+  Compatibility::compatibilityNationalFocus(
+      pathcfg.gameModPath + "common/national_focus/", pathcfg.gamePath);
+
+  aiStrategy(pathcfg.gameModPath + "common/", ardaContinents);
+  // copy in generic events
+  events(pathcfg.gameModPath);
+  commonBookmarks(pathcfg.gameModPath + "common/bookmarks/",
+                  modData.hoi4Countries, countryImportanceScores);
+
+  scriptedEffects(Fwg::Cfg::Values().resourcePath +
+                      "/hoi4/common/scripted_effects/",
+                  pathcfg.gameModPath + "common/scripted_effects/");
   scriptedTriggers(Fwg::Cfg::Values().resourcePath +
-                       "//hoi4////common//scripted_triggers//",
-                   pathcfg.gameModPath + "//common//scripted_triggers//");
+                       "/hoi4/common/scripted_triggers/",
+                   pathcfg.gameModPath + "common/scripted_triggers/");
   // commonFiltering(pathcfg.gamePath, pathcfg.gameModPath);
 }
 void Generator::writeLocalisation() {
@@ -2818,6 +2824,7 @@ void Generator::writeLocalisation() {
                        superRegions);
   victoryPointNames(pathcfg.gameModPath + "//localisation//language//",
                     modData.hoi4States);
+  predefinedLocalisation(pathcfg.gameModPath + "/localisation/");
 }
 void Generator::writeImages() {
   Fwg::Utils::Logging::logLine(
@@ -2910,7 +2917,7 @@ void Generator::generate() {
   // now start writing game files
   try {
     writeImages();
-    writeTextFiles();
+    writeTextFiles(true);
     writeLocalisation();
   } catch (std::exception &e) {
     std::string error = "Error while dumping and writing files.\n";

@@ -377,7 +377,7 @@ std::string selectRandomCustomSlot(
     availableModulesForSlot.insert("ship_deck_space");
   }
   // select one random string
-  return Fwg::Utils::selectRandom(availableModulesForSlot);
+  return Fwg::Utils::Random::selectRandom(availableModulesForSlot);
 }
 
 void addShipClassModules(
