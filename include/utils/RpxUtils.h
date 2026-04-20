@@ -47,8 +47,8 @@ inline bool validateModFolder(const Pathcfg &pathcfg) {
 }
 
 // a method to search for the original game files on the hard drive(s)
-inline bool findGame(std::string &path, const std::string &game,
-                     const std::string &gameSubPath) {
+inline bool autoLocateGameFolder(std::string &path, const std::string &game,
+                                 const std::string &gameSubPath) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
   std::vector<std::string> drives{"C:/", "D:/", "E:/", "F:/", "G:/", "H:/"};
@@ -78,7 +78,7 @@ inline bool findGame(std::string &path, const std::string &game,
                            " are you sure this is the game folder?");
           return false;
         }
-
+        sanitizePath(path);
         Logging::logLine("Located game under ", path);
         return true;
       }

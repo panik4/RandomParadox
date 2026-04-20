@@ -47,8 +47,8 @@ void GUI::genericWrapper() {
 }
 
 void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
-  if (!configuredScenarioGen || redoDevelopment || redoPopulation ||
-      redoTopography || redoCulture || redoLocations) {
+  if (redoDevelopment || redoPopulation || redoTopography || redoCulture ||
+      redoLocations) {
     ImGui::BeginDisabled();
   }
   if (activeGameConfig.gameName == "Hearts of Iron IV") {
@@ -69,8 +69,8 @@ void GUI::gameSpecificTabs(Fwg::Cfg &cfg) {
         std::reinterpret_pointer_cast<Rpx::Eu5::Generator, Rpx::ModGenerator>(
             activeGenerator);
   }
-  if (!configuredScenarioGen || redoDevelopment || redoPopulation ||
-      redoTopography || redoCulture || redoLocations) {
+  if (redoDevelopment || redoPopulation || redoTopography || redoCulture ||
+      redoLocations) {
     ImGui::EndDisabled();
   }
 }
@@ -308,12 +308,12 @@ void GUI::loadGameConfig(Fwg::Cfg &cfg) {
   pt::ptree hoi4Conf;
   try {
     // Read the basic settings
-    std::ifstream f(activeConfig + "//Hearts of Iron IVModule.json");
+    std::ifstream f(activeConfig + "/Hearts of Iron IVModule.json");
     std::stringstream buffer;
     if (!f.good())
       Fwg::Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
-    Fwg::Parsing::replaceInStringStream(buffer, "//", "//");
+    Fwg::Parsing::replaceInStringStream(buffer, "//", "/");
 
     pt::read_json(buffer, hoi4Conf);
   } catch (std::exception &e) {
@@ -335,9 +335,9 @@ void GUI::initGameConfigs() {
 }
 
 bool GUI::validatePaths() {
-  validatedPaths = Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,
-                                        activeGameConfig.gameName,
-                                        activeGenerator->pathcfg.gameSubPath);
+  validatedPaths = Rpx::Utils::autoLocateGameFolder(
+      activeGenerator->pathcfg.gamePath, activeGameConfig.gameName,
+      activeGenerator->pathcfg.gameSubPath);
   if (validatedPaths)
     validatedPaths =
         Rpx::Utils::validateGameModFolder(activeGenerator->pathcfg);
@@ -350,11 +350,65 @@ bool GUI::validatePaths() {
   return validatedPaths;
 }
 
+int GUI::showModuleGeneric(Fwg::Cfg &cfg) {
+  if (!validatedPaths)
+    ImGui::BeginDisabled();
+  if (activeGenerator->terrainData.detailedHeightMap.size() &&
+      activeGenerator->climateMap.initialised() &&
+      activeGenerator->provinceMap.initialised() &&
+      activeGenerator->regionMap.initialised()) {
+    if (ImGui::Button(
+            std::string("Generate " + activeGameConfig.gameName + " mod")
+                .c_str())) {
+
+      computationFutureBool = runAsyncInitialDisable([&cfg, this]() {
+        activeGenerator->generate();
+        redoTopography = false;
+        redoDevelopment = false;
+        redoPopulation = false;
+        redoCulture = false;
+        redoLocations = false;
+        return true;
+      });
+    }
+  }
+  ImGui::SameLine();
+  if (ImGui::Button(std::string("Generate world + " +
+                                activeGameConfig.gameName + " mod in one go")
+                        .c_str())) {
+
+    computationFutureBool = runAsyncInitialDisable([&cfg, this]() {
+      activeGenerator->generateWorld();
+      activeGenerator->generate();
+      return true;
+    });
+  }
+  if (!validatedPaths)
+    ImGui::EndDisabled();
+  return 0;
+}
+
+void GUI::pathWarning(std::exception e) {
+  Fwg::Utils::Logging::logLine(
+      "Error in writing files: ", e.what(),
+      " you probably have misconfigured paths to the mods directory. "
+      "According to you, this is located at the following path: ",
+      activeGenerator->pathcfg.gameModPath);
+  Fwg::Utils::Logging::logLine("The path to the mod folder is set to ",
+                               activeGenerator->pathcfg.gameModsDirectory,
+                               " while the path to the game is set to ",
+                               activeGenerator->pathcfg.gamePath);
+  Fwg::Utils::Logging::logLine(
+      "Please check if the paths are correct, and if the mod folder is "
+      "located in the mods directory of the game. You may now "
+      "reconfigure the paths in the first tab and then try to export "
+      "again.");
+}
+
 bool GUI::isRelevantModuleActive(const std::string &shortName) {
   return activeGameConfig.gameShortName == shortName;
 }
 
-// generic configure tab, containing a tab for fwg and rpdx configs
 int GUI::showConfigure(Fwg::Cfg &cfg) {
 
   if (Fwg::UI::Elements::BeginMainTabItem("Configure")) {
@@ -367,6 +421,17 @@ int GUI::showConfigure(Fwg::Cfg &cfg) {
     ImGui::EndTabItem();
   }
   return 0;
+}
+
+// Helper function for path input with normalization
+static bool PathInput(const char *label, std::string &path,
+                      bool validate = true) {
+  if (ImGui::InputText(label, &path)) {
+    Fwg::Parsing::replaceOccurences(path, "\\", "/");
+    Fwg::Parsing::replaceOccurences(path, "//", "/");
+    return validate;
+  }
+  return false;
 }
 
 int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
@@ -383,9 +448,9 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
       activeConfig = configSubfolders[item_current];
       // on startup, try to auto locate game and game mod folder, then auto
       // validate
-      Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,
-                           activeGameConfig.gameName,
-                           activeGenerator->pathcfg.gameSubPath);
+      Rpx::Utils::autoLocateGameFolder(activeGenerator->pathcfg.gamePath,
+                                       activeGameConfig.gameName,
+                                       activeGenerator->pathcfg.gameSubPath);
       Rpx::Utils::autoLocateGameModFolder(activeGameConfig.gameName,
                                           activeGenerator->pathcfg);
       validatePaths();
@@ -414,9 +479,9 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
             Rpx::Eu5::Generator(configSubFolder, rpdConf));
       }
       activeGameConfig = gameConfigs[selectedGame];
-      Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,
-                           activeGameConfig.gameName,
-                           activeGenerator->pathcfg.gameSubPath);
+      Rpx::Utils::autoLocateGameFolder(activeGenerator->pathcfg.gamePath,
+                                       activeGameConfig.gameName,
+                                       activeGenerator->pathcfg.gameSubPath);
       Rpx::Utils::autoLocateGameModFolder(activeGameConfig.gameName,
                                           activeGenerator->pathcfg);
       validatedPaths = false;
@@ -433,7 +498,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
                        static_cast<int>(items.size()))) {
       activeConfig = items[item_current];
       Fwg::Utils::Logging::logLine("Switched to ", activeConfig,
-                                   "//FastWorldGenerator.json");
+                                   "/FastWorldGenerator.json");
       cfg.readConfig(activeConfig);
       loadGameConfig(cfg);
       activeGenerator->configure(cfg);
@@ -441,35 +506,24 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
 
     ImGui::PopItemWidth();
     ImGui::PushItemWidth(600.0f);
-    if (ImGui::InputText("Mod Name", &activeGenerator->pathcfg.modName)) {
-      Fwg::Parsing::replaceOccurences(activeGenerator->pathcfg.modName, "\\",
-                                      "//");
-      Fwg::Parsing::replaceOccurences(activeGenerator->pathcfg.modName, "///",
-                                      "//");
+    // Path inputs with automatic normalization
+    bool needsValidation = false;
+    needsValidation |= PathInput("Mod Name", activeGenerator->pathcfg.modName);
+    needsValidation |=
+        PathInput("Game Path", activeGenerator->pathcfg.gamePath);
+    needsValidation |=
+        PathInput("Mods Directory", activeGenerator->pathcfg.gameModsDirectory);
+    needsValidation |=
+        PathInput("Mod Path", activeGenerator->pathcfg.gameModPath, false);
+
+    if (needsValidation) {
+      validatePaths();
     }
-    if (ImGui::InputText("Game Path", &activeGenerator->pathcfg.gamePath)) {
-      Fwg::Parsing::replaceOccurences(activeGenerator->pathcfg.gamePath, "\\",
-                                      "//");
-      Fwg::Parsing::replaceOccurences(activeGenerator->pathcfg.gamePath, "///",
-                                      "//");
-    }
-    if (ImGui::InputText("Mods Directory",
-                         &activeGenerator->pathcfg.gameModsDirectory)) {
-      Fwg::Parsing::replaceOccurences(
-          activeGenerator->pathcfg.gameModsDirectory, "\\", "//");
-      Fwg::Parsing::replaceOccurences(
-          activeGenerator->pathcfg.gameModsDirectory, "///", "//");
-    }
-    if (ImGui::InputText("Mod Path", &activeGenerator->pathcfg.gameModPath)) {
-      Fwg::Parsing::replaceOccurences(activeGenerator->pathcfg.gameModPath,
-                                      "\\", "//");
-      Fwg::Parsing::replaceOccurences(activeGenerator->pathcfg.gameModPath,
-                                      "///", "//");
-    }
+
     if (ImGui::Button("Try to find game files")) {
-      Rpx::Utils::findGame(activeGenerator->pathcfg.gamePath,
-                           activeGameConfig.gameName,
-                           activeGenerator->pathcfg.gameSubPath);
+      Rpx::Utils::autoLocateGameFolder(activeGenerator->pathcfg.gamePath,
+                                       activeGameConfig.gameName,
+                                       activeGenerator->pathcfg.gameSubPath);
     }
     ImGui::SameLine();
     if (ImGui::Button("Try to find the games mods folder")) {
@@ -497,7 +551,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
     }
     if (isRelevantModuleActive("hoi4")) {
       auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
-      showHoi4Configure(cfg, hoi4Gen);
+      Rpx::UI::Hoi4::showHoi4Configure(cfg, hoi4Gen);
     } else if (isRelevantModuleActive("vic3")) {
       auto vic3Gen = getGeneratorPointer<Vic3Gen>();
       showVic3Configure(cfg, vic3Gen);
@@ -510,11 +564,11 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
   // force path for cutting to gamePath + maps, but only if no other path
   // defined
   if (cfg.cut) {
-    cfg.loadMapsPath = activeGenerator->pathcfg.gamePath + "map//";
+    cfg.loadMapsPath = activeGenerator->pathcfg.gamePath + "map/";
   }
   cfg.climateMappingPath = Fwg::Cfg::Values().resourcePath + "" +
                            activeGameConfig.gameShortName +
-                           "//climateMapping.txt ";
+                           "/climateMapping.txt ";
   return 0;
 }
 
@@ -530,12 +584,6 @@ void GUI::showModLoader(Fwg::Cfg &cfg) {
     }
     ImGui::EndTabItem();
   }
-}
-
-int GUI::showScenarioTab(Fwg::Cfg &cfg) {
-  int retCode = 0;
-
-  return retCode;
 }
 
 void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
@@ -681,6 +729,69 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
   ImGui::PopItemWidth();
 }
 
+void GUI::countryDrag(std::shared_ptr<Arda::ArdaGen> generator) {
+  // drag event
+  if (triggeredDrag) {
+    const auto &cfg = Fwg::Cfg::Values();
+    requireCountryDetails = true;
+    triggeredDrag = false;
+    if (draggedFile.find(".txt") != std::string::npos) {
+      if (draggedFile.find("states.txt") != std::string::npos ||
+          draggedFile.find("stateMappings.txt") != std::string::npos) {
+        Fwg::Utils::Logging::logLine(
+            "Applying state input from file: ",
+            Fwg::Utils::userFilter(draggedFile, cfg.username));
+        generator->regionMappingPath = draggedFile;
+        generator->applyRegionInput();
+        requireCountryDetails = true;
+
+      } else if (draggedFile.find("countries.txt") != std::string::npos ||
+                 draggedFile.find("countryMappings.txt") != std::string::npos) {
+        Fwg::Utils::Logging::logLine(
+            "Applying country input from file: ",
+            Fwg::Utils::userFilter(draggedFile, cfg.username));
+        activeGenerator->loadCountries(
+            activeGenerator->ardaFactories.countryFactory, draggedFile);
+      } else {
+        Fwg::Utils::Logging::logLine(
+            "No valid file dragged in, the filename must either be "
+            "states.txt, stateMappings.txt, countries.txt or "
+            "countryMappings.txt");
+      }
+    } else {
+      computationFutureBool = runAsync([&generator, &cfg, this]() {
+        auto evaluationAreas =
+            Fwg::UI::Utils::Masks::getLandmaskEvaluationAreas(
+                generator->terrainData.landMask);
+        if (cfg.areaInputMode == Fwg::Areas::AreaInputType::SOLID) {
+          auto img = Fwg::IO::Reader::readGenericImageWithBorders(
+              draggedFile, cfg, evaluationAreas);
+          if (img.size()) {
+            activeGenerator->loadCountries(
+                generator->ardaFactories.countryFactory, img);
+          }
+        } else {
+          auto image = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
+
+          if (image.size()) {
+            // detect all areas, give them unique colours
+            Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(
+                image, evaluationAreas);
+
+            // now that we have modified the input image with colours
+            // filling the areas between borders, we can remove the borders
+            Fwg::Gfx::Filter::fillBlackPixelsByArea(image, evaluationAreas);
+            activeGenerator->loadCountries(
+                activeGenerator->ardaFactories.countryFactory, image);
+          }
+        }
+        uiUtils->resetTexture();
+        return true;
+      });
+    }
+  }
+}
+
 int GUI::showCountryTab(Fwg::Cfg &cfg) {
   if (Fwg::UI::Elements::BeginMainTabItem("Countries")) {
     auto &generator = activeGenerator;
@@ -697,154 +808,102 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
         "drop it in again.");
     ImGui::Text("You can also drag in a list of countries (in a .txt file) "
                 "with the following format: #r;g;b;tag;name;adjective. See "
-                "inputs//countryMappings.txt as an example. If no file is "
+                "inputs/countryMappings.txt as an example. If no file is "
                 "dragged in, this example file is used.");
     ImGui::Checkbox("Draw-borders", &drawBorders);
     ImGui::SameLine();
     ImGui::PushItemWidth(150.0f);
     ImGui::InputInt("Number of countries", &generator->ardaConfig.numCountries);
     areaInputSelector(cfg);
-    // ImGui::InputText("Path to country list: ",
-    // &generator->countryMappingPath); ImGui::InputText("Path to state list:
-    // ", &generator->regionMappingPath);
-    auto exportLocation = Fwg::Cfg::Values().mapsPath + "//areas//";
-    if (ImGui::Button(("Export current state of countries and states to " +
-                       exportLocation)
-                          .c_str())) {
-      Arda::Countries::saveCountries(generator->countries, exportLocation);
-      Arda::Areas::saveRegions(
-          generator->ardaRegions, exportLocation,
-          Arda::Gfx::visualiseRegions(generator->ardaRegions));
-    }
-    if (isRelevantModuleActive("hoi4")) {
-      auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
-      if (ImGui::Button("Generate state data")) {
-        computationFutureBool = runAsync([hoi4Gen, &cfg, this]() {
-          hoi4Gen->generateStateSpecifics();
-          hoi4Gen->generateStateResources();
-          Arda::Civilization::generateImportance(hoi4Gen->ardaRegions);
-          requireCountryDetails = true;
-          return true;
-        });
-      }
-      if (!hoi4Gen->modData.statesInitialised) {
-        ImGui::Text("Generate state data first");
-      } else {
-        if (ImGui::Button("Randomly distribute countries")) {
-          computationFutureBool = runAsync([&generator, &cfg, this]() {
-            auto countryFactory =
-                []() -> std::shared_ptr<Rpx::Hoi4::Hoi4Country> {
-              return std::make_shared<Rpx::Hoi4::Hoi4Country>();
-            };
-            // generate country data
-            generator->generateCountries(countryFactory);
 
-            // build hoi4 countries out of basic countries
-            generator->mapCountries();
-            requireCountryDetails = true;
-            uiUtils->resetTexture();
-            return true;
-          });
-        }
-        ImGui::SameLine();
-        if (requireCountryDetails) {
-          ImGui::PushStyleColor(ImGuiCol_Button,
-                                ImVec4(1.0f, 0.2f, 0.2f, 1.0f)); // Red
-        }
-        if (ImGui::Button("Generate country data")) {
+    auto guard = Rpx::UI::RpxPrerequisiteChecker::require(
+        {Fwg::UI::PrerequisiteChecker::climate(ardaGen->climateData),
+         Fwg::UI::PrerequisiteChecker::landforms(ardaGen->terrainData),
+         Fwg::UI::PrerequisiteChecker::habitability(ardaGen->climateData),
+         Fwg::UI::PrerequisiteChecker::superSegments(ardaGen->areaData),
+         Fwg::UI::PrerequisiteChecker::segments(ardaGen->areaData),
+         Fwg::UI::PrerequisiteChecker::provinces(ardaGen->areaData),
+         Fwg::UI::PrerequisiteChecker::regions(ardaGen->areaData),
+         Fwg::UI::PrerequisiteChecker::continents(ardaGen->areaData),
+         Arda::UI::ArdaPrerequisiteChecker::ardaRegions(*ardaGen),
+         Arda::UI::ArdaPrerequisiteChecker::ardaProvinces(*ardaGen),
+         Arda::UI::ArdaPrerequisiteChecker::ardaContinents(*ardaGen)});
+    if (guard.ready()) {
+      auto exportLocation = Fwg::Cfg::Values().mapsPath + "/areas/";
+      if (ImGui::Button(("Export current state of countries and states to " +
+                         exportLocation)
+                            .c_str())) {
+        Arda::Countries::saveCountries(generator->countries, exportLocation);
+        Arda::Areas::saveRegions(
+            generator->ardaRegions, exportLocation,
+            Arda::Gfx::visualiseRegions(generator->ardaRegions));
+      }
+      if (isRelevantModuleActive("hoi4")) {
+        auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
+        if (ImGui::Button("Generate state data")) {
           computationFutureBool = runAsync([hoi4Gen, &cfg, this]() {
-            // generate only country details, no new countries
-            hoi4Gen->generateCountries(nullptr);
-
-            hoi4Gen->generateLogistics();
-            hoi4Gen->generateCountrySpecifics();
-            // hoi4Gen->generateFocusTrees();
-            hoi4Gen->distributeVictoryPoints();
-            hoi4Gen->generatePositions();
-            hoi4Gen->generateRandomDecisions();
-            requireCountryDetails = false;
+            hoi4Gen->generateStateSpecifics();
+            hoi4Gen->generateStateResources();
+            Arda::Civilization::generateImportance(hoi4Gen->ardaRegions);
+            requireCountryDetails = true;
             return true;
           });
         }
-        if (requireCountryDetails) {
-          ImGui::PopStyleColor();
-        }
-      }
-    }
-
-    else if (isRelevantModuleActive("vic3")) {
-    } else if (isRelevantModuleActive("eu4")) {
-    }
-
-    auto str =
-        "Generated countries: " + std::to_string(generator->countries.size());
-    ImGui::Text(str.c_str());
-    // drag event
-    if (triggeredDrag) {
-      requireCountryDetails = true;
-      triggeredDrag = false;
-      if (draggedFile.find(".txt") != std::string::npos) {
-        if (draggedFile.find("states.txt") != std::string::npos ||
-            draggedFile.find("stateMappings.txt") != std::string::npos) {
-          Fwg::Utils::Logging::logLine(
-              "Applying state input from file: ",
-              Fwg::Utils::userFilter(draggedFile, cfg.username));
-          generator->regionMappingPath = draggedFile;
-          generator->applyRegionInput();
-          requireCountryDetails = true;
-
-        } else if (draggedFile.find("countries.txt") != std::string::npos ||
-                   draggedFile.find("countryMappings.txt") !=
-                       std::string::npos) {
-          Fwg::Utils::Logging::logLine(
-              "Applying country input from file: ",
-              Fwg::Utils::userFilter(draggedFile, cfg.username));
-          activeGenerator->loadCountries(
-              activeGenerator->ardaFactories.countryFactory, draggedFile);
-
-          // generator->countryMappingPath = draggedFile;
-          // generator->applyCountryInput();
-          // requireCountryDetails = true;
+        if (!hoi4Gen->modData.statesInitialised) {
+          ImGui::Text("Generate state data first");
         } else {
-          Fwg::Utils::Logging::logLine(
-              "No valid file dragged in, the filename must either be "
-              "states.txt, stateMappings.txt, countries.txt or "
-              "countryMappings.txt");
-        }
-      } else {
-        computationFutureBool = runAsync([&generator, &cfg, this]() {
-          auto evaluationAreas =
-              Fwg::UI::Utils::Masks::getLandmaskEvaluationAreas(
-                  generator->terrainData.landMask);
-          if (cfg.areaInputMode == Fwg::Areas::AreaInputType::SOLID) {
-            auto img = Fwg::IO::Reader::readGenericImageWithBorders(
-                draggedFile, cfg, evaluationAreas);
-            if (img.size()) {
-              activeGenerator->loadCountries(
-                  generator->ardaFactories.countryFactory, img);
-            }
-          } else {
-            auto image = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
+          if (ImGui::Button("Randomly distribute countries")) {
+            computationFutureBool = runAsync([&generator, &cfg, this]() {
+              auto countryFactory =
+                  []() -> std::shared_ptr<Rpx::Hoi4::Hoi4Country> {
+                return std::make_shared<Rpx::Hoi4::Hoi4Country>();
+              };
+              // generate country data
+              generator->generateCountries(countryFactory);
 
-            if (image.size()) {
-              // detect all areas, give them unique colours
-              Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(
-                  image, evaluationAreas);
-
-              // now that we have modified the input image with colours filling
-              // the areas between borders, we can remove the borders
-              Fwg::Gfx::Filter::fillBlackPixelsByArea(image, evaluationAreas);
-              activeGenerator->loadCountries(
-                  activeGenerator->ardaFactories.countryFactory, image);
-            }
+              // build hoi4 countries out of basic countries
+              generator->mapCountries();
+              requireCountryDetails = true;
+              uiUtils->resetTexture();
+              return true;
+            });
           }
-          uiUtils->resetTexture();
-          return true;
-        });
-      }
-    }
+          ImGui::SameLine();
+          if (requireCountryDetails) {
+            ImGui::PushStyleColor(ImGuiCol_Button,
+                                  ImVec4(1.0f, 0.2f, 0.2f, 1.0f)); // Red
+          }
+          if (ImGui::Button("Generate country data")) {
+            computationFutureBool = runAsync([hoi4Gen, &cfg, this]() {
+              // generate only country details, no new countries
+              hoi4Gen->generateCountries(nullptr);
 
-    countryEdit(generator);
+              hoi4Gen->generateLogistics();
+              hoi4Gen->generateCountrySpecifics();
+              // hoi4Gen->generateFocusTrees();
+              hoi4Gen->distributeVictoryPoints();
+              hoi4Gen->generatePositions();
+              hoi4Gen->generateRandomDecisions();
+              requireCountryDetails = false;
+              return true;
+            });
+          }
+          if (requireCountryDetails) {
+            ImGui::PopStyleColor();
+          }
+        }
+      }
+
+      else if (isRelevantModuleActive("vic3")) {
+      } else if (isRelevantModuleActive("eu4")) {
+      }
+
+      auto str =
+          "Generated countries: " + std::to_string(generator->countries.size());
+      ImGui::Text(str.c_str());
+      countryDrag(generator);
+      countryEdit(generator);
+    }
 
     ImGui::EndTabItem();
     ImGui::PopItemWidth();
@@ -852,44 +911,47 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
   return 0;
 }
 
-int GUI::showModuleGeneric(Fwg::Cfg &cfg) {
-  if (!validatedPaths)
-    ImGui::BeginDisabled();
-  if (activeGenerator->terrainData.detailedHeightMap.size() &&
-      activeGenerator->climateMap.initialised() &&
-      activeGenerator->provinceMap.initialised() &&
-      activeGenerator->regionMap.initialised()) {
-    if (ImGui::Button(
-            std::string("Generate " + activeGameConfig.gameName + " mod")
-                .c_str())) {
-
-      computationFutureBool = runAsyncInitialDisable([&cfg, this]() {
-        activeGenerator->generate();
-        configuredScenarioGen = true;
-        redoTopography = false;
-        redoDevelopment = false;
-        redoPopulation = false;
-        redoCulture = false;
-        redoLocations = false;
-        return true;
-      });
+void GUI::stratRegionEdit(std::shared_ptr<Arda::ArdaGen> generator) {
+  static int selectedStratRegionIndex = 0;
+  auto &clickEvents = uiUtils->clickEvents;
+  if (clickEvents.size()) {
+    auto pix = clickEvents.front();
+    clickEvents.pop();
+    const auto &colour = generator->provinceMap[pix.pixel];
+    if (generator->areaData.provinceColourMap.contains(colour)) {
+      const auto &prov = generator->areaData.provinceColourMap[colour];
+      auto &state = generator->ardaRegions[prov->regionID];
+      auto &stratRegion = generator->superRegions[state->superRegionID];
+      if (drawBorders) {
+        auto &rootRegion = generator->superRegions[selectedStratRegionIndex];
+        stratRegion->removeRegion(state);
+        // if the stratRegion is now empty of regions, remove it
+        if (stratRegion->ardaRegions.empty()) {
+          generator->superRegions.erase(
+              std::remove(generator->superRegions.begin(),
+                          generator->superRegions.end(), stratRegion),
+              generator->superRegions.end());
+          // update all strategic regions IDs
+          for (size_t i = 0; i < generator->superRegions.size(); i++) {
+            generator->superRegions[i]->ID = static_cast<int>(i);
+            for (auto &region : generator->superRegions[i]->ardaRegions) {
+              region->superRegionID = i;
+            }
+          }
+          Fwg::Utils::Logging::logLine(
+              "Removed empty strategic region with ID: ", stratRegion->ID);
+        }
+        if (rootRegion != nullptr) {
+          rootRegion->addRegion(state);
+        }
+        uiUtils->updateImage(0, Arda::Gfx::visualiseStrategicRegions(
+                                    generator->superRegionMap,
+                                    generator->superRegions, stratRegion->ID));
+      } else {
+        selectedStratRegionIndex = stratRegion->ID;
+      }
     }
   }
-  ImGui::SameLine();
-  if (ImGui::Button(std::string("Generate world + " +
-                                activeGameConfig.gameName + " mod in one go")
-                        .c_str())) {
-
-    computationFutureBool = runAsyncInitialDisable([&cfg, this]() {
-      activeGenerator->generateWorld();
-      activeGenerator->generate();
-      configuredScenarioGen = true;
-      return true;
-    });
-  }
-  if (!validatedPaths)
-    ImGui::EndDisabled();
-  return 0;
 }
 
 int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
@@ -904,175 +966,90 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
     }
     uiUtils->showHelpTextBox("Strategic Regions");
     areaInputSelector(cfg);
-    static int selectedStratRegionIndex = 0;
     ImGui::PushItemWidth(200.0f);
     ImGui::InputFloat("<--Strategic region factor: ",
                       &generator->ardaConfig.superRegionFactor, 0.1f);
     ImGui::InputFloat("<--Strategic region mindistance factor: ",
                       &generator->ardaConfig.superRegionMinDistanceFactor);
-    if (ImGui::Button("Generate strategic region template")) {
-      Arda::Gfx::generateStrategicRegionTemplate(generator->areaData.provinces,
-                                                 generator->areaData.regions);
-    }
-
-    if (ImGui::Button("Generate strategic regions")) {
-      computationFutureBool = runAsync([&generator, &cfg, this]() {
-        // non-country stuff
-        generator->generateStrategicRegions(
-            activeGenerator->ardaFactories.superRegionFactory);
-        uiUtils->resetTexture();
-        if (activeGameConfig.gameName == "Hearts of Iron IV") {
-          auto hoi4Gen = std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
-              activeGenerator);
-          hoi4Gen->generateWeather();
-        } else if (activeGameConfig.gameName == "Victoria 3") {
-          auto vic3Gen = std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
-              activeGenerator);
-          // do stuff
-        }
-        return true;
-      });
-    }
-    if (triggeredDrag) {
-      computationFutureBool = runAsync([&generator, &cfg, this]() {
-        if (cfg.areaInputMode == Fwg::Areas::AreaInputType::SOLID) {
-          activeGenerator->loadStrategicRegions(
-              activeGenerator->ardaFactories.superRegionFactory,
-              Fwg::IO::Reader::readGenericImageWithBorders(draggedFile, cfg,
-                                                           {}));
-        } else {
-          auto image = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
-
-          // detect all areas, give them unique colours
-          Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(image, {});
-
-          // now that we have modified the input image with colours filling
-          // the areas between borders, we can remove the borders
-          Fwg::Gfx::Filter::fillBlackPixelsByArea(image, {});
-          activeGenerator->loadStrategicRegions(
-              activeGenerator->ardaFactories.superRegionFactory, image);
-        }
-
-        if (activeGameConfig.gameName == "Hearts of Iron IV") {
-          auto hoi4Gen = std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
-              activeGenerator);
-          hoi4Gen->generateWeather();
-        } else if (activeGameConfig.gameName == "Victoria 3") {
-          auto vic3Gen = std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
-              activeGenerator);
-          // do stuff
-        }
-        triggeredDrag = false;
-        uiUtils->resetTexture();
-        return true;
-      });
-    }
-
-    auto &clickEvents = uiUtils->clickEvents;
-    if (clickEvents.size()) {
-      auto pix = clickEvents.front();
-      clickEvents.pop();
-      const auto &colour = generator->provinceMap[pix.pixel];
-      if (generator->areaData.provinceColourMap.contains(colour)) {
-        const auto &prov = generator->areaData.provinceColourMap[colour];
-        auto &state = generator->ardaRegions[prov->regionID];
-        auto &stratRegion = generator->superRegions[state->superRegionID];
-        if (drawBorders) {
-          auto &rootRegion = generator->superRegions[selectedStratRegionIndex];
-          stratRegion->removeRegion(state);
-          // if the stratRegion is now empty of regions, remove it
-          if (stratRegion->ardaRegions.empty()) {
-            generator->superRegions.erase(
-                std::remove(generator->superRegions.begin(),
-                            generator->superRegions.end(), stratRegion),
-                generator->superRegions.end());
-            // update all strategic regions IDs
-            for (size_t i = 0; i < generator->superRegions.size(); i++) {
-              generator->superRegions[i]->ID = static_cast<int>(i);
-              for (auto &region : generator->superRegions[i]->ardaRegions) {
-                region->superRegionID = i;
-              }
-            }
-            Fwg::Utils::Logging::logLine(
-                "Removed empty strategic region with ID: ", stratRegion->ID);
-          }
-          if (rootRegion != nullptr) {
-            rootRegion->addRegion(state);
-          }
-          uiUtils->updateImage(
-              0, Arda::Gfx::visualiseStrategicRegions(generator->superRegionMap,
-                                                      generator->superRegions,
-                                                      stratRegion->ID));
-        } else {
-          selectedStratRegionIndex = stratRegion->ID;
-        }
+    auto guard = Rpx::UI::RpxPrerequisiteChecker::require(
+        {Fwg::UI::PrerequisiteChecker::climate(ardaGen->climateData),
+         Fwg::UI::PrerequisiteChecker::landforms(ardaGen->terrainData),
+         Fwg::UI::PrerequisiteChecker::habitability(ardaGen->climateData),
+         Fwg::UI::PrerequisiteChecker::superSegments(ardaGen->areaData),
+         Fwg::UI::PrerequisiteChecker::segments(ardaGen->areaData),
+         Fwg::UI::PrerequisiteChecker::provinces(ardaGen->areaData),
+         Fwg::UI::PrerequisiteChecker::regions(ardaGen->areaData),
+         Fwg::UI::PrerequisiteChecker::continents(ardaGen->areaData),
+         Arda::UI::ArdaPrerequisiteChecker::ardaRegions(*ardaGen),
+         Arda::UI::ArdaPrerequisiteChecker::ardaProvinces(*ardaGen),
+         Arda::UI::ArdaPrerequisiteChecker::ardaContinents(*ardaGen)});
+    if (guard.ready()) {
+      if (ImGui::Button("Generate strategic region template")) {
+        Arda::Gfx::generateStrategicRegionTemplate(
+            generator->areaData.provinces, generator->areaData.regions);
       }
+
+      if (ImGui::Button("Generate strategic regions")) {
+        computationFutureBool = runAsync([&generator, &cfg, this]() {
+          // non-country stuff
+          generator->generateStrategicRegions(
+              activeGenerator->ardaFactories.superRegionFactory);
+          uiUtils->resetTexture();
+          if (activeGameConfig.gameName == "Hearts of Iron IV") {
+            auto hoi4Gen =
+                std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
+                    activeGenerator);
+            hoi4Gen->generateWeather();
+          } else if (activeGameConfig.gameName == "Victoria 3") {
+            auto vic3Gen =
+                std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
+                    activeGenerator);
+            // do stuff
+          }
+          return true;
+        });
+      }
+      if (triggeredDrag) {
+        computationFutureBool = runAsync([&generator, &cfg, this]() {
+          if (cfg.areaInputMode == Fwg::Areas::AreaInputType::SOLID) {
+            activeGenerator->loadStrategicRegions(
+                activeGenerator->ardaFactories.superRegionFactory,
+                Fwg::IO::Reader::readGenericImageWithBorders(draggedFile, cfg,
+                                                             {}));
+          } else {
+            auto image = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
+
+            // detect all areas, give them unique colours
+            Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(image, {});
+
+            // now that we have modified the input image with colours filling
+            // the areas between borders, we can remove the borders
+            Fwg::Gfx::Filter::fillBlackPixelsByArea(image, {});
+            activeGenerator->loadStrategicRegions(
+                activeGenerator->ardaFactories.superRegionFactory, image);
+          }
+
+          if (activeGameConfig.gameName == "Hearts of Iron IV") {
+            auto hoi4Gen =
+                std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
+                    activeGenerator);
+            hoi4Gen->generateWeather();
+          } else if (activeGameConfig.gameName == "Victoria 3") {
+            auto vic3Gen =
+                std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
+                    activeGenerator);
+            // do stuff
+          }
+          triggeredDrag = false;
+          uiUtils->resetTexture();
+          return true;
+        });
+      }
+      stratRegionEdit(generator);
     }
     ImGui::EndTabItem();
   }
   return 0;
-}
-
-// HOI4
-int GUI::showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
-  ImGui::InputFloat("Starting Army Size Factor",
-                    &generator->modConfig.startingArmyStrengthFactor, 0.1);
-  ImGui::InputFloat("Starting Navy Size Factor",
-                    &generator->modConfig.startingNavyStrengthFactor, 0.1);
-  ImGui::InputFloat("Starting Airforce Size Factor",
-                    &generator->modConfig.startingAirforceStrengthFactor, 0.1);
-  ImGui::InputDouble("resourceFactor", &generator->ardaConfig.resourceFactor,
-                     0.1);
-  ImGui::InputDouble("aluminiumFactor",
-                     &generator->modConfig.resources["aluminium"][0], 0.1);
-  ImGui::InputDouble("coalFactor", &generator->modConfig.resources["coal"][0],
-                     0.1);
-  ImGui::InputDouble("chromiumFactor",
-                     &generator->modConfig.resources["chromium"][0], 0.1);
-  ImGui::InputDouble("oilFactor", &generator->modConfig.resources["oil"][0],
-                     0.1);
-  ImGui::InputDouble("rubberFactor",
-                     &generator->modConfig.resources["rubber"][0], 0.1);
-  ImGui::InputDouble("steelFactor", &generator->modConfig.resources["steel"][0],
-                     0.1);
-  ImGui::InputDouble("tungstenFactor",
-                     &generator->modConfig.resources["tungsten"][0], 0.1);
-  ImGui::InputDouble(
-      "baseLightRainChance",
-      &generator->modConfig.weatherChances["baseLightRainChance"], 0.1);
-  ImGui::InputDouble(
-      "baseHeavyRainChance",
-      &generator->modConfig.weatherChances["baseHeavyRainChance"], 0.1);
-  ImGui::InputDouble("baseMudChance",
-                     &generator->modConfig.weatherChances["baseMudChance"],
-                     0.1);
-  ImGui::InputDouble("baseBlizzardChance",
-                     &generator->modConfig.weatherChances["baseBlizzardChance"],
-                     0.1);
-  ImGui::InputDouble(
-      "baseSandstormChance",
-      &generator->modConfig.weatherChances["baseSandstormChance"], 0.1);
-  ImGui::InputDouble("baseSnowChance",
-                     &generator->modConfig.weatherChances["baseSnowChance"],
-                     0.1);
-  return 0;
-}
-
-void GUI::pathWarning(std::exception e) {
-  Fwg::Utils::Logging::logLine(
-      "Error in writing files: ", e.what(),
-      " you probably have misconfigured paths to the mods directory. "
-      "According to you, this is located at the following path: ",
-      activeGenerator->pathcfg.gameModPath);
-  Fwg::Utils::Logging::logLine("The path to the mod folder is set to ",
-                               activeGenerator->pathcfg.gameModsDirectory,
-                               " while the path to the game is set to ",
-                               activeGenerator->pathcfg.gamePath);
-  Fwg::Utils::Logging::logLine(
-      "Please check if the paths are correct, and if the mod folder is "
-      "located in the mods directory of the game. You may now "
-      "reconfigure the paths in the first tab and then try to export "
-      "again.");
 }
 
 int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
@@ -1082,8 +1059,25 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
     auto generator = getGeneratorPointer<Rpx::Hoi4::Generator>();
-    if (generator->superRegions.size() && generator->provinceMap.size() &&
-        generator->modData.statesInitialised && !requireCountryDetails) {
+
+    auto guard = Rpx::UI::RpxPrerequisiteChecker::require(
+        {Fwg::UI::PrerequisiteChecker::climate(ardaGen->climateData),
+         Fwg::UI::PrerequisiteChecker::landforms(ardaGen->terrainData),
+         Fwg::UI::PrerequisiteChecker::habitability(ardaGen->climateData),
+         Fwg::UI::PrerequisiteChecker::superSegments(ardaGen->areaData),
+         Fwg::UI::PrerequisiteChecker::segments(ardaGen->areaData),
+         Fwg::UI::PrerequisiteChecker::provinces(ardaGen->areaData),
+         Fwg::UI::PrerequisiteChecker::regions(ardaGen->areaData),
+         Fwg::UI::PrerequisiteChecker::continents(ardaGen->areaData),
+         Arda::UI::ArdaPrerequisiteChecker::ardaRegions(*ardaGen),
+         Arda::UI::ArdaPrerequisiteChecker::ardaProvinces(*ardaGen),
+         Arda::UI::ArdaPrerequisiteChecker::ardaContinents(*ardaGen),
+         Rpx::UI::RpxPrerequisiteChecker::strategicRegions(*generator),
+         Rpx::UI::RpxPrerequisiteChecker::countryDetailsReady(
+             requireCountryDetails),
+         Rpx::UI::RpxPrerequisiteChecker::hoi4StatesInitialised(*generator)});
+
+    if (guard.ready()) {
       ImGui::SeparatorText(
           "Export everything into a (hopefully) functional mod.");
       static bool writeScenarioDetails = true;
@@ -1115,47 +1109,37 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
       if (ImGui::Button("Export heightmap.bmp")) {
         generator->getImageExporter().dump8BitHeightmap(
             generator->terrainData.detailedHeightMap,
-            generator->pathcfg.gameModPath + "//map//heightmap", "heightmap");
+            generator->pathcfg.gameModPath + "map/heightmap", "heightmap");
       }
       if (ImGui::Button("Export world_normal.bmp")) {
         generator->getImageExporter().dumpWorldNormal(
             Fwg::Gfx::displaySobelMap(generator->terrainData.sobelData),
-            generator->pathcfg.gameModPath + "//map//world_normal.bmp", false);
+            generator->pathcfg.gameModPath + "map/world_normal.bmp", false);
       }
       if (ImGui::Button("Export terrain.bmp")) {
         generator->getImageExporter().dump8BitTerrain(
             generator->terrainData, generator->climateData,
             generator->ardaData.civLayer,
-            generator->pathcfg.gameModPath + "//map//terrain.bmp", "terrain",
+            generator->pathcfg.gameModPath + "map/terrain.bmp", "terrain",
             false);
       }
       if (ImGui::Button("Export provinces.bmp")) {
         Fwg::Gfx::Bmp::save(
             generator->provinceMap,
-            (generator->pathcfg.gameModPath + ("//map//provinces.bmp"))
-                .c_str());
+            (generator->pathcfg.gameModPath + ("map/provinces.bmp")).c_str());
       }
       if (ImGui::Button("Export treemap.bmp")) {
         generator->getImageExporter().dump8BitTrees(
             generator->terrainData, generator->climateData,
-            generator->pathcfg.gameModPath + "//map//trees.bmp", "trees",
-            false);
+            generator->pathcfg.gameModPath + "map/trees.bmp", "trees", false);
       }
       if (ImGui::Button("Export colormap_rgb_cityemissivemask_a.dds")) {
         generator->getImageExporter().dumpTerrainColourmap(
             generator->worldMap, generator->ardaData.civLayer,
             generator->pathcfg.gameModPath,
-            "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
+            "map/terrain/colormap_rgb_cityemissivemask_a.dds",
             gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
       }
-
-    } else {
-      ImGui::Text("Have strategic regions, initialised states and generated "
-                  "country data first before exporting the mod");
-
-      ImGui::Text("Check for any red tabs or buttons. Especially in the "
-                  "country and strategic region tab.");
-      ImGui::Text("Furthermore, check for any errors in the log.");
     }
     // drag event is ignored here
     if (triggeredDrag) {
@@ -1215,8 +1199,7 @@ int GUI::showVic3Finalise(Fwg::Cfg &cfg) {
           // Vic3 specifics:
           generator->distributeResources();
           generator->mapCountries();
-          if (!generator->importData(generator->pathcfg.gamePath +
-                                     "//game//")) {
+          if (!generator->importData(generator->pathcfg.gamePath + "/game/")) {
             Fwg::Utils::Logging::logLine(
                 "ERROR: Could not import data from game "
                 "folder. The export has FAILED. You "

@@ -104,12 +104,12 @@ void Generator::configureModGen(const std::string &configSubFolder,
   pt::ptree vic3Conf;
   try {
     // Read the basic settings
-    std::ifstream f(configSubFolder + "//Victoria3Module.json");
+    std::ifstream f(configSubFolder + "/Victoria3Module.json");
     std::stringstream buffer;
     if (!f.good())
       Fwg::Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
-    Fwg::Parsing::replaceInStringStream(buffer, "//", "//");
+    Fwg::Parsing::replaceInStringStream(buffer, "//", "/");
 
     pt::read_json(buffer, vic3Conf);
   } catch (std::exception& e) {
