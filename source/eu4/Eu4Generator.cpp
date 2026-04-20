@@ -59,12 +59,12 @@ void Generator::configureModGen(const std::string &configSubFolder,
   pt::ptree eu4Conf;
   try {
     // Read the basic settings
-    std::ifstream f(configSubFolder + "//Europa Universalis IVModule.json");
+    std::ifstream f(configSubFolder + "/Europa Universalis IVModule.json");
     std::stringstream buffer;
     if (!f.good())
       Fwg::Utils::Logging::logLine("Config could not be loaded");
     buffer << f.rdbuf();
-    Fwg::Parsing::replaceInStringStream(buffer, "//", "//");
+    Fwg::Parsing::replaceInStringStream(buffer, "//", "/");
 
     pt::read_json(buffer, eu4Conf);
   } catch (std::exception& e) {
