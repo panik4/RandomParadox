@@ -16,10 +16,6 @@ void dumpInfo(const std::string &error, const std::string &configSubFolder) {
   }
   dump += std::to_string(Cfg::Values().mapSeed);
   dump += "\n";
-  for (auto layerSeed : Cfg::Values().seeds) {
-    dump += std::to_string(layerSeed);
-    dump += "\n";
-  }
   dump += error;
   dump += Utils::Logging::Logger::logInstance.getFullLog();
   Fwg::Parsing::writeFile("log.txt", dump);
