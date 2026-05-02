@@ -99,7 +99,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
                const std::string &usernameRef) {
 
   try {
-    CreateDeviceGL("RandomParadox 0.10.1", 0, 0);
+    CreateDeviceGL("RandomParadox 0.10.2", 0, 0);
 
     setWindowIcon(window, Fwg::Cfg::Values().workingDirectory +
                               "resources/worldMap.png");
@@ -188,7 +188,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
         }
 
         ImGui::BeginChild("LeftContent",
-                          ImVec2(ImGui::GetContentRegionAvail().x * 0.4f,
+            ImVec2(ImGui::GetContentRegionAvail().x * leftColumnWidth,
                                  ImGui::GetContentRegionAvail().y * 1.0f),
                           false);
         {
@@ -208,12 +208,14 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
               if (computationRunning) {
                 ImGui::BeginDisabled();
               }
+              // reset to default before tabs can again overwrite it, if custom width needed
+              leftColumnWidth = 0.4f;
               showConfigure(cfg);
               if (!validatedPaths)
                 ImGui::BeginDisabled();
-              if (cfg.debugLevel == 9) {
-                showModLoader(cfg);
-              }
+              // if (cfg.debugLevel == 9) {
+              //   showModLoader(cfg);
+              // }
               defaultTabs(cfg, *activeGenerator);
               automapAreas();
               showCivilizationTab(cfg);
@@ -412,6 +414,7 @@ bool GUI::isRelevantModuleActive(const std::string &shortName) {
 int GUI::showConfigure(Fwg::Cfg &cfg) {
 
   if (Fwg::UI::Elements::BeginMainTabItem("Configure")) {
+    leftColumnWidth = 1.0f;
     uiUtils->showHelpTextBox("Configure");
     if (Fwg::UI::Elements::BeginSubTabBar("Config tabs", 0.0f)) {
       showRpdxConfigure(cfg);
@@ -436,18 +439,14 @@ static bool PathInput(const char *label, std::string &path,
 
 int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
   static int item_current = 0;
-  // remove the images, and set pretext for them to be auto
-  // loaded after switching tabs again
+
   if (Fwg::UI::Elements::BeginSubTabItem("RandomParadox Configuration")) {
-    ImGui::PushItemWidth(200.0f);
     uiUtils->tabSwitchEvent();
-    // find every subfolder of config folder
+
     if (!loadedConfigs) {
       loadedConfigs = true;
       loadConfigs();
       activeConfig = configSubfolders[item_current];
-      // on startup, try to auto locate game and game mod folder, then auto
-      // validate
       Rpx::Utils::autoLocateGameFolder(activeGenerator->pathcfg.gamePath,
                                        activeGameConfig.gameName,
                                        activeGenerator->pathcfg.gameSubPath);
@@ -456,58 +455,74 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
       validatePaths();
     }
 
+    ImGui::SeparatorText("Game and Configuration Selection");
+
+    // Prepare data for grid layout
     std::vector<const char *> gameSelection;
     for (auto &gameConfig : gameConfigs) {
       gameSelection.push_back(gameConfig.gameName.c_str());
     }
-    if (ImGui::ListBox("Game Selection", &selectedGame, gameSelection.data(),
-                       static_cast<int>(gameSelection.size()))) {
-      if (gameConfigs[selectedGame].gameName == "Hearts of Iron IV") {
-        activeGenerator = std::make_shared<Rpx::Hoi4::Generator>(
-            Rpx::Hoi4::Generator(configSubFolder, rpdConf));
-        activeGenerator->climateData.addSecondaryColours(Fwg::Parsing::getLines(
-            Fwg::Cfg::Values().resourcePath + "hoi4/colourMappings.txt"));
-      } else if (gameConfigs[selectedGame].gameName ==
-                 "Europa Universalis IV") {
-        activeGenerator = std::make_shared<Rpx::Eu4::Generator>(
-            Rpx::Eu4::Generator(configSubFolder, rpdConf));
-      } else if (gameConfigs[selectedGame].gameName == "Victoria 3") {
-        activeGenerator = std::make_shared<Rpx::Vic3::Generator>(
-            Rpx::Vic3::Generator(configSubFolder, rpdConf));
-      } else if (gameConfigs[selectedGame].gameName == "Europa Universalis V") {
-        activeGenerator = std::make_shared<Rpx::Eu5::Generator>(
-            Rpx::Eu5::Generator(configSubFolder, rpdConf));
-      }
-      activeGameConfig = gameConfigs[selectedGame];
-      Rpx::Utils::autoLocateGameFolder(activeGenerator->pathcfg.gamePath,
-                                       activeGameConfig.gameName,
-                                       activeGenerator->pathcfg.gameSubPath);
-      Rpx::Utils::autoLocateGameModFolder(activeGameConfig.gameName,
-                                          activeGenerator->pathcfg);
-      validatedPaths = false;
-      validatePaths();
-      activeGenerator->configure(cfg);
-    }
-    ardaGen = activeGenerator;
+
     std::vector<const char *> items;
     for (auto &item : configSubfolders)
       items.push_back(item.c_str());
-    ImGui::SeparatorText(
-        "Click an entry in the list to choose a config preset");
-    if (ImGui::ListBox("Config Presets", &item_current, items.data(),
-                       static_cast<int>(items.size()))) {
-      activeConfig = items[item_current];
-      Fwg::Utils::Logging::logLine("Switched to ", activeConfig,
-                                   "/FastWorldGenerator.json");
-      cfg.readConfig(activeConfig);
-      loadGameConfig(cfg);
-      activeGenerator->configure(cfg);
+
+    // Game and Config selection side-by-side using GridLayout
+    {
+      Fwg::UI::Elements::GridLayout grid(3, 120.0f, 12.0f);
+
+      // Game Selection
+      if (grid.AddListBox("Select Game", &selectedGame, gameSelection.data(),
+                          static_cast<int>(gameSelection.size()), 4, 350.0f)) {
+        if (gameConfigs[selectedGame].gameName == "Hearts of Iron IV") {
+          activeGenerator = std::make_shared<Rpx::Hoi4::Generator>(
+              Rpx::Hoi4::Generator(configSubFolder, rpdConf));
+          activeGenerator->climateData.addSecondaryColours(
+              Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
+                                     "hoi4/colourMappings.txt"));
+        } else if (gameConfigs[selectedGame].gameName ==
+                   "Europa Universalis IV") {
+          activeGenerator = std::make_shared<Rpx::Eu4::Generator>(
+              Rpx::Eu4::Generator(configSubFolder, rpdConf));
+        } else if (gameConfigs[selectedGame].gameName == "Victoria 3") {
+          activeGenerator = std::make_shared<Rpx::Vic3::Generator>(
+              Rpx::Vic3::Generator(configSubFolder, rpdConf));
+        } else if (gameConfigs[selectedGame].gameName ==
+                   "Europa Universalis V") {
+          activeGenerator = std::make_shared<Rpx::Eu5::Generator>(
+              Rpx::Eu5::Generator(configSubFolder, rpdConf));
+        }
+        activeGameConfig = gameConfigs[selectedGame];
+        Rpx::Utils::autoLocateGameFolder(activeGenerator->pathcfg.gamePath,
+                                         activeGameConfig.gameName,
+                                         activeGenerator->pathcfg.gameSubPath);
+        Rpx::Utils::autoLocateGameModFolder(activeGameConfig.gameName,
+                                            activeGenerator->pathcfg);
+        validatedPaths = false;
+        validatePaths();
+        activeGenerator->configure(cfg);
+      }
+
+      // Config Preset Selection
+      //if (grid.AddListBox("Config Presets", &item_current, items.data(),
+      //                    static_cast<int>(items.size()), 4, 450.0f)) {
+      //  activeConfig = items[item_current];
+      //  Fwg::Utils::Logging::logLine("Switched to ", activeConfig,
+      //                               "/FastWorldGenerator.json");
+      //  cfg.readConfig(activeConfig);
+      //  loadGameConfig(cfg);
+      //  activeGenerator->configure(cfg);
+      //}
     }
 
-    ImGui::PopItemWidth();
-    ImGui::PushItemWidth(600.0f);
+    ardaGen = activeGenerator;
+
+    ImGui::Spacing();
+    ImGui::SeparatorText("Path Configuration");
+
     // Path inputs with automatic normalization
     bool needsValidation = false;
+    ImGui::PushItemWidth(600.0f);
     needsValidation |= PathInput("Mod Name", activeGenerator->pathcfg.modName);
     needsValidation |=
         PathInput("Game Path", activeGenerator->pathcfg.gamePath);
@@ -515,40 +530,55 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
         PathInput("Mods Directory", activeGenerator->pathcfg.gameModsDirectory);
     needsValidation |=
         PathInput("Mod Path", activeGenerator->pathcfg.gameModPath, false);
+    ImGui::PopItemWidth();
 
     if (needsValidation) {
       validatePaths();
     }
 
-    if (ImGui::Button("Try to find game files")) {
+    ImGui::Spacing();
+
+    if (Fwg::UI::Elements::Button("Find Game Files", false, ImVec2(180, 0))) {
       Rpx::Utils::autoLocateGameFolder(activeGenerator->pathcfg.gamePath,
                                        activeGameConfig.gameName,
                                        activeGenerator->pathcfg.gameSubPath);
     }
     ImGui::SameLine();
-    if (ImGui::Button("Try to find the games mods folder")) {
+    if (Fwg::UI::Elements::Button("Find Mods Folder", false, ImVec2(180, 0))) {
       Rpx::Utils::autoLocateGameModFolder(activeGameConfig.gameName,
                                           activeGenerator->pathcfg);
     }
     ImGui::SameLine();
-    if (ImGui::Button("Validate all paths")) {
+    if (Fwg::UI::Elements::ImportantStepButton("Validate Paths",
+                                               ImVec2(180, 0))) {
       validatePaths();
     }
-    ImGui::PopItemWidth();
-    ImGui::PushItemWidth(200.0f);
-    if (ImGui::InputDouble("WorldPopulationFactor",
-                           &activeGenerator->ardaConfig.worldPopulationFactor,
-                           0.1)) {
-      activeGenerator->ardaConfig.calculateTargetWorldPopulation();
+
+    ImGui::Spacing();
+    ImGui::SeparatorText("World Configuration");
+
+    {
+      Fwg::UI::Elements::GridLayout grid(2, 250.0f, 12.0f);
+
+      if (grid.AddInputDouble(
+              "Population Factor",
+              &activeGenerator->ardaConfig.worldPopulationFactor, 0.0, 10.0)) {
+        activeGenerator->ardaConfig.calculateTargetWorldPopulation();
+      }
+      grid.AddText("Target Population", "%.1f Mio",
+                   ardaGen->ardaConfig.targetWorldPopulation / 1000'000.0);
+
+      if (grid.AddInputDouble("Industry Factor",
+                              &activeGenerator->ardaConfig.worldIndustryFactor,
+                              0.0, 10.0)) {
+        activeGenerator->ardaConfig.calculateTargetWorldGdp();
+      }
+      grid.AddText("Target GDP", "%.2f Trillion",
+                   ardaGen->ardaConfig.targetWorldGdp / 1000'000'000'000.0);
     }
-    ImGui::SameLine();
-    ImGui::Text("Target world population: %f Mio",
-                ardaGen->ardaConfig.targetWorldPopulation / 1000'000.0);
-    if (ImGui::InputDouble("industryFactor",
-                           &activeGenerator->ardaConfig.worldIndustryFactor,
-                           0.1)) {
-      activeGenerator->ardaConfig.calculateTargetWorldGdp();
-    }
+
+    ImGui::Spacing();
+
     if (isRelevantModuleActive("hoi4")) {
       auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
       Rpx::UI::Hoi4::showHoi4Configure(cfg, hoi4Gen);
@@ -558,11 +588,10 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
     } else if (isRelevantModuleActive("eu4")) {
       auto eu4Gen = getGeneratorPointer<Eu4Gen>();
     }
-    ImGui::PopItemWidth();
+
     ImGui::EndTabItem();
   }
-  // force path for cutting to gamePath + maps, but only if no other path
-  // defined
+
   if (cfg.cut) {
     cfg.loadMapsPath = activeGenerator->pathcfg.gamePath + "map/";
   }
@@ -571,7 +600,6 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
                            "/climateMapping.txt ";
   return 0;
 }
-
 void GUI::showModLoader(Fwg::Cfg &cfg) {
   if (Fwg::UI::Elements::BeginMainTabItem("Modloader")) {
     if (triggeredDrag) {
@@ -589,10 +617,11 @@ void GUI::showModLoader(Fwg::Cfg &cfg) {
 void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
   static int selectedStateIndex = 0;
   static std::string drawCountryTag;
-  ImGui::PushItemWidth(200.0f);
+
   if (!drawBorders) {
     drawCountryTag = "";
   }
+
   auto &clickEvents = uiUtils->clickEvents;
   if (clickEvents.size()) {
     auto pix = clickEvents.front();
@@ -606,6 +635,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
       }
     }
   }
+
   if (generator->ardaRegions.size()) {
     auto &modifiableState = generator->ardaRegions[selectedStateIndex];
 
@@ -620,55 +650,83 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
       if (!drawBorders) {
         drawCountryTag = selectedCountry->tag;
       }
+
       std::string tempTag = selectedCountry->tag;
       static std::string bufferChangedTag = "";
 
-      Fwg::UI::Elements::borderChild("CountryEdit", [&]() {
-        ImGui::PushItemWidth(200.0f);
-        if (ImGui::InputText("Country tag", &tempTag)) {
-          bufferChangedTag = tempTag;
-        }
-        if (ImGui::Button("update tag")) {
-          if (bufferChangedTag.size() != 3) {
-            Fwg::Utils::Logging::logLine("Tag must be 3 characters long");
-          } else {
-            std::string &oldTag = selectedCountry->tag;
-            if (oldTag == bufferChangedTag) {
-              Fwg::Utils::Logging::logLine("Tag is the same as the old one");
+      // Country Edit Section
+      ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(50, 80, 120, 100));
+      ImGui::BeginChild("CountryEdit", ImVec2(0, 200), true,
+                        ImGuiWindowFlags_None);
+      {
+        ImGui::SeparatorText("Country Details");
+
+        {
+          Fwg::UI::Elements::GridLayout grid(2, 180.0f, 12.0f);
+
+          ImGui::PushItemWidth(180.0f);
+          ImGui::AlignTextToFramePadding();
+          ImGui::Text("%-*s", 25, "Country Tag");
+          ImGui::SameLine();
+          if (ImGui::InputText("##tag", &tempTag)) {
+            bufferChangedTag = tempTag;
+          }
+          ImGui::PopItemWidth();
+
+          if (Fwg::UI::Elements::Button("Update Tag", false, ImVec2(120, 0))) {
+            if (bufferChangedTag.size() != 3) {
+              Fwg::Utils::Logging::logLine("Tag must be 3 characters long");
             } else {
-              generator->countries.erase(oldTag);
-              selectedCountry->tag = bufferChangedTag;
-              // add country under different tag
-              generator->countries.insert(
-                  {selectedCountry->tag, selectedCountry});
-              for (auto &region : selectedCountry->ownedRegions) {
-                region->owner = selectedCountry;
+              std::string &oldTag = selectedCountry->tag;
+              if (oldTag == bufferChangedTag) {
+                Fwg::Utils::Logging::logLine("Tag is the same as the old one");
+              } else {
+                generator->countries.erase(oldTag);
+                selectedCountry->tag = bufferChangedTag;
+                generator->countries.insert(
+                    {selectedCountry->tag, selectedCountry});
+                for (auto &region : selectedCountry->ownedRegions) {
+                  region->owner = selectedCountry;
+                }
               }
+              requireCountryDetails = true;
+              generator->visualiseCountries(generator->countryMap,
+                                            generator->worldMap);
             }
-            requireCountryDetails = true;
+          }
+
+          ImGui::PushItemWidth(180.0f);
+          ImGui::AlignTextToFramePadding();
+          ImGui::Text("%-*s", 25, "Country Name");
+          ImGui::SameLine();
+          ImGui::InputText("##name", &selectedCountry->name);
+
+          ImGui::AlignTextToFramePadding();
+          ImGui::Text("%-*s", 25, "Adjective");
+          ImGui::SameLine();
+          ImGui::InputText("##adj", &selectedCountry->adjective);
+          ImGui::PopItemWidth();
+
+          ImVec4 color =
+              ImVec4(((float)selectedCountry->colour.getRed()) / 255.0f,
+                     ((float)selectedCountry->colour.getGreen()) / 255.0f,
+                     ((float)selectedCountry->colour.getBlue()) / 255.0f, 1.0f);
+
+          ImGui::Text("%-*s", 25, "Colour");
+          ImGui::SameLine();
+          if (ImGui::ColorEdit3("##color", (float *)&color,
+                                ImGuiColorEditFlags_NoInputs |
+                                    ImGuiColorEditFlags_NoLabel)) {
+            selectedCountry->colour = Fwg::Gfx::Colour(
+                color.x * 255.0, color.y * 255.0, color.z * 255.0);
             generator->visualiseCountries(generator->countryMap,
                                           generator->worldMap);
+            uiUtils->resetTexture();
           }
         }
-        ImGui::InputText("Country name", &selectedCountry->name);
-        ImGui::InputText("Country adjective", &selectedCountry->adjective);
-        ImVec4 color =
-            ImVec4(((float)selectedCountry->colour.getRed()) / 255.0f,
-                   ((float)selectedCountry->colour.getGreen()) / 255.0f,
-                   ((float)selectedCountry->colour.getBlue()) / 255.0f, 1.0f);
-
-        if (ImGui::ColorEdit3("Country Colour", (float *)&color,
-                              ImGuiColorEditFlags_NoInputs |
-                                  ImGuiColorEditFlags_NoLabel |
-                                  ImGuiColorEditFlags_HDR)) {
-          selectedCountry->colour = Fwg::Gfx::Colour(
-              color.x * 255.0, color.y * 255.0, color.z * 255.0);
-          generator->visualiseCountries(generator->countryMap,
-                                        generator->worldMap);
-          uiUtils->resetTexture();
-        }
-        ImGui::PopItemWidth();
-      });
+      }
+      ImGui::EndChild();
+      ImGui::PopStyleColor();
 
       if (drawBorders && drawCountryTag.size()) {
         if (generator->countries.find(drawCountryTag) !=
@@ -688,45 +746,87 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
       }
     }
 
-    Fwg::UI::Elements::borderChild("StateEdit", [&]() {
-      ImGui::PushItemWidth(200.0f);
-      if (ImGui::InputText("State name", &modifiableState->name)) {
-        requireCountryDetails = true;
+    // State Edit Section
+    ImGui::Spacing();
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(80, 50, 120, 100));
+    ImGui::BeginChild("StateEdit", ImVec2(0, 150), true, ImGuiWindowFlags_None);
+    {
+      ImGui::SeparatorText("State Details");
+
+      {
+        Fwg::UI::Elements::GridLayout grid(2, 180.0f, 12.0f);
+
+        ImGui::PushItemWidth(180.0f);
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("%-*s", 25, "State Name");
+        ImGui::SameLine();
+        if (ImGui::InputText("##statename", &modifiableState->name)) {
+          requireCountryDetails = true;
+        }
+        ImGui::PopItemWidth();
+
+        if (modifiableState->owner) {
+          grid.AddText("Owner", "%s", modifiableState->owner->tag.c_str());
+        }
+
+        if (grid.AddInputDouble("Population", &modifiableState->totalPopulation,
+                                0.0, 1000000000.0)) {
+          requireCountryDetails = true;
+        }
       }
-      if (modifiableState->owner) {
-        ImGui::Text("State owner", &modifiableState->owner->tag);
-      }
-      if (ImGui::InputDouble("Population", &modifiableState->totalPopulation)) {
-        requireCountryDetails = true;
-      }
-      ImGui::PopItemWidth();
-    });
+    }
+    ImGui::EndChild();
+    ImGui::PopStyleColor();
 
     if (isRelevantModuleActive("hoi4")) {
       const auto &hoi4Region =
           std::reinterpret_pointer_cast<Rpx::Hoi4::Region, Arda::ArdaRegion>(
               modifiableState);
 
-      Fwg::UI::Elements::borderChild("StateEdit2", [&]() {
-        ImGui::PushItemWidth(200.0f);
-        if (longCircuitLogicalOr(
-                ImGui::InputInt("Arms Industry", &hoi4Region->armsFactories),
-                ImGui::InputInt("Civilian Industry",
-                                &hoi4Region->civilianFactories),
-                optionalInput(hoi4Region->isCoastalToOcean(),
-                              [&] {
-                                return ImGui::InputInt("Naval Industry",
-                                                       &hoi4Region->dockyards);
-                              }),
-                ImGui::InputInt("State Category",
-                                &hoi4Region->stateCategory))) {
-          requireCountryDetails = true;
+      ImGui::Spacing();
+      ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(120, 80, 50, 100));
+      ImGui::BeginChild("StateEditHoi4", ImVec2(0, 150), true,
+                        ImGuiWindowFlags_None);
+      {
+        ImGui::SeparatorText("HOI4 State Specifics");
+        // Fwg::UI::Elements::borderChild("StateEdit2", [&]() {
+        //   ImGui::PushItemWidth(200.0f);
+        //   if (longCircuitLogicalOr(
+        //           ImGui::InputInt("Arms Industry",
+        //           &hoi4Region->armsFactories), ImGui::InputInt("Civilian
+        //           Industry",
+        //                           &hoi4Region->civilianFactories),
+        //           optionalInput(hoi4Region->isCoastalToOcean(),
+        //                         [&] {
+        //                           return ImGui::InputInt(
+        //                               "Naval Industry",
+        //                               &hoi4Region->dockyards);
+        //                         }),
+        //           ImGui::InputInt("State Category",
+        //                           &hoi4Region->stateCategory))) {
+        //     requireCountryDetails = true;
+        //   }
+        //   ImGui::PopItemWidth();
+        // });
+        {
+          Fwg::UI::Elements::GridLayout grid(2, 180.0f, 12.0f);
+
+          if (grid.AddInputInt("Arms Factories", &hoi4Region->armsFactories, 0,
+                               100) ||
+              grid.AddInputInt("Civilian Factories",
+                               &hoi4Region->civilianFactories, 0, 100) ||
+              (hoi4Region->isCoastalToOcean() &&
+               grid.AddInputInt("Dockyards", &hoi4Region->dockyards, 0, 100)) ||
+              grid.AddInputInt("State Category", &hoi4Region->stateCategory, 0,
+                               10)) {
+            requireCountryDetails = true;
+          }
         }
-        ImGui::PopItemWidth();
-      });
+      }
+      ImGui::EndChild();
+      ImGui::PopStyleColor();
     }
   }
-  ImGui::PopItemWidth();
 }
 
 void GUI::countryDrag(std::shared_ptr<Arda::ArdaGen> generator) {
@@ -957,7 +1057,6 @@ void GUI::stratRegionEdit(std::shared_ptr<Arda::ArdaGen> generator) {
 int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                                 std::shared_ptr<Rpx::ModGenerator> &generator) {
   if (Fwg::UI::Elements::BeginMainTabItem("Strategic Regions")) {
-    // tab switch setting draw events as accepted
     if (uiUtils->tabSwitchEvent(true)) {
       uiUtils->updateImage(
           0, Arda::Gfx::visualiseStrategicRegions(generator->superRegionMap,
@@ -966,11 +1065,20 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
     }
     uiUtils->showHelpTextBox("Strategic Regions");
     areaInputSelector(cfg);
-    ImGui::PushItemWidth(200.0f);
-    ImGui::InputFloat("<--Strategic region factor: ",
-                      &generator->ardaConfig.superRegionFactor, 0.1f);
-    ImGui::InputFloat("<--Strategic region mindistance factor: ",
-                      &generator->ardaConfig.superRegionMinDistanceFactor);
+
+    ImGui::SeparatorText("Strategic Region Parameters");
+
+    {
+      Fwg::UI::Elements::GridLayout grid(2, 250.0f, 12.0f);
+
+      grid.AddInputFloat("Region Factor",
+                         &generator->ardaConfig.superRegionFactor, 0.0f, 10.0f);
+      grid.AddInputFloat("Min Distance Factor",
+                         &generator->ardaConfig.superRegionMinDistanceFactor,
+                         0.0f, 10.0f);
+    }
+
+    ImGui::Spacing();
     auto guard = Rpx::UI::RpxPrerequisiteChecker::require(
         {Fwg::UI::PrerequisiteChecker::climate(ardaGen->climateData),
          Fwg::UI::PrerequisiteChecker::landforms(ardaGen->terrainData),
@@ -983,15 +1091,19 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
          Arda::UI::ArdaPrerequisiteChecker::ardaRegions(*ardaGen),
          Arda::UI::ArdaPrerequisiteChecker::ardaProvinces(*ardaGen),
          Arda::UI::ArdaPrerequisiteChecker::ardaContinents(*ardaGen)});
+
     if (guard.ready()) {
-      if (ImGui::Button("Generate strategic region template")) {
+      if (Fwg::UI::Elements::Button("Generate Template", false,
+                                    ImVec2(200, 0))) {
         Arda::Gfx::generateStrategicRegionTemplate(
             generator->areaData.provinces, generator->areaData.regions);
       }
 
-      if (ImGui::Button("Generate strategic regions")) {
+      ImGui::SameLine();
+
+      if (Fwg::UI::Elements::ImportantStepButton("Generate Strategic Regions",
+                                                 ImVec2(250, 0))) {
         computationFutureBool = runAsync([&generator, &cfg, this]() {
-          // non-country stuff
           generator->generateStrategicRegions(
               activeGenerator->ardaFactories.superRegionFactory);
           uiUtils->resetTexture();
@@ -1004,11 +1116,11 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
             auto vic3Gen =
                 std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
                     activeGenerator);
-            // do stuff
           }
           return true;
         });
       }
+
       if (triggeredDrag) {
         computationFutureBool = runAsync([&generator, &cfg, this]() {
           if (cfg.areaInputMode == Fwg::Areas::AreaInputType::SOLID) {
@@ -1018,12 +1130,7 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                                                              {}));
           } else {
             auto image = Fwg::IO::Reader::readGenericImage(draggedFile, cfg);
-
-            // detect all areas, give them unique colours
             Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(image, {});
-
-            // now that we have modified the input image with colours filling
-            // the areas between borders, we can remove the borders
             Fwg::Gfx::Filter::fillBlackPixelsByArea(image, {});
             activeGenerator->loadStrategicRegions(
                 activeGenerator->ardaFactories.superRegionFactory, image);
@@ -1034,17 +1141,13 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                 std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
                     activeGenerator);
             hoi4Gen->generateWeather();
-          } else if (activeGameConfig.gameName == "Victoria 3") {
-            auto vic3Gen =
-                std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
-                    activeGenerator);
-            // do stuff
           }
           triggeredDrag = false;
           uiUtils->resetTexture();
           return true;
         });
       }
+
       stratRegionEdit(generator);
     }
     ImGui::EndTabItem();
@@ -1152,22 +1255,36 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
 }
 
 int GUI::showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator) {
-  // Iterate through each ResConfig in the vector
-  auto &resourceConfigs = generator->getResConfigs();
-  ImGui::SeparatorText("Configure amount and distribution of resources. Do NOT "
-                       "remove the checkmark in the random field, if it is "
-                       "preselected. You may add the flag to others.");
-  for (size_t i = 0; i < resourceConfigs.size(); ++i) {
-    ImGui::Text(resourceConfigs[i].name.c_str());
-    ImGui::SameLine();
-    // Display and edit the resourcePrevalence field
-    ImGui::InputDouble("Resource Prevalence",
-                       &resourceConfigs[i].resourcePrevalence);
+  ImGui::SeparatorText("Resource Configuration");
+  ImGui::TextWrapped(
+      "Configure amount and distribution of resources. "
+      "Do NOT remove the checkmark in the random field if preselected.");
 
-    ImGui::SameLine();
-    // Display and edit the random field
-    ImGui::Checkbox("Random", &resourceConfigs[i].random);
+  auto &resourceConfigs = generator->getResConfigs();
+
+  {
+    Fwg::UI::Elements::GridLayout grid(3, 180.0f, 12.0f);
+
+    for (size_t i = 0; i < resourceConfigs.size(); ++i) {
+      ImGui::PushID(i);
+
+      ImGui::Text("%-*s", 20, resourceConfigs[i].name.c_str());
+      ImGui::SameLine();
+
+      ImGui::PushItemWidth(120.0f);
+      ImGui::InputDouble("##prevalence",
+                         &resourceConfigs[i].resourcePrevalence);
+      ImGui::PopItemWidth();
+
+      ImGui::SameLine();
+      ImGui::Checkbox("##random", &resourceConfigs[i].random);
+
+      ImGui::PopID();
+
+      grid.NextRow();
+    }
   }
+
   return 0;
 }
 
