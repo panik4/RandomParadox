@@ -125,7 +125,6 @@ void Generator::configureModGen(const std::string &configSubFolder,
   config.resolutionBase = 1;
   // allow massive images for Vic3
   config.targetMaxImageSize = 160'000'000;
-  config.loadMapsPath = eu5Conf.get<std::string>("fastworldgen.loadMapsPath");
   ardaConfig.locationConfig.miningPerRegion = 1;
   ardaConfig.locationConfig.forestryPerRegion = 1;
   ardaConfig.locationConfig.citiesPerRegion = 1;

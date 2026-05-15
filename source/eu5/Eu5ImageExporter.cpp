@@ -861,8 +861,6 @@ void ImageExporter::writeLocations(
       {Fwg::Terrain::LandformId::HILLS, "hills"},
       {Fwg::Terrain::LandformId::MOUNTAINS, "mountains"},
       {Fwg::Terrain::LandformId::PEAKS, "mountains"},
-      {Fwg::Terrain::LandformId::STEEPPEAKS, "mountains"},
-      {Fwg::Terrain::LandformId::CLIFF, "mountains"},
       {Fwg::Terrain::LandformId::HIGHLANDS, "plateau"},
       {Fwg::Terrain::LandformId::VALLEY, "hills"},
       {Fwg::Terrain::LandformId::LAKE, "lakes"},

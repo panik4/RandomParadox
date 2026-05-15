@@ -349,21 +349,6 @@ void ImageExporter::writeBufferPixels(std::vector<unsigned char> &pixels,
   pixels[index + 3] = alphaValue;
 }
 
-Image ImageExporter::cutBaseMap(const std::string &path, const double factor,
-                                const int bit) const {
-  auto &conf = Cfg::Values();
-  std::string sourceMap{conf.loadMapsPath + path};
-  Fwg::Utils::Logging::logLine("CUTTING mode: Cutting Map from ", sourceMap);
-  Image baseMap = Fwg::IO::Reader::readGenericImage(sourceMap, conf);
-  auto cutBase = Util::cut(baseMap, conf.minX * factor, conf.maxX * factor,
-                           conf.minY * factor, conf.maxY * factor, factor);
-  if (conf.scale) {
-    cutBase = Util::scale(cutBase, conf.scaleX * factor, conf.scaleY * factor,
-                          conf.keepRatio);
-  }
-  return cutBase;
-}
-
 void ImageExporter::dump8BitHeightmap(const std::vector<float> &altitudeData,
                                       const std::string &path,
                                       const std::string &colourMapKey) const {
@@ -426,55 +411,47 @@ void ImageExporter::dump8BitTerrain(
   Image hoi4terrain(conf.width, conf.height, 8);
   hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
   // hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
-  if (cut) {
-    hoi4terrain = cutBaseMap("//terrain.bmp");
-  } else {
 
-    for (auto i = 0; i < conf.processingArea; i++) {
-      int elevationMod = 0;
-      const auto &landformId = terrainData.landFormIds.at(i);
-      if (landformId == Terrain::LandformId::HILLS) {
-        elevationMod = 100;
-      } else if (landformId == Terrain::LandformId::MOUNTAINS) {
-        elevationMod = 200;
-      } else if (landformId == Terrain::LandformId::PEAKS) {
-        elevationMod = 300;
-      } else if (landformId == Terrain::LandformId::STEEPPEAKS) {
-        elevationMod = 300;
-      } else if (landformId == Terrain::LandformId::CLIFF) {
-        elevationMod = 200;
-      } else if (landformId == Terrain::LandformId::LOWHILLS) {
-        elevationMod = 100;
-      }
+  for (auto i = 0; i < conf.processingArea; i++) {
+    int elevationMod = 0;
+    const auto &landformId = terrainData.landFormIds.at(i);
+    if (landformId == Terrain::LandformId::HILLS) {
+      elevationMod = 100;
+    } else if (landformId == Terrain::LandformId::MOUNTAINS) {
+      elevationMod = 200;
+    } else if (landformId == Terrain::LandformId::PEAKS) {
+      elevationMod = 300;
+    } else if (landformId == Terrain::LandformId::LOWHILLS) {
+      elevationMod = 100;
+    }
 
-      auto primaryClimateType =
-          (int)climateIn.climateChances.getChance(0, i).typeIndex;
+    auto primaryClimateType =
+        (int)climateIn.climateChances.getChance(0, i).typeIndex;
+    hoi4terrain.setColourAtIndex(
+        i, hoi4terrain.lookUp(indexMaps.at(colourMapKey + gameTag)
+                                  .at(elevationMod + primaryClimateType)));
+    auto treeType = (int)climateIn.forestTypes[i];
+    if (treeType && climateIn.dominantForest[i]) {
       hoi4terrain.setColourAtIndex(
-          i, hoi4terrain.lookUp(indexMaps.at(colourMapKey + gameTag)
-                                    .at(elevationMod + primaryClimateType)));
-      auto treeType = (int)climateIn.forestTypes[i];
-      if (treeType && climateIn.dominantForest[i]) {
-        hoi4terrain.setColourAtIndex(
-            i, hoi4terrain.lookUp(
-                   indexMaps.at("tree" + colourMapKey + gameTag).at(treeType)));
-      }
-    }
-    auto cityIndices =
-        civLayer.getAll(Arda::Civilization::TopographyType::CITY);
-    for (auto cityIndex : cityIndices) {
-      hoi4terrain.setColourAtIndex(cityIndex, hoi4terrain.lookUp(13));
-    }
-    auto farmIndices =
-        civLayer.getAll(Arda::Civilization::TopographyType::FARMLAND);
-    for (auto farmIndex : farmIndices) {
-      hoi4terrain.setColourAtIndex(farmIndex, hoi4terrain.lookUp(5));
-    }
-    auto marshIndices =
-        civLayer.getAll(Arda::Civilization::TopographyType::MARSH);
-    for (auto marshIndex : marshIndices) {
-      hoi4terrain.setColourAtIndex(marshIndex, hoi4terrain.lookUp(9));
+          i, hoi4terrain.lookUp(
+                 indexMaps.at("tree" + colourMapKey + gameTag).at(treeType)));
     }
   }
+  auto cityIndices = civLayer.getAll(Arda::Civilization::TopographyType::CITY);
+  for (auto cityIndex : cityIndices) {
+    hoi4terrain.setColourAtIndex(cityIndex, hoi4terrain.lookUp(13));
+  }
+  auto farmIndices =
+      civLayer.getAll(Arda::Civilization::TopographyType::FARMLAND);
+  for (auto farmIndex : farmIndices) {
+    hoi4terrain.setColourAtIndex(farmIndex, hoi4terrain.lookUp(5));
+  }
+  auto marshIndices =
+      civLayer.getAll(Arda::Civilization::TopographyType::MARSH);
+  for (auto marshIndex : marshIndices) {
+    hoi4terrain.setColourAtIndex(marshIndex, hoi4terrain.lookUp(9));
+  }
+
   Bmp::save8bit(hoi4terrain, path);
 }
 
@@ -488,30 +465,27 @@ void ImageExporter::dump8BitRivers(const Fwg::Terrain::TerrainData &terrainData,
 
   Image riverMap(Cfg::Values().width, Cfg::Values().height, 8);
   riverMap.colourtable = colourTables.at(colourMapKey + gameTag);
-  if (!cut) {
-    for (auto i = 0; i < riverMap.size(); i++) {
-      if (terrainData.altitudes.at(i) > 0.0) {
-        riverMap.setColourAtIndex(i, riverMap.lookUp(255));
-      } else {
-        riverMap.setColourAtIndex(i, riverMap.lookUp(254));
-      }
+  for (auto i = 0; i < riverMap.size(); i++) {
+    if (terrainData.altitudes.at(i) > 0.0) {
+      riverMap.setColourAtIndex(i, riverMap.lookUp(255));
+    } else {
+      riverMap.setColourAtIndex(i, riverMap.lookUp(254));
     }
-    for (auto &river : climateIn.rivers) {
-      for (int i = 0; i < river.pixels.size(); i++) {
-        riverMap.setColourAtIndex(
-            river.pixels[i],
-            riverMap.lookUp(3 + static_cast<int>(river.getWeight(i) * 8.0)));
-      }
-
-      if (!river.isTributaryRiver()) {
-        riverMap.setColourAtIndex(river.getSource(), riverMap.lookUp(0));
-      } else {
-        riverMap.setColourAtIndex(river.getCurrentEnd(), riverMap.lookUp(1));
-      }
-    }
-  } else {
-    riverMap = cutBaseMap("//rivers.bmp");
   }
+  for (auto &river : climateIn.rivers) {
+    for (int i = 0; i < river.pixels.size(); i++) {
+      riverMap.setColourAtIndex(
+          river.pixels[i],
+          riverMap.lookUp(3 + static_cast<int>(river.getWeight(i) * 8.0)));
+    }
+
+    if (!river.isTributaryRiver()) {
+      riverMap.setColourAtIndex(river.getSource(), riverMap.lookUp(0));
+    } else {
+      riverMap.setColourAtIndex(river.getCurrentEnd(), riverMap.lookUp(1));
+    }
+  }
+
   if (gameTag == "Vic3") {
     auto scaledMap = Util::scale(riverMap, 8192, 3616, false);
     Png::save(scaledMap, path + ".png");
@@ -559,24 +533,21 @@ void ImageExporter::dump8BitTrees(const Fwg::Terrain::TerrainData &terrainData,
     }
   }
 
-  if (!cut) {
-    for (auto i = 0; i < trees.height(); i++) {
-      for (auto w = 0; w < trees.width(); w++) {
-        double refHeight = ceil((double)i * factor);
-        double refWidth =
-            std::clamp((double)w * factor, 0.0, (double)Cfg::Values().width);
-        auto treeType = (int)forestTypes[refHeight * width + refWidth];
-        if (climateIn.dominantForest[refHeight * width + refWidth]) {
-          // map the colour from
-          trees.setColourAtIndex(
-              i * trees.width() + w,
-              trees.lookUp(indexMaps.at(colourMapKey + gameTag).at(treeType)));
-        }
+  for (auto i = 0; i < trees.height(); i++) {
+    for (auto w = 0; w < trees.width(); w++) {
+      double refHeight = ceil((double)i * factor);
+      double refWidth =
+          std::clamp((double)w * factor, 0.0, (double)Cfg::Values().width);
+      auto treeType = (int)forestTypes[refHeight * width + refWidth];
+      if (climateIn.dominantForest[refHeight * width + refWidth]) {
+        // map the colour from
+        trees.setColourAtIndex(
+            i * trees.width() + w,
+            trees.lookUp(indexMaps.at(colourMapKey + gameTag).at(treeType)));
       }
     }
-  } else {
-    trees = cutBaseMap("//trees.bmp", (1.0 / factor));
   }
+
   Bmp::save8bit(trees, path);
 }
 
@@ -697,12 +668,12 @@ void ImageExporter::dumpTerrainColourmap(
     int minX = static_cast<int>(cfg.minX / (double)factor);
     std::swap(minY, maxY);
     // cut it and reassign it
-    pixels = Utils::Containers::cutBuffer(pixels, 2816, 1024, minX, maxX, minY, maxY, 4);
+    pixels = Utils::Containers::cutBuffer(pixels, 2816, 1024, minX, maxX, minY,
+                                          maxY, 4);
     if (cfg.scale) {
       pixels = Utils::Containers::scaleBuffer(
-          pixels, abs(maxX - minX), abs(maxY - minY),
-                                  cfg.scaleX / factor, cfg.scaleY / factor, 4,
-                                  cfg.keepRatio);
+          pixels, abs(maxX - minX), abs(maxY - minY), cfg.scaleX / factor,
+          cfg.scaleY / factor, 4, cfg.keepRatio);
     }
   }
   if (gameTag == "Vic3") {

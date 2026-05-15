@@ -87,7 +87,6 @@ void Generator::configureModGen(const std::string &configSubFolder,
   config.seaLevel = 95;
   config.seaProvFactor *= 0.7;
   config.landProvFactor *= 0.7;
-  config.loadMapsPath = eu4Conf.get<std::string>("fastworldgen.loadMapsPath");
   // check if config settings are fine
   config.sanityCheck();
 }
