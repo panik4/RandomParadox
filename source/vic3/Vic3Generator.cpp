@@ -139,7 +139,6 @@ void Generator::configureModGen(const std::string &configSubFolder,
   config.resolutionBase = 1;
   // allow massive images for Vic3
   config.targetMaxImageSize = 160'000'000;
-  config.loadMapsPath = vic3Conf.get<std::string>("fastworldgen.loadMapsPath");
   ardaConfig.locationConfig.miningPerRegion = 1;
   ardaConfig.locationConfig.forestryPerRegion = 1;
   ardaConfig.locationConfig.citiesPerRegion = 1;
@@ -154,9 +153,10 @@ void Generator::configureModGen(const std::string &configSubFolder,
 Fwg::Gfx::Image Generator::mapTerrain() {
   const auto &climateMap = this->climateMap;
   Image typeMap(climateMap.width(), climateMap.height(), 24);
-  auto &colours = Fwg::Cfg::Values().colours;
-  auto &climateColours = Fwg::Cfg::Values().climateColours;
-  auto &elevationColours = Fwg::Cfg::Values().elevationColours;
+  const auto& config = Cfg::Values();
+  auto &colours = config.colours;
+  auto &climateColours = config.climateColours;
+  auto &elevationColours = config.terrainConfig.elevationColours;
   typeMap.fill(colours.at("sea"));
   Fwg::Utils::Logging::logLine("Mapping Terrain");
   const auto &landFormIds = terrainData.landFormIds;
@@ -203,8 +203,7 @@ Fwg::Gfx::Image Generator::mapTerrain() {
         // now first check the terrains, if e.g. mountains or peaks are too
         // dominant, this is a mountainous province
         if (dominantTerrain == Fwg::Terrain::LandformId::MOUNTAINS ||
-            dominantTerrain == Fwg::Terrain::LandformId::PEAKS ||
-            dominantTerrain == Fwg::Terrain::LandformId::STEEPPEAKS) {
+            dominantTerrain == Fwg::Terrain::LandformId::PEAKS) {
           gameProv->terrainType = "mountain";
           for (auto &pix : baseProv->pixels) {
             typeMap.setColourAtIndex(pix, elevationColours.at("mountains"));

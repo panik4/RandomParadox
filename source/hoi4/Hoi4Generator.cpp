@@ -241,10 +241,11 @@ void Generator::mapRegions() {
 
 Fwg::Gfx::Image Generator::mapTerrain() {
   Image typeMap = ArdaGen::mapTerrain();
-  auto &colours = Fwg::Cfg::Values().colours;
-  auto &climateColours = Fwg::Cfg::Values().climateColours;
-  auto &elevationColours = Fwg::Cfg::Values().elevationColours;
-  auto &topographyOverlayColours = Fwg::Cfg::Values().topographyOverlayColours;
+  const auto &config = Fwg::Cfg::Values();
+  auto &colours = config.colours;
+  auto &climateColours = config.climateColours;
+  auto &elevationColours = config.terrainConfig.elevationColours;
+  auto &topographyOverlayColours = config.topographyOverlayColours;
   typeMap.fill(colours.at("sea"));
   Fwg::Utils::Logging::logLine("Mapping Terrain");
   const auto &landFormIds = terrainData.landFormIds;
@@ -301,8 +302,7 @@ Fwg::Gfx::Image Generator::mapTerrain() {
             typeMap.setColourAtIndex(pix, topographyOverlayColours.at("urban"));
           }
         } else if (dominantTerrain == Fwg::Terrain::LandformId::MOUNTAINS ||
-                   dominantTerrain == Fwg::Terrain::LandformId::PEAKS ||
-                   dominantTerrain == Fwg::Terrain::LandformId::STEEPPEAKS) {
+                   dominantTerrain == Fwg::Terrain::LandformId::PEAKS) {
           gameProv->terrainType = "mountain";
           for (auto &pix : baseProv->pixels) {
             typeMap.setColourAtIndex(pix, elevationColours.at("mountains"));
@@ -568,8 +568,8 @@ void Generator::generateStateSpecifics() {
           auto choice = RandNum::getRandom(0.0, 1.0);
           if (choice < dockChance) {
             hoi4State->dockyards++;
-          } else if (Fwg::Utils::Math::inRange(dockChance, dockChance + civChance,
-                                         choice)) {
+          } else if (Fwg::Utils::Math::inRange(
+                         dockChance, dockChance + civChance, choice)) {
             hoi4State->civilianFactories++;
 
           } else {
@@ -627,7 +627,8 @@ void Generator::generateCountrySpecifics() {
         country->gfxCulture = "middle_eastern";
         break;
       case Arda::VisualType::CAUCASIAN:
-        country->gfxCulture = Fwg::Utils::Random::selectRandom(caucasianGfxCultures);
+        country->gfxCulture =
+            Fwg::Utils::Random::selectRandom(caucasianGfxCultures);
         break;
       case Arda::VisualType::SOUTH_AMERICAN:
         country->gfxCulture = "southamerican";
@@ -1555,7 +1556,8 @@ void Generator::generateAirVariants() {
       }
       // first gather the amount of planes per variant
       while (airforceStrength > 0) {
-        auto &variant = Fwg::Utils::Random::selectRandom(country->planeVariants);
+        auto &variant =
+            Fwg::Utils::Random::selectRandom(country->planeVariants);
         variant.amount++;
         airforceStrength -= variant.cost;
       }
@@ -1567,7 +1569,8 @@ void Generator::generateAirVariants() {
           wing.variant = country->planeVariants[i];
           wing.name = std::to_string(i) + ". " + country->planeVariants[i].name;
           wing.amount = std::min<int>(country->planeVariants[i].amount, 50);
-          auto &randomAirbase = Fwg::Utils::Random::selectRandom(country->airBases);
+          auto &randomAirbase =
+              Fwg::Utils::Random::selectRandom(country->airBases);
           randomAirbase->wings.push_back(wing);
           country->airWings.push_back(wing);
         }
@@ -1755,7 +1758,8 @@ void Generator::generateCountryUnits() {
                 break;
               }
             }
-            division.location = Fwg::Utils::Random::selectRandom(eligibleProvinces);
+            division.location =
+                Fwg::Utils::Random::selectRandom(eligibleProvinces);
             division.name += " '" + division.location->name + "' " +
                              division.divisionTemplate.name;
             division.startingEquipmentFactor =
@@ -1808,9 +1812,9 @@ void Generator::generateCountryNavies() {
               "Warning: Country " + country->name +
               " has no primary culture, cannot generate ship names");
         } else {
-          shipClass.name =
-              Fwg::Utils::Random::selectRandom(primaryCulture->language->shipNames) +
-              " Class";
+          shipClass.name = Fwg::Utils::Random::selectRandom(
+                               primaryCulture->language->shipNames) +
+                           " Class";
         }
         shipClass.vanillaShipType =
             ShipClassTypeDefinitions[shipclassType] +
@@ -1872,7 +1876,8 @@ void Generator::generateCountryNavies() {
     const std::vector<ShipClass> &carrierClasses =
         country->shipClasses.at(ShipClassType::Carrier);
     if (carrierClasses.size()) {
-      auto randomCarrierShipClass = Fwg::Utils::Random::selectRandom(carrierClasses);
+      auto randomCarrierShipClass =
+          Fwg::Utils::Random::selectRandom(carrierClasses);
       // as long as we have enough tonnage for a carrier, spawn one
       while (carrierTargetTonnage > randomCarrierShipClass.tonnage) {
         // create a carrier ship
@@ -1900,15 +1905,18 @@ void Generator::generateCountryNavies() {
         if (RandNum::getRandom(0, 2)) {
           if (!heavyCruiserClasses.size())
             continue;
-          heavyShip.shipClass = Fwg::Utils::Random::selectRandom(heavyCruiserClasses);
+          heavyShip.shipClass =
+              Fwg::Utils::Random::selectRandom(heavyCruiserClasses);
         } else if (RandNum::getRandom(0, 2)) {
           if (!battleCruiserClasses.size())
             continue;
-          heavyShip.shipClass = Fwg::Utils::Random::selectRandom(battleCruiserClasses);
+          heavyShip.shipClass =
+              Fwg::Utils::Random::selectRandom(battleCruiserClasses);
         } else {
           if (!battleshipClasses.size())
             continue;
-          heavyShip.shipClass = Fwg::Utils::Random::selectRandom(battleshipClasses);
+          heavyShip.shipClass =
+              Fwg::Utils::Random::selectRandom(battleshipClasses);
         }
         // push shared pointer to new ship
         country->ships.push_back(std::make_shared<Ship>(heavyShip));
@@ -1930,11 +1938,13 @@ void Generator::generateCountryNavies() {
         if (RandNum::getRandom(0, 2)) {
           if (!destroyerClasses.size())
             continue;
-          screenShip.shipClass = Fwg::Utils::Random::selectRandom(destroyerClasses);
+          screenShip.shipClass =
+              Fwg::Utils::Random::selectRandom(destroyerClasses);
         } else {
           if (!lightCruiserClasses.size())
             continue;
-          screenShip.shipClass = Fwg::Utils::Random::selectRandom(lightCruiserClasses);
+          screenShip.shipClass =
+              Fwg::Utils::Random::selectRandom(lightCruiserClasses);
         }
         // push shared pointer to new ship
         country->ships.push_back(std::make_shared<Ship>(screenShip));
@@ -1960,8 +1970,8 @@ void Generator::generateCountryNavies() {
             "Warning: Country " + country->name +
             " has no primary culture, cannot generate ship names");
       } else {
-        ship->name =
-            Fwg::Utils::Random::selectRandom(primaryCulture->language->shipNames);
+        ship->name = Fwg::Utils::Random::selectRandom(
+            primaryCulture->language->shipNames);
       }
       if (utilisedShipNames.find(ship->name) != utilisedShipNames.end()) {
         utilisedShipNames[ship->name]++;
@@ -2227,7 +2237,8 @@ void Generator::generatePositions() {
         // no port location, so we take random coastal pixels from the
         // baseProvince
         position = Fwg::Position(
-            Fwg::Utils::Random::selectRandom(gameProv->coastalPixels), cfg.width);
+            Fwg::Utils::Random::selectRandom(gameProv->coastalPixels),
+            cfg.width);
       } else {
         position = (*portLocation)->position;
       }
@@ -2378,8 +2389,8 @@ void Generator::distributeVictoryPoints() {
                              });
         vp.position = (*mostImportantLocation)->position;
         if (primaryCulture != nullptr) {
-          vp.name =
-              Fwg::Utils::Random::selectRandom(primaryCulture->language->cityNames);
+          vp.name = Fwg::Utils::Random::selectRandom(
+              primaryCulture->language->cityNames);
         } else {
           vp.name = "Unnamed";
         }
@@ -2596,10 +2607,10 @@ void Generator::generateCharacters() {
             character.surname =
                 "Doe " + std::to_string(country->characters.size());
           } else {
-            character.name =
-                Fwg::Utils::Random::selectRandom(primaryCulture->language->maleNames);
-            character.surname =
-                Fwg::Utils::Random::selectRandom(primaryCulture->language->surnames);
+            character.name = Fwg::Utils::Random::selectRandom(
+                primaryCulture->language->maleNames);
+            character.surname = Fwg::Utils::Random::selectRandom(
+                primaryCulture->language->surnames);
           }
 
         } while (usedNames.find(character.name + " " + character.surname) !=
@@ -2673,10 +2684,10 @@ void Generator::generateCharacters() {
           theorist.surname =
               "Doe " + std::to_string(country->characters.size());
         } else {
-          theorist.name =
-              Fwg::Utils::Random::selectRandom(primaryCulture->language->maleNames);
-          theorist.surname =
-              Fwg::Utils::Random::selectRandom(primaryCulture->language->surnames);
+          theorist.name = Fwg::Utils::Random::selectRandom(
+              primaryCulture->language->maleNames);
+          theorist.surname = Fwg::Utils::Random::selectRandom(
+              primaryCulture->language->surnames);
         }
       } while (usedNames.find(theorist.name + " " + theorist.surname) !=
                usedNames.end());

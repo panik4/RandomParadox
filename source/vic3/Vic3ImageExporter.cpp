@@ -65,9 +65,9 @@ void ImageExporter::writeTile(int xTiles, int yTiles,
       Fwg::Gfx::Image tileMap(
           tilesize, tilesize, 24,
           (Fwg::Utils::Containers::cutBuffer(
-              basePackedHeightMap.imageData, mapX, mapY,
-                                 tilex * tilesize, (tilex + 1) * tilesize,
-                                 tiley * tilesize, (tiley + 1) * tilesize, 1)));
+              basePackedHeightMap.imageData, mapX, mapY, tilex * tilesize,
+              (tilex + 1) * tilesize, tiley * tilesize, (tiley + 1) * tilesize,
+              1)));
       auto tileMap2 =
           Fwg::Gfx::Util::scale(tileMap, scaledTilesize, scaledTilesize, false);
 
@@ -414,10 +414,9 @@ void ImageExporter::detailMaps(
   using Clt = Fwg::Climate::Detail::ClimateClassId;
   using ft = Fwg::Climate::Detail::ForestType;
   std::map<Et, int> elevationMap{
-      {Et::CLIFF, 16},      {Et::DEEPOCEAN, 6}, {Et::LAKE, 6},
-      {Et::HIGHLANDS, 18},  {Et::HILLS, 16},    {Et::LOWHILLS, 13},
-      {Et::MOUNTAINS, 14},  {Et::OCEAN, 5},     {Et::PEAKS, 15},
-      {Et::STEEPPEAKS, 15}, {Et::VALLEY, 12}};
+      {Et::DEEPOCEAN, 6}, {Et::LAKE, 6},      {Et::HIGHLANDS, 18},
+      {Et::HILLS, 16},    {Et::LOWHILLS, 13}, {Et::MOUNTAINS, 14},
+      {Et::OCEAN, 5},     {Et::PEAKS, 15},    {Et::VALLEY, 12}};
   std::map<Clt, int> climateMap{{Clt::COLDDESERT, 1},
                                 {Clt::COLDSEMIARID, 25},
                                 {Clt::CONTINENTALCOLD, 22},
@@ -567,7 +566,7 @@ void ImageExporter::detailMaps(
           intensityPixels[imageIndex + i] = intensity.getBGR()[i];
         }
         intensityPixels[imageIndex + 4] = 0;
-      } catch (std::exception& e) {
+      } catch (std::exception &e) {
         Fwg::Utils::Logging::logLine("Invalid colour: ", c);
       }
     }

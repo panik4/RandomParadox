@@ -60,8 +60,6 @@ void ImageExporter::dump8BitCities(const Image &climateIn,
           i, cities.lookUp(climateIn[i] == Cfg::Values().climateColours["ocean"]
                                ? 15
                                : 1));
-  } else {
-    cities = cutBaseMap("//cities.bmp");
   }
   Bmp::save8bit(cities, path);
 }
