@@ -243,7 +243,7 @@ Fwg::Gfx::Image Generator::mapTerrain() {
   Image typeMap = ArdaGen::mapTerrain();
   const auto &config = Fwg::Cfg::Values();
   auto &colours = config.colours;
-  auto &climateColours = config.climateColours;
+  auto &climateColours = config.climateConfig.climateColours;
   auto &elevationColours = config.terrainConfig.elevationColours;
   auto &topographyOverlayColours = config.topographyOverlayColours;
   typeMap.fill(colours.at("sea"));
@@ -2945,14 +2945,15 @@ void Generator::readHoi(std::string &path) {
   auto &config = Fwg::Cfg::Values();
   bool bufferedCut = config.cut;
   config.cut = false;
-  auto heightmap = Fwg::IO::Reader::readGenericImage(
-      path + "map//heightmap.bmp", config, false);
+  auto heightmap = Fwg::IO::Reader::readGenericImage(path + "map/heightmap.bmp",
+                                                     config, false);
   loadHeight(config, heightmap);
   genSobelMap(config);
   genLand();
-  loadClimate(config, path + "map//terrain.bmp");
+  loadClimate(config, Fwg::IO::Reader::readGenericImage(
+                          path + "map/terrain.bmp", config));
   provinceMap =
-      Fwg::IO::Reader::readGenericImage(path + "map//provinces.bmp", config);
+      Fwg::IO::Reader::readGenericImage(path + "map/provinces.bmp", config);
   //// read in game or mod files
   climateData.habitabilities.resize(provinceMap.size());
   Hoi4::Parsing::Reading::readProvinces(terrainData, climateData, path,
