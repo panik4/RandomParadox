@@ -155,7 +155,7 @@ Fwg::Gfx::Image Generator::mapTerrain() {
   Image typeMap(climateMap.width(), climateMap.height(), 24);
   const auto& config = Cfg::Values();
   auto &colours = config.colours;
-  auto &climateColours = config.climateColours;
+  auto &climateColours = config.climateConfig.climateColours;
   auto &elevationColours = config.terrainConfig.elevationColours;
   typeMap.fill(colours.at("sea"));
   Fwg::Utils::Logging::logLine("Mapping Terrain");

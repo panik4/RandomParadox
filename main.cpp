@@ -100,7 +100,7 @@ int main() {
     dumpInfo(e.what(), configSubFolder);
     return -1;
   }
-  try {
+ // try {
     Fwg::Utils::Logging::logLine("Creating the exports folder");
     // make sure we always have the default exports directory
     std::filesystem::create_directory(workingDirectory + "exports//");
@@ -109,11 +109,11 @@ int main() {
     gui2.shiny(rpdConf, configSubFolder, username);
     Fwg::Utils::Logging::logLine("Exited the GUI");
     dumpInfo("", configSubFolder);
-  } catch (std::exception &e) {
-    Utils::Logging::logLine(e.what());
-    dumpInfo(e.what(), configSubFolder);
-    return -1;
-  }
+  //} catch (std::exception &e) {
+  //  Utils::Logging::logLine(e.what());
+  //  dumpInfo(e.what(), configSubFolder);
+  //  return -1;
+  //}
   Utils::Logging::logLine("Done with the generation");
   return 0;
 }

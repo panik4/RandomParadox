@@ -112,7 +112,8 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
         window, [](GLFWwindow *win, int count, const char **paths) {
           auto *fwgui = reinterpret_cast<GUI *>(glfwGetWindowUserPointer(win));
           fwgui->uiContext.triggeredDrag = (count > 0);
-          fwgui->uiContext.draggedFile = (count > 0) ? std::string(paths[count - 1]) : "";
+          fwgui->uiContext.draggedFile =
+              (count > 0) ? std::string(paths[count - 1]) : "";
         });
 
     auto &cfg = Fwg::Cfg::Values();
@@ -123,7 +124,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
     this->username = usernameRef;
     activeGenerator = std::make_shared<Rpx::Hoi4::Generator>(
         Rpx::Hoi4::Generator(configSubFolder, rpdConf));
-    activeGenerator->climateData.addSecondaryColours(Fwg::Parsing::getLines(
+    cfg.climateConfig.addSecondaryColours(Fwg::Parsing::getLines(
         Fwg::Cfg::Values().resourcePath + "hoi4/colourMappings.txt"));
     initGameConfigs();
 
@@ -482,9 +483,8 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
         if (gameConfigs[selectedGame].gameName == "Hearts of Iron IV") {
           activeGenerator = std::make_shared<Rpx::Hoi4::Generator>(
               Rpx::Hoi4::Generator(configSubFolder, rpdConf));
-          activeGenerator->climateData.addSecondaryColours(
-              Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
-                                     "hoi4/colourMappings.txt"));
+          cfg.climateConfig.addSecondaryColours(Fwg::Parsing::getLines(
+              Fwg::Cfg::Values().resourcePath + "hoi4/colourMappings.txt"));
         } else if (gameConfigs[selectedGame].gameName ==
                    "Europa Universalis IV") {
           activeGenerator = std::make_shared<Rpx::Eu4::Generator>(
@@ -839,7 +839,8 @@ void GUI::countryDrag(std::shared_ptr<Arda::ArdaGen> generator) {
     uiContext.triggeredDrag = false;
     if (uiContext.draggedFile.find(".txt") != std::string::npos) {
       if (uiContext.draggedFile.find("states.txt") != std::string::npos ||
-          uiContext.draggedFile.find("stateMappings.txt") != std::string::npos) {
+          uiContext.draggedFile.find("stateMappings.txt") !=
+              std::string::npos) {
         Fwg::Utils::Logging::logLine(
             "Applying state input from file: ",
             Fwg::Utils::userFilter(uiContext.draggedFile, cfg.username));
@@ -847,13 +848,16 @@ void GUI::countryDrag(std::shared_ptr<Arda::ArdaGen> generator) {
         generator->applyRegionInput();
         requireCountryDetails = true;
 
-      } else if (uiContext.draggedFile.find("countries.txt") != std::string::npos ||
-                 uiContext.draggedFile.find("countryMappings.txt") != std::string::npos) {
+      } else if (uiContext.draggedFile.find("countries.txt") !=
+                     std::string::npos ||
+                 uiContext.draggedFile.find("countryMappings.txt") !=
+                     std::string::npos) {
         Fwg::Utils::Logging::logLine(
             "Applying country input from file: ",
             Fwg::Utils::userFilter(uiContext.draggedFile, cfg.username));
         activeGenerator->loadCountries(
-            activeGenerator->ardaFactories.countryFactory, uiContext.draggedFile);
+            activeGenerator->ardaFactories.countryFactory,
+            uiContext.draggedFile);
       } else {
         Fwg::Utils::Logging::logLine(
             "No valid file dragged in, the filename must either be "
@@ -874,7 +878,8 @@ void GUI::countryDrag(std::shared_ptr<Arda::ArdaGen> generator) {
                     generator->ardaFactories.countryFactory, img);
               }
             } else {
-              auto image = Fwg::IO::Reader::readGenericImage(uiContext.draggedFile, cfg);
+              auto image =
+                  Fwg::IO::Reader::readGenericImage(uiContext.draggedFile, cfg);
 
               if (image.size()) {
                 // detect all areas, give them unique colours
@@ -1136,11 +1141,11 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
               if (cfg.areaInputMode == Fwg::Areas::AreaInputType::SOLID) {
                 activeGenerator->loadStrategicRegions(
                     activeGenerator->ardaFactories.superRegionFactory,
-                    Fwg::IO::Reader::readGenericImageWithBorders(uiContext.draggedFile,
-                                                                 cfg, {}));
+                    Fwg::IO::Reader::readGenericImageWithBorders(
+                        uiContext.draggedFile, cfg, {}));
               } else {
-                auto image =
-                    Fwg::IO::Reader::readGenericImage(uiContext.draggedFile, cfg);
+                auto image = Fwg::IO::Reader::readGenericImage(
+                    uiContext.draggedFile, cfg);
                 Fwg::Gfx::Filter::colouriseAreaBorderInputByBordersOnly(image,
                                                                         {});
                 Fwg::Gfx::Filter::fillBlackPixelsByArea(image, {});

@@ -57,7 +57,7 @@ void ImageExporter::dump8BitCities(const Image &climateIn,
   if (!cut) {
     for (int i = 0; i < Cfg::Values().processingArea; i++)
       cities.setColourAtIndex(
-          i, cities.lookUp(climateIn[i] == Cfg::Values().climateColours["ocean"]
+          i, cities.lookUp(climateIn[i] == Cfg::Values().climateConfig.climateColours["ocean"]
                                ? 15
                                : 1));
   }
