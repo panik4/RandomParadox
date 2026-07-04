@@ -45,7 +45,7 @@ void defaultMap(const std::string &path,
 void defines(const std::string &pathOut) {
   const auto &cfg = Cfg::Values();
   auto templateContent = pU::readFile(Fwg::Cfg::Values().resourcePath +
-                                      "vic3//common//defines//01_defines.txt");
+                                      "vic3//common/defines//01_defines.txt");
   Rpx::Parsing::replaceOccurences(templateContent, "template_mapX",
                                   std::to_string(cfg.width));
   Rpx::Parsing::replaceOccurences(templateContent, "template_mapY",
@@ -209,7 +209,7 @@ void strategicRegions(const std::string &path,
   Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Strategig Regions");
   const auto templateFile =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3//common//strategic_regions//template.txt");
+                   "vic3//common/strategic_regions//template.txt");
   std::string file = "";
   for (const auto &region : strategicRegions) {
     auto content = templateFile;
@@ -235,7 +235,7 @@ void cultureCommon(const std::string &path,
     const std::vector<std::shared_ptr<Arda::Culture>> &cultures) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing cultures");
   const auto culturesTemplate = pU::readFile(
-      Fwg::Cfg::Values().resourcePath + "vic3//common//cultureTemplate.txt");
+      Fwg::Cfg::Values().resourcePath + "vic3//common/cultureTemplate.txt");
   std::string cultureFile{""};
   for (const auto &culture : cultures) {
     auto cultString = culturesTemplate;
@@ -259,9 +259,9 @@ void religionCommon(const std::string &path,
 
   const auto religionTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3//common//singleReligionTemplate.txt");
+                   "vic3//common/singleReligionTemplate.txt");
   auto religionFile = pU::readFile(Fwg::Cfg::Values().resourcePath +
-                                   "vic3//common//religionTemplate.txt");
+                                   "vic3//common/religionTemplate.txt");
   for (const auto &religion : religions) {
     auto relString = religionTemplate;
 
@@ -278,7 +278,7 @@ void countryCommon(
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing countries");
   const auto countryTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3//common//countryDefinitionTemplate.txt");
+                   "vic3//common/countryDefinitionTemplate.txt");
   std::string countryDefinition{""};
   for (const auto &country : countries) {
     auto cString = countryTemplate;
@@ -310,14 +310,14 @@ void popsHistory(const std::string &path,
                  const std::vector<std::shared_ptr<Region>> &regions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing pops");
   auto popsFile = pU::readFile(Fwg::Cfg::Values().resourcePath +
-                               "vic3//common//history//popsTemplate.txt");
+                               "vic3//common/history//popsTemplate.txt");
   // std::string statePops = "";
   const auto popsSingleTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3//common//history//popsSingleTemplate.txt");
+                   "vic3//common/history//popsSingleTemplate.txt");
   const auto popsStateTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3//common//history//popsStateTemplate.txt");
+                   "vic3//common/history//popsStateTemplate.txt");
   std::string listOfStates{""};
   for (const auto &region : regions) {
     if (!region->isLand())
@@ -349,11 +349,11 @@ void stateHistory(const std::string &path,
                   const std::vector<std::shared_ptr<Region>> &regions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing state history");
   auto file = pU::readFile(Fwg::Cfg::Values().resourcePath +
-                           "vic3//common//history//states.txt");
+                           "vic3//common/history//states.txt");
   std::string stateContent = "";
   const auto stateTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3//common//history//stateTemplate.txt");
+                   "vic3//common/history//stateTemplate.txt");
   for (const auto &region : regions) {
     if (!region->isLand())
       continue;
@@ -384,7 +384,7 @@ void countryHistory(
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing country history");
   const auto countryTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3//common//history//countryHistoryTemplate.txt");
+                   "vic3//common/history//countryHistoryTemplate.txt");
   for (const auto &country : countries) {
     auto cString = countryTemplate;
 
@@ -402,7 +402,7 @@ void staticModifiers(const std::string &path,
     const std::vector<std::shared_ptr<Arda::Religion>> &religions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing static modifiers");
   const auto cultureTemplateFile = pU::readFile(
-      Fwg::Cfg::Values().resourcePath + "vic3//common//static_modifiers//"
+      Fwg::Cfg::Values().resourcePath + "vic3//common/static_modifiers//"
                                         "culture_standard_of_living.txt");
   std::string cultureContent = "";
   for (const auto &culture : cultures) {
@@ -413,7 +413,7 @@ void staticModifiers(const std::string &path,
   pU::writeFile(path + "//07_culture_standard_of_living.txt", cultureContent);
   // now the same for the religions
   const auto religionTemplateFile = pU::readFile(
-      Fwg::Cfg::Values().resourcePath + "vic3//common//static_modifiers//"
+      Fwg::Cfg::Values().resourcePath + "vic3//common/static_modifiers//"
                                         "religion_standard_of_living.txt");
   std::string religionContent = "";
   for (const auto &religion : religions) {
@@ -618,13 +618,13 @@ void Rpx::Vic3::Parsing::History::writeBuildings(
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Constructing economy");
   auto buildingsTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3//common//history//buildingsTemplate.txt");
+                   "vic3//common/history//buildingsTemplate.txt");
   const auto buildingsStateTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3//common//history//buildingsStateTemplate.txt");
+                   "vic3//common/history//buildingsStateTemplate.txt");
   const auto buildingsSingleBuildingTemplate = pU::readFile(
       Fwg::Cfg::Values().resourcePath +
-      "vic3//common//history//buildingsSingleBuildingTemplate.txt");
+      "vic3//common/history//buildingsSingleBuildingTemplate.txt");
   std::string allStateString;
   for (auto &region : regions) {
     if (!region->isLand())

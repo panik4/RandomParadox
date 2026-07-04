@@ -18,7 +18,7 @@ bool Generator::createPaths() { // prepare folder structure
     remove_all(pathcfg.gameModPath + "//map//");
     remove_all(pathcfg.gameModPath + "//gfx");
     remove_all(pathcfg.gameModPath + "//history");
-    remove_all(pathcfg.gameModPath + "//common//");
+    remove_all(pathcfg.gameModPath + "//common/");
     remove_all(pathcfg.gameModPath + "//localisation//");
     create_directory(pathcfg.gameModPath + "//map//");
     create_directory(pathcfg.gameModPath + "//map//terrain//");
@@ -30,13 +30,13 @@ bool Generator::createPaths() { // prepare folder structure
     // localisation
     create_directory(pathcfg.gameModPath + "//localisation//");
     // common
-    create_directory(pathcfg.gameModPath + "//common//");
+    create_directory(pathcfg.gameModPath + "//common/");
     create_directory(pathcfg.gameModPath + "//history//diplomacy//");
     create_directory(pathcfg.gameModPath + "//history//provinces//");
     create_directory(pathcfg.gameModPath + "//history//wars//");
-    create_directory(pathcfg.gameModPath + "//common//colonial_regions//");
-    create_directory(pathcfg.gameModPath + "//common//trade_companies//");
-    create_directory(pathcfg.gameModPath + "//common//trade_nodes//");
+    create_directory(pathcfg.gameModPath + "//common/colonial_regions//");
+    create_directory(pathcfg.gameModPath + "//common/trade_companies//");
+    create_directory(pathcfg.gameModPath + "//common/trade_nodes//");
     return true;
   } catch (std::exception& e) {
     std::string error = "Configured paths seem to be messed up, check Europa "
@@ -224,7 +224,7 @@ void Generator::generate() {
                  pathcfg.gamePath);
       writeColonialRegions(
           pathcfg.gameModPath +
-              "//common//colonial_regions//00_colonial_regions.txt",
+              "//common/colonial_regions//00_colonial_regions.txt",
           pathcfg.gamePath, ardaProvinces);
       writeClimate(pathcfg.gameModPath + "//map//climate.txt", ardaProvinces);
       writeContinent(pathcfg.gameModPath + "//map//continent.txt",
@@ -242,7 +242,7 @@ void Generator::generate() {
       writeTerrain(pathcfg.gameModPath + "//map//terrain.txt", ardaProvinces);
       writeTradeCompanies(
           pathcfg.gameModPath +
-              "//common//trade_companies//00_trade_companies.txt",
+              "//common/trade_companies//00_trade_companies.txt",
           pathcfg.gamePath, ardaProvinces);
       writeTradewinds(pathcfg.gameModPath + "//map//trade_winds.txt",
                       ardaProvinces);

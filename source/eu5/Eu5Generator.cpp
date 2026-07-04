@@ -47,7 +47,7 @@ bool Generator::createPaths() {
       paths.push_back("//gfx//terrain2//decals//heightmap_" +
                       std::to_string(i) + "_16");
     }
-    std::vector<std::string> pathsToRemove = {"//common//", "//localization//"
+    std::vector<std::string> pathsToRemove = {"//common/", "//localization//"
                                               };
 
     for (const auto &path : pathsToRemove) {

@@ -1,4 +1,5 @@
 #include "hoi4/Hoi4Generator.h"
+#include <limits>
 using namespace Fwg;
 using namespace Fwg::Gfx;
 namespace Rpx::Hoi4 {
@@ -1039,13 +1040,17 @@ void assignTechsRandomly(
     const std::map<TechEra, std::vector<Technology>> &techsToAssign,
     std::map<TechEra, std::vector<Technology>> &countryCategoryTechs,
     double techLevel, double modifier) {
-  // now randomly assign the module techs. Go through each era of the techs
-  // and gather all the technology names that we have in a set.
-  if (techsToAssign.find(TechEra::Interwar) != techsToAssign.end()) {
-    for (auto &moduleTech : techsToAssign.at(TechEra::Interwar)) {
+
+  // Lambda to process a single tech era
+  auto processTechEra = [&](TechEra currentEra, TechEra prerequisiteEra, double threshold) {
+    if (techsToAssign.find(currentEra) == techsToAssign.end()) {
+      return;
+    }
+
+    for (auto &moduleTech : techsToAssign.at(currentEra)) {
       // check if we already have that tech
       bool alreadyHas = false;
-      for (auto &module : countryCategoryTechs.at(TechEra::Interwar)) {
+      for (auto &module : countryCategoryTechs.at(currentEra)) {
         if (module.name == moduleTech.name) {
           alreadyHas = true;
           break;
@@ -1054,53 +1059,35 @@ void assignTechsRandomly(
       if (alreadyHas) {
         continue;
       }
+
+      // check if this tech has a prerequisite
       if (moduleTech.predecessor.size()) {
-        // check if any of the previous era tech modules have the name of the
-        // predecessor
-        for (auto &module : countryCategoryTechs.at(TechEra::Interwar)) {
+        bool hasPrerequisite = false;
+        // check if we have the prerequisite tech from the appropriate era
+        for (auto &module : countryCategoryTechs.at(prerequisiteEra)) {
           if (module.name == moduleTech.predecessor) {
-            countryCategoryTechs.at(TechEra::Interwar).push_back(moduleTech);
+            hasPrerequisite = true;
             break;
           }
+        }
+        // if we don't have the prerequisite, skip this tech
+        if (!hasPrerequisite) {
+          continue;
         }
       }
 
+      // randomly decide if we take this tech
       auto randomVal = RandNum::getRandom(0.0, 1.0) * techLevel;
-      if (randomVal > 0.5) {
-        countryCategoryTechs.at(TechEra::Interwar).push_back(moduleTech);
+      if (randomVal > threshold) {
+        countryCategoryTechs.at(currentEra).push_back(moduleTech);
       }
     }
-  }
-  if (techsToAssign.find(TechEra::Buildup) != techsToAssign.end()) {
-    for (auto &moduleTech : techsToAssign.at(TechEra::Buildup)) {
-      auto randomVal = RandNum::getRandom(0.0, 1.0) * techLevel;
-      if (randomVal > 1.0) {
-        // check if any of the previous era tech modules have the name of the
-        // predecessor
-        for (auto &module : countryCategoryTechs.at(TechEra::Interwar)) {
-          if (module.name == moduleTech.predecessor) {
-            countryCategoryTechs.at(TechEra::Buildup).push_back(moduleTech);
-            break;
-          }
-        }
-      }
-    }
-  }
-  if (techsToAssign.find(TechEra::Early) != techsToAssign.end()) {
-    for (auto &moduleTech : techsToAssign.at(TechEra::Early)) {
-      auto randomVal = RandNum::getRandom(0.0, 1.0) * techLevel;
-      if (randomVal > 1.5) {
-        // check if any of the previous era tech modules have the name of the
-        // predecessor
-        for (auto &module : countryCategoryTechs.at(TechEra::Buildup)) {
-          if (module.name == moduleTech.predecessor) {
-            countryCategoryTechs.at(TechEra::Early).push_back(moduleTech);
-            break;
-          }
-        }
-      }
-    }
-  }
+  };
+
+  // Process each era with its parameters
+  processTechEra(TechEra::Interwar, TechEra::Interwar, 0.25);
+  processTechEra(TechEra::Buildup, TechEra::Interwar, 0.75);
+  processTechEra(TechEra::Early, TechEra::Buildup, 1.25);
 }
 
 void Generator::generateTechLevels() {
@@ -1112,31 +1099,31 @@ void Generator::generateTechLevels() {
   // read in the techs from the files
   auto industryElectronicTechsFile = Fwg::Parsing::getLines(
       Fwg::Cfg::Values().resourcePath +
-      "//hoi4//common//technologies//industryElectronicTechs.txt");
+      "/hoi4/common/technologies/industryElectronicTechs.txt");
   std::map<TechEra, std::vector<Technology>> industryElectronicTechs;
   createTech(industryElectronicTechsFile, industryElectronicTechs);
 
   auto infantryTechsFile =
       Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
-                             "//hoi4//common//technologies//infantryTechs.txt");
+                             "/hoi4/common/technologies/infantryTechs.txt");
   std::map<TechEra, std::vector<Technology>> infantryTechs;
   createTech(infantryTechsFile, infantryTechs);
 
   auto armorTechsFile =
       Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
-                             "//hoi4//common//technologies//armorTechs.txt");
+                             "/hoi4/common/technologies/armorTechs.txt");
   std::map<TechEra, std::vector<Technology>> armorTechs;
   createTech(armorTechsFile, armorTechs);
 
   auto airTechsFile =
       Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
-                             "//hoi4//common//technologies//airTechs.txt");
+                             "/hoi4/common/technologies/airTechs.txt");
   std::map<TechEra, std::vector<Technology>> airTechs;
   createTech(airTechsFile, airTechs);
 
   auto navyTechsFile =
       Fwg::Parsing::getLines(Fwg::Cfg::Values().resourcePath +
-                             "//hoi4//common//technologies//navyTechs.txt");
+                             "/hoi4/common/technologies/navyTechs.txt");
   std::map<TechEra, std::vector<Technology>> navyTechs;
   createTech(navyTechsFile, navyTechs);
 
@@ -1167,6 +1154,17 @@ void Generator::generateTechLevels() {
     auto armorTechLevel = development * country->landFocus / 10.0;
     auto airTechLevel = development * country->airFocus / 10.0;
     auto industryTechLevel = development * 5.0;
+
+    if (country->rank == Arda::Rank::GreatPower ||
+        country->rank == Arda::Rank::SecondaryPower) {
+      // print levels
+      Fwg::Utils::Logging::logLineLevel(
+          8, "Country ", country->name, " has tech levels: navy ",
+          navyTechLevel, ", infantry ", infantryTechLevel, ", armor ",
+          armorTechLevel, ", air ", airTechLevel, ", industry ",
+          industryTechLevel);
+
+    } 
 
     assignTechsRandomly(airTechs, country->airTechs, airTechLevel, 1.0);
     // ensure we have meaningful techs for planes, should we have any
@@ -1702,14 +1700,19 @@ void Generator::generateCountryUnits() {
       } else if (division.type == DivisionType::Armor) {
         division.armyShare = 0.1 - (development - 0.7);
       }
+      // clamp to non-negative to prevent negative shares
+      division.armyShare = std::max(0.0, division.armyShare);
     }
     // now normalise the shares so we get a sum of 1
     double sum = 0.0;
     for (auto &division : country->divisionTemplates) {
       sum += division.armyShare;
     }
-    for (auto &division : country->divisionTemplates) {
-      division.armyShare /= sum;
+    // prevent division by zero or near-zero which would create huge shares
+    if (sum > 0.0) {
+      for (auto &division : country->divisionTemplates) {
+        division.armyShare /= sum;
+      }
     }
     // now we can generate the divisions. Each typeshare is multiplied with
     // the totalArmyStrength, and then we generate the divisions until their
@@ -1823,6 +1826,24 @@ void Generator::generateCountryNavies() {
         shipClass.mtgHullname =
             shipHullDefinitions[shipclassType] +
             (shipClass.era == TechEra::Interwar ? "_1" : "_2");
+
+        // carriers are special just for mtg, they have a different interwar
+        // level, namely deck conversions from ca and bb.
+        if (shipclassType == ShipClassType::Carrier) {
+          if (shipClass.era == TechEra::Interwar) {
+            // randomly decide on ca or bb deck conversion
+            if (RandNum::getRandom(0.0, 1.0) < 0.5) {
+              shipClass.mtgHullname = "ship_hull_carrier_conversion_bb";
+            } else {
+              shipClass.mtgHullname = "ship_hull_carrier_conversion_ca";
+            }
+          } else {
+            // _1 is the second level, early carriers, different from all other
+            // ship classes
+            shipClass.mtgHullname = shipHullDefinitions[shipclassType] + "_1";
+          }
+        }
+
         shipClass.tonnage = tonnages[shipclassType];
 
         addShipClassModules(shipClass, country->navyTechs,
@@ -1850,13 +1871,13 @@ void Generator::generateCountryNavies() {
     auto screenShare = 0.0;
     // carriers are only built by major powers
     if (country->rank == Arda::Rank::GreatPower) {
-      carrierShare = 0.1;
+      carrierShare = 0.15;
       battleshipShare = 0.2;
-      screenShare = 0.7;
+      screenShare = 0.65;
     } else if (country->rank == Arda::Rank::SecondaryPower) {
-      carrierShare = 0.075;
-      battleshipShare = 0.15;
-      screenShare = 0.775;
+      carrierShare = 0.1;
+      battleshipShare = 0.3;
+      screenShare = 0.6;
     } else if (country->rank == Arda::Rank::RegionalPower) {
       carrierShare = 0.00;
       battleshipShare = 0.3;
@@ -1875,18 +1896,28 @@ void Generator::generateCountryNavies() {
     int carrierTargetTonnage = totalTonnage * carrierShare;
     const std::vector<ShipClass> &carrierClasses =
         country->shipClasses.at(ShipClassType::Carrier);
+    bool canAffordCarrier = false;
     if (carrierClasses.size()) {
       auto randomCarrierShipClass =
           Fwg::Utils::Random::selectRandom(carrierClasses);
-      // as long as we have enough tonnage for a carrier, spawn one
-      while (carrierTargetTonnage > randomCarrierShipClass.tonnage) {
-        // create a carrier ship
-        Ship carrier;
-        carrier.shipClass = randomCarrierShipClass;
-        // push shared pointer to new ship
-        country->ships.push_back(std::make_shared<Ship>(carrier));
-        carrierTargetTonnage -= randomCarrierShipClass.tonnage;
+      // check if we can afford at least one carrier
+      if (carrierTargetTonnage > randomCarrierShipClass.tonnage) {
+        canAffordCarrier = true;
+        // as long as we have enough tonnage for a carrier, spawn one
+        while (carrierTargetTonnage > randomCarrierShipClass.tonnage) {
+          // create a carrier ship
+          Ship carrier;
+          carrier.shipClass = randomCarrierShipClass;
+          // push shared pointer to new ship
+          country->ships.push_back(std::make_shared<Ship>(carrier));
+          carrierTargetTonnage -= randomCarrierShipClass.tonnage;
+        }
       }
+    }
+    // if we can't afford a carrier, redistribute the tonnage to battleship
+    // share
+    if (!canAffordCarrier) {
+      battleshipShare += carrierShare;
     }
     int heavyShipTargetTonnage = totalTonnage * battleshipShare;
     // we randomly select Ship Classes Battleship and Heavy Cruiser
@@ -1896,32 +1927,115 @@ void Generator::generateCountryNavies() {
         country->shipClasses.at(ShipClassType::BattleCruiser);
     const std::vector<ShipClass> &heavyCruiserClasses =
         country->shipClasses.at(ShipClassType::HeavyCruiser);
+    bool canAffordHeavyShip = false;
     if (battleshipClasses.size() || battleCruiserClasses.size() ||
         heavyCruiserClasses.size()) {
-      // as long as we have enough tonnage for a heavy ship, spawn one
-      while (heavyShipTargetTonnage > 0) {
-        // create a heavy ship
-        Ship heavyShip;
-        if (RandNum::getRandom(0, 2)) {
-          if (!heavyCruiserClasses.size())
-            continue;
-          heavyShip.shipClass =
-              Fwg::Utils::Random::selectRandom(heavyCruiserClasses);
-        } else if (RandNum::getRandom(0, 2)) {
-          if (!battleCruiserClasses.size())
-            continue;
-          heavyShip.shipClass =
-              Fwg::Utils::Random::selectRandom(battleCruiserClasses);
-        } else {
-          if (!battleshipClasses.size())
-            continue;
-          heavyShip.shipClass =
-              Fwg::Utils::Random::selectRandom(battleshipClasses);
+      // determine minimum tonnage required for any heavy ship
+      int minHeavyShipTonnage = std::numeric_limits<int>::max();
+      if (heavyCruiserClasses.size()) {
+        for (const auto &shipClass : heavyCruiserClasses) {
+          minHeavyShipTonnage =
+              std::min(minHeavyShipTonnage, shipClass.tonnage);
         }
-        // push shared pointer to new ship
-        country->ships.push_back(std::make_shared<Ship>(heavyShip));
-        heavyShipTargetTonnage -= heavyShip.shipClass.tonnage;
       }
+      if (battleCruiserClasses.size()) {
+        for (const auto &shipClass : battleCruiserClasses) {
+          minHeavyShipTonnage =
+              std::min(minHeavyShipTonnage, shipClass.tonnage);
+        }
+      }
+      if (battleshipClasses.size()) {
+        for (const auto &shipClass : battleshipClasses) {
+          minHeavyShipTonnage =
+              std::min(minHeavyShipTonnage, shipClass.tonnage);
+        }
+      }
+
+      // check if we can afford at least one heavy ship
+      if (heavyShipTargetTonnage > minHeavyShipTonnage) {
+        canAffordHeavyShip = true;
+        // as long as we have enough tonnage for a heavy ship, spawn one
+        while (heavyShipTargetTonnage > 0) {
+          // create a heavy ship
+          Ship heavyShip;
+          bool shipSelected = false;
+
+          // try to select a ship that fits
+          int attempts = 0;
+          while (!shipSelected && attempts < 20) {
+            if (RandNum::getRandom(0, 2)) {
+              if (heavyCruiserClasses.size()) {
+                heavyShip.shipClass =
+                    Fwg::Utils::Random::selectRandom(heavyCruiserClasses);
+                shipSelected = true;
+              }
+            } else if (RandNum::getRandom(0, 2)) {
+              if (battleCruiserClasses.size()) {
+                heavyShip.shipClass =
+                    Fwg::Utils::Random::selectRandom(battleCruiserClasses);
+                shipSelected = true;
+              }
+            } else {
+              if (battleshipClasses.size()) {
+                heavyShip.shipClass =
+                    Fwg::Utils::Random::selectRandom(battleshipClasses);
+                shipSelected = true;
+              }
+            }
+            attempts++;
+          }
+
+          if (!shipSelected) {
+            break;
+          }
+
+          // check if the selected ship fits in the remaining tonnage
+          if (heavyShip.shipClass.tonnage > heavyShipTargetTonnage) {
+            // try to find a smaller ship that fits
+            bool foundSmallerShip = false;
+            if (heavyCruiserClasses.size()) {
+              for (const auto &shipClass : heavyCruiserClasses) {
+                if (shipClass.tonnage <= heavyShipTargetTonnage) {
+                  heavyShip.shipClass = shipClass;
+                  foundSmallerShip = true;
+                  break;
+                }
+              }
+            }
+            if (!foundSmallerShip && battleCruiserClasses.size()) {
+              for (const auto &shipClass : battleCruiserClasses) {
+                if (shipClass.tonnage <= heavyShipTargetTonnage) {
+                  heavyShip.shipClass = shipClass;
+                  foundSmallerShip = true;
+                  break;
+                }
+              }
+            }
+            if (!foundSmallerShip && battleshipClasses.size()) {
+              for (const auto &shipClass : battleshipClasses) {
+                if (shipClass.tonnage <= heavyShipTargetTonnage) {
+                  heavyShip.shipClass = shipClass;
+                  foundSmallerShip = true;
+                  break;
+                }
+              }
+            }
+            if (!foundSmallerShip) {
+              // no ship fits, break out
+              break;
+            }
+          }
+
+          // push shared pointer to new ship
+          country->ships.push_back(std::make_shared<Ship>(heavyShip));
+          heavyShipTargetTonnage -= heavyShip.shipClass.tonnage;
+        }
+      }
+    }
+    // if we can't afford a heavy ship, redistribute the tonnage to screen
+    // share
+    if (!canAffordHeavyShip) {
+      screenShare += battleshipShare;
     }
 
     // now we have to distribute the remaining tonnage to screens
@@ -1935,17 +2049,59 @@ void Generator::generateCountryNavies() {
       while (screenTargetTonnage > 0) {
         // create a screen ship
         Ship screenShip;
-        if (RandNum::getRandom(0, 2)) {
-          if (!destroyerClasses.size())
-            continue;
-          screenShip.shipClass =
-              Fwg::Utils::Random::selectRandom(destroyerClasses);
-        } else {
-          if (!lightCruiserClasses.size())
-            continue;
-          screenShip.shipClass =
-              Fwg::Utils::Random::selectRandom(lightCruiserClasses);
+        bool shipSelected = false;
+
+        // try to select a ship that fits
+        int attempts = 0;
+        while (!shipSelected && attempts < 20) {
+          if (RandNum::getRandom(0, 2)) {
+            if (destroyerClasses.size()) {
+              screenShip.shipClass =
+                  Fwg::Utils::Random::selectRandom(destroyerClasses);
+              shipSelected = true;
+            }
+          } else {
+            if (lightCruiserClasses.size()) {
+              screenShip.shipClass =
+                  Fwg::Utils::Random::selectRandom(lightCruiserClasses);
+              shipSelected = true;
+            }
+          }
+          attempts++;
         }
+
+        if (!shipSelected) {
+          break;
+        }
+
+        // check if the selected ship fits in the remaining tonnage
+        if (screenShip.shipClass.tonnage > screenTargetTonnage) {
+          // try to find a smaller ship that fits
+          bool foundSmallerShip = false;
+          if (destroyerClasses.size()) {
+            for (const auto &shipClass : destroyerClasses) {
+              if (shipClass.tonnage <= screenTargetTonnage) {
+                screenShip.shipClass = shipClass;
+                foundSmallerShip = true;
+                break;
+              }
+            }
+          }
+          if (!foundSmallerShip && lightCruiserClasses.size()) {
+            for (const auto &shipClass : lightCruiserClasses) {
+              if (shipClass.tonnage <= screenTargetTonnage) {
+                screenShip.shipClass = shipClass;
+                foundSmallerShip = true;
+                break;
+              }
+            }
+          }
+          if (!foundSmallerShip) {
+            // no ship fits, break out
+            break;
+          }
+        }
+
         // push shared pointer to new ship
         country->ships.push_back(std::make_shared<Ship>(screenShip));
         screenTargetTonnage -= screenShip.shipClass.tonnage;
@@ -1992,10 +2148,10 @@ void Generator::generateCountryNavies() {
       }
     }
     // check if no port was found
-    if (fleet.startingPort == nullptr) {
+    if (fleet.startingPort == nullptr || fleet.ships.empty()) {
       Fwg::Utils::Logging::logLine(
           "Warning: Country " + country->name +
-          " has no naval base, cannot assign fleet port");
+          " has no naval base or no ships, cannot assign fleet port");
     } else {
       country->fleets.push_back(fleet);
     }
@@ -2215,13 +2371,12 @@ void Generator::generatePositions() {
         Arda::PositionType::Attacking, 9, altitudes));
 
     // for sea we need: standstill, standstill RG, defending, attacking, per
-    // neighbour: moving, disembarck (11 + x), moving RG, disembarck RG (30 + x)
-    // for land we need: standstill, standstill RG, defending, attacking, per
-    // neighbour: moving, moving RG for coastal land we need additionally: ship
-    // in port (19), ship in port moving (20)
-    // commonality for all: standstill (0), standstill RG (21), defending (10),
-    // attacking (9), per neighbour: moving (1 + x), moving RG (22 + x), victory
-    // point (38)
+    // neighbour: moving, disembarck (11 + x), moving RG, disembarck RG (30 +
+    // x) for land we need: standstill, standstill RG, defending, attacking,
+    // per neighbour: moving, moving RG for coastal land we need additionally:
+    // ship in port (19), ship in port moving (20) commonality for all:
+    // standstill (0), standstill RG (21), defending (10), attacking (9), per
+    // neighbour: moving (1 + x), moving RG (22 + x), victory point (38)
     auto sea = gameProv->isSea();
 
     // evaluate if we need ship in port positions
@@ -2795,7 +2950,7 @@ void Generator::writeTextFiles(bool scenarioDetails) {
                             modData.hoi4Countries);
     Countries::ideas(pathcfg.gameModPath + "common/ideas/",
                      modData.hoi4Countries);
-    // Countries::foci(pathcfg.gameModPath + "//common//national_focus//",
+    // Countries::foci(pathcfg.gameModPath + "//common/national_focus//",
     //                 modData.hoi4Countries, nData);
   }
 
@@ -2963,13 +3118,14 @@ void Generator::readHoi(std::string &path) {
   mapProvinces();
   // load existing states: we first get all the state files and parse their
   // provinces for land regions (including lakes) then we need to get the
-  // strategic region files, and for every strategic region that is a sea state,
-  // we create a sea region?
-  // Hoi4::Parsing::Reading::readStates(path, hoi4Gen);
+  // strategic region files, and for every strategic region that is a sea
+  // state, we create a sea region? Hoi4::Parsing::Reading::readStates(path,
+  // hoi4Gen);
 
   // ensure continents are created via the details in definition.csv.
   // Which means we also need to load the existing continents file to match
-  // those with each other, so another export does not overwrite the continents
+  // those with each other, so another export does not overwrite the
+  // continents
   std::map<int, Areas::Continent> continents;
   for (auto &prov : areaData.provinces) {
     if (prov->continent->ID != -1) {
