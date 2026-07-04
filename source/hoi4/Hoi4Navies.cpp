@@ -93,7 +93,7 @@ std::string getBestSuitedAntiAir(
   if (era == TechEra::Buildup) {
     if (availableArmyTech.find(TechEra::Buildup) != availableArmyTech.end()) {
       for (auto module : availableArmyTech.at(TechEra::Buildup)) {
-        if (module.name == "improved_anti_air") {
+        if (module.name == "interwar_antiair") {
           return "ship_anti_air_2";
         }
       }
@@ -102,7 +102,7 @@ std::string getBestSuitedAntiAir(
   if (era == TechEra::Interwar || era == TechEra::Buildup) {
     if (availableArmyTech.find(TechEra::Interwar) != availableArmyTech.end()) {
       for (auto module : availableArmyTech.at(TechEra::Interwar)) {
-        if (module.name == "basic_anti_air") {
+        if (module.name == "gw_artillery") {
           return "ship_anti_air_1";
         }
       }
@@ -476,19 +476,23 @@ void addShipClassModules(
   }
   // carriers: distinguished by hangar space
   else if (shipClass.type == ShipClassType::Carrier) {
-    // front_1_custom_slot
-    shipClass.mtgModules["front_1_custom_slot"] = selectRandomCustomSlot(
-        availableModuleTech, shipClass.era, availableArmyTech, shipClass, true,
-        false, false, false, false, false, false, true, true);
-    // mid_1_custom_slot, only allow deck armor if we don't have it in the
-    // front_custom_slot
-    shipClass.mtgModules["mid_1_custom_slot"] = selectRandomCustomSlot(
-        availableModuleTech, shipClass.era, availableArmyTech, shipClass, false,
-        false, false, true, false, false, false,
-        shipClass.mtgModules["front_1_custom_slot"] == "ship_armor_carrier_deck"
-            ? false
-            : true,
-        true);
+    // custom slots are only available starting with buildup era
+    if (shipClass.era == TechEra::Buildup) {
+      // front_1_custom_slot
+      shipClass.mtgModules["front_1_custom_slot"] = selectRandomCustomSlot(
+          availableModuleTech, shipClass.era, availableArmyTech, shipClass,
+          true, false, false, false, false, false, false, true, true);
+      // mid_1_custom_slot, only allow deck armor if we don't have it in the
+      // front_custom_slot
+      shipClass.mtgModules["mid_1_custom_slot"] = selectRandomCustomSlot(
+          availableModuleTech, shipClass.era, availableArmyTech, shipClass,
+          false, false, false, true, false, false, false,
+          shipClass.mtgModules["front_1_custom_slot"] ==
+                  "ship_armor_carrier_deck"
+              ? false
+              : true,
+          true);
+    }
     // fixed_ship_deck_slot_1 = ship_deck_space
     shipClass.mtgModules["fixed_ship_deck_slot_1"] = "ship_deck_space";
     // fixed_ship_deck_slot_2 = ship_deck_space

@@ -140,6 +140,8 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
       ImGui_ImplGlfw_NewFrame();
 
       ImGui::NewFrame();
+      // Apply automatic UI scaling based on window resolution
+      applyAutoUIScale();
       {
         ImGui::SetNextWindowPos({0, 0});
         ImGui::SetNextWindowSize({io.DisplaySize.x, io.DisplaySize.y});

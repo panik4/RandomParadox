@@ -1,4 +1,4 @@
-add_namespace = lar_heavy_water
+﻿add_namespace = lar_heavy_water
 
 # Heavy Water Raid - Germany informed that heavy water plant was blown
 country_event = {

@@ -1,4 +1,4 @@
-
+﻿
 add_namespace = generic_debug
 
 # debug event used for creating agency & cryptology
