@@ -25,7 +25,7 @@ Generator::Generator(const std::string &configSubFolder,
 bool Generator::createPaths() {
   try {
     using namespace std::filesystem;
-    std::string prefix = "//in_game//";
+    std::string prefix = "//in_game/";
     std::vector<std::string> paths = {
         "",
         "//gfx//terrain2//",
@@ -47,7 +47,7 @@ bool Generator::createPaths() {
       paths.push_back("//gfx//terrain2//decals//heightmap_" +
                       std::to_string(i) + "_16");
     }
-    std::vector<std::string> pathsToRemove = {"//common/", "//localization//"
+    std::vector<std::string> pathsToRemove = {"/common/", "//localization//"
                                               };
 
     for (const auto &path : pathsToRemove) {
@@ -278,7 +278,7 @@ void Generator::generate() {
     // generateStrategicRegions(factory);
     //// Vic3 specifics:
     // distributeResources();
-    // if (!importData(this->pathcfg.gamePath + "//game//")) {
+    // if (!importData(this->pathcfg.gamePath + "/game/")) {
     //   Fwg::Utils::Logging::logLine("ERROR: Could not import data from game "
     //                                "folder. The generation has FAILED");
     //   return;
@@ -320,36 +320,36 @@ void Generator::writeTextFiles(bool scenarioDetails) {
   using namespace Parsing::Writing;
 
   writeMetadata(pathcfg.gameModPath + "//.metadata//metadata.json");
-  overwrites(pathcfg.gameModPath + "//in_game//");
+  overwrites(pathcfg.gameModPath + "//in_game/");
   mainMenuOverrides(pathcfg.gameModPath + "//main_menu");
 }
 
 void Generator::writeImages() {
   //// TODO: improve handling of altitude data to not rely on image
   imageExporter.Eu5ColourMaps(terrainData, climateData, ardaData.civLayer,
-                              pathcfg.gameModPath + "//in_game//gfx//map//",
+                              pathcfg.gameModPath + "//in_game/gfx//map//",
                               this->exportWidth / 2, this->exportHeight / 2);
    imageExporter.writeLocations(provinceMap, ardaProvinces, ardaRegions,
                                 ardaContinents, ardaData.civLayer,
-                                pathcfg.gameModPath + "//in_game//map_data//",
+                                pathcfg.gameModPath + "//in_game/map_data//",
                                 this->exportWidth, this->exportHeight);
    imageExporter.dumpHeightmap(
        terrainData.detailedHeightMap,
-       pathcfg.gameModPath + "//in_game//gfx//terrain2//", "",
+       pathcfg.gameModPath + "//in_game/gfx//terrain2//", "",
        this->exportWidth * 4, this->exportHeight * 4);
   imageExporter.dumpDecalMasks(
       terrainData, climateData,
-      pathcfg.gameModPath + "//in_game//gfx//terrain2//decals//", "",
+      pathcfg.gameModPath + "//in_game/gfx//terrain2//decals//", "",
       this->exportWidth * 2, this->exportHeight * 2);
   imageExporter.dumpTerrainMasks(
       terrainData, climateData,
       pathcfg.gameModPath +
-          "//in_game//gfx//terrain2//terrain_textures//masks//",
+          "//in_game/gfx//terrain2//terrain_textures//masks//",
       "", this->exportWidth, this->exportHeight);
 
   imageExporter.mapObjectMasks(
       terrainData, climateData, ardaData.civLayer,
-      pathcfg.gameModPath + "//in_game//content_source//map_objects//masks//",
+      pathcfg.gameModPath + "//in_game/content_source//map_objects//masks//",
       this->exportWidth, this->exportHeight);
 }
 

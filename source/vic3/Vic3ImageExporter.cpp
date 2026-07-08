@@ -572,16 +572,16 @@ void ImageExporter::detailMaps(
     }
   }
   Arda::Gfx::Textures::writeTGA(config.width, config.height, pixels,
-                                path + "//terrain//detail_index.tga");
+                                path + "/terrain/detail_index.tga");
   Arda::Gfx::Textures::writeTGA(config.width, config.height, intensityPixels,
-                                path + "//terrain//detail_intensity.tga");
+                                path + "/terrain/detail_intensity.tga");
 
   for (int i = 0; i < masks.size(); i++) {
 
     masks[i].setColourAtIndex(0, 255);
     masks[i].setColourAtIndex(1, 128);
     Fwg::Gfx::Png::save(masks[i],
-                        path + "//terrain//mask_" + nameMapping.at(i) + ".png",
+                        path + "/terrain/mask_" + nameMapping.at(i) + ".png",
                         true, LCT_GREY, 8);
   }
 }

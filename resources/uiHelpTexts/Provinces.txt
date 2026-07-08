@@ -1,4 +1,4 @@
-Here you can configure province generation and generate provinces until you are happy with the result. You can also load a province map, by dragging in the province map image you want to use. In case the generated province map is not quite what you want, you can find it in the Maps// folder, edit it with your favourite image editor, and then drag it in.
+Here you can configure province generation and generate provinces until you are happy with the result. You can also load a province map, by dragging in the province map image you want to use. In case the generated province map is not quite what you want, you can find it in the Maps/ folder, edit it with your favourite image editor, and then drag it in.
 Here you can configure province generation and generate provinces until you are happy with the result, or load a province map. Most important factors are:
 
     - Landprovincefactor: The higher, the more provinces on land

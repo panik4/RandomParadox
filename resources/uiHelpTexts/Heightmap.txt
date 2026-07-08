@@ -10,20 +10,23 @@ When generating an image, you have a large amount of settings available and can 
 
 You can load presets that have different effects.
 
-Individual layer settings
-Heightmaps are generated from multiple combined layers. To edit these layers, check the "Layer Edit" box. Please note that this is pretty advanced and not necessary to edit in most cases! Each layer has different properties:
+Layer Editor:
+Heightmaps are generated from multiple combined layers. To edit these layers, open the layer editor. Please note that this is pretty advanced and not necessary to edit in most cases! Each layer has different properties:
 	- type: the fractal type that is used
 	- landLayer: if this layer will be applied only to land after the basic continent shape has already been determined
 	- fractalFrequency: the higher, the smaller the fractals
 	- fractalOctaves: affects ruggedness
 	- fractalGain: how rugged the generation is
 	- seed: individual seed for a layer, if 0, it is automatically determined based on the base seed
-	- widthEdge: from when on terrain height falls towards the east/west edges of the map
-	- heightEdge: from when on terrain height falls towards the north/- south edges of the map
+	- edge fade width: from when on terrain height falls towards the east/west edges of the map
+	- edge fade height: from when on terrain height falls towards the north/- south edges of the map
 	- weight: how much this single layer is weighted relative to the other layers
 	- maxHeight: what the total maximum height present in this layer can be. Should be between 1 and 255
 	- minHeight: what the total maximum height present in this layer can be. Should be between 1 and 255, and smaller maxHeight
 	- tanFactor: how quickly land height increases. Can produce really rugged layers, specifically good for e.g. mountain ranges. Range between 0.00 and 0.26
 	
-Heightmap generation from landfrom input:
+Heightmap generation from landform input:
 Here is the explanation of how input works. Your input defines the overall distinction between land and water, and then the different types affeect how much elevation will be randomly generated. This is done via land layers and sea layers. You can edit these layers if you extend the layer editing. Furthermore, each type has a modifier for average altitude, overlaid over a noisemap that is built from the land layers in the heightmap layer config. This means, that the higher the input factor, the more likely you will actually see this terrain at this location. These modifiers are relative to each other and can be modified. Any elevation generation will be normalised to the range 0-maximumLandHeight.
+
+Heightmap Processing Pipeline:
+This determines the step that need to be run to produce a final heightmap. You might e.g. add crater generation to it, and change the final map. You can also change parameters.

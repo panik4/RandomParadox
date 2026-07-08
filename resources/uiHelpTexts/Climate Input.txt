@@ -2,3 +2,22 @@ An optional tab, in case you want to specify climate types instead of generating
 **- In general, it is recommended to spend some time preparing your input images, it is easier to add detail now than later in the generated mod.**
 **- It is also recommended to use different inputs for climate and land, otherwise the biomes will look very boring**
 - You can autogenerate climate first, and then find the file "climate_no_trees.png" next to the executable in the "Maps" folder, modify this and load them back in.
+
+tropicsrainforest = 64, 80, 41
+tropicsmonsoon    = 69, 87, 61
+tropicssavanna    = 92, 82, 54
+desert            = 200, 163, 128
+colddesert        = 176, 158, 135
+hotsemiarid       = 147, 134, 107
+coldsemiarid      = 140, 126, 107
+temperatehot      = 74, 88, 66
+temperatewarm     = 54, 78, 56
+temperatecold     = 29, 68, 50
+continentalhot    = 85, 88, 75
+continentalwarm   = 75, 86, 75
+continentalcold   = 94, 95, 84
+polartundra       = 133, 116, 96
+polararctic       = 158, 170, 187
+snow              = 240, 240, 240
+rock              = 160, 160, 160
+ocean             = 21, 39, 92

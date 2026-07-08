@@ -349,7 +349,9 @@ Fwg::Gfx::Image Generator::mapTerrain() {
       }
     }
   }
-  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "debug/typeMap.png");
+  if (config.debugLevel > 5) {
+    Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "debug/typeMap.png");
+  }
   generateUrbanisation();
   return typeMap;
 }
@@ -589,8 +591,7 @@ void Generator::generateStateSpecifics() {
   stats.totalWorldIndustry =
       stats.militaryIndustry + stats.civilianIndustry + stats.navalIndustry;
   this->modData.statesInitialised = true;
-  Arda::Areas::saveRegions(ardaRegions,
-                           Fwg::Cfg::Values().mapsPath + "//areas//",
+  Arda::Areas::saveRegions(ardaRegions, Fwg::Cfg::Values().mapsPath + "/areas/",
                            Arda::Gfx::visualiseRegions(ardaRegions));
 }
 
@@ -1042,7 +1043,8 @@ void assignTechsRandomly(
     double techLevel, double modifier) {
 
   // Lambda to process a single tech era
-  auto processTechEra = [&](TechEra currentEra, TechEra prerequisiteEra, double threshold) {
+  auto processTechEra = [&](TechEra currentEra, TechEra prerequisiteEra,
+                            double threshold) {
     if (techsToAssign.find(currentEra) == techsToAssign.end()) {
       return;
     }
@@ -1163,8 +1165,7 @@ void Generator::generateTechLevels() {
           navyTechLevel, ", infantry ", infantryTechLevel, ", armor ",
           armorTechLevel, ", air ", airTechLevel, ", industry ",
           industryTechLevel);
-
-    } 
+    }
 
     assignTechsRandomly(airTechs, country->airTechs, airTechLevel, 1.0);
     // ensure we have meaningful techs for planes, should we have any
@@ -2950,7 +2951,7 @@ void Generator::writeTextFiles(bool scenarioDetails) {
                             modData.hoi4Countries);
     Countries::ideas(pathcfg.gameModPath + "common/ideas/",
                      modData.hoi4Countries);
-    // Countries::foci(pathcfg.gameModPath + "//common/national_focus//",
+    // Countries::foci(pathcfg.gameModPath + "/common/national_focus//",
     //                 modData.hoi4Countries, nData);
   }
 
@@ -3013,11 +3014,11 @@ void Generator::writeImages() {
                                   "heightmap");
   imageExporter.dumpTerrainColourmap(
       worldMap, ardaData.civLayer, pathcfg.gameModPath,
-      "//map//terrain//colormap_rgb_cityemissivemask_a.dds",
+      "//map/terrain/colormap_rgb_cityemissivemask_a.dds",
       gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
   imageExporter.dumpDDSFiles(
       terrainData.detailedHeightMap,
-      pathcfg.gameModPath + "//map//terrain//colormap_water_", false, 8);
+      pathcfg.gameModPath + "//map/terrain/colormap_water_", false, 8);
   imageExporter.dumpWorldNormal(
       Fwg::Gfx::Image(Cfg::Values().width, Cfg::Values().height, 24,
                       terrainData.sobelData),
@@ -3054,7 +3055,11 @@ void Generator::generate() {
     auto stratFactory = []() -> std::shared_ptr<StrategicRegion> {
       return std::make_shared<StrategicRegion>();
     };
-    generateStrategicRegions(stratFactory);
+    if (!generateStrategicRegions(stratFactory)) {
+      Fwg::Utils::Logging::logLine(
+          "Error generating strategic regions, aborting");
+      return;
+    }
     generateWeather();
     // generate state information
     generateStateSpecifics();

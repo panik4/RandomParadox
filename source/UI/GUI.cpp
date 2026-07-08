@@ -99,7 +99,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
                const std::string &usernameRef) {
 
   try {
-    Fwg::UI::Utils::CreateDeviceGL(window, "RandomParadox 0.10.2", 0, 0);
+    Fwg::UI::Utils::CreateDeviceGL(window, "RandomParadox 0.11.0", 0, 0);
 
     setWindowIcon(window, Fwg::Cfg::Values().workingDirectory +
                               "resources/worldMap.png");
@@ -477,7 +477,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
 
     // Game and Config selection side-by-side using GridLayout
     {
-      Fwg::UI::Elements::GridLayout grid(3, 120.0f, 12.0f);
+      Fwg::UI::Elements::GridLayout grid(3, scaled(120.0f), scaled(12.0f));
 
       // Game Selection
       if (grid.AddListBox("Select Game", &selectedGame, gameSelection.data(),
@@ -529,7 +529,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
 
     // Path inputs with automatic normalization
     bool needsValidation = false;
-    ImGui::PushItemWidth(600.0f);
+    ImGui::PushItemWidth(scaled(600.0f));
     needsValidation |= PathInput("Mod Name", activeGenerator->pathcfg.modName);
     needsValidation |=
         PathInput("Game Path", activeGenerator->pathcfg.gamePath);
@@ -565,7 +565,7 @@ int GUI::showRpdxConfigure(Fwg::Cfg &cfg) {
     ImGui::SeparatorText("World Configuration");
 
     {
-      Fwg::UI::Elements::GridLayout grid(2, 250.0f, 12.0f);
+      Fwg::UI::Elements::GridLayout grid(2, scaled(250.0f), scaled(12.0f));
 
       if (grid.AddInputDouble(
               "Population Factor",
@@ -618,7 +618,7 @@ void GUI::showModLoader(Fwg::Cfg &cfg) {
   }
 }
 
-void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
+void GUI::countryEdit() {
   static int selectedStateIndex = 0;
   static std::string drawCountryTag;
 
@@ -630,27 +630,29 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
   if (clickEvents.size()) {
     auto pix = clickEvents.front();
     clickEvents.pop();
-    const auto colour = generator->provinceMap[pix.pixel];
-    if (generator->areaData.provinceColourMap.contains(colour)) {
-      const auto &prov = generator->areaData.provinceColourMap[colour];
-      if (prov->regionID < generator->ardaRegions.size()) {
-        auto &state = generator->ardaRegions[prov->regionID];
+    const auto colour = activeGenerator->provinceMap[pix.pixel];
+    if (activeGenerator->areaData.provinceColourMap.contains(colour)) {
+      const auto &prov = activeGenerator->areaData.provinceColourMap[colour];
+      if (prov->regionID < activeGenerator->ardaRegions.size()) {
+        auto &state = activeGenerator->ardaRegions[prov->regionID];
         selectedStateIndex = state->ID;
       }
     }
   }
 
-  if (generator->ardaRegions.size()) {
-    auto &modifiableState = generator->ardaRegions[selectedStateIndex];
+  if (activeGenerator->ardaRegions.size()) {
+    auto &modifiableState = activeGenerator->ardaRegions[selectedStateIndex];
 
     if ((modifiableState->owner &&
-             generator->countries.find(modifiableState->owner->tag) !=
-                 generator->countries.end() ||
-         (drawCountryTag.size()) && generator->countries.find(drawCountryTag) !=
-                                        generator->countries.end())) {
+             activeGenerator->countries.find(modifiableState->owner->tag) !=
+                 activeGenerator->countries.end() ||
+         (drawCountryTag.size()) &&
+             activeGenerator->countries.find(drawCountryTag) !=
+                 activeGenerator->countries.end())) {
       std::shared_ptr selectedCountry =
-          modifiableState->owner ? modifiableState->owner
-                                 : generator->countries.at(drawCountryTag);
+          modifiableState->owner
+              ? modifiableState->owner
+              : activeGenerator->countries.at(drawCountryTag);
       if (!drawBorders) {
         drawCountryTag = selectedCountry->tag;
       }
@@ -666,9 +668,9 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
         ImGui::SeparatorText("Country Details");
 
         {
-          Fwg::UI::Elements::GridLayout grid(2, 180.0f, 12.0f);
+          Fwg::UI::Elements::GridLayout grid(2, scaled(180.0f), scaled(12.0f));
 
-          ImGui::PushItemWidth(180.0f);
+          ImGui::PushItemWidth(scaled(180.0f));
           ImGui::AlignTextToFramePadding();
           ImGui::Text("%-*s", 25, "Country Tag");
           ImGui::SameLine();
@@ -685,21 +687,21 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
               if (oldTag == bufferChangedTag) {
                 Fwg::Utils::Logging::logLine("Tag is the same as the old one");
               } else {
-                generator->countries.erase(oldTag);
+                activeGenerator->countries.erase(oldTag);
                 selectedCountry->tag = bufferChangedTag;
-                generator->countries.insert(
+                activeGenerator->countries.insert(
                     {selectedCountry->tag, selectedCountry});
                 for (auto &region : selectedCountry->ownedRegions) {
                   region->owner = selectedCountry;
                 }
               }
               requireCountryDetails = true;
-              generator->visualiseCountries(generator->countryMap,
-                                            generator->worldMap);
+              activeGenerator->visualiseCountries(activeGenerator->countryMap,
+                                                  activeGenerator->worldMap);
             }
           }
 
-          ImGui::PushItemWidth(180.0f);
+          ImGui::PushItemWidth(scaled(180.0f));
           ImGui::AlignTextToFramePadding();
           ImGui::Text("%-*s", 25, "Country Name");
           ImGui::SameLine();
@@ -723,8 +725,8 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
                                     ImGuiColorEditFlags_NoLabel)) {
             selectedCountry->colour = Fwg::Gfx::Colour(
                 color.x * 255.0, color.y * 255.0, color.z * 255.0);
-            generator->visualiseCountries(generator->countryMap,
-                                          generator->worldMap);
+            activeGenerator->visualiseCountries(activeGenerator->countryMap,
+                                                activeGenerator->worldMap);
             uiContext.imageContext.resetTexture();
           }
         }
@@ -733,9 +735,9 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
       ImGui::PopStyleColor();
 
       if (drawBorders && drawCountryTag.size()) {
-        if (generator->countries.find(drawCountryTag) !=
-            generator->countries.end()) {
-          selectedCountry = generator->countries.at(drawCountryTag);
+        if (activeGenerator->countries.find(drawCountryTag) !=
+            activeGenerator->countries.end()) {
+          selectedCountry = activeGenerator->countries.at(drawCountryTag);
         }
         if (selectedCountry != nullptr && !modifiableState->isSea() &&
             modifiableState->owner != selectedCountry) {
@@ -743,9 +745,10 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
           modifiableState->owner = selectedCountry;
           selectedCountry->addRegion(modifiableState);
           requireCountryDetails = true;
-          generator->visualiseCountries(
-              generator->countryMap, generator->worldMap, modifiableState->ID);
-          uiContext.imageContext.updateImage(0, generator->countryMap);
+          activeGenerator->visualiseCountries(activeGenerator->countryMap,
+                                              activeGenerator->worldMap,
+                                              modifiableState->ID);
+          uiContext.imageContext.updateImage(0, activeGenerator->countryMap);
         }
       }
     }
@@ -758,9 +761,9 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
       ImGui::SeparatorText("State Details");
 
       {
-        Fwg::UI::Elements::GridLayout grid(2, 180.0f, 12.0f);
+        Fwg::UI::Elements::GridLayout grid(2, scaled(180.0f), scaled(12.0f));
 
-        ImGui::PushItemWidth(180.0f);
+        ImGui::PushItemWidth(scaled(180.0f));
         ImGui::AlignTextToFramePadding();
         ImGui::Text("%-*s", 25, "State Name");
         ImGui::SameLine();
@@ -813,7 +816,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
         //   ImGui::PopItemWidth();
         // });
         {
-          Fwg::UI::Elements::GridLayout grid(2, 180.0f, 12.0f);
+          Fwg::UI::Elements::GridLayout grid(2, scaled(180.0f), scaled(12.0f));
 
           if (grid.AddInputInt("Arms Factories", &hoi4Region->armsFactories, 0,
                                100) ||
@@ -833,7 +836,7 @@ void GUI::countryEdit(std::shared_ptr<Arda::ArdaGen> generator) {
   }
 }
 
-void GUI::countryDrag(std::shared_ptr<Arda::ArdaGen> generator) {
+void GUI::countryDrag() {
   // drag event
   if (uiContext.triggeredDrag) {
     const auto &cfg = Fwg::Cfg::Values();
@@ -846,8 +849,8 @@ void GUI::countryDrag(std::shared_ptr<Arda::ArdaGen> generator) {
         Fwg::Utils::Logging::logLine(
             "Applying state input from file: ",
             Fwg::Utils::userFilter(uiContext.draggedFile, cfg.username));
-        generator->regionMappingPath = uiContext.draggedFile;
-        generator->applyRegionInput();
+        activeGenerator->regionMappingPath = uiContext.draggedFile;
+        activeGenerator->applyRegionInput();
         requireCountryDetails = true;
 
       } else if (uiContext.draggedFile.find("countries.txt") !=
@@ -868,16 +871,16 @@ void GUI::countryDrag(std::shared_ptr<Arda::ArdaGen> generator) {
       }
     } else {
       uiContext.asyncContext.computationFutureBool =
-          uiContext.asyncContext.runAsync([&generator, &cfg, this]() {
+          uiContext.asyncContext.runAsync([&cfg, this]() {
             auto evaluationAreas =
                 Fwg::UI::Utils::Masks::getLandmaskEvaluationAreas(
-                    generator->terrainData.landMask);
+                    activeGenerator->terrainData.landMask);
             if (cfg.areaInputMode == Fwg::Areas::AreaInputType::SOLID) {
               auto img = Fwg::IO::Reader::readGenericImageWithBorders(
                   uiContext.draggedFile, cfg, evaluationAreas);
               if (img.size()) {
                 activeGenerator->loadCountries(
-                    generator->ardaFactories.countryFactory, img);
+                    activeGenerator->ardaFactories.countryFactory, img);
               }
             } else {
               auto image =
@@ -904,11 +907,10 @@ void GUI::countryDrag(std::shared_ptr<Arda::ArdaGen> generator) {
 
 int GUI::showCountryTab(Fwg::Cfg &cfg) {
   if (Fwg::UI::Elements::BeginMainTabItem("Countries")) {
-    auto &generator = activeGenerator;
     if (uiContext.tabSwitchEvent(true)) {
       uiContext.imageContext.updateImage(
-          0, generator->visualiseCountries(generator->countryMap,
-                                           generator->worldMap));
+          0, activeGenerator->visualiseCountries(activeGenerator->countryMap,
+                                                 activeGenerator->worldMap));
       uiContext.imageContext.updateImage(1, Fwg::Gfx::Image());
     }
 
@@ -923,31 +925,34 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
                 "dragged in, this example file is used.");
     ImGui::Checkbox("Draw-borders", &drawBorders);
     ImGui::SameLine();
-    ImGui::PushItemWidth(150.0f);
-    ImGui::InputInt("Number of countries", &generator->ardaConfig.numCountries);
+    ImGui::PushItemWidth(scaled(150.0f));
+    ImGui::InputInt("Number of countries",
+                    &activeGenerator->ardaConfig.numCountries);
     Fwg::UI::Areas::areaInputSelector(cfg);
 
     auto guard = Rpx::UI::RpxPrerequisiteChecker::require(
-        {Fwg::UI::PrerequisiteChecker::climate(ardaGen->climateData),
-         Fwg::UI::PrerequisiteChecker::landforms(ardaGen->terrainData),
-         Fwg::UI::PrerequisiteChecker::habitability(ardaGen->climateData),
-         Fwg::UI::PrerequisiteChecker::superSegments(ardaGen->areaData),
-         Fwg::UI::PrerequisiteChecker::segments(ardaGen->areaData),
-         Fwg::UI::PrerequisiteChecker::provinces(ardaGen->areaData),
-         Fwg::UI::PrerequisiteChecker::regions(ardaGen->areaData),
-         Fwg::UI::PrerequisiteChecker::continents(ardaGen->areaData),
-         Arda::UI::ArdaPrerequisiteChecker::ardaRegions(*ardaGen),
-         Arda::UI::ArdaPrerequisiteChecker::ardaProvinces(*ardaGen),
-         Arda::UI::ArdaPrerequisiteChecker::ardaContinents(*ardaGen)});
+        {Fwg::UI::PrerequisiteChecker::climate(activeGenerator->climateData),
+         Fwg::UI::PrerequisiteChecker::landforms(activeGenerator->terrainData),
+         Fwg::UI::PrerequisiteChecker::habitability(
+             activeGenerator->climateData),
+         Fwg::UI::PrerequisiteChecker::superSegments(activeGenerator->areaData),
+         Fwg::UI::PrerequisiteChecker::segments(activeGenerator->areaData),
+         Fwg::UI::PrerequisiteChecker::provinces(activeGenerator->areaData),
+         Fwg::UI::PrerequisiteChecker::regions(activeGenerator->areaData),
+         Fwg::UI::PrerequisiteChecker::continents(activeGenerator->areaData),
+         Arda::UI::ArdaPrerequisiteChecker::ardaRegions(*activeGenerator),
+         Arda::UI::ArdaPrerequisiteChecker::ardaProvinces(*activeGenerator),
+         Arda::UI::ArdaPrerequisiteChecker::ardaContinents(*activeGenerator)});
     if (guard.ready()) {
       auto exportLocation = Fwg::Cfg::Values().mapsPath + "/areas/";
       if (ImGui::Button(("Export current state of countries and states to " +
                          exportLocation)
                             .c_str())) {
-        Arda::Countries::saveCountries(generator->countries, exportLocation);
+        Arda::Countries::saveCountries(activeGenerator->countries,
+                                       exportLocation);
         Arda::Areas::saveRegions(
-            generator->ardaRegions, exportLocation,
-            Arda::Gfx::visualiseRegions(generator->ardaRegions));
+            activeGenerator->ardaRegions, exportLocation,
+            Arda::Gfx::visualiseRegions(activeGenerator->ardaRegions));
       }
       if (isRelevantModuleActive("hoi4")) {
         auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
@@ -965,17 +970,19 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
           ImGui::Text("Generate state data first");
         } else {
           if (ImGui::Button("Randomly distribute countries")) {
+            cfg.randomSeed = true;
+            cfg.reRandomize();
             uiContext.asyncContext.computationFutureBool =
-                uiContext.asyncContext.runAsync([&generator, &cfg, this]() {
+                uiContext.asyncContext.runAsync([hoi4Gen, &cfg, this]() {
                   auto countryFactory =
                       []() -> std::shared_ptr<Rpx::Hoi4::Hoi4Country> {
                     return std::make_shared<Rpx::Hoi4::Hoi4Country>();
                   };
                   // generate country data
-                  generator->generateCountries(countryFactory);
+                  hoi4Gen->generateCountries(countryFactory);
 
                   // build hoi4 countries out of basic countries
-                  generator->mapCountries();
+                  hoi4Gen->mapCountries();
                   requireCountryDetails = true;
                   uiContext.imageContext.resetTexture();
                   return true;
@@ -1012,11 +1019,11 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
       } else if (isRelevantModuleActive("eu4")) {
       }
 
-      auto str =
-          "Generated countries: " + std::to_string(generator->countries.size());
+      auto str = "Generated countries: " +
+                 std::to_string(activeGenerator->countries.size());
       ImGui::Text(str.c_str());
-      countryDrag(generator);
-      countryEdit(generator);
+      countryDrag();
+      countryEdit();
     }
 
     ImGui::EndTabItem();
@@ -1084,7 +1091,7 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
     ImGui::SeparatorText("Strategic Region Parameters");
 
     {
-      Fwg::UI::Elements::GridLayout grid(2, 250.0f, 12.0f);
+      Fwg::UI::Elements::GridLayout grid(2, scaled(250.0f), scaled(12.0f));
 
       grid.AddInputFloat("Region Factor",
                          &generator->ardaConfig.superRegionFactor, 0.0f, 10.0f);
@@ -1283,7 +1290,7 @@ int GUI::showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator) {
   auto &resourceConfigs = generator->getResConfigs();
 
   {
-    Fwg::UI::Elements::GridLayout grid(3, 180.0f, 12.0f);
+    Fwg::UI::Elements::GridLayout grid(3, scaled(180.0f), scaled(12.0f));
 
     for (size_t i = 0; i < resourceConfigs.size(); ++i) {
       ImGui::PushID(i);
@@ -1291,7 +1298,7 @@ int GUI::showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator) {
       ImGui::Text("%-*s", 20, resourceConfigs[i].name.c_str());
       ImGui::SameLine();
 
-      ImGui::PushItemWidth(120.0f);
+      ImGui::PushItemWidth(scaled(120.0f));
       ImGui::InputDouble("##prevalence",
                          &resourceConfigs[i].resourcePrevalence);
       ImGui::PopItemWidth();

@@ -202,7 +202,7 @@ void writeMipmapLevels(const std::vector<float> &fullImage, int width,
   while (true) {
 
     // Create output folder
-    std::string levelDir = Cfg::Values().mapsPath + "//debugTerrain//level_" +
+    std::string levelDir = Cfg::Values().mapsPath + "/debugTerrain/level_" +
                            std::to_string(level);
 
     std::filesystem::create_directories(levelDir);
