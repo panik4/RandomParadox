@@ -153,7 +153,7 @@ void writeColonialRegions(
     const std::string &path, const std::string &gamePath,
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
   std::string content = loadVanillaFile(
-      gamePath + "//common/colonial_regions//00_colonial_regions.txt",
+      gamePath + "/common/colonial_regions//00_colonial_regions.txt",
       {"{", "}", "=", "_"});
   int baseCompatProv = 1;
   while (Rpx::Parsing::replaceOccurence(content, "provinces = {",
@@ -325,7 +325,7 @@ void writeTradeCompanies(
     const std::string &path, const std::string &gamePath,
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
   std::string content = loadVanillaFile(
-      gamePath + "//common/trade_companies//00_trade_companies.txt",
+      gamePath + "/common/trade_companies//00_trade_companies.txt",
       {"{", "}", "="});
   int baseCompatProv = 1;
   while (Rpx::Parsing::replaceOccurence(content, "provinces = {",

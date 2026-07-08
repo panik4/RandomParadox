@@ -1,14 +1,16 @@
 Land Input:
 
-This tab gives the option to input either a simple image for a fully automatic heightmap generation from that input, or enabling the Classify Land Input option, dragging in an image and setting which input colour is supposed to be more or less mountainous. 
+This tab gives the option to switch between the different modes for loading land input. 
+If you intend to generate a random map, leave the mode on heightmap.
 **In general, it is recommended to spend some time preparing your input images, it is easier to add detail now than later in the generated mod.**
-Heightmap Generation from Shape:
-Instead of generating a land mass from a heightmap, you may also derive a heightmap from a given land mass. For this, drag in an image. The tool will then automatically try to derive what land is and what is an ocean. If in doubt, try to stick to the colours which are otherwise generated, dark blue or black is considered water.
 
-Heightmap Generation from simple heightmap:
-Predraw a heightmap. Drag it into the landinput tab. Then go to the heightmap tab, and click Generate Detailed heightmap from shape.
+Generation from heightmap:
+Predraw a heightmap. Drag it into the landinput tab. It will now automatically process this heightmap. Then go to the heightmap tab and see in the topography map how your map was interpreted.
 
-Heightmap Generation from Complex Input:
+Heightmap Generation from Landmask Input:
+Instead of generating a land mass from a heightmap, you may also derive a heightmap from a given land mask. For this, drag in an image. The tool will then automatically try to derive what land is and what is an ocean. If in doubt, try to stick to the colours which are otherwise generated, dark blue or black is considered water.
+
+Heightmap Generation from Landform Input:
 This extends the Simple Input case. By selecting the Landform mode in the Land Input tab, you enable this feature. Now, when dragging in an image, you can afterwards analyse an image and label every single colour to a land type.
 Make sure you have a good image without washed up borders, e.g. don't draw an image with a brush, but use a pencil. You might otherwise get far too many colours to label, this would be tedious.
 	- **In general, it is recommended to spend some time preparing your input images.** 
@@ -16,3 +18,17 @@ Make sure you have a good image without washed up borders, e.g. don't draw an im
 	- In this tab, you ONLY label the input, then proceed to the heightmap tab for the generation. Always click Analyse after labeling terrain, only then is it applied for the heightmap generation!
 	- See the image on the left to see how you generate from this labeled terrain in the heightmap tab.
 	- You can autogenerate land from a simple shape first, and then find the map "landforms.png" in the "Maps/terrain" folder next to the executable, modify those and load them back in
+
+These are the colours the game is able to directly interpret without labeling:
+ocean       = 0, 0, 255
+deepOcean   = 0, 0, 128
+plains      = 128, 128, 128
+lowhills    = 150, 180, 150
+hills       = 140, 160, 150
+mountains   = 220, 220, 220
+peaks       = 240, 240, 240
+steeppeaks  = 255, 255, 255
+cliffs      = 220, 200, 200
+highlands   = 200, 100, 100
+valley      = 100, 250, 100
+lake        = 0, 80, 140

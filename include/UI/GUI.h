@@ -51,8 +51,8 @@ class GUI : public Arda::ArdaUI {
   int showRpdxConfigure(Fwg::Cfg &cfg);
   void showModLoader(Fwg::Cfg &cfg);
   // generic scenario stuff
-  void countryEdit(std::shared_ptr<Arda::ArdaGen> generator);
-  void countryDrag(std::shared_ptr<Arda::ArdaGen> generator);
+  void countryEdit();
+  void countryDrag();
   int showCountryTab(Fwg::Cfg &cfg);
 
   int showModuleGeneric(Fwg::Cfg &cfg);

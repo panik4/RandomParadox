@@ -1,6 +1,6 @@
 A tab to generate, load, and edit countries.
 Loading is done by dragging in an image of unique colours, which represent a country each. You can also load in a list of countries as a text file, to already define names, tags and colours, and then drag in the country image. For this, the country in the text file must have the format r;g;b;tag;name;adjective, see inputs//countryMappings.txt as an example.
-You can also export the current state to the Maps//areas folder, for safekeeping. This is also a good basis for editing this list, as it gives you the already existing colours and tags already in a list in the right format.
+You can also export the current state to the Maps/areas folder, for safekeeping. This is also a good basis for editing this list, as it gives you the already existing colours and tags already in a list in the right format.
 
 You can also edit the countries and states by clicking on them in the image, I RECOMMEND EXPORTING THE MOD FIRST, as crashes can occur here, there is always the chance to edit the state and country files manually!.
 With the Draw Borders checkbox checked, you can also distribute regions to the currently selected country.

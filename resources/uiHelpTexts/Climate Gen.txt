@@ -1,2 +1,3 @@
-You can either generate a climate map or drop it in. When dropping in a climate map, you need to make sure it uses compatible colours, that the generator uses itself. Therefore, it might often be best to first have it generated automatically, then modify it, then load it again.
-However, you can also use the Climate Input tab to input a map that has incompatible colours and label them there.
+In the default "Simulated Climate" mode, you generate climate according to the parameters at the top.
+You can switch to the Random Climate mode, to generate climate based only on noise.
+To input Climate, use the Climate Input Mode

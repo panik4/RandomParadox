@@ -1756,7 +1756,7 @@ namespace Reading {
 // reads a bmp containing colours
 Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
   Fwg::Utils::ColourTMap<std::string> colourMap;
-  auto mappings = pU::readFile(path + "//common/countries/colors.txt");
+  auto mappings = pU::readFile(path + "/common/countries/colors.txt");
   std::string countryColour;
   do {
     countryColour = Rpx::Parsing::removeSurroundingBracketBlockFromLineBreak(
