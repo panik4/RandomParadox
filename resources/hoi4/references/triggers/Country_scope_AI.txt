@@ -1,0 +1,38 @@
+# Country_scope_AI
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## ai_irrationality
+- Params: <int> The amount to check for.
+- Example: ai_irrationality > 10
+- Desc: Checks if the current scope AI has the specified irrationality.
+- Since: 1.0
+
+## ai_liberate_desire
+- Params: target = <scope> The country to check for. count = <float> The amount to check for.
+- Example: ai_liberate_desire = { target = GER count > 1 }
+- Desc: Checks if the current scope AI has the specified liberation desire towards the specified country.
+- Since: 1.0
+
+## ai_has_role_division
+- Params: <string> The role to check for.
+- Example: ai_has_role_division = infantry
+- Desc: Checks if the current scope AI has a division with the specified role.
+- Since: 1.0
+
+## ai_has_role_template
+- Params: <string> The role to check for.
+- Example: ai_has_role_template = armor
+- Desc: Checks if the current scope AI has a division template with the specified role.
+- Since: 1.0
+
+## ai_wants_divisions
+- Params: <int> The amount to check for.
+- Example: ai_wants_divisions > 10
+- Desc: Checks if the current scope AI desires the specified amount of divisions.
+- Since: 1.0
+
+## has_template_ai_majority_unit
+- Params: <string> The unit to check for.
+- Example: has_template_ai_majority_unit = infantry
+- Desc: Checks if the current scope AI has a division template mostly made up of the specified unit.
+- Since: 1.0

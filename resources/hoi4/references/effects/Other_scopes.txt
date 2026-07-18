@@ -1,0 +1,8 @@
+# Other_scopes
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## execute_operation_coordinated_strike
+- Params: amount = <int> How many times the operation will get executed within the days set in the operation.
+- Example: execute_operation_coordinated_strike = { amount = 12 }
+- Desc: All prepared Port Strike and Strategic Bombing in the target region will execute multiple times without air defence being able to intercept them.
+- Since: 1.9

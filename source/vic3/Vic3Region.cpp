@@ -1,4 +1,5 @@
 #include "vic3/Vic3Region.h"
+#include "utils/Archive.h"
 
 namespace Rpx::Vic3 {
 Region::Region() {}
@@ -23,7 +24,21 @@ int Region::supportsBuilding(const BuildingType &buildingType) {
     }
   }
 
-  return 0;
+return 0;
+}
+
+void Region::serialise(Fwg::Utils::Serialisation::Archive &ar) {
+  ArdaRegion::serialise(ar);
+  ar &arableLand &navalExit;
+}
+
+void Region::deserialise(Fwg::Utils::Serialisation::Archive &ar) {
+  serialise(ar);
+}
+
+uint32_t Region::typeTag() const {
+  return Fwg::Utils::Serialisation::TypeRegistry::hashString(
+      "Rpx::Vic3::Region");
 }
 
 } // namespace Rpx::Vic3

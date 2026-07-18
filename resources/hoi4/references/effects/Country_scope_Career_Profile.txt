@@ -1,0 +1,8 @@
+# Country_scope_Career_Profile
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## career_profile_step_missiolini
+- Params: <bool> Boolean.
+- Example: career_profile_step_missiolini = yes
+- Desc: Step completed Mussolini missions by one for the career profile.
+- Since: ???

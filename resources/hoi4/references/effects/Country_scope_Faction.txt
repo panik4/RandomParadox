@@ -1,0 +1,134 @@
+# Country_scope_Faction
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## create_faction
+- Params: <loc_key> The name of the faction.
+- Example: create_faction = MY_FACTION_NAME
+- Desc: Creates a faction with the specified name for the current scope. The current scope and any subjects automatically join the faction.
+- Since: 1.0
+
+## create_faction_from_template
+- Params: <string> Faction template id. OR template = <string> The template of the faction. name = <loc_key> The name of the faction. icon = <sprite> The icon of the faction. color = <int> The color of the faction in RGB format.
+- Example: create_faction_from_template = faction_template_GER_mitteleuropa_alliance
+- Desc: Create a faction from a template allows for optional customization of name, icon and color.
+- Since: 1.17
+
+## add_to_faction
+- Params: <TAG> The TAG of the nation to add to the faction of the current scope.
+- Example: add_to_faction = GER
+- Desc: Adds the country to the faction of the current scope.
+- Since: 1.0
+
+## dismantle_faction
+- Params: <bool> Boolean.
+- Example: dismantle_faction = yes
+- Desc: Dismantles the faction of the current scope.
+- Since: 1.0
+
+## leave_faction
+- Params: <bool> Boolean.
+- Example: leave_faction = yes
+- Desc: Removes the current scope from the faction they are part of.
+- Since: 1.5
+
+## remove_from_faction
+- Params: <scope> The target country.
+- Example: remove_from_faction = GER
+- Desc: Removes the specified scope from the faction led by the current scope.
+- Since: 1.0
+
+## set_faction_name
+- Params: Sets a faction name as the loc name.
+- Example: set_faction_name = SOME_LOC_KEY
+- Desc: Changes faction names.
+- Since: 1.6
+
+## set_faction_leader
+- Params: <bool>Boolean.
+- Example: set_faction_leader = yes
+- Desc: Sets the current country as the faction leader.
+- Since: 1.0
+
+## set_faction_spymaster
+- Params: <bool>Boolean.
+- Example: set_faction_spymaster = yes
+- Desc: Sets the current country as the faction spymaster.
+- Since: 1.9
+
+## set_faction_rule
+- Params: <string> Faction rule id.
+- Example: set_faction_rule = rule_id
+- Desc: Set a rule on the country's faction.
+- Since: 1.17
+
+## set_faction_manifest
+- Params: <string> Faction manifest id.
+- Example: set_faction_manifest = faction_manifest_id
+- Desc: Changes current country's faction manifest, the previous manifest is removed.
+- Since: 1.17
+
+## add_faction_goal
+- Params: <string> The goal of the faction.
+- Example: add_faction_goal = faction_goal_an_armored_fist
+- Desc: Adds a goal to the current’s country faction.
+- Since: 1.17
+
+## remove_faction_goal
+- Params: <string> The goal of the faction.
+- Example: remove_faction_goal = faction_goal_secure_the_oil_supply
+- Desc: Remove a goal from the current’s country faction.
+- Since: 1.17
+
+## add_faction_goal_slot
+- Params: category = <string> The category of the faction goal. value = <int> / <variable> A value of the faction goal slot.
+- Example: add_faction_goal_slot = { category = short_term value = 1 }
+- Desc: Adds extra goal slots to the faction for a specific category.
+- Since: 1.17
+
+## add_faction_influence_ratio
+- Params: <float> / <variable> The amount to add.
+- Example: add_faction_influence_ratio = 0.075
+- Desc: Adds influence to the country based on the given ratio of the faction’s total influence.
+- Since: 1.17
+
+## add_faction_influence_score
+- Params: <int> / <variable> The amount to add.
+- Example: add_faction_influence_score = 5
+- Desc: Adds influence to the country in the faction.
+- Since: 1.17
+
+## add_faction_initiative
+- Params: <int> / <variable> The amount to add.
+- Example: add_faction_initiative = 1
+- Desc: Adds Faction Initiative points to the current country’s faction.
+- Since: 1.17
+
+## add_faction_power_projection
+- Params: <int> / <variable> The amount to add.
+- Example: add_faction_power_projection = 100
+- Desc: Adds power projection to the faction.
+- Since: 1.17
+
+## set_faction_upgrade
+- Params: <string> Faction upgrade id.
+- Example: set_faction_upgrade = token
+- Desc: Set either a member upgrade for the specified tag.
+- Since: 1.17
+
+## set_faction_member_upgrade_min
+- Params: upgrade = <string> Faction upgrade id.
+- Example: set_faction_member_upgrade_min = { upgrade = TOKEN_TO_FACTION_MEMBER_UPGRADE }
+- Desc: Set a faction's minimal requirements for an faction member upgrade group.
+- Since: 1.17
+
+## set_faction_military_unlocked
+- Params: <bool> Boolean.
+- Example: set_faction_military_unlocked = yes
+- Desc: Sets wheter the current countries faction can make changes to the faction research section.
+- Since: 1.17
+
+## set_faction_research_unlocked
+- Params: <bool> Boolean.
+- Example: set_faction_research_unlocked = yes
+- Desc: Sets wheter the current countries faction can make changes to the faction research section.
+- Since: 1.17

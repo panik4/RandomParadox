@@ -1,0 +1,145 @@
+# Country_scope_Intelligence
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## estimated_intel_max_piercing
+- Params: tag = <scope> The country to check for. value = <int> The amount to check for.
+- Example: estimated_intel_max_piercing = { tag = GER value > 2 }
+- Desc: Checks if the specified scope has the specified amount of piercing based on the current scope's intel.
+- Since: 1.0
+
+## estimated_intel_max_armor
+- Params: tag = <scope> The country to check for. value = <int> The amount to check for.
+- Example: estimated_intel_max_armor = { tag = GER value > 2 }
+- Desc: Checks if the specified scope has the specified amount of armor based on the current scope's intel.
+- Since: 1.0
+
+## compare_intel_with
+- Params: target = <tag> / <variable> The target to compare with. civilian_intel <>= <float> / <variable> Comparison of civilian intel. army_intel <>= <float> / <variable> Comparison of army intel. navy_intel <>= <float> / <variable> Comparison of navy intel. airforce_intel <>= <float> / <variable> Comparison of airforce intel.
+- Example: compare_intel_with = { target = POL civilian_intel > 0.5 army_intel = 0 navy_intel < 0 }
+- Desc: Compares intel between 2 countries.
+- Since: 1.9
+
+## intel_level_over
+- Params: target = <tag> / <variable> The target to compare with. civilian_intel <>= <float> / <variable> Comparison of civilian intel. army_intel <>= <float> / <variable> Comparison of army intel. navy_intel <>= <float> / <variable> Comparison of navy intel. airforce_intel <>= <float> / <variable> Comparison of airforce intel.
+- Example: intel_level_over = { target = POL civilian_intel > 0.5 army_intel = 0 navy_intel < 0 }
+- Desc: Checks the intel level from the current country over a specified country.
+- Since: 1.9
+
+## has_intelligence_agency
+- Params: <boolean> The intelligence agency to check.
+- Example: has_intelligence_agency = yes
+- Desc: Checks if the current scope has an intelligence agency.
+- Since: 1.9
+
+## network_national_coverage
+- Params: target = <tag> / <variable> The country which is checked. value <> <float> / <variable> The value of network.
+- Example: network_national_coverage = { target = POL value < 70 }
+- Desc: Checks network national coverage over a specific country.
+
+## network_strength
+- Params: target = <tag> The country which is checked. state = <id> / <variable> The state which is checked. value <> <float> / <variable> The strength of network.
+- Example: network_strength = { target = POL value < 70 }
+- Desc: Checks network national coverage over a specific country.
+- Since: 1.9
+
+## has_done_agency_upgrade
+- Params: <string> The agency upgrade to check.
+- Example: has_done_agency_upgrade = upgrade_army_department
+- Desc: Checks if the current scope has the specified agency upgrade (to its highest level).
+- Since: 1.9
+
+## agency_upgrade_number
+- Params: <int> / <variable> The amount of agency upgrades to check for.
+- Example: agency_upgrade_number > 4
+- Desc: Checks the number of upgrades done in the current scope's intelligence agency.
+- Since: 1.9
+
+## decryption_progress
+- Params: target = <tag> The country to compare with. value <> <float> The value to compare.
+- Example: decryption_progress = { target = POL value < 0.5 }
+- Desc: Checks the decryption progress towards a country.
+- Since: 1.9
+
+## has_captured_operative
+- Params: <tag>/<bool> Country whose operative was captured/Whether an operative was captured.
+- Example: has_captured_operative = POL
+- Desc: Checks if the current scope has captured an operative.
+- Since: 1.9
+
+## has_finished_collecting_for_operation
+- Params: target = <tag> Country towards whom the operation is targeted. operation = <token> The operation which current scope is planning against the target.
+- Example: has_finished_collecting_for_operation = { target = POL operation = operation_infiltrate_armed_forces_navy }
+- Desc: Checks if the current scope has finished collecting resources for an operation.
+- Since: 1.9
+
+## is_preparing_operation
+- Params: target = <tag> Country towards whom the operation is targeted. operation = <token> The operation which current scope is planning against the target. Optional.
+- Example: is_preparing_operation = { target = POL operation = operation_infiltrate_armed_forces_navy }
+- Desc: Checks if the current scope is preparing an operation against the specified country.
+- Since: 1.9
+
+## is_running_operation
+- Params: target = <tag> Country towards whom the operation is targeted. operation = <token> The operation which current scope is planning against the target. Optional.
+- Example: is_running_operation = { target = POL operation = operation_infiltrate_armed_forces_navy }
+- Desc: Checks if the current scope is running an operation against the specified country.
+- Since: 1.9
+
+## num_finished_operations
+- Params: target = <tag> Country towards whom the operation is targeted. operation = <token> The operation which current scope is planning against the target. Optional.
+- Example: num_finished_operations = { target = POL operation = operation_infiltrate_armed_forces_navy }
+- Desc: Checks how many finished operations the current scope had against the specified country.
+- Since: 1.9
+
+## has_operation_token
+- Params: tag = <tag> Country towards whom the operation is targeted. token = <token> The operation token.
+- Example: has_operation_token = { tag = POL token = token_name }
+- Desc: Checks if the current scope has an operation token against an another country.
+- Since: 1.9
+
+## is_active_decryption_bonuses_enabled
+- Params: <tag> The country towards which the bonus is enabled.
+- Example: is_active_decryption_bonuses_enabled = POL
+- Desc: Checks if the current scope has any decryption bonuses towards the specified country.
+- Since: 1.9
+
+## is_cryptology_department_active
+- Params: <bool> Boolean.
+- Example: is_cryptology_department_active = yes
+- Desc: Checks if the current scope has a cryptology department active.
+- Since: 1.9
+
+## is_decrypting
+- Params: <tag> The country which is decrypted.
+- Example: is_decrypting = POL
+- Desc: Checks if the current scope is decrypting a certain country.
+- Since: 1.9
+
+## is_fully_decrypted
+- Params: <tag> The country which is decrypted.
+- Example: is_fully_decrypted = POL
+- Desc: Checks if the current scope has fully decrypted a certain country.
+- Since: 1.9
+
+## num_fake_intel_divisions
+- Params: <int> Amount of divisions.
+- Example: num_fake_intel_divisions > 10
+- Desc: Checks the amount of fake intel divisions.
+- Since: 1.9
+
+## num_free_operative_slots
+- Params: <int> Amount of slots.
+- Example: num_free_operative_slots > 2
+- Desc: Checks the amount of free operative slots.
+- Since: 1.9
+
+## num_operative_slots
+- Params: <int> Amount of slots.
+- Example: num_operative_slots > 2
+- Desc: Checks the amount of operative slots.
+- Since: 1.9
+
+## num_of_operatives
+- Params: <int> Amount of operatives.
+- Example: num_of_operatives > 2
+- Desc: Checks the amount of operatives.
+- Since: 1.9

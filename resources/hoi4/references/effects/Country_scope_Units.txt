@@ -1,0 +1,92 @@
+# Country_scope_Units
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## load_oob
+- Params: <oob> The filename of the order of battle to load, without the .txt extension.
+- Example: load_oob = "GER_default"
+- Desc: Loads the specified order of battle for the current scope, applying the effects within. The filename with the .txt extension omitted is used as the effect's target.
+- Since: 1.0
+
+## division_template
+- Params: regiments = { <unit> = { x = 0 y = 0 } } regimental_support = { <unit> = { x = 0 y = 0 } } support = { <unit> = { x = 0 y = 0 } }
+- Example: division_template = { name = "Test" is_locked = yes division_cap = 3 division_names_group = USA_INF_01 priority = 0 template_counter = 0 regiments = { infantry = { x = 0 y = 0 } infantry = { x = 0 y = 1 } infantry = { x = 0 y = 2 } infantry = { x = 0 y = 3 } } regimental_support = { field_guns = { x = 0 y = 0 } } support = { military_police = { x = 0 y = 0 } } }
+- Desc: Creates and adds the specified division template to the current scope.
+- Since: 1.0
+
+## create_colonial_division_template
+- Params: subject = <country> Country tag for an overlords subject. division_template = { ... } The regular effect to create a division template.
+- Example: create_colonial_division_template = { subject = RAJ division_template = { name = "Infantry Division" division_names_group = RAJ_INF_01 ... regiments = { infantry = { x = 0 y = 0 } infantry = { x = 0 y = 1 } } } }
+- Desc: Create a colonial division template for overlord/owner.
+- Since: 1.15
+
+## add_units_to_division_template
+- Params: regiments = { <unit> = <column> } support = { <unit> = <column> }
+- Example: add_units_to_division_template = { template_name = "Test" regiments = { infantry = 2 infantry = 2 } support = { military_police = 0 } }
+- Desc: Adds the specified brigades to first available slots of specified columns to the template (if possible).
+- Since: 1.0
+
+## set_division_template_lock
+- Params: division_template = <string> The name of the division template. is_locked = <bool> Whether the division is locked or not.
+- Example: set_division_template_lock = { division_template = "Infantry Division" is_locked = yes }
+- Desc: Toggles the locked status on a division template for the current scope, which prevents editing or deletion.
+- Since: 1.5
+
+## country_lock_all_division_template
+- Params: <bool> Boolean. OR is_locked = <bool> Boolean. desc = <loc_key> Tooltip.
+- Example: country_lock_all_division_template = yes
+- Desc: Locks all division templates for the current scope.
+- Since: 1.9
+
+## set_division_force_allow_recruiting
+- Params: division_template = <string> Template to modify. force_allow_recruiting = <bool> Whether to allow or disallow recruiting. Defaults to true if unset.
+- Example: set_division_force_allow_recruiting = { division_template = "My locked template" }
+- Desc: Changes whether it's possible to recruit divisions of a locked template without unlocking the template.
+- Since: 1.12
+
+## set_division_template_cap
+- Params: division_template = <string> The name of the division template. division_cap = <int> The division cap.
+- Example: set_division_template_cap = { division_template = "Swiss Citizen Militia" division_cap = SWI_militia_division_cap }
+- Desc: Sets the cap of a division template. The template has to be locked first.
+- Since: 1.12
+
+## clear_division_template_cap
+- Params: division_template = <string> The name of the division template.
+- Example: clear_division_template_cap = { division_template = "Swiss Citizen Militia" }
+- Desc: Clears the cap on the template, allowing it to have an unlimited amount of divisions.
+- Since: 1.12
+
+## delete_unit_template_and_units
+- Params: division_template = <string> The name of the division template.
+- Example: delete_unit_template_and_units = { division_template = "Infantry Division" disband = yes #will refund equipment and manpower }
+- Desc: Deletes the specified division template and all units using it for the current scope.
+- Since: 1.5
+
+## delete_unit
+- Params: state = <number id> The id number of the state the unit must be in. division_template = <string> The template the units must use to be deleted. id = <int> The id given to the unit if created via the create_unit effect. disband = <bool> If true, will refund equipment and manpower.
+- Example: delete_unit = { state = 787 disband = yes #will refund equipment and manpower }
+- Desc: Deletes all units that meet the filters.
+- Since: 1.5
+
+## delete_units
+- Params: division_template = <string> The template the units must use to be deleted. disband = <bool> If true, will refund equipment and manpower.
+- Example: delete_units = { division_template = "Infantry Division" disband = yes }
+- Desc: Deletes all units with a certain template.
+- Since: 1.9
+
+## create_railway_gun
+- Params: equipment = <type> Equipment type used by the railway gun. name = <string> The name used by the railway gun. Optional. location = <province> Location where the railway gun is created. Assumes the capital by default.
+- Example: create_railway_gun = { equipment = railway_gun_equipment_1 name = TAG_new_railway_gun location = 12406 }
+- Desc: Creates a railway gun.
+- Since: 1.11
+
+## teleport_railway_guns_to_deploy_province
+- Params: <bool> Boolean.
+- Example: teleport_railway_guns_to_deploy_province = yes
+- Desc: Teleports all railway guns to the province where they get deployed.
+- Since: 1.11
+
+## add_unit_bonus
+- Params: <subunit> = { ... }
+- Example: add_unit_bonus = { category_light_infantry = { soft_attack = 0.05 } cavalry = { soft_attack = 0.05 hard_attack = 0.05 } }
+- Desc: Adds permanent subunit and subunit category bonuses for country.
+- Since: ???

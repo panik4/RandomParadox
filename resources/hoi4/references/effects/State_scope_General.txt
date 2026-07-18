@@ -1,0 +1,182 @@
+# State_scope_General
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## state_event
+- Params: id = <event> The event to fire. days = <int> / <variable> Fires the event in the specified number of days. Optional. hours = <int> / <variable> Fires the event in the specified number of hours. Optional. random = <int> / <variable> Adds a random number (between 0 and random, inclusive) of hours to the scheduled fire time. Optional. random_days = <int> / <variable> Adds a random number (between 0 and random_days, inclusive) of days to the scheduled fire time. Optional.
+- Example: state_event = { id = my_event.1 days = 10 random = 50 random_days = 10 trigger_for = controller }
+- Desc: Fires the specified event for the current state.
+- Since: 1.0
+
+## set_state_flag
+- Params: <flag> An unique string to identify the state flag with. OR flag = <flag> The flag to set. days = <int> Sets the flag to last for the specified amount of days. Optional. value = <int> The new value of the flag on the scale from -2 147 483 648 to 2 147 483 647.
+- Example: set_state_flag = my_flag
+- Desc: Defines a state flag.
+- Since: 1.0
+
+## clr_state_flag
+- Params: <flag> The unique string of a state flag to clear.
+- Example: clr_state_flag = my_flag
+- Desc: Clears a defined state flag.
+- Since: 1.0
+
+## modify_state_flag
+- Params: flag = <flag> The flag to modify. value = <value> The value to add to the flag. Defaults to 0. days = <int> The amount of days that the flag should last for before being cleared. Optional, defaults to permanent.
+- Example: modify_state_flag = { flag = my_flag value = 3 }
+- Desc: Adds an integer value to a flag.
+- Since: 1.3
+
+## set_state_name
+- Params: <string> Defines the new name.
+- Example: set_state_name = "Funland"
+- Desc: Changes the current state's name to the specified name.
+- Since: 1.3
+
+## reset_state_name
+- Params: <bool> Boolean.
+- Example: reset_state_name = yes
+- Desc: Resets any changes to the current state's name.
+- Since: 1.3
+
+## add_claim_by
+- Params: <country> / <variable> The country to add the claim for.
+- Example: add_claim_by = SOV
+- Desc: Adds a claim for the specified country on the current scope.
+- Since: 1.0
+
+## remove_claim_by
+- Params: <country> / <variable> The country to remove the claim for.
+- Example: remove_claim_by = SOV
+- Desc: Removes a claim by the specified country on the current scope.
+- Since: 1.0
+
+## add_core_of
+- Params: <country> / <variable> The country to add the core for.
+- Example: add_core_of = SOV
+- Desc: Adds a core for the specified country on the current scope.
+- Since: 1.0
+
+## remove_core_of
+- Params: <country> / <variable> The country to remove the core for.
+- Example: remove_core_of = SOV
+- Desc: Removes a core for the specified country on the current scope.
+- Since: 1.0
+
+## set_demilitarized_zone
+- Params: <bool> Boolean.
+- Example: set_demilitarized_zone = yes
+- Desc: Makes the current scope a demilitarized zone.
+- Since: 1.0
+
+## set_state_category
+- Params: <category> The category to change to.
+- Example: set_state_category = rural
+- Desc: Changes the current state category to the specified category.
+- Since: 1.3
+
+## add_state_modifier
+- Params: Modifier scope <modifier> = <float> Adds a modifier to the state.
+- Example: add_state_modifier = { modifier = { local_resources = 2.0 } }
+- Desc: Adds a modifier to the current state.
+- Since: 1.3
+
+## add_manpower
+- Params: <int> / <variable> The amount to add.
+- Example: add_manpower = 10000
+- Desc: Adds the specified amount of total population to the current state.
+- Since: 1.0
+
+## add_resource
+- Params: type = <resource> The resource to add. amount = <int> / <variable> The amount to add.
+- Example: add_resource = { type = oil amount = 100 }
+- Desc: Adds the specified resource in the specified amount to the current state.
+- Since: 1.0
+
+## set_border_war
+- Params: <bool> Boolean.
+- Example: set_border_war = yes
+- Desc: Enables Border War status for the current state.
+- Since: 1.0
+
+## create_unit
+- Params: division = <division string> The division string. owner = <country> The owner of the division. prioritize_location = <province> If possible, this province within the state gets used. Optional. allow_spawning_on_enemy_provs = yes Allows the units to be created on provinces owned by the division owner's enemy. Defaults to false. count = <int> The amount of units to create. Defaults to 1. id = <int> The ID to identify the unit. Only used in delete_unit. country_score = { ... } A MTTH block deciding the province in the state where the division should spawn, evaluates in the scope of the controller. Defaults to prioritising owner's controlled provinces first and then owner's allies. divisional_commander_xp = <int> give the division commander experience on unit creation The following arguments go within division = "": name = \"<string>\" The name of the division. division_template = \"<string>\" The template to be used by the division. start_experience_factor = <double> Experience of the division, with 0 being none and 1 being full training. Defaults to 1. start_equipment_factor = <double> Equipment stockpile of the division. Defaults to 1. start_manpower_factor = <double> Manpower stockpile of the division. Defaults to 1. force_equipment_variants = { <equipment type> = { owner = \"<country>\" amount = <int> version_name = \"<string>\" } } Forces a certain type of equipment to be used. Multiple equipment types can be added by adding multiple <equipment type> = {} lines.
+- Example: create_unit = { division = "name = \"Infantry Division\" division_template = \"Infantry Division\" start_experience_factor = 0.5" owner = GER }
+- Desc: Adds the specified division to the current state.
+- Since: 1.3
+
+## teleport_armies
+- Params: limit = { <triggers> } The condition that must be true for the owner of the armies for them to teleport. to_state_array = <array> The state array the armies will get teleported to. to_province = <ID> The province the armies will get teleported to. to_state = <ID> The state the armies will get teleported to.
+- Example: teleport_armies = { limit = { has_war_together_with = ROOT } to_state_array = owned_controlled_states }
+- Desc: Teleports all armies in the specified state if the owner of the armies meets the condition.
+- Since: 1.9
+
+## add_province_modifier
+- Params: static_modifiers = { <modifiers> } The list of modifiers. province = <id>The province to apply the modifiers to.provinces = {}Scope for selecting multiple provinces. The following arguments have to go inside it: id = <id>The ID of the province. Multiple can be specified. all_provinces = yesSelects all provinces to which the limitations apply. The following arguments require it: limit_to_coastal = yes Limits the selection of provinces to only coastal ones. limit_to_border = yes Limits the selection of provinces to only ones bordering a different country. limit_to_naval_base = yes Limits the selection of provinces to only ones that have a naval base. limit_to_victory_point = yes Limits the selection of provinces to only ones that have a victory point, or a city, in them. days = <int> Will be temporary if specified, can be variable
+- Example: add_province_modifier = { static_modifiers = { mod_modifier_1 mod_modifier_2 } province = 1234 }
+- Desc: Adds a province modifier to the specified provinces in this state.
+- Since: 1.6
+
+## remove_province_modifier
+- Params: static_modifiers = { <modifiers> } The list of modifiers. province = <id>The province to apply the modifiers to.provinces = {}Scope for selecting multiple provinces. The following arguments have to go inside it: id = <id>The ID of the province. Multiple can be specified. all_provinces = yesSelects all provinces to which the limitations apply. The following arguments require it: limit_to_coastal = yes Limits the selection of provinces to only coastal ones. limit_to_border = yes Limits the selection of provinces to only ones bordering a different country. limit_to_naval_base = yes Limits the selection of provinces to only ones that have a naval base. limit_to_victory_point = yes Limits the selection of provinces to only ones that have a victory point, or a city, in them.
+- Example: remove_province_modifier = { static_modifiers = { mod_modifier_1 mod_modifier_2 } province = 1234 }
+- Desc: Removes a province modifier to the specified provinces in this state.
+- Since: 1.6
+
+## add_victory_points
+- Params: Add victory points to a province
+- Example: add_victory_points = { province = 1234 value = 10 }
+- Desc: Adds victory points to a province.
+- Since: 1.10
+
+## set_victory_points
+- Params: Set the victory points of a province
+- Example: set_victory_points = { province = 1234 value = 10 }
+- Desc: Sets the number of victory point in a province.
+- Since: 1.10
+
+## set_state_province_controller
+- Params: controller = <tag> The new controller of the province. limit = { <triggers> } The triggers that must be fulfilled by the province's current controller to be transferred to the new controller.
+- Example: set_state_province_controller = { controller = POL limit = { OR = { tag = GER is_in_faction_with = GER } } }
+- Desc: Changes the controller of all provinces within that state controlled by countries that meet triggers to the specified country.
+- Since: 1.9
+
+## transfer_state_to
+- Params: <country> Country to transfer the state to.
+- Example: transfer_state_to = JAM
+- Desc: Sets owner and controller of the state to the given country
+- Since: 1.11
+
+## set_state_owner_to
+- Params: <country> Country to set the owner (but not the controller) of the state to.
+- Example: set_state_owner_to = JAM
+- Desc: Sets the owner of the state to the given country
+- Since: 1.11
+
+## set_state_controller_to
+- Params: <country> Country to set the controller (but not the owner) of the state to.
+- Example: set_state_controller_to = ITA
+- Desc: Sets the controller of the state to the given country
+- Since: 1.11
+
+## add_contested_owner
+- Params: <country> / <variable> Country to add contest to state.
+- Example: add_contested_owner = GER
+- Desc: Adds a contested owner to a state. The effect can be used either from a country or a state scope and accepts the other as parameter.
+- Since: 1.15
+
+## remove_contested_owner
+- Params: <country> / <variable> Country to remove contest to state.
+- Example: remove_contested_owner = GER
+- Desc: Removes a contested owner to a state. The effect can be used either from a country or a state scope and accepts the other as parameter.
+- Since: 1.15
+
+## strategic_province_location
+- Params: <string> = <int>
+- Example: strategic_province_location = { defensible_coastline = 10124 }
+- Desc: Add a strategic location to a province using state scope. The available strategic locations are defined in strategic_locations and are specified with a province id.
+- Since: 1.17
+
+## strategic_state_location
+- Params: <string> = <int>
+- Example: strategic_state_location = { favorable_approach = 11932 }
+- Desc: Add strategic locations to a state in scope. The available strategic locations are defined in strategic_locations.
+- Since: 1.17

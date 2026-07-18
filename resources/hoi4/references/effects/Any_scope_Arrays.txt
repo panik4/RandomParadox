@@ -1,0 +1,32 @@
+# Any_scope_Arrays
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_to_array
+- Params: array = <array> The array to modify. value = <decimal>/<variable> The variable to add. index = <integer> The index to place the variable on in the array. Optional, defaults to the end of the array.
+- Example: add_to_array = { array = global.my_countries value = THIS.id }
+- Desc: Adds an element to the array either at the specified index, defaulting to the end otherwise.
+
+## remove_from_array
+- Params: array = <array> The array to modify. value = <decimal>/<variable> The variable to remove. Optional. index = <integer> The index to remove the variable from in the array. Optional.
+- Example: remove_from_array = { array = global.my_countries index = 0 }
+- Desc: Removes an element from the array with the specified value or index.
+
+## clear_array
+- Params: <array> The array to clear.
+- Example: clear_array = global.my_countries
+- Desc: Clears the array, removing every element inside.
+
+## resize_array
+- Params: array = <array> The array to modify. value = <decimal>/<variable> The variable to add to the array if the size is larger than the array's current size. Optional, defaults to 0. size = <integer> The amount of elements inside of the array after the resizing.
+- Example: resize_array = { array = global.countries_by_states value = 10 size = global.countries^num }
+- Desc: Resizes the array, removing or adding elements in the end if necessary.
+
+## find_highest_in_array
+- Params: array = <array> The array to modify. value = <variable> The temporary variable where the largest value will get stored. index = <variable> The temporary variable where the index of the largest value will get stored.
+- Example: find_highest_in_array = { array = global.countries_by_states value = temp_largest_country index = temp_country_index }
+- Desc: Finds the largest value in the array and assigns its value and index to a temporary variable.
+
+## find_lowest_in_array
+- Params: array = <array> The array to modify. value = <variable> The temporary variable where the smallest value will get stored. index = <variable> The temporary variable where the index of the smallest value will get stored.
+- Example: find_lowest_in_array = { array = global.countries_by_states value = temp_largest_country index = temp_country_index }
+- Desc: Finds the smallest value in the array and assigns its value and index to a temporary variable.

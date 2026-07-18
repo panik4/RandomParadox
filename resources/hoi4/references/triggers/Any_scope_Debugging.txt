@@ -1,0 +1,14 @@
+# Any_scope_Debugging
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## log
+- Params: <string> What to log. Supports dynamic localisation.
+- Example: log = "Added [?temp_add] to [THIS.GetTag]'s variable [?THIS.varvalue]"
+- Desc: Appends an entry into the game.log and, if open, the console when evaluating the trigger.
+- Since: 1.5
+
+## print_variables
+- Params: print_global = <bool> Print global variables. Defaults to no. var_list = <list> The variables to print. Defaults to all variables. file = <string>The file path to log to. Defaults to "variable_dump". Does not include the .log extension. text = <string>Text to prepend. Defaults to "No Header". append = <bool>Whether to append to the file instead of overwrite. Defaults to yes
+- Example: print_variables = { var_list = { myvar1 myvar2 } file = "my_dump_file" text = "my header" }
+- Desc: Dumps the specified variables from the current scope and optionally the global scope into a log file with the specified name.
+- Since: 1.5

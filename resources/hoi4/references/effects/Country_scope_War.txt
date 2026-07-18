@@ -1,0 +1,98 @@
+# Country_scope_War
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_threat
+- Params: <int> The amount to change by.
+- Example: add_threat = 10
+- Desc: Adjusts the level of World Tension.
+- Since: 1.0
+
+## add_named_threat
+- Params: threat = <int> The amount to change by. name = <string> The localization string.
+- Example: add_named_threat = { threat = 5 name = GER_rhineland }
+- Desc: Adjusts the level of World Tension and adds an entry in the World Tension tooltip.
+- Since: 1.0
+
+## annex_country
+- Params: target = <country> Which country to annex. transfer_troops = yes Whether to transfer the troops of the annexed country.
+- Example: annex_country = { target = GER transfer_troops = yes }
+- Desc: Annex the specified country for the current scope.
+- Since: 1.0
+
+## add_to_war
+- Params: targeted_alliance = <country> The country to assist. enemy = <country> The country attacking the ally. hostility_reason = <string> Localization for the reason for joining. Optional.
+- Example: add_to_war = { targeted_alliance = PREV enemy = HUN hostility_reason = asked_to_join }
+- Desc: Forces the current scope to join the war of the specified ally against the specified enemy.
+- Since: 1.0
+
+## declare_war_on
+- Params: target = <country> / <variable> The country to attack. type = <wargoal> The wargoal to declare with. generator = { <state id> } The states to supply the wargoal (i.e. take_state_focus).
+- Example: declare_war_on = { target = GER type = annex_everything }
+- Desc: Makes the current scope declare war on the specified country with the specified wargoal.
+- Since: 1.0
+
+## white_peace
+- Params: <country> / <variable> The scope to white peace. OR tag = <country> / <variable> The scope to white peace. message = <localisation key> The reason for peace showing up in the pop-up.
+- Example: white_peace = GER
+- Desc: Makes the current scope white peace the specified scope.
+- Since: 1.0
+
+## start_peace_conference
+- Params: tag = <country> / <variable> The scope to peace with. score_factor = <decimal> / <variable> The fraction of the total score awarded to the winners compared to regular victory. message = <localisation key> The reason for peace showing up in the pop-up. Optional. winner_scope = <scope type> Which countries should be present in the conference on the winner side alongside the current scope. Optional, defaults to LIMITED_FACTION. loser_scope = <scope type> Which countries should be present in the conference on the loser side alongside the target country. Optional, defaults to LIMITED_FACTION.
+- Example: start_peace_conference = { tag = GER score_factor = 0.4 message = my_peace_tt }
+- Desc: Makes the current scope start a peace conference with the specified scope on the other side.
+- Since: 1.12
+
+## set_truce
+- Params: target = <country> The scope to truce with. days = <int> The duration of the truce.
+- Example: set_truce = { target = GER days = 90 }
+- Desc: Makes the current scope truce with the specified scope.
+- Since: 1.0
+
+## create_wargoal
+- Params: target = <country> / <variable> The country to target. type = <wargoal> The wargoal to generate. generator = { <state id> } The states to supply the wargoal (i.e. take_state_focus). expire = 365 The amount of days that the wargoal will last before expiring. If unset or set to 0, will never expire.
+- Example: create_wargoal = { type = puppet_wargoal_focus target = ROOT }
+- Desc: Grants the current scope a wargoal against the specified country.
+- Since: 1.0
+
+## remove_wargoal
+- Params: target = <country> / <variable> The country to target. type = <wargoal> The wargoal to remove. "all" will remove all wargoals.
+- Example: remove_wargoal = { type = all target = ROOT }
+- Desc: Removes wargoals from the current scope to the specified country.
+- Since: 1.10.2
+
+## start_civil_war
+- Params: ideology = <ideology> The ideology of the breakaway country. ruling_party = <ideology> Changes the ideology of the original, player-led country, if set. Optional. size = <float> The size of the breakaway country and the fraction of the original stockpile and military units it will receive by default. Optional, defaults to 0.5. army_ratio = <float> The size of the land army that the breakaway country gets. Optional, defaults to being the same as size. navy_ratio = <float> The size of the naval forces that the breakaway country gets. Optional, defaults to being the same as size. air_ratio = <float> The size of the airforce that the breakaway country gets. Optional, defaults to being the same as size. capital = <state> The capital state of the breakaway country. Optional. states = { <state> } The states included in the breakway country. Optional, defaults to random states based off size. all will result in all states that meet the filter going to the breakaway. states_filter = { <triggers> } A trigger block checked for the state that must be met to be transferred to the breakaway. Optional. keep_unit_leaders = { <unit leader id> } List of unit leaders to be kept by their legacy_id. Optional. keep_unit_leaders_trigger = { <triggers> } Trigger block checked for every unit leader that forces them to be kept if they meet the triggers. The default scope is the unit leader, ROOT is the country receiving the unit leader, while FROM is the original owner of the unit leader. Optional. keep_scientists_trigger = { <triggers> } Trigger for scientist to remain with the original country. keep_political_leader = <bool> Controls if the promoted party leader (i.e. the one that'd take power if the country were to be switched to that ideology group) of the revolting ideology group will be kept by the country or join the revolt, yes resulting in the former. Optional, defaults to false. keep_political_party_members = <bool> Controls if non-promoted party leaders of the revolting ideology group will be kept by the country or join the revolt, yes resulting in the former. Optional, defaults to false. keep_all_characters = yes If true, the revolter will have no characters from the original country transferred to them. Optional, defaults to false. <effects> An effect block executed for the breakaway country.
+- Example: start_civil_war = { ruling_party = communism # Original country's ideology changes to communism ideology = ROOT # Breakaway gets old ideology of ROOT size = 0.8 capital = 282 states = { 282 533 536 555 529 530 528 } keep_unit_leaders = { 750 751 752 } keep_political_leader = yes keep_political_party_members = yes }
+- Desc: Starts a civil war for the current scope with the specified parameters.
+- Since: 1.0
+
+## add_civil_war_target
+- Params: <country> - The country to set as the target.
+- Example: add_civil_war_target = TAG
+- Desc: Sets that the war between ROOT and TAG is a civil war, resulting in the victory being the annexation of the other side and setting world tension limits on intervention.
+- Since: 1.9
+
+## remove_civil_war_target
+- Params: <country> - The country to set as the target.
+- Example: remove_civil_war_target = TAG
+- Desc: Removes the status of the war as a civil war between the pair of countries.
+- Since: 1.12.13
+
+## transfer_units_fraction
+- Params: target = <country> The country which should receive the units from the current scope. size = <float> The size of the breakaway country and the fraction of the original stockpile and military units it will receive by default. Optional, defaults to 0.5. army_ratio = <float> The size of the land army that the breakaway country gets. Optional, defaults to being the same as size. navy_ratio = <float> The size of the naval forces that the breakaway country gets. Optional, defaults to being the same as size. air_ratio = <float> The size of the airforce that the breakaway country gets. Optional, defaults to being the same as size. keep_unit_leaders = { <unit leader id> } List of unit leaders to be kept by their legacy_id. Optional. keep_unit_leaders_trigger = { <triggers> } Trigger block checked for every unit leader that forces them to be kept if they meet the triggers. The default scope is the unit leader, ROOT is the country receiving the unit leader, while FROM is the original owner of the unit leader. Optional.
+- Example: transfer_units_fraction= { target = SPD size = 0.5 stockpile_ratio = 0.8 army_ratio = 0.8 navy_ratio = 0.5 air_ratio = 0.5 keep_unit_leaders_trigger = { has_trait = trait_SPA_nationalist_sympathies } }
+- Desc: Transfers a fraction of the military to a target, including units (either type: land, navy, or air), equipment, and unit leaders.
+- Since: 1.9
+
+## add_nuclear_bombs
+- Params: Adds nuclear bomb to TAG's stockpile.
+- Example: add_nuclear_bombs = 100
+- Desc: Adds specified number of nukes to the country's stockpile
+- Since: 1.6
+
+## launch_nuke
+- Params: province = <ID> The specific province to nuke. state = <ID> The state to nuke. controller = <TAG> Prioritises provinces controlled by this country. use_nuke = <boolean> Whether a nuke should be deducted from the country's stockpile. Defaults to false. nuke_type = <nuke_type> type of nuke to use (e.g. nuclear_bomb, thermonuclear_bomb etc.)
+- Example: launch_nuke = { province = 1234 }
+- Desc: Nukes the specified province or a province in the needed state. If a state is set rather than the specific province, first prioritises the country set in controller, then prioritises the countries at war with the current scope, and then countries that are neutral.
+- Since: 1.6

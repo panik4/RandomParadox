@@ -1,0 +1,140 @@
+# Character_scope_General
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## is_character
+- Params: <scope> Character ID.
+- Example: is_character = POL_test_character
+- Desc: Checks if the current character's token matches up with the specified one.
+- Since: 1.11
+
+## can_be_country_leader
+- Params: <bool> Boolean.
+- Example: can_be_country_leader = yes
+- Desc: Checks if the character in the current scope has a country leader role, active or non-active.
+- Since: 1.11
+
+## is_country_leader
+- Params: <bool> Boolean.
+- Example: is_country_leader = yes
+- Desc: Checks if the character in the current scope is the active country leader.
+- Since: 1.11
+
+## is_unit_leader
+- Params: <bool> Boolean.
+- Example: is_unit_leader = yes
+- Desc: Checks if the character in the current scope has an active unit leader (Army/Navy leader) role.
+- Since: 1.11
+
+## is_advisor
+- Params: <bool> Boolean.
+- Example: is_advisor = yes
+- Desc: Checks if the character in the current scope has an advisor role (includes advisors/theorists/high command).
+- Since: 1.11
+
+## is_air_chief
+- Params: <bool> Boolean.
+- Example: is_air_chief = yes
+- Desc: Checks if the character in the current scope is selected as an air chief.
+- Since: 1.11
+
+## is_army_chief
+- Params: <bool> Boolean.
+- Example: is_army_chief = yes
+- Desc: Checks if the character in the current scope is selected as an army chief.
+- Since: 1.11
+
+## is_army_leader
+- Params: <bool> Boolean.
+- Example: is_army_leader = yes
+- Desc: Checks if the character in the current scope has an army leader (General/Field Marshal) role.
+- Since: 1.11
+
+## is_navy_chief
+- Params: <bool> Boolean.
+- Example: is_navy_chief = yes
+- Desc: Checks if the character in the current scope is selected as a navy chief.
+- Since: 1.11
+
+## is_navy_leader
+- Params: <bool> Boolean.
+- Example: is_navy_leader = yes
+- Desc: Checks if the character in the current scope has an navy leader (Admiral) role.
+- Since: 1.11
+
+## is_high_command
+- Params: <bool> Boolean.
+- Example: is_high_command = yes
+- Desc: Checks if the character in the current scope is selected as high command.
+- Since: 1.11
+
+## is_corps_commander
+- Params: <bool> Boolean.
+- Example: is_corps_commander = yes
+- Desc: Checks if the character in the current scope is a corps commander.
+- Since: 1.11
+
+## is_operative
+- Params: <bool> Boolean.
+- Example: is_operative = yes
+- Desc: Checks if the character in the current scope is an operative.
+- Since: 1.11
+
+## is_political_advisor
+- Params: <bool> Boolean.
+- Example: is_political_advisor = yes
+- Desc: Checks if the character in the current scope is selected as a political advisor.
+- Since: 1.11
+
+## is_theorist
+- Params: <bool> Boolean.
+- Example: is_theorist = yes
+- Desc: Checks if the character in the current scope is selected as a theorist.
+- Since: 1.11
+
+## is_character_slot
+- Params: <string> The advisor slot to check.
+- Example: is_character_slot = political_advisor
+- Desc: Checks if the character in the current scope has a role within the specified character slot
+- Since: 1.11
+
+## has_air_ledger
+- Params: <bool> Boolean.
+- Example: has_air_ledger = yes
+- Desc: Checks if the character in the current scope has an air ledger.
+- Since: 1.11
+
+## has_army_ledger
+- Params: <bool> Boolean.
+- Example: has_army_ledger = yes
+- Desc: Checks if the character in the current scope has an army ledger.
+- Since: 1.11
+
+## has_navy_ledger
+- Params: <bool> Boolean.
+- Example: has_navy_ledger = yes
+- Desc: Checks if the character in the current scope has an navy ledger.
+- Since: 1.11
+
+## has_character_flag
+- Params: <string> The flag to check for.
+- Example: has_character_flag = my_flag
+- Desc: Checks if the current scope has the specified flag.
+- Since: 1.11
+
+## has_character_flag
+- Params: flag = <string> The flag to check. value = <int> The flag value to check for. Optional. date = <date> The flag creation date to check for. Optional. days = <int> The duration the flag existed for. Optional.
+- Example: has_character_flag = { flag = my_flag days > 30 date > 1936.6.1 value > 0 }
+- Desc: Compares the specified flag's last set date, days since last set, and/or value.
+- Since: 1.11
+
+## has_trait
+- Params: <trait> The trait to check for.
+- Example: has_trait = really_good_boss
+- Desc: Checks if the current scope has the specified trait.
+- Since: 1.5
+
+## has_id
+- Params: <int> The id to check for.
+- Example: has_id = 1
+- Desc: Checks if the current character has the specificed ID.
+- Since: 1.5

@@ -1,0 +1,26 @@
+# Country_scope_National_Focuses
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## has_focus_tree
+- Params: <string> The focus tree to check.
+- Example: has_focus_tree = soviet_tree
+- Desc: Checks if the current scope has the specified focus tree.
+- Since: 1.3
+
+## has_completed_focus
+- Params: <string> The focus to check.
+- Example: has_completed_focus = my_focus
+- Desc: Checks if the current scope has the specified focus completed.
+- Since: 1.0
+
+## focus_progress
+- Params: focus = <string> The focus to check. progress = <string> The progress to check for.
+- Example: focus_progress = { focus = my_focus progress > 0.5 }
+- Desc: Checks if the specified focus has been completed the specified percent for the current scope.
+- Since: 1.0
+
+## has_shine_effect_on_focus
+- Params: <string> The focus to check.
+- Example: has_shine_effect_on_focus = GER_wunderwaffe
+- Desc: Check if country has shine effect on focus (either manually achieved or by being worked on).
+- Since: 1.15

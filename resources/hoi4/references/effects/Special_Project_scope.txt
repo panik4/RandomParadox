@@ -1,0 +1,32 @@
+# Special_Project_scope
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_project_progress_ratio
+- Params: <float> remove or add between -1 and 1 proect progress
+- Example: sp:my_project = { add_project_progress_ratio = 0.1 add_project_progress_ratio = var:my_var }
+- Desc: Add progress to the project's prototype phase.
+- Since: 1.15
+
+## complete_prototype_reward_option
+- Params: prototype_reward = <prototype_reward> The protypereward to compete prototyp_reward_option = my_option If multiple choice use the given one, use default one if not set. Optional. show_modifiers = <bool> Yes if the effects of the prototype reward should be shown (default no)
+- Example: complete_prototype_reward_option = { prototype_reward = my_reward prototyp_reward_option = my_option show_modifiers = yes }
+- Desc: Complete a prototype reward option for the project in scope
+- Since: 1.15
+
+## set_project_flag
+- Params: <flag> An unique string to identify the project flag with. OR flag = <flag> The flag to set. days = <int> Sets the flag to last for the specified amount of days. Optional. value = <int> The new value of the flag on the scale from -2 147 483 648 to 2 147 483 647.
+- Example: set_project_flag = my_flag
+- Desc: Defines a project flag.
+- Since: 1.15
+
+## clr_project_flag
+- Params: <flag> The unique string of a country flag to clear.
+- Example: clr_project_flag = my_flag
+- Desc: Clears a defined project flag.
+- Since: 1.15
+
+## modify_project_flag
+- Params: flag = <flag> The flag to modify. value = <value> The value to add to the flag. Defaults to 0. days = <int> The amount of days that the flag should last for before being cleared. Optional, defaults to permanent.
+- Example: modify_mproject_flag = { flag = my_flag value = 3 }
+- Desc: Adds an integer value to a flag.
+- Since: 1.15

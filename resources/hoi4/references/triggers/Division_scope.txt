@@ -1,0 +1,38 @@
+# Division_scope
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## division_has_majority_template
+- Params: <battalion> Battalion to check for.
+- Example: division_has_majority_template = light_armor
+- Desc: Checks if the current scope is majority made up of the specified battalion.
+- Since: 1.12
+
+## division_has_battalion_in_template
+- Params: <battalion> Battalion to check for.
+- Example: division_has_battalion_in_template = light_armor
+- Desc: Checks if the current scope has any battalions of the type in the template.
+- Since: 1.12
+
+## unit_strength
+- Params: <float> The amount to check for.
+- Example: unit_strength < 0.3
+- Desc: Checks the current strength of the unit on the scale from 0 to 1.
+- Since: 1.12
+
+## unit_organization
+- Params: <float> The amount to check for.
+- Example: unit_organization < 0.3
+- Desc: Checks the current organisation of the unit on the scale from 0 to 1.
+- Since: 1.12
+
+## is_unit_template_reserves
+- Params: <bool> Boolean.
+- Example: is_unit_template_reserves = yes
+- Desc: Checks if the current division has the supply priority set to 'Reserves', i.e. the lowest priority.
+- Since: 1.12
+
+## has_officer_name
+- Params: <string> The localization key to check.
+- Example: has_officer_name = FIN_nikke_parmi
+- Desc: Checks if the current division has an officer with the provided name key.
+- Since: 

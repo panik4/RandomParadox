@@ -1,0 +1,20 @@
+# Raid_scope
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_raid_history_entry
+- Params: <bool>
+- Example: add_raid_history_entry = yes/no
+- Desc: Add history entry to a raid.
+- Since: 1.15
+
+## raid_add_unit_experience
+- Params: <float> Can use either an explicit value or a variable
+- Example: raid_add_unit_experience = 0.2
+- Desc: Will give experience to any type of unit assigned to the raid, e.g. divisions or air wings.
+- Since: 1.15
+
+## raid_damage_units
+- Params: <flag> An unique string to identify the project flag with. OR damage = <float/int> The amount of strength and organization damage taken. org_damage = <float/int> The amount of organization damage taken. str_damage = <float/int> The amount of strength damage taken plane_loss = <float/int> The amount of planes lost ratio = <bool> optional, default no
+- Example: # Apply 50% damage to units raid_damage_units = { damage = 0.5 ratio = yes } # Apply 10 strength loss and 20 organization loss to units raid_damage_units = { org_damage = 20 str_damage = 10 } # Lose 40% of all planes raid_damage_units = { plane_loss = 0.4 ratio = yes } # Lose 5 planes raid_damage_units = { plane_loss = 5 }
+- Desc: Damage is applied to ground units while damage to plane is defined as the amount of planes lost.
+- Since: 1.15

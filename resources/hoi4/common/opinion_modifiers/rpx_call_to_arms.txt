@@ -1,0 +1,17 @@
+opinion_modifiers = {
+	refused_call_to_arms = {
+		icon = "refused_call_to_arms"
+		months = 60
+		value = -30
+	}
+	came_to_our_aid = {
+		icon = "came_to_our_aid"
+		months = 60
+		value = 30
+	}
+	justified_ideological_war = {
+		icon = "justified_ideological_war"
+		months = 24
+		value = 15
+	}
+}

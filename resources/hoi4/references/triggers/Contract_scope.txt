@@ -1,0 +1,26 @@
+# Contract_scope
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## contract_contains_equipment
+- Params: <token> Type to check.
+- Example: contract_contains_equipment = infantry_equipment
+- Desc: Checks if the currently-scoped purchase contract contains an equipment type.
+- Since: 1.13
+
+## deal_completion
+- Params: <decimal> Progress to compare with.
+- Example: deal_completition > 0.6
+- Desc: Checks the deal completion with the target value.
+- Since: 1.13
+
+## seller
+- Params: <country> Country to check.
+- Example: seller = BHR
+- Desc: Checks the seller in the current purchase contract.
+- Since: 1.13
+
+## buyer
+- Params: <country> Country to check.
+- Example: buyer = OMA
+- Desc: Checks the buyer in the current purchase contract.
+- Since: 1.13

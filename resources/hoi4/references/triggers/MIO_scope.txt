@@ -1,0 +1,92 @@
+# MIO_scope
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## is_military_industrial_organization
+- Params: <token> MIO to check.
+- Example: is_military_industrial_organization = my_mio_token
+- Desc: Checks if the currently-scoped MIO matches the input token.
+- Since: 1.13
+
+## is_mio_visible
+- Params: <bool> Boolean.
+- Example: is_mio_visible = yes
+- Desc: Checks if the currently-scoped MIO is visible.
+- Since: 1.13
+
+## is_mio_available
+- Params: <bool> Boolean.
+- Example: is_mio_available = yes
+- Desc: Checks if the currently-scoped MIO is visible.
+- Since: 1.13
+
+## is_mio_assigned_to_task
+- Params: <bool> Boolean.
+- Example: is_mio_assigned_to_task = yes
+- Desc: Checks if the currently-scoped MIO is assigned to a task.
+- Since: 1.13
+
+## has_mio_size
+- Params: <int> Integer.
+- Example: has_mio_size > 3
+- Desc: Checks the size of the MIO.
+- Since: 1.13
+
+## has_mio_trait
+- Params: <token> Trait to check. OR trait = <token> Trait to check.
+- Example: has_mio_trait = my_trait_token
+- Desc: Checks whether the MIO has the target trait in its list.
+- Since: 1.13
+
+## is_mio_trait_available
+- Params: <token> Trait to check. OR trait = <token> Trait to check. check_mio_parent_completed = <bool> Whether to check if the parent traits are complete. True by default. check_mio_mutually_exclusive = <bool> Whether to check if any mutually exclusive traits are complete. True by default.
+- Example: is_mio_trait_available = my_trait_token
+- Desc: Checks whether the MIO has the target trait in its list and whether it's available.
+- Since: 1.13
+
+## is_mio_trait_completed
+- Params: <token> Trait to check. OR trait = <token> Trait to check.
+- Example: is_mio_trait_completed = my_trait_token
+- Desc: Checks whether the MIO has the target trait in its list and whether it's completed.
+- Since: 1.13
+
+## has_mio_number_of_completed_traits
+- Params: <int> Integer.
+- Example: has_mio_number_of_completed_traits < 2
+- Desc: Checks the amount of unlocked MIO traits.
+- Since: 1.13
+
+## has_mio_flag
+- Params: <string> The flag to check.
+- Example: has_mio_flag = my_flag
+- Desc: Checks if the current scope has the specified flag.
+- Since: 1.13
+
+## has_mio_flag
+- Params: flag = <string> The flag to check. value = <int> The flag value to check for. Optional. date = <date> The flag creation date to check for. Optional. days = <int> The duration the flag existed for. Optional.
+- Example: has_mio_flag = { flag = my_flag days > 30 date > 1936.6.1 value > 0 }
+- Desc: Compares the specified flag's last set date, days since last set, and/or value.
+- Since: 1.13
+
+## has_mio_policy
+- Params: <token> Policy to check.
+- Example: has_mio_policy = my_policy_token
+- Desc: Checks if the currently-scoped MIO has the target policy allowed.
+- Since: 1.13
+
+## has_mio_policy_active
+- Params: <token> Policy to check.
+- Example: has_mio_policy_active = my_policy_token
+- Desc: Checks if the currently-scoped MIO has the target policy active.
+- Since: 1.13
+
+## has_mio_research_category
+- Params: <token> Category to check.
+- Example: has_mio_research_category = my_research_category_token
+- Desc: Checks if the currently-scoped MIO has the target research category.
+- Since: 1.13
+
+## has_mio_equipment_type
+- Params: <token> Type to check.
+- Example: has_mio_equipment_type = my_equipment_type_token
+- Desc: Checks if the currently-scoped MIO has the target equipment types.
+- Since: 1.13

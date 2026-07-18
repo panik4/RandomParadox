@@ -1,0 +1,26 @@
+# Character_scope_Operatives
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## has_nationality
+- Params: <tag> The nationality to check.
+- Example: has_nationality = POL
+- Desc: Checks if the current operative has the nationality.
+- Since: 1.9
+
+## is_operative_captured
+- Params: <bool> Boolean.
+- Example: is_operative_captured = yes
+- Desc: Checks if the current scope is captured.
+- Since: 1.9
+
+## operative_leader_mission
+- Params: <token> Mission.
+- Example: operative_leader_mission = mission_name
+- Desc: Checks if the current scope is on the given mission.
+- Since: 1.9
+
+## operative_leader_operation
+- Params: <token> Operation.
+- Example: operative_leader_operation = operation_name
+- Desc: Checks if the current scope is on the given operation.
+- Since: 1.9

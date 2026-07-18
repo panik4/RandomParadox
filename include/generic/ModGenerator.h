@@ -34,5 +34,8 @@ public:
   virtual void writeTextFiles(bool scenarioDetails) = 0;
   virtual void writeImages() = 0;
 
+  virtual void save(const std::string &path) override;
+  virtual void load(const std::string &path) override;
+
 }; // namespace Rpx
 } // namespace Rpx

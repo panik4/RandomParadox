@@ -1,4 +1,5 @@
 #include "hoi4/Hoi4Generator.h"
+#include "utils/Archive.h"
 #include <limits>
 using namespace Fwg;
 using namespace Fwg::Gfx;
@@ -16,6 +17,11 @@ Generator::Generator(const std::string &configSubFolder,
       []() -> std::shared_ptr<Rpx::Hoi4::Hoi4Country> {
     return std::make_shared<Rpx::Hoi4::Hoi4Country>();
   };
+  auto &reg = Fwg::Utils::Serialisation::TypeRegistry::instance();
+  reg.registerType<Fwg::Areas::Region, Rpx::Hoi4::Region>(
+      "Rpx::Hoi4::Region");
+  reg.registerType<Fwg::Areas::Area, Rpx::Hoi4::Hoi4Country>(
+      "Rpx::Hoi4::Hoi4Country");
 }
 
 Generator::~Generator() {}
@@ -2981,15 +2987,15 @@ void Generator::writeTextFiles(bool scenarioDetails) {
 void Generator::writeLocalisation() {
 
   using namespace Parsing::Writing::Localisation;
-  decisionNames(pathcfg.gameModPath + "//localisation//language//",
+  decisionNames(pathcfg.gameModPath + "/localisation/language/",
                 modData.decisionData.decisionNames);
-  stateNames(pathcfg.gameModPath + "//localisation//language//",
+  stateNames(pathcfg.gameModPath + "/localisation/language/",
              modData.hoi4Countries);
-  countryNames(pathcfg.gameModPath + "//localisation//language//",
+  countryNames(pathcfg.gameModPath + "/localisation/language/",
                modData.hoi4Countries, nData);
-  strategicRegionNames(pathcfg.gameModPath + "//localisation//language//",
+  strategicRegionNames(pathcfg.gameModPath + "/localisation/language/",
                        superRegions);
-  victoryPointNames(pathcfg.gameModPath + "//localisation//language//",
+  victoryPointNames(pathcfg.gameModPath + "/localisation/language/",
                     modData.hoi4States);
   predefinedLocalisation(pathcfg.gameModPath + "/localisation/");
 }
@@ -2999,34 +3005,34 @@ void Generator::writeImages() {
       Fwg::Utils::userFilter(pathcfg.gameModPath, Cfg::Values().username));
 
   imageExporter.dump8BitTerrain(terrainData, climateData, ardaData.civLayer,
-                                pathcfg.gameModPath + "//map//terrain.bmp",
+                                pathcfg.gameModPath + "/map/terrain.bmp",
                                 "terrain", false);
   imageExporter.dump8BitCities(
-      climateMap, pathcfg.gameModPath + "//map//cities.bmp", "cities", false);
+      climateMap, pathcfg.gameModPath + "/map/cities.bmp", "cities", false);
   imageExporter.dump8BitRivers(terrainData, climateData,
-                               pathcfg.gameModPath + "//map//rivers", "rivers",
+                               pathcfg.gameModPath + "/map/rivers", "rivers",
                                false);
   imageExporter.dump8BitTrees(terrainData, climateData,
-                              pathcfg.gameModPath + "//map//trees.bmp", "trees",
+                              pathcfg.gameModPath + "/map/trees.bmp", "trees",
                               false);
   imageExporter.dump8BitHeightmap(terrainData.detailedHeightMap,
-                                  pathcfg.gameModPath + "//map//heightmap",
+                                  pathcfg.gameModPath + "/map/heightmap",
                                   "heightmap");
   imageExporter.dumpTerrainColourmap(
       worldMap, ardaData.civLayer, pathcfg.gameModPath,
-      "//map/terrain/colormap_rgb_cityemissivemask_a.dds",
+      "/map/terrain/colormap_rgb_cityemissivemask_a.dds",
       gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
   imageExporter.dumpDDSFiles(
       terrainData.detailedHeightMap,
-      pathcfg.gameModPath + "//map/terrain/colormap_water_", false, 8);
+      pathcfg.gameModPath + "/map/terrain/colormap_water_", false, 8);
   imageExporter.dumpWorldNormal(
       Fwg::Gfx::Image(Cfg::Values().width, Cfg::Values().height, 24,
                       terrainData.sobelData),
-      pathcfg.gameModPath + "//map//world_normal.bmp", false);
+      pathcfg.gameModPath + "/map/world_normal.bmp", false);
 
   // just copy over provinces.bmp, already in a compatible format
   Fwg::Gfx::Bmp::save(provinceMap,
-                      (pathcfg.gameModPath + ("//map//provinces.bmp")).c_str());
+                      (pathcfg.gameModPath + ("/map/provinces.bmp")).c_str());
 }
 
 void Generator::generate() {
@@ -3188,6 +3194,108 @@ void Generator::readHoi(std::string &path) {
   // Hoi4::Parsing::Reading::readWeatherPositions(pathcfg.gamePath,
   //                                              modData.hoi4States);
   config.cut = bufferedCut;
+}
+
+void Generator::save(const std::string &path) {
+  std::ofstream file(path, std::ios::binary);
+  Fwg::Utils::Serialisation::Archive ar(file);
+  ar.writeVersion();
+  areaData.serialise(ar);
+  terrainData.serialise(ar);
+  climateData.serialise(ar);
+  climateMap.serialise(ar);
+  worldMap.serialise(ar);
+  segmentMap.serialise(ar);
+  provinceMap.serialise(ar);
+  regionMap.serialise(ar);
+  locationMap.serialise(ar);
+  navmeshMap.serialise(ar);
+  errorMap.serialise(ar);
+  ar &preModifyHeightMap &preModifyHumidityMap;
+  ar.polymorphicPtrVector(ardaContinents);
+  ar.polymorphicPtrVector(ardaRegions);
+  ar.polymorphicPtrVector(ardaProvinces);
+  ar.polymorphicPtrVector(superRegions);
+  ar &countries;
+  civData.serialise(ar);
+  nData.serialise(ar);
+  typeMap.serialise(ar);
+  countryMap.serialise(ar);
+  superRegionMap.serialise(ar);
+  ar.serialiseEnum(gameType);
+  ar &exportWidth &exportHeight;
+  pathcfg.serialise(ar);
+  // Hoi4-specific data
+  ar.polymorphicPtrVector(modData.hoi4States);
+  ar.polymorphicPtrVector(modData.hoi4Countries);
+  ar &modData.supplyNodeConnections;
+  ar &modData.statesInitialised;
+  ar.ptrVector(modData.factions);
+  modData.decisionData.serialise(ar);
+  // TODO: serialise modConfig, stats, imageExporter
+}
+
+void Generator::load(const std::string &path) {
+  std::ifstream file(path, std::ios::binary);
+  // Hex dump first 64 bytes for diagnostics
+  {
+    std::vector<unsigned char> hdr(64, 0);
+    file.read(reinterpret_cast<char*>(hdr.data()), 64);
+    std::stringstream ss;
+    ss << "File hex: ";
+    for (int i = 0; i < 64; i++)
+      ss << std::hex << std::setw(2) << std::setfill('0') << (int)hdr[i];
+    Fwg::Utils::Logging::logLine(ss.str());
+    file.clear();
+    file.seekg(0);
+  }
+  Fwg::Utils::Serialisation::Archive ar(file);
+  resetData();
+  auto step = [](const char *name) {
+    try {
+    } catch (...) {
+      Fwg::Utils::Logging::logLine("  Load failed at ", name);
+      throw;
+    }
+  };
+#define LOAD_STEP(name, expr) do { try { expr; } catch (...) { Fwg::Utils::Logging::logLine("  Load failed at ", name); throw; } } while(0)
+  LOAD_STEP("version", ar.readVersion());
+  LOAD_STEP("areaData", areaData.deserialise(ar));
+  LOAD_STEP("terrainData", terrainData.deserialise(ar));
+  LOAD_STEP("climateData", climateData.deserialise(ar));
+  LOAD_STEP("climateMap", climateMap.deserialise(ar));
+  LOAD_STEP("worldMap", worldMap.deserialise(ar));
+  LOAD_STEP("segmentMap", segmentMap.deserialise(ar));
+  LOAD_STEP("provinceMap", provinceMap.deserialise(ar));
+  LOAD_STEP("regionMap", regionMap.deserialise(ar));
+  LOAD_STEP("locationMap", locationMap.deserialise(ar));
+  LOAD_STEP("navmeshMap", navmeshMap.deserialise(ar));
+  LOAD_STEP("errorMap", errorMap.deserialise(ar));
+  LOAD_STEP("preModifyMaps", ar &preModifyHeightMap &preModifyHumidityMap);
+  LOAD_STEP("ardaContinents", ar.polymorphicPtrVector(ardaContinents));
+  LOAD_STEP("ardaRegions", ar.polymorphicPtrVector(ardaRegions));
+  LOAD_STEP("ardaProvinces", ar.polymorphicPtrVector(ardaProvinces));
+  LOAD_STEP("superRegions", ar.polymorphicPtrVector(superRegions));
+  LOAD_STEP("countries", ar &countries);
+  LOAD_STEP("civData", civData.deserialise(ar));
+  LOAD_STEP("nData", nData.deserialise(ar));
+  LOAD_STEP("typeMap", typeMap.deserialise(ar));
+  LOAD_STEP("countryMap", countryMap.deserialise(ar));
+  LOAD_STEP("superRegionMap", superRegionMap.deserialise(ar));
+  LOAD_STEP("gameType", ar.serialiseEnum(gameType));
+  LOAD_STEP("exportDim", ar &exportWidth &exportHeight);
+  LOAD_STEP("pathcfg", pathcfg.deserialise(ar));
+  LOAD_STEP("hoi4States", ar.polymorphicPtrVector(modData.hoi4States));
+  LOAD_STEP("hoi4Countries", ar.polymorphicPtrVector(modData.hoi4Countries));
+  LOAD_STEP("supplyConn", ar &modData.supplyNodeConnections);
+  LOAD_STEP("statesInit", ar &modData.statesInitialised);
+  LOAD_STEP("factions", ar.ptrVector(modData.factions));
+  LOAD_STEP("decisionData", modData.decisionData.deserialise(ar));
+#undef LOAD_STEP
+  Fwg::Utils::Logging::logLine("  Load completed successfully");
+  mapProvinces();
+  mapRegions();
+  mapContinents();
 }
 
 } // namespace Rpx::Hoi4

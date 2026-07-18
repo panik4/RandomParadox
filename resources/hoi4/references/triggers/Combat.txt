@@ -1,0 +1,164 @@
+# Combat
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## hardness
+- Params: <float> The amount to check for.
+- Example: hardness > 0.5
+- Desc: Checks if the current scope has the specified amount of hardness.
+- Since: 1.0
+
+## armor
+- Params: <float> The amount to check for.
+- Example: armor > 0.5
+- Desc: Checks if the current scope has the specified amount of armor units.
+- Since: 1.0
+
+## dig_in
+- Params: <float> The amount to check for.
+- Example: dig_in > 0.5
+- Desc: Checks if the current scope has the specified amount of Dig In bonus.
+- Since: 1.0
+
+## min_planning
+- Params: <float> The amount to check for.
+- Example: min_planning > 0.5
+- Desc: Checks if the current scope has the specified amount of planning.
+- Since: 1.0
+
+## fastest_unit
+- Params: <float> The speed in km/h to check for.
+- Example: fastest_unit > 12
+- Desc: Checks if the current scope has a unit with the specified speed.
+- Since: 1.0
+
+## temperature
+- Params: <float> The temperature in celsius to check for.
+- Example: temperature > 20
+- Desc: Checks if the current scope is in a province with a temperature above the specified amount.
+- Since: 1.0
+
+## reserves
+- Params: <float> The amount to check for.
+- Example: reserves > 10
+- Desc: Checks if the current scope has the specified amount of reserves waiting.
+- Since: 1.0
+
+## has_combat_modifier
+- Params: <string> The modifier to check for.
+- Example: has_combat_modifier = river_crossing
+- Desc: Checks if the current scope has the specified combat modifier.
+- Since: 1.0
+
+## is_fighting_in_terrain
+- Params: <string> The terrain to check for.
+- Example: is_fighting_in_terrain = desert
+- Desc: Checks if the current scope is fighting in the specified terrain.
+- Since: 1.0
+
+## is_fighting_in_weather
+- Params: <string> The weather to check for. OR { <string> <...> <string> } The weather to check for in an OR statement.
+- Example: is_fighting_in_weather = sandstorm
+- Desc: Checks if the current scope is fighting in the specified weather.
+- Since: 1.0
+
+## phase
+- Params: <bool> Boolean.
+- Example: phase = yes
+- Desc: Checks if the current scope is in phase.
+- Since: 1.0
+
+## recon_advantage
+- Params: <bool> Boolean.
+- Example: recon_advantage > 0
+- Desc: Checks if the current scope has x recon advantage.
+- Since: 1.0
+
+## night
+- Params: <bool> Boolean.
+- Example: night = yes
+- Desc: Checks if the current scope is fighting at night.
+- Since: 1.0
+
+## frontage_full
+- Params: <bool> Boolean.
+- Example: frontage_full = yes
+- Desc: Checks if the current scope has a full combat width.
+- Since: 1.0
+
+## has_flanked_opponent
+- Params: <bool> Boolean.
+- Example: has_flanked_opponent = yes
+- Desc: Checks if the current scope has flanked their opponent.
+- Since: 1.0
+
+## has_max_planning
+- Params: <bool> Boolean.
+- Example: has_max_planning = yes
+- Desc: Checks if the current scope has the maximum planning bonus.
+- Since: 1.0
+
+## has_reserves
+- Params: <bool> Boolean.
+- Example: has_reserves = yes
+- Desc: Checks if the current scope has any reserves waiting.
+- Since: 1.0
+
+## is_amphibious_invasion
+- Params: <bool> Boolean.
+- Example: is_amphibious_invasion = yes
+- Desc: Checks if the current scope is performing an amphibious invasion.
+- Since: 1.0
+
+## is_attacker
+- Params: <bool> Boolean.
+- Example: is_attacker = yes
+- Desc: Checks if the current scope is attacking.
+- Since: 1.0
+
+## is_defender
+- Params: <bool> Boolean.
+- Example: is_defender = yes
+- Desc: Checks if the current scope is defending.
+- Since: 1.0
+
+## is_winning
+- Params: <bool> Boolean.
+- Example: is_winning = yes
+- Desc: Checks if the current scope is winning their battle.
+- Since: 1.0
+
+## is_fighting_air_units
+- Params: <bool> Boolean.
+- Example: is_fighting_air_units = yes
+- Desc: Checks if the current scope is fighting air units.
+- Since: 1.0
+
+## less_combat_width_than_opponent
+- Params: <bool> Boolean.
+- Example: less_combat_width_than_opponent = yes
+- Desc: Checks if the current scope is fighting with less combat width than their opponent.
+- Since: 1.0
+
+## has_carrier_airwings_on_mission
+- Params: <bool> Boolean.
+- Example: has_carrier_airwings_on_mission = yes
+- Desc: Checks if the current scope has carrier airwings on a mission.
+- Since: 1.0
+
+## has_carrier_airwings_in_own_combat
+- Params: <bool> Boolean.
+- Example: has_carrier_airwings_in_own_combat = yes
+- Desc: Checks if the current scope has carrier airwings in their own combat.
+- Since: 1.0
+
+## has_artillery_ratio
+- Params: <float>
+- Example: has_artillery_ratio > 0.1
+- Desc: Check that ratio of atrillery battalions in the composition of a side of combating troops are over a certain level.
+- Since: ???
+
+## has_unit_type
+- Params: <unit_type>
+- Example: has_unit_type = amphibious_mechanized
+- Desc: Check if the combatant has at least one of the provided unit types.
+- Since: ???

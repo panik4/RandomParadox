@@ -3,6 +3,7 @@
 #include "hoi4/Hoi4Armor.h"
 #include "hoi4/Hoi4Tech.h"
 #include "hoi4/Hoi4Airforce.h"
+#include "utils/Archive.h"
 #include <array>
 #include <string>
 #include <vector>
@@ -97,6 +98,53 @@ struct DivisionTemplate {
   std::vector<SupportRegimentType> supportRegiments;
   double cost = 4.0;
   double armyShare = 0.0;
+
+  void serialise(Fwg::Utils::Serialisation::Archive &ar) {
+    ar.serialiseEnum(type);
+    ar &name &cost &armyShare;
+    // Manual enum vector serialisation
+    if (ar.isWriting()) {
+      auto writeEnumVec = [&](auto &v) {
+        uint64_t sz = v.size();
+        ar &sz;
+        for (auto &e : v) {
+          std::underlying_type_t<std::decay_t<decltype(e)>> raw =
+              static_cast<std::underlying_type_t<std::decay_t<decltype(e)>>>(e);
+          ar &raw;
+        }
+      };
+      auto writeEnumVecVec = [&](auto &v) {
+        uint64_t osz = v.size();
+        ar &osz;
+        for (auto &inner : v)
+          writeEnumVec(inner);
+      };
+      writeEnumVecVec(regiments);
+      writeEnumVec(supportRegiments);
+    } else {
+      auto readEnumVec = [&](auto &v) {
+        uint64_t sz;
+        ar &sz;
+        v.resize(static_cast<size_t>(sz));
+        for (auto &e : v) {
+          std::underlying_type_t<typename std::decay_t<decltype(v)>::value_type>
+              raw;
+          ar &raw;
+          e = static_cast<typename std::decay_t<decltype(v)>::value_type>(raw);
+        }
+      };
+      auto readEnumVecVec = [&](auto &v) {
+        uint64_t osz;
+        ar &osz;
+        v.resize(static_cast<size_t>(osz));
+        for (auto &inner : v)
+          readEnumVec(inner);
+      };
+      readEnumVecVec(regiments);
+      readEnumVec(supportRegiments);
+    }
+  }
+  void deserialise(Fwg::Utils::Serialisation::Archive &ar) { serialise(ar); }
 };
 struct Division {
   DivisionTemplate divisionTemplate;
@@ -104,6 +152,14 @@ struct Division {
   std::shared_ptr<Arda::ArdaProvince> location;
   double startingExperienceFactor;
   double startingEquipmentFactor;
+
+  void serialise(Fwg::Utils::Serialisation::Archive &ar) {
+    divisionTemplate.serialise(ar);
+    ar &name;
+    ar.polymorphicPtr(location);
+    ar &startingExperienceFactor &startingEquipmentFactor;
+  }
+  void deserialise(Fwg::Utils::Serialisation::Archive &ar) { serialise(ar); }
 };
 
 std::vector<DivisionTemplate> createDivisionTemplates(

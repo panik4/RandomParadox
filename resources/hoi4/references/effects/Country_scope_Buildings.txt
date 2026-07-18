@@ -1,0 +1,20 @@
+# Country_scope_Buildings
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_offsite_building
+- Params: type = <building> The building to add. level = <level> / <variable> The maximum level to add.
+- Example: add_offsite_building = { type = arms_factory level = 1 }
+- Desc: Adds an off-map (offmap) building for the current scope that produces its effects without being present in a state.
+- Since: 1.5
+
+## modify_building_resources
+- Params: building = <building> The building to modify. resource = <resource> The resource to add. amount = <amount> The amount of resource to add.
+- Example: modify_building_resources = { building = synthetic_refinery resource = oil amount = 1 }
+- Desc: Modifies the resource output of the specified building for the current scope.
+- Since: 1.5
+
+## damage_building
+- Params: type = <building> The building to damage. state = <id> / <variable> The state to target. tags = <building_tag> The buildings with this tag to damage. tags = { <building_tag> } The buildings with these tags to damage. repair_speed_modifier = <float> Repair will be x% slower until building is fully repaired damage = <float> The amount of damage to inflict. province = <id> / <variable> The province to target for provincal buildings.
+- Example: damage_building = { type = infrastructure state = 123 damage = 1 }
+- Desc: Damages a building in a targeted state or province.
+- Since: 1.3

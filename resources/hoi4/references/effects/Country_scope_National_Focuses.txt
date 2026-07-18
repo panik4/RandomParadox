@@ -1,0 +1,50 @@
+# Country_scope_National_Focuses
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## load_focus_tree
+- Params: <focus tree> The national focus tree to load. OR tree = <focus tree ID> The national focus tree to load. keep_completed = <bool> Whether focuses shared between the old and new trees should stay completed. Defaults to false. copy_completed_from = <tag> Copy completed focus from an existing country.
+- Example: load_focus_tree = china_communist_focus
+- Desc: Loads a new focus tree for the current scope, retaining any shared focuses if set.
+- Since: 1.5
+
+## unlock_national_focus
+- Params: <focus> The focus to unlock.
+- Example: unlock_national_focus = my_focus
+- Desc: Bypasses the specified focus for the current scope (marks as complete without firing complete_effect of the focus).
+- Since: 1.0
+
+## complete_national_focus
+- Params: <focus> The focus to complete. OR focus = <focus> The focus to complete. use_side_message = <bool> Create popup notification in the bottom right that includes originator_name instead of normal focus popup. originator_name = <string> Used for tooltip only.
+- Example: complete_national_focus = my_focus
+- Desc: Completes the specified focus for the current scope.
+- Since: 1.0
+
+## uncomplete_national_focus
+- Params: focus = <focus> uncomplete_children = <bool> Defaults "no". Optional. refund_political_power = <bool> Defaults "no". Optional.
+- Example: uncomplete_national_focus = { focus = GER_oppose_hitler uncomplete_children = yes refund_political_power = no }
+- Desc: Removes a focus from list of completed focus, and potentially all focuses requiring it as a prerequisite. If the focus has one, the 'on_uncomplete' effect will be executed on each uncompleted focus.
+- Since: 1.11
+
+## mark_focus_tree_layout_dirty
+- Params: <bool> Boolean.
+- Example: mark_focus_tree_layout_dirty = yes
+- Desc: Refreshes the focus tree for the specified country, restarting the checks in allow_branch and position offsets for focuses.
+- Since: 1.9
+
+## activate_shine_on_focus
+- Params: <focus> The focus to activate a shine effect on.
+- Example: activate_shine_on_focus = my_focus
+- Desc: Activates the shine effect on the focus with the given id. Focuses that are completed cannot have an activated shine effect.
+- Since: 1.15
+
+## deactivate_shine_on_focus
+- Params: <focus> The focus to deactivate a shine effect on.
+- Example: deactivate_shine_on_focus = my_focus
+- Desc: Deactivate the shine effect on the focus with the given id. The current focus cannot have it's shine effect removed.
+- Since: 1.15
+
+## reduce_focus_completion_cost
+- Params: focus = <focus> The focus to reduce cost time. cost = <int> / <variable> Time to reduce (in days).
+- Example: reduce_focus_completion_cost = { focus = focus_id cost = 35 }
+- Desc: Reduce the cost needed to complete a specific focus. The cost accepts script constants. The focus can be a uniform list or a single token.
+- Since: 1.17

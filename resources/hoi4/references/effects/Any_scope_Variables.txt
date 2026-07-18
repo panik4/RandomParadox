@@ -1,0 +1,64 @@
+# Any_scope_Variables
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## set_variable
+- Params: var = <variable> The variable to modify or create. value = <decimal>/<variable> The value to set the variable to. tooltip = localisation_keyLocalisation used by the operation. Optional.
+- Example: set_variable = { var = my_variable value = 100 tooltip = set_var_to_100_tt }
+- Desc: Sets a variable's value to the specified amount, creating it if not defined.
+
+## set_variable_to_random
+- Params: var = <variable> The variable to modify or create. min = <decimal> The minimum possible value, defaults to 0. max = <decimal> The maximum possible value, defaults to 1. integer = <bool> Sets if the variable must be an integer or if it can be decimal. Defaults to false.
+- Example: set_variable_to_random = { var = random_num max = 11 integer = yes }
+- Desc: Sets a variable's value to the specified amount, creating it if not defined. The result will be greater than or equal than the minimum and strictly less than the maximum.
+
+## clear_variable
+- Params: <variable> Variable to clear.
+- Example: clear_variable = my_variable
+- Desc: Clears the value from the memory entirely.
+
+## add_to_variable
+- Params: var = <variable> The variable to add to. value = <decimal>/<variable> The value to add to the variable. tooltip = localisation_keyLocalisation used by the operation. Optional.
+- Example: add_to_variable = { var = my_variable value = 100 tooltip = add_100_to_var_tt }
+- Desc: Increases a variable's value by the specified amount, creating it if not defined.
+
+## subtract_from_variable
+- Params: var = <variable> The variable to subtract from. value = <decimal>/<variable> The value to subtract from the variable. tooltip = localisation_keyLocalisation used by the operation. Optional.
+- Example: subtract_from_variable = { var = my_variable value = 100 tooltip = sub_100_from_var_tt }
+- Desc: Decreases a variable's value by the specified amount, creating it if not defined.
+
+## multiply_variable
+- Params: var = <variable> The variable to multiply. value = <decimal>/<variable> The value to multiply the variable by. tooltip = localisation_keyLocalisation used by the operation. Optional.
+- Example: multiply_variable = { var = my_variable value = 100 tooltip = multiply_var_by_100_tt }
+- Desc: Multiplies a variable's value by the specified amount.
+
+## divide_variable
+- Params: var = <variable> The variable to divide. value = <decimal>/<variable> The value to divide the variable by. tooltip = localisation_keyLocalisation used by the operation. Optional.
+- Example: divide_variable = { var = my_variable value = 100 tooltip = divide_var_by_100_tt }
+- Desc: Divides a variable's value by the specified amount.
+
+## modulo_variable
+- Params: var = <variable> The variable to modulo. value = <decimal>/<variable> The value to modulo the variable by. tooltip = localisation_keyLocalisation used by the operation. Optional.
+- Example: modulo_variable = { var = my_variable value = 50 tooltip = get_modulo_of_var_by_50_tt }
+- Desc: Makes the variable become the remainder of Euclidean division of the variable by the specified value.
+
+## round_variable
+- Params: <variable> The variable to round.
+- Example: round_variable = my_variable
+- Desc: Rounds the variable towards the closest integer value.
+
+## clamp_variable
+- Params: var = <variable> The variable to clamp. min = <decimal>/<variable> The minimum value of the variable after the clamp. max = <decimal>/<variable> The maximum value of the variable after the clamp.
+- Example: clamp_variable = { var = my_var min = 0 }
+- Desc: Clamps the variable to ensure its value is between the two specified numbers, raising to the minimum if smaller or lowering to the maximum if larger.
+
+## career_profile_set_temp_playthrough_variable
+- Params: var = <variable> The variable to modify or create. value = <decimal>/<variable> The value to set the variable to.
+- Example: career_profile_set_temp_playthrough_variable = { sum = rocket_sites_built_1936 }
+- Desc: Sets a temporary variable to a value or another variable.
+- Since: ???
+
+## career_profile_set_temp_variable
+- Params: var = <variable> The variable to modify or create. value = <decimal>/<variable> The value to set the variable to.
+- Example: career_profile_set_temp_variable = { var = num_dogs value = num_dogs_in_career_profile }
+- Desc: Sets a temporary variable to a value or another variable.
+- Since: ???

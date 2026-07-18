@@ -1,0 +1,38 @@
+# Country_scope_Politics
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## set_politics
+- Params: ruling_party = <ideology> The party to set. elections_allowed = <bool> Whether elections are allowed. Optional. last_election = <date> When the last election was. Optional. election_frequency = <int> How often in months an election occurs. Optional. long_name = <string> The long name of the country's new ruling party, appearing when hovering over it. Optional. name = <string> The name of the country's new ruling party. Optional.
+- Example: set_politics = { ruling_party = democratic elections_allowed = no last_election = "1935.12.17" election_frequency = 48 long_name = TAG_party_long name = TAG_party }
+- Desc: Sets the political status of the country, including the ruling party and elections.
+- Since: 1.0 (updated 1.7)
+
+## set_popularities
+- Params: <ideology> = <int>/<variable> The popularity to set.
+- Example: set_popularities = { democratic = 50 neutrality = 15 fascism = 30 communism = 5 }
+- Desc: Sets the political party popularities for the current scope.
+- Since: 1.7
+
+## add_popularity
+- Params: ideology = <ideology/tag> The party to change. If using a tag, uses that tag's ruling party. popularity = <int> / <variable> The amount of popularity to change.
+- Example: add_popularity = { ideology = fascism popularity = -0.5 }
+- Desc: Adjusts the popularity for the specified party in the current scope.
+- Since: 1.0
+
+## set_political_party
+- Params: ideology = <ideology> The party to change. popularity = <int> The amount of popularity to set.
+- Example: set_political_party = { ideology = fascism popularity = 50 }
+- Desc: Sets the popularity for the specified political party in the current scope.
+- Since: 1.0
+
+## set_party_name
+- Params: ideology = <ideology> The party to change. long_name = <string> The new full name for the party. name = <string> The new short name for the party.
+- Example: set_party_name = { ideology = neutrality long_name = GER_neutrality_party_kaiserreich_long name = GER_neutrality_party_kaiserreich }
+- Desc: Changes the name of the specified political party for the current scope.
+- Since: 1.0
+
+## hold_election
+- Params: <country> The country to hold an election for.
+- Example: hold_election = ROOT
+- Desc: Executes the events in the on_new_term_election on action for the current scope.
+- Since: 1.0

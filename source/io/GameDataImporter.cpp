@@ -3,12 +3,12 @@ using namespace Fwg;
 using namespace Fwg::Gfx;
 namespace Rpx::IO {
 Image loadProvinceMap(const std::string &gamePath) {
-  return Fwg::IO::Reader::readGenericImage(gamePath + "//map//provinces.bmp",
+  return Fwg::IO::Reader::readGenericImage(gamePath + "/map/provinces.bmp",
                                            Fwg::Cfg::Values());
 }
 
 Image loadHeightMap(const std::string &gamePath) {
-  return Fwg::IO::Reader::readGenericImage(gamePath + "//map//heightmap.bmp",
+  return Fwg::IO::Reader::readGenericImage(gamePath + "/map/heightmap.bmp",
                                            Fwg::Cfg::Values());
 }
 
@@ -17,7 +17,7 @@ std::vector<std::string> loadStates(const std::string &gamePath) {
 }
 
 std::vector<std::string> loadDefinition(const std::string &gamePath) {
-  return Fwg::Parsing::getLines(gamePath + "//map//definition.csv");
+  return Fwg::Parsing::getLines(gamePath + "/map/definition.csv");
 }
 
 std::vector<std::string> loadForbiddenTags(const std::string &gamePath) {

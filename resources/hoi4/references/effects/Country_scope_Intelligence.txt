@@ -1,0 +1,80 @@
+# Country_scope_Intelligence
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## create_intelligence_agency
+- Params: name = <string> The name of the intelligence agency. (Optional) icon = <sprite> The icon of the intelligence agency. (Optional)
+- Example: create_intelligence_agency = { name = "A.G.E.N.C.Y" icon = GFX_intelligence_agency_logo_agency }
+- Desc: Creates an Intelligence Agency.
+- Since: 1.9
+
+## upgrade_intelligence_agency
+- Params: Allows to unlock automatically an intelligence agency upgrade
+- Example: upgrade_intelligence_agency = upgrade_form_department
+- Desc: Unlocks an Intelligence Agency Upgrade.
+- Since: 1.9
+
+## add_decryption
+- Params: target = <tag> Towards which country to add decryption. amount = <int> How much decryption to add in flat numbers. ratio = <0-1> How much decryption ratio to add.
+- Example: add_decryption = { target = GER amount = 300 }
+- Desc: Adds decryption towards the target country
+- Since: 1.9
+
+## add_intel
+- Params: target = <tag> Towards which country to add intelligence. civilian_intel = <int> How much civilian intel to add. army_intel = <int> How much army intel to add. navy_intel = <int> How much navy intel to add. airforce_intel = <int> How much airforce intel to add.
+- Example: add_intel = { target = GER civilian_intel = 3 army_intel = 2 navy_intel = 1 airforce_intel = 2 }
+- Desc: Adds the specified amount of intel towards the specified country.
+- Since: 1.9
+
+## add_operation_token
+- Params: tag = <tag> Towards which country to add a token on. token = <id> Which token to add.
+- Example: add_operation_token = { tag = GER token = token_test }
+- Desc: Adds an operation token towards the country, allowing access to more intel or applying a targeted modifier.
+- Since: 1.9
+
+## remove_operation_token
+- Params: tag = <tag> Towards which country to remove a token from. token = <id> Which token to remove.
+- Example: remove_operation_token = { tag = GER token = token_test }
+- Desc: Removes an operation token from the country.
+- Since: 1.9
+
+## capture_operative
+- Params: operative = <tag> Which operative to capture. ignore_death_chance = <bool> Whether to ignore the death chance on capture (no by default).
+- Example: capture_operative = { operative = PREV ignore_death_chance = yes }
+- Desc: Captures the specified operative.
+- Since: 1.9
+
+## create_operative_leader
+- Params: bypass_recruitment = <bool> Whether the operative is directly added to the list of available operatives or needs to be recruited. available_to_spy_master = <bool> Whether the operative can be recruited by the spy master. bypass_recruitment should be set to no. portrait_tag_override = <bool> If selecting a random portrait, create one that is from the specified country rather than the current country. name = <string> The name of the operative. GFX = <string> The graphical reference of the picture of the leader, defined as a sprite within any /Hearts of Iron IV/interface/*.gfx file. nationalities = { <tag> } The nationalities of the operative. traits = { <trait> } The traits the leader spawns with. gender = <male|female> The gender of the operative. Defaults to random.
+- Example: create_operative_leader = { name = "Jacques Duclos" GFX = GFX_portrait_jacques_duclos traits = { operative_infiltrator operative_natural_orator } bypass_recruitment = no available_to_spy_master = yes nationalities = { FRA POL } }
+- Desc: Creates an operative for the current scope with the specified attributes.
+- Since: 1.9
+
+## free_operative
+- Params: <tag> The operative to be freed.
+- Example: free_operative = PREV
+- Desc: Frees the specifies operative.
+- Since: 1.9
+
+## free_random_operative
+- Params: captured_by = <tag> The country that captured the operative. all = <bool> Whether to free all operatives or not (Defaults to no).
+- Example: free_random_operative = { captured_by = POL all = yes }
+- Desc: Frees one random captured operative or all of them.
+- Since: 1.9
+
+## kill_operative
+- Params: operative = <tag> The operative that is killed.
+- Example: kill_operative = { operative = PREV }
+- Desc: Kills the targeted operative.
+- Since: 1.9
+
+## turn_operative
+- Params: operative = <tag> The operative that is turned.
+- Example: turn_operative = { operative = PREV }
+- Desc: Turns the targeted operative against their own country, transferring them to the current country.
+- Since: 1.9
+
+## steal_random_tech_bonus
+- Params: category = <category name> The category to steal from. See /Hearts of Iron IV/common/technology_tags/* for list. folder = naval_folder The folder to steal from. See /Hearts of Iron IV/common/technology_tags/* for list. ahead_reduction = <float> The reduction to the ahead of time penalty. bonus = <float> The bonus to research speed. base_bonus = <float> The backup bonus if no tech is available. instant = <bool> Whether to instantly give a tech instead of a bonus or not. No by default. dynamic = <bool> Changes between instant and non-instant based on type. No by default. name = <localisation key> The name of the bonus. target = <tag> The country to steal from. uses = <int> How many times the bonus can be used.
+- Example: steal_random_tech_bonus = { category = air_equipment folder = naval_folder ahead_reduction = 0.8 bonus = 1.2 base_bonus = 1.1 dynamic = yes name = LOC_KEY target = POL uses = 2 }
+- Desc: Steals a random tech bonus from the specified country.
+- Since: 1.9

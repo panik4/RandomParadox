@@ -1,0 +1,42 @@
+# Scripted_triggers
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## can_ROOT_get_wargoal_on_THIS
+- Params: Country
+- Example: can_ROOT_get_wargoal_on_THIS = yes
+- Desc: Checks if ROOT can obtain a wargoal on the current scope.
+
+## is_free_or_subject_of_root
+- Params: Country
+- Example: is_free_or_subject_of_root = yes
+- Desc: Checks if the current scope is either independent or a subject of ROOT.
+
+## has_same_ideology
+- Params: Country
+- Example: has_same_ideology = yes
+- Desc: Checks if the current scope has the same ideology as ROOT.
+
+## is_enemy_ideology
+- Params: Country
+- Example: is_enemy_ideology = yes
+- Desc: Checks if the current scope has an ideology that is considered enemy to ROOT's.
+
+## has_ROOT_at_least_1_div_in_current_state_scope
+- Params: State
+- Example: has_ROOT_at_least_1_div_in_current_state_scope = yes
+- Desc: Checks if ROOT has at least one division in the current scope.
+
+## controls_or_subject_of
+- Params: State
+- Example: controls_or_subject_of = yes
+- Desc: Checks if the current state is controlled by ROOT or a subject of ROOT.
+
+## is_controlled_by_ROOT_or_ally
+- Params: State
+- Example: is_controlled_by_ROOT_or_ally = yes
+- Desc: Checks if the current state is controlled by ROOT, a subject of ROOT, or a country in the same faction as ROOT.
+
+## owns_or_subject_of
+- Params: State
+- Example: owns_or_subject_of = yes
+- Desc: Checks if the current scope is owned by ROOT or a subject of ROOT.

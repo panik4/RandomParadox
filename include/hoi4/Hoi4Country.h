@@ -5,6 +5,7 @@
 #include "hoi4/Hoi4Army.h"
 #include "hoi4/Hoi4Navies.h"
 #include "hoi4/Hoi4Utils.h"
+#include "utils/Archive.h"
 #include <array>
 #include <string>
 #include <vector>
@@ -72,5 +73,9 @@ public:
   bool hasTech(const std::string &techname) const;
 
   std::string exportLine() const;
+
+  void serialise(Fwg::Utils::Serialisation::Archive &ar) override;
+  void deserialise(Fwg::Utils::Serialisation::Archive &ar) override;
+  uint32_t typeTag() const override;
 };
 } // namespace Rpx::Hoi4

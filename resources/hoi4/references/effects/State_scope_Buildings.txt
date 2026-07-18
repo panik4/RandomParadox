@@ -1,0 +1,38 @@
+# State_scope_Buildings
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_extra_state_shared_building_slots
+- Params: <int> / <variable> The amount of slots to add or remove.
+- Example: add_extra_state_shared_building_slots = 2
+- Desc: Changes the number of shared building slots for the current state.
+- Since: 1.0
+
+## add_building_construction
+- Params: type = <string> The building to add. level = <int> / <variable> The level to set the building to. instant_build = <bool> Defines whether the buildings are instantly built. province = <id> Defines the exact province to add provincal buildings in. Can be used as a scope. Province scope all_provinces = <bool> Affect all provinces within the state that meet each limit. Used in the province scope. id = <id> Affect the specified province ID. Used in the province scope, will apply for each province if inserted multiple times. limit_to_coastal = <bool> Affect only coastal provinces within the selection. Used in the province scope. limit_to_naval_base = <bool> Affect only provinces that have naval bases built. Used in the province scope. limit_to_border = <bool> Affect only provinces that lie on a border between countries. Used in the province scope. limit_to_border_country = <country> Affect only provinces that border a specific other country. Used in the province scope. limit_to_victory_point = <int>/<bool> Affect only provinces that meet the victory point amount prerequisite. If yes is used in place of a number, any amount of victory points works. Used in the province scope. limit_to_supply_node = <bool> Affect only provinces that have a supply node. Used in the province scope. level = <int> Affect only provinces with buildings level below, at or above the specified level. Used in the province scope.
+- Example: add_building_construction = { type = arms_factory level = 5 instant_build = yes }
+- Desc: Starts construction in the current state for the specified building.
+- Since: 1.0
+
+## set_building_level
+- Params: type = <string> The building to add. level = <int> / <variable> The level to set the building to. instant_build = <bool> Defines whether the buildings are instantly built. province = <id> Defines the exact province to add provincal buildings in. Can be used as a scope. Province scope all_provinces = <bool> Affect all provinces within the state that meet each limit. Used in the province scope. id = <id> Affect the specified province ID. Used in the province scope, will apply for each province if inserted multiple times. limit_to_coastal = <bool> Affect only coastal provinces within the selection. Used in the province scope. limit_to_naval_base = <bool> Affect only provinces that have naval bases built. Used in the province scope. limit_to_border = <bool> Affect only provinces that lie on a border between countries. Used in the province scope. limit_to_border_country = <country> Affect only provinces that border a specific other country. Used in the province scope. limit_to_victory_point = <int>/<bool> Affect only provinces that meet the victory point amount prerequisite. If yes is used in place of a number, any amount of victory points works. Used in the province scope. limit_to_supply_node = <bool> Affect only provinces that have a supply node. Used in the province scope. level = <int> Affect only provinces with buildings level below, at or above the specified level. Used in the province scope.
+- Example: set_building_level = { type = infrastructure level = 10 instant_build = yes }
+- Desc: Sets the specified building to the current state (or provinces within the state).
+- Since: 1.4
+
+## damage_building
+- Params: type = <building> The building to damage. tags = <building_tag> The buildings with this tag to damage. tags = { <building_tag> } The buildings with these tags to damage. repair_speed_modifier = <float> Repair will be x% slower until building is fully repaired damage = <float> The amount of damage to inflict. province = <id> / <variable> The province to target for provincal buildings.
+- Example: damage_building = { type = infrastructure damage = 1 }
+- Desc: Damages a building in a targeted state or province.
+- Since: 1.3
+
+## remove_building
+- Params: type = <building> The building to remove. tag = <building_tag> The buildings with this tag to remove. tag = { <building_tag> } The buildings with these tags to remove. level = <int> / <variable> The levels to remove.
+- Example: remove_building = { type = arms_factory level = 5 }
+- Desc: Removes the specified building in the current state. For shared buildings level determines the amount, whereas for the others it is the actual level.
+- Since: 1.0
+
+## construct_building_in_random_province
+- Params: <building> = <int> Building to build.
+- Example: 65 = { construct_building_in_random_province = { land_facility = 1 } }
+- Desc: Set building level in a random province of state scope.
+- Since: 1.15

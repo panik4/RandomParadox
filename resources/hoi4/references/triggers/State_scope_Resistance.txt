@@ -1,0 +1,62 @@
+# State_scope_Resistance
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## compliance
+- Params: <int> The amount to compare with.
+- Example: compliance > 50
+- Desc: Compares the compliance value of the current scope with the given value.
+- Since: 1.9
+
+## compliance_speed
+- Params: <int> The amount to compare with.
+- Example: compliance_speed > 50
+- Desc: Compares the compliance speed of the current scope with the given value.
+- Since: 1.9
+
+## has_active_resistance
+- Params: <bool> Boolean.
+- Example: has_active_resistance = yes
+- Desc: Checks if the current scope has non-zero resistance.
+- Since: 1.9
+
+## has_resistance
+- Params: <bool> Boolean.
+- Example: has_resistance = yes
+- Desc: Checks if the current scope has resistance.
+- Since: 1.9
+
+## resistance
+- Params: <int> The amount to compare with.
+- Example: resistance > 50
+- Desc: Compares the resistance value of the current scope with the given value.
+- Since: 1.9
+
+## resistance_speed
+- Params: <int> The amount to compare with.
+- Example: resistance_speed > 50
+- Desc: Compares the resistance speed of the current scope with the given value.
+- Since: 1.9
+
+## resistance_target
+- Params: <int> The amount to compare with.
+- Example: resistance_target > 50
+- Desc: Compares the target resistance value of the current scope with the given value.
+- Since: 1.9
+
+## has_occupation_modifier
+- Params: <token> The occupation modifier to check.
+- Example: has_occupation_modifier = modifier_name
+- Desc: Checks if the current scope has an occupation modifier, changing resistance/compliance.
+- Since: 1.9
+
+## occupation_law
+- Params: <token> The occupation law to check.
+- Example: occupation_law = law_name
+- Desc: Checks if the current scope has an occupation law.
+- Since: 1.9
+
+## occupied_country_tag
+- Params: <tag> The occupation tag to check.
+- Example: occupied_country_tag = POL
+- Desc: Checks which country creates resistance.
+- Since: 1.9

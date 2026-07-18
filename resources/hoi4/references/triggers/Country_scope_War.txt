@@ -1,0 +1,182 @@
+# Country_scope_War
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## has_war
+- Params: <bool> Boolean.
+- Example: has_war = yes
+- Desc: Checks if the current scope is at war.
+- Since: 1.0
+
+## has_war_with
+- Params: <scope> / <variable> The country to check for.
+- Example: has_war_with = GER
+- Desc: Checks if the current scope is at war with the specified country.
+- Since: 1.0
+
+## has_offensive_war_with
+- Params: <scope> / <variable> The country to check for.
+- Example: has_offensive_war_with = GER
+- Desc: Checks if the current scope is in an offensive war against the specified country.
+- Since: 1.0
+
+## has_offensive_war_without_friend
+- Params: <scope> / <variable> The country to check for.
+- Example: has_offensive_war_without_friend = GER
+- Desc: Is country at offensive war without specific ally present.
+- Since: 1.17
+
+## has_defensive_war_with
+- Params: <scope> / <variable> The country to check for.
+- Example: has_defensive_war_with = GER
+- Desc: Checks if the current scope is in an defensive war against the specified country.
+- Since: 1.0
+
+## has_offensive_war
+- Params: <bool> Boolean.
+- Example: has_offensive_war = yes
+- Desc: Checks if the current scope is in an offensive war.
+- Since: 1.0
+
+## has_defensive_war
+- Params: <bool> Boolean.
+- Example: has_defensive_war = yes
+- Desc: Checks if the current scope is in a defensive war.
+- Since: 1.0
+
+## has_war_together_with
+- Params: <scope> / <variable> The country to check for.
+- Example: has_war_together_with = GER
+- Desc: Checks if the current scope is in a war alongside the specified country.
+- Since: 1.0
+
+## has_war_with_major
+- Params: <bool> Boolean.
+- Example: has_war_with_major = yes
+- Desc: Checks if the current scope is at war with any other country that is considered major.
+- Since: 1.12
+
+## has_war_with_wargoal_against
+- Params: target = <scope> / <variable> The country to check for. type = <wargoal> The wargoal to check for. Optional.
+- Example: has_war_with_wargoal_against = { target = ENG type = independence_wargoal }
+- Desc: Checks if the current scope is at war with the specified country with the specified wargoal being active.
+- Since: 1.12
+
+## surrender_progress
+- Params: <float> / <variable> The amount to check for.
+- Example: surrender_progress > 0.1
+- Desc: Checks if the current scope has the specified amount of surrender progress.
+- Since: 1.0
+
+## any_war_score
+- Params: <float> The amount to check for.
+- Example: any_war_score > 10
+- Desc: Highest warscore value can be approximated by interating a variable by 1 for as long as any_war_score is greater than the variable. Checking with less than appears broken as a warscore of 0 is sometimes erroneously reported.
+- Since: 1.0
+
+## has_capitulated
+- Params: <bool> Boolean.
+- Example: has_capitulated = yes
+- Desc: Checks if the current scope has capitulated.
+- Since: 1.0
+
+## days_since_capitulated
+- Params: <int> Amount of days.
+- Example: days_since_capitulated > 10
+- Desc: Checks the amount of days since the target last capitulated.
+- Since: 1.9
+
+## has_border_war_with
+- Params: <scope> / <variable> The country to check for.
+- Example: has_border_war_with = GER
+- Desc: Checks if the current scope has a border war with the specified country.
+- Since: 1.5
+
+## has_border_war_between
+- Params: attacker = <scope> / <variable> The state to check for. defender = <scope> / <variable> The state to check for.
+- Example: has_border_war_between = { attacker = 1 defender = 2 }
+- Desc: Checks if there is a border war between the two specified states.
+- Since: 1.5
+
+## has_border_war
+- Params: <bool> Boolean.
+- Example: has_border_war = yes
+- Desc: Checks if the current scope has a border war active.
+- Since: 1.5
+
+## has_added_tension_amount
+- Params: <float> / <variable> The amount to check for.
+- Example: has_added_tension_amount > 10
+- Desc: Checks if the current scope has caused the specified amount of World Tension.
+- Since: 1.0
+
+## has_wargoal_against
+- Params: <scope> / <variable> The country to check for.
+- Example: has_wargoal_against = GER
+- Desc: Checks if the current scope has any wargoal against the specified country.
+- Since: 1.0
+
+## has_wargoal_against
+- Params: target = <scope> / <variable> The country to check for. type = <string> The type of wargoal to check for.
+- Example: has_wargoal_against = { target = FROM type = take_state }
+- Desc: Checks if the current scope has a specific wargoal type against the specified country.
+- Since: 1.8
+
+## is_justifying_wargoal_against
+- Params: <scope> / <variable> The country to check for.
+- Example: is_justifying_wargoal_against = GER
+- Desc: Checks if the current scope is justifying a wargoal against the specified country.
+- Since: 1.0
+
+## has_annex_war_goal
+- Params: <scope> / <variable> The country to check for.
+- Example: has_annex_war_goal = GER
+- Desc: Checks if the current scope has the Annex wargoal against the specified country.
+- Since: 1.0
+
+## any_claim
+- Params: <bool> Boolean.
+- Example: any_claim = yes
+- Desc: Will return true if Is (manually) justifying on another country Is being (manually) justified on Has wargoal on another country Another country has wargoal on the current country
+- Since: 1.0
+
+## is_in_peace_conference
+- Params: <bool> Boolean.
+- Example: is_in_peace_conference = yes
+- Desc: Checks if the current scope is in a peace conference.
+- Since: 1.0
+
+## controls_province
+- Params: <id> The province to check for.
+- Example: controls_province = 1239
+- Desc: Checks if the current scope has control of the specified province.
+- Since: 1.9
+
+## longest_war_length
+- Params: <int> Amount of months.
+- Example: longest_war_length > 3
+- Desc: Checks how long a country has been at war, in months.
+- Since: 1.14
+
+## war_length_with
+- Params: tag = <scope> / <variable> Target country. months = <int> Amounth of months.
+- Example: war_length_with = { tag = GER months > 3 }
+- Desc: Checks how long a country has been at war with specific country, in months.
+- Since: 1.14
+
+## has_truce_with
+- Params: <scope> / <variable> The country to check for.
+- Example: has_truce_with = GER
+- Desc: Checks if the country has truce with the specified country.
+- Since: 1.16
+
+## has_naval_control
+- Params: <id> / <variable> The region to check in.
+- Example: has_naval_control = 16
+- Desc: Checks if friendly nations and country scope together has enough naval dominance to assert control in strategic region.
+- Since: 1.17
+
+## has_enemy_naval_control
+- Params: <id> / <variable> The region to check in.
+- Example: has_enemy_naval_control = 16
+- Desc: Checks if any enemy has enough naval dominance to assert control in certain strategic region.
+- Since: 1.17

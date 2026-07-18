@@ -1,0 +1,26 @@
+# Any_scope_Border_Wars
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## start_border_war
+- Params: change_state_after_war = <bool> Whether the state changes hands after the war. Attacker or Defender scope state = <id> / <variable> The state the side is fighting on. num_provinces = <id> The number of provinces used in the state. on_win = <id> The event to fire for the side on a win. on_lose = <id> The event to fire for the side on a loss. on_cancel = <id> The event to fire for the side on a draw. modifier = <decimal> The modifier on combat. Defaults to 0. dig_in_factor = <decimal> The modifier applied to dig-in bonuses. Defaults to 1. terrain_factor = <decimal> The modifier applied to terrain bonuses. Defaults to 1.
+- Example: start_border_war = { change_state_after_war = no attacker = { state = 527 num_provinces = 4 on_win = japan_border_conflict.2 on_lose = japan_border_conflict.3 on_cancel = japan_border_conflict.4 modifier = 0.1 dig_in_factor = 0 terrain_factor = 0 } defender = { state = 408 num_provinces = 4 on_win = japan_border_conflict.3 on_lose = japan_border_conflict.2 on_cancel = japan_border_conflict.4 } }
+- Desc: Starts a border war for the specified attacker and defender. The participating countries are the owners of the specified states.
+- Since: 1.5
+
+## set_border_war_data
+- Params: attacker = <id> / <variable> The attacker state. defender = <id> / <variable> The defender state. attacker_modifier = <id> / <variable> The modifier applied to attacker strength. defender_modifier = <id> / <variable> The modifier applied to attacker strength. combat_width = <id> / <variable> The combat width used in the border war battle.
+- Example: set_border_war_data = { attacker = 527 defender = 408 defender_modifier = 0.15 combat_width = 100 }
+- Desc: Sets the bonuses or penalties for the attacker and defender in an on-going border war. Used after start_border_war.
+- Since: 1.5
+
+## cancel_border_war
+- Params: attacker = <id> / <variable> The attacker state. defender = <id> / <variable> The defender state. dont_fire_events = <bool> Stops the events from start_border_war from firing.
+- Example: cancel_border_war = { dont_fire_events = yes defender = 408 attacker = 527 }
+- Desc: Cancels an on-going border war without a winner.
+- Since: 1.5
+
+## finalize_border_war
+- Params: attacker = <id> / <variable> The attacker state. defender = <id> / <variable> The defender state. attacker_win = <bool> Makes the attacker the winner. defender_win = <bool> Makes the defender the winner.
+- Example: finalize_border_war = { attacker_win = yes attacker = 527 defender = 408 }
+- Desc: Ends an on-going border war.
+- Since: 1.5

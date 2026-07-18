@@ -1,0 +1,44 @@
+# Country_scope_Resources
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_resource
+- Params: type = <resource> The resource to add. amount = <int> The amount of resource to add. state = <id>Which state to add the resource to. Variables can be used. show_state_in_tooltip = <bool> Whether the state should be shown in the tooltip. Defaults to true.
+- Example: add_resource = { type = oil amount = 50 state = 88 }
+- Desc: Adds the specified resource in the specified amount to the specified state.
+- Since: 1.0
+
+## create_import
+- Params: resource = <resource> The resource to import. amount = <int> The amount of resource to import. exporter = <id>Which country exports the resource.
+- Example: create_import = { resource = steel amount = 100 exporter = GER }
+- Desc: Creates an import for the current scope with the specified resource and from the specified exporter.
+- Since: 1.0
+
+## give_resource_rights
+- Params: receiver = <tag> The country that would get the resource rights. state = <state> The state where the resource rights are located. resources = { <resource> <...> <resource> } The resources to which give resource rights to. Optional, defaults to all.
+- Example: give_resource_rights = { receiver = ENG state = 291 }
+- Desc: Gives all the resources of a state to the target country
+- Since: 1.6
+
+## remove_resource_rights
+- Params: <state> The state to remove current country's resource rights from.
+- Example: ENG = { remove_resource_rights = 477 }
+- Desc: Removes given resource rights
+- Since: 1.6
+
+## add_fuel
+- Params: <int> The fuel amount
+- Example: add_fuel = 400
+- Desc: Adds fuel to the current country.
+- Since: 1.6
+
+## set_fuel
+- Params: <int> Fuel amount.
+- Example: set_fuel = 400
+- Desc: Sets country's current fuel amount.
+- Since: 1.6
+
+## set_fuel_ratio
+- Params: <decimal> The needed ratio of fuel.
+- Example: set_fuel_ratio = 0.5
+- Desc: Set country's current fuel ratio relative to its capacity.
+- Since: 1.6

@@ -1,0 +1,48 @@
+﻿# Flow_control
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## instantiate_collaboration_government
+- Params: Country
+- Example: instantiate_collaboration_government = yes
+- Desc: Creates a collaboration government, with the current scope as overlord.
+
+## add_potential_special_forces_tree
+- Params: Country
+- Example: add_potential_special_forces_tree = yes
+- Desc: Adds 1 special forces branch specialism
+
+## upgrade_economy_law
+- Params: Country
+- Example: upgrade_economy_law = yes
+- Desc: Switches the economy law one level towards total mobilisation.
+
+## gain_random_agency_upgrade
+- Params: Country
+- Example: gain_random_agency_upgrade = yes
+- Desc: Grants a random available intelligence agency upgrade.
+
+## add_ruling_to_dem
+- Params: Country
+- Example: add_ruling_to_dem = yes
+- Desc: All of the ruling party's popularity gets added to the Democratic ideology group.
+
+## remove_any_country_role_from_character
+- Params: Character
+- Example: remove_any_country_role_from_character = yes
+- Desc: Removes all advisor roles from the current scope.
+
+## increase_state_category
+- Params: State
+- Example: increase_state_category = yes
+- Desc: Changes the state category to the next one that contains more building slots.
+
+## lerp
+- Params: Any
+- Example: lerp = yes
+- Desc: Creates the lerp_result regular variable with r e s u l t := a + ( b &#x2212; a ) &#x22C5; x {\displaystyle result:=a+(b-a)\cdot x}
+
+## store_core_states_on_game_start
+- Params: Country
+- Example: store_core_states_on_game_start = yes
+- Desc: Stores the current core states of the current scope in an array in ROOT's scope.
+

@@ -1,0 +1,50 @@
+# Country_scope_Decisions
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## activate_decision
+- Params: <decision> The decision to activate.
+- Example: activate_decision = my_decision
+- Desc: Activates the specified decision for the current scope, ignoring triggers for the decision.
+- Since: 1.0
+
+## activate_targeted_decision
+- Params: target = <country> The country to target. decision = <decision> The decision to activate.
+- Example: activate_targeted_decision = { target = GER decision = my_decision }
+- Desc: Activates the specified targeted decision for the specified target for the current scope.
+- Since: 1.5
+
+## remove_targeted_decision
+- Params: <decision> The decision to remove.
+- Example: remove_targeted_decision = { target = FROM decision = my_decision }
+- Desc: Removes the specified targeted decision for the current scope.
+- Since: 1.5
+
+## unlock_decision_tooltip
+- Params: <decision> The decision to display. <show_effect_tooltip> Show decision effects (default is no) <show_modifiers> Show decision modifiers. (default is no)
+- Example: unlock_decision_tooltip = my_decision
+- Desc: Displays a special tooltip for the specified decision in the effect tooltip.
+- Since: 1.5
+
+## unlock_decision_category_tooltip
+- Params: <category> The decision category to display.
+- Example: unlock_decision_category_tooltip = my_category
+- Desc: Displays a special tooltip for the specified decision category in the effect tooltip.
+- Since: 1.5
+
+## add_days_remove
+- Params: decision = <decision> The decision to add days to. days = <int> The number of days to add to the decision.
+- Example: add_days_remove = { decision = decision_here days = 30 }
+- Desc: Adds the number of days to the timer created by a decision's days_remove. Does not work with variables.
+- Since: 1.9
+
+## remove_decision
+- Params: Allows to remove specified decision without running remove_effect.
+- Example: remove_decision = GER_MEPO
+- Desc: Removes a decision.
+- Since: 1.6
+
+## remove_decision_on_cooldown
+- Params: <decision> The decision that is to be removed.
+- Example: remove_decision_on_cooldown = TAG_my_decision
+- Desc: If the decision is on cooldown, it gets removed, in order to reactivate or remove completely.
+- Since: 1.11

@@ -1,0 +1,278 @@
+# Country_scope_Military
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## has_army_experience
+- Params: <float> / <variable> The amount to check for.
+- Example: has_army_experience > 10
+- Desc: Checks if the current scope has the specified amount of Army experience.
+- Since: 1.3
+
+## has_air_experience
+- Params: <float> / <variable> The amount to check for.
+- Example: has_air_experience > 10
+- Desc: Checks if the current scope has the specified amount of Air experience.
+- Since: 1.3
+
+## has_navy_experience
+- Params: <float> / <variable> The amount to check for.
+- Example: has_navy_experience < 10
+- Desc: Checks if the current scope has the specified amount of Navy experience.
+- Since: 1.3
+
+## has_manpower
+- Params: <float> / <variable> The amount to check for.
+- Example: has_manpower > 1000
+- Desc: Checks if the current scope has the specified amount of manpower.
+- Since: 1.0
+
+## has_army_manpower
+- Params: size = <int> The amount to check for.
+- Example: has_army_manpower = { size > 1000 }
+- Desc: Checks if the current scope has an army using the specified amount of manpower.
+- Since: 1.0
+
+## manpower_per_military_factory
+- Params: <float> The amount to check for.
+- Example: manpower_per_military_factory > 1000
+- Desc: Checks if the current scope has the specified manpower times their number of military factories.
+- Since: 1.0
+
+## conscription_ratio
+- Params: <float> / <variable> The ratio to compare with.
+- Example: conscription_ratio < 0.2
+- Desc: Checks if the current scope has the specified conscription ratio currently, not to be mixed up with the target conscription ratio.
+- Since: 1.9
+
+## current_conscription_amount
+- Params: <float> / <variable> The amount to compare with.
+- Example: current_conscription_amount > 2000
+- Desc: Checks if the current scope has already conscripted that much manpower.
+- Since: 1.9
+
+## target_conscription_amount
+- Params: <float> / <variable> The amount to compare with.
+- Example: target_conscription_amount > 2000
+- Desc: Checks if the current scope is targeting to conscript that much manpower.
+- Since: 1.9
+
+## num_divisions
+- Params: <int> The amount to check for.
+- Example: num_divisions > 5
+- Desc: Checks if the current scope has the specified amount of divisions.
+- Since: 1.3
+
+## num_of_nukes
+- Params: <int> The amount to check for.
+- Example: num_of_nukes > 5
+- Desc: Checks if the current scope has the specified amount of nukes.
+- Since: 1.0
+
+## casualties
+- Params: <int> The amount to check for.
+- Example: casualties > 10000
+- Desc: Checks if the current scope has suffered the specified amount of casualties.
+- Since: 1.0
+
+## casualties_k
+- Params: <int> The amount to check for.
+- Example: casualties_k > 10
+- Desc: Checks if the current scope has suffered the specified amount of casualties in thousands.
+- Since: 1.0
+
+## casualties_inflicted_by
+- Params: opponent = <tag> The tag that inflicted the casualties. thousands <> <int> The amount of casualties in thousands.
+- Example: casualties_inflicted_by = { opponent = POL thousands > 10 }
+- Desc: Checks if the current scope has suffered the specified amount of casualties in thousands from a specific country.
+- Since: 1.6
+
+## amount_manpower_in_deployment_queue
+- Params: <float> The amount to check for.
+- Example: amount_manpower_in_deployment_queue > 1000
+- Desc: Checks if the current scope has the specified amount of manpower in their deployment queue.
+- Since: 1.5
+
+## has_attache_from
+- Params: <scope> / <variable> The country to check for.
+- Example: has_attache_from = GER
+- Desc: Checks if the current scope has an attache from the specified scope.
+- Since: 1.5
+
+## has_attache
+- Params: <bool> Boolean.
+- Example: has_attache = yes
+- Desc: Checks if the current scope has an attache.
+- Since: 1.5
+
+## is_lend_leasing
+- Params: <scope> / <variable> The country to check for.
+- Example: is_lend_leasing = GER
+- Desc: Checks if the current scope is lend leasing to the specified scope.
+- Since: 1.0
+
+## has_template
+- Params: <string> The name of the template.
+- Example: has_template = "Infantry Division"
+- Desc: Checks if the current scope has a division template of the specified name.
+- Since: 1.0
+
+## has_template_majority_unit
+- Params: <string> The unit to check for.
+- Example: has_template_majority_unit = infantry
+- Desc: Checks if the current scope has a division template composed mostly of the specified unit.
+- Since: 1.0
+
+## has_template_containing_unit
+- Params: <string> The name of the unit.
+- Example: has_template_containing_unit = light_armor
+- Desc: Checks if the current scope has a division template contained any of the specified unit.
+- Since: 1.0
+
+## strength_ratio
+- Params: tag = <scope> The country to check for. ratio <> <float> The ratio to check for.
+- Example: strength_ratio = { tag = GER ratio > 1 }
+- Desc: Checks if the current scope has the specified strength ratio against the specified country. The ratio is the number of fielded divisions of the current scope divided by those of tag (or 1 if tag has no divisions). The ratio gets increased by 10% if the current scope has a stronger air forces.[2]
+- Since: 1.0
+
+## fighting_army_strength_ratio
+- Params: tag = <scope> The country to check for. ratio <>= <float> / <variable> The ratio to check for.
+- Example: fighting_army_strength_ratio = { tag = GER ratio > 0.7 }
+- Desc: Compares the total army fighting strength between the scope country and the one set with 'tag'.
+- Since: 1.15
+
+## naval_strength_ratio
+- Params: tag = <scope> The country to check for. ratio <> <float> The ratio to check for.
+- Example: naval_strength_ratio = { tag = GER ratio <> 1 }
+- Desc: Checks if the current scope has the specified naval strength ratio against the specified country.
+- Since: 1.0
+
+## naval_strength_comparison
+- Params: other = <scope> The country to check for. tooltip = <string> The ratio to check for. Optional. ratio <> <float> The ratio to check for. sub_unit_def_weights = { ... } The weight to assign to each unit. Optional.
+- Example: naval_strength_comparison = { other = POL tooltip = my_loc_key_tt ratio > 1 sub_unit_def_weights = { carrier = 1 submarine = 2 } }
+- Desc: Checks if the current scope has the specified naval strength ratio against the specified country.
+- Since: 1.6
+
+## alliance_strength_ratio
+- Params: <float> / <variable> The ratio to check for.
+- Example: alliance_strength_ratio > 0.5
+- Desc: Checks if the current scope and allies has an army strength higher than the specified ratio against estimated enemy strength.
+- Since: 1.0
+
+## alliance_naval_strength_ratio
+- Params: <float> / <variable> The ratio to check for.
+- Example: alliance_naval_strength_ratio > 0.5
+- Desc: Checks if the current scope and allies has an naval strength ratio higher than the specified ratio against estimated enemy strength.
+- Since: 1.0
+
+## enemies_strength_ratio
+- Params: <float> / <variable> The ratio to check for.
+- Example: enemies_strength_ratio > 0.5
+- Desc: Checks if the estimated enemy army strength ratio is higher than the specified ratio.
+- Since: 1.0
+
+## enemies_naval_strength_ratio
+- Params: <float> / <variable> The ratio to check for.
+- Example: enemies_naval_strength_ratio > 0.5
+- Desc: Checks if the estimated enemy naval strength ratio is higher than the specified ratio.
+- Since: 1.0
+
+## has_army_size
+- Params: size = <float> The amount to check for. type = <string> The battalion type to check for. Divisions that are majority made up of battalions in that type count. Optional, counts all divisions by default.
+- Example: has_army_size = { size > 10 type = armor }
+- Desc: Checks if the current scope has the specified number of divisions, or of a specified type of division.
+- Since: 1.0
+
+## has_navy_size
+- Params: size = <float> / <variable> The amount to check for. type = <string> The type to check for. Optional. archetype = <string> The ship archetype to check for. Optional.
+- Example: has_navy_size = { size > 10 type = capital_ship archetype = ship_hull_heavy }
+- Desc: Checks if the current scope has the specified number of ships, or of a specified type of ship.
+- Since: 1.0
+
+## has_deployed_air_force_size
+- Params: size = <float> The amount to check for. type = <string> The type to check for. Optional.
+- Example: has_deployed_air_force_size = { size > 10 type = cas }
+- Desc: Checks if the current scope has the specified number of aircraft, or of a specified type of aircraft.
+- Since: 1.0
+
+## divisions_in_state
+- Params: size = <float> The amount to check for. type = <string> The battalion type to check for. Divisions that are majority made up of battalions in that type count. Optional, counts all divisions by default. unit = <string> The exact battalion to check for. Divisions that are majority made up of that battalions count. Optional, counts all divisions by default. state = <scope> / <variable> The state to check in.
+- Example: divisions_in_state = { type = armor size > 10 state = 49 }
+- Desc: Checks if the specified state contains the specified amount of divisions.
+- Since: 1.0
+
+## army_manpower_in_state
+- Params: amount <> <float> The amount to check for. type = <string> The type to check for. Optional. state = <scope> / <variable> The state to check in.
+- Example: army_manpower_in_state = { type = support amount > 10000 state = 49 }
+- Desc: Checks if the specified state contains the specified amount of army manpower within the state.
+- Since: 1.6
+
+## divisions_in_border_state
+- Params: size = <float> The amount to check for. type = <string> The battalion type to check for. Divisions that are majority made up of battalions in that type count. Optional, counts all divisions by default. state = <scope> / <variable> The state to check in. border_state = <scope> / <variable> The border state to check in.
+- Example: divisions_in_border_state = { type = infantry size > 10 state = 49 border_state = var:state }
+- Desc: Checks if the border provinces between the specified state and border state contain the specified amount of divisions.
+- Since: 1.5
+
+## num_divisions_in_states
+- Params: count = <int> The amount to check for. states = { <int> <...> <int> } The states to check in. types = { <string> <...> <string> } The battalion types to check for. Divisions that are majority made up of battalions in that type count. Optional, counts all divisions by default. exclude = { <string> <...> <string> } The sub-units to exclude from the search. Divisions that are majority made up of specified battalions are excluded. Optional, excludes no divisions by default.
+- Example: num_divisions_in_states = { count > 24 states = { 550 559 271 } exclude = { irregular_infantry } }
+- Desc: Checks if the specified states contain enough divisions of the specified types.
+- Since: 1.12
+
+## num_battalions_in_states
+- Params: count = <int> The amount to check for. states = { <int> <...> <int> } The states to check in. types = { <string> <...> <string> } The battalion types to check for. exclude = { <string> <...> <string> } The sub-units to exclude from the search.
+- Example: num_battalions_in_states = { count > 24 states = { 550 559 271 } exclude = { irregular_infantry } }
+- Desc: Checks if the specified states contain enough battalions (or sub-units) of the specified types.
+- Since: 1.12
+
+## ships_in_state_ports
+- Params: size = <float> The amount to check for. type = <string> The type to check for. Optional. state = <scope> / <variable> The state to check in.
+- Example: ships_in_state_ports = { type = capital_ship size > 10 state = 49 }
+- Desc: Checks if the specified state contains the specified amount of ships, or of ships of the specified type.
+- Since: 1.0
+
+## num_planes_stationed_in_regions
+- Params: value = <float> The amount to check for. regions = { <id> <...> <id> } The regions to check in.
+- Example: num_planes_stationed_in_regions = { value > 10 regions = { 123 321 } }
+- Desc: Checks if the current scope has the specified number of aircraft stationed within strategic regions.
+- Since: 1.12
+
+## has_volunteers_amount_from
+- Params: tag = <scope> The country to check for. count = <int> The amount to check for.
+- Example: has_volunteers_amount_from = { tag = GER count > 10 }
+- Desc: Checks if the current scope has recieved volunteers from the specified country of the specified amounts.
+- Since: 1.0
+
+## convoy_threat
+- Params: <float> The threat to compate with.
+- Example: convoy_threat > 0.5
+- Desc: Checks how much the convoys are threatened.
+- Since: 1.6
+
+## has_mined
+- Params: target = <tag> The country the coast of which is mined. value <> <int> The amount of mines to compare with.
+- Example: has_mined = { target = POL value > 1000 }
+- Desc: Checks if the current scope has X mines on the coast of the specified country.
+- Since: 1.6
+
+## has_mines
+- Params: region = <ID> The strategic region that contains the mines. amount = <int> The amount of mines to compare with.
+- Example: has_mined = { target = POL amount = 1000 }
+- Desc: Checks if the current scope has at least X mines within the specified strategic region.
+- Since: 1.6
+
+## mine_threat
+- Params: <float> The threat to compate with.
+- Example: mine_threat < 0.6
+- Desc: Checks how dangerous enemy mines are.
+- Since: 1.6
+
+## has_military_industrial_organization
+- Params: <token> The id to check for.
+- Example: has_military_industrial_organization = infantry_mio_token
+- Desc: Checks if the current scope has a MIO with the specified name.
+- Since: 1.13
+
+## has_tactic
+- Params: <tactic> The tactic to check for.
+- Example: has_tactic = tactic_masterful_blitz
+- Desc: Check if the given tactic is unlocked (or active by default) for the country.
+- Since: 1.17

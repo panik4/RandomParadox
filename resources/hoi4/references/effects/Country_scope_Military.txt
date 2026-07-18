@@ -1,0 +1,44 @@
+# Country_scope_Military
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## destroy_ships
+- Params: type = <ship> The type of ship to destroy. count = <int> or all The amount to destroy.
+- Example: destroy_ships = { type = destroyer count = all }
+- Desc: Destroys the specified type and amount of ships controlled by the current scope.
+- Since: 1.5
+
+## transfer_navy
+- Params: target = <country> The target country.
+- Example: transfer_navy = { target = GER }
+- Desc: Transfers the current scope navy to the specified country.
+- Since: 1.5
+
+## transfer_ship
+- Params: type = <ship> The type of ship to transfer. target = <country> The target country. prefer_name = <string> Name of ship in origin navy that will preferably be transferred to target navy. Optional. exclude_refitting = <bool> Determines whether ships that are being refitted will be transferred. Optional.
+- Example: transfer_ship = { prefer_name = "HMS Achilles" type = light_cruiser target = NZL exclude_refitting = no }
+- Desc: Transfers the specified type of ship from the current scope to the specified country.
+- Since: 1.4
+
+## create_ship
+- Params: type = <ship> The type of ship to create. equipment_variant = <string> The equipment variant to use. creator = <country> The country that created this ship. Optional. name = <string> Name of the ship. Optional. amount = <int> The amount of ships to create. Optional, defaults to 1.
+- Example: FRA = { create_ship = { type = ship_hull_submarine_1 equipment_variant = "S Class" creator = ENG name = "My ship name" } }
+- Desc: Create a ship from another country and assign it to the reserve fleet. If not set, it will be the scoped country.
+- Since: 1.9
+
+## add_mines
+- Params: Add mines to a strategic region for the current country.
+- Example: add_mines = { region = 42 amount = 100 }
+- Desc: Add mines to a strategic region.
+- Since: 1.6
+
+## add_ace
+- Params: name = <string> The name of the ace. surname = <string> The surname of the ace. callsign = <string> The callsign of the ace. type = <type> The ace type. is_female = <bool> The gender of the ace.
+- Example: add_ace = { name = "Amelia" surname = "Earhart" callsign = "Revenant" type = fighter_genius is_female = yes }
+- Desc: Adds an ace for the current scope.
+- Since: 1.0
+
+## unlock_tactic
+- Params: <string> Tactic to unlock.
+- Example: unlock_tactic = tactic_masterful_blitz
+- Desc: Unlocks the specified combat tactic for the country.
+- Since: 1.17

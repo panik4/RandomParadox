@@ -1,6 +1,7 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "parsing/ParserUtils.h"
+#include "utils/Archive.h"
 #include <string>
 #include <vector>
 enum class GameType { Generic, Hoi4, Vic3, Eu4, Eu5 };
@@ -13,6 +14,14 @@ struct Pathcfg {
   std::string mappingPath;
   // optional for every game
   std::string gameSubPath = "";
+
+  void serialise(Fwg::Utils::Serialisation::Archive &ar) {
+    ar &modName &gamePath &gameModPath &gameModsDirectory &mappingPath
+        &gameSubPath;
+  }
+  void deserialise(Fwg::Utils::Serialisation::Archive &ar) {
+    serialise(ar);
+  }
 };
 
 // replace slash type and append slashes

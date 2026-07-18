@@ -1,0 +1,8 @@
+# State_scope_Raids
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## raid_reduce_project_progress_ratio
+- Params: <float> Value to reduce.
+- Example: raid_reduce_project_progress_ratio = 0.1
+- Desc: Reduce progress to the special project in state. Root scope is raid instance scope. The input value is a ratio of the total needed progress to complete the special project, i.e. a decimal number between 0 and 1.
+- Since: 1.15

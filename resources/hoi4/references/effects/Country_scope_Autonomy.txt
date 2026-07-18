@@ -1,0 +1,32 @@
+# Country_scope_Autonomy
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## puppet
+- Params: <country> The target country. OR target = <country> The target country. end_wars = <bool> Whether the target country will peace out in all of its non-civil wars it's participating in. Defaults to true. end_civil_wars = <bool> Whether the target country will peace out in all of its civil wars it's participating in. Defaults to true.
+- Example: puppet = GER
+- Desc: Makes the specified country a subject of the current scope.
+- Since: 1.0
+
+## end_puppet
+- Params: <country> The target country.
+- Example: end_puppet = GER
+- Desc: Removes the subject status between the target and the current scope.
+- Since: 1.0
+
+## add_autonomy_ratio
+- Params: value = <float> The freedom score to add. localization = <string> The localization key for the modifier.
+- Example: add_autonomy_ratio = { value = 0.1 localization = AST_adopt_westminster }
+- Desc: Adds a freedom score ratio modifier to the current scope.
+- Since: 1.3
+
+## add_autonomy_score
+- Params: value = <float> The freedom score to add. localization = <string> The localization key for the modifier.
+- Example: add_autonomy_score = { value = 10 localization = EXAMPLE }
+- Desc: Adds an exact freedom score modifier to the current scope.
+- Since: 1.3
+
+## set_autonomy
+- Params: target = <country> / <variable> The subject country. autonomous_state = <type> The type of autonomy state to set. freedom_level = <float> The new freedom level value. Optional. end_wars = <yes/no> Will end any wars the subject is involved in. end_civil_wars = <yes/no> Will end any civil wars the subject is subject to
+- Example: set_autonomy = { target = AST autonomous_state = autonomy_free end_wars = no end_civil_wars = no }
+- Desc: Sets the autonomy level for the specified country, including independence.
+- Since: 1.3

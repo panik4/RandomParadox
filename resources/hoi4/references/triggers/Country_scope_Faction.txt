@@ -1,0 +1,134 @@
+# Country_scope_Faction
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## is_in_faction
+- Params: <bool> Boolean.
+- Example: is_in_faction = yes
+- Desc: Checks if the current scope is in a faction.
+- Since: 1.0
+
+## is_in_faction_with
+- Params: <scope> / <variable> The country to check for.
+- Example: is_in_faction_with = GER
+- Desc: Checks if the current scope is in a faction with the specified country.
+- Since: 1.0
+
+## is_faction_leader
+- Params: <bool> Boolean.
+- Example: is_faction_leader = yes
+- Desc: Checks if the current scope is the leader of a faction.
+- Since: 1.0
+
+## num_faction_members
+- Params: <int> / <variable> The amount to check for.
+- Example: num_faction_members > 1
+- Desc: Checks if the faction of the current scope has the specified amount of members.
+- Since: 1.0
+
+## has_manpower_to_become_leader
+- Params: <bool> Boolean
+- Example: has_manpower_to_become_leader = yes
+- Desc: Checks if the current country exceeds the current faction leader and its subjects in deployed manpower.
+- Since: 1.17
+
+## has_industry_to_become_leader
+- Params: <bool> Boolean
+- Example: has_industry_to_become_leader = yes
+- Desc: Checks if the current country exceeds the faction leader in number of factories.
+- Since: 1.17
+
+## has_enough_influence_for_leadership
+- Params: <bool> Boolean
+- Example: has_enough_influence_for_leadership = yes
+- Desc: Checks if the current country has enough political influence to become faction leader.
+- Since: 1.17
+
+## has_faction_template
+- Params: <template_id> Faction template id.
+- Example: has_faction_template = faction_template_chinese_united_front
+- Desc: Checks if the current country is in a faction with a template.
+- Since: 1.17
+
+## has_active_rule
+- Params: <rule_id> Faction rule id.
+- Example: has_active_rule = government_in_exile_allowed
+- Desc: Checks if the country's faction has a specific active rule.
+- Since: 1.17
+
+## has_faction_goal
+- Params: <goal_id> Faction goal id.
+- Example: has_faction_goal = faction_goal_resource_control
+- Desc: Checks if the country's faction has an active or completed goal.
+- Since: 1.17
+
+## has_completed_faction_goal
+- Params: <goal_id> Faction goal id.
+- Example: has_completed_faction_goal = faction_goal_resource_control
+- Desc: Checks if the country's faction has successfully completed a goal.
+- Since: 1.17
+
+## faction_goal_fulfillment
+- Params: goal = <goal_id> Faction goal id. value = <float> / <variable> The amount to check for.
+- Example: faction_goal_fulfillment = { goal = faction_goal_resource_control value > 0.85 }
+- Desc: Checks fulfillment of a faction goal for the current country's faction.
+- Since: 1.17
+
+## faction_manifest_fulfillment
+- Params: <float> / <variable> The amount to check for.
+- Example: faction_manifest_fulfillment > 0.95
+- Desc: Checks manifest fulfillment value of current country's faction manifest.
+- Since: 1.17
+
+## faction_upgrade_level
+- Params: <upgrade_token> Faction upgrade token.
+- Example: faction_upgrade_level > upgrade_token
+- Desc: Checks the active faction member upgrade against the specified upgrade.
+- Since: 1.17
+
+## faction_power_projection
+- Params: <int> / <variable> The amount to check for.
+- Example: faction_power_projection > 100
+- Desc: Checks power value of current country's faction projection.
+- Since: 1.17
+
+## faction_influence_rank
+- Params: <int> / <variable> The amount to check for.
+- Example: faction_influence_rank < 5
+- Desc: Checks influence rank in the faction of the current country.
+- Since: 1.17
+
+## faction_influence_ratio
+- Params: <float> / <variable> The amount to check for.
+- Example: faction_influence_ratio > 0.1
+- Desc: Checks influence ratio of current country in the faction.
+- Since: 1.17
+
+## faction_influence_score
+- Params: <int> / <variable> The amount to check for.
+- Example: faction_influence_score > 100
+- Desc: Checks influence value of current country in the faction.
+- Since: 1.17
+
+## can_assign_supportive_scientist_to_faction
+- Params: <specialization> Specialization.
+- Example: can_assign_supportive_scientist_to_faction = specialization_land
+- Desc: Checks if the faction from the country in scope has a free slot for a supportive scientist for the country with the specialization type.
+- Since: 1.17
+
+## has_faction_research_unlocked
+- Params: <bool> Boolean.
+- Example: has_faction_research_unlocked = yes
+- Desc: Whether the faction has unlocked the research.
+- Since: 1.17
+
+## has_faction_military_unlocked
+- Params: <bool> Boolean.
+- Example: has_faction_military_unlocked = yes
+- Desc: Whether the faction has unlocked the military operations.
+- Since: 1.17
+
+## compare_ideology_with_faction
+- Params: value = <float> / <variable> The amount to check for. leader = <tag> Country to check.
+- Example: compare_ideology_with_faction = { value > 0.5 leader = FROM }
+- Desc: Compares the ideology support of the country's ruling party for the ideology of the faction it wants to join.
+- Since: 1.17

@@ -1,0 +1,140 @@
+# Character_scope_Unit_Leaders
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## has_unit_leader_flag
+- Params: <string> The flag to check for.
+- Example: has_unit_leader_flag = my_flag
+- Desc: Checks if the current scope has the specified flag.
+- Since: 1.5
+
+## has_unit_leader_flag
+- Params: flag = <string> The flag to check. value = <int> The flag value to check for. Optional. date = <date> The flag creation date to check for. Optional. days = <int> The duration the flag existed for. Optional.
+- Example: has_unit_leader_flag = { flag = my_flag days > 30 date > 1936.6.1 value > 0 }
+- Desc: Compares the specified flag's last set date, days since last set, and/or value.
+- Since: 1.5
+
+## is_leading_army
+- Params: <bool> Boolean.
+- Example: is_leading_army = yes
+- Desc: Checks if the current scope is leading a single army.
+- Since: 1.5
+
+## is_leading_army_group
+- Params: <bool> Boolean.
+- Example: is_leading_army_group = yes
+- Desc: Checks if the current scope is leading an army group.
+- Since: 1.5
+
+## is_leading_volunteer_group
+- Params: <tag> Country tag.
+- Example: is_leading_volunteer_group = POL
+- Desc: Checks if the current scope is leading a volunteer army within the specified country.
+- Since: 1.11
+
+## is_leading_volunteer_group_with_original_country
+- Params: <tag> Country tag.
+- Example: is_leading_volunteer_group_with_original_country = POL
+- Desc: Checks if the current scope is leading a volunteer army within a country of the specified original tag.
+- Since: 1.11
+
+## is_field_marshal
+- Params: <bool> Boolean.
+- Example: is_field_marshal = yes
+- Desc: Checks if the current scope is a Field Marshal.
+- Since: 1.5
+
+## is_assigned
+- Params: <bool> Boolean.
+- Example: is_assigned = yes
+- Desc: Checks if the current scope is an assigned unit leader.
+- Since: 1.5
+
+## can_select_trait
+- Params: <string> The trait to check for.
+- Example: can_select_trait = offensive_doctrine
+- Desc: Checks if the current scope can select the specified trait.
+- Since: 1.5
+
+## has_ability
+- Params: <string> The ability to check for.
+- Example: has_ability = glider_planes
+- Desc: Checks if the current scope has the specified unit leader ability.
+- Since: 1.5
+
+## skill
+- Params: <int> The amount to check for.
+- Example: skill > 1
+- Desc: Checks if the current scope has a Skill above the specified amount.
+- Since: 1.5
+
+## skill_advantage
+- Params: <int> The amount to check for.
+- Example: skill_advantage > 1
+- Desc: Checks if the current scope has a Skill advantage above the specified amount in against an enemy unit leader whilst in combat.
+- Since: 1.5
+
+## planning_skill_level
+- Params: <int> The amount to check for.
+- Example: planning_skill_level > 1
+- Desc: Checks if the current scope has a Planning skill above the specified amount.
+- Since: 1.5
+
+## logistics_skill_level
+- Params: <int> The amount to check for.
+- Example: logistics_skill_level > 1
+- Desc: Checks if the current scope has a Logistics skill above the specified amount.
+- Since: 1.5
+
+## defense_skill_level
+- Params: <int> The amount to check for.
+- Example: defense_skill_level > 1
+- Desc: Checks if the current scope has a Defense skill above the specified amount.
+- Since: 1.5
+
+## attack_skill_level
+- Params: <int> The amount to check for.
+- Example: attack_skill_level > 1
+- Desc: Checks if the current scope has a Attack skill above the specified amount.
+- Since: 1.5
+
+## average_stats
+- Params: <int> The amount to check for.
+- Example: average_stats > 5
+- Desc: Checks if the current scope has an average skill above the specified amount.
+- Since: 1.5
+
+## is_border_war
+- Params: <bool> Boolean.
+- Example: is_border_war = yes
+- Desc: Checks if the current socpe is in a border war.
+- Since: 1.5
+
+## num_units
+- Params: <int> The amount to check for.
+- Example: num_units > 5
+- Desc: Checks if the current scope is commanding the specified amount of divisions.
+- Since: 1.5
+
+## is_exiled_leader
+- Params: <bool> Boolean.
+- Example: is_exiled_leader = yes
+- Desc: Checks if the current scope is a general from an exiled country.
+- Since: 1.6
+
+## is_exiled_leader_from
+- Params: <tag> Country.
+- Example: is_exiled_leader_from = POL
+- Desc: Checks if the current scope is a general from the specified exiled country.
+- Since: 1.6
+
+## is_female
+- Params: <bool> Boolean.
+- Example: is_female = yes
+- Desc: Checks if the current scope is female.
+- Since: 1.9
+
+## is_leading_army_in_province
+- Params: <province id>
+- Example: is_leading_army_in_province = 1234
+- Desc: Checks if the current unit leader is leading an army that has any division in a specific province
+- Since: 1.17

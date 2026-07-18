@@ -1,0 +1,20 @@
+# Character_scope_Scientists
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## has_scientist_level
+- Params: level = <int> Level to check. specialization = <specialization_token> Specialization.
+- Example: has_scientist_level = { level > 2 specialization = specialization_nuclear }
+- Desc: Checks if the scientist of the character in scope matches the skill level condition for a specialization. Supports < > = operators.
+- Since: 1.15
+
+## is_active_scientist
+- Params: <bool>
+- Example: is_scientist_active = yes
+- Desc: Checks if the scientist of the character in scope is assigned to a project.
+- Since: 1.15
+
+## is_scientist_injured
+- Params: <bool>
+- Example: is_scientist_injured = yes
+- Desc: Checks if the scientist of the character in scope is injured.
+- Since: 1.15

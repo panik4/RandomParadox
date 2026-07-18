@@ -1,0 +1,8 @@
+# Special_Projects
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## has_project_flag
+- Params: <string> The flag to check for. OR flag = <string> The flag to check. value = <int> The flag value to check for. Optional. date = <date> The flag creation date to check for. Optional. days = <int> The duration the flag existed for. Optional.
+- Example: has_project_flag = my_flag
+- Desc: Check if flag has been set within the special project in scope. May checks on the value or date/days since last modified date.
+- Since: 1.15

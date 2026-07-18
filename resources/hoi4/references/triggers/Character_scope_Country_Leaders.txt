@@ -1,0 +1,14 @@
+# Character_scope_Country_Leaders
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## has_ideology
+- Params: <ideology> The sub-ideology to check for.
+- Example: has_ideology = liberalism
+- Desc: Checks if the current character has the specificed sub-ideology assigned.
+- Since: 1.11
+
+## has_ideology_group
+- Params: <ideology> The ideology to check for.
+- Example: has_ideology_group = democratic
+- Desc: Checks if the current character has the specificed ideology assigned.
+- Since: 1.11

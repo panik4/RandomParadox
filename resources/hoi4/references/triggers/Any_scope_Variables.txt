@@ -1,0 +1,14 @@
+# Any_scope_Variables
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## has_variable
+- Params: <variable> The variable to check.
+- Example: has_variable = my_var
+- Desc: Checks if the specified variable exists for the current scope.
+- Since: 1.5
+
+## check_variable
+- Params: var = <variable> The variable to check. value = <float> / <variable> The value to check for. compare = <type> The type of comparison. Optional, can use < or > instead.
+- Example: check_variable = { var = my_var value = 10 compare = greater_than_or_equals }
+- Desc: Check the specified variable for the current scope.
+- Since: 1.5

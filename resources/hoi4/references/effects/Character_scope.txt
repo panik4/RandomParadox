@@ -1,0 +1,362 @@
+# Character_scope
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## set_character_flag
+- Params: <flag> An unique string to identify the character flag with. OR flag = <flag> The flag to set. days = <int> Sets the flag to last for the specified amount of days. Optional. value = <int> The new value of the flag on the scale from -2 147 483 648 to 2 147 483 647.
+- Example: set_character_flag = my_flag
+- Desc: Defines a character flag.
+- Since: 1.11
+
+## set_character_name
+- Params: <localisation key> The name to use.
+- Example: set_character_name = GER_my_cool_flag
+- Desc: Changes the character's name to the specified localisation key's value.
+- Since: 1.11
+
+## modify_character_flag
+- Params: flag = <flag> The flag to modify. value = <value> The value to add to the flag. Defaults to 0. days = <int> The amount of days that the flag should last for before being cleared. Optional, defaults to permanent.
+- Example: modify_character_flag = { flag = my_flag value = 3 }
+- Desc: Adds an integer value to a flag.
+- Since: 1.11
+
+## clr_character_flag
+- Params: 
+- Example: clr_character_flag = <bool>
+- Desc: Clears a character flag
+- Since: 1.11
+
+## retire
+- Params: <bool> Boolean>
+- Example: retire = yes
+- Desc: Retires the current character (removing them).
+- Since: 1.5
+
+## set_nationality
+- Params: <country> / <variable> The target country.
+- Example: set_nationality = GER
+- Desc: Switches the current character to the specified country, giving them the character.
+- Since: 1.5
+
+## set_portraits
+- Params: character = <character> The character name. Optional if in character scope. Army scope: small = <sprite> The sprite used as an advisor. large = <sprite> The sprite used as a general. Character scope:large = <sprite> The sprite used as a country leader.
+- Example: set_portraits = { character = my_character army = { small ="MySmallCharacterGFX" } civilian = { large ="MyLargeCharacterGFX" } }
+- Desc: Changes the specified portraits of a character.
+- Since: 1.11
+
+## add_trait
+- Params: slot = <slot> Slot of the character. Necessary for advisors. ideology = <sub-ideology> Ideology type of the character. Necessary for country leaders. trait = <trait> The trait to add.
+- Example: add_trait = { slot = political_advisor trait = really_good_boss }
+- Desc: Adds the specified country leader trait to the character.
+- Since: 1.11
+
+## remove_trait
+- Params: slot = <slot> Slot of the character. Necessary for advisors. ideology = <sub-ideology> Ideology type of the character. Necessary for country leaders. trait = <trait> The trait to remove.
+- Example: remove_trait = { slot = political_advisor trait = really_good_boss }
+- Desc: Removes the specified trait from the character.
+- Since: 1.11
+
+## add_corps_commander_role
+- Params: <...> Army leader role definition
+- Example: add_corps_commander_role = { skill = 4 attack_skill = 2 defense_skill = 3 planning_skill = 3 logistics_skill = 5 }
+- Desc: Sets the specified character to also act as a corps commander.
+- Since: 1.11
+
+## add_field_marshal_role
+- Params: <...> Army leader role definition
+- Example: add_field_marshal_role = { skill = 4 attack_skill = 2 defense_skill = 3 planning_skill = 3 logistics_skill = 5 }
+- Desc: Sets the specified character to also act as a field marshal.
+- Since: 1.11
+
+## add_naval_commander_role
+- Params: <...> Navy leader role definition
+- Example: add_naval_commander_role = { skill = 4 attack_skill = 2 defense_skill = 3 planning_skill = 3 logistics_skill = 5 }
+- Desc: Sets the specified character to also act as an admiral.
+- Since: 1.11
+
+## add_country_leader_role
+- Params: character = <character> The character to modify. country_leader = { ... } Country leader role definition promote_leader = <bool> Will promote the leader to be the leader of the assigned party. Optional, defaults to false.
+- Example: add_country_leader_role = { character = GER_character_token promote_leader = yes country_leader = { ideology = fascism_type expire = "1965.1.1.1" traits = { war_industrialist } } }
+- Desc: Sets the specified character to also act as a country leader, promoting to the party leader if specified.
+- Since: 1.11
+
+## promote_character
+- Params: <bool> Boolean. OR <ideology type> The ideology type used by the country leader role.
+- Example: promote_character = yes
+- Desc: Promotes a character to the leader of their political party.
+- Since: 1.11
+
+## remove_country_leader_role
+- Params: ideology = <string> The ideology type of the character.
+- Example: remove_country_leader_role = { ideology = socialism }
+- Desc: Removes a country leader role from a character.
+- Since: 1.11
+
+## add_advisor_role
+- Params: advisor = { ... } Advisor role definition activate = <bool> Will activate the advisor (add them directly when the command is run to the countries government). Optional, defaults to false.
+- Example: add_advisor_role = { activate = yes advisor = { slot = air_chief cost = 50 idea_token = GER_character_token_air_chief traits = { air_chief_ground_support_2 } } }
+- Desc: Sets the specified character to also act as an advisor, activating if specified.
+- Since: 1.11
+
+## remove_advisor_role
+- Params: slot = <int> The slot where to remove the advisor slot from.
+- Example: remove_advisor_role = { slot = political_advisor }
+- Desc: Removes the specified advisor role from the character.
+- Since: 1.11
+
+## add_scientist_role
+- Params: <...> Scientist role definition
+- Example: add_scientist_role = { scientist = { desc = desc_loc_key traits = { scientist_trait_token ... } skills = { specialization_token = 2 ... } } }
+- Desc: Adds the scientist role to a character.
+- Since: 1.15
+
+## remove_scientist_role
+- Params: <bool>
+- Example: remove_scientist_role = yes
+- Desc: Remove the scientist role from a character.
+- Since: 1.15
+
+## add_scientist_level
+- Params: level = <int> / <variable> Level to add. specialization = <specialization> Specialization to add.
+- Example: add_scientist_level = { level = 2 specialization = specialization_nuclear }
+- Desc: Add levels to a special project specialization for a scientist character in scope.
+- Since: 1.15
+
+## injure_scientist_for_days
+- Params: <int> / <variable> Amount of days to apply injure.
+- Example: injure_scientist_for_days = 12
+- Desc: Injure a scientist for x amount of days to a scientist character in scope.
+- Since: 1.15
+
+## add_scientist_trait
+- Params: <trait> Trait to add.
+- Example: add_scientist_trait = my_trait_token
+- Desc: Add a trait to a scientist character in scope.
+- Since: 1.15
+
+## add_scientist_xp
+- Params: experience = <int> / <variable> Expierience to add. specialization = <specialization> Specialization to add.
+- Example: add_scientist_xp = { experience = 2 specialization = specialization_nuclear }
+- Desc: Add experience to a special project specialization for a scientist character in scope.
+- Since: 1.15
+
+## set_can_be_fired_in_advisor_role
+- Params: slot = <slot> The slot of the character to modify. value = <bool> The value to set.
+- Example: set_can_be_fired_in_advisor_role = { slot = political_advisor value = no }
+- Desc: Changes the can_be_fired attribute of the advisor, preventing the player from dismissing the advisor.
+- Since: 1.12.8
+
+## unit_leader_event
+- Params: id = <event> The event to fire. days = <int> / <variable> Fires the event in the specified number of days. Optional. hours = <int> / <variable> Fires the event in the specified number of hours. Optional. random = <int> / <variable> Adds a random number (between 0 and random, inclusive) of hours to the scheduled fire time. Optional. random_days = <int> / <variable> Adds a random number (between 0 and random_days, inclusive) of days to the scheduled fire time. Optional.
+- Example: unit_leader_event = { id = my_event.1 days = 10 random = 50 random_days = 10 }
+- Desc: Fires the specified event for the owner of the current unit leader.
+- Since: 1.5
+
+## set_unit_leader_flag
+- Params: <flag> An unique string to identify the unit leader flag with.
+- Example: set_unit_leader_flag = my_flag
+- Desc: Defines a unit leader flag.
+- Since: 1.5
+
+## clr_unit_leader_flag
+- Params: <flag> The unique string of a unit leader flag to clear.
+- Example: clr_unit_leader_flag = my_flag
+- Desc: Clears a defined unit leader flag.
+- Since: 1.5
+
+## modify_unit_leader_flag
+- Params: flag = <flag> The flag to modify. value = <value> The value to add to the flag. Defaults to 0. days = <int> The amount of days that the flag should last for before being cleared. Optional, defaults to permanent.
+- Example: modify_unit_leader_flag = { flag = my_flag value = 3 }
+- Desc: Adds an integer value to a flag.
+- Since: 1.5
+
+## promote_leader
+- Params: <bool> Boolean
+- Example: promote_leader = yes
+- Desc: Promotes the current unit leader to Field Marshal (if Commander).
+- Since: 1.5
+
+## demote_leader
+- Params: <bool> Boolean
+- Example: demote_leader = yes
+- Desc: Demotes the current unit leader to Commander (if Field Marshal).
+- Since: 1.5
+
+## add_unit_leader_trait
+- Params: <trait> The trait to add.
+- Example: add_unit_leader_trait = old_guard
+- Desc: Adds the specified trait to the current unit leader.
+- Since: 1.0
+
+## remove_unit_leader_trait
+- Params: <trait> The trait to remove.
+- Example: remove_unit_leader_trait = old_guard
+- Desc: Removes the specified trait from the current unit leader.
+- Since: 1.0
+
+## add_random_trait
+- Params: <trait> The trait to add.
+- Example: add_random_trait = { old_guard brilliant_strategist inflexible_strategist }
+- Desc: Adds a random trait from the list to the character.
+- Since: 1.5
+
+## add_timed_unit_leader_trait
+- Params: <trait> The trait to add. days = <int> The duration of the trait.
+- Example: add_timed_unit_leader_trait = { trait = wounded days = 90 }
+- Desc: Adds the specified trait to the current unit leader for the specified duration.
+- Since: 1.5
+
+## replace_unit_leader_trait
+- Params: trait = <trait> The trait to replace. replace = <trait> The new trait to add.
+- Example: replace_unit_leader_trait = { trait = old_guard replace = brilliant_strategist }
+- Desc: Replaces the specified trait with the new trait.
+- Since: 1.5
+
+## remove_exile_tag
+- Params: Remove the exile tag on an army leader, making them no longer be considered exile leaders.
+- Example: remove_exile_tag = yes
+- Desc: Removes a leaders exile tag.
+- Since: 1.6
+
+## gain_xp
+- Params: <int>
+- Example: gain_xp = 5
+- Desc: Adds experience to the current unit leader, promoting to the next skill level if applicable.
+- Since: 1.9
+
+## remove_unit_leader
+- Params: <bool>
+- Example: remove_unit_leader = yes
+- Desc: Removes the current unit leader.
+- Since: 1.0
+
+## remove_unit_leader_role
+- Params: <bool> Boolean.
+- Example: remove_unit_leader_role = yes
+- Desc: Removes every unit leader role from the character
+- Since: 1.11
+
+## add_country_leader_trait
+- Params: <trait> The trait to add. OR: ideology = <sub-ideology> The sub-ideology of the country leader role to which the trait is added. trait = <trait> The trait to add.
+- Example: add_country_leader_trait = nationalist_symbol
+- Desc: Adds the specified trait to the current character.
+- Since: 1.11
+
+## remove_country_leader_trait
+- Params: <trait> The trait to remove. OR: ideology = <sub-ideology> The sub-ideology of the country leader role to which the trait is added. trait = <trait> The trait to remove.
+- Example: remove_country_leader_trait = nationalist_symbol
+- Desc: Removes the specified trait from the current character.
+- Since: 1.11
+
+## swap_country_leader_traits
+- Params: remove = <trait> Trait to remove add = <trait> Trait to add ideology = <sub-ideology> Sub-ideology of the leader where to swap traits.
+- Example: swap_country_leader_traits = { remove = nationalist_symbol add = anti_communist ideology = marxism }
+- Desc: Swaps traits of the current character.
+- Since: 1.11
+
+## supply_units
+- Params: <int> / <variable> The amount of hours of supply.
+- Example: supply_units = 24
+- Desc: Adds the specified amount of hours of supply to troops led by the current unit leader.
+- Since: 1.5
+
+## add_max_trait
+- Params: <int> The amount to add.
+- Example: add_max_trait = 1
+- Desc: Adds the specified amount of assignable trait slots to the current unit leader.
+- Since: 1.5
+
+## add_skill_level
+- Params: <int> The skill to add.
+- Example: add_skill_level = 1
+- Desc: Adds skill to the current unit leader.
+- Since: 1.5
+
+## add_logistics
+- Params: <int> How many skill levels to add.
+- Example: add_logistics = 1
+- Desc: Adds logistics skill to the current unit leader.
+- Since: 1.5
+
+## add_planning
+- Params: <int> How many skill levels to add.
+- Example: add_planning = 1
+- Desc: Adds planning skill to the current unit leader.
+- Since: 1.5
+
+## add_defense
+- Params: <int> How many skill levels to add.
+- Example: add_defense = 1
+- Desc: Adds defense skill to the current unit leader.
+- Since: 1.5
+
+## add_attack
+- Params: <int> How many skill levels to add.
+- Example: add_attack = 1
+- Desc: Adds attack skill to the current unit leader.
+- Since: 1.5
+
+## add_coordination
+- Params: <int> How many skill levels to add.
+- Example: add_coordination = 1
+- Desc: Adds coordination skill to the current navy leader.
+- Since: 1.5
+
+## add_maneuver
+- Params: <int> How many skill levels to add.
+- Example: add_maneuver = 1
+- Desc: Adds maneuver skill to the current navy leader.
+- Since: 1.5
+
+## add_temporary_buff_to_units
+- Params: combat_offense = <float> The bonus to grant. Optional. combat_breakthrough = <float> The bonus to grant. Optional. combat_defense = <float> The bonus to grant. Optional. combat_entrenchment = <float> The bonus to grant. Optional. org_damage_multiplier = <float> The bonus to grant. Optional. str_damage_multiplier = <float> The bonus to grant. Optional. war_support_reduction_on_damage = <float> The bonus to grant. Optional. cannot_retreat_while_attacking = <float> The bonus to grant. Optional. cannot_retreat_while_defending = <float> The bonus to grant. Optional. days = <int> The duration of the buff. Optional. tooltip = <string> The tooltip to display for the buff.
+- Example: add_temporary_buff_to_units = { combat_offense = 0.25 combat_breakthrough = 0.25 org_damage_multiplier = -1.0 str_damage_multiplier = 0.25 war_support_reduction_on_damage = 0.2 cannot_retreat_while_attacking = 1.0 days = 7 tooltip = ABILITY_FORCE_ATTACK_TOOLTIP }
+- Desc: Adds the specified combat buff to the current unit leader.
+- Since: 1.5
+
+## add_nationality
+- Params: <tag> The country to set the nationality to.
+- Example: add_nationality = GER
+- Desc: Adds the nationality to the current operative.
+- Since: 1.9
+
+## capture_operative
+- Params: captured_by = <tag> By which country to get captured. ignore_death_chance = <bool> Whether to ignore the death chance on capture (no by default).
+- Example: capture_operative = { captured_by = POL ignore_death_chance = yes }
+- Desc: Makes the current operative be captured by a specific country.
+- Since: 1.9
+
+## force_operative_leader_into_hiding
+- Params: <bool>
+- Example: force_operative_leader_into_hiding = yes
+- Desc: Forces the current operative into hiding.
+- Since: 1.9
+
+## free_operative
+- Params: captured_by = <tag> The country that captured the operative.
+- Example: free_operative = { captured_by = POL }
+- Desc: Frees the current operative.
+- Since: 1.9
+
+## harm_operative_leader
+- Params: <int> How much to harm the operative.
+- Example: harm_operative_leader = 12
+- Desc: Harms the current operative.
+- Since: 1.9
+
+## kill_operative
+- Params: killed_by = <tag> The country that'll kill the operative.
+- Example: kill_operative = { killed_by = POL }
+- Desc: Kills the current operative.
+- Since: 1.9
+
+## turn_operative
+- Params: turned_by = <tag> The country to which the operative defects.
+- Example: turn_operative = { turned_by = PREV }
+- Desc: Turns the current operative against their own country, transferring them to the specified country.
+- Since: 1.9
+
+## operative_leader_event
+- Params: id = <event> The event to fire. days = <int> / <variable> Fires the event in the specified number of days. Optional. hours = <int> / <variable> Fires the event in the specified number of hours. Optional. random = <int> / <variable> Adds a random number (between 0 and random, inclusive) of hours to the scheduled fire time. Optional. random_days = <int> / <variable> Adds a random number (between 0 and random_days, inclusive) of days to the scheduled fire time. Optional. originator = <tag> The originator of the event. Optional, defaults to owner of operative. recipient = <tag> The recipient of the event. Optional, defaults to owner of operative. set_from = <tag> Sets the scope of FROM in scripted localization. Optional. set_from_from = <tag> Sets the scope of FROM.FROM in scripted localization. Optional. set_root = <tag> Sets the scope of ROOT in scripted localization. Optional.
+- Example: operative_leader_event = { id = my_event.1 originator = POL recipient = GER days = 10 random = 50 random_days = 10 set_from = ENG set_root = SOV set_from_from = FRA }
+- Desc: Fires the specified event for the operative.
+- Since: 1.9

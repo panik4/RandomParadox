@@ -1,0 +1,146 @@
+# MIO_scope
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_mio_funds
+- Params: <int> Funds to add.
+- Example: add_mio_funds = 1000
+- Desc: Adds funds to the MIO.
+- Since: 1.13
+
+## set_mio_funds
+- Params: <int> Amount to set.
+- Example: set_mio_funds = 1000
+- Desc: Sets the funds of a MIO to the certain level.
+- Since: 1.13
+
+## add_mio_funds_gain_factor
+- Params: <decimal> Amount to add.
+- Example: add_mio_funds_gain_factor = 0.1
+- Desc: Changes the base multiplier to MIO's funds.
+- Since: 1.13
+
+## set_mio_funds_gain_factor
+- Params: <decimal> Amount to set.
+- Example: set_mio_funds = 0.1
+- Desc: Changes the base multiplier to MIO's funds.
+- Since: 1.13
+
+## add_mio_size
+- Params: <int> Amount to add.
+- Example: add_mio_size = 2
+- Desc: Adds sizes to the MIO.
+- Since: 1.13
+
+## add_mio_size_up_requirement_factor
+- Params: <decimal> Amount to add.
+- Example: add_mio_size_up_requirement_factor = 0.1
+- Desc: Changes the base multiplier to the requirement to size up a MIO.
+- Since: 1.13
+
+## set_mio_size_up_requirement_factor
+- Params: <decimal> Amount to set.
+- Example: set_mio_size_up_requirement_factor = 0.1
+- Desc: Changes the base multiplier to the requirement to size up a MIO.
+- Since: 1.13
+
+## add_mio_task_capacity
+- Params: <int> Amount to add.
+- Example: add_mio_task_capacity = 2
+- Desc: Changes the base maximum task capacity of the MIO.
+- Since: 1.13
+
+## set_mio_task_capacity
+- Params: <int> Amount to set.
+- Example: set_mio_task_capacity = 2
+- Desc: Changes the base maximum task capacity of the MIO.
+- Since: 1.13
+
+## add_mio_research_bonus
+- Params: <decimal> Amount to add.
+- Example: add_mio_research_bonus = 0.3
+- Desc: Changes the base research bonus of the MIO.
+- Since: 1.13
+
+## set_mio_research_bonus
+- Params: <decimal> Amount to set.
+- Example: set_mio_research_bonus = 0.3
+- Desc: Changes the base research bonus of the MIO.
+- Since: 1.13
+
+## set_mio_name_key
+- Params: <localisation key> The new name.
+- Example: set_mio_name_key = mio_new_name
+- Desc: Changes the name of the MIO.
+- Since: 1.13
+
+## set_mio_icon
+- Params: <sprite> The new sprite.
+- Example: set_mio_icon = GFX_new_mio_icon
+- Desc: Changes the MIO's icon.
+- Since: 1.13
+
+## add_mio_design_team_assign_cost
+- Params: <decimal> Amount to add.
+- Example: add_mio_design_team_assign_cost = 0.3
+- Desc: Changes the base political power cost of the MIO to assign research.
+- Since: 1.13
+
+## set_mio_design_team_assign_cost
+- Params: <decimal> Amount to set.
+- Example: set_mio_design_team_assign_cost = 0.3
+- Desc: Changes the base political power cost of the MIO to assign research.
+- Since: 1.13
+
+## add_mio_industrial_manufacturer_assign_cost
+- Params: <decimal> Amount to add.
+- Example: add_mio_industrial_manufacturer_assign_cost = 0.3
+- Desc: Changes the base political power cost of the MIO to assign production lines.
+- Since: 1.13
+
+## set_mio_industrial_manufacturer_assign_cost
+- Params: <decimal> Amount to set.
+- Example: set_mio_industrial_manufacturer_assign_cost = 0.3
+- Desc: Changes the base political power cost of the MIO to assign production lines.
+- Since: 1.13
+
+## add_mio_design_team_change_cost
+- Params: <decimal> Amount to add.
+- Example: add_mio_design_team_change_cost = 0.3
+- Desc: Changes the base experience cost of the MIO to assign to equipment by a percentage.
+- Since: 1.13
+
+## set_mio_design_team_change_cost
+- Params: <decimal> Amount to set.
+- Example: set_mio_design_team_change_cost = 0.3
+- Desc: Changes the base experience cost of the MIO to assign to equipment by a percentage.
+- Since: 1.13
+
+## unlock_mio_trait_tooltip
+- Params: <trait> Trait to display. OR trait = <trait> Trait to display. show_modifiers = <bool> Whether the trait's modifiers should be shown in the tooltip. Defaults to true.
+- Example: unlock_mio_trait_tooltip = my_trait_1
+- Desc: Displays a tooltip that says that the trait is made available.
+- Since: 1.13
+
+## complete_mio_trait
+- Params: <trait> Trait to complete. OR trait = <trait> Trait to complete. show_modifiers = <bool> Whether the trait's modifiers should be shown in the tooltip. Defaults to true.
+- Example: complete_mio_trait = my_trait_1
+- Desc: Completes the specified MIO trait.
+- Since: 1.13
+
+## set_mio_flag
+- Params: <flag> An unique string to identify the MIO flag with. OR flag = <flag> The flag to set. days = <int> Sets the flag to last for the specified amount of days. Optional. value = <int> The new value of the flag on the scale from -2 147 483 648 to 2 147 483 647.
+- Example: set_mio_flag = my_flag
+- Desc: Defines a MIO flag.
+- Since: 1.13
+
+## clr_mio_flag
+- Params: <flag> The unique string of a country flag to clear.
+- Example: clr_mio_flag = my_flag
+- Desc: Clears a defined MIO flag.
+- Since: 1.13
+
+## modify_mio_flag
+- Params: flag = <flag> The flag to modify. value = <value> The value to add to the flag. Defaults to 0. days = <int> The amount of days that the flag should last for before being cleared. Optional, defaults to permanent.
+- Example: modify_mio_flag = { flag = my_flag value = 3 }
+- Desc: Adds an integer value to a flag.
+- Since: 1.13

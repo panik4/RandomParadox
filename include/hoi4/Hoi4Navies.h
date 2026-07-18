@@ -1,6 +1,7 @@
 #pragma once
 #include "hoi4/Hoi4Region.h"
 #include "hoi4/Hoi4Tech.h"
+#include "utils/Archive.h"
 #include <array>
 #include <map>
 #include <string>
@@ -83,17 +84,38 @@ struct ShipClass {
   // if we take some of the modules from the next era, and for vanilla how many
   // upgrades have happened. Range between 0.0 and 1.0
   double upgradeLevel = 0.0;
+
+  void serialise(Fwg::Utils::Serialisation::Archive &ar) {
+    ar.serialiseEnum(type);
+    ar.serialiseEnum(era);
+    ar &name &tonnage &vanillaShipType &mtgHullname;
+    ar &mtgModules &upgradeLevel;
+  }
+  void deserialise(Fwg::Utils::Serialisation::Archive &ar) { serialise(ar); }
 };
 
 struct Ship {
   ShipClass shipClass;
   std::string name;
+
+  void serialise(Fwg::Utils::Serialisation::Archive &ar) {
+    shipClass.serialise(ar);
+    ar &name;
+  }
+  void deserialise(Fwg::Utils::Serialisation::Archive &ar) { serialise(ar); }
 };
 
 struct Fleet {
   std::string name;
   std::shared_ptr<Arda::ArdaProvince> startingPort;
   std::vector<std::shared_ptr<Ship>> ships;
+
+  void serialise(Fwg::Utils::Serialisation::Archive &ar) {
+    ar &name;
+    ar.polymorphicPtr(startingPort);
+    ar.ptrVector(ships);
+  }
+  void deserialise(Fwg::Utils::Serialisation::Archive &ar) { serialise(ar); }
 };
 
 void addShipClassModules(

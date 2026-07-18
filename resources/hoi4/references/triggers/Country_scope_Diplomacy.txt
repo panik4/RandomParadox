@@ -1,0 +1,194 @@
+# Country_scope_Diplomacy
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## is_major
+- Params: <bool> Boolean.
+- Example: is_major = yes
+- Desc: Checks if the current scope is considered a Major.
+- Since: 1.0
+
+## is_ally_with
+- Params: <scope> / <variable> The country to check for.
+- Example: is_ally_with = GER
+- Desc: Checks if the current scope is an ally (Faction members or subject-master relation).
+- Since: 1.0
+
+## is_spymaster
+- Params: <bool> Boolean.
+- Example: is_spymaster = yes
+- Desc: Checks if the current scope is the spymaster of a faction.
+- Since: 1.9
+
+## has_non_aggression_pact_with
+- Params: <scope> / <variable> The country to check for.
+- Example: has_non_aggression_pact_with = GER
+- Desc: Checks if the current scope has a non-aggression pact with the specified country.
+- Since: 1.0
+
+## is_guaranteed_by
+- Params: <scope> / <variable> The country to check for.
+- Example: is_guaranteed_by = GER
+- Desc: Checks if the current scope has been guaranteed by the specified country.
+- Since: 1.0
+
+## has_guaranteed
+- Params: <scope> / <variable> The country to check for.
+- Example: has_guaranteed = GER
+- Desc: Checks if the current scope has guaranteed the specified country.
+- Since: 1.0
+
+## has_military_access_to
+- Params: <scope> / <variable> The country to check for.
+- Example: has_military_access_to = GER
+- Desc: Checks if the current scope has military access to the specified country.
+- Since: 1.0
+
+## gives_military_access_to
+- Params: <scope> / <variable> The country to check for.
+- Example: gives_military_access_to = GER
+- Desc: Checks if the current scope gives military to the specified country.
+- Since: 1.0
+
+## is_neighbor_of
+- Params: <scope> / <variable> The country to check for.
+- Example: is_neighbor_of = GER
+- Desc: Checks if the current scope is a neighbor of the specified country.
+- Since: 1.0
+
+## is_owner_neighbor_of
+- Params: <scope> / <variable> The country to check for.
+- Example: is_owner_neighbor_of = GER
+- Desc: Checks if the current scope is a neighbor of the specified country with their core territory only.
+- Since: 1.0
+
+## is_puppet_of
+- Params: <scope> / <variable> The country to check for.
+- Example: is_puppet_of = GER
+- Desc: Checks if the current scope is a puppet of the specified country.
+- Since: 1.0
+
+## is_subject_of
+- Params: <scope> / <variable> The country to check for.
+- Example: is_subject_of = GER
+- Desc: Checks if the current scope is a subject of the specified scope.
+- Since: 1.0
+
+## is_puppet
+- Params: <bool> Boolean.
+- Example: is_puppet = yes
+- Desc: Returns true if the current country is a puppet.
+- Since: 1.0
+
+## is_subject
+- Params: <bool> Boolean.
+- Example: is_subject = yes
+- Desc: Checks if the current scope is a subject.
+- Since: 1.0
+
+## has_subject
+- Params: <bool> Boolean.
+- Example: has_subject = GRE
+- Desc: Checks if the country has for subject the given country.
+- Since: 1.0
+
+## num_subjects
+- Params: <int> The amount to check for.
+- Example: num_subjects > 3
+- Desc: Checks if the current scope has the specified amount of subjects.
+- Since: 1.3
+
+## has_autonomy_state
+- Params: <string> The autonomy state to check for.
+- Example: has_autonomy_state = autonomy_dominion
+- Desc: Checks if the current scope is in the specified autonomous state.
+- Since: 1.0
+
+## compare_autonomy_state
+- Params: <string> The autonomy state to check for.
+- Example: compare_autonomy_state > autonomy_dominion
+- Desc: Checks if the current scope's autonomy state min_freedom_level is less or greater than that of the specified autonomy state. The special value "autonomy_free" compares as greater than any autonomy state. If the current scope is not a subject, it is treated as greater than any autonomy state (including "autonomy_free"). With =, checks if the current scope is in the specified autonomous state.
+- Since: 1.0
+
+## compare_autonomy_progress_ratio
+- Params: <float> The amount to check for.
+- Example: compare_autonomy_progress_ratio > 0.5
+- Desc: Checks if the current scope autonomy progress is at the specified ratio. If the current scope is not a subject, the ratio is 1.
+- Since: 1.3
+
+## has_opinion_modifier
+- Params: <string> The opinion modifier to check for.
+- Example: has_opinion_modifier = my_modifier
+- Desc: Checks if the current scope has the specified opinion modifier.
+- Since: 1.0
+
+## has_opinion
+- Params: target = <scope> The country to check for. value = <float> The amount to check for.
+- Example: has_opinion = { target = GER value > 50 }
+- Desc: Checks if the current scope has the specified opinion of the target country.
+- Since: 1.0
+
+## has_relation_modifier
+- Params: target = <scope> The country to check for. modifier = <modifier> The modifier to check for.
+- Example: has_relation_modifier = { target = GER modifier = my_modifier }
+- Desc: Checks if the current scope has the specified relation modifier with the specified country.
+- Since: 1.0
+
+## has_legitimacy
+- Params: <int> Amount to check.
+- Example: has_legitimacy > 50
+- Desc: Checks how much legitimacy the current government in exile has.
+- Since: 1.6
+
+## is_exile_host
+- Params: <bool> Boolean.
+- Example: is_exile_host = yes
+- Desc: Checks if the current country is hosting an exile.
+- Since: 1.6
+
+## is_hosting_exile
+- Params: <tag> Country.
+- Example: is_hosting_exile = POL
+- Desc: Checks if the current country is hosting a specific exile.
+- Since: 1.6
+
+## is_government_in_exile
+- Params: <bool> Boolean.
+- Example: is_government_in_exile = yes
+- Desc: Checks if the current country is exiled in a different country.
+- Since: 1.6
+
+## is_exiled_in
+- Params: <tag> Country to be exiled in.
+- Example: is_exiled_in = POL
+- Desc: Checks if the current country is exiled in a specific country.
+- Since: 1.6
+
+## received_expeditionary_forces
+- Params: sender = <tag> Country which sent forces. value <> <int> Amount of forces.
+- Example: received_expeditionary_forces = { sender = POL value > 10 }
+- Desc: Checks if the current country received X units in expeditions from the specified country.
+- Since: 1.6
+
+## can_declare_war_on
+- Params: <tag> Country to check.
+- Example: can_declare_war_on = POL
+- Desc: Checks if the current scope is able to declare war on the specified country.
+- Since: 1.9
+
+## foreign_manpower
+- Params: <int> Amount to check.
+- Example: foreign_manpower > 10000
+- Desc: Checks how much foreign manpower we have received for garrisoning.
+- Since: 1.9
+
+## is_embargoed_by
+- Params: <scope> Amount to check.
+- Example: is_embargoed_by = USA
+- Desc: Checks if the current scope is embargoed by the specified country.
+- Since: 1.12
+
+## is_embargoing
+- Params: <scope> Amount to check.
+- Example: is_embargoing = CUB
+- Desc: Checks if the current scope is embargoing the specified country.
+- Since: 1.12

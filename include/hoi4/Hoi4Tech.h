@@ -1,8 +1,9 @@
 #pragma once
+#include "utils/Archive.h"
 #include <array>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 namespace Rpx::Hoi4 {
 
 
@@ -14,6 +15,12 @@ struct Technology {
   std::string name;
   std::string predecessor;
   TechEra era;
+
+  void serialise(Fwg::Utils::Serialisation::Archive &ar) {
+    ar &name &predecessor;
+    ar.serialiseEnum(era);
+  }
+  void deserialise(Fwg::Utils::Serialisation::Archive &ar) { serialise(ar); }
 };
 
 

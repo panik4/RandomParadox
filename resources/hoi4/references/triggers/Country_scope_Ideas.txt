@@ -1,0 +1,31 @@
+# Country_scope_Ideas
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## has_idea
+- Params: <string> The idea to check for.
+- Example: has_idea = my_idea
+- Desc: Checks if the current scope has the specified idea.
+
+## has_idea_with_trait
+- Params: <string> The trait to check for.
+- Example: has_idea_with_trait = my_trait
+- Desc: Checks if the current scope has any ideas with the specified trait.
+- Since: 1.0
+
+## has_allowed_idea_with_traits
+- Params: idea = <string> The trait to check for. limit = <int> The amount to check for. characters = <bool> If set, will only run this on characters. ignore = { <ideas> } If set, ignores the ideas inside. Optional.
+- Example: has_available_idea_with_traits = { idea = my_trait limit = 1 ignore = { generic_head_of_intelligence } }
+- Desc: Checks if the current scope has the specified amount of ideas with the specified trait.
+- Since: 1.9.1
+
+## has_available_idea_with_traits
+- Params: idea = <string> The trait to check for. limit = <int> The amount to check for. characters = <bool> If set, will only run this on characters. ignore = { <ideas> } If set, ignores the ideas inside. Optional.
+- Example: has_available_idea_with_traits = { idea = my_trait limit = 1 ignore = { generic_head_of_intelligence } }
+- Desc: Checks if the current scope has the specified amount of ideas with the specified trait.
+- Since: 1.0
+
+## amount_taken_ideas
+- Params: amount = <int> The amount to check for. slots = { <string> } The slot type.
+- Example: amount_taken_ideas = { amount > 3 slots = { political_advisor } }
+- Desc: Checks if the current scope has the specified amount of ideas of the specified slot type. Excludes spirits, hidden ideas, and laws.
+- Since: 1.4

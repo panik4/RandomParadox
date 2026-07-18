@@ -1,0 +1,26 @@
+# Country_scope_Governments_in_Exile
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_legitimacy
+- Params: Adds legitimacy to a government in exile.
+- Example: add_legitimacy = 10
+- Desc: Adds legitimacy.
+- Since: 1.6
+
+## set_legitimacy
+- Params: Sets the legitimacy of governments in exile.
+- Example: set_legitimacy = 10
+- Desc: Sets legitimacy.
+- Since: 1.6
+
+## become_exiled_in
+- Params: Makes a country a government in exile in a set country, with a set starting legitimacy.
+- Example: become_exiled_in = { target = <Host tag> legitimacy = <0-100> (starting legitimacy, optional) }
+- Desc: Creates a government in exile.
+- Since: 1.6
+
+## end_exile
+- Params: Ends a government in exile.
+- Example: end_exile = yes
+- Desc: Ends a government in exile.
+- Since: 1.6

@@ -1,0 +1,26 @@
+# Country_scope_Variable
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## get_highest_scored_country_temp
+- Params: scorer = <???> Id that is used in country scorer. var Variable name that the result will be stored. (default is highest_scored_country)
+- Example: get_highest_scored_country_temp = { scorer = scorer_id var = var_name }
+- Desc: Calculates the highest scored country that is defined in a country scorer and sets it to a variable.
+- Since: ???
+
+## get_sorted_scored_countries_temp
+- Params: scorer = <???> Id that is used in country scorer. array = <string> A name to store sorted countries as a temp array (default to sorted_country_list) scores = <string> Corresponding score temp array for countries stored in array (default to country_list_scores)
+- Example: get_sorted_scored_countries_temp = { scorer = scorer_id array = array_name scores = array_name }
+- Desc: Calculates & sorts all countries in a country scorer and stores them and their scores in temp arrays.
+- Since: ???
+
+## get_supply_vehicles
+- Params: var = <string> Variable name to set. type = <type> Can be truck or train. need = <bool> Default no. If yes, gets the number of needed vehicles.
+- Example: get_supply_vehicles = { var = trucks_needed type = truck need = yes }
+- Desc: Sets a variable to the number of supply vehicles in stockpile or that are needed.
+- Since: ???
+
+## get_supply_vehicles_temp
+- Params: var = <string> Variable name to set. type = <type> Can be truck or train. need = <bool> Default no. If yes, gets the number of needed vehicles.
+- Example: get_supply_vehicles_temp = { var = trucks_needed type = truck need = yes }
+- Desc: Sets a temp variable to the number of supply vehicles in stockpile or that are needed.
+- Since: ???

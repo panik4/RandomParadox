@@ -24,3 +24,13 @@
  
  refused_call_to_arms:0 "Refused Call to Arms"
  came_to_our_aid:0 "Came to Our Aid"
+
+ generic_war.6.t:0 "An Ideological Target"
+ generic_war.6.d:0 "Our faction has grown strong enough to consider expanding our influence. [event_target:ideological_target.GetNameDef] stands in our way - a nation whose ideology opposes everything we stand for. Our military is superior, and our people support action. The moment to strike has arrived."
+ generic_war.6.a:0 "Justify a war of ideology"
+ generic_war.6.b:0 "We are not ready yet"
+
+ generic_war.7.t:0 "[From.GetNameDef] Justifies a War of Ideology"
+ generic_war.7.d:0 "[From.GetNameDef], our faction leader, has begun justifying a war of ideology against [event_target:ideological_target.GetNameDef]. As members of [Root.GetFactionName], they expect us to support this expansion of our influence."
+
+ justified_ideological_war:0 "Justified Ideological War"

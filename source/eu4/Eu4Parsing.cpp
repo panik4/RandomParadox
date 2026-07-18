@@ -57,9 +57,9 @@ void writeAreas(const std::string &path,
                 const std::string &gamePath) {
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Areas");
   std::string content =
-      loadVanillaFile(gamePath + "//map//area.txt", {"{", "}", "_area"});
+      loadVanillaFile(gamePath + "/map/area.txt", {"{", "}", "_area"});
   const auto templateArea =
-      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//area.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4/map/area.txt");
 
   for (auto &region : regions) {
     std::string areaText{templateArea};
@@ -84,7 +84,7 @@ void writeClimate(const std::string &path,
    * impassable, mild_monsoon, normal_monsoon, severe_monsoon
    */
   auto content =
-      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//climate.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4/map/climate.txt");
   std::string tropical{""};
   std::string arid{""};
   std::string arctic{""};
@@ -171,7 +171,7 @@ void writeContinent(
 
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing continents");
   auto content =
-      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//continent.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4/map/continent.txt");
   // must not be more than 6 continents!
   std::array<std::vector<int>, 6> continentMap;
   for (const auto &province : provinces) {
@@ -199,7 +199,7 @@ void writeDefaultMap(
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing default map");
   auto content =
-      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//default.map");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4/map/default.map");
   Rpx::Parsing::replaceOccurences(content, "templateWidth",
                                   std::to_string(Cfg::Values().width));
   Rpx::Parsing::replaceOccurences(content, "templateHeight",
@@ -258,7 +258,7 @@ void writePositions(
    */
   std::string content{""};
   const auto templateProvince =
-      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//positions.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4/map/positions.txt");
   for (const auto &prov : provinces) {
     std::string provincePositions{templateProvince};
     Rpx::Parsing::replaceOccurences(provincePositions, "templateID",
@@ -283,11 +283,11 @@ void writeRegions(const std::string &path, const std::string &gamePath,
                   const std::vector<eu4Region> &eu4regions) {
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Regions");
   std::string content =
-      loadVanillaFile(gamePath + "//map//region.txt", {"{", "}", "areas"});
+      loadVanillaFile(gamePath + "/map/region.txt", {"{", "}", "areas"});
   while (Rpx::Parsing::removeBracketBlockFromKey(content, "monsoon")) {
   }
   const auto templateRegion =
-      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4//map//region.txt");
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "eu4/map/region.txt");
   for (const auto &eu4Region : eu4regions) {
     auto regionStr{templateRegion};
     std::string areaString{""};
@@ -308,7 +308,7 @@ void writeSuperregion(const std::string &path, const std::string &gamePath,
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Superregions");
   // not really necessary
 
-  std::string content = loadVanillaFile(gamePath + "//map//superregion.txt",
+  std::string content = loadVanillaFile(gamePath + "/map/superregion.txt",
                                         {"{", "}", "superregion"});
   pU::writeFile(path, content);
 }
@@ -318,7 +318,7 @@ void writeTerrain(const std::string &path,
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Terrain");
   // copying for now, as overwrites of terrain type are not a necessity
   pU::writeFile(path, pU::readFile(Fwg::Cfg::Values().resourcePath +
-                                   "eu4//map//terrain.txt"));
+                                   "eu4/map/terrain.txt"));
 }
 
 void writeTradeCompanies(
@@ -341,7 +341,7 @@ void writeTradewinds(
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Tradewinds");
   // empty for now, as tradewinds are not a necessity
   pU::writeFile(path, pU::readFile(Fwg::Cfg::Values().resourcePath +
-                                   "eu4//map//trade_winds.txt"));
+                                   "eu4/map/trade_winds.txt"));
 }
 
 void copyDescriptorFile(const std::string &sourcePath,
@@ -393,7 +393,7 @@ void writeLoc(const std::string &path, const std::string &gamePath,
                                    "l_spanish"};
   for (const auto &locKey : locKeys) {
     std::string content = pU::readFile(
-        gamePath + "//localisation//areas_regions_" + locKey + ".yml");
+        gamePath + "/localisation/areas_regions_" + locKey + ".yml");
     for (const auto &region : regions)
       content += " area_" + std::to_string(region->ID + 1) + ":0 \"" +
                  "Areaname" + std::to_string(region->ID + 1) + "\"\n";
@@ -403,7 +403,7 @@ void writeLoc(const std::string &path, const std::string &gamePath,
   for (const auto &locKey : locKeys) {
     std::string content = locKey + ":\n"; /*
     std::string content = pU::readFile(
-        gamePath + "//localisation//prov_names_adj_" + locKey + ".yml");*/
+        gamePath + "/localisation/prov_names_adj_" + locKey + ".yml");*/
     for (const auto &province : provinces)
       content += " PROV_ADJ" + std::to_string(province->ID + 1) + ":0 \"" +
                  "PROV_ADJ" + std::to_string(province->ID + 1) + "\"\n";
@@ -413,7 +413,7 @@ void writeLoc(const std::string &path, const std::string &gamePath,
   for (const auto &locKey : locKeys) {
     std::string content = locKey + ":\n";
     // pU::readFile(
-    //    gamePath + "//localisation//prov_names_" + locKey + ".yml");
+    //    gamePath + "/localisation/prov_names_" + locKey + ".yml");
     for (const auto &province : provinces)
       content += " PROV" + std::to_string(province->ID + 1) + ":0 \"" + "PROV" +
                  std::to_string(province->ID + 1) + "\"\n";
