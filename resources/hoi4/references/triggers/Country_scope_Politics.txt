@@ -1,0 +1,116 @@
+# Country_scope_Politics
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## <ideology> (ideology_support_trigger)
+- Params: <ideology> = <float> / <variable> The amount of the ideology to check for.
+- Example: fascism > 0.5
+- Desc: Checks if the current scope has popularity of the specified ideology above the specified amount.
+- Since: 1.0
+
+## has_political_power
+- Params: <float> / <variable> The amount to check for.
+- Example: has_political_power > 100
+- Desc: Checks if the current scope has the specified amount of political power.
+- Since: 1.0
+
+## political_power_daily
+- Params: <float> / <variable> The amount to check for.
+- Example: political_power_daily > 1
+- Desc: Checks if the current scope has the specified amount of daily political power gain.
+- Since: 1.5
+
+## political_power_growth
+- Params: <float> / <variable> The amount to check for.
+- Example: political_power_growth > 1
+- Desc: Checks if the current scope has the specified amount of daily political power gain.
+- Since: 1.5
+
+## command_power
+- Params: <float> / <variable> The amount to check for.
+- Example: command_power > 1
+- Desc: Checks if the current scope has the specified amount of command power.
+- Since: 1.5
+
+## command_power_daily
+- Params: <float> / <variable> The amount to check for.
+- Example: command_power_daily > 1
+- Desc: Checks if the current scope has the specified amount of daily command power gain.
+- Since: 1.5
+
+## has_war_support
+- Params: <float> / <variable> The amount to check for.
+- Example: has_war_support > 0.5
+- Desc: Checks if the current scope has the specified percentage of War Support.
+- Since: 1.5
+
+## has_stability
+- Params: <float> / <variable> The amount to check for.
+- Example: has_stability > 0.5
+- Desc: Checks if the current scope has the specified percentage of Stability.
+- Since: 1.5
+
+## has_government
+- Params: <ideology> The ideology group to check for. OR <country> The country to compare with.
+- Example: has_government = fascism
+- Desc: Checks if the ruling party of the current scope meets the requirements of being either the specified ideology group or having the same ideology group as the specified country.
+- Since: 1.0
+
+## has_elections
+- Params: <bool> Boolean.
+- Example: has_elections = yes
+- Desc: Checks if the current scope holds elections.
+- Since: 1.0
+
+## is_staging_coup
+- Params: <bool> Boolean.
+- Example: is_staging_coup = yes
+- Desc: Checks if the current scope is staging a coup.
+- Since: 1.3
+
+## is_target_of_coup
+- Params: <bool> Boolean.
+- Example: is_target_of_coup = yes
+- Desc: Checks if the current scope is the target of a coup.
+- Since: 1.0
+
+## has_civil_war
+- Params: <bool> Boolean.
+- Example: has_civil_war = yes
+- Desc: Checks if the current scope has a civil war active.
+- Since: 1.0
+
+## civilwar_target
+- Params: <scope> The target country.
+- Example: civilwar_target = GER
+- Desc: Checks if the specified country is a target of a civil war.
+- Since: 1.0
+
+## has_manpower_for_recruit_change_to
+- Params: value = <float> The amount to check for. group = <group> The group to check for.
+- Example: has_manpower_for_recruit_change_to = { value > 0.05 group = mobilization_laws }
+- Desc: Checks if the current scope has the specified amount of manpower for changing the specified idea group.
+- Since: 1.0
+
+## has_rule
+- Params: <string> The rule to check for.
+- Example: has_rule = can_create_factions
+- Desc: Checks if the current scope has the specified country rule.
+- Since: 1.6
+
+## has_casualties_war_support
+- Params: <float> / <variable> The amount to check for.
+- Example: has_casualties_war_support < 0
+- Desc: Checks if the current scope has the specified percentage of war support from own combat casualties.
+- Since: 1.12
+
+## has_convoys_war_support
+- Params: <float> / <variable> The amount to check for.
+- Example: has_convoys_war_support < 0
+- Desc: Checks if the current scope has the specified percentage of war support from own convoys sunk.
+- Since: 1.12
+
+## has_bombing_war_support
+- Params: <float> / <variable> The amount to check for.
+- Example: has_bombing_war_support < 0
+- Desc: Checks if the current scope has the specified percentage of war support from own states bombed by the enemy.
+- Since: 1.12

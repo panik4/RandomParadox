@@ -1,0 +1,50 @@
+# Flow_control_tools
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## AND
+- Params: None
+- Example: AND = { original_tag = GER has_stability > 0.5 }
+- Desc: Returns false if any sub-trigger returns false, true otherwise. Evaluation stops at the first false sub-trigger.
+- Since: 1.0
+
+## OR
+- Params: None
+- Example: OR = { original_tag = ENG original_tag = USA }
+- Desc: Returns true if any sub-trigger returns true, false otherwise. Evaluation stops at the first true sub-trigger.
+- Since: 1.0
+
+## NOT
+- Params: None
+- Example: NOT = { has_stability > 0.5 has_war_support > 0.5 }
+- Desc: Returns false if any sub-trigger returns true, true otherwise. Evaluation stops at the first true sub-trigger.
+- Since: 1.0
+
+## count_triggers
+- Params: amount = <int> The amount of triggers that need to be fulfilled.
+- Example: count_triggers = { amount = 2 10 = { state_population = 100000 } 11 = { state_population = 100000 } 12 = { state_population = 100000 } }
+- Desc: Sums the results of all sub-triggers (false=0, true=1) and returns true if the sum is at least amount.
+- Since: 1.5
+
+## if
+- Params: limit = <trigger block> else_if = <if-trigger> Alternative condition. Optional. else = <AND-trigger> Final alternative condition. Optional.
+- Example: if = { limit = { has_dlc = "Poland: United and Ready" } has_political_power > 100 } else_if = { limit = { has_dlc = "Waking the Tiger" } has_war_support > 0.5 } else = { always = no }
+- Desc: If limit is true, the sub-triggers are evaluated like an AND-trigger. If limit is false, else_if blocks are tried in sequence and finally else (if present). Otherwise true is returned.
+- Since: 1.0
+
+## hidden_trigger
+- Params: None
+- Example: hidden_trigger = { country_exists = GER }
+- Desc: Hides the triggers from the tooltip shown to the player.
+- Since: 1.0
+
+## custom_trigger_tooltip
+- Params: tooltip = <string> The localisation key to use.
+- Example: custom_trigger_tooltip = { tooltip = sunrise_invasion_tt any_state = { is_owned_by = JAP is_on_continent = europe is_coastal = yes } }
+- Desc: Hides the triggers from the tooltip shown to the player and instead uses the specified localisation key.
+- Since: 1.0
+
+## custom_override_tooltip
+- Params: tooltip = <string> The localisation key to use. not_tooltip = <string> The localisation key to use for NOT block. Optional.
+- Example: custom_override_tooltip = { tooltip = { localization_key = GER_inner_circle_focus_in_progress_tt CHARACTER = GER_rudolf_hess FLAG_DAYS = [?GER_rally_the_industrialists_in_progress_flag:days] } not_tooltip = MY_TOOLTIP_NOT <triggers> }
+- Desc: An AND trigger that has an overriden custom tooltip.
+- Since: 1.15

@@ -1,0 +1,44 @@
+# Country_scope_Balance_of_Power
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## set_power_balance
+- Params: id = <BoP ID> Balance of power to set/modify. left_side = <BoP side ID> The left side of the BoP. right_side = <BoP side ID> The right side of the BoP. set_default = <bool> Resets the BoP to the initial state defined in the file. Optional, defaults to false. set_value = <decimal> The new value of the BoP. Optional, defaults to not changing the value.
+- Example: set_power_balance = { id = my_bop left_side = my_bop_left_side right_side = my_bop_right_side }
+- Desc: Sets a new balance of power or edits the existing one.
+- Since: 1.12
+
+## remove_power_balance
+- Params: id = <BoP ID> Balance of power to modify.
+- Example: remove_power_balance = { id = my_bop }
+- Desc: Removes the balance of power in entirety.
+- Since: 1.12
+
+## add_power_balance_value
+- Params: id = <BoP ID> Balance of power to modify. value = <decimal> The value to add. tooltip_side = <BoP side ID> The side to show in the tooltip. Optional.
+- Example: add_power_balance_value = { id = my_bop value = -0.1 tooltip_side = my_bop_side }
+- Desc: Pushes the balance of power towards one side.
+- Since: 1.12
+
+## add_power_balance_modifier
+- Params: id = <BoP ID> Balance of power to modify. modifier = <static modifier> The static modifier to apply.
+- Example: add_power_balance_modifier = { id = my_bop modifier = my_static_modifier }
+- Desc: Applies a balance of power modifier.
+- Since: 1.12
+
+## remove_power_balance_modifier
+- Params: id = <BoP ID> Balance of power to modify. modifier = <static modifier> The static modifier to apply.
+- Example: remove_power_balance_modifier = { id = my_bop modifier = my_static_modifier }
+- Desc: Cancels a balance of power modifier.
+- Since: 1.12
+
+## remove_all_power_balance_modifiers
+- Params: id = <BoP ID> Balance of power to modify.
+- Example: remove_all_power_balance_modifiers = { id = my_bop }
+- Desc: Cancels all balance of power modifiers.
+- Since: 1.12
+
+## set_power_balance_gfx
+- Params: id = <BoP ID> Balance of power to modify. side = <BoP side ID> The side whose GFX to change. gfx = <sprite> The sprite to change the GFX to.
+- Example: set_power_balance_gfx = { id = my_bop side = my_bop_side gfx = GFX_my_bop_side_new }
+- Desc: Changes the appearance of one of the sides within the balance of power.
+- Since: 1.12

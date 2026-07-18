@@ -1,0 +1,26 @@
+# Character_scope_Advisors
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## is_hired_as_advisor
+- Params: <bool> Boolean.
+- Example: is_hired_as_advisor = yes
+- Desc: Checks if the current character is activated as an advisor in any slot.
+- Since: 1.12.10
+
+## not_already_hired_except_as
+- Params: <slot> The slot to check in.
+- Example: not_already_hired_except_as = political_advisor
+- Desc: Checks if the current character is not hired, with the exception of the specified slot.
+- Since: 1.11
+
+## advisor_can_be_fired
+- Params: <bool> Boolean. OR slot = <slot> The slot to check in.
+- Example: advisor_can_be_fired = no
+- Desc: Checks if the current character's can_be_fired attribute is set or not within a certain slot.
+- Since: 1.12.8
+
+## has_advisor_role
+- Params: <slot> The slot to check in.
+- Example: has_advisor_role = political_advisor
+- Desc: Checks if the character in scope has an advisor role for the given slot.
+- Since: ???

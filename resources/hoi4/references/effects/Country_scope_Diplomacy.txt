@@ -1,0 +1,140 @@
+# Country_scope_Diplomacy
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## set_major
+- Params: <bool> Boolean.
+- Example: set_major = yes
+- Desc: Makes the current scope a major country.
+- Since: 1.0
+
+## release
+- Params: <country> The target country.
+- Example: release = GER
+- Desc: Releases the specified non-existent country as a free nation within the current country's owned states.
+- Since: 1.0
+
+## release_on_controlled
+- Params: <country> The target country.
+- Example: release_on_controlled = GER
+- Desc: Releases the specified non-existent country as a free nation within the current country's controlled states.
+- Since: 1.9.1
+
+## release_puppet
+- Params: <country> The target country.
+- Example: release_puppet = GER
+- Desc: Releases the specified non-existent country as a puppet of the current scope within the current country's owned states.
+- Since: 1.0
+
+## release_puppet_on_controlled
+- Params: <country> The target country.
+- Example: release_puppet_on_controlled = GER
+- Desc: Releases the specified non-existent country as a puppet of the current scope within the current country's controlled states.
+- Since: 1.9.1
+
+## release_autonomy
+- Params: target = <country> / <variable> The subject country. autonomy_state = <type> The type of autonomy state to set. freedom_level = <float> The new freedom level value. Optional.
+- Example: release_autonomy = { target = VIN autonomy_state = autonomy_puppet freedom_level = 0.5 }
+- Desc: Releases the specified non-existent country as a subject of the specified autonomy of the current scope within the current country's owned states.
+- Since: 1.3
+
+## give_guarantee
+- Params: <country> The target country.
+- Example: give_guarantee = GER
+- Desc: The current scope guarantees the target country.
+- Since: 1.0
+
+## give_military_access
+- Params: <country> The target country.
+- Example: give_military_access = GER
+- Desc: The current scope grants military access to the target country.
+- Since: 1.0
+
+## recall_attache
+- Params: <country> The target country with an attache.
+- Example: recall_attache = GER
+- Desc: Recalls the current scope's attaché from the specified country.
+- Since: 1.5
+
+## diplomatic_relation
+- Params: country = <country> The target country to alter the relationship with ROOT. relation = <type> The relation to change. active = <bool> Whether the relation is started or broken.
+- Example: diplomatic_relation = { country = SOV relation = guarantee active = no }
+- Desc: Used to define a diplomatic relation between the current scope and target scope country.
+- Since: 1.0
+
+## add_opinion_modifier
+- Params: target = <country> The target country. modifier = <modifier> The opinion modifier to add.
+- Example: add_opinion_modifier = { target = GER modifier = faction_traitor }
+- Desc: The current scope gains the specified opinion modifier towards the target scope. Can also be used to modify trade relations by adding 'trade = yes' in the opinion <modifier> in /Hearts of Iron IV/common/opinion_modifiers/*.txt. If used with a trade opinion_modifier the behaviour is reversed, meaning that the target gains the trade opinion towards the current scope.
+- Since: 1.0
+
+## remove_opinion_modifier
+- Params: target = <country> The target country. modifier = <modifier> The opinion modifier to remove.
+- Example: remove_opinion_modifier = { target = GER modifier = faction_traitor }
+- Desc: The current scope loses the specified opinion modifier towards the target scope.
+- Since: 1.0
+
+## reverse_add_opinion_modifier
+- Params: target = <country> The target country. modifier = <modifier> The opinion modifier to add.
+- Example: reverse_add_opinion_modifier = { target = GER modifier = faction_traitor }
+- Desc: The target scope gains the specified opinion modifier towards the current scope.
+- Since: 1.0
+
+## add_relation_modifier
+- Params: target = <country> The target country. modifier = <modifier> The relation modifier to add.
+- Example: add_relation_modifier = { target = SWE modifier = HUN_dynastic_ties_license }
+- Desc: The current scope gains the specified relation modifier towards the target scope.
+- Since: 1.4
+
+## remove_relation_modifier
+- Params: target = <country> The target country. modifier = <modifier> The relation modifier to remove.
+- Example: remove_relation_modifier = { target = SWE modifier = HUN_dynastic_ties_license }
+- Desc: The current scope loses the specified relation modifier for towards the target scope.
+- Since: 1.4
+
+## add_collaboration
+- Params: target = <country> The target country. value = <0-1> How much collaboration to add.
+- Example: add_collaboration = { target = TAG value = 0.3 }
+- Desc: Adds collaboration in TAG with the scoped country.
+- Since: 1.9
+
+## set_collaboration
+- Params: target = <country> The target country. value = <0-1> How much collaboration will be set.
+- Example: set_collaboration = { target = TAG value = 0.3 }
+- Desc: Sets the collaboration in TAG with the scoped country.
+- Since: 1.9
+
+## recall_volunteers_from
+- Params: <tag> The target country.
+- Example: recall_volunteers_from = SPR
+- Desc: Recalls volunteers sent to the specified country back to the current country.
+- Since: 1.9
+
+## set_occupation_law
+- Params: <law ID> The new occupation law enacted by the previous scope or default_law.
+- Example: USA = { GER = { set_occupation_law = foreign_civilian_oversight } }
+- Desc: Sets the occupation law of the country.
+- Since: 1.12
+
+## set_occupation_law_where_available
+- Params: <law ID> The new occupation law enacted by the previous scope or default_law.
+- Example: USA = { GER = { set_occupation_law_where_available = foreign_civilian_oversight } }
+- Desc: Sets the occupation law of the country.
+- Since: 1.12
+
+## send_embargo
+- Params: <tag> The target country.
+- Example: send_embargo = ITA
+- Desc: Embargos the target country.
+- Since: 1.12
+
+## break_embargo
+- Params: <tag> The target country.
+- Example: break_embargo = ITA
+- Desc: Stops embargoing the target country.
+- Since: 1.12
+
+## give_market_access
+- Params: <tag> The target country.
+- Example: give_market_access = ITA
+- Desc: Opens market access between the two countries.
+- Since: 1.13

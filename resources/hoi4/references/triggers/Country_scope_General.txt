@@ -1,0 +1,110 @@
+# Country_scope_General
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## exists
+- Params: <bool> Boolean.
+- Example: exists = yes
+- Desc: Checks if the current scope exists in game.
+- Since: 1.0
+
+## tag
+- Params: <scope> / <variable> The country to check.
+- Example: tag = GER
+- Desc: Checks if the current scope is the specified country.
+- Since: 1.0
+
+## original_tag
+- Params: <scope> / <variable> The country to check.
+- Example: original_tag = GER
+- Desc: Checks if the current scope originates from the specified country.
+- Since: 1.0
+
+## is_ai
+- Params: <bool> Boolean.
+- Example: is_ai = yes
+- Desc: Checks if the current scope is AI.
+- Since: 1.0
+
+## has_collaboration
+- Params: target = <country> The country to check. value <> <decimal> The value of the collaboration on the 0-1 scale.
+- Example: has_collaboration = { target = GER value > 0.5 }
+- Desc: Checks if the current scope has a collaboration level in the target scope.
+- Since: 1.9
+
+## has_country_flag
+- Params: <string> The flag to check.
+- Example: has_country_flag = my_flag
+- Desc: Checks if the current scope has the specified flag.
+- Since: 1.0
+
+## has_country_flag
+- Params: flag = <string> The flag to check. value = <int> The flag value to check for. Optional. date = <date> The flag creation date to check for. Optional. days = <int> The duration the flag existed for. Optional.
+- Example: has_country_flag = { flag = my_flag days > 30 date > 1936.6.1 value > 0 }
+- Desc: Compares the specified flag's last set date, days since last set, and/or value.
+- Since: 1.0
+
+## has_cosmetic_tag
+- Params: <string> The cosmetic tag to check.
+- Example: has_cosmetic_tag = SOV_custom
+- Desc: Checks if the current scope has the specified cosmetic tag active.
+- Since: 1.5
+
+## has_event_target
+- Params: <event target> The event target to check.
+- Example: has_event_target = my_var
+- Desc: Checks if current scope or global scope has the specified event target saved.
+- Since: 1.0
+
+## has_decision
+- Params: <string> The decision to check.
+- Example: has_decision = my_decision
+- Desc: Checks if the current scope has the specified decision activated.
+- Since: 1.5
+
+## has_dynamic_modifier
+- Params: modifier = <string> The dynamic_modifier to check. scope = <scope> The country to check. Optional, if the original modifier has been targeted.
+- Example: has_dynamic_modifier = { modifier = my_dynamic_modifier scope = GER }
+- Desc: Checks if the current scope has the specified dynamic modifier activated.
+- Since: 1.6
+
+## has_active_mission
+- Params: <string> The mission to check.
+- Example: has_active_mission = my_mission
+- Desc: Checks if the current scope has the specified mission active.
+- Since: 1.5
+
+## has_country_custom_difficulty_setting
+- Params: <bool> Boolean.
+- Example: has_country_custom_difficulty_setting = yes
+- Desc: Checks if the any custom difficulty setting targeting the current scope is changed from the default value.
+- Since: 1.0
+
+## has_terrain
+- Params: <terrain> Terrain.
+- Example: has_terrain = urban
+- Desc: Checks if the current scope has any provinces of the specified terrain.
+- Since: 1.11
+
+## is_dynamic_country
+- Params: <bool> Boolean.
+- Example: is_dynamic_country = yes
+- Desc: Checks if the current scope is a dynamic country.
+- Since: 1.11
+
+## num_of_supply_nodes
+- Params: <int> The amount to check for.
+- Example: num_of_supply_nodes > 10
+- Desc: Checks if the current scope has the specified amount of supply nodes under control.
+- Since: 1.11
+
+## <resource> (resource_count_trigger)
+- Params: <int> The amount to check for.
+- Example: tungsten > 10
+- Desc: Checks if the current scope has the specified amount of the specified resource.
+- Since: ???
+
+## has_resources_in_country
+- Params: resource = <resource> The resource to check for. amount = <int> The amount to check for. extracted = <bool> Limits the checked resources only to those gained from the state's base value and multiplicative modifiers on top of it if true. Optional, defaults to false. buildings = <bool> Limits the checked resources only to those gained from the state's modifiers applied by buildings. Optional, defaults to false.
+- Example: has_resources_in_country = { resource = oil amount > 10 extracted = yes }
+- Desc: Checks if the current scope has the specified amount of the specified resource in reserve.
+- Since: 1.12

@@ -1,0 +1,20 @@
+# Country_scope_Special_Projects
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## complete_special_project
+- Params: sp:<project>Project to complete. OR project = sp:<project> Project to complete. scientist = <character> Optional, default to current scientists on the project. state = <string> Optional, default to current state of the project. iteration_output = { <list> } Optional, can be a single reward or reward = option. show_modifiers = <bool> Optional, default = yes.
+- Example: complete_special_project = sp:sp_naval_midget_submarine
+- Desc: Complete a special project for the country in scope. This effect will not take into account the current state of the project tree and will allow you to unlock a project even if the one before is not unlocked. Since the project is not completed within a facility, the facility state and scientist effects are NOT applied.
+- Since: 1.15
+
+## add_breakthrough_points
+- Params: specialization = <dp_specialization_id> The specialization e.g. specialization_land. value = <int> The amount of specialization breakthrough points to add.
+- Example: add_breakthrough_points = { specialization = specialization_land value = 3 }
+- Desc: Add breakthrough points to one specialization or all for a country scope.
+- Since: 1.15
+
+## add_breakthrough_progress
+- Params: specialization = <dp_specialization_id> The specialization e.g. specialization_land. value = <int> The amount of specialization breakthrough progress to be added.
+- Example: add_breakthrough_progress = { specialization = specialization_land value = 3 }
+- Desc: Add breakthrough progress to one specialization or all for a country scope.
+- Since: 1.15

@@ -1,0 +1,379 @@
+# Effect_Scopes
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## every_possible_country
+- Scope: Always usable
+- Target: Country
+- Example: every_possible_country = { ... }
+- Desc: Executes children effects on every country that meets the limit, including those that do not exist.
+- Since: 1.11
+
+## every_country
+- Scope: Always usable
+- Target: Country
+- Example: every_country = { ... }
+- Desc: Executes contained effects on every country that meets the limit.
+- Since: 1.0
+
+## random_country
+- Scope: Always usable
+- Target: Country
+- Example: random_country = { ... }
+- Desc: Executes contained effects on a random country that meets the limit.
+- Since: 1.0
+
+## every_other_country
+- Scope: Within country scope only
+- Target: Country
+- Example: every_other_country = { ... }
+- Desc: Executes contained effects on every country that meets the limit and is not the same country as the one this is contained in.
+- Since: 1.0
+
+## random_other_country
+- Scope: Within country scope only
+- Target: Country
+- Example: random_other_country = { ... }
+- Desc: Executes contained effects on a random country that meets the limit and is not the same country as the one this is contained in.
+- Since: 1.0
+
+## every_country_with_original_tag
+- Scope: Always usable
+- Target: Country
+- Example: every_country_with_original_tag = { original_tag_to_check = TAG #required ... #effects to run }
+- Desc: Executes contained effects on every country that meets the limit and has the specified original tag.
+- Since: 1.9
+
+## random_country_with_original_tag
+- Scope: Always usable
+- Target: Country
+- Example: random_country_with_original_tag = { original_tag_to_check = TAG #required ... #effects to run }
+- Desc: Executes contained effects on a random country that meets the limit and has the specified original tag.
+
+## every_neighbor_country
+- Scope: Within country scope only
+- Target: Country
+- Example: every_neighbor_country = { ... }
+- Desc: Executes contained effects on every country that meets the limit and borders the country this is contained in.
+- Since: 1.0
+
+## random_neighbor_country
+- Scope: Within country scope only
+- Target: Country
+- Example: random_neighbor_country = { ... }
+- Desc: Executes contained effects on a random country that meets the limit and borders the country this is contained in.
+- Since: 1.0
+
+## every_occupied_country
+- Scope: Within country scope only
+- Target: Country
+- Example: every_occupied_country = { ... }
+- Desc: Executes contained effects on every country that meets the limit and has any core states controlled by the country this is contained in.
+- Since: 1.9
+
+## random_occupied_country
+- Scope: Within country scope only
+- Target: Country
+- Example: random_occupied_country = { ... }
+- Desc: Executes contained effects on a random country that meets the limit and has any core states controlled by the country this is contained in.
+- Since: 1.9
+
+## every_allied_country
+- Scope: Within country scope only
+- Target: Country
+- Example: every_allied_country = { ... }
+- Desc: Executes children effects on every Allied Country different from the one in scope (or `random_select_amount` of random country if specified) that fulfills the `limit` trigger.
+- Since: 1.15
+
+## random_allied_country
+- Scope: Within country scope only
+- Target: Country
+- Example: random_allied_country = { ... }
+- Desc: Executes children effects on a random Allied Country different from the one in scope that fulfills the `limit` trigger.
+- Since: 1.15
+
+## every_enemy_country
+- Scope: Within country scope only
+- Target: Country
+- Example: every_enemy_country = { ... }
+- Desc: Executes contained effects on every country that meets the limit and is at war with the country this is contained in.
+- Since: 1.0
+
+## random_enemy_country
+- Scope: Within country scope only
+- Target: Country
+- Example: random_enemy_country = { ... }
+- Desc: Executes contained effects on a random country that meets the limit and is at war with the country this is contained in.
+- Since: 1.0
+
+## every_subject_country
+- Scope: Within country scope only
+- Target: Country
+- Example: every_subject_country = { ... }
+- Desc: Executes contained effects on every country that meets the limit and is a subject of the country this is contained in.
+- Since: 1.11
+
+## random_subject_country
+- Scope: Within country scope only
+- Target: Country
+- Example: random_subject_country = { ... }
+- Desc: Executes contained effects on a random country that meets the limit and is a subject of the country this is contained in.
+- Since: 1.11
+
+## every_faction_member
+- Scope: Within country scope only
+- Target: Country
+- Example: every_faction_member = { ... }
+- Desc: Executes children effects on every faction member of the country's faction in scope, if country does not have a faction it will only work on itself.
+- Since: 1.17
+
+## every_state
+- Scope: Always usable
+- Target: State
+- Example: every_state = { ... }
+- Desc: Executes contained effects on every state that meets the limit.
+- Since: 1.0
+
+## random_state
+- Scope: Always usable
+- Target: State
+- Example: random_state = { prioritize = { 123 321 } #optional ... #effects to run }
+- Desc: Executes contained effects on a random state that meets the limit.
+- Since: 1.0
+
+## every_neighbor_state
+- Scope: Within state scope only
+- Target: State
+- Example: every_neighbor_state = { ... }
+- Desc: Executes contained effects on every state that meets the limit and neighbours the state this is contained in.
+- Since: 1.0
+
+## random_neighbor_state
+- Scope: Within state scope only
+- Target: State
+- Example: random_neighbor_state = { ... }
+- Desc: Executes contained effects on a random state that meets the limit and neighbours the state this is contained in. Does not support prioritizing.
+- Since: 1.0
+
+## every_owned_state
+- Scope: Within country scope only
+- Target: State
+- Example: every_owned_state = { ... }
+- Desc: Executes contained effects on every state that meets the limit and is owned by the country this is contained in.
+- Since: 1.0
+
+## random_owned_state
+- Scope: Within country scope only
+- Target: State
+- Example: random_owned_state = { prioritize = { 123 321 } #optional ... #effects to run }
+- Desc: Executes contained effects on a random state that meets the limit and is owned by the country this is contained in.
+- Since: 1.0
+
+## every_core_state
+- Scope: Within country scope only
+- Target: State
+- Example: every_core_state = { ... }
+- Desc: Executes contained effects on every state that meets the limit and is a core of the country this is contained in.
+- Since: 1.11
+
+## random_core_state
+- Scope: Within country scope only
+- Target: State
+- Example: random_core_state = { prioritize = { 123 321 } #optional ... #effects to run }
+- Desc: Executes contained effects on a random state that meets the limit and is a core of the country this is contained in.
+- Since: 1.11
+
+## every_controlled_state
+- Scope: Within country scope only
+- Target: State
+- Example: every_controlled_state = { ... }
+- Desc: Executes contained effects on every state that meets the limit and is controlled by the country this is contained in.
+- Since: 1.9
+
+## random_controlled_state
+- Scope: Within country scope only
+- Target: State
+- Example: random_controlled_state = { prioritize = { 123 321 } #optional ... #effects to run }
+- Desc: Executes contained effects on a random state that meets the limit and is controlled by the country this is contained in.
+- Since: 1.9
+
+## random_owned_controlled_state
+- Scope: Within country scope only
+- Target: State
+- Example: random_owned_controlled_state = { prioritize = { 123 321 } #optional ... #effects to run }
+- Desc: Executes contained effects on a random state that meets the limit and is owned and controlled by the country this is contained in.
+- Since: 1.3
+
+## every_unit_leader
+- Scope: Within country scope only
+- Target: Unit Leader
+- Example: every_unit_leader = { ... }
+- Desc: Executes contained effects on every unit leader (corps commanders, field marshals, admirals) that meets the limit and is recruited by the country this is contained in.
+- Since: 1.5
+
+## random_unit_leader
+- Scope: Within country scope only
+- Target: Unit Leader
+- Example: random_unit_leader = { ... }
+- Desc: Executes contained effects on a random unit leader (corps commanders, field marshals, admirals) that meets the limit and is recruited by the country this is contained in.
+- Since: 1.5
+
+## every_army_leader
+- Scope: Within country scope only
+- Target: Unit Leader
+- Example: every_unit_leader = { ... }
+- Desc: Executes contained effects on every army leader that meets the limit and is recruited by the country this is contained in.
+- Since: 1.5
+
+## random_army_leader
+- Scope: Within country scope only
+- Target: Unit Leader
+- Example: random_army_leader = { ... }
+- Desc: Executes contained effects on a random army leader that meets the limit and is recruited by the country this is contained in.
+- Since: 1.5
+
+## global_every_army_leader
+- Scope: Always usable
+- Target: Unit Leader
+- Example: global_every_army_leader = { ... }
+- Desc: Executes contained effects on every army leader that meets the limit. Preferable to use every_army_leader unless necessary to use global_every_army_leader.
+- Since: 1.5
+
+## every_navy_leader
+- Scope: Within country scope only
+- Target: Unit Leader
+- Example: every_navy_leader = { ... }
+- Desc: Executes contained effects on every navy leader that meets the limit and is recruited by the country this is contained in.
+- Since: 1.5
+
+## random_navy_leader
+- Scope: Within country scope only
+- Target: Unit Leader
+- Example: random_navy_leader = { ... }
+- Desc: Executes contained effects on a random navy leader that meets the limit and is recruited by the country this is contained in.
+- Since: 1.5
+
+## every_operative
+- Scope: Within country scope or operations only
+- Target: Operative
+- Example: every_operative = { ... }
+- Desc: Executes contained effects on every operative that meets the limit and is recruited by the country this is contained in.
+- Since: 1.9
+
+## random_operative
+- Scope: Within country scope or operations only
+- Target: Operative
+- Example: random_operative = { ... }
+- Desc: Executes contained effects on a random operative that meets the limit and is recruited by the country this is contained in.
+- Since: 1.9
+
+## every_character
+- Scope: Within country scope only
+- Target: Character
+- Example: every_character = { ... }
+- Desc: Executes contained effects on every character that meets the limit and is recruited by the country this is contained in.
+- Since: 1.11
+
+## random_character
+- Scope: Within country scope only
+- Target: Character
+- Example: random_character = { ... }
+- Desc: Executes contained effects on a random character that meets the limit and is recruited by the country this is contained in.
+- Since: 1.11
+
+## every_country_division
+- Scope: Within country scope only
+- Target: Division
+- Example: every_country_division = { ... }
+- Desc: Executes contained effects on every division that meets the limit and is owned by the current country.
+- Since: 1.12
+
+## random_country_division
+- Scope: Within country scope only
+- Target: Division
+- Example: random_country_division = { ... }
+- Desc: Executes contained effects on a random division that meets the limit and is owned by the current country.
+- Since: 1.12
+
+## every_state_division
+- Scope: Within state scope only
+- Target: Division
+- Example: every_state_division = { ... }
+- Desc: Executes contained effects on every division that meets the limit and is located within the current state.
+- Since: 1.12
+
+## random_state_division
+- Scope: Within state scope only
+- Target: Division
+- Example: random_state_division = { ... }
+- Desc: Executes contained effects on a random division that meets the limit and is located within the current state.
+- Since: 1.12
+
+## every_military_industrial_organization
+- Scope: Within country scope only
+- Target: MIO
+- Example: every_military_industrial_organization = { ... }
+- Desc: Executes contained effects on every MIO within the current country that meets the limit.
+- Since: 1.13
+
+## random_military_industrial_organization
+- Scope: Within country scope only
+- Target: MIO
+- Example: random_military_industrial_organization = { ... }
+- Desc: Executes contained effects on a random MIO within the current country that meets the limit.
+- Since: 1.13
+
+## every_purchase_contract
+- Scope: Within country scope only
+- Target: Purchase contract
+- Example: every_purchase_contract = { ... }
+- Desc: Executes contained effects on every purchase contract within the current country that meets the limit.
+- Since: 1.13
+
+## random_purchase_contract
+- Scope: Within country scope only
+- Target: Purchase contract
+- Example: random_purchase_contract = { ... }
+- Desc: Executes contained effects on a random purchase contract within the current country that meets the limit.
+- Since: 1.13
+
+## every_scientist
+- Scope: Within country scope only
+- Target: Character
+- Example: every_scientist = { ... }
+- Desc: Executes children effects on every scientist (or "random_select_amount" of random character if specified) of the country in scope, that fulfills the "limit" trigger.
+- Since: 1.15
+
+## random_scientist
+- Scope: Within country scope only
+- Target: Character
+- Example: random_scientist = { ... }
+- Desc: Executes children effects on random scientists that fulfills the "limit" trigger.
+- Since: 1.15
+
+## every_active_scientist
+- Scope: Within country scope only
+- Target: Character
+- Example: every_active_scientist = { ... }
+- Desc: Executes children effects on every active scientist (or "random_select_amount" of random character if specified) of the country in scope, that fulfills the "limit" trigger.title.
+- Since: 1.15
+
+## random_active_scientist
+- Scope: Within country scope only
+- Target: Character
+- Example: random_active_scientist = { ... }
+- Desc: Executes children effects on random scientists that fulfills the "limit" trigger.
+- Since: 1.15
+
+## party_leader
+- Scope: Within country scope only
+- Target: Character
+- Example: party_leader = { limit = { has_ideology = liberalism } set_nationality = BHR }
+- Desc: Executes the effects on the party leader with the specified ideology type. Must contain a has_ideology in the limit that refers to a specific ideology type (e.g. Despotic), not a group that contain the type (e.g. Non-Aligned). The selected character must be the leader of a party corresponding to the ideology group.
+- Since: 1.11
+
+## every_collection_element
+- Scope: Always usable
+- Target: Collection/Any
+- Example: every_collection_element = { input = { input = collection_id # This can be a collection name or an inline definition of a collection limit = { # Trigger - limit effect execution to a subset of elements } } # Effects to be executed }
+- Desc: Applies arbitrary effects to all elements of a collection. To learn more about collections, see the documentation in /Hearts of Iron IV/common/collections.
+- Since: 1.17

@@ -86,9 +86,9 @@ void continents(
     const std::string &hoiPath, const std::string &localisationPath) {
   Logging::logLine("HOI4 Parser: Map: Writing Continents");
   // copy continents file from cfg::Values().resourcePath + "/hoi4/map/ to
-  // path//map/
-  std::string content = pU::readFile(Fwg::Cfg::Values().resourcePath +
-                                     "hoi4/map/continent.txt");
+  // path/map/
+  std::string content =
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4/map/continent.txt");
   try {
     std::string continentList;
     for (auto &continent : continents) {
@@ -366,8 +366,8 @@ void commonCountries(const std::string &path, const std::string &hoiPath,
   Fwg::IO::Utils::clearFilesOfType(path, ".txt");
   const auto content = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                     "hoi4/common/country_default.txt");
-  const auto colorsTxtTemplate = pU::readFile(Fwg::Cfg::Values().resourcePath +
-                                              "hoi4/common/colors.txt");
+  const auto colorsTxtTemplate =
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4/common/colors.txt");
   std::string colorsTxt = pU::readFile(hoiPath);
   for (const auto &country : countries) {
     auto tempPath = path + country->name + ".txt";
@@ -571,9 +571,9 @@ void foci(const std::string &path, const CountryMap &countries,
                    "hoi4/ai/national_focus/baseFiles/focusBase.txt");
   std::vector<std::string> focusTemplates;
   for (const auto &focusType : focusTypes)
-    focusTemplates.push_back(pU::readFile(
-        Fwg::Cfg::Values().resourcePath +
-        "hoi4/ai/national_focus/focusTypes/" + focusType + "Focus.txt"));
+    focusTemplates.push_back(pU::readFile(Fwg::Cfg::Values().resourcePath +
+                                          "hoi4/ai/national_focus/focusTypes/" +
+                                          focusType + "Focus.txt"));
 
   for (const auto &country : countries) {
 
@@ -668,11 +668,16 @@ void historyCountries(
                                     std::to_string(country->researchSlots));
     Rpx::Parsing::replaceOccurences(countryText, "templateConvoys",
                                     std::to_string(country->convoyAmount));
+    // ensure to only write two decimal places for stability and war support, as
+    // the game does not accept more than that
+    Rpx::Parsing::replaceOccurences(
+        countryText, "templateStability",
+        std::format("{:.2f}", static_cast<double>(country->stability) / 100.0));
 
-    Rpx::Parsing::replaceOccurences(countryText, "templateStability",
-                                    std::to_string(country->stability));
-    Rpx::Parsing::replaceOccurences(countryText, "templateWarSupport",
-                                    std::to_string(country->warSupport));
+    Rpx::Parsing::replaceOccurences(
+        countryText, "templateWarSupport",
+        std::format("{:.2f}",
+                    static_cast<double>(country->warSupport) / 100.0));
     Rpx::Parsing::replaceOccurences(countryText, "templateTag", country->tag);
     Rpx::Parsing::replaceOccurences(
         countryText, "templateParty",
@@ -776,9 +781,8 @@ void historyCountries(
     Rpx::Parsing::replaceOccurences(countryText, "templateNsbArmorTechs",
                                     nsbArmorTechs);
 
-    const auto armorVariantTemplate =
-        pU::readFile(Fwg::Cfg::Values().resourcePath +
-                     "hoi4/history/army/baseVariant.txt");
+    const auto armorVariantTemplate = pU::readFile(
+        Fwg::Cfg::Values().resourcePath + "hoi4/history/army/baseVariant.txt");
     std::string armorVariants = "";
     for (const auto &tankVariant : country->tankVariants) {
       std::string variantString = armorVariantTemplate;
@@ -1089,9 +1093,8 @@ void historyUnits(const std::string &path, const CountryMap &countries) {
     pU::writeFile(tempPath, airforce);
 
     // ############# NAVIES #############
-    const auto baseNavyFile =
-        pU::readFile(Fwg::Cfg::Values().resourcePath +
-                     "hoi4/history/navy/baseNavyFile.txt");
+    const auto baseNavyFile = pU::readFile(
+        Fwg::Cfg::Values().resourcePath + "hoi4/history/navy/baseNavyFile.txt");
     const auto baseFleetFile =
         pU::readFile(Fwg::Cfg::Values().resourcePath +
                      "hoi4/history/navy/baseFleetFile.txt");
@@ -1169,8 +1172,8 @@ void states(const std::string &path,
             const std::vector<std::shared_ptr<Region>> &regions) {
   Logging::logLine("HOI4 Parser: History: Drawing State Borders");
   Fwg::IO::Utils::clearFilesOfType(path, ".txt");
-  auto templateContent = pU::readFile(Fwg::Cfg::Values().resourcePath +
-                                      "hoi4/history/state.txt");
+  auto templateContent =
+      pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4/history/state.txt");
   std::vector<std::string> stateCategories{
       "wasteland",  "small_island", "pastoral",   "rural",      "town",
       "large_town", "city",         "large_city", "metropolis", "megalopolis"};
@@ -1269,11 +1272,10 @@ void portraits(const std::string &path, const CountryMap &countries) {
       Fwg::Cfg::Values().resourcePath + "hoi4/portraits/templateAfrican.txt");
   const auto asianTemplate = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                           "hoi4/portraits/templateAsian.txt");
-  const auto caucasianTemplate =
-      pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "hoi4/portraits/templateCaucasian.txt");
-  const auto arabicTemplate = pU::readFile(
-      Fwg::Cfg::Values().resourcePath + "hoi4/portraits/templateArabic.txt");
+  const auto caucasianTemplate = pU::readFile(
+      Fwg::Cfg::Values().resourcePath + "hoi4/portraits/templateCaucasian.txt");
+  const auto arabicTemplate = pU::readFile(Fwg::Cfg::Values().resourcePath +
+                                           "hoi4/portraits/templateArabic.txt");
   const auto southAmericanTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
                    "hoi4/portraits/templateSouthAmerican.txt");
@@ -1398,13 +1400,25 @@ void events(const std::string &path) {
   Logging::logLine("HOI4 Parser: Map: Writing events");
   std::filesystem::path sourceEvents =
       Fwg::Cfg::Values().resourcePath + "hoi4/events";
+  std::filesystem::path sourceOpinionModifiers =
+      Fwg::Cfg::Values().resourcePath + "hoi4/common/opinion_modifiers";
   try {
 
-    // Copy ai_areas folder
+    // Copy events folder
     std::filesystem::copy(sourceEvents, path + "/events",
                           std::filesystem::copy_options::recursive);
   } catch (const std::filesystem::filesystem_error &e) {
     Logging::logLine("HOI4 Parser: Error copying Events: " +
+                     std::string(e.what()));
+  }
+  try {
+
+    // Copy common/opinion_modifiers folder
+    std::filesystem::copy(sourceOpinionModifiers,
+                          path + "/common/opinion_modifiers",
+                          std::filesystem::copy_options::recursive);
+  } catch (const std::filesystem::filesystem_error &e) {
+    Logging::logLine("HOI4 Parser: Error copying common/opinion_modifiers: " +
                      std::string(e.what()));
   }
 }
@@ -1512,7 +1526,6 @@ void compatibilityHistory(
   auto emptyContent = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                    "hoi4/history/emptyTemplate.txt");
 
-
   for (auto const &dir_entry : std::filesystem::directory_iterator{hoiDir}) {
     std::string pathString = dir_entry.path().string();
     std::string filename = dir_entry.path().filename().string();
@@ -1568,7 +1581,7 @@ void compatibilityHistory(
         }
       }
     }
-    //for any country but PRC, we write the empty content
+    // for any country but PRC, we write the empty content
     if (!filename.contains("PRC")) {
       pU::writeFile(path + filename, emptyContent);
     } else {
@@ -1900,7 +1913,7 @@ std::vector<Fwg::Areas::Province> readProvinceMap(const std::string &path) {
 void readAirports(const std::string &path,
                   std::vector<std::shared_ptr<Region>> &regions) {
   Logging::logLine("HOI4 Parser: Map: Watching Planes");
-  auto list = pU::getLines(path + "//map/airports.txt");
+  auto list = pU::getLines(path + "/map/airports.txt");
   for (const auto &entry : list) {
     auto tokens = pU::getTokens(entry, '=');
     if (tokens.size() == 2) {
@@ -1918,7 +1931,7 @@ void readAirports(const std::string &path,
 void readBuildings(const std::string &path,
                    std::vector<std::shared_ptr<Region>> &regions) {
   Logging::logLine("HOI4 Parser: Map: Observing Infrastructure");
-  auto content = pU::getLines(path + "//map/buildings.txt");
+  auto content = pU::getLines(path + "/map/buildings.txt");
   for (const auto &line : content) {
     Arda::Utils::Building building;
     auto tokens = pU::getTokens(line, ';');
@@ -2001,7 +2014,7 @@ void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
 void readRocketSites(const std::string &path,
                      std::vector<std::shared_ptr<Region>> &regions) {
   Logging::logLine("HOI4 Parser: Map: Scanning for rockets");
-  auto list = pU::getLines(path + "//map/rocketsites.txt");
+  auto list = pU::getLines(path + "/map/rocketsites.txt");
   for (const auto &entry : list) {
     auto tokens = pU::getTokens(entry, '=');
     if (tokens.size() == 2) {
@@ -2017,7 +2030,7 @@ void readRocketSites(const std::string &path,
 void readSupplyNodes(const std::string &path,
                      std::vector<std::shared_ptr<Region>> &regions) {
   Logging::logLine("HOI4 Parser: Map: Stealing from logistics hub");
-  auto list = pU::getLines(path + "//map/supply_nodes.txt");
+  auto list = pU::getLines(path + "/map/supply_nodes.txt");
   for (const auto &entry : list) {
     auto tokens = pU::getTokens(entry, '=');
     if (tokens.size() == 2) {
@@ -2033,7 +2046,7 @@ void readSupplyNodes(const std::string &path,
 void readWeatherPositions(const std::string &path,
                           std::vector<std::shared_ptr<Region>> &regions) {
   Logging::logLine("HOI4 Parser: Map: Observing the Weather");
-  auto content = pU::getLines(path + "//map/weatherpositions.txt");
+  auto content = pU::getLines(path + "/map/weatherpositions.txt");
   for (const auto &line : content) {
     Arda::Utils::WeatherPosition weather;
     auto tokens = pU::getTokens(line, ';');

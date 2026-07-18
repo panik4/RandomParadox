@@ -1,4 +1,5 @@
 #include "hoi4/Hoi4Region.h"
+#include "utils/Archive.h"
 
 namespace Rpx::Hoi4 {
 Region::Region() {}
@@ -187,4 +188,28 @@ void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
     }
   }
 }
+
+void Region::serialise(Fwg::Utils::Serialisation::Archive &ar) {
+  ArdaRegion::serialise(ar);
+  ar &identifier;
+  ar &armsFactories &civilianFactories &dockyards;
+  ar &infrastructure &stateCategory &stratID;
+  ar &airport &rocketsite &supplyNode;
+  ar &totalVictoryPoints;
+  weatherPosition.serialise(ar);
+  ar &buildings;
+  ar &victoryPointsMap;
+  ar &navalBases;
+  ar &airBase;
+}
+
+void Region::deserialise(Fwg::Utils::Serialisation::Archive &ar) {
+  serialise(ar);
+}
+
+uint32_t Region::typeTag() const {
+  return Fwg::Utils::Serialisation::TypeRegistry::hashString(
+      "Rpx::Hoi4::Region");
+}
+
 } // namespace Rpx::Hoi4

@@ -1,0 +1,86 @@
+# Country_scope_Peace_Conferences
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## pc_is_winner
+- Params: <bool> Boolean.
+- Example: pc_is_winner = yes
+- Desc: Checks if the current scope is a winner within the peace conference.
+- Since: 1.12
+
+## pc_is_on_winning_side
+- Params: <bool> Boolean.
+- Example: pc_is_on_winning_side = yes
+- Desc: Checks if the current scope is on the winning side within the peace conference.
+- Since: 1.12
+
+## pc_is_loser
+- Params: <bool> Boolean.
+- Example: pc_is_loser = yes
+- Desc: Checks if the current scope is a loser within the peace conference.
+- Since: 1.12
+
+## pc_is_untouched_loser
+- Params: <bool> Boolean.
+- Example: pc_is_untouched_loser = yes
+- Desc: Checks if the current scope is an untouched loser within the peace conference.
+- Since: 1.12
+
+## pc_is_on_same_side_as
+- Params: <scope> Country to check for.
+- Example: pc_is_on_same_side_as = BHR
+- Desc: Checks if the current scope is on the same side of the peace conference as the specified country.
+- Since: 1.12
+
+## pc_is_liberated
+- Params: <bool> Boolean.
+- Example: pc_is_liberated = yes
+- Desc: Checks if the current scope has been liberated within the peace conference.
+- Since: 1.12
+
+## pc_is_liberated_by
+- Params: <scope> Country to check for.
+- Example: pc_is_liberated_by = BHR
+- Desc: Checks if the current scope has been liberated within the peace conference by the specified country.
+- Since: 1.12
+
+## pc_is_puppeted
+- Params: <bool> Boolean.
+- Example: pc_is_puppeted = yes
+- Desc: Checks if the current scope has been puppeted within the peace conference.
+- Since: 1.12
+
+## pc_is_puppeted_by
+- Params: <scope> Country to check for.
+- Example: pc_is_puppeted_by = BHR
+- Desc: Checks if the current scope has been puppeted within the peace conference by the specified country.
+- Since: 1.12
+
+## pc_is_forced_government
+- Params: <bool> Boolean.
+- Example: pc_is_forced_government = yes
+- Desc: Checks if the current scope has had an enforced government change within the peace conference.
+- Since: 1.12
+
+## pc_is_forced_government_by
+- Params: <scope> Country to check for.
+- Example: pc_is_forced_government_by = BHR
+- Desc: Checks if the current scope has had an enforced government change within the peace conference demanded by the specified country.
+- Since: 1.12
+
+## pc_is_forced_government_to
+- Params: <ideology group> Ideology group to check for.
+- Example: pc_is_forced_government_to = democratic
+- Desc: Checks if the current scope has had an enforced government change to the specified ideology group.
+- Since: 1.12
+
+## pc_total_score
+- Params: <decimal> Scope to check for.
+- Example: pc_total_score > 2400
+- Desc: Checks if the current scope has the specified amount in total score within the peace conference.
+- Since: 1.12
+
+## pc_current_score
+- Params: <decimal> Scope to check for.
+- Example: pc_current_score > 100
+- Desc: Checks if the current scope has the specified amount in current score within the peace conference.
+- Since: 1.12

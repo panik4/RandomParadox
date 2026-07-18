@@ -1,0 +1,68 @@
+# Country_scope_Mana
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_political_power
+- Params: <int> / <variable> The amount to add.
+- Example: add_political_power = 100
+- Desc: Adds the specified amount of political power to the current scope.
+- Since: 1.0
+
+## set_political_power
+- Params: <int> / <variable> The amount to add.
+- Example: set_political_power = 100
+- Desc: Sets the specified amount of political power for the current scope.
+- Since: 1.0
+
+## add_stability
+- Params: <int> / <variable> The amount to add.
+- Example: add_stability = 0.1
+- Desc: Adds to the current stability value for the current scope.
+- Since: 1.5
+
+## set_stability
+- Params: <int> / <variable> The amount to add.
+- Example: set_stability = 0.5
+- Desc: Sets the current stability value for the current scope.
+- Since: 1.5
+
+## add_war_support
+- Params: <int> / <variable> The amount to add.
+- Example: add_war_support = 0.1
+- Desc: Adds to the current war support value for the current scope.
+- Since: 1.5
+
+## set_war_support
+- Params: <int> / <variable> The amount to set.
+- Example: set_war_support = 0.5
+- Desc: Sets the current war support value for the current scope.
+- Since: 1.5
+
+## add_command_power
+- Params: <int> / <variable> The amount to add.
+- Example: add_command_power = 100
+- Desc: Adds the specified amount of command power to the current scope.
+- Since: 1.5
+
+## add_manpower
+- Params: <int> / <variable> The amount to add.
+- Example: add_manpower = 100000
+- Desc: Adds the specified amount of manpower to the current scope.
+- Since: 1.0
+
+## army_experience
+- Params: <float> / <variable> The amount to add.
+- Example: army_experience = 10
+- Desc: Adds the specified amount of army experience to the current scope.
+- Since: 1.0
+
+## navy_experience
+- Params: <float> / <variable> The amount to add.
+- Example: navy_experience = 10
+- Desc: Adds the specified amount of navy experience to the current scope.
+- Since: 1.0
+
+## air_experience
+- Params: <float> / <variable> The amount to add.
+- Example: air_experience = 10
+- Desc: Adds the specified amount of air experience to the current scope.
+- Since: 1.0

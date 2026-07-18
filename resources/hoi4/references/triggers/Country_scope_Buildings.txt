@@ -1,0 +1,86 @@
+# Country_scope_Buildings
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## <building> (building_count_trigger)
+- Params: <int> The amount of the specified building to to check for.
+- Example: arms_factory > 10
+- Desc: Checks if the current scope has the specified amount of the specified building.
+- Since: 1.0
+
+## num_of_military_factories
+- Params: <int> The amount to check for.
+- Example: num_of_military_factories > 10
+- Desc: Checks if the current scope has the specified amount of military factories.
+- Since: 1.0
+
+## num_of_civilian_factories
+- Params: <int> The amount to check for.
+- Example: num_of_civilian_factories > 10
+- Desc: Checks if the current scope has the specified amount of civilian factories.
+- Since: 1.0
+
+## num_of_naval_factories
+- Params: <int> The amount to check for.
+- Example: num_of_naval_factories > 10
+- Desc: Checks if the current scope has the specified amount of dockyards.
+- Since: 1.0
+
+## num_of_available_military_factories
+- Params: <int> The amount to check for.
+- Example: num_of_available_military_factories > 10
+- Desc: Checks if the current scope has the specified amount of available military factories.
+- Since: 1.0
+
+## num_of_available_civilian_factories
+- Params: <int> The amount to check for.
+- Example: num_of_available_civilian_factories > 10
+- Desc: Checks if the current scope has the specified amount of available civilian factories.
+- Since: 1.0
+
+## num_of_available_naval_factories
+- Params: <int> The amount to check for.
+- Example: num_of_available_naval_factories > 10
+- Desc: Checks if the current scope has the specified amount of available dockyards.
+- Since: 1.0
+
+## num_of_factories
+- Params: <int> The amount to check for.
+- Example: num_of_factories > 10
+- Desc: Checks if the current scope has the specified amount of military, civilian or dockyard factories.
+- Since: 1.0
+
+## num_of_controlled_factories
+- Params: <int> The amount to check for.
+- Example: num_of_controlled_factories > 10
+- Desc: Checks if the current scope has the specified amount of military, civilian or dockyard factories under control.
+- Since: 1.11
+
+## num_of_owned_factories
+- Params: <int> The amount to check for.
+- Example: num_of_owned_factories > 10
+- Desc: Checks if the current scope has the specified amount of military, civilian or dockyard factories under owned states.
+- Since: 1.11
+
+## num_of_civilian_factories_available_for_projects
+- Params: <int> The amount to check for.
+- Example: num_of_civilian_factories_available_for_projects > 10
+- Desc: Checks if the current scope has the specified amount of civilian factories usable for projects.
+- Since: 1.5
+
+## ic_ratio
+- Params: tag = <scope> The country to check. ratio = <float> The ratio to check for.
+- Example: ic_ratio = { tag = GER ratio > 0.5 }
+- Desc: Checks if the current scope has the specified ratio of factories with the target country.
+- Since: 1.0
+
+## has_damaged_buildings
+- Params: <bool> Boolean.
+- Example: has_damaged_buildings = yes
+- Desc: Checks if the current scope has any damanged buildings in their states.
+- Since: 1.0
+
+## has_built
+- Params: type = <building> The building to check for. value = <int> The amount to check for.
+- Example: has_built = { type = arms_factory value > 10 }
+- Desc: Checks if the current scope has built the specified building the specified number of times.
+- Since: 1.0

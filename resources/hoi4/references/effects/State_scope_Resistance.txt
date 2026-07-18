@@ -1,0 +1,92 @@
+# State_scope_Resistance
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_compliance
+- Params: <int> / <variable> The amount to add.
+- Example: add_compliance = 30
+- Desc: Adds compliance to the specified state.
+- Since: 1.9
+
+## add_resistance
+- Params: <int> / <variable> The amount to add.
+- Example: add_resistance = 30
+- Desc: Adds resistance to the specified state.
+- Since: 1.9
+
+## add_resistance_target
+- Params: <int> / <variable> The amount to add.
+- Example: add_resistance_target = 30
+- Desc: Increases resistance target in the specified state.
+- Since: 1.9
+
+## add_resistance_target
+- Params: id = <int> The ID of the target increase. amount = <int>/<variable> The amount to increase the resistance target by. occupied = <country> Will only apply the increase if the the occupied country is the specified scope. occupier = <country> Will only apply the increase if the the occupier is the specified scope. days = <int>/<variable> If set, the resistance target will only be increased for the specified amount of days. tooltip = <string> The tooltip to show in the resistance target tooltip.
+- Example: add_resistance_target = { id = 123 amount = 30 occupied = ENG occupier = GER days = 365 tooltip = my_localisation_key }
+- Desc: Increases resistance target in the specified state.
+- Since: 1.9
+
+## cancel_resistance
+- Params: <bool> Boolean.
+- Example: cancel_resistance = yes
+- Desc: Cancels resistance activity for the current state.
+- Since: 1.9
+
+## force_disable_resistance
+- Params: <country> The target country.
+- Example: force_disable_resistance = GER
+- Desc: Disables resistance for the scoped state when the occupier is the specified country.
+- Since: 1.9
+
+## force_disable_resistance
+- Params: clear = <bool> If set to yes, will clear resistance. occupier = <country> Resistance will be disabled if the occupier is the specified scope. occupied = <country> Resistance will be disabled if the occupied country is the specified scope.
+- Example: force_disable_resistance = { clear = yes occupier = GER occupied = ENG }
+- Desc: Disables resistance for the scoped state when the occupier is the specified country.
+- Since: 1.9
+
+## force_enable_resistance
+- Params: <country> The target country.
+- Example: force_enable_resistance = GER
+- Desc: Enables resistance for the scoped state when the occupier is the specified country.
+- Since: 1.9
+
+## force_enable_resistance
+- Params: clear = <bool> If set to yes, will clear resistance. occupier = <country> Resistance will be enabled if the occupier is the specified scope. occupied = <country> Resistance will be enabled if the occupied country is the specified scope.
+- Example: force_enable_resistance = { clear = yes occupier = GER occupied = ENG }
+- Desc: Enables resistance for the scoped state when the occupier is the specified country.
+- Since: 1.9
+
+## remove_resistance_target
+- Params: <int> / <variable> The id of the resistance target to remove. (Must be set with add_resistance_target)
+- Example: remove_resistance_target = 30
+- Desc: Removes a set resistance target increase in the specified state.
+- Since: 1.9
+
+## set_compliance
+- Params: <int> / <variable> The amount to set the compliance to.
+- Example: set_compliance = 30
+- Desc: Sets compliance in the specified state.
+- Since: 1.9
+
+## set_resistance
+- Params: <int> / <variable> The amount to set the resistance to.
+- Example: set_resistance = 30
+- Desc: Sets resistance in the specified state.
+- Since: 1.9
+
+## start_resistance
+- Params: <bool>/<country> Whether to start resistance or not. If using a country as the parameter, the state will only start resistance if occupied by the target country.
+- Example: start_resistance = POL
+- Desc: Starts resistance in the specified state.
+- Since: 1.9
+
+## set_garrison_strength
+- Params: <0-1> The new garrison strength.
+- Example: set_garrison_strength = 0.5
+- Desc: Sets the strength of the garrison in the specified state.
+- Since: 1.9
+
+## set_occupation_law
+- Params: <law ID> The new occupation law enacted by the previous scope or default_law.
+- Example: GER = { every_controlled_state = { set_occupation_law = military_governor_occupation } }
+- Desc: Sets the occupation law of the state.
+- Since: 1.12

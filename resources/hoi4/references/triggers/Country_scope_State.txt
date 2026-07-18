@@ -1,0 +1,86 @@
+# Country_scope_State
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## controls_state
+- Params: <scope> / <variable> The state to check for.
+- Example: controls_state = 39
+- Desc: Checks if the current scope has control of the specified state.
+- Since: 1.0
+
+## owns_state
+- Params: <scope> / <variable> The state to check for.
+- Example: owns_state = 39
+- Desc: Checks if the current scope owns the specified state.
+- Since: 1.0
+
+## num_of_controlled_states
+- Params: <int> The amount to check for.
+- Example: num_of_controlled_states > 5
+- Desc: Checks if the current scope has the specified amount of controlled states.
+- Since: 1.0
+
+## num_occupied_states
+- Params: <int> The amount to check for.
+- Example: num_occupied_states > 5
+- Desc: Checks if the current scope has the specified amount of occupied states.
+- Since: 1.0
+
+## has_full_control_of_state
+- Params: <scope> / <variable> The state to check for.
+- Example: has_full_control_of_state = 39
+- Desc: Checks if the current scope has total control (100% occupation) of the specified state.
+- Since: 1.3
+
+## has_resources_rights
+- Params: state = <scope> / <variable> The state to check in. Mandatory if used in country scope. resources = { <resource> <...> <resource> } Resources to check for. Optional, defaults to any if unset.
+- Example: has_resources_rights = { state = 123 resources = { oil steel } }
+- Desc: Checks if there are any resource rights with the specified parameters.
+- Since: 1.12
+
+## core_compliance
+- Params: occupied_country_tag = <TAG> The country for which to check compliance. value = <int> The value to check for.
+- Example: core_compliance = { occupied_country_tag = ITA value > 10 }
+- Desc: Compares the average compliance of core states of the specified country within controlled states of the current scope.
+- Since: 1.9
+
+## core_resistance
+- Params: occupied_country_tag = <TAG> The country for which to check resistance. value = <int> The value to check for.
+- Example: core_resistance = { occupied_country_tag = ITA value > 10 }
+- Desc: Compares the average resistance of core states of the specified country within controlled states of the current scope.
+- Since: 1.9
+
+## garrison_manpower_need
+- Params: <int> Amount to check.
+- Example: garrison_manpower_need > 10000
+- Desc: Checks how much garrison manpower we need for resistance in controlled states.
+- Since: 1.9
+
+## has_core_occupation_modifier
+- Params: occupied_country_tag = <scope> / <variable> The country to check. modifier = <token>The modifier to check.
+- Example: has_core_occupation_modifier = { occupied_country_tag = ITA modifier = token }
+- Desc: Checks if the current scope has an occupation modifier for resistance/compliance that applies to our occupied states of a specified country.
+- Since: 1.9
+
+## occupation_law
+- Params: <law ID> The law to check.
+- Example: POL = { POL = { occupation_law = foreign_civilian_oversight } }
+- Desc: Checks the occupation law that's either the default or applied over a specific country.
+- Since: 1.12
+
+## has_contested_owner
+- Params: <state> / <variable> State to check.
+- Example: has_contested_owner = 42
+- Desc: Checks if a state has the specified country as a contested owner. The trigger can be used either from a country or a state scope and accepts the other as parameter.
+- Since: 1.15
+
+## owns_any_state_of
+- Params: <states> States to check.
+- Example: owns_any_state_of = { 123 246 }
+- Desc: Check if the country owns any of the states in the list.
+- Since: 1.16
+
+## is_on_same_continent_as
+- Params: <scope> / <variable> The state to check for.
+- Example: is_on_same_continent_as = 111
+- Desc: Checks if the scope country is on the same continent as the given state. The capital state is used for given country tag.
+- Since: 1.17

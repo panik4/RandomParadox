@@ -1,0 +1,44 @@
+# Country_scope_Doctrine
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## has_any_grand_doctrine
+- Params: <string> Doctrine folder.
+- Example: has_any_grand_doctrine = land
+- Desc: Checks if any grand doctrine in folder is currently active for the country.
+- Since: 1.17.2
+
+## has_doctrine
+- Params: <grand doctrine> / <subdoctrine> The doctrine to check for.
+- Example: has_doctrine = mobile_warfare # Grand doctrine
+- Desc: Checks if the given grand doctrine or subdoctrine is currently active for the country.
+- Since: 1.17
+
+## has_subdoctrine_in_track
+- Params: <track> The track to check for.
+- Example: has_subdoctrine_in_track = infantry
+- Desc: Checks if any subdoctrine is currently assigned to (any instance of) the given track.
+- Since: 1.17
+
+## has_completed_subdoctrine
+- Params: <subdoctrine> The subdoctrine to check for.
+- Example: has_completed_subdoctrine = mobile_infantry
+- Desc: Checks if the current country has ever completed the specified subdoctrine (even if it was later switched out).
+- Since: 1.17
+
+## has_completed_track
+- Params: <track> The track to check for.
+- Example: has_completed_track = infantry
+- Desc: Checks if the given subdoctrine track has been completed
+- Since: 1.17
+
+## has_mastery
+- Params: amount = <int> The amout to check for. track = <track> The track to check for.
+- Example: has_mastery = { amount = 200 track = infantry }
+- Desc: Checks if any track of the given type has at least X mastery.
+- Since: 1.17
+
+## has_mastery_level
+- Params: amount = <int> The amount to check for. subdoctrine = <subdoctrine> The subdoctrine to check for.
+- Example: has_mastery_level = { amount = 2 subdoctrine = mobile_infantry }
+- Desc: Checks if the country has reached the specified number of mastery levels (rewards) for the given subdoctrine.
+- Since: 1.17

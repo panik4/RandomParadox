@@ -181,6 +181,8 @@ public:
   void writeLocalisation();
   virtual void writeTextFiles(bool scenarioDetails);
   virtual void writeImages();
+  void save(const std::string &path) override;
+  void load(const std::string &path) override;
   const Gfx::Hoi4::ImageExporter &getImageExporter() const {
     return imageExporter;
   }

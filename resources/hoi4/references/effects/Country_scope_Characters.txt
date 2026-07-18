@@ -1,0 +1,224 @@
+# Country_scope_Characters
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## set_nationality
+- Params: target_country = <country> / <variable> The target country. character = <character> The character to transfer.
+- Example: set_nationality = { target_country = TZN character = OMA_sultan }
+- Desc: Switches the specified character to the specified country.
+- Since: 1.11
+
+## retire_character
+- Params: <character>
+- Example: retire_character = GER_Character_Token
+- Desc: Retires the character, removing every role they hold and making them disappear from the game.
+- Since: 1.11
+
+## set_character_name
+- Params: character = <character> The character to modify. name = <localisation key> The new name of the character.
+- Example: set_character_name = { character = my_character name = my_name }
+- Desc: Sets the new name for the target character.
+- Since: 1.11
+
+## character_list_tooltip
+- Params: limit = { <triggers> } Triggers that must be fulfilled to show up in the list. random_select_amount = <int> Upper bound on the characters that may be shown.
+- Example: character_list_tooltip = { limit = { has_character_flag = SOV_targeted_for_purge_flag } random_select_amount = 4 }
+- Desc: Displays a list of every character meeting the specified limitation and recruited by the current country.
+- Since: 1.11
+
+## add_trait
+- Params: character = <character> The character to modify. slot = <slot> Slot of the character. Necessary for advisors. ideology = <sub-ideology> Ideology type of the character. Necessary for country leaders. trait = <trait> The trait to add.
+- Example: add_trait = { character = TAG_jane_smith slot = political_advisor trait = really_good_boss }
+- Desc: Adds the specified country leader trait to the character.
+- Since: 1.11
+
+## remove_trait
+- Params: character = <character> The character to modify. slot = <slot> Slot of the character. Necessary for advisors. ideology = <sub-ideology> Ideology type of the character. Necessary for country leaders. trait = <trait> The trait to remove.
+- Example: remove_trait = { character = TAG_jane_smith slot = political_advisor trait = really_good_boss }
+- Desc: Removes the specified trait from the character.
+- Since: 1.11
+
+## create_corps_commander
+- Params: name = <string> The name of the leader. picture = <string>OR portrait_path = <string>OR gfx = <string> The graphical reference of the picture of the leader. skill = <int> The skill of the leader. attack_skill = <int> The attack skill of the leader. defense_skill = <int> The defense skill of the leader. planning_skill = <int> The planning skill of the leader. logistics_skill = <int> The logistics skill of the leader. traits = { <trait> } The traits the leader spawns with. female = <bool> The gender of the leader. legacy_id = <int> The legacy ID used for the unit leader. Optional.
+- Example: create_corps_commander = { name = "Jean de Lattre de Tassigny" picture = "Portrait_France_Jean_de_Lattre_de_Tassigny.dds" traits = { trickster brilliant_strategist } skill = 4 attack_skill = 4 defense_skill = 2 planning_skill = 4 logistics_skill = 3 }
+- Desc: Creates a commander for the current scope with the specified attributes.
+- Since: 1.0
+
+## create_field_marshal
+- Params: name = <string> The name of the leader. picture = <string>OR portrait_path = <string>OR gfx = <string> The graphical reference of the picture of the leader. skill = <int> The skill of the leader. attack_skill = <int> The attack skill of the leader. defense_skill = <int> The defense skill of the leader. planning_skill = <int> The planning skill of the leader. logistics_skill = <int> The logistics skill of the leader. traits = { <trait> } The traits the leader spawns with. female = <bool> The gender of the leader. legacy_id = <int> The legacy ID used for the unit leader. Optional.
+- Example: create_field_marshal = { name = "Maurice Gamelin" portrait_path = "GFX_portrait_FRA_maurice_gamelin" traits = { defensive_doctrine } skill = 2 attack_skill = 1 defense_skill = 3 planning_skill = 2 logistics_skill = 1 }
+- Desc: Creates a field marshal for the current scope with the specified attributes.
+- Since: 1.0
+
+## create_navy_leader
+- Params: name = <string> The name of the leader. picture = <string>OR portrait_path = <string>OR gfx = <string> The graphical reference of the picture of the leader. skill = <int> The skill of the leader. attack_skill = <int>The attack skill of the leader. defense_skill = <int>The defense skill of the leader. maneuvering_skill = <int>The maneuvering skill of the leader. coordination_skill = <int>The coordination skill of the leader. traits = { <trait> } The traits the leader spawns with. female = <bool> The gender of the leader. legacy_id = <int> The legacy ID used for the unit leader. Optional.
+- Example: create_navy_leader = { name = "François Darlan" gfx = "GFX_portrait_FRA_francois_darlan" traits = { superior_tactician } skill = 3 attack_skill = 2 defense_skill = 4 maneuvering_skill = 3 coordination_skill = 2 }
+- Desc: Creates a naval leader for the current scope with the specified attributes.
+- Since: 1.0
+
+## remove_unit_leader
+- Params: <id> The id of the unit leader.
+- Example: remove_unit_leader = 70
+- Desc: Removes the specified unit leader by their legacy ID.
+- Since: 1.0
+
+## add_corps_commander_role
+- Params: character = <character> The character to modify. <...> Army leader role definition
+- Example: add_corps_commander_role = { Character = GER_Character_token skill = 4 attack_skill = 2 defense_skill = 3 planning_skill = 3 logistics_skill = 5 }
+- Desc: Sets the specified character to also act as a corps commander.
+- Since: 1.11
+
+## add_field_marshal_role
+- Params: character = <character> The character to modify. <...> Army leader role definition
+- Example: add_field_marshal_role = { character = GER_Character_token skill = 4 attack_skill = 2 defense_skill = 3 planning_skill = 3 logistics_skill = 5 }
+- Desc: Sets the specified character to also act as a field marshal.
+- Since: 1.11
+
+## add_naval_commander_role
+- Params: character = <character> The character to modify. <...> Navy leader role definition
+- Example: add_naval_commander_role = { Character = GER_Character_token skill = 4 attack_skill = 2 defense_skill = 3 planning_skill = 3 logistics_skill = 5 }
+- Desc: Sets the specified character to also act as an admiral.
+- Since: 1.11
+
+## show_unit_leaders_tooltip
+- Params: <character> The character whose name is to be shown.
+- Example: show_unit_leaders_tooltip = TAG_my_leader
+- Desc: Shows the name of the specified character as a tooltip.
+- Since: 1.11
+
+## create_country_leader
+- Params: name = <string> The name of the leader. desc = <string> The description of the leader. picture = <spriteType> The graphical reference to the leader portrait. expire = <string> When the leader dies in history. ideology = <string> The sub-ideology of the country leader. Does not accept regular ideologies. female = <bool> The gender of the leader. Traits scope <trait> The trait to add. Can add multiple.
+- Example: create_country_leader = { name = AFG_mohammed_zahir_shah desc = "POLITICS_MOHAMMED_ZAHIR_SHAH_DESC" picture = GFX_AFG_mohammed_zahir_shah expire = "1965.1.1" ideology = despotism traits = { } }
+- Desc: &#160;
+- Since: 1.0
+
+## add_country_leader_role
+- Params: character = <character> The character to modify. country_leader = { ... } Country leader role definition promote_leader = <bool> Will promote the leader to be the leader of the assigned party. Optional, defaults to false.
+- Example: add_country_leader_role = { character = GER_character_token promote_leader = yes country_leader = { ideology = fascism_ideology expire = "1965.1.1.1" traits = { war_industrialist } } }
+- Desc: Sets the specified character to also act as a country leader, promoting to the party leader if specified.
+- Since: 1.11
+
+## promote_character
+- Params: <character> The character to promote. OR character = <character> The character to promote. ideology = <ideology type> The ideology type used by the country leader role.
+- Example: promote_character = GER_erwin_rommel
+- Desc: Promotes a character to the leader of their political party.
+- Since: 1.11
+
+## remove_country_leader_role
+- Params: character = <character> The character to modify. ideology = <string> The ideology type of the character.
+- Example: remove_country_leader_role = { character = GER_Character_Token ideology = socialism }
+- Desc: Removes a country leader role from a character.
+- Since: 1.11
+
+## kill_ideology_leader
+- Params: <ideology> Ideology.
+- Example: kill_ideology_leader = communism
+- Desc: Kills the country leader of the designated ideology for the current scope.
+- Since: 1.9
+
+## retire_ideology_leader
+- Params: <ideology> Ideology.
+- Example: retire_ideology_leader = fascism
+- Desc: Retires and removes the country leader of the ideology party for the current scope.
+- Since: 1.9
+
+## kill_country_leader
+- Params: <bool> Boolean.
+- Example: kill_country_leader = yes
+- Desc: Kills the country leader for the current scope.
+- Since: 1.0
+
+## retire_country_leader
+- Params: <bool> Boolean.
+- Example: retire_country_leader = yes
+- Desc: Retires and removes the country leader as head of their party for the current scope.
+- Since: 1.0
+
+## set_country_leader_ideology
+- Params: <government> The government to set.
+- Example: set_country_leader_ideology = socialism
+- Desc: Changes the country leader's government type for the current scope.
+- Since: 1.0
+
+## set_country_leader_description
+- Params: ideology = <ideology> The ideology of the country leader, optional. desc = <localisation key> The new description.
+- Example: set_country_leader_description = { ideology = neutrality desc = LOC_KEY }
+- Desc: Changes the country leader's description.
+- Since: 1.9.1
+
+## set_country_leader_name
+- Params: ideology = <ideology> The ideology of the country leader, optional. name = <localisation key> The new name.
+- Example: set_country_leader_name = { ideology = neutrality name = LOC_KEY }
+- Desc: Changes the country leader's name.
+- Since: 1.9.1
+
+## set_country_leader_portrait
+- Params: ideology = <ideology> The ideology of the country leader, optional. portrait = <sprite name> The new portrait.
+- Example: set_country_leader_portrait = { ideology = neutrality portrait = GFX_IMAGE_NAME }
+- Desc: Changes the country leader's portrait.
+- Since: 1.9.1
+
+## add_country_leader_trait
+- Params: <trait> The trait to add.
+- Example: add_country_leader_trait = nationalist_symbol
+- Desc: Adds the specified trait to the current country's country leader.
+- Since: 1.0
+
+## remove_country_leader_trait
+- Params: <trait> The trait to remove.
+- Example: remove_country_leader_trait = nationalist_symbol
+- Desc: Removes the specified trait from the current scope's country leader.
+- Since: 1.0
+
+## swap_ruler_traits
+- Params: Similar to swap_ideas. Removes one trait and adds another.
+- Example: swap_ruler_traits = { remove = <trait> add = <trait> }
+- Desc: Swaps traits.
+- Since: 1.6
+
+## activate_advisor
+- Params: <character> The character to activate.
+- Example: activate_advisor = GER_character_token_air_chief
+- Desc: Hires an advisor, placing them into their respective slot.
+- Since: 1.11
+
+## deactivate_advisor
+- Params: <character> The character to deactivate.
+- Example: deactivate_advisor = GER_character_token_air_chief
+- Desc: Dismisses an advisor from their respective slot, leaving it empty.
+- Since: 1.11
+
+## add_advisor_role
+- Params: character = <character> The character to modify. advisor = { ... } Advisor role definition activate = <bool> Will activate the advisor (add them directly when the command is run to the countries government). Optional, defaults to false.
+- Example: add_advisor_role = { character = GER_Character_token activate = yes advisor = { slot = air_chief cost = 50 idea_token = GER_character_token_air_chief traits = { air_chief_ground_support_2 } } }
+- Desc: Sets the specified character to also act as an advisor, activating if specified.
+- Since: 1.11
+
+## remove_advisor_role
+- Params: character = <character> Specifies the character if the effect is executed in country scope. slot = <int> The slot where to remove the advisor slot from.
+- Example: remove_advisor_role = { character = "SOV_genrikh_yagoda" slot = political_advisor }
+- Desc: Removes the specified advisor role from the character.
+- Since: 1.11
+
+## set_can_be_fired_in_advisor_role
+- Params: character = <character> The character to modify. slot = <slot> The slot of the character to modify. value = <bool> The value to set.
+- Example: set_can_be_fired_in_advisor_role = { character = BHR_important_advisor value = no }
+- Desc: Changes the can_be_fired attribute of the advisor, preventing the player from dismissing the advisor.
+- Since: 1.12.8
+
+## add_scientist_role
+- Params: character = <character> / <variable> The character to modify. <...> Scientist role definition
+- Example: add_scientist_role = { character = my_character / var:my_char_var / PREV scientist = { desc = desc_loc_key traits = { scientist_trait_token ... } skills = { specialization_token = 2 ... } } }
+- Desc: Adds the scientist role to a character.
+- Since: 1.15
+
+## remove_scientist_role
+- Params: character = <character> / <variable>
+- Example: remove_scientist_role = { character = my_character / var:my_char_var / PREV }
+- Desc: Remove the scientist role from a character.
+- Since: 1.15
+
+## generate_scientist_character
+- Params: portrait = <GFX> Optional, random portrait by default. portrait_tag_override = <country> / <variable> Optional, accepts variable and keyword, only relevant if using random portrait, by default use country in scope. gender = <gender> Optional, by default random gender. skills = {&#160;??? } Optional array, same format as in scientist role in character DB, by default all skills are at 1. traits = { <trait> } Optional array.
+- Example: generate_scientist_character = { portrait = GFX_portrait portrait_tag_override = CHI gender = male skills = { specialization_token = 2 } traits = { trait_token } }
+- Desc: Generate a new character with a scientist role and recruit it in the country in scope.
+- Since: 1.15

@@ -37,10 +37,10 @@ bool Generator::createPaths() {
         "//gfx//terrain2//decals//mountain_jagged_01//instances",
         "//gfx//terrain2//decals//volcano_01//instances",
         "//gfx//terrain2//terrain_textures/masks",
-        "//gfx//map//water",
-        "//map_data",
-        "//map_data//named_locations//",
-        "//content_source//map_objects//masks",
+        "//gfx/map/water",
+        "/map_data",
+        "/map_data//named_locations//",
+        "//content_source/map_objects//masks",
 
     };
     for (int i = 1; i <= 16; i++) {
@@ -327,7 +327,7 @@ void Generator::writeTextFiles(bool scenarioDetails) {
 void Generator::writeImages() {
   //// TODO: improve handling of altitude data to not rely on image
   imageExporter.Eu5ColourMaps(terrainData, climateData, ardaData.civLayer,
-                              pathcfg.gameModPath + "//in_game/gfx//map//",
+                              pathcfg.gameModPath + "//in_game/gfx/map/",
                               this->exportWidth / 2, this->exportHeight / 2);
    imageExporter.writeLocations(provinceMap, ardaProvinces, ardaRegions,
                                 ardaContinents, ardaData.civLayer,
@@ -349,14 +349,14 @@ void Generator::writeImages() {
 
   imageExporter.mapObjectMasks(
       terrainData, climateData, ardaData.civLayer,
-      pathcfg.gameModPath + "//in_game/content_source//map_objects//masks//",
+      pathcfg.gameModPath + "//in_game/content_source/map_objects//masks//",
       this->exportWidth, this->exportHeight);
 }
 
 void Generator::writeSplnet() {
   // createLocators();
   // Parsing::Writing::locators(pathcfg.gameModPath +
-  //                                "//gfx//map//map_object_data//",
+  //                                "//gfx/map/map_object_data//",
   //                            modData.vic3Regions);
   // genNavmesh();
   // calculateNavalExits();
@@ -364,7 +364,7 @@ void Generator::writeSplnet() {
   // Splnet splnet;
   // splnet.constructSplnet(ardaRegions);
   // splnet.writeFile(pathcfg.gameModPath +
-  //                  "//gfx//map//spline_network//spline_network.splnet");
+  //                  "//gfx/map/spline_network//spline_network.splnet");
 }
 
 } // namespace Rpx::Eu5

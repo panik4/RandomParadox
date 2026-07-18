@@ -15,20 +15,20 @@ bool Generator::createPaths() { // prepare folder structure
     // generic cleanup and path creation
     create_directory(pathcfg.gameModPath);
     // map
-    remove_all(pathcfg.gameModPath + "//map//");
+    remove_all(pathcfg.gameModPath + "/map/");
     remove_all(pathcfg.gameModPath + "//gfx");
     remove_all(pathcfg.gameModPath + "//history");
     remove_all(pathcfg.gameModPath + "/common/");
-    remove_all(pathcfg.gameModPath + "//localisation//");
-    create_directory(pathcfg.gameModPath + "//map//");
-    create_directory(pathcfg.gameModPath + "//map/terrain/");
+    remove_all(pathcfg.gameModPath + "/localisation/");
+    create_directory(pathcfg.gameModPath + "/map/");
+    create_directory(pathcfg.gameModPath + "/map/terrain/");
     // gfx
     create_directory(pathcfg.gameModPath + "//gfx//");
     create_directory(pathcfg.gameModPath + "//gfx//flags//");
     // history
     create_directory(pathcfg.gameModPath + "//history//");
     // localisation
-    create_directory(pathcfg.gameModPath + "//localisation//");
+    create_directory(pathcfg.gameModPath + "/localisation/");
     // common
     create_directory(pathcfg.gameModPath + "/common/");
     create_directory(pathcfg.gameModPath + "//history//diplomacy//");
@@ -174,77 +174,77 @@ void Generator::generate() {
     // generate map files. Format must be converted and colours mapped to eu4
     // compatible colours
     formatConverter.dump8BitTerrain(terrainData, climateData, ardaData.civLayer,
-                                    pathcfg.gameModPath + "//map//terrain.bmp",
+                                    pathcfg.gameModPath + "/map/terrain.bmp",
                                     "terrain", false);
     formatConverter.dump8BitRivers(terrainData, climateData,
-                                   pathcfg.gameModPath + "//map//rivers",
+                                   pathcfg.gameModPath + "/map/rivers",
                                    "rivers", false);
     formatConverter.dump8BitTrees(terrainData, climateData,
-                                  pathcfg.gameModPath + "//map//trees.bmp",
+                                  pathcfg.gameModPath + "/map/trees.bmp",
                                   "trees", false);
     formatConverter.dump8BitHeightmap(terrainData.detailedHeightMap,
-                                      pathcfg.gameModPath + "//map//heightmap",
+                                      pathcfg.gameModPath + "/map/heightmap",
                                       "heightmap");
     std::vector<Fwg::Gfx::Image> seasonalColourmaps;
     genSeasons(Cfg::Values(), seasonalColourmaps);
     formatConverter.dumpTerrainColourmap(
         seasonalColourmaps[0], ardaData.civLayer, pathcfg.gameModPath,
-        "//map/terrain/colormap_spring.dds",
+        "/map/terrain/colormap_spring.dds",
         gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
     formatConverter.dumpTerrainColourmap(
         seasonalColourmaps[1], ardaData.civLayer, pathcfg.gameModPath,
-        "//map/terrain/colormap_summer.dds",
+        "/map/terrain/colormap_summer.dds",
         gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
     formatConverter.dumpTerrainColourmap(
         seasonalColourmaps[2], ardaData.civLayer, pathcfg.gameModPath,
-        "//map/terrain/colormap_autumn.dds",
+        "/map/terrain/colormap_autumn.dds",
         gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
     formatConverter.dumpTerrainColourmap(
         seasonalColourmaps[3], ardaData.civLayer, pathcfg.gameModPath,
-        "//map/terrain/colormap_winter.dds",
+        "/map/terrain/colormap_winter.dds",
         gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
     formatConverter.dumpDDSFiles(
         terrainData.detailedHeightMap,
-        pathcfg.gameModPath + "//map/terrain/colormap_water", false, 2);
+        pathcfg.gameModPath + "/map/terrain/colormap_water", false, 2);
     formatConverter.dumpWorldNormal(
         Fwg::Gfx::Image(Cfg::Values().width, Cfg::Values().height, 24,
                         terrainData.sobelData),
-        pathcfg.gameModPath + "//map//world_normal.bmp", false);
+        pathcfg.gameModPath + "/map/world_normal.bmp", false);
 
     using namespace Fwg::Gfx;
     // just copy over provinces.bmp, already in a compatible format
-    Bmp::save(provinceMap, pathcfg.gameModPath + "//map//provinces.bmp");
+    Bmp::save(provinceMap, pathcfg.gameModPath + "/map/provinces.bmp");
     {
       using namespace Parsing;
       // now do text
-      writeAdj(pathcfg.gameModPath + "//map//adjacencies.csv", ardaProvinces);
-      writeAmbientObjects(pathcfg.gameModPath + "//map//ambient_object.txt",
+      writeAdj(pathcfg.gameModPath + "/map/adjacencies.csv", ardaProvinces);
+      writeAmbientObjects(pathcfg.gameModPath + "/map/ambient_object.txt",
                           ardaProvinces);
-      writeAreas(pathcfg.gameModPath + "//map//area.txt", ardaRegions,
+      writeAreas(pathcfg.gameModPath + "/map/area.txt", ardaRegions,
                  pathcfg.gamePath);
       writeColonialRegions(
           pathcfg.gameModPath +
               "/common/colonial_regions//00_colonial_regions.txt",
           pathcfg.gamePath, ardaProvinces);
-      writeClimate(pathcfg.gameModPath + "//map//climate.txt", ardaProvinces);
-      writeContinent(pathcfg.gameModPath + "//map//continent.txt",
+      writeClimate(pathcfg.gameModPath + "/map/climate.txt", ardaProvinces);
+      writeContinent(pathcfg.gameModPath + "/map/continent.txt",
                      ardaProvinces);
-      writeDefaultMap(pathcfg.gameModPath + "//map//default.map",
+      writeDefaultMap(pathcfg.gameModPath + "/map/default.map",
                       ardaProvinces);
-      writeDefinition(pathcfg.gameModPath + "//map//definition.csv",
+      writeDefinition(pathcfg.gameModPath + "/map/definition.csv",
                       ardaProvinces);
-      writePositions(pathcfg.gameModPath + "//map//positions.txt",
+      writePositions(pathcfg.gameModPath + "/map/positions.txt",
                      ardaProvinces);
-      writeRegions(pathcfg.gameModPath + "//map//region.txt", pathcfg.gamePath,
+      writeRegions(pathcfg.gameModPath + "/map/region.txt", pathcfg.gamePath,
                    getEu4Regions());
-      writeSuperregion(pathcfg.gameModPath + "//map//superregion.txt",
+      writeSuperregion(pathcfg.gameModPath + "/map/superregion.txt",
                        pathcfg.gamePath, ardaRegions);
-      writeTerrain(pathcfg.gameModPath + "//map//terrain.txt", ardaProvinces);
+      writeTerrain(pathcfg.gameModPath + "/map/terrain.txt", ardaProvinces);
       writeTradeCompanies(
           pathcfg.gameModPath +
               "/common/trade_companies//00_trade_companies.txt",
           pathcfg.gamePath, ardaProvinces);
-      writeTradewinds(pathcfg.gameModPath + "//map//trade_winds.txt",
+      writeTradewinds(pathcfg.gameModPath + "/map/trade_winds.txt",
                       ardaProvinces);
 
       copyDescriptorFile(
@@ -253,7 +253,7 @@ void Generator::generate() {
 
       writeProvinces(pathcfg.gameModPath + "//history//provinces//",
                      ardaProvinces, ardaRegions);
-      writeLoc(pathcfg.gameModPath + "//localisation//", pathcfg.gamePath,
+      writeLoc(pathcfg.gameModPath + "/localisation/", pathcfg.gamePath,
                ardaRegions, ardaProvinces, getEu4Regions());
       Fwg::Utils::Logging::logLine("Done with the eu4 export");
     }

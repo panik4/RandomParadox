@@ -17,7 +17,7 @@ void adj(const std::string &path) {
 void defaultMap(const std::string &path,
                 const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
   auto templateContent = pU::readFile(Fwg::Cfg::Values().resourcePath +
-                                      "vic3//map_data//default.map");
+                                      "vic3/map_data//default.map");
   Logging::logLine("Vic3 Parser: Map: Default Map");
   std::string content = templateContent;
   std::string seaStarts{""};
@@ -56,7 +56,7 @@ void defines(const std::string &pathOut) {
 void heightmap(const std::string &path, const Fwg::Gfx::Image &heightMap,
                const Fwg::Gfx::Image &packedHeightmap) {
   auto content = pU::readFile(Fwg::Cfg::Values().resourcePath +
-                              "vic3//map_data//heightmap.heightmap");
+                              "vic3/map_data//heightmap.heightmap");
   Logging::logLine("Vic3 Parser: Map: Writing heightmap.heightmap");
   Rpx::Parsing::replaceOccurences(content, "template_mapX",
                                   std::to_string(heightMap.width()));
@@ -72,10 +72,10 @@ void stateFiles(const std::string &path,
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing state files");
 
   const auto templateFile = pU::readFile(Fwg::Cfg::Values().resourcePath +
-                                         "vic3//map_data//state_template.txt");
+                                         "vic3/map_data//state_template.txt");
   const auto seaTemplateFile =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3//map_data//sea_state_template.txt");
+                   "vic3/map_data//sea_state_template.txt");
   std::string file = "";
   for (const auto &region : regions) {
     auto content = region->isSea() ? seaTemplateFile : templateFile;

@@ -1,0 +1,8 @@
+# Contract_scope
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## cancel_purchase_contract
+- Params: <bool> Boolean.
+- Example: cancel_purchase_contract = yes
+- Desc: Cancels the current purchase contract.
+- Since: 1.13

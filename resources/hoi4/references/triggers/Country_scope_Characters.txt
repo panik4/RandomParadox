@@ -1,0 +1,50 @@
+# Country_scope_Characters
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## can_be_country_leader
+- Params: <character> The character to check.
+- Example: can_be_country_leader = POL_character_test
+- Desc: Checks if the specified character has a country leader role, active or not, and can utilise it in this country.
+- Since: 1.11
+
+## has_character
+- Params: <string> The character to check.
+- Example: has_character = my_character
+- Desc: Checks if the current scope has the specified character recruited. The character does NOT need to be in power.
+- Since: 1.11
+
+## has_country_leader
+- Params: ruling_only = <bool>(default = yes) Limit check to ruling only. character = <character_token> (recommended criteria) The character to check for. Optional. name = <string> The name to check for. Optional. id = <int> The id to check for. Optional.
+- Example: has_country_leader = { id = 10 }
+- Desc: Checks if the current scope has the specified country leader.
+- Since: 1.3
+
+## has_country_leader_ideology
+- Params: <ideology> Checks the ideology of the active country leader
+- Example: has_country_leader_ideology = nazism
+- Desc: Checks if the current scope's active country leader has the specified ideology.
+- Since: 1.11
+
+## has_country_leader_with_trait
+- Params: <string> The trait to check.
+- Example: has_country_leader_with_trait = champion_of_peace_1
+- Desc: Checks if the leader of the country has a specific trait.
+- Since: 1.6
+
+## is_female
+- Params: <bool> Boolean.
+- Example: is_female = yes
+- Desc: Checks if the current country leader is female.
+- Since: 1.9
+
+## has_unit_leader
+- Params: <int> The id to check for.
+- Example: has_unit_leader = 1
+- Desc: Checks if the current scope has a unit leader with the specified id.
+- Since: 1.0
+
+## has_scientist_specialization
+- Params: specialization = <specialization_token> Specialization.
+- Example: has_scientist_specialization = specialization_nuclear
+- Desc: Checks if the country in scope has a scientist with a skill level of at least 1 in specialization.
+- Since: 1.15

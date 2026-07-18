@@ -1,0 +1,192 @@
+# Any_scope_General
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_dynamic_modifier
+- Params: modifier = <modifier_string> The name of the Modifier. scope = <country> If you specify it, your dynamic modifier will be scoped to this scope. Optional. days = x The modifiers will be removed after x days have passed. Optional.
+- Example: add_dynamic_modifier = { modifier = example_dynamic_modifier scope = GER days = 14 }
+- Desc: Adds a dynamic modifier to the specified scope (the default scope is ROOT). It will be updated daily, unless forced to update early by force_update_dynamic_modifier effect.
+- Since: 1.6
+
+## remove_dynamic_modifier
+- Params: modifier = <modifier_string> The name of the Modifier.
+- Example: remove_dynamic_modifier = { modifier = sabotaged_ressources }
+- Desc: Removes a dynamic modifier from the current scope
+- Since: 1.6
+
+## force_update_dynamic_modifier
+- Params: <bool> Boolean.
+- Example: force_update_dynamic_modifier = yes
+- Desc: Forces an update to the effects given by variables within dynamic modifiers.
+- Since: 1.6
+
+## add_state_resistance_compliance_modifier
+- Params: modifier = <resistance_compliance_modifier>Modifier to apply. state= <state>Affected state.
+- Example: add_state_resistance_compliance_modifier = { modifier = dynamic_modifier_name state = 738 }
+- Desc: Adds either a resistance or compliance modifier to a state. Can only use modifiers from the /Hearts of Iron IV/common/resistance_modifiers.txt/compliance_modifiers.txt that are marked as is_dynamic = yes
+
+## remove_state_resistance_compliance_modifier
+- Params: modifier = <resistance_compliance_modifier>Modifier to remove. state= <state>Affected state.
+- Example: remove_state_resistance_compliance_modifier = { modifier = dynamic_modifier_name state = 738 }
+- Desc: Removes either a resistance or compliance modifier from a state. Can only use modifiers from the /Hearts of Iron IV/common/resistance_modifiers.txt/compliance_modifiers.txt that are marked as is_dynamic = yes
+
+## set_global_flag
+- Params: <flag> An unique string to identify the global flag with. OR flag = <flag> The flag to set. days = <int> Sets the flag to last for the specified amount of days. Optional. value = <int> The new value of the flag on the scale from -2 147 483 648 to 2 147 483 647.
+- Example: set_global_flag = my_flag
+- Desc: Defines a global flag.
+- Since: 1.0
+
+## play_song
+- Params: <song title from .asset> A music file located in the music folder and .asset
+- Example: play_song = "general_peace_1"
+- Desc: Plays an audio track
+- Since: 1.9.3
+
+## clr_global_flag
+- Params: <flag> The unique string of a global flag to clear.
+- Example: clr_global_flag = my_flag
+- Desc: Clears a defined global flag.
+- Since: 1.0
+
+## modify_global_flag
+- Params: flag = <flag> The flag to modify. value = <value> The value to add to the flag. Defaults to 0. days = <int> The amount of days that the flag should last for before being cleared. Optional, defaults to permanent.
+- Example: modify_global_flag = { flag = my_flag value = 3 }
+- Desc: Adds an integer value to a flag.
+- Since: 1.3
+
+## custom_effect_tooltip
+- Params: <string> A localized string to display in the tooltip.
+- Example: custom_effect_tooltip = my_tooltip_tt
+- Desc: Displays a localized key in the effect tooltip.
+- Since: 1.0
+
+## custom_override_tooltip
+- Params: tooltip = <string> A localized string to display in the tooltip. not_tooltip = <string> A localized string to display in the tooltip for NOT block. Optional.
+- Example: custom_override_tooltip= { tooltip = my_tt not_tooltip = my_tt_NOT <effects> }
+- Desc: Executes the provided effects but with a custom tooltip surpressing all tooltips from all other effects inside this block.
+- Since: 1.15
+
+## effect_tooltip
+- Params: <string>
+- Example: effect_tooltip = { declare_war_on = { target = FRA } }
+- Desc: Displays the effects in the tooltip without executing them.
+- Since: 
+
+## log
+- Params: <string> An string to in the game.log
+- Example: log = "myVariable: [?myVariable]"
+- Desc: Displays a string in the user directory's /Hearts of Iron IV/logs/game.log file when executed, as well as showing up in the console if it is open when the logging effect was executed.
+- Since: 1.5
+
+## save_event_target_as
+- Params: <string> An unique string to identify the event target with.
+- Example: capital_scope = { save_event_target_as = my_state }
+- Desc: Saves the current scope as a key. Is cleared once execution ends (i.e. end of event).
+- Since: 1.0
+
+## save_global_event_target_as
+- Params: <string> An unique string to identify the global event target with.
+- Example: random_other_country = { save_global_event_target_as = my_country }
+- Desc: Saves the current scope as a key. Persists after execution until cleared via effect.
+- Since: 1.0
+
+## clear_global_event_target
+- Params: <string> The unique string of the global event target to clear.
+- Example: clear_global_event_target = my_country
+- Desc: Clears a specific global event target.
+- Since: 1.0
+
+## clear_global_event_targets
+- Params: yes Boolean.
+- Example: clear_global_event_targets = yes
+- Desc: Clears all global event targets.
+- Since: 1.0
+
+## sound_effect
+- Params: <string> A sound reference from an .asset file.
+- Example: sound_effect = "boom"
+- Desc: Plays the specified sound once.
+- Since: 1.0
+
+## randomize_weather
+- Params: <int> A seed integer.
+- Example: randomize_weather = 12345
+- Desc: Randomizes the weather with the specified seed.
+- Since: 1.0
+
+## set_province_name
+- Params: id = <id> The id of the province to be changed. name = <string> The name to change the province to.
+- Example: set_province_name = { id = 325 name = LOC_KEY }
+- Desc: Changes the specified province/victory point's name to the specified name.
+- Since: 1.3
+
+## reset_province_name
+- Params: <id> The id of the province to reset.
+- Example: reset_province_name = 325
+- Desc: Resets the specified province's name.
+- Since: 1.3
+
+## damage_units
+- Params: province = <id> Province where to damage units. state = <id> State where to damage units. region = <id> Strategic region where to damage units. limit = { <triggers> } Will only delete units if the triggers within are met for the country that owns the units. damage = <fraction> The percentage of damage done to units. org_damage = <fraction> The percentage of damage done to units to organisation in particular. str_damage = <fraction> The percentage of damage done to units to strength in particular. ratio = <yes> Will damage a ratio damage to total organisation/strength of unit if set. template = <string> If specified, requires the template name to match. army = <bool> Will damage the army units. navy = <bool> Will damage the navy units.
+- Example: damage_units = { province = 42 state = 5 region = 5 limit = { has_country_flag = TAG_test } damage = 0.5 org_damage = 0.5 str_damage = 0.5 ratio = yes template = "template_name" army = no navy = yes }
+- Desc: Damages units in the specified area.
+- Since: 1.11
+
+## create_entity
+- Params: entity = <gfx_entry> The entity to spawn, defined within /Hearts of Iron IV/gfx/entities/*.asset files. id = int A number ID which can be referred to by other effects. Optional. var = <variable> If provided, the id of the entity will be stored using this variable. Optional. x = <int> The X position of the entity. y = <int> The Y position of the entity. z = <int> The Z position of the entity. province = <int> The province the middle of which to use as the entity's position. state = <int> The state the middle of which to use as the entity's position. rotation = <decimal> The rotation of the entity in radians. scale = <decimal> The size of the entity. min_zoom = <decimal> Minimum zoom level needed to be able to see the entity. visible = <scripted_trigger> The scripted trigger that must be met for a country for it to see the entity.
+- Example: create_entity = { entity = entity_name id = 123 var = var_name x = 42 y = 21 z = 3 province = 123 state = 42 rotation = 1.2 scale = 10.0 min_zoom = 100.0 visible = scripted_trigger_name }
+- Desc: Creates an entity.
+- Since: 1.11
+
+## destroy_entity
+- Params: <id> The ID of the entity to destroy.
+- Example: destroy_entity = 123
+- Desc: Deletes an entity
+- Since: 1.11
+
+## set_entity_movement
+- Params: id = <ID> The ID of the entity to modify. ratio = <int> Distance between starting position and target position where the entity is to be placed. rotation = <int> The rotation to apply after the positioning. start and target arguments: x = <int> The X position of the point. y = <int> The Y position of the point. z = <int> The Z position of the point. province = <int> The province the middle of which to use as the point. state = <int> The state the middle of which to use as the point.
+- Example: set_entity_movement = { id = 123 start = { x = 42 y = 21 z = 3 } target = { province = 124 } ratio = 0.5 rotation = 1.2 }
+- Desc: Sets the position and rotation of an entity using two coordinates.
+- Since: 1.11
+
+## set_entity_position
+- Params: id = <id> x = <int> y = <int> z = <int> province = <int> state = <int>
+- Example: set_entity_position = { id = 123 x = 42 y = 21 z = 3 province = 123 state = 42 }
+- Desc: Sets the position of an existing entity
+- Since: 1.11
+
+## set_entity_rotation
+- Params: id = <ID> The ID of the entity to modify. rotation = <decimal> The new angle in radians.
+- Example: set_entity_rotation = { id = 123 rotation = 0.23 }
+- Desc: Sets the currently-facing angle of an existing entity.
+- Since: 1.11
+
+## set_entity_scale
+- Params: id = <ID> The ID of the entity to modify. scale = <decimal> The scale to change the entity to.
+- Example: set_entity_scale = { id = 123 scale = 5.0 }
+- Desc: Sets the size of an existing entity.
+- Since: 1.11
+
+## set_entity_animation
+- Params: id = <int> The ID of the entity to modify. animation = <animation_type> The animation entry to apply.
+- Example: set_entity_animation = { id = 123 animation = "shoot_lasers" }
+- Desc: Sets the animation of a specified entity.
+- Since: 1.11
+
+## build_railway
+- Params: level = <int> Defaults to 1 build_only_on_allied = <bool> No by default, if yes and in a country scope, it will only build on allied territories for the country scoped. fallback = <bool> Defaults to no, if yes each option will try to fallback to the next available one. path = { <list of provinces> } start_province = <int> target_province = <int> start_state = <int> target_state = <int> If using start state/target state, the game will pick the provinces with the best supply available. If using state province/target province, the game will link those two provinces.
+- Example: build_railway = { level = 1 build_only_on_allied = yes controller_priority = { base = 1 modifier = { tag = MAN add = 2 } } fallback = yes path = { 42 10 20 30 40 84 } start_province = 42 target_province = 84 }
+- Desc: Adds a railway level between two provinces or along a predefined path.
+- Since: 1.11
+
+## event_option_tooltip
+- Params: <option> The name of the option.
+- Example: event_option_tooltip = mtg_usa_civil_war_fascists.1.a
+- Desc: Shows the tooltip usually received for hovering over an event option with the specified name.
+- Since: 1.13
+
+## create_purchase_contract
+- Params: seller = <country> The seller in the contract. buyer = <country> The buyer in the contract. civilian_factories = <int> The amount of civilian factories required by the contract. equipment = { ... } The equipment that the contract is for. In particular, contains these attributes: type = <archetype> The archetype of the equipment. amount = <int> The amount of the specified equipment.
+- Example: create_purchase_contract = { seller = ROOT buyer = FROM civilian_factories = 2 equipment = { type = artillery_equipment amount = 300 } }
+- Desc: Creates a purchase contract with the specified parameters.
+- Since: 1.13

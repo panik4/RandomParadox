@@ -1,0 +1,110 @@
+# Any_scope_General
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## always
+- Params: <bool> Boolean.
+- Example: always = yes
+- Desc: Always returns true or false. Useful for debugging.
+- Since: 1.0
+
+## has_global_flag
+- Params: <string> The flag to check.
+- Example: has_global_flag = my_flag
+- Desc: Checks if the specified flag has been set.
+- Since: 1.0
+
+## has_global_flag
+- Params: flag = <string> The flag to check. value = <int> The flag value to check for. Optional. date = <date> The flag creation date to check for. Optional. days = <int> The duration the flag existed for. Optional.
+- Example: has_global_flag = { flag = my_flag days > 30 date > 1936.6.1 value > 0 }
+- Desc: Compares the specified flag's last set date, days since last set, and/or value.
+- Since: 1.0
+
+## has_dlc
+- Params: <string> The DLC name to check for.
+- Example: has_dlc = "Waking the Tiger"
+- Desc: Checks if the specified DLC is enabled.
+- Since: 1.0
+
+## has_start_date
+- Params: <date> The date to check for.
+- Example: has_start_date > 1950.01.01
+- Desc: Checks if the specified date was the start date used for the current game.
+- Since: 1.0
+
+## date
+- Params: <date> The date to check for.
+- Example: date < 1950.01.01
+- Desc: Checks if the specified date against the current date.
+- Since: 1.0
+
+## difficulty
+- Params: <int> The difficulty value.
+- Example: difficulty > 0
+- Desc: checks if the specified difficulty against the current difficulty.
+- Since: 1.0
+
+## has_any_custom_difficulty_setting
+- Params: <bool> Boolean.
+- Example: has_any_custom_difficulty_setting = yes
+- Desc: Checks if any custom difficulty setting is changed from their default value.
+- Since: 1.0
+
+## has_custom_difficulty_setting
+- Params: <string> The setting to check.
+- Example: has_custom_difficulty_setting = custom_diff_strong_sov
+- Desc: Checks if the specified custom difficulty setting is changed from the default value.
+- Since: 1.0
+
+## game_rules_allow_achievements
+- Params: <bool> Boolean.
+- Example: game_rules_allow_achievements = yes
+- Desc: Checks if all of the active game rule options allow achievements.
+- Since: 1.9
+
+## country_exists
+- Params: <scope> / <variable> The country to check.
+- Example: country_exists = GER
+- Desc: Checks if the specified country currently exists in game.
+- Since: 1.0
+
+## is_ironman
+- Params: <bool> Boolean.
+- Example: is_ironman = yes
+- Desc: Checks if the current game is running in Ironman mode.
+- Since: 1.0
+
+## is_historical_focus_on
+- Params: <bool> Boolean.
+- Example: is_historical_focus_on = yes
+- Desc: Checks if the current game is running with Historical Focuses on.
+- Since: 1.0
+
+## is_tutorial
+- Params: <bool> Boolean.
+- Example: is_tutorial = yes
+- Desc: Checks if the current game is running in Tutorial mode.
+- Since: 1.0
+
+## is_debug
+- Params: <bool> Boolean.
+- Example: is_debug = yes
+- Desc: Checks if game is in debug mode (launched with -debug argument).
+- Since: 1.9
+
+## threat
+- Params: <float> The amount to check for.
+- Example: threat > 0.5
+- Desc: Checks if World Tension is above the specified amount.
+- Since: 1.0
+
+## has_game_rule
+- Params: <string> The game rule to check for. <string> / <bool> The option to check.
+- Example: has_game_rule = { rule = GER_can_remilitarize_rhineland option = yes }
+- Desc: Checks if a game rule is set to a particular option.
+- Since: 1.5
+
+## has_completed_custom_achievement
+- Params: mod = <mod ID> The mod where the achievement is from. achievement = <achievement ID> The name of the achievement.
+- Example: has_completed_custom_achievement = { mod = my_mod_unique_id achievement = my_achievement_token }
+- Desc: Checks if the player controlling the current scope has completed the specified custom achievement.
+- Since: 1.12.5

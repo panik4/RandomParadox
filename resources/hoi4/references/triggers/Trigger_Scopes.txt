@@ -1,0 +1,380 @@
+# Trigger_Scopes
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## all_country
+- Scope: Always usable
+- Target: Country
+- Example: all_country = { ... }
+- Desc: Checks if all countries meet the triggers.
+- Since: 1.0
+
+## any_country
+- Scope: Always usable
+- Target: Country
+- Example: any_country = { ... }
+- Desc: Checks if any country meets the triggers.
+- Since: 1.0
+
+## all_other_country
+- Scope: Within country scope only
+- Target: Country
+- Example: all_other_country = { ... }
+- Desc: Checks if all countries other than the one where this scope is located meet the triggers.
+- Since: 1.0
+
+## any_other_country
+- Scope: Within country scope only
+- Target: Country
+- Example: any_other_country = { ... }
+- Desc: Checks if any country other than the one where this scope is located meets the triggers.
+- Since: 1.0
+
+## all_country_with_original_tag
+- Scope: Always usable
+- Target: Country
+- Example: all_country_with_original_tag = { original_tag_to_check = TAG #required ... #triggers to check }
+- Desc: Checks if all countries originating from the specified country, including the dynamic countries created for civil wars and other purposes, meet the triggers. original_tag_to_check = TAG is used to specify the original tag.
+- Since: 1.9
+
+## any_country_with_original_tag
+- Scope: Always usable
+- Target: Country
+- Example: any_country_with_original_tag = { original_tag_to_check = TAG #required ... #triggers to check }
+- Desc: Checks if any country originating from the specified country, including the dynamic countries created for civil wars and other purposes, meets the triggers. original_tag_to_check = TAG is used to specify the original tag.
+- Since: 1.9
+
+## all_neighbor_country
+- Scope: Within country scope only
+- Target: Country
+- Example: all_neighbor_country = { ... }
+- Desc: Checks if all countries that border the one where this scope is located meet the triggers.
+- Since: 1.0
+
+## any_neighbor_country
+- Scope: Within country scope only
+- Target: Country
+- Example: any_neighbor_country = { ... }
+- Desc: Checks if any country that borders the one where this scope is located meets the triggers.
+- Since: 1.0
+
+## any_home_area_neighbor_country
+- Scope: Within country scope only
+- Target: Country
+- Example: any_home_area_neighbor_country = { ... }
+- Desc: Checks if any country that borders the one where this scope is located, as well as being in its home area - meaning a direct land connection between the capitals of countries - meets the triggers.
+- Since: 1.0
+
+## all_guaranteed_country
+- Scope: Within country scope only
+- Target: Country
+- Example: all_guaranteed_country = { ... }
+- Desc: Checks if all countries that are guaranteed by the one where this scope is located meet the triggers.
+- Since: 1.9
+
+## any_guaranteed_country
+- Scope: Within country scope only
+- Target: Country
+- Example: any_guaranteed_country = { ... }
+- Desc: Checks if any country that is guaranteed by the one where this scope is located meets the triggers.
+- Since: 1.9
+
+## all_allied_country
+- Scope: Within country scope only
+- Target: Country
+- Example: all_allied_country = { ... }
+- Desc: Checks if all countries that are allied with the one where this scope is located - meaning that they are either a subject of the country, its overlord, or that they share a faction - meet the triggers. Does not include the country itself.
+- Since: 1.9
+
+## any_allied_country
+- Scope: Within country scope only
+- Target: Country
+- Example: any_allied_country = { ... }
+- Desc: Checks if any country that is allied with the one where this scope is located - meaning that they are either a subject of the country, its overlord, or that they share a faction - meets the triggers. Does not include the country itself.
+- Since: 1.9
+
+## all_occupied_country
+- Scope: Within country scope only
+- Target: Country
+- Example: all_occupied_country = { ... }
+- Desc: Checks if all countries that are occupied by the one where this scope is located - meaning that the occupied country has core states controlled by the occupier country - meet the triggers.
+- Since: 1.9
+
+## any_occupied_country
+- Scope: Within country scope only
+- Target: Country
+- Example: any_occupied_country = { ... }
+- Desc: Checks if any country that is occupied by the one where this scope is located - meaning that the occupied country has core states controlled by the occupier country - meets the triggers.
+- Since: 1.9
+
+## all_enemy_country
+- Scope: Within country scope only
+- Target: Country
+- Example: all_enemy_country = { ... }
+- Desc: Checks if all countries that are at war with the one where this scope is located meet the triggers.
+- Since: 1.9
+
+## any_enemy_country
+- Scope: Within country scope only
+- Target: Country
+- Example: any_enemy_country = { ... }
+- Desc: Checks if any country that are at war with the one where this scope is located meets the triggers.
+- Since: 1.9
+
+## all_subject_countries
+- Scope: Within country scope only
+- Target: Country
+- Example: all_subject_countries = { ... }
+- Desc: Checks if all countries that are a subject of the one where this scope is located meet the triggers. Notice the plural spelling in the scope.
+- Since: 1.11
+
+## any_subject_country
+- Scope: Within country scope only
+- Target: Country
+- Example: any_subject_country = { ... }
+- Desc: Checks if any country that is a subject of the one where this scope is located meets the triggers.
+- Since: 1.11
+
+## any_country_with_core
+- Scope: Within state scope only
+- Target: Country
+- Example: any_country_with_core = { ... }
+- Desc: Checks if any country that has the current scope as a core state meets the triggers. Does not have an equivalent for other effect/trigger scope types.
+- Since: 1.12
+
+## all_country_of
+- Scope: Alway usable
+- Target: Country
+- Example: all_country_of = { tooltip = my_loc # Optional bindable localization target = { SWE NOR FIN DEN ICE } has_defensive_war = yes } all_country_of = { tooltip = my_loc # Optional bindable localization target = constant:country_groups:nordics has_defensive_war = yes }
+- Desc: Checks if all of the provided countries fulfill the specified triggers. The `target` supports script constants and `tooltip` supports bindable localization.
+- Since: 1.17
+
+## any_country_of
+- Scope: Alway usable
+- Target: Country
+- Example: any_country_of = { tooltip = my_loc # Optional bindable localization target = { SWE NOR FIN DEN ICE } has_defensive_war = yes } any_country_of = { tooltip = my_loc # Optional bindable localization target = constant:country_groups:nordics has_defensive_war = yes }
+- Desc: Checks if any of the provided countries fulfills the specified triggers. The `target` supports script constants and `tooltip` supports bindable localization.
+- Since: 1.17
+
+## all_state
+- Scope: Always usable
+- Target: State
+- Example: all_state = { ... }
+- Desc: Check if all states meet the triggers.
+- Since: 1.0
+
+## any_state
+- Scope: Always usable
+- Target: State
+- Example: any_state = { ... }
+- Desc: Check if any state meets the triggers.
+- Since: 1.0
+
+## any_state_in
+- Scope: Always usable
+- Target: State
+- Example: any_state_in = { array = array_of_states #required ... #triggers to check }
+- Desc: Check if any state in the given category meets the trigger.
+- Since: 1.15
+
+## any_state_of
+- Scope: Alway usable
+- Target: State
+- Example: any_state_of = { tooltip = my_loc # Optional bindable localization target = { 1 42 1992 } controller = { has_defensive_war = yes } } any_state_of = { tooltip = my_loc # Optional bindable localization target = constant:country_groups:nordics controller = { has_defensive_war = yes } }
+- Desc: Checks if any of the provided states fulfills the specified triggers. The `target` supports script constants and `tooltip` supports bindable localization.
+- Since: 1.17
+
+## all_neighbor_state
+- Scope: Within state scope only
+- Target: State
+- Example: all_neighbor_state = { ... }
+- Desc: Check if all states that are neighbour to the one where this scope is located meet the triggers.
+- Since: 1.0
+
+## any_neighbor_state
+- Scope: Within state scope only
+- Target: State
+- Example: any_neighbor_state = { ... }
+- Desc: Check if any state that is neighbour to the one where this scope is located meets the triggers.
+- Since: 1.0
+
+## all_owned_state
+- Scope: Within country scope only
+- Target: State
+- Example: all_owned_state = { ... }
+- Desc: Check if all states that are owned by the country where this scope is located meet the triggers.
+- Since: 1.0
+
+## any_owned_state
+- Scope: Within country scope only
+- Target: State
+- Example: any_owned_state = { ... }
+- Desc: Check if any state that is owned by the country where this scope is located meets the triggers.
+- Since: 1.0
+
+## all_core_state
+- Scope: Within country scope only
+- Target: State
+- Example: all_core_state = { ... }
+- Desc: Check if any state that is cored by the country where this scope is located meets the triggers.
+- Since: 1.11
+
+## any_core_state
+- Scope: Within country scope only
+- Target: State
+- Example: any_core_state = { ... }
+- Desc: Check if all states that are cored by the country where this scope is located meet the triggers.
+- Since: 1.11
+
+## all_controlled_state
+- Scope: Within country scope only
+- Target: State
+- Example: all_controlled_state = { ... }
+- Desc: Check if all states that are controlled by the country where this scope is located meet the triggers.
+- Since: 1.9
+
+## any_controlled_state
+- Scope: Within country scope only
+- Target: State
+- Example: any_controlled_state = { ... }
+- Desc: Check if any state that is controlled by the country where this scope is located meets the triggers.
+- Since: 1.9
+
+## all_unit_leader
+- Scope: Within country scope only
+- Target: Unit Leader
+- Example: all_unit_leader = { ... }
+- Desc: Checks if all unit leaders (corps commanders, field marshals, admirals) that are employed by the country where this scope is located meet the triggers.
+- Since: 1.5
+
+## any_unit_leader
+- Scope: Within country scope only
+- Target: Unit Leader
+- Example: any_unit_leader = { ... }
+- Desc: Checks if any unit leader (corps commander, field marshal, admiral) that is employed by the country where this scope is located meets the triggers.
+- Since: 1.5
+
+## all_army_leader
+- Scope: Within country scope only
+- Target: Unit Leader
+- Example: all_army_leader = { ... }
+- Desc: Checks if all army leaders that are employed by the country where this scope is located meet the triggers.
+- Since: 1.5
+
+## any_army_leader
+- Scope: Within country scope only
+- Target: Unit Leader
+- Example: any_army_leader = { ... }
+- Desc: Checks if any army leader that is employed by the country where this scope is located meets the triggers.
+- Since: 1.5
+
+## all_navy_leader
+- Scope: Within country scope only
+- Target: Unit Leader
+- Example: all_navy_leader = { ... }
+- Desc: Checks if all navy leaders that are employed by the country where this scope is located meet the triggers.
+- Since: 1.5
+
+## any_navy_leader
+- Scope: Within country scope only
+- Target: Unit Leader
+- Example: any_navy_leader = { ... }
+- Desc: Checks if any navy leader that is employed by the country where this scope is located meets the triggers.
+- Since: 1.5
+
+## all_operative_leader
+- Scope: Within country scope or operations only
+- Target: Operative
+- Example: all_operative_leader = { ... }
+- Desc: Checks if all operatives that are employed by the country where this scope is located meet the triggers.
+- Since: 1.9
+
+## any_operative_leader
+- Scope: Within country scope or operations only
+- Target: Operative
+- Example: any_operative_leader = { ... }
+- Desc: Checks if any operative that is employed by the country where this scope is located meets the triggers.
+- Since: 1.9
+
+## all_character
+- Scope: Within country scope only
+- Target: Character
+- Example: all_character = { ... }
+- Desc: Checks if all characters that are recruited by the country where this scope is located meet the triggers.
+- Since: 1.11
+
+## any_character
+- Scope: Within country scope only
+- Target: Character
+- Example: any_character = { ... }
+- Desc: Checks if any character that is recruited by the country where this scope is located meets the triggers.
+- Since: 1.11
+
+## any_country_division
+- Scope: Within country scope only
+- Target: Division
+- Example: any_country_division = { ... }
+- Desc: Checks if any division owned by the current country meets the triggers.
+- Since: 1.12
+
+## any_state_division
+- Scope: Within state scope only
+- Target: Division
+- Example: any_state_division = { ... }
+- Desc: Checks if any division within the current state meets the triggers.
+- Since: 1.12
+
+## all_military_industrial_organization
+- Scope: Within country scope only
+- Target: MIO
+- Example: all_military_industrial_organization = { ... }
+- Desc: Checks if all MIOs within the current country meet the conditions.
+- Since: 1.13
+
+## any_military_industrial_organization
+- Scope: Within country scope only
+- Target: MIO
+- Example: any_military_industrial_organization = { ... }
+- Desc: Checks if any MIO within the current country meets the conditions.
+- Since: 1.13
+
+## all_purchase_contract
+- Scope: Within country scope only
+- Target: Purchase contract
+- Example: all_purchase_contract = { ... }
+- Desc: Checks if all purchase contracts within the current country meet the conditions.
+- Since: 1.13
+
+## any_purchase_contract
+- Scope: Within country scope only
+- Target: Purchase contract
+- Example: any_purchase_contract = { ... }
+- Desc: Checks if any purchase contract within the current country meets the conditions.
+- Since: 1.13
+
+## all_scientists
+- Scope: Within country scope only
+- Target: Character
+- Example: all_scientistst = { ... }
+- Desc: Checks if all scientists of the Country in scope matches the triggers.
+- Since: 1.15
+
+## any_scientist
+- Scope: Within country scope only
+- Target: Character
+- Example: any_scientist = { ... }
+- Desc: Checks if at least one active scientist of the Country in scope matches the triggers.
+- Since: 1.15
+
+## all_active_scientist
+- Scope: Within country scope only
+- Target: Character
+- Example: all_active_scientist = { ... }
+- Desc: Checks if all active scientists of the Country in scope matches the triggers.
+- Since: 1.15
+
+## any_active_scientist
+- Scope: Within country scope only
+- Target: Character
+- Example: any_active_scientist = { ... }
+- Desc: Checks if at least one active scientist of the Country in scope matches the triggers.
+- Since: 1.15

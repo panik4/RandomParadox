@@ -1,0 +1,114 @@
+# Dual_Scopes
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## TAG
+- Scope: Always usable
+- Target: Country scope
+- Example: SOV = { country_event = my_event.1 }
+- Desc: The country defined by the tag or tag alias. Tag aliases are defined in /Hearts of Iron IV/common/country_tag_aliases, as a way to refer to a specific country (such as a side in a civil war) in addition to its actual tag. If the country with the exact tag doesn't exist, but a dynamic country originating from the specified tag does, the scope will refer to the dynamic country.
+- Since: 1.0
+
+## <state_id>
+- Scope: Always usable
+- Target: State scope
+- Example: 123 = { transfer_state_to = SCO }
+- Desc: The state defined by this id.
+- Since: 1.0
+
+## <character>
+- Scope: not within Character scope
+- Target: Character scope
+- Example: ENG_theodore_makhno = { set_nationality = UKR }
+- Desc: On game versions prior to 1.12.8, the character must be already recruited by the country this is scoped from.
+- Since: 1.11
+
+## mio:<MIO>
+- Scope: Within country scope only
+- Target: MIO scope
+- Example: mio:AST_cockatoo_doe_organization = { ... }
+- Desc: The MIO identified by that ID as defined within the /Hearts of Iron IV/common/military_industrial_organization/organizations/*.txt file.
+- Since: 1.13
+
+## sp:<special_project>
+- Scope: Within country scope only
+- Target: Special project scope
+- Example: sp:sp_land_flamethrower_tank = { ... }
+- Desc: The special project identified by that ID as defined within the /Hearts of Iron IV/common/special_projects/projects/*.txt file.
+- Since: 1.15
+
+## ROOT
+- Scope: Always usable
+- Target: Depends on usage
+- Example: ENG = { FRA = { GER = { declare_war_on = { target = ROOT type = annex_everything } } } } #GER declares war on ENG (if there is no scope before ENG)
+- Desc: Targets the root node of the block, an inherent property of each block. Most commonly, this is the default scope: for example, ROOT within a national focus will always refer to the country doing the focus and ROOT within a event will always refer to the country getting the event. However, some blocks do distinguish between the default scope and ROOT, such as certain scripted GUI contexts or certain on actions. If a block doesn't have ROOT defined (such as on_startup in on actions), then it is impossible to use it.
+- Since: 1.0
+
+## THIS
+- Scope: Always usable
+- Target: Depends on usage
+- Example: set_temp_variable = { target_country = THIS }
+- Desc: Targets the current scope where it's used. For example, when used in every_state, it will refer to the state that's currently being evaluated. Primarily useful for variables (as in the example, where omitting it wouldn't work) or for built-in localisation commands, where some scope must be specified. More rarely, this may help with scope manipulation when using PREV. Since omitting it makes no difference in how the code gets interpreted, there is little to no usage outside of these cases.
+- Since: 1.0
+
+## PREV
+- Scope: Always usable
+- Target: Depends on usage
+- Example: FRA = { random_country = { GER = { declare_war_on = { target = PREV type = annex_everything } } } } #Germany declares war on random_country
+- Desc: Targets the scope that the current scope is contained in. Can have additional applications where the assumed default scope differs from the ROOT, such as in state events or some on_actions. Can be chained indefinitely as PREV.PREV. Commonly results in broken-looking tooltips: what's shown to the player doesn't always correlate with reality. See also: PREV usage.
+- Since: 1.0
+
+## FROM
+- Scope: Always usable
+- Target: Depends on usage
+- Example: declare_war_on = { target = FROM type = annex_everything } FROM = { load_oob = defend_ourselves }
+- Desc: Can be chained indefinitely as FROM.FROM. Used to target various hardcoded scopes inherent to the block, often a secondary scope in addition to ROOT. For example: In events, this refers to the country that sent the event (i.e. if the event was fired using an effect, then it's the ROOT scope where it was fired). In targeted decisions or diplomacy scripted triggers, this refers to the scope that is targeted.
+- Since: 1.0
+
+## overlord
+- Scope: Within country scope only
+- Target: Country scope
+- Example: overlord = { ... }
+- Desc: The overlord of the country if it is a subject. Subject to the 'invalid event target' error.
+- Since: 1.3
+
+## faction_leader
+- Scope: Within country scope only
+- Target: Country scope
+- Example: faction_leader = { add_to_faction = FROM }
+- Desc: Faction leader of the faction the country is a part of. Subject to the 'invalid event target' error.
+- Since: 1.10.1
+
+## owner
+- Scope: Within state, character, or combatant scope only
+- Target: Country scope
+- Example: owner = { add_ideas = owns_this_state }
+- Desc: In state scope, the country that owns the state. In combatant scope, the country that owns the divisions. In character scope, the country that has recruited the character. Subject to the 'invalid event target' error when used for a state.
+- Since: 1.0
+
+## controller
+- Scope: Within state scope only
+- Target: Country scope
+- Example: controller = { ROOT = { create_wargoal = { target = PREV type = take_state_focus generator = { 123 } } } }
+- Desc: The controller of the current state. Subject to the 'invalid event target' error.
+- Since: 1.0
+
+## capital_scope
+- Scope: Within country scope only
+- Target: State scope
+- Example: capital_scope = { ... }
+- Desc: The state where the capital of the current country is located in. Subject to the 'invalid event target' error in rare cases.
+- Since: 1.0
+
+## event_target:<event_target_key>
+- Scope: Always usable
+- Target: Depends on usage
+- Example: event_target:my_event_target = { ... }
+- Desc: Saved event target or global event target, with no space after the colon. Subject to the 'invalid event target' error.
+- Since: 1.0
+
+## var:<variable>
+- Scope: Always usable
+- Target: Depends on usage
+- Example: var:my_variable = { ... } add_to_faction = my_variable or add_to_faction = var:my_variable
+- Desc: Variable set to a scope. When used as a target rather than a scope, the var: can be omitted in most cases.
+- Since: 1.5

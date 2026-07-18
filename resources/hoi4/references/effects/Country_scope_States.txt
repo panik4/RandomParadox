@@ -1,0 +1,68 @@
+# Country_scope_States
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_state_core
+- Params: <state> / <variable> The state to add core to.
+- Example: add_state_core = 345
+- Desc: Adds a core for the current scope to the specified state.
+- Since: 1.0
+
+## remove_state_core
+- Params: <state> / <variable> The state to remove core from.
+- Example: remove_state_core = 345
+- Desc: Removes the core of the current scope from the specified state.
+- Since: 1.0
+
+## set_capital
+- Params: state = <state> / <variable> The state to make capital. remember_old_capital = no Whether the old capital gets "remembered", making the country change to it in case the current capital is lost.
+- Example: set_capital = {state = 345}
+- Desc: Makes the specified state the current scope's capital state.
+- Since: 1.0
+
+## add_state_claim
+- Params: <state> / <variable> The state to add a claim to.
+- Example: add_state_claim = 345
+- Desc: Adds a claim for the current scope on the specified state.
+- Since: 1.0
+
+## remove_state_claim
+- Params: <state> / <variable> The state to remove the claim from.
+- Example: remove_state_claim = 345
+- Desc: Removes a claim of the current scope from the specified state.
+- Since: 1.0
+
+## set_state_owner
+- Params: <state> / <variable> The state to change ownership of.
+- Example: set_state_owner = 345
+- Desc: Makes the current scope the owner of the specified state.
+- Since: 1.0
+
+## set_state_controller
+- Params: <state> / <variable> The state to change controller of.
+- Example: set_state_controller = 345
+- Desc: Makes the current scope the controller of the specified state.
+- Since: 1.0
+
+## add_contested_owner
+- Params: <state> / <variable> State to contest.
+- Example: add_contested_owner = 42
+- Desc: Adds a contested owner to a state. The effect can be used either from a country or a state scope and accepts the other as parameter.
+- Since: 1.15
+
+## remove_contested_owner
+- Params: <state> / <variable> State to stop contest.
+- Example: remove_contested_owner = 42
+- Desc: Removes a contested owner to a state. The effect can be used either from a country or a state scope and accepts the other as parameter.
+- Since: 1.15
+
+## transfer_state
+- Params: <state> / <variable> The state to change owner and controller of.
+- Example: transfer_state = 345
+- Desc: Makes the current scope the owner and controller of the specified state.
+- Since: 1.0
+
+## set_province_controller
+- Params: <id> The province to change controller of.
+- Example: set_province_controller = 2999
+- Desc: Changes the controller of the specified province to the current scope.
+- Since: 1.0

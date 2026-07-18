@@ -1,0 +1,56 @@
+# Country_scope_Equipment
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## stockpile_ratio
+- Params: archetype = <string> The equipment archetype to check for. ratio = <float> The ratio of equipment to check for.
+- Example: stockpile_ratio = { archetype = infantry_equipment ratio > 0.5 }
+- Desc: Checks if the current scope has stockpiled the specified equipment to the specified ratio against fielded equipment of the same type.
+- Since: 1.5
+
+## has_equipment
+- Params: <equipment> = <int> / <variable> The equipment to check for, and the amount to check for.
+- Example: has_equipment = { infantry_equipment_1 > 10 }
+- Desc: Checks if the current scope has the specified equipment to the specified amount.
+- Since: 1.0
+
+## has_any_license
+- Params: <bool> Boolean.
+- Example: has_any_license = yes
+- Desc: Checks if the current scope has any licenses from other countries.
+- Since: 1.0
+
+## is_licensing_any_to
+- Params: <scope> / <variable> The country to check for.
+- Example: is_licensing_any_to = GER
+- Desc: Checks if the current scope is licensing to the specified scope.
+- Since: 1.0
+
+## is_licensing_to
+- Params: target = <scope> The country to check for. archetype = <string> The equipment archetype to check for. Optional. Equipment scope type = <string> The equipment to check for. Optional. version = <int> The variant id of the equipment. Optional.
+- Example: is_licensing_to = { target = GER archetype = infantry_equipment }
+- Desc: Checks if the current scope is licensing the specified equipment to the specified country.
+- Since: 1.0
+
+## has_license
+- Params: from = <scope> The country to check for. archetype = <string> The equipment archetype to check for. Optional. Equipment scope type = <string> The equipment to check for. Optional. version = <int> The variant id of the equipment. Optional.
+- Example: has_license = { from = GER archetype = infantry_equipment }
+- Desc: Checks if the current scope has a license for the specified equipment from the specified country.
+- Since: 1.0
+
+## fuel_ratio
+- Params: <float> / <variable> The ratio to check with.
+- Example: fuel_ratio > 0.4
+- Desc: Checks the fuel ratio of the country.
+- Since: 1.6
+
+## has_fuel
+- Params: <int> / <variable> The amount to compare with.
+- Example: has_fuel > 400
+- Desc: Checks the fuel amount of the country.
+- Since: 1.6
+
+## has_design_based_on
+- Params: <archetype> The equipment archetype.
+- Example: has_design_based_on = light_tank_chassis
+- Desc: Checks if the country has a builtable non-obsolete design based on the specified equipment archetype.
+- Since: 1.11

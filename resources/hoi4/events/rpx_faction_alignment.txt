@@ -54,6 +54,17 @@ country_event = {
 		}
 	}
 	
+	immediate = {
+		random_other_country = {
+			limit = {
+				is_faction_leader = yes
+				has_government = ROOT
+				NOT = { has_war_with = ROOT }
+			}
+			save_event_target_as = chosen_faction_leader
+		}
+	}
+	
 	# Seek their protection
 	option = {
 		name = faction_alignment.1.a
@@ -73,14 +84,8 @@ country_event = {
 			}
 		}
 		
-		random_other_country = {
-			limit = {
-				is_faction_leader = yes
-				has_government = ROOT
-				NOT = { has_war_with = ROOT }
-			}
+		event_target:chosen_faction_leader = {
 			country_event = { id = faction_alignment.2 days = 1 }
-			save_event_target_as = potential_faction_leader
 		}
 		
 		add_political_power = -50
@@ -110,6 +115,9 @@ country_event = {
 	# Accept them
 	option = {
 		name = faction_alignment.2.a
+		trigger = {
+			FROM = { NOT = { is_in_faction = yes } }
+		}
 		ai_chance = {
 			factor = 70
 			
@@ -241,6 +249,17 @@ country_event = {
 		}
 	}
 	
+	immediate = {
+		random_other_country = {
+			limit = {
+				is_faction_leader = yes
+				has_government = fascism
+				NOT = { has_war_with = ROOT }
+			}
+			save_event_target_as = chosen_faction_leader
+		}
+	}
+	
 	# Join forces with our ideological allies
 	option = {
 		name = faction_alignment.5.a
@@ -258,14 +277,8 @@ country_event = {
 			}
 		}
 		
-		random_other_country = {
-			limit = {
-				is_faction_leader = yes
-				has_government = fascism
-				NOT = { has_war_with = ROOT }
-			}
+		event_target:chosen_faction_leader = {
 			country_event = { id = faction_alignment.6 days = 1 }
-			save_event_target_as = potential_faction_leader
 		}
 		
 		add_political_power = -75
@@ -296,6 +309,9 @@ country_event = {
 	# Welcome them
 	option = {
 		name = faction_alignment.6.a
+		trigger = {
+			FROM = { NOT = { is_in_faction = yes } }
+		}
 		ai_chance = {
 			factor = 80
 			
@@ -309,7 +325,7 @@ country_event = {
 			modifier = {
 				factor = 1.2
 				FROM = {
-					army_strength_ratio = {
+					strength_ratio = {
 						tag = ROOT
 						ratio > 0.3
 					}
@@ -387,6 +403,17 @@ country_event = {
 		}
 	}
 	
+	immediate = {
+		random_other_country = {
+			limit = {
+				is_faction_leader = yes
+				has_government = communism
+				NOT = { has_war_with = ROOT }
+			}
+			save_event_target_as = chosen_faction_leader
+		}
+	}
+	
 	# Unite with our comrades
 	option = {
 		name = faction_alignment.7.a
@@ -404,14 +431,8 @@ country_event = {
 			}
 		}
 		
-		random_other_country = {
-			limit = {
-				is_faction_leader = yes
-				has_government = communism
-				NOT = { has_war_with = ROOT }
-			}
+		event_target:chosen_faction_leader = {
 			country_event = { id = faction_alignment.8 days = 1 }
-			save_event_target_as = potential_faction_leader
 		}
 		
 		add_political_power = -75
@@ -442,6 +463,9 @@ country_event = {
 	# Accept them into the fold
 	option = {
 		name = faction_alignment.8.a
+		trigger = {
+			FROM = { NOT = { is_in_faction = yes } }
+		}
 		ai_chance = {
 			factor = 80
 			
@@ -455,7 +479,7 @@ country_event = {
 			modifier = {
 				factor = 1.2
 				FROM = {
-					army_strength_ratio = {
+					strength_ratio = {
 						tag = ROOT
 						ratio > 0.3
 					}

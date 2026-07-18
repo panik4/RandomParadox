@@ -1,0 +1,56 @@
+# Division_scope
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## destroy_unit
+- Params: <bool> Boolean.
+- Example: destroy_unit = yes
+- Desc: Destroys the currently-scoped division.
+- Since: 1.12
+
+## add_history_entry
+- Params: key = <localisation key> The name of the entry. subject = "<string>" Logged entry. Never shown to the player. allow = <bool> Whether a medal can be awarded to the division over the history entry.
+- Example: add_history_entry = { key = my_history_entry subject = "Test entry" allow = no }
+- Desc: Creates an entry within the command history of a division.
+- Since: 1.12
+
+## change_division_template
+- Params: <string> The name of the division.
+- Example: change_division_template = { division_template = "New template" }
+- Desc: Changes the template of the division to the specified one.
+- Since: 1.12
+
+## add_random_valid_trait_from_unit
+- Params: <character> Character to grant the trait to.
+- Example: add_random_valid_trait_from_unit = FROM
+- Desc: Adds a random valid unit trait to a unit leader.
+- Since: 1.12
+
+## add_unit_medal_to_latest_entry
+- Params: unit_medals = <medal ID> The medal to add.
+- Example: add_unit_medal_to_latest_entry = { unit_medals = my_medal }
+- Desc: Adds the specified medal to the latest entry within the unit's history.
+- Since: 1.12
+
+## add_divisional_commander_xp
+- Params: <decimal> Experience to add.
+- Example: add_divisional_commander_xp = 10
+- Desc: Adds the specified amount of experience to the divisional commander.
+- Since: 1.12
+
+## reseed_division_commander
+- Params: <int> The seed to use.
+- Example: reseed_division_commander = 760
+- Desc: Re-randomises the division commander using the given seed.
+- Since: 1.12
+
+## promote_officer_to_general
+- Params: <bool> Boolean.
+- Example: promote_officer_to_general = yes
+- Desc: Promote the officer of the division to a general.
+- Since: 
+
+## set_unit_organization
+- Params: <decimal> The level to set to.
+- Example: set_unit_organization = 0.3
+- Desc: Changes the organisation of the unit.
+- Since: 1.13

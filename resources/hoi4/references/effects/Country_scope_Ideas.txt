@@ -1,0 +1,44 @@
+# Country_scope_Ideas
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_ideas
+- Params: <idea> The idea to add.
+- Example: add_ideas = my_idea
+- Desc: Adds the specified ideas to the current scope.
+- Since: 1.0
+
+## add_timed_idea
+- Params: idea = <idea> The idea to add. days = <int> / <variable> The number of days to add the idea for. months = <int> / <variable> The number of months to add the idea for. A month is equal to 30 days. years = <int> / <variable> The number of years to add the idea for. A year is equal to 365 days.
+- Example: add_timed_idea = { idea = my_idea days = 180 }
+- Desc: Adds the specified ideas to the current scope for the specified number of days.
+- Since: 1.0
+
+## modify_timed_idea
+- Params: idea = <idea> The idea to modify. days = <int> / <variable> The number of days to modify the idea by. months = <int> / <variable> The number of months to modify the idea by. A month is equal to 30 days. years = <int> / <variable> The number of years to modify the idea by. A year is equal to 365 days.
+- Example: modify_timed_idea = { idea = my_idea days = 60 }
+- Desc: Extends or shortens the duration of the timed idea by the specified amount.
+- Since: 1.0
+
+## swap_ideas
+- Params: add_idea = <idea> The idea to add. remove_idea = <idea> The idea to remove.
+- Example: swap_ideas = { remove_idea = my_idea_1 add_idea = my_idea_2 }
+- Desc: Switches two ideas with a tooltip displaying any modifier differences between them.
+- Since: 1.3
+
+## remove_ideas
+- Params: <idea> The idea to remove.
+- Example: remove_ideas = my_idea
+- Desc: Removes the specified idea from the current scope.
+- Since: 1.0
+
+## remove_ideas_with_trait
+- Params: <trait> The trait to target.
+- Example: remove_ideas_with_trait = motorized_equipment_manufacturer
+- Desc: Removes all ideas for the current scope that use the specified trait.
+- Since: 1.0
+
+## show_ideas_tooltip
+- Params: <idea> The idea to display.
+- Example: show_ideas_tooltip = my_idea
+- Desc: Displays the specified idea in the tooltip for the current effect scope. Does not add the idea.
+- Since: 1.0

@@ -8,6 +8,7 @@
 #include "parsing/ParserUtils.h"
 #include <array>
 #include <map>
+#include <format>
 namespace Rpx::Hoi4::Parsing {
 using CountryMap = std::vector<std::shared_ptr<Hoi4Country>>;
 

@@ -1,0 +1,290 @@
+# State_scope_General
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## state
+- Params: <scope> / <variable> The state to check for.
+- Example: state = 10
+- Desc: Checks if the current scope is the specified state.
+- Since: 1.0
+
+## region
+- Params: <int> The strategic region id to check for.
+- Example: region = 10
+- Desc: Checks if the current scope is a state in the specified strategic region.
+- Since: 1.0
+
+## <building> (building_count_trigger)
+- Params: <int> The amount of the specified building to check for.
+- Example: arms_factory > 10
+- Desc: Checks if the current scope has the specified amount of the specified building.
+- Since: 1.0
+
+## free_building_slots
+- Params: building = <string> The building to check for. size = <int> The amount to check for. include_locked = <bool> Whether to include locked slots.
+- Example: free_building_slots = { building = arms_factory size > 10 include_locked = yes }
+- Desc: Checks if the current scope has available slots for the specified amount of buildings.
+- Since: 1.0
+
+## non_damaged_building_level
+- Params: building = <string> The building to check for. level = <int> The amount to check for.
+- Example: non_damaged_building_level = { building = arms_factory level > 4 }
+- Desc: Checks if the current scope has the specified amount of the specified buildings that are undamaged.
+- Since: 1.9
+
+## any_province_building_level
+- Params: building = <string> The building to check for. limit = <int> The amount to check for. Province scope id = <int> The province to check for. limit_to_border = <bool> Whether to limit check to border provinces.
+- Example: any_province_building_level = { province = { id = 445 id = 494 limit_to_border = yes } building = bunker level < 5 }
+- Desc: Checks if the current scope has the specified provincal building at the specified amount in the specified provinces.
+- Since: 1.0
+
+## has_state_flag
+- Params: <string> The flag to check for.
+- Example: has_state_flag = my_flag
+- Desc: Checks if the current scope has the specified flag.
+- Since: 1.0
+
+## has_state_flag
+- Params: flag = <string> The flag to check. value = <int> The flag value to check for. Optional. date = <date> The flag creation date to check for. Optional. days = <int> The duration the flag existed for. Optional.
+- Example: has_state_flag = { flag = my_flag days > 30 date > 1936.6.1 value > 0 }
+- Desc: Compares the specified flag's last set date, days since last set, and/or value.
+- Since: 1.0
+
+## state_population
+- Params: <float> The amount to check for.
+- Example: state_population > 10000
+- Desc: Checks if the current scope has the specified state population.
+- Since: 1.0
+
+## state_population_k
+- Params: <float> The amount to check for.
+- Example: state_population_k > 10
+- Desc: Checks if the current scope has the specified state population in thousands.
+- Since: 1.0
+
+## is_capital
+- Params: <bool> Boolean.
+- Example: is_capital = yes
+- Desc: Checks if the current scope is a capital.
+- Since: 1.5
+
+## is_controlled_by
+- Params: <scope> / <variable> The country to check for.
+- Example: is_controlled_by = GER
+- Desc: Checks if the current scope is controlled by the specified country.
+- Since: 1.0
+
+## is_fully_controlled_by
+- Params: <scope> / <variable> The country to check for.
+- Example: is_fully_controlled_by = GER
+- Desc: Checks if the current scope is fully controlled by the specified country.
+- Since: 1.5
+
+## is_owned_by
+- Params: <scope> / <variable> The country to check for.
+- Example: is_owned_by = GER
+- Desc: Checks if the current scope is owned by the specified country.
+- Since: 1.0
+
+## is_claimed_by
+- Params: <scope> / <variable> The country to check for.
+- Example: is_claimed_by = GER
+- Desc: Checks if the current scope is claimed by the specified country.
+- Since: 1.0
+
+## is_core_of
+- Params: <scope> / <variable> The country to check for.
+- Example: is_core_of = GER
+- Desc: Checks if the current scope is a core of the specified country.
+- Since: 1.0
+
+## is_owned_and_controlled_by
+- Params: <scope> / <variable> The country to check for.
+- Example: is_owned_and_controlled_by = GER
+- Desc: Checks if the current scope is owned and controlled by the specified country.
+- Since: 1.0
+
+## is_demilitarized_zone
+- Params: <bool> Boolean.
+- Example: is_demilitarized_zone = yes
+- Desc: Checks if the current scope is a demilitarized zone.
+- Since: 1.0
+
+## is_border_conflict
+- Params: <bool> Boolean.
+- Example: is_border_conflict = yes
+- Desc: Checks if the current scope is part of a border war.
+- Since: 1.0
+
+## is_in_home_area
+- Params: <bool> Boolean.
+- Example: is_in_home_area = yes
+- Desc: Checks if the current scope is connected to the capital state over land. The scope needs to be owned as well for the statement for it to be true.
+- Since: 1.0
+
+## is_coastal
+- Params: <bool> Boolean.
+- Example: is_coastal = yes
+- Desc: Checks if the current scope is a coastal state.
+- Since: 1.0
+
+## is_one_state_island
+- Params: <bool> Boolean.
+- Example: is_one_state_island = yes
+- Desc: Checks if the current scope is a coastal state with no adjacent land states.
+- Since: 1.13
+
+## is_island_state
+- Params: <bool> Boolean.
+- Example: is_island_state = yes
+- Desc: Checks if the current scope is a state where every province has no land neighbour.
+- Since: 1.0
+
+## is_on_continent
+- Params: <string> The continent to check for.
+- Example: is_on_continent = europe
+- Desc: Checks if the current scope is on the specified continent.
+- Since: 1.0
+
+## is_on_same_continent_as
+- Params: <scope> / <variable> The country to check for.
+- Example: is_on_same_continent_as = FRA
+- Desc: Checks if the scope state is on the same continent as the given state. The capital state is used for given country tag.
+- Since: 1.17
+
+## impassable
+- Params: <bool> Boolean.
+- Example: impassable = yes
+- Desc: Checks if the current scope is impassable.
+- Since: 1.9.1
+
+## has_state_category
+- Params: <string> The category to check for.
+- Example: has_state_category = rural
+- Desc: Checks if the current scope has the specified category.
+- Since: 1.0
+
+## state_strategic_value
+- Params: <int> The amount to check for.
+- Example: state_strategic_value > 10
+- Desc: Checks if the current scope has the specified strategic value.
+- Since: 1.5
+
+## state_and_terrain_strategic_value
+- Params: <int> The amount to check for.
+- Example: state_and_terrain_strategic_value > 10
+- Desc: Checks if the current scope has the specified state and terrain strategic value.
+- Since: 1.5
+
+## num_owned_neighbour_states
+- Params: owner = <scope> The country to check for. count = <int> The amount to check for.
+- Example: num_owned_neighbour_states = { owner = GER count > 2 }
+- Desc: Checks if the current scope has the specified amount of neighbor states belonging to the specified country.
+- Since: 1.0
+
+## distance_to
+- Params: value = <float> The distance to check for. target = <scope> The state to compare against.
+- Example: distance_to = { value > 1000 target = 49 }
+- Desc: Checks if the current scope is at the specified distance from the specified state.
+- Since: 1.0
+
+## ships_in_area
+- Params: area = <int> The strategic region to check for. size = <int> The amount to check for.
+- Example: ships_in_area = { area = 104 size > 14 }
+- Desc: Checks if the current scope has the specified amount of ships in the specified strategic region.
+- Since: 1.0
+
+## <resource> (resource_count_trigger)
+- Params: <int> The amount to check for.
+- Example: tungsten > 10
+- Desc: Checks if the current scope has the specified amount of the specified resource.
+- Since: ???
+
+## has_resources_amount
+- Params: resource = <string> The resource to check for. amount = <int> The amount to check for. delivered = <bool> If specified, checks the amount after the modifiers are applied rather than the base resource value.
+- Example: has_resources_amount = { resource = oil amount > 10 delivered = yes }
+- Desc: Checks if the current scope has the specified amount of the specified resource.
+- Since: 1.3
+
+## has_resources_rights
+- Params: receiver = <scope> The receiver of the resource rights. Mandatory if used in state scope. resources = { <resource> <...> <resource> } Resources to check for. Optional, defaults to any if unset.
+- Example: has_resources_rights = { receiver = POL resources = { oil steel } }
+- Desc: Checks if there are any resource rights with the specified parameters.
+- Since: 1.12
+
+## days_since_last_strategic_bombing
+- Params: <int> The amount to compare with.
+- Example: days_since_last_strategic_bombing < 10
+- Desc: Checks how many days have passed since the last strategic bombing of the state.
+- Since: 1.6
+
+## has_railway_connection
+- Params: <scope> / <variable> The states to check. <id> The provinces to check. Optional.
+- Example: has_railway_connection = { start_state = 10 target_state = 90 }
+- Desc: Returns true if the states are connected by a railway. Can also check provinces.
+- Since: 1.11
+
+## can_build_railway
+- Params: <scope> / <variable> The states to check. <id> The provinces to check. Optional.
+- Example: can_build_railway = { start_state = 10 target_state = 90 }
+- Desc: Returns true if a railway can be built between states. Can also check for provinces.
+- Since: 1.11
+
+## has_railway_level
+- Params: <scope> / <variable> The states to check. <int> Railway level.
+- Example: has_railway_level = { state = 114 level = 5 }
+- Desc: Checks if a state contains a railway at or above the specified level.
+- Since: 1.11
+
+## pc_does_state_stack_demilitarized
+- Params: <bool> Boolean.
+- Example: pc_does_state_stack_demilitarized = yes
+- Desc: Checks if the current scope was demilitarised during a current or previously-ended peace conference.
+- Since: 1.12
+
+## pc_does_state_stack_dismantled
+- Params: <bool> Boolean.
+- Example: pc_does_state_stack_dismantled = yes
+- Desc: Checks if the current scope was dismantled during a current or previously-ended peace conference.
+- Since: 1.12
+
+## pc_is_state_claimed
+- Params: <scope> Country to check for.
+- Example: pc_is_state_claimed = yes
+- Desc: Checks if the current scope was claimed by any country during the peace conference.
+- Since: 1.12.8
+
+## pc_is_state_claimed_by
+- Params: <scope> Country to check for.
+- Example: pc_is_state_claimed_by = BHR
+- Desc: Checks if the current scope was claimed by the specified country during the peace conference. Note, that "claim" in this context, while includes, is NOT limited to outright taking: forcing government, puppeting and liberating will render that trigger true as well. If one looks specifically for states taken by victors for themselves, pc_is_state_claimed_and_taken_by should be used.
+- Since: 1.12
+
+## pc_is_state_claimed_and_taken_by
+- Params: <scope> Country to check for.
+- Example: pc_is_state_claimed_and_taken_by = SOV
+- Desc: Checks if the current scope was claimed with "Take State" action (i.e. annexed) by the specified country during the peace conference.
+- Since: 
+
+## pc_is_state_outside_influence_for_winner
+- Params: <scope> Country to check for.
+- Example: pc_is_state_outside_influence_for_winner = ROOT
+- Desc: Checks if the current state is outside of the influence of the specified winner country.
+- Since: 1.12.8
+
+## pc_turn
+- Params: <int> The amount of turns to check for.
+- Example: pc_turn > 20
+- Desc: Compares the amount of turns that have passed during the peace conference with a number.
+- Since: 1.12.8
+
+## can_construct_building
+- Params: <build type>The type of building.
+- Example: can_construct_building = bunker
+- Desc: Checks if the country (as ROOT) and state in scope can build a building in the state.
+- Since: 1.15
+
+## has_contested_owner
+- Params: <country> / <variable> Country to check.
+- Example: has_contested_owner = GER
+- Desc: Checks if a state has the specified country as a contested owner. The trigger can be used either from a country or a state scope and accepts the other as parameter.
+- Since: 1.15

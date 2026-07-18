@@ -1,0 +1,74 @@
+# Country_scope_Equipment
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## set_equipment_fraction
+- Params: <float> / <variable> The fraction of equipment to remove.
+- Example: set_equipment_fraction = 0.5
+- Desc: Reduces the overall equipment stockpile by the specified fraction.
+- Since: 1.0
+
+## add_equipment_to_stockpile
+- Params: type = <equipment> The equipment to add. Either types and archetypes are accepted. amount = <int> / <variable> The amount to add. producer = <country> / <variable> Defines who produced the equipment. Optional, defaults to the current scope. variant_name = <string> The equipment variant to add. Mandatory if a variant needs to be created to produce the equipment, optional otherwise.
+- Example: add_equipment_to_stockpile = { type = infantry_equipment amount = -100 producer = GER }
+- Desc: Edits the equipment stockpile of the current scope, adds or removes equipment of a specified type or archetype.
+- Since: 1.0
+
+## send_equipment
+- Params: type = <equipment> The equipment to add. Can be archetype. amount = <int> / <variable> The amount to add. target = <country> / <variable> Which country receives the equipment.
+- Example: send_equipment = { equipment = infantry_equipment amount = 100 target = GER }
+- Desc: Sends the specified amount of equipment to the specified target, removing said equipment from the current scope.
+- Since: 1.0
+
+## send_equipment_fraction
+- Params: value = <0-1> How much equipment to send. target = <country> / <variable> Which country receives the equipment.
+- Example: send_equipment_fraction = { value = 0.3 target = GER }
+- Desc: Sends the specified fraction of equipment to the specified target, removing said equipment from the current scope.
+- Since: 1.9
+
+## create_production_license
+- Params: target = <country> Which country receives the license. new_prioritised = <boolean> Whether new equipment is prioritised or not. Yes by default. cost_factor = <float> Modifies the production cost. Equipment scope type = <equipment> The equipment the country is licensed to produce. Must be an non-archetype equipment. version = <int> The version indicates which variant should be licensed. The default is 0, meaning the base variant.
+- Example: create_production_license = { target = HUN equipment = { type = fighter_equipment_1 version = 0 } new_prioritised = no cost_factor = 0 }
+- Desc: Grants the specified country a license to produce the specified equipment from the current scope.
+- Since: 1.4
+
+## add_equipment_subsidy
+- Params: cic = <int> The amount of economic capacity required by the subsidy. equipment_type = <archetype> The equipment archetype that the subsidy is for. seller_tags = { <countries } Countries that can have the subsidy. seller_trigger = <scripted trigger> The trigger deciding which countries can have the subsidy.
+- Example: add_equipment_subsidy = { cic = 300 equipment_type = support_equipment seller_tags = { BHR } }
+- Desc: Creates an equipment subsidy on the international market.
+- Since: 1.13
+
+## add_cic
+- Params: <int> The amount of economic capacity to add.
+- Example: add_cic = 300
+- Desc: Modifies the economic capacity bank on the international market.
+- Since: 1.13
+
+## create_equipment_variant
+- Params: name = <string> The name of the variant. type = <equipment> The equipment type the variant is of. parent_version = <int> Ordering for multiple variants of the same equipment. 0 is the oldest, 1 is the second-oldest, etc. Optional, 0 by default. show_position = <bool> Dynamic equipment version numbering. If disabled removes the suffix from the equipment name. Numbering linked to parent_version. Optional, yes by default. obsolete = <bool> Whether the equipment variant is flagged as obsolete within the GUI and for AI. Optional, no by default. mark_older_equipment_obsolete = <bool> Marks all older (non-chassis) equipment variants as obsolete as long as the following matches: Archetype, niche, mission set (for planes). Optional, defaults to false. name_group = <name group> The name group used for equipment. Stored in /Hearts of Iron IV/common/units/names_ships. Optional, can only be defined for ships. role_icon_index = <int>/auto Index of the role icon that will be used, as an integer. If set to "auto", will pick automatically. If set to 0, will be unset. Optional, only can be defined for ships. model = <model name> Model that will be used by the equipment on the world map. Optional. icon = <sprite> The icon that will be used by equipment. Stored as a spriteType within /Hearts of Iron IV/interface/*.gfx. Optional. design_team = mio:<MIO> The military industrial organisation that should be set as the designer of the equipment. Optional. allow_without_tech = <bool> If set, bypasses the requirement that the equipment that the variant is for must be unlocked through research. Optional, defaults to false. Upgrade scope <upgrade> = <amount> The upgrades configuration for the variant. Module scope <slot> = <module> The modules configuration for the variant.
+- Example: create_equipment_variant = { name = "Vetehinen Class" type = ship_hull_submarine_1 name_group = FIN_SS_HISTORICAL role_icon_index = 1 modules = { fixed_ship_torpedo_slot = ship_torpedo_sub_1 fixed_ship_engine_slot = sub_ship_engine_1 rear_1_custom_slot = ship_mine_layer_sub } }
+- Desc: Creates the specified equipment variant for the current scope.
+- Since: 1.0
+
+## add_equipment_production
+- Params: amount = <int> The amount to produce before automatically stopping. Optional. requested_factories = <int> The number of factories to assigned initially. Optional. progress = <float> The initial production progress. Optional. efficiency = <float> The initial production efficiency. Optional. name = <string> The name that'll be used for the equipment, such as with ships. Optional. industrial_manufacturer = mio:<MIO> The military industrial organisation that's set as the equipment's designer. Equipment scope type = <equipment> The name of the equipment to produce. creator = <country> The country which is producing the equipment. Used if root scope isn't producer. Optional. version_name = <string>The name of the variant to produce. Optional.
+- Example: add_equipment_production = { equipment = { type = light_cruiser_2 } requested_factories = 1 progress = 0.95 amount = 1 }
+- Desc: Starts a production line for the specified equipment for the current scope.
+- Since: 1.0
+
+## add_design_template_bonus
+- Params: name = <loc_key> Name. uses = <int> The amount of times the discount can be used. cost_factor = <float> Discount. equipment = <equipment> Can be equipment type and archetype.
+- Example: add_design_template_bonus = { name = air_equipment uses = 1 cost_factor = 0.75 equipment = small_plane_airframe equipment = medium_plane_airframe equipment = large_plane_airframe }
+- Desc: Add free bonus design discount to given types with a set of uses.
+- Since: 1.15
+
+## add_equipment_bonus
+- Params: project = <> Optional, special project scope for using special project name. If not set, the name will be used. name = <loc_key> Name. bonus = { ... } Bonus.
+- Example: add_equipment_bonus = { project = FROM bonus = { armor = { # Type of equipment armor_value = 3 soft_attack = 3 instant = yes } small_plane_naval_bomber_airframe = { air_range = 0.1 naval_strike_attack = 0.1 } } }
+- Desc: Adds the specified equipment bonuses to the country. As description the given loc key or the name of given special project will be used. Same usage as in Ideas/National spirits.
+- Since: 1.15
+
+## set_equipment_version_number
+- Params: type = <equipment> Equipment type. version = <int> Version to set.
+- Example: set_equipment_version_number = { type = small_plane_airframe_1 version = 4 }
+- Desc: Changes current version number for a given equipment type to N. The next equipment variant created from that type will have version number N+1.
+- Since: 1.16

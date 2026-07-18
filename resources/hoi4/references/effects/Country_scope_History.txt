@@ -1,0 +1,38 @@
+# Country_scope_History
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## recruit_character
+- Params: <character>
+- Example: recruit_character = GER_Character_token
+- Desc: Initially assigns the specified character to the current country.
+- Since: 1.11
+
+## generate_character
+- Params: token_base = <string> Mandatory, acts as the character token. name = <localisation key> The name used for the character. Generates a random name if not set.
+- Example: generate_character = { token_base = army_chief_defensive_1 name = funny_name advisor = { slot = air_chief cost = 50 idea_token = GER_character_token_air_chief traits = { air_chief_ground_support_2 } allowed = { always = yes } } }
+- Desc: Generates a character for current country.
+- Since: 1.11
+
+## set_oob
+- Params: <order of battle> The name of the file used for the order of battle without the .txt extension.
+- Example: set_oob = BHR_1936
+- Desc: Sets the order of battle to be used for the current country's divisions, overriding every other non-naval and non-air order of battle.
+- Since: 1.0
+
+## set_naval_oob
+- Params: <order of battle> The name of the file used for the order of battle without the .txt extension.
+- Example: set_naval_oob = BHR_1936_naval_legacy
+- Desc: Sets the order of battle to be used for the current country's divisions, overriding every other naval order of battle.
+- Since: 1.0
+
+## set_air_oob
+- Params: <order of battle> The name of the file used for the order of battle without the .txt extension.
+- Example: set_air_oob = ITA_1936_air_bba
+- Desc: Sets the order of battle to be used for the current country's divisions, overriding every other air order of battle.
+- Since: 1.12
+
+## set_keyed_oob
+- Params: key = <string> The key used for the file. name = <order of battle> The name of the file used for the order of battle without the .txt extension.
+- Example: set_keyed_oob = { key = naval name = BHR_1936_mtg }
+- Desc: Sets the order of battle to be used for the current country's divisions, overriding every other keyed order of battle that uses the same key.
+- Since: 1.0

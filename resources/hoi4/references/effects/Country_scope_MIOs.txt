@@ -1,0 +1,44 @@
+# Country_scope_MIOs
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## show_mio_tooltip
+- Params: <MIO> MIO to display.
+- Example: show_mio_tooltip = my_mio
+- Desc: Displays a tooltip that shows the name of the MIO and its initial trait (if present).
+- Since: 1.13
+
+## unlock_military_industrial_organization_tooltip
+- Params: <mio> / <variable> MIO to unlock.
+- Example: unlock_military_industrial_organization_tooltip = mio:my_mio_token
+- Desc: Display a tooltip saying the MIO is made available (aka unlocked).
+- Since: 1.13
+
+## unlock_mio_policy_tooltip
+- Params: <policy> Policy to display. OR policy = <policy> Policy to display. show_modifiers = <bool> Whether the trait's modifiers should be shown in the tooltip. Defaults to true.
+- Example: unlock_mio_policy_tooltip = my_policy_1
+- Desc: Displays a tooltip that says that the policy is made available.
+- Since: 1.13
+
+## add_mio_policy_cost
+- Params: policy = <policy> Policy to modify. value = <int> Amount in political power to add.
+- Example: add_mio_policy_cost = { policy = my_policy value = 10 }
+- Desc: Modifies the base cost of a MIO policy.
+- Since: 1.13
+
+## set_mio_policy_cost
+- Params: policy = <policy> Policy to modify. value = <int> Amount in political power to set.
+- Example: set_mio_policy_cost = { policy = my_policy value = 100 }
+- Desc: Modifies the base cost of a MIO policy.
+- Since: 1.13
+
+## add_mio_policy_cooldown
+- Params: policy = <policy> Policy to modify. value = <int> Amount in days to add.
+- Example: add_mio_policy_cooldown = { policy = my_policy value = 10 }
+- Desc: Modifies the base length of a MIO policy cooldown.
+- Since: 1.13
+
+## set_mio_policy_cooldown
+- Params: policy = <policy> Policy to modify. value = <int> Amount in days to set.
+- Example: set_mio_policy_cooldown = { policy = my_policy value = 100 }
+- Desc: Modifies the base length of a MIO policy cooldown.
+- Since: 1.13

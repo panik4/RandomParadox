@@ -1,0 +1,50 @@
+# Any_scope_Career_Profile
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## career_profile_check_medal
+- Params: medal = <medal> Medal to check. ???
+- Example: career_profile_check_medal = { medal = raining_debris_medal &#160;??? }
+- Desc: Checks if the required medal is achieved and collected.
+- Since: ???
+
+## career_profile_check_ribbon
+- Params: ribbon = <ribbon> Ribbon to check. tooltip = <loc_key> Optional.
+- Example: career_profile_check_ribbon = { ribbon = orchestra_of_boom tooltip = my_loc_key }
+- Desc: Checks if the required ribbon is achieved and collected.
+- Since: ???
+
+## career_profile_check_playthrough_ratio
+- Params: frits = <variable> second = <variable> ratio = <int> Ratio. compare = <type> The type of comparison.
+- Example: career_profile_check_playthrough_ratio = { first = enemy_casualties second = total_own_casualties ratio = 4 compare = greater_than_or_equals }
+- Desc: Compares the ratio (first/second) of two playthrough values to a number.
+- Since: ???
+
+## career_profile_check_playthrough_value
+- Params: { ... } OR var = <variable> Value to compare. value = <int> Value to compare to. compare = <type> The type of comparison. Optional. tooltip = <loc_key> Optional. tooltip_value = <int> Optional.
+- Example: career_profile_check_playthrough_value = { plan_landlocked_battleship > 1 plan_landlocked_carrier > 0 }
+- Desc: Compares a playthrough value to a number.
+- Since: ???
+
+## career_profile_check_points
+- Params: value = <int> Value to compare. compare = <type> The type of comparison. tooltip = <loc_key> Optional.
+- Example: career_profile_check_points = { value = 5000 compare = greater_than_or_equals tooltip = CAREER_PROFILE_TRIGGER_MINED_SEA_REGIONS }
+- Desc: Compares a career points value to a number.
+- Since: ???
+
+## career_profile_check_ratio
+- Params: Possible the same as #career_profile_check_playthrough_ratio.
+- Example: Possible the same as #career_profile_check_playthrough_ratio.
+- Desc: Compares the ratio (first/second) of two career profile values to a number.
+- Since: ???
+
+## career_profile_check_value
+- Params: Possible the same as #career_profile_check_playthrough_value.
+- Example: Possible the same as #career_profile_check_playthrough_value.
+- Desc: Compares a career profile value to a number.
+- Since: ???
+
+## career_profile_has_player_flag
+- Params: <string> The flag to check.
+- Example: career_profile_has_player_flag = career_profile_overrun_infantry_flag
+- Desc: Checks if the flag is set for the local player.
+- Since: ???

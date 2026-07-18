@@ -4,6 +4,7 @@
 #include "generic/VictoryPoint.h"
 #include "hoi4/Hoi4Airforce.h"
 #include "utils/RpxUtils.h"
+#include "utils/Archive.h"
 
 namespace Rpx::Hoi4 {
 
@@ -46,5 +47,10 @@ public:
   // member functions
   void calculateBuildingPositions(const std::vector<float> &heightmap,
                                   const Fwg::Gfx::Image &typeMap);
+
+  // serialisation
+  void serialise(Fwg::Utils::Serialisation::Archive &ar) override;
+  void deserialise(Fwg::Utils::Serialisation::Archive &ar) override;
+  uint32_t typeTag() const override;
 };
 } // namespace Rpx::Hoi4

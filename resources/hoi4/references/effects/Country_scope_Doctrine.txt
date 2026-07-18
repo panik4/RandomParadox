@@ -1,0 +1,38 @@
+# Country_scope_Doctrine
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## add_doctrine_cost_reduction
+- Params: name = <loc_key> Optional tooltip showing why the doctrine has reduced cost in the doctrine menu. cost_reduction = <float> Percentage of cost reduced. uses = <int> Number of times the cost reduction can be used. category = <doctrine category> Which doctrine category the cost reduction will apply to. (Ex: land_doctrine, air_doctrine.)
+- Example: add_doctrine_cost_reduction = { cost_reduction = 0.5 uses = 2 category = land_doctrine }
+- Desc: Adds a limited use cost reduction for doctrines.
+- Since: 1.11
+
+## add_mastery
+- Params: amount = <int> Amount of mastery to add. folder = <string> Optional - will filter by tracks in the specified folder. grand_doctrine = <string> Optional - will filter by tracks in folders with the specified grand doctrine. sub_doctrine = <string> Optional - will filter by tracks with the specified subdoctrine. track = <string> Optional - will filter by tracks of the specified type. index = <int> Optional - will filter by the track index within the folder (0-indexed).
+- Example: add_mastery = { amount = 100 # FILTERS: folder = land grand_doctrine = mobile_warfare sub_doctrine = mobile_infantry track = infantry index = 1 }
+- Desc: Adds doctrine mastery.
+- Since: 1.17
+
+## add_daily_mastery
+- Params: amount = <float> Amount of mastery to add per day. days = <int> Number of days to apply the daily mastery gain for. name = <loc_key> Loc key - will be used in descriptions to show the source of the mastery gain. folder = <string> Optional - will filter by tracks in the specified folder. grand_doctrine = <string> Optional - will filter by tracks in folders with the specified grand doctrine. sub_doctrine = <string> Optional - will filter by tracks with the specified subdoctrine. track = <string> Optional - will filter by tracks of the specified type. index = <int> Optional - will filter by the track index within the folder (0-indexed).
+- Example: add_daily_mastery = { amount = 0.5 days = 90 name = CHI_military_affairs_commission_sea # FILTERS: folder = land grand_doctrine = mobile_warfare sub_doctrine = mobile_infantry track = infantry index = 1 }
+- Desc: Adds doctrine mastery daily for a certain duration.
+- Since: 1.17
+
+## add_mastery_bonus
+- Params: bonus = <float> Bonus factor, e.g. 0.1 = +10% days = <int> Number of days to apply the bonus mastery gain for. name = <loc_key> Loc key - will be used in descriptions to show the source of the mastery gain. folder = <string> Optional - will filter by tracks in the specified folder. grand_doctrine = <string> Optional - will filter by tracks in folders with the specified grand doctrine. sub_doctrine = <string> Optional - will filter by tracks with the specified subdoctrine. track = <string> Optional - will filter by tracks of the specified type. index = <int> Optional - will filter by the track index within the folder (0-indexed).
+- Example: add_mastery_bonus = { bonus = 0.5 days = 90 name = CHI_military_affairs_commission_sea # FILTERS: folder = land grand_doctrine = mobile_warfare sub_doctrine = mobile_infantry track = infantry index = 1 }
+- Desc: Get a bonus to doctrine mastery gain for a certain duration.
+- Since: 1.17
+
+## set_grand_doctrine
+- Params: <string> Grand doctrine id.
+- Example: set_grand_doctrine = mobile_warfare
+- Desc: Activate (unlock and assign) the specified grand doctrine.
+- Since: 1.17
+
+## set_sub_doctrine
+- Params: <string> Subdoctrine id. OR sub_doctrine = <string> Subdoctrine id. folder = <string> Optional, in case you need to specify the folder. track = <int> Optional, in case you need to specify the track index within the folder. Note that this is the track index (starting with 0) among ALL the tracks in the folder, not just the ones that match the subdoctrine. So in a case where a grand doctrine has the tracks: 'infantry - armor - armor - operations', you would use track = 1 to refer to the first armor track, and track = 2 to refer to the second armor track.
+- Example: set_sub_doctrine = mobile_infantry
+- Desc: Activate (unlock and assign) the specified subdoctrine.
+- Since: 1.17

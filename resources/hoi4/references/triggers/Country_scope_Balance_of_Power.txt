@@ -1,0 +1,50 @@
+# Country_scope_Balance_of_Power
+# Source: https://hoi4.paradoxwikis.com/Triggers
+
+## has_power_balance
+- Params: id = <bop ID> The balance to check for.
+- Example: has_power_balance = { id = TAG_my_bop }
+- Desc: Checks if the current scope has the specified balance of power active.
+- Since: 1.12
+
+## has_any_power_balance
+- Params: <bool> Boolean.
+- Example: has_any_power_balance = yes
+- Desc: Checks if the current scope has any balance of power active.
+- Since: 1.12
+
+## power_balance_value
+- Params: id = <bop ID> The balance to check in. value = <float> The value to check for.
+- Example: power_balance_value = { id = TAG_my_bop value > 0.7 }
+- Desc: Checks if the current scope has the specified value within the balance of power.
+- Since: 1.12
+
+## power_balance_daily_change
+- Params: id = <bop ID> The balance to check in. value = <float> The value to check for.
+- Example: power_balance_daily_change = { id = TAG_my_bop value < -0.01 }
+- Desc: Checks if the current scope's balance of power changes each day by the specified value.
+- Since: 1.12
+
+## power_balance_weekly_change
+- Params: id = <bop ID> The balance to check in. value = <float> The value to check for.
+- Example: power_balance_weekly_change = { id = TAG_my_bop value < -0.01 }
+- Desc: Checks if the current scope's balance of power changes each week by the specified value.
+- Since: 1.12
+
+## is_power_balance_in_range
+- Params: id = <bop ID> The balance to check in. range = <range ID> The range to check for.
+- Example: is_power_balance_in_range = { id = TAG_my_bop range > TAG_my_bop_right_range }
+- Desc: Checks if the current scope's balance of power value lies within the specified range.
+- Since: 1.12
+
+## is_power_balance_side_active
+- Params: id = <bop ID> The balance to check in. side = <side ID> The side to check.
+- Example: is_power_balance_side_active = { id = TAG_my_bop side = TAG_my_bop_right_range }
+- Desc: Checks if the specified balance of power has a side active.
+- Since: 1.12
+
+## has_power_balance_modifier
+- Params: id = <bop ID> The balance to check in. modifier = <modifier ID> The static modifier.
+- Example: has_power_balance_modifier = { id = TAG_my_bop modifier = TAG_my_bop_modifier }
+- Desc: Checks if the current scope's balance of power value activates a modifier.
+- Since: 1.12

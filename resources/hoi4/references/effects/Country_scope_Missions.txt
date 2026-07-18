@@ -1,0 +1,26 @@
+# Country_scope_Missions
+# Source: https://hoi4.paradoxwikis.com/Effect
+
+## activate_mission
+- Params: <mission> The mission to activate.
+- Example: activate_mission = my_mission
+- Desc: Activates the specified mission for the current scope, ignoring any triggers for the decision.
+- Since: 1.5
+
+## activate_mission_tooltip
+- Params: <mission> The mission to display.
+- Example: activate_mission_tooltip = my_mission
+- Desc: Displays a special tooltip for the specified mission in the effect tooltip.
+- Since: 1.5
+
+## remove_mission
+- Params: <mission> The mission to remove.
+- Example: remove_mission = my_mission
+- Desc: Removes the specified mission for the current scope.
+- Since: 1.5
+
+## add_days_mission_timeout
+- Params: mission = <mission> The mission to add days to. days = <int> / <variable> The number of days to add to the mission.
+- Example: add_days_mission_timeout = { mission = my_mission days = 20 }
+- Desc: Adds the number of days to the specified mission.
+- Since: 1.9
