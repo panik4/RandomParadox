@@ -18,8 +18,7 @@ Generator::Generator(const std::string &configSubFolder,
     return std::make_shared<Rpx::Hoi4::Hoi4Country>();
   };
   auto &reg = Fwg::Utils::Serialisation::TypeRegistry::instance();
-  reg.registerType<Fwg::Areas::Region, Rpx::Hoi4::Region>(
-      "Rpx::Hoi4::Region");
+  reg.registerType<Fwg::Areas::Region, Rpx::Hoi4::Region>("Rpx::Hoi4::Region");
   reg.registerType<Fwg::Areas::Area, Rpx::Hoi4::Hoi4Country>(
       "Rpx::Hoi4::Hoi4Country");
 }
@@ -708,6 +707,56 @@ void Generator::generateCountrySpecifics() {
       country->warSupport = RandNum::getRandom(40, 80);
     } else {
       country->warSupport = RandNum::getRandom(20, 60);
+    }
+
+    // assign starting laws based on ideology
+    {
+      using namespace Arda::Utils;
+      std::vector<std::string> conscriptionOptions, economyOptions,
+          tradeOptions;
+      switch (country->ideology) {
+      case Ideology::FASCISM:
+        conscriptionOptions = {"limited_conscription",
+                               "extensive_conscription"};
+        economyOptions = {"low_economic_mobilisation",
+                          "partial_economic_mobilisation"};
+        tradeOptions = {"limited_exports", "autarkic_economy"};
+        break;
+      case Ideology::COMMUNISM:
+        conscriptionOptions = {"disarmed_nation", "volunteer_only",
+                               "limited_conscription",
+                               "extensive_conscription"};
+        economyOptions = {"civilian_economy", "low_economic_mobilisation",
+                          "partial_economic_mobilisation"};
+        tradeOptions = {"autarkic_economy", "closed_economy"};
+        break;
+      case Ideology::DEMOCRATIC:
+        conscriptionOptions = {"disarmed_nation", "volunteer_only",
+                               "limited_conscription"};
+        economyOptions = {"civilian_economy", "low_economic_mobilisation"};
+        tradeOptions = {"free_trade", "export_focus", "limited_exports"};
+        break;
+      default: // NEUTRALITY / NONE
+        conscriptionOptions = {"volunteer_only", "limited_conscription"};
+        economyOptions = {"civilian_economy", "low_economic_mobilisation"};
+        tradeOptions = {"export_focus", "limited_exports", "autarkic_economy"};
+        break;
+      }
+      country->conscriptionLaw =
+          Fwg::Utils::Random::selectRandom(conscriptionOptions);
+      country->economyLaw = Fwg::Utils::Random::selectRandom(economyOptions);
+      country->tradeLaw = Fwg::Utils::Random::selectRandom(tradeOptions);
+      // great powers tend toward more militarized laws
+      if (country->rank == Arda::Rank::GreatPower) {
+        if (country->ideology != Ideology::COMMUNISM &&
+            country->ideology != Ideology::FASCISM &&
+            RandNum::getRandom(0, 1)) {
+          country->conscriptionLaw = "limited_conscription";
+        }
+        if (RandNum::getRandom(0, 1)) {
+          country->economyLaw = "partial_economic_mobilisation";
+        }
+      }
     }
 
     // amount of research slots between 3 and 6, depending on average
@@ -3211,25 +3260,25 @@ void Generator::save(const std::string &path) {
   locationMap.serialise(ar);
   navmeshMap.serialise(ar);
   errorMap.serialise(ar);
-  ar &preModifyHeightMap &preModifyHumidityMap;
+  ar & preModifyHeightMap & preModifyHumidityMap;
   ar.polymorphicPtrVector(ardaContinents);
   ar.polymorphicPtrVector(ardaRegions);
   ar.polymorphicPtrVector(ardaProvinces);
   ar.polymorphicPtrVector(superRegions);
-  ar &countries;
+  ar & countries;
   civData.serialise(ar);
   nData.serialise(ar);
   typeMap.serialise(ar);
   countryMap.serialise(ar);
   superRegionMap.serialise(ar);
   ar.serialiseEnum(gameType);
-  ar &exportWidth &exportHeight;
+  ar & exportWidth & exportHeight;
   pathcfg.serialise(ar);
   // Hoi4-specific data
   ar.polymorphicPtrVector(modData.hoi4States);
   ar.polymorphicPtrVector(modData.hoi4Countries);
-  ar &modData.supplyNodeConnections;
-  ar &modData.statesInitialised;
+  ar & modData.supplyNodeConnections;
+  ar & modData.statesInitialised;
   ar.ptrVector(modData.factions);
   modData.decisionData.serialise(ar);
   // TODO: serialise modConfig, stats, imageExporter
@@ -3240,7 +3289,7 @@ void Generator::load(const std::string &path) {
   // Hex dump first 64 bytes for diagnostics
   {
     std::vector<unsigned char> hdr(64, 0);
-    file.read(reinterpret_cast<char*>(hdr.data()), 64);
+    file.read(reinterpret_cast<char *>(hdr.data()), 64);
     std::stringstream ss;
     ss << "File hex: ";
     for (int i = 0; i < 64; i++)
@@ -3258,7 +3307,15 @@ void Generator::load(const std::string &path) {
       throw;
     }
   };
-#define LOAD_STEP(name, expr) do { try { expr; } catch (...) { Fwg::Utils::Logging::logLine("  Load failed at ", name); throw; } } while(0)
+#define LOAD_STEP(name, expr)                                                  \
+  do {                                                                         \
+    try {                                                                      \
+      expr;                                                                    \
+    } catch (...) {                                                            \
+      Fwg::Utils::Logging::logLine("  Load failed at ", name);                 \
+      throw;                                                                   \
+    }                                                                          \
+  } while (0)
   LOAD_STEP("version", ar.readVersion());
   LOAD_STEP("areaData", areaData.deserialise(ar));
   LOAD_STEP("terrainData", terrainData.deserialise(ar));
@@ -3271,24 +3328,24 @@ void Generator::load(const std::string &path) {
   LOAD_STEP("locationMap", locationMap.deserialise(ar));
   LOAD_STEP("navmeshMap", navmeshMap.deserialise(ar));
   LOAD_STEP("errorMap", errorMap.deserialise(ar));
-  LOAD_STEP("preModifyMaps", ar &preModifyHeightMap &preModifyHumidityMap);
+  LOAD_STEP("preModifyMaps", ar & preModifyHeightMap & preModifyHumidityMap);
   LOAD_STEP("ardaContinents", ar.polymorphicPtrVector(ardaContinents));
   LOAD_STEP("ardaRegions", ar.polymorphicPtrVector(ardaRegions));
   LOAD_STEP("ardaProvinces", ar.polymorphicPtrVector(ardaProvinces));
   LOAD_STEP("superRegions", ar.polymorphicPtrVector(superRegions));
-  LOAD_STEP("countries", ar &countries);
+  LOAD_STEP("countries", ar & countries);
   LOAD_STEP("civData", civData.deserialise(ar));
   LOAD_STEP("nData", nData.deserialise(ar));
   LOAD_STEP("typeMap", typeMap.deserialise(ar));
   LOAD_STEP("countryMap", countryMap.deserialise(ar));
   LOAD_STEP("superRegionMap", superRegionMap.deserialise(ar));
   LOAD_STEP("gameType", ar.serialiseEnum(gameType));
-  LOAD_STEP("exportDim", ar &exportWidth &exportHeight);
+  LOAD_STEP("exportDim", ar & exportWidth & exportHeight);
   LOAD_STEP("pathcfg", pathcfg.deserialise(ar));
   LOAD_STEP("hoi4States", ar.polymorphicPtrVector(modData.hoi4States));
   LOAD_STEP("hoi4Countries", ar.polymorphicPtrVector(modData.hoi4Countries));
-  LOAD_STEP("supplyConn", ar &modData.supplyNodeConnections);
-  LOAD_STEP("statesInit", ar &modData.statesInitialised);
+  LOAD_STEP("supplyConn", ar & modData.supplyNodeConnections);
+  LOAD_STEP("statesInit", ar & modData.statesInitialised);
   LOAD_STEP("factions", ar.ptrVector(modData.factions));
   LOAD_STEP("decisionData", modData.decisionData.deserialise(ar));
 #undef LOAD_STEP

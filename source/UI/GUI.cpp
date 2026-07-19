@@ -99,7 +99,7 @@ int GUI::shiny(const pt::ptree &rpdConfRef,
                const std::string &usernameRef) {
 
   try {
-    Fwg::UI::Utils::CreateDeviceGL(window, "RandomParadox 0.11.0", 0, 0);
+    Fwg::UI::Utils::CreateDeviceGL(window, "RandomParadox 0.11.1", 0, 0);
 
     setWindowIcon(window, Fwg::Cfg::Values().workingDirectory +
                               "resources/worldMap.png");
