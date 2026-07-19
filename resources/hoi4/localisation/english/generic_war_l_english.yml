@@ -30,7 +30,22 @@
  generic_war.6.a:0 "Justify a war of ideology"
  generic_war.6.b:0 "We are not ready yet"
 
- generic_war.7.t:0 "[From.GetNameDef] Justifies a War of Ideology"
- generic_war.7.d:0 "[From.GetNameDef], our faction leader, has begun justifying a war of ideology against [event_target:ideological_target.GetNameDef]. As members of [Root.GetFactionName], they expect us to support this expansion of our influence."
+  generic_war.7.t:0 "[From.GetNameDef] Justifies a War of Ideology"
+  generic_war.7.d:0 "[From.GetNameDef], our faction leader, has begun justifying a war of ideology against [event_target:ideological_target.GetNameDef]. As members of [Root.GetFactionName], they expect us to support this expansion of our influence."
+  generic_war.7.a:0 "We support our leader's vision"
 
  justified_ideological_war:0 "Justified Ideological War"
+
+ generic_war.8.t:0 "The Arsenal of Democracy"
+ generic_war.8.d:0 "The world grows darker by the day. [event_target:containment_target.GetNameDef], a nation of hostile ideology, grows ever more powerful. As the leader of the free world, [Root.GetNameDef] cannot stand idle while the forces of tyranny threaten global stability. The time has come to take a stand."
+ generic_war.8.a:0 "We will contain this threat"
+ generic_war.8.b:0 "We must prepare further"
+
+ generic_war.9.t:0 "[From.GetNameDef] Declares a Containment War"
+ generic_war.9.d:0 "[From.GetNameDef], our faction leader, has declared their intention to contain [event_target:containment_target.GetNameDef] and their hostile ideology. As members of [Root.GetFactionName], we are called to stand together in defense of our way of life."
+ generic_war.9.a:0 "We stand with our leader"
+
+ generic_war.10.t:0 "The Rival Faction"
+ generic_war.10.d:0 "The world is divided between opposing ideologies, and [Root.GetNameDef] cannot ignore the growing power of a rival faction. [event_target:rival_faction.GetNameDef] leads an alliance that stands against everything we believe in. The time has come to settle this once and for all."
+ generic_war.10.a:0 "Declare war on the rival faction"
+ generic_war.10.b:0 "We are not ready yet"

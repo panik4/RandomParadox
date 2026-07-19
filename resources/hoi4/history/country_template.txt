@@ -49,6 +49,8 @@ set_convoys = templateConvoys
 set_stability = templateStability
 set_war_support = templateWarSupport
 
+templateLaws
+
 set_politics = {
 	ruling_party = templateParty
 	last_election = "templateLastElection"

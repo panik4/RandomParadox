@@ -8,8 +8,7 @@
 	},
 	"paths":
 	{
-		"mapsPath": "Maps//",
-		"loadMapsPath" : "Maps//"
+		"mapsPath": "Maps/"
 	},
 	"loadMaps":
 	{
@@ -59,7 +58,7 @@
 				"landProvinceFactor" : 1.0,
 				"seaProvinceFactor" : 1.0,
 				"minProvSize" : 20,
-				"provinceDensityEffects" : 1.0,
+				"provinceDensityEffects" : 0.5,
 				"maxProvAmount" : 20000
 			},
 			"regions" :

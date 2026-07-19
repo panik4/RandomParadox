@@ -23,6 +23,9 @@ public:
   std::string fullName;
   std::string gfxCulture;
   // politics
+  std::string conscriptionLaw;
+  std::string economyLaw;
+  std::string tradeLaw;
   bool allowElections = false;
   std::array<int, 4> parties = {25, 25, 25, 25};
   std::string lastElection = "1.1.1933";

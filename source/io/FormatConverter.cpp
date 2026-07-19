@@ -490,6 +490,7 @@ void ImageExporter::dump8BitRivers(const Fwg::Terrain::TerrainData &terrainData,
     auto scaledMap = Util::scale(riverMap, 8192, 3616, false);
     Png::save(scaledMap, path + ".png");
   } else {
+    riverMap.colourtableOverride = 0;
     Bmp::save8bit(riverMap, path + ".bmp");
   }
 }

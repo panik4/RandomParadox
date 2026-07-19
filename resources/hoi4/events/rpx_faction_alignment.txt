@@ -52,6 +52,21 @@ country_event = {
 			factor = 0.8
 			has_defensive_war = yes
 		}
+		
+		modifier = {
+			factor = 4.0
+			threat < 0.25
+		}
+		
+		modifier = {
+			factor = 0.5
+			threat > 0.5
+		}
+		
+		modifier = {
+			factor = 0.5
+			threat > 0.75
+		}
 	}
 	
 	immediate = {
@@ -61,7 +76,7 @@ country_event = {
 				has_government = ROOT
 				NOT = { has_war_with = ROOT }
 			}
-			save_event_target_as = chosen_faction_leader
+			save_event_target_as = chosen_faction_leader_1
 		}
 	}
 	
@@ -84,7 +99,7 @@ country_event = {
 			}
 		}
 		
-		event_target:chosen_faction_leader = {
+		event_target:chosen_faction_leader_1 = {
 			country_event = { id = faction_alignment.2 days = 1 }
 		}
 		
@@ -145,9 +160,12 @@ country_event = {
 			}
 		}
 		
-		add_to_faction = FROM
-		FROM = {
-			country_event = { id = faction_alignment.3 days = 1 }
+		if = {
+			limit = { FROM = { NOT = { is_in_faction = yes } } }
+			add_to_faction = FROM
+			FROM = {
+				country_event = { id = faction_alignment.3 days = 1 }
+			}
 		}
 	}
 	
@@ -247,6 +265,21 @@ country_event = {
 			factor = 1.5
 			has_stability > 0.7
 		}
+		
+		modifier = {
+			factor = 4.0
+			threat < 0.25
+		}
+		
+		modifier = {
+			factor = 0.5
+			threat > 0.5
+		}
+		
+		modifier = {
+			factor = 0.5
+			threat > 0.75
+		}
 	}
 	
 	immediate = {
@@ -256,7 +289,7 @@ country_event = {
 				has_government = fascism
 				NOT = { has_war_with = ROOT }
 			}
-			save_event_target_as = chosen_faction_leader
+			save_event_target_as = chosen_faction_leader_5
 		}
 	}
 	
@@ -277,7 +310,7 @@ country_event = {
 			}
 		}
 		
-		event_target:chosen_faction_leader = {
+		event_target:chosen_faction_leader_5 = {
 			country_event = { id = faction_alignment.6 days = 1 }
 		}
 		
@@ -333,9 +366,12 @@ country_event = {
 			}
 		}
 		
-		add_to_faction = FROM
-		FROM = {
-			country_event = { id = faction_alignment.3 days = 1 }
+		if = {
+			limit = { FROM = { NOT = { is_in_faction = yes } } }
+			add_to_faction = FROM
+			FROM = {
+				country_event = { id = faction_alignment.3 days = 1 }
+			}
 		}
 	}
 	
@@ -401,6 +437,21 @@ country_event = {
 			factor = 1.5
 			has_stability > 0.7
 		}
+		
+		modifier = {
+			factor = 4.0
+			threat < 0.25
+		}
+		
+		modifier = {
+			factor = 0.5
+			threat > 0.5
+		}
+		
+		modifier = {
+			factor = 0.5
+			threat > 0.75
+		}
 	}
 	
 	immediate = {
@@ -410,7 +461,7 @@ country_event = {
 				has_government = communism
 				NOT = { has_war_with = ROOT }
 			}
-			save_event_target_as = chosen_faction_leader
+			save_event_target_as = chosen_faction_leader_7
 		}
 	}
 	
@@ -431,7 +482,7 @@ country_event = {
 			}
 		}
 		
-		event_target:chosen_faction_leader = {
+		event_target:chosen_faction_leader_7 = {
 			country_event = { id = faction_alignment.8 days = 1 }
 		}
 		
@@ -487,9 +538,12 @@ country_event = {
 			}
 		}
 		
-		add_to_faction = FROM
-		FROM = {
-			country_event = { id = faction_alignment.3 days = 1 }
+		if = {
+			limit = { FROM = { NOT = { is_in_faction = yes } } }
+			add_to_faction = FROM
+			FROM = {
+				country_event = { id = faction_alignment.3 days = 1 }
+			}
 		}
 	}
 	

@@ -678,6 +678,21 @@ void historyCountries(
         countryText, "templateWarSupport",
         std::format("{:.2f}",
                     static_cast<double>(country->warSupport) / 100.0));
+
+    // laws
+    {
+      std::string lawsBlock;
+      if (!country->conscriptionLaw.empty())
+        lawsBlock += country->conscriptionLaw + "\n";
+      if (!country->economyLaw.empty())
+        lawsBlock += country->economyLaw + "\n";
+      if (!country->tradeLaw.empty())
+        lawsBlock += country->tradeLaw + "\n";
+      if (!lawsBlock.empty())
+        lawsBlock = "add_ideas = {\n" + lawsBlock + "}\n";
+      Rpx::Parsing::replaceOccurences(countryText, "templateLaws", lawsBlock);
+    }
+
     Rpx::Parsing::replaceOccurences(countryText, "templateTag", country->tag);
     Rpx::Parsing::replaceOccurences(
         countryText, "templateParty",
@@ -1793,10 +1808,10 @@ Fwg::Utils::ColourTMap<std::string> readColourMapping(const std::string &path) {
         hsvv.push_back(std::stod(hsvd[1]));
         hsvv.push_back(std::stod(hsvd[2]));
         auto C = hsvv[2] * hsvv[1];
-        // C × (1 - |(H / 60°) mod 2 - 1|)
+        // C ï¿½ (1 - |(H / 60ï¿½) mod 2 - 1|)
         auto X = C * (1.0 - abs(std::fmod((hsvv[0] / 60), 2.0) - 1.0));
         auto m = hsvv[2] - C;
-        //  ((R'+m)×255, (G'+m)×255, (B'+m)×255)
+        //  ((R'+m)ï¿½255, (G'+m)ï¿½255, (B'+m)ï¿½255)
         rgb[0] = static_cast<int>((C + m) * 255.0) % 255;
         rgb[1] = static_cast<int>((X + m) * 255.0) % 255;
         rgb[2] = static_cast<int>((0.0 + m) * 255.0) % 255;

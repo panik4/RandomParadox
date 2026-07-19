@@ -32,7 +32,7 @@ country_event = {
 	}
 	
 	mean_time_to_happen = {
-		days = 60
+		days = 365
 		
 		modifier = {
 			factor = 0.5
@@ -110,9 +110,8 @@ country_event = {
 		
 		# Create wargoal against faction leader's enemy
 		create_wargoal = {
-			type = take_state_focus
+			type = annex_everything
 			target = event_target:war_target
-			generator = { 5 }
 		}
 		
 		add_war_support = 0.05
@@ -294,9 +293,8 @@ country_event = {
 		
 		# Create wargoal against their enemy
 		create_wargoal = {
-			type = take_state_focus
+			type = annex_everything
 			target = event_target:common_enemy
-			generator = { 5 }
 		}
 		
 		FROM = {
@@ -445,6 +443,21 @@ country_event = {
 				has_war_support < 0.3
 			}
 		}
+
+		modifier = {
+			factor = 3.0
+			threat < 0.25
+		}
+
+		modifier = {
+			factor = 0.6
+			threat > 0.5
+		}
+
+		modifier = {
+			factor = 0.4
+			threat > 0.75
+		}
 	}
 
 	immediate = {
@@ -557,6 +570,280 @@ country_event = {
 		add_opinion_modifier = {
 			target = FROM
 			modifier = justified_ideological_war
+		}
+	}
+}
+
+# Democratic Containment War
+country_event = {
+	id = generic_war.8
+	title = generic_war.8.t
+	desc = generic_war.8.d
+	picture = GFX_report_event_generic_speech
+
+	trigger = {
+		is_faction_leader = yes
+		has_government = democratic
+		date > 1939.12.31
+		NOT = { has_war = yes }
+		has_war_support > 0.35
+		has_army_manpower = { size > 50000 }
+		num_of_factories > 20
+
+		any_country = {
+			OR = {
+				has_government = fascism
+				has_government = communism
+			}
+			OR = {
+				is_major = yes
+				is_faction_leader = yes
+			}
+			NOT = { has_war_with = ROOT }
+			is_subject = no
+		}
+	}
+
+	mean_time_to_happen = {
+		days = 270
+
+		modifier = {
+			factor = 0.6
+			any_country = {
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+				OR = {
+					is_major = yes
+					is_faction_leader = yes
+				}
+				strength_ratio = { tag = ROOT ratio > 1.2 }
+			}
+		}
+
+		modifier = {
+			factor = 0.7
+			has_war_support > 0.6
+		}
+
+		modifier = {
+			factor = 0.8
+			has_idea = war_economy
+		}
+
+		modifier = {
+			factor = 1.5
+			has_stability < 0.4
+		}
+
+		modifier = {
+			factor = 3.0
+			threat < 0.25
+		}
+
+		modifier = {
+			factor = 0.6
+			threat > 0.5
+		}
+
+		modifier = {
+			factor = 0.4
+			threat > 0.75
+		}
+	}
+
+	immediate = {
+		random_country = {
+			limit = {
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+				OR = {
+					is_major = yes
+					is_faction_leader = yes
+				}
+				NOT = { has_war_with = ROOT }
+				is_subject = no
+			}
+			save_event_target_as = containment_target
+		}
+	}
+
+	# Contain the hostile ideology
+	option = {
+		name = generic_war.8.a
+		ai_chance = {
+			factor = 70
+
+			modifier = {
+				factor = 1.3
+				has_war_support > 0.6
+			}
+
+			modifier = {
+				factor = 1.5
+				strength_ratio = {
+					tag = event_target:containment_target
+					ratio < 0.5
+				}
+			}
+
+			modifier = {
+				factor = 0.5
+				has_stability < 0.3
+			}
+		}
+
+		create_wargoal = {
+			type = annex_everything
+			target = event_target:containment_target
+		}
+
+		add_political_power = -100
+		add_war_support = 0.05
+
+		every_other_country = {
+			limit = {
+				is_in_faction_with = ROOT
+				NOT = { has_war = yes }
+				is_subject = no
+			}
+			country_event = { id = generic_war.9 days = 1 }
+		}
+	}
+
+	# Focus on domestic affairs
+	option = {
+		name = generic_war.8.b
+		ai_chance = {
+			factor = 30
+
+			modifier = {
+				factor = 2.0
+				has_stability < 0.3
+			}
+
+			modifier = {
+				factor = 1.5
+				has_war_support < 0.3
+			}
+		}
+
+		add_political_power = 10
+	}
+}
+
+# Faction Leader Announces Containment War
+country_event = {
+	id = generic_war.9
+	title = generic_war.9.t
+	desc = generic_war.9.d
+	picture = GFX_report_event_generic_speech
+
+	is_triggered_only = yes
+	hidden = yes
+
+	option = {
+		name = generic_war.9.a
+
+		add_opinion_modifier = {
+			target = FROM
+			modifier = justified_ideological_war
+		}
+	}
+}
+
+# Faction War - Rival Faction
+country_event = {
+    id = generic_war.10
+    title = generic_war.10.t
+    desc = generic_war.10.d
+    picture = GFX_report_event_political_incident
+
+    trigger = {
+        is_faction_leader = yes
+        OR = {
+            date > 1942.12.31
+            AND = {
+                NOT = { has_government = democratic }
+                date > 1939.12.31
+            }
+        }
+        any_other_country = {
+            is_faction_leader = yes
+            is_in_faction = yes
+            NOT = { is_in_faction_with = ROOT }
+        }
+    }
+
+    mean_time_to_happen = {
+        days = 180
+        modifier = { factor = 3.0  threat < 0.25 }
+        modifier = { factor = 0.6  threat > 0.5 }
+        modifier = { factor = 0.4  threat > 0.75 }
+    }
+
+    # Pick target at event level so all options and tooltips can use it
+    immediate = {
+        hidden_effect = {
+            random_other_country = {
+                limit = {
+                    is_faction_leader = yes
+                    is_in_faction = yes
+                    NOT = { is_in_faction_with = ROOT }
+                }
+                save_event_target_as = rival_faction
+            }
+        }
+    }
+
+    option = {
+        name = generic_war.10.a
+        trigger = {
+            NOT = { has_war = yes }
+        }
+        ai_chance = {
+            factor = 75
+            modifier = {
+                factor = 2.0
+                strength_ratio = {
+                    tag = event_target:rival_faction
+                    ratio < 0.5
+                }
+            }
+            modifier = { factor = 0.3  has_war = yes }
+            modifier = { factor = 0.5  has_stability < 0.3 }
+            modifier = { factor = 1.3  has_war_support > 0.6 }
+        }
+
+        declare_war_on = {
+            target = event_target:rival_faction
+            type = annex_everything
+        }
+    }
+
+	# Hold off for now
+	option = {
+		name = generic_war.10.b
+		ai_chance = {
+			factor = 25
+
+			modifier = {
+				factor = 3.0
+				has_war = yes
+			}
+
+			modifier = {
+				factor = 2.0
+				has_stability < 0.4
+			}
+
+			modifier = {
+				factor = 1.5
+				has_war_support < 0.3
+			}
 		}
 	}
 }
