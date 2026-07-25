@@ -1,6 +1,6 @@
 #pragma once
 #include "areas/SuperRegion.h"
-#include "utils/Archive.h"
+#include "utils/SerialisationFwd.h"
 
 namespace Rpx {
 class StrategicRegion : public Arda::SuperRegion {
@@ -10,8 +10,10 @@ public:
   // heavyRainChance, blizzardChance,mudChance, sandstormChance}
   std::vector<std::vector<double>> weatherMonths;
 
-  void serialise(Fwg::Utils::Serialisation::Archive &ar) override;
-  void deserialise(Fwg::Utils::Serialisation::Archive &ar) override;
-  uint32_t typeTag() const override;
+  template<class Archive>
+  void serialize(Archive &ar, const unsigned int /*version*/);
+  void forceStrategicRegionLink();
 };
 } // namespace Rpx
+
+BOOST_CLASS_EXPORT_KEY(Rpx::StrategicRegion)

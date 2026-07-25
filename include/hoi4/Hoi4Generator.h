@@ -11,6 +11,8 @@
 #include "hoi4/Hoi4DecisionGen.h"
 #include "io/GenericParsing.h"
 #include "utils/RpxUtils.h"
+#include "generic/StrategicRegion.h"
+#include "areas/SuperRegion.h"
 #include <array>
 #include <set>
 

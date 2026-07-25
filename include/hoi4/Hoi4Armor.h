@@ -1,7 +1,7 @@
 #pragma once
 #include "hoi4/Hoi4Region.h"
 #include "hoi4/Hoi4Tech.h"
-#include "utils/Archive.h"
+#include "utils/SerialisationFwd.h"
 #include <array>
 #include <string>
 #include <vector>
@@ -24,14 +24,11 @@ struct TankVariant {
   // upgrades have happened. Range between 0.0 and 1.0
   double upgradeLevel = 0.0;
 
-  void serialise(Fwg::Utils::Serialisation::Archive &ar) {
-    ar.serialiseEnum(type);
-    ar.serialiseEnum(subType);
-    ar.serialiseEnum(era);
-    ar &name &vanillaArmorName &bbaArmorName;
+  template<class Archive>
+  void serialize(Archive &ar, const unsigned int /*version*/) {
+    ar &type &subType &era &name &vanillaArmorName &bbaArmorName;
     ar &nsbModules &upgradeLevel;
   }
-  void deserialise(Fwg::Utils::Serialisation::Archive &ar) { serialise(ar); }
 };
 
 void addArmorModules(

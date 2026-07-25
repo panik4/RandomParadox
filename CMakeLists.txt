@@ -19,6 +19,9 @@ if (MSVC)
     add_compile_options(/Gy)
     # Warning level
     add_compile_options(/W4)
+    add_compile_options(/bigobj)
+    add_compile_options(/guard:cf)
+    add_link_options(/guard:cf)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(-Wall -Wextra -Wpedantic)
     # Optional: optimization for Release
@@ -83,7 +86,7 @@ endif()
 # -----------------------------
 # Executable target
 # -----------------------------
-add_executable(${PROJECT_NAME} main.cpp)
+add_executable(${PROJECT_NAME} main.cpp resources.rc)
 target_link_libraries(${PROJECT_NAME} PRIVATE RandomParadoxLib)
 
 # -----------------------------

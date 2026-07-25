@@ -1,5 +1,4 @@
 #include "hoi4/Hoi4Region.h"
-#include "utils/Archive.h"
 
 namespace Rpx::Hoi4 {
 Region::Region() {}
@@ -189,27 +188,24 @@ void Region::calculateBuildingPositions(const std::vector<float> &heightmap,
   }
 }
 
-void Region::serialise(Fwg::Utils::Serialisation::Archive &ar) {
-  ArdaRegion::serialise(ar);
-  ar &identifier;
-  ar &armsFactories &civilianFactories &dockyards;
-  ar &infrastructure &stateCategory &stratID;
-  ar &airport &rocketsite &supplyNode;
-  ar &totalVictoryPoints;
-  weatherPosition.serialise(ar);
-  ar &buildings;
-  ar &victoryPointsMap;
-  ar &navalBases;
-  ar &airBase;
-}
-
-void Region::deserialise(Fwg::Utils::Serialisation::Archive &ar) {
-  serialise(ar);
-}
-
-uint32_t Region::typeTag() const {
-  return Fwg::Utils::Serialisation::TypeRegistry::hashString(
-      "Rpx::Hoi4::Region");
+template<class Archive>
+void Region::serialize(Archive &ar, const unsigned int /*version*/) {
+  ar & boost::serialization::base_object<Arda::ArdaRegion>(*this);
+  ar & identifier;
+  ar & armsFactories & civilianFactories & dockyards;
+  ar & infrastructure & stateCategory & stratID;
+  ar & airport & rocketsite & supplyNode;
+  ar & totalVictoryPoints;
+  ar & weatherPosition;
+  ar & buildings;
+  ar & victoryPointsMap;
+  ar & navalBases;
+  ar & airBase;
 }
 
 } // namespace Rpx::Hoi4
+
+BOOST_CLASS_EXPORT_IMPLEMENT(Rpx::Hoi4::Region)
+template void Rpx::Hoi4::Region::serialize(boost::archive::binary_oarchive&, unsigned int);
+template void Rpx::Hoi4::Region::serialize(boost::archive::binary_iarchive&, unsigned int);
+
