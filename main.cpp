@@ -42,9 +42,8 @@ int main() {
     Utils::Logging::logLine("Incorrect config \"MetaConf.json\"");
     Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                             e.what());
-    Utils::Logging::logLine(
-        "Otherwise try running it through a json validator, e.g. "
-        "\"https://jsonlint.com/\" or search for \"json validator\"");
+    Fwg::Utils::Logging::logLine(
+        "Otherwise try running it through a json validator");
     dumpInfo(e.what(), "");
     return -1;
   }
@@ -74,9 +73,8 @@ int main() {
     Utils::Logging::logLine("Incorrect config \"RandomParadox.json\"");
     Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                             e.what());
-    Utils::Logging::logLine(
-        "Otherwise try running it through a json validator, e.g. "
-        "\"https://jsonlint.com/\" or search for \"json validator\"");
+    Fwg::Utils::Logging::logLine(
+        "Otherwise try running it through a json validator");
     dumpInfo(e.what(), configSubFolder);
     return -1;
   }
@@ -94,9 +92,8 @@ int main() {
     Utils::Logging::logLine("Incorrect config \"FastWorldGenerator.json\"");
     Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                             e.what());
-    Utils::Logging::logLine(
-        "Otherwise try running it through a json validator, e.g. "
-        "\"https://jsonlint.com/\" or \"search for json validator\"");
+    Fwg::Utils::Logging::logLine(
+        "Otherwise try running it through a json validator");
     dumpInfo(e.what(), configSubFolder);
     return -1;
   }

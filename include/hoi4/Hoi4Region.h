@@ -4,7 +4,7 @@
 #include "generic/VictoryPoint.h"
 #include "hoi4/Hoi4Airforce.h"
 #include "utils/RpxUtils.h"
-#include "utils/Archive.h"
+#include "utils/SerialisationFwd.h"
 
 namespace Rpx::Hoi4 {
 
@@ -49,8 +49,10 @@ public:
                                   const Fwg::Gfx::Image &typeMap);
 
   // serialisation
-  void serialise(Fwg::Utils::Serialisation::Archive &ar) override;
-  void deserialise(Fwg::Utils::Serialisation::Archive &ar) override;
-  uint32_t typeTag() const override;
+  template<class Archive>
+  void serialize(Archive &ar, const unsigned int /*version*/);
 };
 } // namespace Rpx::Hoi4
+
+BOOST_CLASS_EXPORT_KEY(Rpx::Hoi4::Region)
+

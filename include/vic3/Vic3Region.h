@@ -1,7 +1,7 @@
 #pragma once
 #include "FastWorldGenerator.h"
 #include "areas/ArdaRegion.h"
-#include "utils/Archive.h"
+#include "utils/SerialisationFwd.h"
 #include "utils/RpxUtils.h"
 #include "vic3/Vic3Utils.h"
 namespace Rpx::Vic3 {
@@ -17,8 +17,10 @@ public:
   int supportsBuilding(const BuildingType &buildingType);
   int navalExit = -1;
 
-  void serialise(Fwg::Utils::Serialisation::Archive &ar) override;
-  void deserialise(Fwg::Utils::Serialisation::Archive &ar) override;
-  uint32_t typeTag() const override;
+  template<class Archive>
+  void serialize(Archive &ar, const unsigned int /*version*/);
 };
 } // namespace Rpx::Vic3
+
+BOOST_CLASS_EXPORT_KEY(Rpx::Vic3::Region)
+

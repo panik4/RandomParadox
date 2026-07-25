@@ -1,5 +1,5 @@
 #pragma once
-#include "utils/Archive.h"
+#include "utils/SerialisationFwd.h"
 #include <array>
 #include <map>
 #include <string>
@@ -16,11 +16,10 @@ struct Technology {
   std::string predecessor;
   TechEra era;
 
-  void serialise(Fwg::Utils::Serialisation::Archive &ar) {
-    ar &name &predecessor;
-    ar.serialiseEnum(era);
+  template<class Archive>
+  void serialize(Archive &ar, const unsigned int /*version*/) {
+    ar &name &predecessor &era;
   }
-  void deserialise(Fwg::Utils::Serialisation::Archive &ar) { serialise(ar); }
 };
 
 

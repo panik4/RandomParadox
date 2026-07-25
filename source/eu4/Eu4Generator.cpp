@@ -73,8 +73,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
     Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                                  e.what());
     Fwg::Utils::Logging::logLine(
-        "Otherwise try running it through a json validator, e.g. "
-        "\"https://jsonlint.com/\" or search for \"json validator\"");
+        "Otherwise try running it through a json validator");
     system("pause");
   }
   //  passed to generic ScenarioGenerator
@@ -129,7 +128,7 @@ void Generator::generateRegions(
       }
     }
   }
-  Png::save(eu4RegionBmp, Fwg::Cfg::Values().mapsPath + "/eu4Regions.png");
+  Png::save(eu4RegionBmp, Fwg::Cfg::Values().mapsPath + "eu4Regions.png");
 }
 
 Fwg::Gfx::Image Generator::mapTerrain() {

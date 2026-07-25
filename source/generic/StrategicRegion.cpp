@@ -1,13 +1,21 @@
 #include "generic/StrategicRegion.h"
-#include "utils/Archive.h"
-
+static int debugStrategicRegionExport = [] {
+  std::cout << "StrategicRegion export registered\n";
+  return 0;
+}();
 namespace Rpx {
-void StrategicRegion::serialise(Fwg::Utils::Serialisation::Archive &ar) {
-  SuperRegion::serialise(ar);
-  ar &weatherMonths;
+template <class Archive>
+void StrategicRegion::serialize(Archive &ar, const unsigned int /*version*/) {
+  ar &boost::serialization::base_object<Arda::SuperRegion>(*this);
+  ar & weatherMonths;
 }
-void StrategicRegion::deserialise(Fwg::Utils::Serialisation::Archive &ar) { serialise(ar); }
-uint32_t StrategicRegion::typeTag() const {
-  return Fwg::Utils::Serialisation::TypeRegistry::hashString("Rpx::StrategicRegion");
+void StrategicRegion::forceStrategicRegionLink() {
+  std::cout << "" << std::endl;
 }
 } // namespace Rpx
+
+BOOST_CLASS_EXPORT_IMPLEMENT(Rpx::StrategicRegion)
+template void Rpx::StrategicRegion::serialize(boost::archive::binary_oarchive &,
+                                              unsigned int);
+template void Rpx::StrategicRegion::serialize(boost::archive::binary_iarchive &,
+                                              unsigned int);

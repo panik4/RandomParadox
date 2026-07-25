@@ -1,5 +1,4 @@
 #include "vic3/Vic3Region.h"
-#include "utils/Archive.h"
 
 namespace Rpx::Vic3 {
 Region::Region() {}
@@ -27,18 +26,15 @@ int Region::supportsBuilding(const BuildingType &buildingType) {
 return 0;
 }
 
-void Region::serialise(Fwg::Utils::Serialisation::Archive &ar) {
-  ArdaRegion::serialise(ar);
-  ar &arableLand &navalExit;
-}
-
-void Region::deserialise(Fwg::Utils::Serialisation::Archive &ar) {
-  serialise(ar);
-}
-
-uint32_t Region::typeTag() const {
-  return Fwg::Utils::Serialisation::TypeRegistry::hashString(
-      "Rpx::Vic3::Region");
+template<class Archive>
+void Region::serialize(Archive &ar, const unsigned int /*version*/) {
+  ar & boost::serialization::base_object<Arda::ArdaRegion>(*this);
+  ar & arableLand & navalExit;
 }
 
 } // namespace Rpx::Vic3
+
+BOOST_CLASS_EXPORT_IMPLEMENT(Rpx::Vic3::Region)
+template void Rpx::Vic3::Region::serialize(boost::archive::binary_oarchive&, unsigned int);
+template void Rpx::Vic3::Region::serialize(boost::archive::binary_iarchive&, unsigned int);
+

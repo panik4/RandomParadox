@@ -1,5 +1,6 @@
 #include "hoi4/Hoi4Generator.h"
-#include "utils/Archive.h"
+#include "areas/SuperRegion.h"
+#include "generic/StrategicRegion.h"
 #include <limits>
 using namespace Fwg;
 using namespace Fwg::Gfx;
@@ -17,10 +18,6 @@ Generator::Generator(const std::string &configSubFolder,
       []() -> std::shared_ptr<Rpx::Hoi4::Hoi4Country> {
     return std::make_shared<Rpx::Hoi4::Hoi4Country>();
   };
-  auto &reg = Fwg::Utils::Serialisation::TypeRegistry::instance();
-  reg.registerType<Fwg::Areas::Region, Rpx::Hoi4::Region>("Rpx::Hoi4::Region");
-  reg.registerType<Fwg::Areas::Area, Rpx::Hoi4::Hoi4Country>(
-      "Rpx::Hoi4::Hoi4Country");
 }
 
 Generator::~Generator() {}
@@ -122,8 +119,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
     Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                                  e.what());
     Fwg::Utils::Logging::logLine(
-        "Otherwise try running it through a json validator, e.g. "
-        "\"https://jsonlint.com/\" or search for \"json validator\"");
+        "Otherwise try running it through a json validator");
     system("pause");
   }
   // default values taken from base game
@@ -596,7 +592,7 @@ void Generator::generateStateSpecifics() {
   stats.totalWorldIndustry =
       stats.militaryIndustry + stats.civilianIndustry + stats.navalIndustry;
   this->modData.statesInitialised = true;
-  Arda::Areas::saveRegions(ardaRegions, Fwg::Cfg::Values().mapsPath + "/areas/",
+  Arda::Areas::saveRegions(ardaRegions, Fwg::Cfg::Values().mapsPath + "areas/",
                            Arda::Gfx::visualiseRegions(ardaRegions));
 }
 
@@ -3246,112 +3242,56 @@ void Generator::readHoi(std::string &path) {
 }
 
 void Generator::save(const std::string &path) {
+  // take every superregion, cast it to a strategic region
+  for (auto &superRegion : superRegions) {
+    auto stratRegion = std::make_shared<StrategicRegion>();
+    stratRegion->forceStrategicRegionLink();
+  }
   std::ofstream file(path, std::ios::binary);
-  Fwg::Utils::Serialisation::Archive ar(file);
-  ar.writeVersion();
-  areaData.serialise(ar);
-  terrainData.serialise(ar);
-  climateData.serialise(ar);
-  climateMap.serialise(ar);
-  worldMap.serialise(ar);
-  segmentMap.serialise(ar);
-  provinceMap.serialise(ar);
-  regionMap.serialise(ar);
-  locationMap.serialise(ar);
-  navmeshMap.serialise(ar);
-  errorMap.serialise(ar);
-  ar & preModifyHeightMap & preModifyHumidityMap;
-  ar.polymorphicPtrVector(ardaContinents);
-  ar.polymorphicPtrVector(ardaRegions);
-  ar.polymorphicPtrVector(ardaProvinces);
-  ar.polymorphicPtrVector(superRegions);
-  ar & countries;
-  civData.serialise(ar);
-  nData.serialise(ar);
-  typeMap.serialise(ar);
-  countryMap.serialise(ar);
-  superRegionMap.serialise(ar);
-  ar.serialiseEnum(gameType);
-  ar & exportWidth & exportHeight;
-  pathcfg.serialise(ar);
-  // Hoi4-specific data
-  ar.polymorphicPtrVector(modData.hoi4States);
-  ar.polymorphicPtrVector(modData.hoi4Countries);
-  ar & modData.supplyNodeConnections;
-  ar & modData.statesInitialised;
-  ar.ptrVector(modData.factions);
-  modData.decisionData.serialise(ar);
-  // TODO: serialise modConfig, stats, imageExporter
+  boost::archive::binary_oarchive ar(file);
+  ar << areaData << terrainData << climateData;
+  ar << climateMap << worldMap << segmentMap << provinceMap << regionMap;
+  ar << locationMap << navmeshMap << errorMap;
+  ar << preModifyHeightMap << preModifyHumidityMap;
+  ar << ardaContinents << ardaRegions << ardaProvinces << superRegions;
+  ar << countries << civData << nData;
+  ar << typeMap << countryMap << superRegionMap;
+  ar << gameType << exportWidth << exportHeight;
+  ar << pathcfg;
+  ar << modData.hoi4States << modData.hoi4Countries;
+  ar << modData.supplyNodeConnections;
+  ar << modData.statesInitialised;
+  ar << modData.factions;
+  ar << modData.decisionData;
 }
 
 void Generator::load(const std::string &path) {
   std::ifstream file(path, std::ios::binary);
-  // Hex dump first 64 bytes for diagnostics
-  {
-    std::vector<unsigned char> hdr(64, 0);
-    file.read(reinterpret_cast<char *>(hdr.data()), 64);
-    std::stringstream ss;
-    ss << "File hex: ";
-    for (int i = 0; i < 64; i++)
-      ss << std::hex << std::setw(2) << std::setfill('0') << (int)hdr[i];
-    Fwg::Utils::Logging::logLine(ss.str());
-    file.clear();
-    file.seekg(0);
-  }
-  Fwg::Utils::Serialisation::Archive ar(file);
+  boost::archive::binary_iarchive ar(file);
   resetData();
-  auto step = [](const char *name) {
-    try {
-    } catch (...) {
-      Fwg::Utils::Logging::logLine("  Load failed at ", name);
-      throw;
-    }
-  };
-#define LOAD_STEP(name, expr)                                                  \
-  do {                                                                         \
-    try {                                                                      \
-      expr;                                                                    \
-    } catch (...) {                                                            \
-      Fwg::Utils::Logging::logLine("  Load failed at ", name);                 \
-      throw;                                                                   \
-    }                                                                          \
-  } while (0)
-  LOAD_STEP("version", ar.readVersion());
-  LOAD_STEP("areaData", areaData.deserialise(ar));
-  LOAD_STEP("terrainData", terrainData.deserialise(ar));
-  LOAD_STEP("climateData", climateData.deserialise(ar));
-  LOAD_STEP("climateMap", climateMap.deserialise(ar));
-  LOAD_STEP("worldMap", worldMap.deserialise(ar));
-  LOAD_STEP("segmentMap", segmentMap.deserialise(ar));
-  LOAD_STEP("provinceMap", provinceMap.deserialise(ar));
-  LOAD_STEP("regionMap", regionMap.deserialise(ar));
-  LOAD_STEP("locationMap", locationMap.deserialise(ar));
-  LOAD_STEP("navmeshMap", navmeshMap.deserialise(ar));
-  LOAD_STEP("errorMap", errorMap.deserialise(ar));
-  LOAD_STEP("preModifyMaps", ar & preModifyHeightMap & preModifyHumidityMap);
-  LOAD_STEP("ardaContinents", ar.polymorphicPtrVector(ardaContinents));
-  LOAD_STEP("ardaRegions", ar.polymorphicPtrVector(ardaRegions));
-  LOAD_STEP("ardaProvinces", ar.polymorphicPtrVector(ardaProvinces));
-  LOAD_STEP("superRegions", ar.polymorphicPtrVector(superRegions));
-  LOAD_STEP("countries", ar & countries);
-  LOAD_STEP("civData", civData.deserialise(ar));
-  LOAD_STEP("nData", nData.deserialise(ar));
-  LOAD_STEP("typeMap", typeMap.deserialise(ar));
-  LOAD_STEP("countryMap", countryMap.deserialise(ar));
-  LOAD_STEP("superRegionMap", superRegionMap.deserialise(ar));
-  LOAD_STEP("gameType", ar.serialiseEnum(gameType));
-  LOAD_STEP("exportDim", ar & exportWidth & exportHeight);
-  LOAD_STEP("pathcfg", pathcfg.deserialise(ar));
-  LOAD_STEP("hoi4States", ar.polymorphicPtrVector(modData.hoi4States));
-  LOAD_STEP("hoi4Countries", ar.polymorphicPtrVector(modData.hoi4Countries));
-  LOAD_STEP("supplyConn", ar & modData.supplyNodeConnections);
-  LOAD_STEP("statesInit", ar & modData.statesInitialised);
-  LOAD_STEP("factions", ar.ptrVector(modData.factions));
-  LOAD_STEP("decisionData", modData.decisionData.deserialise(ar));
-#undef LOAD_STEP
-  Fwg::Utils::Logging::logLine("  Load completed successfully");
+  ar >> areaData >> terrainData >> climateData;
+  ar >> climateMap >> worldMap >> segmentMap >> provinceMap >> regionMap;
+  ar >> locationMap >> navmeshMap >> errorMap;
+  ar >> preModifyHeightMap >> preModifyHumidityMap;
+  ar >> ardaContinents >> ardaRegions >> ardaProvinces >> superRegions;
+  ar >> countries >> civData >> nData;
+  ar >> typeMap >> countryMap >> superRegionMap;
+  ar >> gameType >> exportWidth >> exportHeight;
+  ar >> pathcfg;
+  ar >> modData.hoi4States >> modData.hoi4Countries;
+  ar >> modData.supplyNodeConnections;
+  ar >> modData.statesInitialised;
+  ar >> modData.factions;
+  ar >> modData.decisionData;
+
   mapProvinces();
+  Fwg::Areas::Provinces::Detail::createProvinceMap(areaData.provinces,
+                                                   areaData.provinceColourMap);
+  Fwg::Areas::Provinces::Detail::PostProcessing::evaluateProvinceNeighbours(
+      provinceMap, areaData.provinces, areaData.provinceColourMap);
+  Fwg::Areas::Regions::evaluateRegionNeighbours(areaData.regions);
   mapRegions();
+  this->modData.statesInitialised = true;
   mapContinents();
 }
 

@@ -10,9 +10,6 @@ static bool drawBorders = false;
 void GUI::recover() {
   auto &cfg = Fwg::Cfg::Values();
   auto &generator = *activeGenerator;
-  generator.terrainData.deserialize(cfg.mapsPath + "terrainData.bin");
-  generator.climateData.deserialize(cfg.mapsPath + "climateData.bin");
-  generator.areaData.deserialize(cfg.mapsPath + "areaData.bin");
 }
 GUI::GUI() : Arda::ArdaUI() {}
 
@@ -329,8 +326,7 @@ void GUI::loadGameConfig(Fwg::Cfg &cfg) {
     Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                                  e.what());
     Fwg::Utils::Logging::logLine(
-        "Otherwise try running it through a json validator, e.g. "
-        "\"https://jsonlint.com/\" or search for \"json validator\"");
+        "Otherwise try running it through a json validator");
   }
 }
 // hardcoded init of some game configs
@@ -437,9 +433,9 @@ int GUI::showConfigure(Fwg::Cfg &cfg) {
 // Helper function for path input with normalization
 static bool PathInput(const char *label, std::string &path,
                       bool validate = true) {
-  if (ImGui::InputText(label, &path)) {
-    Fwg::Parsing::replaceOccurences(path, "\\", "/");
-    Fwg::Parsing::replaceOccurences(path, "//", "/");
+  ImGui::InputText(label, &path);
+  if (ImGui::IsItemDeactivatedAfterEdit()) {
+    Rpx::Utils::sanitizePath(path);
     return validate;
   }
   return false;
@@ -944,7 +940,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
          Arda::UI::ArdaPrerequisiteChecker::ardaProvinces(*activeGenerator),
          Arda::UI::ArdaPrerequisiteChecker::ardaContinents(*activeGenerator)});
     if (guard.ready()) {
-      auto exportLocation = Fwg::Cfg::Values().mapsPath + "/areas/";
+      auto exportLocation = Fwg::Cfg::Values().mapsPath + "areas/";
       if (ImGui::Button(("Export current state of countries and states to " +
                          exportLocation)
                             .c_str())) {

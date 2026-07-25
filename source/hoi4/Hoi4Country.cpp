@@ -71,36 +71,36 @@ std::string Hoi4Country::exportLine() const {
   return base;
 }
 
-void Hoi4Country::serialise(Fwg::Utils::Serialisation::Archive &ar) {
-  Country::serialise(ar);
-  ar &fullName &gfxCulture &allowElections &parties &lastElection &warSupport &stability;
-  ar &faction;
-  ar &victoryPoints;
-  ar.polymorphicPtrVector(hoi4Regions);
-  ar &focusTree &ideas;
-  ar &totalNavyStrength;
-  // Enum-keyed maps need manual serialisation
+template<class Archive>
+void Hoi4Country::serialize(Archive &ar, const unsigned int /*version*/) {
+  ar & boost::serialization::base_object<Arda::Country>(*this);
+  ar & fullName & gfxCulture & allowElections & parties & lastElection & warSupport & stability;
+  ar & faction;
+  ar & victoryPoints;
+  ar & hoi4Regions;
+  ar & focusTree & ideas;
+  ar & totalNavyStrength;
   auto writeEnumMap = [&](auto &m) {
     uint64_t sz = m.size();
-    ar &sz;
+    ar & sz;
     for (auto &[k, v] : m) {
-      ar.serialiseEnum(k);
-      ar &v;
+      ar & k;
+      ar & v;
     }
   };
   auto readEnumMap = [&](auto &m) {
     uint64_t sz;
-    ar &sz;
+    ar & sz;
     m.clear();
     for (uint64_t i = 0; i < sz; ++i) {
       std::decay_t<decltype(m.begin()->first)> k{};
       decltype(m.begin()->second) v;
-      ar.serialiseEnum(k);
-      ar &v;
+      ar & k;
+      ar & v;
       m.emplace(std::move(k), std::move(v));
     }
   };
-  if (ar.isWriting()) {
+  if constexpr (Archive::is_saving::value) {
     writeEnumMap(hullTech);
     writeEnumMap(navyTechs);
     writeEnumMap(shipClasses);
@@ -117,19 +117,18 @@ void Hoi4Country::serialise(Fwg::Utils::Serialisation::Archive &ar) {
     readEnumMap(airTechs);
     readEnumMap(industryElectronicTechs);
   }
-  ar.ptrVector(ships);
-  ar &fleets &convoyAmount;
-  ar &totalArmyStrength &units &unitCount;
-  ar &tankVariants &divisionTemplates &divisions;
-  ar &totalAirStrength;
-  ar &planeVariants &airWings;
-  ar.ptrVector(airBases);
-  ar &civilianIndustry &armsFactories &dockyards &researchSlots;
-}
-
-void Hoi4Country::deserialise(Fwg::Utils::Serialisation::Archive &ar) { serialise(ar); }
-
-uint32_t Hoi4Country::typeTag() const {
-  return Fwg::Utils::Serialisation::TypeRegistry::hashString("Rpx::Hoi4::Hoi4Country");
+  ar & ships;
+  ar & fleets & convoyAmount;
+  ar & totalArmyStrength & units & unitCount;
+  ar & tankVariants & divisionTemplates & divisions;
+  ar & totalAirStrength;
+  ar & planeVariants & airWings;
+  ar & airBases;
+  ar & civilianIndustry & armsFactories & dockyards & researchSlots;
 }
 } // namespace Rpx::Hoi4
+
+BOOST_CLASS_EXPORT_IMPLEMENT(Rpx::Hoi4::Hoi4Country)
+template void Rpx::Hoi4::Hoi4Country::serialize(boost::archive::binary_oarchive&, unsigned int);
+template void Rpx::Hoi4::Hoi4Country::serialize(boost::archive::binary_iarchive&, unsigned int);
+

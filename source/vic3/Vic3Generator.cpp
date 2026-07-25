@@ -1,5 +1,4 @@
 #include "vic3/Vic3Generator.h"
-#include "utils/Archive.h"
 namespace Rpx::Vic3 {
 using namespace Fwg;
 using namespace Fwg::Gfx;
@@ -24,9 +23,6 @@ Generator::Generator(const std::string &configSubFolder,
   ardaFactories.countryFactory = []() -> std::shared_ptr<Rpx::Vic3::Country> {
     return std::make_shared<Rpx::Vic3::Country>();
   };
-  auto &reg = Fwg::Utils::Serialisation::TypeRegistry::instance();
-  reg.registerType<Fwg::Areas::Region, Rpx::Vic3::Region>(
-      "Rpx::Vic3::Region");
 }
 
 // prepare folder structure
@@ -122,8 +118,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
     Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
                                  e.what());
     Fwg::Utils::Logging::logLine(
-        "Otherwise try running it through a json validator, e.g. "
-        "\"https://jsonlint.com/\" or search for \"json validator\"");
+        "Otherwise try running it through a json validator");
   }
   //  passed to generic ScenarioGenerator
   ardaConfig.numCountries = vic3Conf.get<int>("scenario.numCountries");
