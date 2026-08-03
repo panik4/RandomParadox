@@ -31,9 +31,9 @@ bool Generator::createPaths() {
     using namespace std::filesystem;
 
     std::vector<std::string> paths = {"",
-                                      "//.metadata//",
-                                      "/map_data//",
-                                      "/map_data//state_regions//",
+                                      "/.metadata/",
+                                      "/map_data/",
+                                      "/map_data/state_regions/",
                                       "/common/",
                                       "/common/defines",
                                       "/common/strategic_regions",
@@ -42,31 +42,35 @@ bool Generator::createPaths() {
                                       "/common/country_definitions",
                                       "/common/country_formation",
                                       "/common/history",
-                                      "/common/history//buildings",
-                                      "/common/history//countries",
-                                      "/common/history//pops",
-                                      "/common/history//states",
+                                      "/common/history/buildings",
+                                      "/common/history/countries",
+                                      "/common/history/pops",
+                                      "/common/history/states",
                                       "/common/country_creation",
                                       "/common/journal_entries",
                                       "/common/scripted_triggers",
                                       "/common/static_modifiers",
                                       "/common/decisions",
-                                      "//events",
-                                      "//events//agitators_events",
-                                      "//gfx//",
-                                      "//gfx/map",
-                                      "//gfx/map/masks",
-                                      "//gfx/map/map_object_data",
-                                      "//gfx/map/terrain",
-                                      "//gfx/map/textures",
-                                      "//gfx/map/water",
-                                      "//gfx/map/spline_network",
-                                      "//content_source//",
-                                      "//content_source/map_objects",
-                                      "//content_source/map_objects//masks",
-                                      "//localization//"};
-    std::vector<std::string> pathsToRemove = {"/common/", "//localization//",
-                                              "/map_data//"};
+                                      "/events",
+                                      "/events/agitators_events",
+                                      "/gfx/",
+                                      "/gfx/map",
+                                      "/gfx/map/masks",
+                                      "/gfx/map/map_object_data",
+                                      "/gfx/map/terrain",
+                                      "/gfx/map/textures",
+                                      "/gfx/map/water",
+                                      "/gfx/map/spline_network",
+                                      "/content_source/",
+                                      "/content_source/map_objects",
+                                      "/content_source/map_objects/masks",
+                                      "/localization//"};
+
+
+
+    std::vector<std::string> pathsToRemove = {"/common/", "/localization/",
+                                              "/map_data/"};
+
 
     for (const auto &path : pathsToRemove) {
       Fwg::Utils::Logging::logLine("Removing path: " + pathcfg.gameModPath +
@@ -828,67 +832,67 @@ void Generator::generate() {
 void Generator::writeTextFiles(bool scenarioDetails) {
   using namespace Parsing::Writing;
   auto foundRegions = compatRegions(
-      pathcfg.gamePath + "/game/map_data//state_regions//",
-      pathcfg.gameModPath + "/map_data//state_regions//", modData.vic3Regions);
-  compatStratRegions(pathcfg.gamePath + "/game/common/strategic_regions//",
-                     pathcfg.gameModPath + "/common/strategic_regions//",
+      pathcfg.gamePath + "/game/map_data/state_regions/",
+      pathcfg.gameModPath + "/map_data/state_regions/", modData.vic3Regions);
+  compatStratRegions(pathcfg.gamePath + "/game/common/strategic_regions/",
+                     pathcfg.gameModPath + "/common/strategic_regions/",
                      modData.vic3Regions, foundRegions);
-  // compatReleasable(pathcfg.gamePath + "/game/common/country_creation//",
-  //                  pathcfg.gameModPath + "/common/country_creation//");
-  adj(pathcfg.gameModPath + "/map_data//adjacencies.csv");
-  defaultMap(pathcfg.gameModPath + "/map_data//default.map", ardaProvinces);
-  defines(pathcfg.gameModPath + "/common/defines//01_defines.txt");
-  provinceTerrains(pathcfg.gameModPath + "/map_data//province_terrains.txt",
+  // compatReleasable(pathcfg.gamePath + "/game/common/country_creation/",
+  //                  pathcfg.gameModPath + "/common/country_creation/");
+  adj(pathcfg.gameModPath + "/map_data/adjacencies.csv");
+  defaultMap(pathcfg.gameModPath + "/map_data/default.map", ardaProvinces);
+  defines(pathcfg.gameModPath + "/common/defines/01_defines.txt");
+  provinceTerrains(pathcfg.gameModPath + "/map_data/province_terrains.txt",
                    ardaProvinces);
-  stateFiles(pathcfg.gameModPath + "/map_data//state_regions//00_regions.txt",
+  stateFiles(pathcfg.gameModPath + "/map_data/state_regions/00_regions.txt",
              modData.vic3Regions);
   Parsing::History::writeBuildings(
-      pathcfg.gameModPath + "/common/history//buildings//00_buildings.txt",
+      pathcfg.gameModPath + "/common/history/buildings/00_buildings.txt",
       modData.vic3Regions);
-  writeMetadata(pathcfg.gameModPath + "//.metadata//metadata.json");
+  writeMetadata(pathcfg.gameModPath + "/.metadata/metadata.json");
   strategicRegions(
       pathcfg.gameModPath +
-          "/common/strategic_regions//randVic_strategic_regions.txt",
+          "/common/strategic_regions/randVic_strategic_regions.txt",
       superRegions, modData.vic3Regions);
-  cultureCommon(pathcfg.gameModPath + "/common/cultures//00_cultures.txt",
+  cultureCommon(pathcfg.gameModPath + "/common/cultures/00_cultures.txt",
                 civData.cultures);
-  religionCommon(pathcfg.gameModPath + "/common/religions//religions.txt",
+  religionCommon(pathcfg.gameModPath + "/common/religions/religions.txt",
                  civData.religions);
-  staticModifiers(pathcfg.gameModPath + "/common/static_modifiers//",
+  staticModifiers(pathcfg.gameModPath + "/common/static_modifiers/",
                   civData.cultures, civData.religions);
   countryCommon(pathcfg.gameModPath +
-                    "/common/country_definitions//00_countries.txt",
+                    "/common/country_definitions/00_countries.txt",
                 modData.vic3Countries, modData.vic3Regions);
 
   compatFile(pathcfg.gameModPath +
-             "/common/country_creation//00_releasable_countries.txt");
+             "/common/country_creation/00_releasable_countries.txt");
   compatFile(pathcfg.gameModPath +
-             "/common/cultures//00_additional_cultures.txt");
+             "/common/cultures/00_additional_cultures.txt");
   compatFile(pathcfg.gameModPath +
-             "/common/country_definitions//01_africa.txt");
+             "/common/country_definitions/01_africa.txt");
   compatFile(pathcfg.gameModPath +
-             "/common/country_definitions//01_pacific_and_australasia.txt");
+             "/common/country_definitions/01_pacific_and_australasia.txt");
   compatFile(pathcfg.gameModPath +
-             "/common/country_formation//00_formable_countries.txt");
+             "/common/country_formation/00_formable_countries.txt");
   compatFile(pathcfg.gameModPath +
-             "/common/country_formation//00_major_formables.txt");
-  stateHistory(pathcfg.gameModPath + "/common/history//states//00_states.txt",
+             "/common/country_formation/00_major_formables.txt");
+  stateHistory(pathcfg.gameModPath + "/common/history/states/00_states.txt",
                modData.vic3Regions);
-  popsHistory(pathcfg.gameModPath + "/common/history//pops//00_world.txt",
+  popsHistory(pathcfg.gameModPath + "/common/history/pops/00_world.txt",
               modData.vic3Regions);
-  countryHistory(pathcfg.gameModPath + "/common/history//countries",
+  countryHistory(pathcfg.gameModPath + "/common/history/countries",
                  modData.vic3Countries);
-  compatFile(pathcfg.gameModPath + "/common/decisions//canal_decisions.txt");
-  compatFile(pathcfg.gameModPath + "//events//canal_events.txt");
+  compatFile(pathcfg.gameModPath + "/common/decisions/canal_decisions.txt");
+  compatFile(pathcfg.gameModPath + "/events/canal_events.txt");
   compatFile(pathcfg.gameModPath +
-             "//events//agitators_events//paris_commune_events.txt");
+             "/events/agitators_events/paris_commune_events.txt");
   compatFile(pathcfg.gameModPath +
-             "//events//agitators_events//paris_commune_events.txt");
-  compatFile(pathcfg.gameModPath + "/common/journal_entries//00_canals.txt");
+             "/events/agitators_events/paris_commune_events.txt");
+  compatFile(pathcfg.gameModPath + "/common/journal_entries/00_canals.txt");
   compatFile(pathcfg.gameModPath +
-             "/common/journal_entries//02_paris_commune.txt");
-  compatTriggers(pathcfg.gamePath + "/game/common/scripted_triggers//",
-                 pathcfg.gameModPath + "/common/scripted_triggers//");
+             "/common/journal_entries/02_paris_commune.txt");
+  compatTriggers(pathcfg.gamePath + "/game/common/scripted_triggers/",
+                 pathcfg.gameModPath + "/common/scripted_triggers/");
 }
 
 void Generator::writeImages() {
@@ -897,17 +901,17 @@ void Generator::writeImages() {
 
   imageExporter.Vic3ColourMaps(worldMap, heightMap, climateData,
                                ardaData.civLayer,
-                               pathcfg.gameModPath + "//gfx/map/");
+                               pathcfg.gameModPath + "/gfx/map/");
   // imageExporter.dump8BitRivers(riverMap,
   //                                pathcfg.gameModPath +
   //                                "/map_data//rivers", "rivers", false);
 
   imageExporter.detailMaps(terrainData, climateData, ardaData.civLayer,
-                           pathcfg.gameModPath + "//gfx/map/");
-  imageExporter.dynamicMasks(pathcfg.gameModPath + "//gfx/map/masks//",
+                           pathcfg.gameModPath + "/gfx/map/");
+  imageExporter.dynamicMasks(pathcfg.gameModPath + "/gfx/map/masks/",
                              climateData, ardaData.civLayer);
   imageExporter.contentSource(pathcfg.gameModPath +
-                                  "//content_source/map_objects//masks//",
+                                  "/content_source/map_objects/masks/",
                               climateData, ardaData.civLayer);
   // save this and reset the heightmap later. The map will be scaled and the
   // scaled one then used for the packed heightmap generation. It is important
@@ -915,15 +919,15 @@ void Generator::writeImages() {
   auto temporaryHeightmap = heightMap;
   // also dump uncompressed packed heightmap
   imageExporter.dump8BitHeightmap(terrainData.detailedHeightMap,
-                                  pathcfg.gameModPath + "/map_data//heightmap",
+                                  pathcfg.gameModPath + "/map_data/heightmap",
                                   "heightmap");
   auto packedHeightmap = imageExporter.dumpPackedHeightmap(
-      heightMap, pathcfg.gameModPath + "/map_data//packed_heightmap",
+      heightMap, pathcfg.gameModPath + "/map_data/packed_heightmap",
       "heightmap");
   imageExporter.dumpIndirectionMap(
-      heightMap, pathcfg.gameModPath + "/map_data//indirection_heightmap.png");
+      heightMap, pathcfg.gameModPath + "/map_data/indirection_heightmap.png");
   Parsing::Writing::heightmap(pathcfg.gameModPath +
-                                  "/map_data//heightmap.heightmap",
+                                  "/map_data/heightmap.heightmap",
                               heightMap, packedHeightmap);
   heightMap = temporaryHeightmap;
   temporaryHeightmap.clear();
@@ -932,13 +936,13 @@ void Generator::writeImages() {
   using namespace Fwg::Gfx;
   // just copy over provinces.bmp as a .png, already in a compatible format
   // auto scaledMap = Util::scale(provinceMap, 8192, 3616, false);
-  Png::save(provinceMap, pathcfg.gameModPath + "/map_data//provinces.png");
+  Png::save(provinceMap, pathcfg.gameModPath + "/map_data/provinces.png");
 }
 
 void Generator::writeSplnet() {
   createLocators();
   Parsing::Writing::locators(pathcfg.gameModPath +
-                                 "//gfx/map/map_object_data//",
+                                 "/gfx/map/map_object_data/",
                              modData.vic3Regions);
   genNavmesh({}, {});
   calculateNavalExits();
@@ -946,7 +950,7 @@ void Generator::writeSplnet() {
   Splnet splnet;
   splnet.constructSplnet(ardaRegions);
   splnet.writeFile(pathcfg.gameModPath +
-                   "//gfx/map/spline_network//spline_network.splnet");
+                   "/gfx/map/spline_network/spline_network.splnet");
 }
 
 } // namespace Rpx::Vic3

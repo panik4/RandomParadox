@@ -1,0 +1,570 @@
+focus_tree = {
+	id = rpx_airforce_2
+
+	country = {
+		factor = 0
+	}
+
+	default = no
+
+	focus = {
+		id = rpx_air2_air_force_command
+		icon = GFX_goal_generic_air_doctrine
+		x = 0
+		y = 0
+		cost = 8
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_command_structure
+			add_doctrine_cost_reduction = {
+				name = rpx_air2_doctrine_command
+				cost_reduction = 0.5
+				uses = 2
+				category = air_doctrine
+			}
+			air_experience = 40
+			add_political_power = 100
+		}
+	}
+
+	focus = {
+		id = rpx_air2_cas_program
+		icon = GFX_goal_generic_CAS
+		prerequisite = { focus = rpx_air2_air_force_command }
+		x = -6
+		y = 1
+		relative_position_id = rpx_air2_air_force_command
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+
+		completion_reward = {
+			add_ideas = rpx_air_cas_program
+			add_tech_bonus = {
+				name = rpx_air2_cas_prog
+				bonus = 0.75
+				uses = 1
+				category = cas_bomber
+			}
+			add_equipment_to_stockpile = {
+				type = small_plane_cas_airframe
+				amount = 20
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_air2_close_air_support
+		icon = GFX_goal_generic_CAS
+		prerequisite = { focus = rpx_air2_cas_program }
+		x = -1
+		y = 1
+		relative_position_id = rpx_air2_cas_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_close_air_support
+			add_doctrine_cost_reduction = {
+				name = rpx_air2_doc_cas
+				cost_reduction = 0.5
+				uses = 1
+				category = air_doctrine
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_air2_ground_support
+		icon = GFX_goal_generic_CAS
+		prerequisite = { focus = rpx_air2_cas_program }
+		x = 1
+		y = 1
+		relative_position_id = rpx_air2_cas_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_ground_support
+			add_tech_bonus = {
+				name = rpx_air2_cas_bombs
+				bonus = 0.5
+				uses = 2
+				category = cat_air_bombs
+				category = cas_bomber
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_air2_armored_strikes
+		icon = GFX_focus_generic_armored_air_support
+		prerequisite = { focus = rpx_air2_close_air_support }
+		x = 0
+		y = 1
+		relative_position_id = rpx_air2_close_air_support
+		cost = 12
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_tech_bonus = {
+				name = rpx_air2_cas_antitank
+				bonus = 0.5
+				uses = 2
+				category = cat_air_guns
+			}
+			air_experience = 40
+		}
+	}
+
+	focus = {
+		id = rpx_air2_ground_attack
+		icon = GFX_goal_generic_CAS
+		prerequisite = { focus = rpx_air2_ground_support }
+		x = 0
+		y = 1
+		relative_position_id = rpx_air2_ground_support
+		cost = 12
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_ground_attack_aviation
+			air_experience = 60
+		}
+	}
+
+	focus = {
+		id = rpx_air2_dive_bombing
+		icon = GFX_goal_generic_CAS
+		prerequisite = { focus = rpx_air2_close_air_support }
+		x = -1
+		y = 2
+		relative_position_id = rpx_air2_close_air_support
+		cost = 14
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_dive_bombing
+			add_doctrine_cost_reduction = {
+				name = rpx_air2_doc_dive
+				cost_reduction = 0.5
+				uses = 1
+				category = air_doctrine
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_air2_cas_squadrons
+		icon = GFX_goal_generic_build_airforce
+		prerequisite = { focus = rpx_air2_ground_support }
+		x = 1
+		y = 2
+		relative_position_id = rpx_air2_ground_support
+		cost = 12
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_tech_bonus = {
+				name = rpx_air2_cas_sq2
+				bonus = 0.75
+				uses = 2
+				category = cas_bomber
+			}
+			add_equipment_to_stockpile = {
+				type = small_plane_cas_airframe
+				amount = 20
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_air2_cas_capstone
+		icon = GFX_goal_generic_CAS
+		prerequisite = { focus = rpx_air2_dive_bombing }
+		prerequisite = { focus = rpx_air2_cas_squadrons }
+		x = 2
+		y = 1
+		relative_position_id = rpx_air2_dive_bombing
+		cost = 16
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_ground_attack_aviation
+			add_war_support = 5
+		}
+	}
+
+	focus = {
+		id = rpx_air2_tactical_bombers
+		icon = GFX_goal_generic_air_bomber
+		prerequisite = { focus = rpx_air2_air_force_command }
+		x = -2
+		y = 1
+		relative_position_id = rpx_air2_air_force_command
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_tactical_bombers
+			add_tech_bonus = {
+				name = rpx_air2_tac_prog
+				bonus = 0.75
+				uses = 1
+				category = tactical_bomber
+			}
+			add_equipment_to_stockpile = {
+				type = tac_bomber_equipment_1
+				amount = 20
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_air2_tac_range
+		icon = GFX_focus_generic_long_range_aircraft
+		prerequisite = { focus = rpx_air2_tactical_bombers }
+		x = 0
+		y = 1
+		relative_position_id = rpx_air2_tactical_bombers
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_tech_bonus = {
+				name = rpx_air2_tac_range
+				bonus = 0.5
+				uses = 2
+				category = medium_air
+				category = cat_air_engine
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_air2_tac_precision
+		icon = GFX_focus_generic_daytime_bombing
+		prerequisite = { focus = rpx_air2_tac_range }
+		x = 0
+		y = 1
+		relative_position_id = rpx_air2_tac_range
+		cost = 12
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_tech_bonus = {
+				name = rpx_air2_tac_prec
+				bonus = 0.5
+				uses = 2
+				category = cat_air_bombs
+			}
+			air_experience = 40
+		}
+	}
+
+	focus = {
+		id = rpx_air2_tac_squadrons
+		icon = GFX_goal_generic_build_airforce
+		prerequisite = { focus = rpx_air2_tac_precision }
+		x = 0
+		y = 1
+		relative_position_id = rpx_air2_tac_precision
+		cost = 12
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_tech_bonus = {
+				name = rpx_air2_tac_sq2
+				bonus = 0.75
+				uses = 2
+				category = tactical_bomber
+			}
+			add_equipment_to_stockpile = {
+				type = tac_bomber_equipment_2
+				amount = 20
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_air2_deep_strike
+		icon = GFX_goal_generic_air_bomber
+		prerequisite = { focus = rpx_air2_tac_squadrons }
+		prerequisite = { focus = rpx_air2_cas_capstone }
+		prerequisite = { focus = rpx_air2_training focus = rpx_air2_fuel }
+		x = 0
+		y = 2
+		relative_position_id = rpx_air2_tac_squadrons
+		cost = 14
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			air_experience = 80
+		}
+	}
+
+	focus = {
+		id = rpx_air2_doctrine_research
+		icon = GFX_goal_generic_air_doctrine
+		prerequisite = { focus = rpx_air2_air_force_command }
+		x = 2
+		y = 1
+		relative_position_id = rpx_air2_air_force_command
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_doctrine_research
+			add_doctrine_cost_reduction = {
+				name = rpx_air2_doc_res
+				cost_reduction = 0.5
+				uses = 2
+				category = air_doctrine
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_air2_ground_coordination
+		icon = GFX_goal_generic_air_fighter
+		prerequisite = { focus = rpx_air2_doctrine_research }
+		x = -1
+		y = 1
+		relative_position_id = rpx_air2_doctrine_research
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_ground_support
+			air_experience = 40
+		}
+	}
+
+	focus = {
+		id = rpx_air2_fire_control
+		icon = GFX_goal_generic_air_production
+		prerequisite = { focus = rpx_air2_doctrine_research }
+		x = 1
+		y = 1
+		relative_position_id = rpx_air2_doctrine_research
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_tech_bonus = {
+				name = rpx_air2_fc
+				bonus = 0.5
+				uses = 2
+				category = plane_modules_tech
+				category = air_equipment
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_air2_ground_coord2
+		icon = GFX_goal_generic_air_doctrine
+		prerequisite = { focus = rpx_air2_ground_coordination }
+		x = 0
+		y = 1
+		relative_position_id = rpx_air2_ground_coordination
+		cost = 12
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_officer_corps
+			air_experience = 60
+		}
+	}
+
+	focus = {
+		id = rpx_air2_training
+		icon = GFX_focus_generic_pilot_training
+		prerequisite = { focus = rpx_air2_ground_coord2 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_air2_ground_coord2
+		cost = 12
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_combat_training
+			air_experience = 60
+		}
+	}
+
+	focus = {
+		id = rpx_air2_base_expansion
+		icon = GFX_focus_generic_air_bases
+		prerequisite = { focus = rpx_air2_air_force_command }
+		x = 5
+		y = 1
+		relative_position_id = rpx_air2_air_force_command
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_base_expansion
+		}
+	}
+
+	focus = {
+		id = rpx_air2_field_airfields
+		icon = GFX_goal_generic_build_airforce
+		prerequisite = { focus = rpx_air2_base_expansion }
+		x = 0
+		y = 1
+		relative_position_id = rpx_air2_base_expansion
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_tech_bonus = {
+				name = rpx_air2_airfield
+				bonus = 0.5
+				uses = 2
+				category = air_equipment
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_air2_maintenance
+		icon = GFX_focus_generic_aircraft_production
+		prerequisite = { focus = rpx_air2_field_airfields }
+		x = 0
+		y = 1
+		relative_position_id = rpx_air2_field_airfields
+		cost = 12
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_maintenance
+		}
+	}
+
+	focus = {
+		id = rpx_air2_fuel
+		icon = GFX_focus_generic_stockpile_fuel
+		prerequisite = { focus = rpx_air2_maintenance }
+		x = 0
+		y = 1
+		relative_position_id = rpx_air2_maintenance
+		cost = 12
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_fuel_reserves
+		}
+	}
+
+	focus = {
+		id = rpx_air2_veteran_wings
+		icon = GFX_goal_generic_air_fighter
+		prerequisite = { focus = rpx_air2_air_force_command }
+		x = 9
+		y = 1
+		relative_position_id = rpx_air2_air_force_command
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_veteran_wing
+			air_experience = 60
+		}
+	}
+
+	focus = {
+		id = rpx_air2_ace_training
+		icon = GFX_focus_generic_pilot_training
+		prerequisite = { focus = rpx_air2_veteran_wings }
+		x = 0
+		y = 1
+		relative_position_id = rpx_air2_veteran_wings
+		cost = 12
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_ace_training
+			air_experience = 80
+		}
+	}
+
+	focus = {
+		id = rpx_air2_master_pilots
+		icon = GFX_goal_generic_air_fighter2
+		prerequisite = { focus = rpx_air2_ace_training }
+		x = 0
+		y = 1
+		relative_position_id = rpx_air2_ace_training
+		cost = 14
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_master_pilots
+			add_war_support = 5
+		}
+	}
+
+	focus = {
+		id = rpx_air2_supreme_air_power
+		icon = GFX_goal_generic_air_fighter2
+		prerequisite = { focus = rpx_air2_fuel }
+		prerequisite = { focus = rpx_air2_training }
+		prerequisite = { focus = rpx_air2_master_pilots }
+		x = 5
+		y = 5
+		relative_position_id = rpx_air2_doctrine_research
+		cost = 18
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_air_supreme_air_power
+			add_war_support = 10
+		}
+	}
+
+}

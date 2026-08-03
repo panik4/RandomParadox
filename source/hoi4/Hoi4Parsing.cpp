@@ -1,4 +1,5 @@
 #include "hoi4/Hoi4Parsing.h"
+#include <regex>
 using namespace Fwg;
 namespace Logging = Fwg::Utils::Logging;
 namespace pU = Fwg::Parsing;
@@ -563,20 +564,8 @@ void foci(const std::string &path, const CountryMap &countries,
           const Arda::Names::NameData &nData) {
   Logging::logLine("HOI4 Parser: History: Demanding Danzig");
   Fwg::IO::Utils::clearFilesOfType(path, ".txt");
-  const auto focusTypes =
-      pU::getLines(Fwg::Cfg::Values().resourcePath +
-                   "hoi4/ai/national_focus/baseFiles/foci.txt");
-  std::string baseTree =
-      pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "hoi4/ai/national_focus/baseFiles/focusBase.txt");
-  std::vector<std::string> focusTemplates;
-  for (const auto &focusType : focusTypes)
-    focusTemplates.push_back(pU::readFile(Fwg::Cfg::Values().resourcePath +
-                                          "hoi4/ai/national_focus/focusTypes/" +
-                                          focusType + "Focus.txt"));
 
   for (const auto &country : countries) {
-
     pU::writeFile(path + country->name + ".txt", country->focusTree);
   }
 }
@@ -1270,7 +1259,7 @@ void states(const std::string &path,
           content, "template" + resource,
           std::to_string((int)region->resources.at(resource).amount));
     }
-    pU::writeFile(path + "//" + std::to_string(region->ID + 1) + ".txt",
+    pU::writeFile(path + "/" + std::to_string(region->ID + 1) + ".txt",
                   content);
   }
 }
@@ -1533,7 +1522,7 @@ void compatibilityHistory(
     const std::string &path, const std::string &hoiPath,
     const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions) {
   Logging::logLine("HOI4 Parser: History: Writing Compatibility Files");
-  const std::filesystem::path hoiDir{hoiPath + "//history/countries//"};
+  const std::filesystem::path hoiDir{hoiPath + "/history/countries/"};
   Logging::logLine("HOI4 Parser: History: Reading Files from " +
                    hoiDir.string());
   const std::filesystem::path modDir{path};
@@ -1613,11 +1602,11 @@ void copyDescriptorFile(const std::string &sourcePath,
   Rpx::Parsing::replaceOccurences(descriptorText, "templateName", modName);
   auto modText{descriptorText};
   Rpx::Parsing::replaceOccurences(descriptorText, "templatePath", "");
-  pU::writeFile(destPath + "//descriptor.mod", descriptorText);
+  pU::writeFile(destPath + "/descriptor.mod", descriptorText);
   Rpx::Parsing::replaceOccurences(
       modText, "templatePath",
       Fwg::Utils::varsToString("path=\"", destPath, "\""));
-  pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
+  pU::writeFile(modsDirectory + "/" + modName + ".mod", modText);
 }
 
 namespace Compatibility {
@@ -1766,16 +1755,61 @@ void predefinedLocalisation(const std::string &path) {
     for (const auto &language : std::vector<std::string>{
              "braz_por", "english", "french", "german", "japanese", "korean",
              "polish", "russian", "simp_chinese", "spanish"}) {
-      auto newFilename =
-          std::regex_replace(filename, std::regex("l_english"), language);
+      auto newFilename = std::regex_replace(filename, std::regex("l_english"),
+                                            "l_" + language);
       // also replace the language in the content, if it is specified in the
       // content
       auto modifiedContent =
           std::regex_replace(content, std::regex("l_english"), "l_" + language);
-      pU::writeFile(path + language + "/" + newFilename, modifiedContent, true);
+      pU::writeFile(path + language + "/" + newFilename, modifiedContent,
+                    false);
     }
   }
 }
+
+void focusTreeLocalisation(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Hoi4Country>> &countries) {
+  Logging::logLine(
+      "HOI4 Parser: Localisation: Generating Focus Tree Localisation");
+  std::string sourceDir =
+      Fwg::Cfg::Values().resourcePath + "/hoi4/localisation/english/";
+
+  // Combine all rpx_tree_* files into one block, stripping l_english
+  // headers
+  std::string base;
+  bool first = true;
+  for (auto &entry : std::filesystem::directory_iterator(sourceDir)) {
+    std::string name = entry.path().filename().string();
+    if (name.find("rpx_tree_") != 0)
+      continue;
+    auto content = pU::readFile(entry.path().string());
+    // Strip UTF-8 BOM if present
+    if (content.size() >= 3 && (unsigned char)content[0] == 0xEF &&
+        (unsigned char)content[1] == 0xBB && (unsigned char)content[2] == 0xBF)
+      content = content.substr(3);
+    // Remove the first line (l_english:) from each file except the first
+    auto nl = content.find('\n');
+    if (!first && nl != std::string::npos)
+      content = content.substr(nl + 1);
+    base += content + "\n";
+    first = false;
+  }
+  if (base.empty()) {
+    Logging::logLine("  No rpx_tree_* files found");
+    return;
+  }
+
+  for (auto &country : countries) {
+    std::string content = base;
+    std::string tag = country->tag;
+    content = std::regex_replace(content, std::regex("rpx_(\\w+)(\\s*[:\\]])"),
+                                 "rpx_$1_" + tag + "$2");
+    pU::writeFile(path + "english/" + tag + "_focus_l_english.yml", content,
+                  true);
+  }
+}
+
 } // namespace Localisation
 } // namespace Writing
 

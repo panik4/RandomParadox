@@ -25,29 +25,29 @@ Generator::Generator(const std::string &configSubFolder,
 bool Generator::createPaths() {
   try {
     using namespace std::filesystem;
-    std::string prefix = "//in_game/";
+    std::string prefix = "/in_game/";
     std::vector<std::string> paths = {
         "",
-        "//gfx//terrain2//",
-        "//gfx//terrain2//decals//",
-        "//gfx//terrain2//decals//mountain_01//instances",
-        "//gfx//terrain2//decals//mountain_02//instances",
-        "//gfx//terrain2//decals//mountain_03//instances",
-        "//gfx//terrain2//decals//mountain_04//instances",
-        "//gfx//terrain2//decals//mountain_jagged_01//instances",
-        "//gfx//terrain2//decals//volcano_01//instances",
-        "//gfx//terrain2//terrain_textures/masks",
-        "//gfx/map/water",
+        "/gfx/terrain2/",
+        "/gfx/terrain2/decals/",
+        "/gfx/terrain2/decals/mountain_01/instances",
+        "/gfx/terrain2/decals/mountain_02/instances",
+        "/gfx/terrain2/decals/mountain_03/instances",
+        "/gfx/terrain2/decals/mountain_04/instances",
+        "/gfx/terrain2/decals/mountain_jagged_01/instances",
+        "/gfx/terrain2/decals/volcano_01/instances",
+        "/gfx/terrain2/terrain_textures/masks",
+        "/gfx/map/water",
         "/map_data",
-        "/map_data//named_locations//",
-        "//content_source/map_objects//masks",
+        "/map_data/named_locations/",
+        "/content_source/map_objects/masks",
 
     };
     for (int i = 1; i <= 16; i++) {
-      paths.push_back("//gfx//terrain2//decals//heightmap_" +
+      paths.push_back("/gfx/terrain2/decals/heightmap_" +
                       std::to_string(i) + "_16");
     }
-    std::vector<std::string> pathsToRemove = {"/common/", "//localization//"
+    std::vector<std::string> pathsToRemove = {"/common/", "/localization/"
                                               };
 
     for (const auto &path : pathsToRemove) {
@@ -56,8 +56,8 @@ bool Generator::createPaths() {
       remove_all(pathcfg.gameModPath + prefix + path);
     }
     Fwg::Utils::Logging::logLine("Creating path: " + pathcfg.gameModPath +
-                                 "//.metadata");
-    create_directories(pathcfg.gameModPath + "//.metadata");
+                                 "/.metadata");
+    create_directories(pathcfg.gameModPath + "/.metadata");
     for (const auto &path : paths) {
       Fwg::Utils::Logging::logLine("Creating path: " + pathcfg.gameModPath +
                                    prefix + path);
@@ -318,44 +318,44 @@ void Generator::generate() {
 void Generator::writeTextFiles(bool scenarioDetails) {
   using namespace Parsing::Writing;
 
-  writeMetadata(pathcfg.gameModPath + "//.metadata//metadata.json");
-  overwrites(pathcfg.gameModPath + "//in_game/");
-  mainMenuOverrides(pathcfg.gameModPath + "//main_menu");
+  writeMetadata(pathcfg.gameModPath + "/.metadata/metadata.json");
+  overwrites(pathcfg.gameModPath + "/in_game/");
+  mainMenuOverrides(pathcfg.gameModPath + "/main_menu");
 }
 
 void Generator::writeImages() {
   //// TODO: improve handling of altitude data to not rely on image
   imageExporter.Eu5ColourMaps(terrainData, climateData, ardaData.civLayer,
-                              pathcfg.gameModPath + "//in_game/gfx/map/",
+                              pathcfg.gameModPath + "/in_game/gfx/map/",
                               this->exportWidth / 2, this->exportHeight / 2);
    imageExporter.writeLocations(provinceMap, ardaProvinces, ardaRegions,
                                 ardaContinents, ardaData.civLayer,
-                                pathcfg.gameModPath + "//in_game/map_data//",
+                                pathcfg.gameModPath + "/in_game/map_data/",
                                 this->exportWidth, this->exportHeight);
    imageExporter.dumpHeightmap(
        terrainData.detailedHeightMap,
-       pathcfg.gameModPath + "//in_game/gfx//terrain2//", "",
+       pathcfg.gameModPath + "/in_game/gfx/terrain2/", "",
        this->exportWidth * 4, this->exportHeight * 4);
   imageExporter.dumpDecalMasks(
       terrainData, climateData,
-      pathcfg.gameModPath + "//in_game/gfx//terrain2//decals//", "",
+      pathcfg.gameModPath + "/in_game/gfx/terrain2/decals/", "",
       this->exportWidth * 2, this->exportHeight * 2);
   imageExporter.dumpTerrainMasks(
       terrainData, climateData,
       pathcfg.gameModPath +
-          "//in_game/gfx//terrain2//terrain_textures//masks//",
+          "/in_game/gfx/terrain2/terrain_textures/masks/",
       "", this->exportWidth, this->exportHeight);
 
   imageExporter.mapObjectMasks(
       terrainData, climateData, ardaData.civLayer,
-      pathcfg.gameModPath + "//in_game/content_source/map_objects//masks//",
+      pathcfg.gameModPath + "/in_game/content_source/map_objects/masks/",
       this->exportWidth, this->exportHeight);
 }
 
 void Generator::writeSplnet() {
   // createLocators();
   // Parsing::Writing::locators(pathcfg.gameModPath +
-  //                                "//gfx/map/map_object_data//",
+  //                                "/gfx/map/map_object_data/",
   //                            modData.vic3Regions);
   // genNavmesh();
   // calculateNavalExits();

@@ -1,0 +1,662 @@
+ideas = {
+
+	# =========================================================================
+	# GENERIC ECONOMY IDEAS - INDEX
+	# Identifier : purpose keywords.
+	# =========================================================================
+	# PRODUCTION EFFICIENCY
+	#   rpx_factory_output_1/2/3          : factory output 5/10/15%
+	#   rpx_dockyard_output_1/2           : dockyard output 5/10%
+	#   rpx_combined_output_1/2           : factory + dockyard output 5/10%
+	#   rpx_max_efficiency_1/2            : factory max efficiency 5/10%
+	#   rpx_efficiency_gain_1/2           : factory efficiency gain 10/15%
+	#   rpx_aircraft_output_1/2           : aircraft build cost -5/-10% (all airframes)
+	# CONSUMER GOODS
+	#   rpx_consumer_goods_1..4           : consumer goods -5/-10/-15/-20%
+	# CONSTRUCTION SPEED
+	#   rpx_construction_speed_1/2/3      : all-building construction 10/15/20%
+	#   rpx_civ_construction_speed        : industrial complex construction 15%
+	#   rpx_mil_construction_speed        : arms factory construction 15%
+	#   rpx_infrastructure_speed          : infrastructure construction 15%
+	#   rpx_dockyard_speed                : dockyard construction 15%
+	#   rpx_railway_speed                 : railway construction 15%
+	#   rpx_fortification_speed           : land/coastal fort construction 20%
+	#   rpx_all_industry_speed            : civ + mil + dockyard construction 15%
+	# CONVERSION COSTS
+	#   rpx_conversion_cost_civ_to_mil    : civ->mil conversion cost -30%
+	#   rpx_conversion_cost_mil_to_civ    : mil->civ conversion cost -30%
+	# RESOURCE GAIN
+	#   rpx_local_resources_1/2/3         : local resources 5/10/15%
+	#   rpx_resource_penalty_reduction    : lack-of-resource penalty -15%
+	# SUPPLY & FUEL
+	#   rpx_supply_consumption            : supply consumption -10%
+	#   rpx_army_fuel_efficiency          : army fuel consumption -10%
+	#   rpx_air_fuel_efficiency           : air fuel consumption -10%
+	# RESEARCH
+	#   rpx_research_speed_1/2            : research speed 5/10%
+	# POLITICAL POWER & STABILITY
+	#   rpx_pp_gain                       : political power +10%
+	#   rpx_stability_bonus               : stability +5%
+	#   rpx_war_support_bonus             : war support +5%
+	# COMBINED / NATIONAL SPIRITS
+	#   rpx_economic_boom                 : consumer goods, factory output, constr
+	#   rpx_industrial_might              : factory/dockyard output, max efficiency
+	#   rpx_military_industrialization   : mil constr, factory output, civ->mil conv
+	#   rpx_infrastructure_focus          : infra/rail constr, local resources
+	#   rpx_resource_efficiency           : local resources, lack-of-resource penalty
+	#   rpx_war_economy_spirit            : war support, mil constr, civ->mil conv
+	#   rpx_total_mobilization_spirit     : consumer goods, outputs, constr, eff gain
+	# PENALTY IDEAS
+	#   rpx_economic_crisis_1/2           : consumer goods +, outputs -, resources -
+	# =========================================================================
+
+	country = {
+
+		# =====================================================================
+		# PRODUCTION EFFICIENCY
+		# Sources: USA (labour_management_relations_act), Britain (spirit_of_industrial_revolution),
+		#          Baltic economic union chain, aussa (HOA state bank/funded projects)
+		# =====================================================================
+
+		rpx_factory_output_1 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				industrial_capacity_factory = 0.05
+			}
+		}
+
+		rpx_factory_output_2 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				industrial_capacity_factory = 0.10
+			}
+		}
+
+		rpx_factory_output_3 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				industrial_capacity_factory = 0.15
+			}
+		}
+
+		rpx_dockyard_output_1 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				industrial_capacity_dockyard = 0.05
+			}
+		}
+
+		rpx_dockyard_output_2 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				industrial_capacity_dockyard = 0.10
+			}
+		}
+
+		rpx_combined_output_1 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				industrial_capacity_factory = 0.05
+				industrial_capacity_dockyard = 0.05
+			}
+		}
+
+		rpx_combined_output_2 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				industrial_capacity_factory = 0.10
+				industrial_capacity_dockyard = 0.10
+			}
+		}
+
+		rpx_max_efficiency_1 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_factory_max_efficiency_factor = 0.05
+			}
+		}
+
+		rpx_max_efficiency_2 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_factory_max_efficiency_factor = 0.10
+			}
+		}
+
+		rpx_efficiency_gain_1 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_factory_efficiency_gain_factor = 0.10
+			}
+		}
+
+		rpx_efficiency_gain_2 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_factory_efficiency_gain_factor = 0.15
+			}
+		}
+
+		rpx_aircraft_output_1 = {
+			picture = generic_air_equipment_improvements
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			equipment_bonus = {
+				small_plane_airframe = {
+					instant = yes
+					build_cost_ic = -0.05
+				}
+				medium_plane_airframe = {
+					instant = yes
+					build_cost_ic = -0.05
+				}
+				large_plane_airframe = {
+					instant = yes
+					build_cost_ic = -0.05
+				}
+			}
+		}
+
+		rpx_aircraft_output_2 = {
+			picture = generic_air_equipment_improvements
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			equipment_bonus = {
+				small_plane_airframe = {
+					instant = yes
+					build_cost_ic = -0.10
+				}
+				medium_plane_airframe = {
+					instant = yes
+					build_cost_ic = -0.10
+				}
+				large_plane_airframe = {
+					instant = yes
+					build_cost_ic = -0.10
+				}
+			}
+		}
+
+		# =====================================================================
+		# CONSUMER GOODS
+		# Sources: Britain (ENG_austerity, ENG_blitz_spirit, ENG_evacuated_colonial_assets),
+		#          USA (USA_accumulated_wealth_tax_act), Baltic (BALTIC_allied_investments)
+		# =====================================================================
+
+		rpx_consumer_goods_1 = {
+			picture = generic_goods_red_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				consumer_goods_factor = -0.05
+			}
+		}
+
+		rpx_consumer_goods_2 = {
+			picture = generic_goods_red_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				consumer_goods_factor = -0.10
+			}
+		}
+
+		rpx_consumer_goods_3 = {
+			picture = generic_goods_red_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				consumer_goods_factor = -0.15
+			}
+		}
+
+		rpx_consumer_goods_4 = {
+			picture = generic_goods_red_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				consumer_goods_factor = -0.20
+			}
+		}
+
+		# =====================================================================
+		# CONSTRUCTION SPEED
+		# Sources: Britain (ENG_trade_union_construction_worker_support — all-building),
+		#          Brazil (production_speed_buildings_factor), aussa (HOA_state_funded_projects),
+		#          USA (various per-building speeds from new deal chain)
+		# =====================================================================
+
+		rpx_construction_speed_1 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_speed_buildings_factor = 0.10
+			}
+		}
+
+		rpx_construction_speed_2 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_speed_buildings_factor = 0.15
+			}
+		}
+
+		rpx_construction_speed_3 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_speed_buildings_factor = 0.20
+			}
+		}
+
+		rpx_civ_construction_speed = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_speed_industrial_complex_factor = 0.15
+			}
+		}
+
+		rpx_mil_construction_speed = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_speed_arms_factory_factor = 0.15
+			}
+		}
+
+		rpx_infrastructure_speed = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_speed_infrastructure_factor = 0.15
+			}
+		}
+
+		rpx_dockyard_speed = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_speed_dockyard_factor = 0.15
+			}
+		}
+
+		rpx_railway_speed = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_speed_rail_way_factor = 0.15
+			}
+		}
+
+		rpx_fortification_speed = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_speed_bunker_factor = 0.20
+				production_speed_coastal_bunker_factor = 0.20
+			}
+		}
+
+		rpx_all_industry_speed = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_speed_industrial_complex_factor = 0.15
+				production_speed_arms_factory_factor = 0.15
+				production_speed_dockyard_factor = 0.15
+			}
+		}
+
+		# =====================================================================
+		# CONVERSION COSTS
+		# Sources: Britain (ENG_prepare_for_the_inevitable_and_wartime_industry),
+		#          _economic.txt (economy law definitions)
+		# =====================================================================
+
+		rpx_conversion_cost_civ_to_mil = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				conversion_cost_civ_to_mil_factor = -0.30
+			}
+		}
+
+		rpx_conversion_cost_mil_to_civ = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				conversion_cost_mil_to_civ_factor = -0.30
+			}
+		}
+
+		# =====================================================================
+		# RESOURCE GAIN
+		# Sources: USA (great_depression local_resources_factor), Germany (wehrwirtschaft),
+		#          Australia (local_resource_gain_efficiency_per_infrastructure)
+		# =====================================================================
+
+		rpx_local_resources_1 = {
+			picture = generic_exploit_mines
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				local_resources_factor = 0.05
+			}
+		}
+
+		rpx_local_resources_2 = {
+			picture = generic_exploit_mines
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				local_resources_factor = 0.10
+			}
+		}
+
+		rpx_local_resources_3 = {
+			picture = generic_exploit_mines
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				local_resources_factor = 0.15
+			}
+		}
+
+		rpx_resource_penalty_reduction = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_lack_of_resource_penalty_factor = -0.15
+			}
+		}
+
+		# =====================================================================
+		# SUPPLY & FUEL
+		# Sources: Britain (aussa.txt supply_consumption), Germany (fuel consumption),
+		#          army_spirits.txt, Denmark (fuel storage)
+		# =====================================================================
+
+		rpx_supply_consumption = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				supply_consumption_factor = -0.10
+			}
+		}
+
+		rpx_army_fuel_efficiency = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				army_fuel_consumption_factor = -0.10
+			}
+		}
+
+		rpx_air_fuel_efficiency = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				air_fuel_consumption_factor = -0.10
+			}
+		}
+		# =====================================================================
+		# RESEARCH
+		# Sources: zzz_generic.txt (socialist_education — research_speed_factor),
+		#          Germany (various industry tech bonuses via ideas)
+		# =====================================================================
+
+		rpx_research_speed_1 = {
+			picture = generic_research_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				research_speed_factor = 0.05
+			}
+		}
+
+		rpx_research_speed_2 = {
+			picture = generic_research_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				research_speed_factor = 0.10
+			}
+		}
+
+		# =====================================================================
+		# POLITICAL POWER & STABILITY
+		# Sources: zzz_generic.txt (why_we_fight_focus, indoctrination_focus,
+		#          nation_building), various country files
+		# =====================================================================
+
+		rpx_pp_gain = {
+			picture = generic_pp_unity_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				political_power_factor = 0.10
+			}
+		}
+
+		rpx_stability_bonus = {
+			picture = generic_pp_unity_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				stability_factor = 0.05
+			}
+		}
+
+		rpx_war_support_bonus = {
+			picture = generic_political_support
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				war_support_factor = 0.05
+			}
+		}
+
+		# =====================================================================
+		# COMBINED / NATIONAL SPIRITS (multi-modifier)
+		# Sources: Britain (ENG_trade_union_construction_worker_support),
+		#          aussa (HOA_industrial_might), Baltic (BALTIC_economic_union)
+		# =====================================================================
+
+		rpx_economic_boom = {
+			picture = generic_goods_red_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				consumer_goods_factor = -0.10
+				industrial_capacity_factory = 0.10
+				production_speed_buildings_factor = 0.10
+			}
+		}
+
+		rpx_industrial_might = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				industrial_capacity_factory = 0.10
+				industrial_capacity_dockyard = 0.10
+				production_factory_max_efficiency_factor = 0.05
+			}
+		}
+
+		rpx_military_industrialization = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_speed_arms_factory_factor = 0.20
+				industrial_capacity_factory = 0.05
+				conversion_cost_civ_to_mil_factor = -0.20
+			}
+		}
+
+		rpx_infrastructure_focus = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				production_speed_infrastructure_factor = 0.15
+				production_speed_rail_way_factor = 0.15
+				local_resources_factor = 0.05
+			}
+		}
+
+		rpx_resource_efficiency = {
+			picture = generic_exploit_mines
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				local_resources_factor = 0.10
+				production_lack_of_resource_penalty_factor = -0.10
+			}
+		}
+
+		rpx_war_economy_spirit = {
+			picture = generic_political_support
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				war_support_factor = 0.10
+				production_speed_arms_factory_factor = 0.15
+				conversion_cost_civ_to_mil_factor = -0.20
+			}
+		}
+
+		rpx_total_mobilization_spirit = {
+			picture = generic_political_support
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				consumer_goods_factor = -0.15
+				industrial_capacity_factory = 0.10
+				industrial_capacity_dockyard = 0.10
+				production_speed_buildings_factor = 0.10
+				production_factory_efficiency_gain_factor = 0.10
+			}
+		}
+
+		# =====================================================================
+		# PENALTY IDEAS (for event/decision usage, negative modifiers)
+		# Sources: zzz_generic.txt (strikes_1/2/3, draft_dodging), Britain
+		#          (ENG_factory_safety_regulations chain)
+		# =====================================================================
+
+		rpx_economic_crisis_1 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				consumer_goods_factor = 0.10
+				industrial_capacity_factory = -0.10
+				industrial_capacity_dockyard = -0.10
+			}
+		}
+
+		rpx_economic_crisis_2 = {
+			picture = generic_production_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = yes }
+			removal_cost = -1
+			modifier = {
+				consumer_goods_factor = 0.20
+				industrial_capacity_factory = -0.20
+				industrial_capacity_dockyard = -0.20
+				local_resources_factor = -0.10
+			}
+		}
+	}
+}

@@ -1,0 +1,622 @@
+# RPX Generic AI Templates
+#
+# Idea-gated division templates for generic minors using the RPX focus tree.
+# Each role has multiple variants gated on ideas (focus completions) and tech.
+# regimental_support attaches per column with 3+ line battalions.
+# Fallback templates exist when no relevant idea is taken.
+
+# =============================================================================
+# INFANTRY
+# =============================================================================
+
+infantry_generic = {
+
+	role = infantry
+
+	upgrade_prio = {
+		base = 5
+		modifier = { factor = 2  has_idea = rpx_army_mass_mobilization }
+		modifier = { factor = 2  has_idea = rpx_army_elite_training }
+	}
+
+	# --- Fallback: 9 inf + 1 art (always available) ---
+	infantry_fallback = {
+		enable = {
+			OR = {
+				has_idea = rpx_army_infantry_drill
+				has_idea = rpx_army_artillery_command
+				has_idea = rpx_army_artillery_mastery
+				has_idea = rpx_army_howitzer_focus
+				has_idea = rpx_army_firepower_doctrine
+				has_idea = rpx_army_support_integration
+				has_idea = rpx_army_rocket_focus
+				has_idea = rpx_army_anti_tank_focus
+				has_idea = rpx_army_anti_air_focus
+			}
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = {
+				factor = 2
+				OR = { has_idea = rpx_army_infantry_drill  has_idea = rpx_army_artillery_command
+				       has_idea = rpx_army_artillery_mastery  has_idea = rpx_army_howitzer_focus
+				       has_idea = rpx_army_firepower_doctrine  has_idea = rpx_army_support_integration
+				       has_idea = rpx_army_rocket_focus  has_idea = rpx_army_anti_tank_focus
+				       has_idea = rpx_army_anti_air_focus }
+			}
+		}
+		target_template = {
+			support = { engineer = 1  artillery = 1 }
+			regimental_support = { anti_tank_battery = 1  fire_support = 1 }
+			regiments = { infantry = 9  artillery_brigade = 1 }
+		}
+		replace_at_match = 1.5
+		replace_with = infantry_fallback_mid
+		target_min_match = 0.9
+	}
+
+	infantry_fallback_mid = {
+		enable = {
+			OR = {
+				has_idea = rpx_army_infantry_drill
+				has_idea = rpx_army_artillery_command
+				has_idea = rpx_army_artillery_mastery
+				has_idea = rpx_army_howitzer_focus
+				has_idea = rpx_army_firepower_doctrine
+				has_idea = rpx_army_support_integration
+				has_idea = rpx_army_rocket_focus
+				has_idea = rpx_army_anti_tank_focus
+				has_idea = rpx_army_anti_air_focus
+			}
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = { factor = 3  date > 1940.1.1 }
+		}
+		target_template = {
+			support = { engineer = 1  recon = 1  artillery = 1  logistics_company = 1 }
+			regimental_support = { anti_air_battery = 1  anti_tank_battery = 1  fire_support = 1 }
+			regiments = { infantry = 9  artillery_brigade = 2 }
+		}
+	}
+
+	# --- Mass infantry: 15 inf, just bodies ---
+	infantry_mass = {
+		enable = {
+			OR = {
+				has_idea = rpx_army_mass_mobilization
+				has_idea = rpx_army_cheap_equipment
+				has_idea = rpx_army_manpower_organization
+				has_idea = rpx_army_total_conscription
+			}
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = {
+				factor = 5
+				OR = { has_idea = rpx_army_mass_mobilization  has_idea = rpx_army_cheap_equipment
+				       has_idea = rpx_army_manpower_organization  has_idea = rpx_army_total_conscription }
+			}
+		}
+		target_template = {
+			support = { engineer = 1 }
+			regiments = { infantry = 9 }
+		}
+		replace_at_match = 1.5
+		replace_with = infantry_mass_mid
+		target_min_match = 0.9
+	}
+
+	infantry_mass_mid = {
+		enable = {
+			OR = {
+				has_idea = rpx_army_mass_mobilization
+				has_idea = rpx_army_cheap_equipment
+				has_idea = rpx_army_manpower_organization
+				has_idea = rpx_army_total_conscription
+			}
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = { factor = 3  date > 1940.1.1 }
+		}
+		target_template = {
+			support = { engineer = 1  artillery = 1 }
+			regiments = { infantry = 9 }
+		}
+	}
+
+	# --- Elite infantry: 6 inf + 2 art, full support ---
+	infantry_elite = {
+		enable = {
+			OR = {
+				has_idea = rpx_army_elite_training
+				has_idea = rpx_army_premium_equipment
+				has_idea = rpx_army_special_forces_command
+				has_idea = rpx_army_elite_combined_arms_doctrine
+			}
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = {
+				factor = 5
+				OR = { has_idea = rpx_army_elite_training  has_idea = rpx_army_premium_equipment
+				       has_idea = rpx_army_special_forces_command  has_idea = rpx_army_elite_combined_arms_doctrine }
+			}
+		}
+		target_template = {
+			support = { engineer = 1  recon = 1  artillery = 1  maintenance_company = 1  logistics_company = 1 }
+			regimental_support = { anti_tank_battery = 1  anti_air_battery = 1 }
+			regiments = { infantry = 6  artillery_brigade = 2 }
+		}
+		replace_at_match = 1.5
+		replace_with = infantry_elite_mid
+		target_min_match = 0.9
+	}
+
+	infantry_elite_mid = {
+		enable = {
+			OR = {
+				has_idea = rpx_army_elite_training
+				has_idea = rpx_army_premium_equipment
+				has_idea = rpx_army_special_forces_command
+				has_idea = rpx_army_elite_combined_arms_doctrine
+			}
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = { factor = 3  date > 1940.1.1 }
+		}
+		target_template = {
+			support = { engineer = 1  recon = 1  signal_company = 1  artillery = 1  maintenance_company = 1  logistics_company = 1 }
+			regimental_support = { anti_air_battery = 1  anti_tank_battery = 1  fire_support = 1 }
+			regiments = { infantry = 9  artillery_brigade = 3 }
+		}
+	}
+
+	# --- Motorized infantry ---
+	infantry_motorized = {
+		enable = {
+			OR = {
+				has_tech = motorised_infantry
+				has_idea = rpx_army_motorization_drive
+				has_idea = rpx_army_cavalry_mech
+				has_idea = rpx_army_rapid_mobilization
+			}
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = {
+				factor = 5
+				OR = { has_idea = rpx_army_motorization_drive  has_idea = rpx_army_cavalry_mech
+				       has_idea = rpx_army_rapid_mobilization }
+			}
+			modifier = { factor = 0  NOT = { has_tech = motorised_infantry } }
+		}
+		target_template = {
+			support = { engineer = 1  mot_recon = 1  artillery = 1 }
+			regimental_support = { anti_air_battery = 1  anti_tank_battery = 1 }
+			regiments = { motorized = 6  artillery_brigade = 2 }
+		}
+		replace_at_match = 1.5
+		replace_with = infantry_motorized_mech
+		target_min_match = 0.5
+	}
+
+	infantry_motorized_mech = {
+		enable = {
+			OR = { has_idea = rpx_army_mechanized_warfare  has_idea = rpx_army_combined_mech }
+			has_tech = mechanized_infantry
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = {
+				factor = 4
+				OR = { has_idea = rpx_army_mechanized_warfare  has_idea = rpx_army_combined_mech }
+			}
+			modifier = { factor = 0  NOT = { has_tech = mechanized_infantry } }
+		}
+		target_template = {
+			support = { engineer = 1  mot_recon = 1  artillery = 1  maintenance_company = 1 }
+			regimental_support = { anti_air_battery = 1  anti_tank_battery = 1 }
+			regiments = { motorized = 3  mechanized = 3  artillery_brigade = 2 }
+		}
+	}
+}
+
+# =============================================================================
+# ARMOR
+# =============================================================================
+
+armor_generic = {
+
+	role = armor
+
+	upgrade_prio = {
+		base = 2
+		modifier = { factor = 3  OR = { has_tech = basic_medium_tank  has_tech = basic_medium_tank_chassis } }
+		modifier = { factor = 2  OR = { has_tech = main_battle_tank  has_tech = main_battle_tank_chassis } }
+		modifier = { factor = 2  has_idea = rpx_army_light_tank_focus }
+		modifier = { factor = 3  has_idea = rpx_army_heavy_tank_focus }
+		modifier = { factor = 2  has_idea = rpx_army_breakthrough_doctrine }
+	}
+
+	# --- Fallback: light armor (default) ---
+	armor_fallback = {
+		upgrade_prio = { base = 1  modifier = { factor = 2 } }
+		target_template = {
+			support = { engineer = 1  mot_recon = 1  artillery = 1 }
+			regimental_support = { anti_tank_battery = 1 }
+			regiments = { light_armor = 3  motorized = 6  artillery_brigade = 1 }
+		}
+		replace_at_match = 1.5
+		replace_with = armor_medium
+		target_min_match = 0.5
+	}
+
+	# --- Light armor: fast, cheap tanks ---
+	armor_light = {
+		enable = { has_idea = rpx_army_light_tank_focus }
+		upgrade_prio = {
+			base = 1
+			modifier = { factor = 5  has_idea = rpx_army_light_tank_focus }
+			modifier = { factor = 0  NOT = { OR = { has_tech = basic_light_tank  has_tech = basic_light_tank_chassis } } }
+		}
+		target_template = {
+			support = { engineer = 1  mot_recon = 1  artillery = 1  signal_company = 1 }
+			regimental_support = { anti_air_battery = 1  mot_fire_support = 1 }
+			regiments = { light_armor = 3  motorized = 6  artillery_brigade = 2 }
+		}
+		replace_at_match = 1.5
+		replace_with = armor_medium
+		target_min_match = 0.5
+	}
+
+	# --- Medium armor: balanced generalist ---
+	armor_medium = {
+		enable = {
+			OR = {
+				has_idea = rpx_army_armor_design_bureau
+				has_idea = rpx_army_armor_mass_production
+				has_idea = rpx_army_armor_mastery
+				has_idea = rpx_army_breakthrough_doctrine
+				has_idea = rpx_army_breakthrough_training
+				has_idea = rpx_army_tank_factory_network
+				has_idea = rpx_army_combined_arms_doctrine
+				has_idea = rpx_army_synergy_training
+				has_idea = rpx_army_master_training
+				has_idea = rpx_army_self_propelled_artillery
+				has_idea = rpx_army_tank_destroyer_focus
+			}
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = {
+				factor = 5
+				OR = { has_idea = rpx_army_armor_design_bureau  has_idea = rpx_army_armor_mass_production
+				       has_idea = rpx_army_armor_mastery  has_idea = rpx_army_breakthrough_doctrine
+				       has_idea = rpx_army_breakthrough_training  has_idea = rpx_army_tank_factory_network }
+			}
+			modifier = {
+				factor = 3
+				OR = { has_tech = basic_medium_tank  has_tech = basic_medium_tank_chassis }
+			}
+		}
+		target_template = {
+			support = { engineer = 1  mot_recon = 1  artillery = 1  maintenance_company = 1  logistics_company = 1 }
+			regimental_support = { anti_air_battery = 1  anti_tank_battery = 1 }
+			regiments = { medium_armor = 3  motorized = 6 }
+		}
+		replace_at_match = 1.5
+		replace_with = armor_medium_mid
+		target_min_match = 0.5
+	}
+
+	armor_medium_mid = {
+		enable = {
+			OR = {
+				has_idea = rpx_army_armor_design_bureau
+				has_idea = rpx_army_armor_mass_production
+				has_idea = rpx_army_armor_mastery
+				has_idea = rpx_army_breakthrough_doctrine
+				has_idea = rpx_army_breakthrough_training
+				has_idea = rpx_army_tank_factory_network
+				has_idea = rpx_army_combined_arms_doctrine
+				has_idea = rpx_army_synergy_training
+				has_idea = rpx_army_master_training
+				has_idea = rpx_army_self_propelled_artillery
+				has_idea = rpx_army_tank_destroyer_focus
+			}
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = { factor = 4  OR = { has_tech = improved_medium_tank  has_tech = improved_medium_tank_chassis } }
+			modifier = { factor = 0  NOT = { has_tech = armored_car1 } }
+		}
+		target_template = {
+			support = { engineer = 1  mot_recon = 1  artillery = 1  maintenance_company = 1  logistics_company = 1  signal_company = 1 }
+			regimental_support = { anti_air_battery = 1  anti_tank_battery = 1 }
+			regiments = { medium_armor = 3  motorized = 6  artillery_brigade = 2 }
+		}
+		replace_at_match = 1.5
+		replace_with = armor_modern
+		target_min_match = 0.5
+	}
+
+	# --- Modern armor: late-game pinnacle ---
+	armor_modern = {
+		enable = {
+			OR = {
+				has_idea = rpx_army_armor_mastery
+				has_idea = rpx_army_armor_mass_production
+				has_idea = rpx_army_tank_factory_network
+				has_idea = rpx_army_total_war_machine
+			}
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = { factor = 5  OR = { has_tech = main_battle_tank  has_tech = main_battle_tank_chassis } }
+		}
+		target_template = {
+			support = { engineer = 1  light_tank_recon = 1  maintenance_company = 1  logistics_company = 1  signal_company = 1 }
+			regimental_support = { mot_fire_support = 1 }
+			regiments = { modern_armor = 3  mechanized = 6  mot_artillery_brigade = 1 }
+		}
+	}
+
+	# --- Heavy armor: slow breakthrough ---
+	armor_heavy = {
+		enable = {
+			OR = {
+				has_idea = rpx_army_heavy_tank_focus
+				has_idea = rpx_army_heavy_division_training
+				has_idea = rpx_army_total_war_machine
+			}
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = {
+				factor = 5
+				OR = { has_idea = rpx_army_heavy_tank_focus  has_idea = rpx_army_heavy_division_training }
+			}
+			modifier = { factor = 0  NOT = { OR = { has_tech = basic_heavy_tank  has_tech = basic_heavy_tank_chassis } } }
+		}
+		target_template = {
+			support = { engineer = 1  artillery = 1  maintenance_company = 1  logistics_company = 1 }
+			regimental_support = { anti_tank_battery = 1 }
+			regiments = { heavy_armor = 3  motorized = 6 }
+		}
+		replace_at_match = 1.5
+		replace_with = armor_heavy_mid
+		target_min_match = 0.5
+	}
+
+	armor_heavy_mid = {
+		enable = {
+			OR = {
+				has_idea = rpx_army_heavy_tank_focus
+				has_idea = rpx_army_heavy_division_training
+				has_idea = rpx_army_total_war_machine
+			}
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = { factor = 4  OR = { has_tech = improved_heavy_tank  has_tech = improved_heavy_tank_chassis } }
+		}
+		target_template = {
+			support = { engineer = 1  artillery = 1  maintenance_company = 1  logistics_company = 1  signal_company = 1 }
+			regimental_support = { anti_tank_battery = 1  anti_air_battery = 1 }
+			regiments = { heavy_armor = 3  mechanized = 3  motorized = 3  artillery_brigade = 2 }
+		}
+	}
+}
+
+# =============================================================================
+# MOBILE (speed-focused motorized / mechanized)
+# =============================================================================
+
+mobile_generic = {
+
+	role = mobile
+
+	upgrade_prio = {
+		base = 2
+		modifier = { factor = 3  has_idea = rpx_army_offensive_spirit }
+		modifier = { factor = 2  has_idea = rpx_army_mechanized_warfare }
+	}
+
+	# --- Fallback: motorized divisions ---
+	mobile_fallback = {
+		enable = {
+			OR = {
+				has_tech = motorised_infantry
+				has_idea = rpx_army_motorization_drive
+			}
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = {
+				factor = 3
+				OR = { has_idea = rpx_army_offensive_spirit  has_idea = rpx_army_total_offensive
+				       has_idea = rpx_army_blitzkrieg_doctrine  has_idea = rpx_army_armored_recon }
+			}
+			modifier = { factor = 0  NOT = { has_tech = motorised_infantry } }
+		}
+		target_template = {
+			support = { engineer = 1  mot_recon = 1  artillery = 1 }
+			regimental_support = { anti_air_battery = 1  anti_tank_battery = 1 }
+			regiments = { motorized = 9  artillery_brigade = 2 }
+		}
+		replace_at_match = 1.5
+		replace_with = mobile_mechanized
+		target_min_match = 0.5
+	}
+
+	# --- Mechanized: durable, expensive ---
+	mobile_mechanized = {
+		enable = {
+			OR = { has_idea = rpx_army_mechanized_warfare  has_idea = rpx_army_combined_mech }
+			has_tech = mechanized_infantry
+		}
+		upgrade_prio = {
+			base = 1
+			modifier = {
+				factor = 5
+				OR = { has_idea = rpx_army_mechanized_warfare  has_idea = rpx_army_combined_mech }
+			}
+			modifier = { factor = 0  NOT = { has_tech = mechanized_infantry } }
+		}
+		target_template = {
+			support = { engineer = 1  mot_recon = 1  artillery = 1  maintenance_company = 1  logistics_company = 1 }
+			regimental_support = { anti_air_battery = 1  anti_tank_battery = 1 }
+			regiments = { mechanized = 6  artillery_brigade = 2 }
+		}
+	}
+}
+
+# =============================================================================
+# GARRISON (same as vanilla)
+# =============================================================================
+
+garrison_generic = {
+
+	role = garrison
+
+	upgrade_prio = {
+		base = 0.5
+		modifier = { factor = 20  NOT = { ai_has_role_template = garrison } }
+	}
+
+	garrison_default = {
+		reinforce_prio = 0
+		custom_icon = 7
+		upgrade_prio = { base = 2  modifier = { factor = 1 } }
+		target_template = {
+			support = { engineer = 1 }
+			regiments = { infantry = 4 }
+		}
+	}
+}
+
+# =============================================================================
+# SUPPRESSION (same as vanilla)
+# =============================================================================
+
+suppression_generic = {
+
+	role = suppression
+
+	upgrade_prio = {
+		base = 0.5
+		modifier = { factor = 10  has_war = yes }
+	}
+
+	suppression_default = {
+		reinforce_prio = 0
+		custom_icon = 13
+		upgrade_prio = { base = 2 }
+		target_template = {
+			support = { military_police = 1 }
+			regiments = { cavalry = 9 }
+		}
+	}
+}
+
+# =============================================================================
+# MOUNTAINEERS
+# =============================================================================
+
+mountaineers_generic = {
+
+	role = mountaineers
+
+	upgrade_prio = {
+		base = 2
+		modifier = { factor = 3  has_idea = rpx_army_winter_warfare }
+		modifier = { factor = 0  NOT = { has_tech = tech_mountaineers } }
+	}
+
+	mountaineer_default = {
+		enable = { has_idea = rpx_army_winter_warfare }
+		upgrade_prio = {
+			base = 1
+			modifier = { factor = 5  has_idea = rpx_army_winter_warfare }
+		}
+		target_template = {
+			support = { engineer = 1  artillery = 1  logistics_company = 1 }
+			regimental_support = { anti_tank_battery = 1  anti_air_battery = 1 }
+			regiments = { mountaineers = 9 }
+		}
+	}
+}
+
+# =============================================================================
+# MARINES
+# =============================================================================
+
+marines_generic = {	
+
+	role = marines
+
+	upgrade_prio = {
+		base = 2
+		modifier = { factor = 3  has_idea = rpx_army_amphibious_warfare }
+		modifier = { factor = 0  NOT = { has_tech = marines } }
+	}
+
+	marine_default = {
+		enable = { has_idea = rpx_army_amphibious_warfare }
+		upgrade_prio = {
+			base = 1
+			modifier = { factor = 5  has_idea = rpx_army_amphibious_warfare }
+		}
+		target_template = {
+			support = { engineer = 1  logistics_company = 1  artillery = 1 }
+			regimental_support = { anti_tank_battery = 1  anti_air_battery = 1 }
+			regiments = { marine = 9 }
+		}
+	}
+
+	marine_armored = {
+		enable = { has_idea = rpx_army_amphibious_warfare }
+		upgrade_prio = {
+			base = 3
+			modifier = {
+				factor = 0
+				OR = {
+					NOT = { has_tech = amphibious_mechanized_infantry }
+					NOT = { OR = { has_tech = amphibious_tank  has_tech = amphibious_tank_chassis } }
+				}
+			}
+			modifier = { factor = 0  is_major = no }
+		}
+		target_template = {
+			support = { recon = 1  engineer = 1  artillery = 1  logistics_company = 1 }
+			regimental_support = { anti_air_battery = 1 }
+			regiments = { amphibious_armor = 3  amphibious_mechanized = 6  artillery_brigade = 1 }
+		}
+	}
+}
+
+# =============================================================================
+# PARATROOPERS
+# =============================================================================
+
+paratrooper_generic = {	
+
+	role = paratroopers
+
+	upgrade_prio = {
+		base = 2
+		modifier = { factor = 0  NOT = { has_tech = paratroopers } }
+	}
+
+	paratrooper_default = {
+		upgrade_prio = { base = 1  modifier = { factor = 1 } }
+		target_template = {
+			support = { engineer = 1  recon = 1 }
+			regimental_support = { field_guns = 1 }
+			regiments = { paratrooper = 9 }
+		}
+	}
+}

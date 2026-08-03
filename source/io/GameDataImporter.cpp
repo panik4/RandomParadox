@@ -13,7 +13,7 @@ Image loadHeightMap(const std::string &gamePath) {
 }
 
 std::vector<std::string> loadStates(const std::string &gamePath) {
-  return Fwg::Parsing::readFilesInDirectory(gamePath + "//history//states//");
+  return Fwg::Parsing::readFilesInDirectory(gamePath + "/history/states/");
 }
 
 std::vector<std::string> loadDefinition(const std::string &gamePath) {

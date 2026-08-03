@@ -15,8 +15,8 @@ std::map<std::string, Technology> readTechs(const std::string &inFolder) {
 
     Fwg::Utils::Logging::logLine("Working with: ", pathString);
     std::string filename =
-        pathString.substr(pathString.find_last_of("//") + 1,
-                          pathString.back() - pathString.find_last_of("//"));
+        pathString.substr(pathString.find_last_of("/") + 1,
+                          pathString.back() - pathString.find_last_of("/"));
     Fwg::Utils::Logging::logLine("Determined filename: ", filename);
     std::string content = "";
     auto lines = Fwg::Parsing::getLines(pathString);
@@ -96,8 +96,8 @@ std::map<std::string, ProductionmethodGroup> readProdMethodGroups(
       continue;
 
     std::string filename =
-        pathString.substr(pathString.find_last_of("//") + 1,
-                          pathString.back() - pathString.find_last_of("//"));
+        pathString.substr(pathString.find_last_of("/") + 1,
+                          pathString.back() - pathString.find_last_of("/"));
     std::string content = "";
     auto lines = Fwg::Parsing::getLines(pathString);
     auto blocks = Rpx::Parsing::getOuterBlocks(lines);
@@ -146,8 +146,8 @@ readProdMethods(const std::string &inFolder,
       continue;
 
     std::string filename =
-        pathString.substr(pathString.find_last_of("//") + 1,
-                          pathString.back() - pathString.find_last_of("//"));
+        pathString.substr(pathString.find_last_of("/") + 1,
+                          pathString.back() - pathString.find_last_of("/"));
     std::string content = "";
     auto lines = Fwg::Parsing::getLines(pathString);
     auto blocks = Rpx::Parsing::getOuterBlocks(lines);
@@ -205,8 +205,8 @@ std::vector<BuildingType> readBuildings(
 
     Fwg::Utils::Logging::logLine("Working with: ", pathString);
     std::string filename =
-        pathString.substr(pathString.find_last_of("//") + 1,
-                          pathString.back() - pathString.find_last_of("//"));
+        pathString.substr(pathString.find_last_of("/") + 1,
+                          pathString.back() - pathString.find_last_of("/"));
     Fwg::Utils::Logging::logLine("Determined filename: ", filename);
     std::string content = "";
     auto lines = Fwg::Parsing::getLines(pathString);

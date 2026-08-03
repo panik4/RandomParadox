@@ -394,7 +394,7 @@ void countryHistory(
                                     country.second->techLevel);
     std::string filename =
         country.second->tag + " - " + country.second->name + ".txt";
-    pU::writeFile(path + "//" + filename, cString, true);
+    pU::writeFile(path + "/" + filename, cString, true);
   }
 }
 void staticModifiers(const std::string &path,
@@ -402,7 +402,7 @@ void staticModifiers(const std::string &path,
     const std::vector<std::shared_ptr<Arda::Religion>> &religions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing static modifiers");
   const auto cultureTemplateFile = pU::readFile(
-      Fwg::Cfg::Values().resourcePath + "vic3/common/static_modifiers//"
+      Fwg::Cfg::Values().resourcePath + "vic3/common/static_modifiers/"
                                         "culture_standard_of_living.txt");
   std::string cultureContent = "";
   for (const auto &culture : cultures) {
@@ -410,10 +410,10 @@ void staticModifiers(const std::string &path,
     Rpx::Parsing::replaceOccurences(content, "templateCulture", culture->name);
     cultureContent.append(content);
   }
-  pU::writeFile(path + "//07_culture_standard_of_living.txt", cultureContent);
+  pU::writeFile(path + "/07_culture_standard_of_living.txt", cultureContent);
   // now the same for the religions
   const auto religionTemplateFile = pU::readFile(
-      Fwg::Cfg::Values().resourcePath + "vic3/common/static_modifiers//"
+      Fwg::Cfg::Values().resourcePath + "vic3/common/static_modifiers/"
                                         "religion_standard_of_living.txt");
   std::string religionContent = "";
   for (const auto &religion : religions) {
@@ -422,11 +422,11 @@ void staticModifiers(const std::string &path,
                                     religion->name);
     religionContent.append(content);
   }
-  pU::writeFile(path + "//08_religion_standard_of_living.txt", religionContent);
+  pU::writeFile(path + "/08_religion_standard_of_living.txt", religionContent);
 }
 void splineNetwork(const std::string &path) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Gfx: Writing splines");
-  pU::writeFile(path + "//spline_network.splnet", "");
+  pU::writeFile(path + "/spline_network.splnet", "");
 }
 
 void compatFile(const std::string &path) {
@@ -449,8 +449,8 @@ std::string compatRegions(const std::string &inFolder,
       continue;
 
     std::string filename =
-        pathString.substr(pathString.find_last_of("//") + 1,
-                          pathString.back() - pathString.find_last_of("//"));
+        pathString.substr(pathString.find_last_of("/") + 1,
+                          pathString.back() - pathString.find_last_of("/"));
     std::string content = "";
     auto lines = pU::getLines(pathString);
     for (auto &line : lines) {
@@ -513,8 +513,8 @@ void compatReleasable(const std::string &inFolder, const std::string &outPath) {
     if (pathString.find(".txt") == std::string::npos)
       continue;
     std::string filename =
-        pathString.substr(pathString.find_last_of("//") + 1,
-                          pathString.back() - pathString.find_last_of("//"));
+        pathString.substr(pathString.find_last_of("/") + 1,
+                          pathString.back() - pathString.find_last_of("/"));
     Fwg::Utils::Logging::logLine("Determined filename: ", filename);
     std::string content = pU::readFile(pathString);
     while (
@@ -533,8 +533,8 @@ void compatTriggers(const std::string &inFolder, const std::string &outPath) {
     if (pathString.find(".txt") == std::string::npos)
       continue;
     std::string filename =
-        pathString.substr(pathString.find_last_of("//") + 1,
-                          pathString.back() - pathString.find_last_of("//"));
+        pathString.substr(pathString.find_last_of("/") + 1,
+                          pathString.back() - pathString.find_last_of("/"));
     std::string content = pU::readFile(pathString);
     Rpx::Parsing::removeLines(content, "sr:region");
     Rpx::Parsing::removeLines(content, "STATE_");
@@ -547,10 +547,10 @@ void locators(const std::string &path,
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing locators");
   const auto locatorsTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3//gfx//generated_map_object_locators.txt");
+                   "vic3/gfx/generated_map_object_locators.txt");
   const auto singeLocatorTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3//gfx//single_locator_instance.txt");
+                   "vic3/gfx/single_locator_instance.txt");
   std::string cityContent = locatorsTemplate;
   pU::replaceOccurence(cityContent, "templateWaterClamp", "no");
   std::string farmContent = cityContent;
@@ -618,13 +618,13 @@ void Rpx::Vic3::Parsing::History::writeBuildings(
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Constructing economy");
   auto buildingsTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3/common/history//buildingsTemplate.txt");
+                   "vic3/common/history/buildingsTemplate.txt");
   const auto buildingsStateTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3/common/history//buildingsStateTemplate.txt");
+                   "vic3/common/history/buildingsStateTemplate.txt");
   const auto buildingsSingleBuildingTemplate = pU::readFile(
       Fwg::Cfg::Values().resourcePath +
-      "vic3/common/history//buildingsSingleBuildingTemplate.txt");
+      "vic3/common/history/buildingsSingleBuildingTemplate.txt");
   std::string allStateString;
   for (auto &region : regions) {
     if (!region->isLand())

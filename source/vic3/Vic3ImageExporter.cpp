@@ -188,7 +188,7 @@ void ImageExporter::Vic3ColourMaps(
     }
   }
   Arda::Gfx::Textures::writeMipMapDDS(
-      imageWidth, imageHeight, pixels, path + "//textures//land_mask.dds",
+      imageWidth, imageHeight, pixels, path + "/textures/land_mask.dds",
       gli::format::FORMAT_BGR8_UNORM_PACK32, false);
 
   // flatmap
@@ -209,17 +209,17 @@ void ImageExporter::Vic3ColourMaps(
     }
   }
   Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
-                                      path + "//textures//flatmap.dds",
+                                      path + "/textures/flatmap.dds",
                                       gli::format::FORMAT_BGR8_UNORM_PACK32);
 
   std::fill(pixels.begin(), pixels.end(), 0);
   Arda::Gfx::Textures::writeMipMapDDS(imageWidth, imageHeight, pixels,
 
-                                      path + "//textures//flatmap_overlay.dds",
+                                      path + "/textures/flatmap_overlay.dds",
                                       gli::format::FORMAT_BGR8_UNORM_PACK32);
   // terrain colour map
   scaledMap = Util::scale(climateMap, config.width, config.height, false);
-  dumpTerrainColourmap(scaledMap, civLayer, path, "//textures//colormap.dds",
+  dumpTerrainColourmap(scaledMap, civLayer, path, "/textures/colormap.dds",
                        gli::format::FORMAT_BGR8_UNORM_PACK32, 1, false);
 
   Utils::Logging::logLine(
@@ -249,14 +249,14 @@ void ImageExporter::Vic3ColourMaps(
   }
   Arda::Gfx::Textures::writeMipMapDDS(
       imageWidth, imageHeight, pixels,
-      path + "//water//watercolor_rgb_waterspec_a.dds",
+      path + "/water/watercolor_rgb_waterspec_a.dds",
       gli::format::FORMAT_BGR8_UNORM_PACK32, true);
   std::fill(pixels.begin(), pixels.end(), 0);
   Arda::Gfx::Textures::writeMipMapDDS(imageWidth / 4, imageHeight / 4, pixels,
-                                      path + "//water//foam_map.dds",
+                                      path + "/water/foam_map.dds",
                                       gli::format::FORMAT_BGR8_UNORM_PACK32);
   Arda::Gfx::Textures::writeMipMapDDS(imageWidth / 8, imageHeight / 8, pixels,
-                                      path + "//water//flowmap.dds",
+                                      path + "/water/flowmap.dds",
                                       gli::format::FORMAT_BGR8_UNORM_PACK32);
   // colormap_tree.dds
   auto humidityMap =
@@ -289,7 +289,7 @@ void ImageExporter::Vic3ColourMaps(
     }
   }
   Arda::Gfx::Textures::writeDDS(imageWidth, imageHeight, pixels,
-                                path + "//textures//colormap_tree.dds",
+                                path + "/textures/colormap_tree.dds",
                                 gli::format::FORMAT_BGR8_UNORM_PACK32);
 
   scaledHeight =
@@ -315,7 +315,7 @@ void ImageExporter::Vic3ColourMaps(
     }
   }
   Arda::Gfx::Textures::writeMipMapDDS(
-      imageWidth, imageHeight, pixels, path + "//textures//windmap_tree.dds",
+      imageWidth, imageHeight, pixels, path + "/textures/windmap_tree.dds",
       gli::format::FORMAT_BGR8_UNORM_PACK32, true);
 }
 

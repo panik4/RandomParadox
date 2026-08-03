@@ -353,11 +353,11 @@ void copyDescriptorFile(const std::string &sourcePath,
   Rpx::Parsing::replaceOccurences(descriptorText, "templateName", modName);
   auto modText{descriptorText};
   Rpx::Parsing::replaceOccurences(descriptorText, "templatePath", "");
-  pU::writeFile(destPath + "//descriptor.mod", descriptorText);
+  pU::writeFile(destPath + "/descriptor.mod", descriptorText);
   Rpx::Parsing::replaceOccurences(
       modText, "templatePath",
       Fwg::Utils::varsToString("path=\"", destPath, "\""));
-  pU::writeFile(modsDirectory + "//" + modName + ".mod", modText);
+  pU::writeFile(modsDirectory + "/" + modName + ".mod", modText);
 }
 
 void writeProvinces(const std::string &path,
@@ -372,11 +372,11 @@ void writeProvinces(const std::string &path,
       // make sure lakes and wastelands are empty
       if (prov->isLake() ||
           prov->terrainType == "rockyMountains") {
-        pU::writeFile(path + "//" + std::to_string(prov->ID + 1) + "-a.txt",
+        pU::writeFile(path + "/" + std::to_string(prov->ID + 1) + "-a.txt",
                       "");
       } else {
         std::string content{templateContent};
-        pU::writeFile(path + "//" + std::to_string(prov->ID + 1) + "-a.txt",
+        pU::writeFile(path + "/" + std::to_string(prov->ID + 1) + "-a.txt",
                       content);
       }
     }
