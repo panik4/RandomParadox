@@ -2349,8 +2349,9 @@ void Generator::generateWorldState() {
 }
 
 void Generator::generateFocusTrees() {
-  Hoi4::FocusGen::evaluateCountryGoals(this->modData.hoi4Countries,
-                                       this->ardaRegions);
+  //Hoi4::FocusGen::evaluateCountryGoals(this->modData.hoi4Countries,
+  //                                     this->ardaRegions);
+  Hoi4::FocusGen::generateFocusFiles(this->modData.hoi4Countries);
 }
 
 void Generator::generateRandomDecisions() {
@@ -3002,6 +3003,8 @@ void Generator::writeTextFiles(bool scenarioDetails) {
                             modData.hoi4Countries);
     Countries::ideas(pathcfg.gameModPath + "common/ideas/",
                      modData.hoi4Countries);
+    Countries::foci(pathcfg.gameModPath + "common/national_focus/",
+                    modData.hoi4Countries, nData);
     // Countries::foci(pathcfg.gameModPath + "/common/national_focus//",
     //                 modData.hoi4Countries, nData);
   }
@@ -3043,6 +3046,8 @@ void Generator::writeLocalisation() {
   victoryPointNames(pathcfg.gameModPath + "/localisation/language/",
                     modData.hoi4States);
   predefinedLocalisation(pathcfg.gameModPath + "/localisation/");
+  focusTreeLocalisation(pathcfg.gameModPath + "/localisation/",
+                        modData.hoi4Countries);
 }
 void Generator::writeImages() {
   Fwg::Utils::Logging::logLine(
@@ -3125,7 +3130,7 @@ void Generator::generate() {
     // politics, etc
     generateCountrySpecifics();
 
-    // generateFocusTrees();
+    generateFocusTrees();
     distributeVictoryPoints();
     generatePositions();
     generateRandomDecisions();
@@ -3152,7 +3157,7 @@ void Generator::generate() {
   printStatistics();
 }
 void Generator::readHoi(std::string &path) {
-  path.append("//");
+  path.append("/");
   auto &config = Fwg::Cfg::Values();
   bool bufferedCut = config.cut;
   config.cut = false;

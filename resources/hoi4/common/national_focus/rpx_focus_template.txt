@@ -1,0 +1,9 @@
+focus_tree = {	
+	id = rpx_templateTag_focus_tree
+
+	default = no
+	
+	templateFocusses
+
+
+}

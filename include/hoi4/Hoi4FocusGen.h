@@ -21,5 +21,9 @@ void evaluateCountryGoals(
     std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries,
     const std::vector<std::shared_ptr<Arda::ArdaRegion>> &ardaRegions);
 
+// generate focus trees from pre-made template files
+void generateFocusFiles(
+    std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries);
+
 }; // namespace FocusGen
 } // namespace Rpx::Hoi4

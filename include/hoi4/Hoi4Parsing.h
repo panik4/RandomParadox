@@ -134,6 +134,9 @@ void strategicRegionNames(
 void victoryPointNames(const std::string &path,
                        const std::vector<std::shared_ptr<Region>> &regions);
 void predefinedLocalisation(const std::string &path);
+void focusTreeLocalisation(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Hoi4Country>> &countries);
 
 } // namespace Localisation
 

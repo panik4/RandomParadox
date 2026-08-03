@@ -1,0 +1,1405 @@
+focus_tree = {
+	id = rpx_econ3_economy_3_focus
+
+	country = {
+		factor = 0
+	}
+
+	default = no
+
+	focus = {
+		id = rpx_econ3_foundation
+		icon = GFX_focus_generic_industry_1
+		x = 2
+		y = 0
+		cost = 8
+		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_RESEARCH }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_political_power = 100
+			add_tech_bonus = {
+				name = foundation_bonus
+				bonus = 1.0
+				uses = 1
+				category = industry
+			}
+		}
+	}
+
+	# ===== PATH A: CIVILIAN & TRADE (left) =====
+
+	focus = {
+		id = rpx_econ3_civilian_path
+		icon = GFX_goal_generic_construct_civ_factory
+		prerequisite = { focus = rpx_econ3_foundation }
+		x = -8
+		y = 1
+		relative_position_id = rpx_econ3_foundation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_consumer_goods_1
+			add_ideas = rpx_construction_speed_1
+			add_stability = 0.03
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_consumer_reduction
+		icon = GFX_goal_generic_consumer_goods
+		prerequisite = { focus = rpx_econ3_civilian_path }
+		mutually_exclusive = { focus = rpx_econ3_trade_expansion }
+		x = -1
+		y = 1
+		relative_position_id = rpx_econ3_civilian_path
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_consumer_goods_2
+			add_ideas = rpx_consumer_goods_3
+			add_political_power = 50
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_trade_expansion
+		icon = GFX_goal_generic_trade
+		prerequisite = { focus = rpx_econ3_civilian_path }
+		mutually_exclusive = { focus = rpx_econ3_consumer_reduction }
+		x = 1
+		y = 1
+		relative_position_id = rpx_econ3_civilian_path
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_economic_boom
+			add_ideas = rpx_consumer_goods_2
+			add_political_power = 50
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_total_civilian_mobilization
+		icon = GFX_focus_generic_public_works
+		prerequisite = { focus = rpx_econ3_consumer_reduction }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_consumer_reduction
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 25
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_consumer_goods_4
+			add_stability = 0.05
+			add_tech_bonus = {
+				name = civilian_mobilization
+				bonus = 1.0
+				uses = 1
+				category = industry
+				category = construction_tech
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_global_trade_hub
+		icon = GFX_goal_generic_trade
+		prerequisite = { focus = rpx_econ3_trade_expansion }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_trade_expansion
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_resource_penalty_reduction
+			add_stability = 0.05
+			add_tech_bonus = {
+				name = global_trade
+				bonus = 1.0
+				uses = 1
+				category = industry
+				category = excavation_tech
+			}
+		}
+	}
+
+	# ===== PATH B: RESOURCE & SYNTHETIC (center-left) =====
+
+	focus = {
+		id = rpx_econ3_resource_path
+		icon = GFX_focus_generic_resource_extraction
+		prerequisite = { focus = rpx_econ3_foundation }
+		x = -3
+		y = 1
+		relative_position_id = rpx_econ3_foundation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_local_resources_1
+			add_ideas = rpx_local_resources_2
+			add_tech_bonus = {
+				name = resource_excavation
+				bonus = 0.5
+				uses = 1
+				category = excavation_tech
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_deep_mining
+		icon = GFX_focus_generic_mining_industry
+		prerequisite = { focus = rpx_econ3_resource_path }
+		mutually_exclusive = { focus = rpx_econ3_synthetic_industry }
+		x = -1
+		y = 1
+		relative_position_id = rpx_econ3_resource_path
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_local_resources_3
+			add_tech_bonus = {
+				name = deep_mining
+				bonus = 1.0
+				uses = 2
+				category = excavation_tech
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_synthetic_industry
+		icon = GFX_goal_generic_oil_refinery
+		prerequisite = { focus = rpx_econ3_resource_path }
+		mutually_exclusive = { focus = rpx_econ3_deep_mining }
+		x = 1
+		y = 1
+		relative_position_id = rpx_econ3_resource_path
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_all_industry_speed
+			add_ideas = rpx_army_fuel_efficiency
+			add_ideas = rpx_air_fuel_efficiency
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_geological_breakthrough
+		icon = GFX_focus_generic_mineral_prospecting
+		prerequisite = { focus = rpx_econ3_deep_mining }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_deep_mining
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 20
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_resource_efficiency
+			add_tech_bonus = {
+				name = geological_breakthrough
+				bonus = 1.0
+				uses = 3
+				category = excavation_tech
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_synthetic_mastery
+		icon = GFX_goal_generic_oil_refinery
+		prerequisite = { focus = rpx_econ3_synthetic_industry }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_synthetic_industry
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 20
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_navy_fuel_efficiency
+			add_tech_bonus = {
+				name = synthetic_mastery
+				bonus = 1.0
+				uses = 2
+				category = industry
+			}
+		}
+	}
+
+	# ===== PATH C: MILITARY PRODUCTION (center-right) =====
+
+	focus = {
+		id = rpx_econ3_military_path
+		icon = GFX_goal_generic_construct_mil_factory
+		prerequisite = { focus = rpx_econ3_foundation }
+		x = 2
+		y = 1
+		relative_position_id = rpx_econ3_foundation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_military_industrialization
+			add_ideas = rpx_max_efficiency_1
+			add_war_support = 0.03
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_light_arms_focus
+		icon = GFX_goal_generic_small_arms
+		prerequisite = { focus = rpx_econ3_military_path }
+		mutually_exclusive = { focus = rpx_econ3_heavy_equipment_focus }
+		x = -1
+		y = 1
+		relative_position_id = rpx_econ3_military_path
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_mil_construction_speed
+			add_ideas = rpx_efficiency_gain_1
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = 1500
+			}
+			add_equipment_to_stockpile = {
+				type = support_equipment
+				amount = 300
+			}
+			add_tech_bonus = {
+				name = light_arms_bonus
+				bonus = 1.0
+				uses = 1
+				category = infantry_weapons
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_heavy_equipment_focus
+		icon = GFX_focus_generic_military_industry
+		prerequisite = { focus = rpx_econ3_military_path }
+		mutually_exclusive = { focus = rpx_econ3_light_arms_focus }
+		x = 1
+		y = 1
+		relative_position_id = rpx_econ3_military_path
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_mil_construction_speed
+			add_equipment_to_stockpile = {
+				type = artillery_equipment
+				amount = 300
+			}
+			add_equipment_to_stockpile = {
+				type = motorized_equipment
+				amount = 200
+			}
+			add_tech_bonus = {
+				name = heavy_equipment_bonus
+				bonus = 1.0
+				uses = 1
+				category = armor
+			}
+			add_tech_bonus = {
+				name = artillery_bonus
+				bonus = 1.0
+				uses = 1
+				category = artillery
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_infantry_doctrine
+		icon = GFX_goal_generic_army_doctrines
+		prerequisite = { focus = rpx_econ3_light_arms_focus }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_light_arms_focus
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 25
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_factory_output_2
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = 3000
+			}
+			add_equipment_to_stockpile = {
+				type = support_equipment
+				amount = 500
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_armored_division
+		icon = GFX_goal_generic_army_tanks
+		prerequisite = { focus = rpx_econ3_heavy_equipment_focus }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_heavy_equipment_focus
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 25
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_factory_output_2
+			add_ideas = rpx_max_efficiency_2
+			add_equipment_to_stockpile = {
+				type = motorized_equipment
+				amount = 500
+			}
+			add_tech_bonus = {
+				name = armored_division_bonus
+				bonus = 1.0
+				uses = 2
+				category = armor
+			}
+		}
+	}
+
+	# ===== PATH D: INFRASTRUCTURE & CONSTRUCTION (right) =====
+
+	focus = {
+		id = rpx_econ3_infrastructure_path
+		icon = GFX_goal_generic_construct_infrastructure
+		prerequisite = { focus = rpx_econ3_foundation }
+		x = 6
+		y = 1
+		relative_position_id = rpx_econ3_foundation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_construction_speed_1
+			add_ideas = rpx_infrastructure_speed
+			add_stability = 0.03
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_transport_focus
+		icon = GFX_focus_generic_truck
+		prerequisite = { focus = rpx_econ3_infrastructure_path }
+		mutually_exclusive = { focus = rpx_econ3_civ_build_program }
+		x = -1
+		y = 1
+		relative_position_id = rpx_econ3_infrastructure_path
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_railway_speed
+			add_ideas = rpx_infrastructure_focus
+			add_tech_bonus = {
+				name = transport_bonus
+				bonus = 1.0
+				uses = 1
+				category = construction_tech
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_construction_boom
+		icon = GFX_focus_generic_industry_2
+		prerequisite = { focus = rpx_econ3_construction_program }
+		mutually_exclusive = { focus = rpx_econ3_mil_build_program }
+		x = 3
+		y = 1
+		relative_position_id = rpx_econ3_infrastructure_path
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_construction_speed_2
+			add_tech_bonus = {
+				name = construction_boom_bonus
+				bonus = 1.0
+				uses = 1
+				category = construction_tech
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_logistics_mastery
+		icon = GFX_focus_generic_reinforcing_the_supply_network
+		prerequisite = { focus = rpx_econ3_transport_focus }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_transport_focus
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 20
+		}
+		continue_if_invalid = yes
+
+		bypass = {
+			custom_trigger_tooltip = {
+				tooltip = infrastructure_effort_tt
+				all_owned_state = {
+					free_building_slots = {
+						building = infrastructure
+						size < 1
+					}
+				}
+			}
+		}
+
+		complete_tooltip = {
+			add_building_construction = {
+				type = infrastructure
+				level = 2
+				instant_build = yes
+			}
+		}
+
+		completion_reward = {
+			add_ideas = rpx_supply_consumption
+			random_owned_controlled_state = {
+				limit = {
+					free_building_slots = {
+						building = infrastructure
+						size > 0
+					}
+					OR = {
+						is_in_home_area = yes
+						NOT = {
+							owner = {
+								any_owned_state = {
+									free_building_slots = {
+										building = infrastructure
+										size > 0
+									}
+									is_in_home_area = yes
+								}
+							}
+						}
+					}
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
+				}
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_mega_construction
+		icon = GFX_focus_generic_industry_3
+		prerequisite = { focus = rpx_econ3_construction_boom }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_construction_boom
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 20
+		}
+		continue_if_invalid = yes
+
+		bypass = {
+			custom_trigger_tooltip = {
+				tooltip = construction_effort_tt
+				all_owned_state = {
+					free_building_slots = {
+						building = industrial_complex
+						size < 1
+						include_locked = yes
+					}
+				}
+			}
+		}
+
+		complete_tooltip = {
+			add_extra_state_shared_building_slots = 3
+			add_building_construction = {
+				type = industrial_complex
+				level = 2
+				instant_build = yes
+			}
+		}
+
+		completion_reward = {
+			add_ideas = rpx_construction_speed_3
+			add_ideas = rpx_efficiency_gain_2
+			random_owned_controlled_state = {
+				limit = {
+					free_building_slots = {
+						building = industrial_complex
+						size > 1
+						include_locked = yes
+					}
+					OR = {
+						is_in_home_area = yes
+						NOT = {
+							owner = {
+								any_owned_state = {
+									free_building_slots = {
+										building = industrial_complex
+										size > 1
+										include_locked = yes
+									}
+									is_in_home_area = yes
+								}
+							}
+						}
+					}
+				}
+				add_extra_state_shared_building_slots = 3
+				add_building_construction = {
+					type = industrial_complex
+					level = 2
+					instant_build = yes
+				}
+			}
+		}
+	}
+
+	# ===== PATH E: RESEARCH & TECHNOLOGY (far left) =====
+
+	focus = {
+		id = rpx_econ3_research_council
+		icon = GFX_focus_research
+		prerequisite = { focus = rpx_econ3_foundation }
+		x = -13
+		y = 1
+		relative_position_id = rpx_econ3_foundation
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_research_speed_1
+			add_political_power = 75
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_industry_research
+		icon = GFX_focus_generic_aircraft_production
+		prerequisite = { focus = rpx_econ3_research_council }
+		mutually_exclusive = { focus = rpx_econ3_armament_research focus = rpx_econ3_breakthrough_science }
+		x = -2
+		y = 1
+		relative_position_id = rpx_econ3_research_council
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 15
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_factory_output_1
+			add_tech_bonus = {
+				name = industry_research_bonus
+				bonus = 1.0
+				uses = 2
+				category = industry
+				category = electronics
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_armament_research
+		icon = GFX_goal_generic_construct_mil_factory
+		prerequisite = { focus = rpx_econ3_research_council }
+		mutually_exclusive = { focus = rpx_econ3_industry_research focus = rpx_econ3_breakthrough_science }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_research_council
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 15
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_factory_output_1
+			add_tech_bonus = {
+				name = armament_research_bonus
+				bonus = 1.0
+				uses = 2
+				category = armor
+				category = infantry_weapons
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_breakthrough_science
+		icon = GFX_focus_research
+		prerequisite = { focus = rpx_econ3_research_council }
+		mutually_exclusive = { focus = rpx_econ3_industry_research focus = rpx_econ3_armament_research }
+		x = 2
+		y = 1
+		relative_position_id = rpx_econ3_research_council
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 25
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_research_speed_2
+			add_tech_bonus = {
+				name = breakthrough_science_bonus
+				bonus = 1.0
+				uses = 2
+				category = electronics
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_industry_research_2
+		icon = GFX_focus_generic_aircraft_production
+		prerequisite = { focus = rpx_econ3_industry_research }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_industry_research
+		cost = 15
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 30
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_research_speed_2
+			add_ideas = rpx_factory_output_2
+			add_tech_bonus = {
+				name = industry_research_mastery
+				bonus = 1.0
+				uses = 2
+				category = industry
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_armament_research_2
+		icon = GFX_goal_generic_construct_mil_factory
+		prerequisite = { focus = rpx_econ3_armament_research }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_armament_research
+		cost = 15
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 30
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_research_speed_2
+			add_ideas = rpx_max_efficiency_2
+			add_tech_bonus = {
+				name = armament_research_mastery
+				bonus = 1.0
+				uses = 2
+				category = armor
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_breakthrough_science_2
+		icon = GFX_focus_research
+		prerequisite = { focus = rpx_econ3_breakthrough_science }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_breakthrough_science
+		cost = 15
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_research_slot = 1
+			add_tech_bonus = {
+				name = breakthrough_science_mastery
+				bonus = 1.0
+				uses = 3
+				category = electronics
+				category = industry
+			}
+		}
+	}
+
+	# ===== PATH F: CONSTRUCTION PROGRAM (right) =====
+
+	focus = {
+		id = rpx_econ3_construction_program
+		icon = GFX_goal_generic_construct_civ_factory
+		prerequisite = { focus = rpx_econ3_foundation }
+		x = 10
+		y = 1
+		relative_position_id = rpx_econ3_foundation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_construction_speed_1
+			add_ideas = rpx_civ_construction_speed
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_civ_build_program
+		icon = GFX_goal_generic_construct_civ_factory
+		prerequisite = { focus = rpx_econ3_infrastructure_path }
+		mutually_exclusive = { focus = rpx_econ3_transport_focus }
+		x = -3
+		y = 1
+		relative_position_id = rpx_econ3_construction_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_civ_construction_speed
+			add_stability = 0.03
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_mil_build_program
+		icon = GFX_goal_generic_construct_mil_factory
+		prerequisite = { focus = rpx_econ3_construction_program }
+		mutually_exclusive = { focus = rpx_econ3_construction_boom }
+		x = 1
+		y = 1
+		relative_position_id = rpx_econ3_construction_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_mil_construction_speed
+			add_ideas = rpx_fortification_speed
+			add_war_support = 0.03
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_civ_build_program_2
+		icon = GFX_goal_generic_construct_civ_factory
+		prerequisite = { focus = rpx_econ3_civ_build_program }
+		x = 0
+		y = 2
+		relative_position_id = rpx_econ3_civ_build_program
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 25
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_construction_speed_2
+			add_ideas = rpx_pp_gain
+			add_stability = 0.04
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_mil_build_program_2
+		icon = GFX_goal_generic_construct_mil_factory
+		prerequisite = { focus = rpx_econ3_mil_build_program }
+		x = 0
+		y = 2
+		relative_position_id = rpx_econ3_mil_build_program
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 25
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_construction_speed_2
+			add_war_support = 0.04
+		}
+	}
+
+	# ===== PATH G: NAVAL ECONOMY (far right) =====
+
+	focus = {
+		id = rpx_econ3_naval_economy
+		icon = GFX_goal_generic_construct_naval_dockyard
+		prerequisite = { focus = rpx_econ3_foundation }
+		x = 14
+		y = 1
+		relative_position_id = rpx_econ3_foundation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_dockyard_speed
+			add_ideas = rpx_dockyard_output_1
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_convoy_focus
+		icon = GFX_goal_generic_construct_naval_dockyard
+		prerequisite = { focus = rpx_econ3_naval_economy }
+		mutually_exclusive = { focus = rpx_econ3_capital_shipbuilding }
+		x = -1
+		y = 1
+		relative_position_id = rpx_econ3_naval_economy
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_consumer_goods_1
+			add_ideas = rpx_navy_convoy_protection
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_capital_shipbuilding
+		icon = GFX_focus_generic_navy_research_bonus
+		prerequisite = { focus = rpx_econ3_naval_economy }
+		mutually_exclusive = { focus = rpx_econ3_convoy_focus }
+		x = 1
+		y = 1
+		relative_position_id = rpx_econ3_naval_economy
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		completion_reward = {
+			add_ideas = rpx_dockyard_output_2
+			add_ideas = rpx_navy_capital_ship_focus
+			add_tech_bonus = {
+				name = capital_shipbuilding_bonus
+				bonus = 1.0
+				uses = 2
+				category = bb_tech
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_convoy_focus_2
+		icon = GFX_goal_generic_construct_naval_dockyard
+		prerequisite = { focus = rpx_econ3_convoy_focus }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_convoy_focus
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_naval_factories > 2
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_dockyard_output_2
+			add_ideas = rpx_consumer_goods_2
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_capital_shipbuilding_2
+		icon = GFX_focus_generic_navy_research_bonus
+		prerequisite = { focus = rpx_econ3_capital_shipbuilding }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_capital_shipbuilding
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_naval_factories > 2
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_navy_battleship_armor
+			add_tech_bonus = {
+				name = capital_shipbuilding_mastery
+				bonus = 1.0
+				uses = 2
+				category = bb_tech
+			}
+		}
+	}
+
+	# ===== PATH EXTENSIONS (beyond the four original caps) =====
+
+	focus = {
+		id = rpx_econ3_full_consumer_economy
+		icon = GFX_focus_generic_public_works
+		prerequisite = { focus = rpx_econ3_total_civilian_mobilization }
+		x = 0
+		y = 2
+		relative_position_id = rpx_econ3_total_civilian_mobilization
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_pp_gain
+			add_stability = 0.06
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_world_trade_dominance
+		icon = GFX_goal_generic_trade
+		prerequisite = { focus = rpx_econ3_global_trade_hub }
+		x = 1
+		y = 1
+		relative_position_id = rpx_econ3_global_trade_hub
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_stability = 0.06
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_resource_monopoly
+		icon = GFX_focus_generic_mineral_prospecting
+		prerequisite = { focus = rpx_econ3_geological_breakthrough }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_geological_breakthrough
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_tech_bonus = {
+				name = resource_monopoly_bonus
+				bonus = 1.0
+				uses = 2
+				category = excavation_tech
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_fuel_supremacy
+		icon = GFX_goal_generic_oil_refinery
+		prerequisite = { focus = rpx_econ3_synthetic_mastery }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_synthetic_mastery
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_supply_consumption
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_total_infantry_production
+		icon = GFX_goal_generic_small_arms
+		prerequisite = { focus = rpx_econ3_infantry_doctrine }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_infantry_doctrine
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_factory_output_3
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = 5000
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_total_armor_production
+		icon = GFX_goal_generic_army_tanks
+		prerequisite = { focus = rpx_econ3_armored_division }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_armored_division
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_factory_output_3
+			add_equipment_to_stockpile = {
+				type = motorized_equipment
+				amount = 800
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_continental_logistics
+		icon = GFX_focus_generic_truck
+		prerequisite = { focus = rpx_econ3_logistics_mastery }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_logistics_mastery
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			random_owned_controlled_state = {
+				limit = {
+					free_building_slots = {
+						building = infrastructure
+						size > 0
+					}
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
+				}
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_mega_industry
+		icon = GFX_focus_generic_industry_3
+		prerequisite = { focus = rpx_econ3_mega_construction }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_mega_construction
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			random_owned_controlled_state = {
+				limit = {
+					free_building_slots = {
+						building = industrial_complex
+						size > 1
+						include_locked = yes
+					}
+				}
+				add_extra_state_shared_building_slots = 3
+			}
+		}
+	}
+
+	# ===== FINAL CAPSTONE =====
+
+	focus = {
+		id = rpx_econ3_economic_hegemony
+		icon = GFX_focus_generic_industry_3
+		prerequisite = { focus = rpx_econ3_resource_monopoly focus = rpx_econ3_fuel_supremacy }
+		prerequisite = { focus = rpx_econ3_world_trade_dominance }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ3_resource_monopoly
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 150
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_total_mobilization_spirit
+			add_ideas = rpx_factory_output_3
+			add_extra_state_shared_building_slots = 8
+			add_stability = 0.10
+			add_war_support = 0.10
+			add_tech_bonus = {
+				name = economic_hegemony
+				bonus = 1.0
+				uses = 5
+				category = industry
+				category = construction_tech
+				category = electronics
+			}
+		}
+	}
+
+	# ===== CROSS-PATH CAPSTONES =====
+
+	focus = {
+		id = rpx_econ3_industrial_heartland
+		icon = GFX_focus_generic_industry_2
+		prerequisite = { focus = rpx_econ3_total_civilian_mobilization focus = rpx_econ3_global_trade_hub focus = rpx_econ3_world_trade_dominance}
+		x = 2
+		y = 2
+		relative_position_id = rpx_econ3_total_civilian_mobilization
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_industrial_might
+			add_ideas = rpx_infrastructure_focus
+			add_stability = 0.08
+			add_tech_bonus = {
+				name = heartland_bonus
+				bonus = 1.0
+				uses = 2
+				category = industry
+				category = construction_tech
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_war_economy_council
+		icon = GFX_focus_generic_central_planning
+		prerequisite = { focus = rpx_econ3_total_infantry_production focus = rpx_econ3_total_armor_production }
+		prerequisite = { focus = rpx_econ3_continental_logistics focus = rpx_econ3_civ_build_program_2}
+		prerequisite = { focus = rpx_econ3_mega_industry focus = rpx_econ3_mil_build_program_2}
+		x = 13
+		y = 3
+		relative_position_id = rpx_econ3_global_trade_hub
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_ideas = rpx_war_economy_spirit
+			add_ideas = rpx_military_industrialization
+			add_war_support = 0.08
+			add_tech_bonus = {
+				name = war_economy_bonus
+				bonus = 1.0
+				uses = 2
+				category = armor
+				category = artillery
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_technological_leap
+		icon = GFX_focus_research
+		prerequisite = { focus = rpx_econ3_industrial_heartland focus = rpx_econ3_full_consumer_economy }
+		x = -1
+		y = 1
+		relative_position_id = rpx_econ3_industrial_heartland
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 60
+		}
+		continue_if_invalid = yes
+
+		completion_reward = {
+			add_research_slot = 1
+			add_ideas = rpx_research_speed_2
+			add_tech_bonus = {
+				name = technological_leap
+				bonus = 1.0
+				uses = 3
+				category = electronics
+				category = industry
+				category = construction_tech
+			}
+		}
+	}
+
+	focus = {
+		id = rpx_econ3_total_economic_supremacy
+		icon = GFX_focus_generic_industry_3
+		prerequisite = { focus = rpx_econ3_war_economy_council }
+		prerequisite = { focus = rpx_econ3_technological_leap }
+		prerequisite = { focus = rpx_econ3_economic_hegemony }
+		x = 4
+		y = 2
+		relative_position_id = rpx_econ3_technological_leap
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+
+		available = {
+			num_of_factories > 120
+		}
+		continue_if_invalid = yes
+
+		complete_tooltip = {
+			add_extra_state_shared_building_slots = 8
+			add_stability = 0.20
+			add_war_support = 0.15
+		}
+
+		completion_reward = {
+			random_owned_controlled_state = {
+				limit = {
+					free_building_slots = {
+						building = industrial_complex
+						size > 0
+						include_locked = yes
+					}
+				}
+				add_extra_state_shared_building_slots = 8
+			}
+			add_stability = 0.20
+			add_war_support = 0.15
+			add_tech_bonus = {
+				name = total_supremacy
+				bonus = 1.0
+				uses = 5
+				category = industry
+				category = construction_tech
+				category = electronics
+				category = armor
+				category = infantry_weapons
+			}
+		}
+	}
+}

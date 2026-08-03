@@ -34,8 +34,8 @@ Arda::Names::NameData prepare(const std::string &path,
     nameData.originalDisallowedTokens.insert(tag);
 
   if (gameType == GameType::Hoi4 && std::filesystem::exists(path)) {
-    Detail::readMap(path + "//state_types.txt", nameData.ideologyNames);
-    Detail::readMap(path + "//faction_names.txt", nameData.factionNames);
+    Detail::readMap(path + "/state_types.txt", nameData.ideologyNames);
+    Detail::readMap(path + "/faction_names.txt", nameData.factionNames);
     try {
 
       if (gamePath.size() && std::filesystem::exists(gamePath)) {

@@ -16,27 +16,27 @@ bool Generator::createPaths() { // prepare folder structure
     create_directory(pathcfg.gameModPath);
     // map
     remove_all(pathcfg.gameModPath + "/map/");
-    remove_all(pathcfg.gameModPath + "//gfx");
-    remove_all(pathcfg.gameModPath + "//history");
+    remove_all(pathcfg.gameModPath + "/gfx");
+    remove_all(pathcfg.gameModPath + "/history");
     remove_all(pathcfg.gameModPath + "/common/");
     remove_all(pathcfg.gameModPath + "/localisation/");
     create_directory(pathcfg.gameModPath + "/map/");
     create_directory(pathcfg.gameModPath + "/map/terrain/");
     // gfx
-    create_directory(pathcfg.gameModPath + "//gfx//");
-    create_directory(pathcfg.gameModPath + "//gfx//flags//");
+    create_directory(pathcfg.gameModPath + "/gfx/");
+    create_directory(pathcfg.gameModPath + "/gfx/flags/");
     // history
-    create_directory(pathcfg.gameModPath + "//history//");
+    create_directory(pathcfg.gameModPath + "/history/");
     // localisation
     create_directory(pathcfg.gameModPath + "/localisation/");
     // common
     create_directory(pathcfg.gameModPath + "/common/");
-    create_directory(pathcfg.gameModPath + "//history//diplomacy//");
-    create_directory(pathcfg.gameModPath + "//history//provinces//");
-    create_directory(pathcfg.gameModPath + "//history//wars//");
-    create_directory(pathcfg.gameModPath + "/common/colonial_regions//");
-    create_directory(pathcfg.gameModPath + "/common/trade_companies//");
-    create_directory(pathcfg.gameModPath + "/common/trade_nodes//");
+    create_directory(pathcfg.gameModPath + "/history/diplomacy/");
+    create_directory(pathcfg.gameModPath + "/history/provinces/");
+    create_directory(pathcfg.gameModPath + "/history/wars/");
+    create_directory(pathcfg.gameModPath + "/common/colonial_regions/");
+    create_directory(pathcfg.gameModPath + "/common/trade_companies/");
+    create_directory(pathcfg.gameModPath + "/common/trade_nodes/");
     return true;
   } catch (std::exception& e) {
     std::string error = "Configured paths seem to be messed up, check Europa "
@@ -241,16 +241,16 @@ void Generator::generate() {
       writeTerrain(pathcfg.gameModPath + "/map/terrain.txt", ardaProvinces);
       writeTradeCompanies(
           pathcfg.gameModPath +
-              "/common/trade_companies//00_trade_companies.txt",
+              "/common/trade_companies/00_trade_companies.txt",
           pathcfg.gamePath, ardaProvinces);
       writeTradewinds(pathcfg.gameModPath + "/map/trade_winds.txt",
                       ardaProvinces);
 
       copyDescriptorFile(
-          Fwg::Cfg::Values().resourcePath + "//eu4//descriptor.mod",
+          Fwg::Cfg::Values().resourcePath + "/eu4/descriptor.mod",
           pathcfg.gameModPath, pathcfg.gameModsDirectory, pathcfg.modName);
 
-      writeProvinces(pathcfg.gameModPath + "//history//provinces//",
+      writeProvinces(pathcfg.gameModPath + "/history/provinces/",
                      ardaProvinces, ardaRegions);
       writeLoc(pathcfg.gameModPath + "/localisation/", pathcfg.gamePath,
                ardaRegions, ardaProvinces, getEu4Regions());

@@ -214,7 +214,7 @@ void writeMipmapLevels(const std::vector<float> &fullImage, int width,
         continue;
       }
       std::string name = "heightmap_" + std::to_string(num) + ".png";
-      std::string path = levelDir + "//" + name;
+      std::string path = levelDir + "/" + name;
 
       Fwg::Utils::Logging::logLine("Saving L" + std::to_string(level) +
                                    " tile: " + path);
@@ -317,7 +317,7 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
     std::string num = std::to_string(i);
     auto name = "heightmap_" + num + "_16";
     auto hmapPath =
-        path + "decals//" + "//" + name + "//" + name + "_height.png";
+        path + "decals/" + "/" + name + "/" + name + "_height.png";
     Fwg::Utils::Logging::logLine("Saving heightmap tile: " + hmapPath);
     Fwg::Gfx::Png::save(scaledTile, exportWidth / 8, exportHeight / 8, hmapPath,
                         true, LCT_GREY, 16);
@@ -519,8 +519,8 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
     mipmapLevels.push_back(encodedPngs);
   }
   // write all the encoded pngs to a .bin file for inclusion in the mod
-  std::string outInfoPath = path + "//terrain_cache//heightmap.info";
-  std::string outBinPath = path + "//terrain_cache//heightmap.bin";
+  std::string outInfoPath = path + "/terrain_cache/heightmap.info";
+  std::string outBinPath = path + "/terrain_cache/heightmap.bin";
   std::ofstream outBin(outBinPath, std::ios::binary);
   auto outInfoTemplate =
       Fwg::Parsing::readFile(Cfg::Values().resourcePath +
@@ -604,12 +604,12 @@ Fwg::Gfx::Image ImageExporter::dumpDecalMasks(
                           true, LCT_GREY);
     }
     Fwg::Utils::Logging::logLine("Saving heightmap bitmask tile: " +
-                                 (path + "//" + folderName + "//heightmap_" +
+                                 (path + "/" + folderName + "/heightmap_" +
                                   std::to_string(i) + "_16_bitmask.png"));
 
     // also write the heightmap bitmask
     Fwg::Gfx::Png::save(noiseMap, exportWidth / 4, exportHeight / 4,
-                        path + "//" + folderName + "//heightmap_" +
+                        path + "/" + folderName + "/heightmap_" +
                             std::to_string(i) + "_16_bitmask.png",
                         true, LCT_GREY);
   }
@@ -816,26 +816,26 @@ void ImageExporter::mapObjectMasks(
   }
   Fwg::Gfx::Png::save(
       Fwg::Gfx::Util::scale(*denseJungleMask, exportWidth, exportHeight, false),
-      path + "//jungle_dense_mask.png", false, LCT_GREY);
+      path + "/jungle_dense_mask.png", false, LCT_GREY);
   Fwg::Gfx::Png::save(
       Fwg::Gfx::Util::scale(*jungleMask, exportWidth, exportHeight, false),
-      path + "//jungle_mask.png", false, LCT_GREY);
+      path + "/jungle_mask.png", false, LCT_GREY);
   Fwg::Gfx::Png::save(
       Fwg::Gfx::Util::scale(*pineMask, exportWidth, exportHeight, false),
-      path + "//pine_mask.png", false, LCT_GREY);
+      path + "/pine_mask.png", false, LCT_GREY);
   Fwg::Gfx::Png::save(Fwg::Gfx::Util::scale(*forestContinentalMask, exportWidth,
                                             exportHeight, false),
-                      path + "//vegetation_forest_continental_oceanic_mask.png",
+                      path + "/vegetation_forest_continental_oceanic_mask.png",
                       false, LCT_GREY);
   Fwg::Gfx::Png::save(Fwg::Gfx::Util::scale(*woodsContinentalMask, exportWidth,
                                             exportHeight, false),
-                      path + "//vegetation_woods_continental_oceanic_mask.png",
+                      path + "/vegetation_woods_continental_oceanic_mask.png",
                       false, LCT_GREY);
 
   auto blankImage = Fwg::Gfx::Image(exportWidth, exportHeight, 24);
   blankImage.setColourAtIndex(0, 255);
   for (auto &maskName : emptyMasks) {
-    Fwg::Gfx::Png::save(blankImage, path + "//" + maskName + ".png", true,
+    Fwg::Gfx::Png::save(blankImage, path + "/" + maskName + ".png", true,
                         LCT_GREY);
   }
 }
@@ -986,7 +986,7 @@ void ImageExporter::writeLocations(
     oceanPortTemplate.append(assembledLine);
   }
 
-  Fwg::Parsing::writeFile(path + "//ports.csv", oceanPortTemplate);
+  Fwg::Parsing::writeFile(path + "/ports.csv", oceanPortTemplate);
 
   auto defaultMapTemplate = Fwg::Parsing::readFile(Cfg::Values().resourcePath +
                                                    "eu5/map_data/default.map");
@@ -994,7 +994,7 @@ void ImageExporter::writeLocations(
                                   oceanZones);
   Fwg::Parsing::replaceOccurences(defaultMapTemplate, "templateLakes",
                                   lakeZones);
-  Fwg::Parsing::writeFile(path + "//default.map", defaultMapTemplate);
+  Fwg::Parsing::writeFile(path + "/default.map", defaultMapTemplate);
   std::string definitionFileData = "";
 
   for (auto &continent : continents) {
@@ -1041,10 +1041,10 @@ void ImageExporter::writeLocations(
   continentData.append("}\n");
   definitionFileData.append(continentData);
 
-  Fwg::Parsing::writeFile(path + "//definitions.txt", definitionFileData);
+  Fwg::Parsing::writeFile(path + "/definitions.txt", definitionFileData);
 
   Fwg::Parsing::writeFile(
-      path + "//adjacencies.csv",
+      path + "/adjacencies.csv",
       "From;To;Type;Through;start_x;start_y;stop_x;stop_y;Comment");
 }
 

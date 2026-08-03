@@ -1,0 +1,436 @@
+# RPX Default AI Strategy
+#
+# Dynamic scaling base strategy for all RPX-enabled countries.
+# Strategy values scale up in tiers as industry, dockyards, and army size grow.
+# Per-idea strategies (rpx_ai_strategy.txt) add on top when focuses are completed.
+# Multiple active strategies stack additively.
+
+# =============================================================================
+# BASE: Always active baseline for all countries
+# =============================================================================
+
+rpx_base_unit_production = {
+	enable = { always = yes }
+	abort = { always = no }
+
+	# Land division roles
+	ai_strategy = { type = role_ratio  id = infantry  value = 80 }
+	ai_strategy = { type = role_ratio  id = armor  value = 2 }
+	ai_strategy = { type = role_ratio  id = mobile  value = 1 }
+	ai_strategy = { type = role_ratio  id = garrison  value = 5 }
+	ai_strategy = { type = role_ratio  id = paratroopers  value = 0 }
+	ai_strategy = { type = role_ratio  id = mountaineers  value = 2 }
+	ai_strategy = { type = role_ratio  id = marines  value = 0 }
+
+	# Air unit ratios
+	ai_strategy = { type = unit_ratio  id = fighter  value = 80 }
+	ai_strategy = { type = unit_ratio  id = cas  value = 15 }
+	ai_strategy = { type = unit_ratio  id = tactical_bomber  value = 10 }
+	ai_strategy = { type = unit_ratio  id = strategic_bomber  value = 5 }
+	ai_strategy = { type = unit_ratio  id = naval_bomber  value = 10 }
+	ai_strategy = { type = unit_ratio  id = heavy_fighter  value = 10 }
+
+	# Naval unit ratios (only convoy — ships handled by role_ratio below)
+	ai_strategy = { type = unit_ratio  id = convoy  value = 8 }
+
+	# Equipment production factors
+	ai_strategy = { type = equipment_production_factor  id = fighter  value = 20 }
+	ai_strategy = { type = equipment_production_factor  id = infantry  value = 25 }
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 15 }
+	ai_strategy = { type = equipment_production_factor  id = armor  value = 5 }
+}
+
+# =============================================================================
+# MILITARY FACTORY SCALING: Armor & mobile production scales with industry
+# =============================================================================
+
+rpx_industry_tier_light = {
+	enable = {
+		num_of_military_factories > 9
+		NOT = { num_of_military_factories > 39 }
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = armor  value = 3 }
+	ai_strategy = { type = role_ratio  id = mobile  value = 2 }
+	ai_strategy = { type = role_ratio  id = infantry  value = -5 }
+	ai_strategy = { type = equipment_production_factor  id = armor  value = 10 }
+	ai_strategy = { type = equipment_production_factor  id = motorized  value = 10 }
+	ai_strategy = { type = unit_ratio  id = cas  value = 10 }
+	ai_strategy = { type = unit_ratio  id = tactical_bomber  value = 5 }
+}
+
+rpx_industry_tier_medium = {
+	enable = {
+		num_of_military_factories > 39
+		NOT = { num_of_military_factories > 79 }
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = armor  value = 5 }
+	ai_strategy = { type = role_ratio  id = mobile  value = 3 }
+	ai_strategy = { type = role_ratio  id = infantry  value = -10 }
+	ai_strategy = { type = equipment_production_factor  id = armor  value = 15 }
+	ai_strategy = { type = equipment_production_factor  id = motorized  value = 15 }
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 10 }
+	ai_strategy = { type = unit_ratio  id = cas  value = 15 }
+	ai_strategy = { type = unit_ratio  id = tactical_bomber  value = 10 }
+	ai_strategy = { type = unit_ratio  id = strategic_bomber  value = 5 }
+}
+
+rpx_industry_tier_heavy = {
+	enable = {
+		num_of_military_factories > 79
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = armor  value = 8 }
+	ai_strategy = { type = role_ratio  id = mobile  value = 5 }
+	ai_strategy = { type = role_ratio  id = infantry  value = -15 }
+	ai_strategy = { type = equipment_production_factor  id = armor  value = 20 }
+	ai_strategy = { type = equipment_production_factor  id = motorized  value = 20 }
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 15 }
+	ai_strategy = { type = unit_ratio  id = cas  value = 20 }
+	ai_strategy = { type = unit_ratio  id = tactical_bomber  value = 15 }
+	ai_strategy = { type = unit_ratio  id = strategic_bomber  value = 10 }
+	ai_strategy = { type = unit_ratio  id = heavy_fighter  value = 10 }
+}
+
+# =============================================================================
+# DOCKYARD SCALING: Naval production scales with dockyard count
+#
+# Two parallel sets: non-MTG uses generic hull roles, MTG uses specific roles.
+# =============================================================================
+
+# --- BASE (always active, minimal navy) ---
+
+rpx_naval_base_nomtg = {
+	enable = {
+		NOT = { has_dlc = "Man the Guns" }
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = naval_capital  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_carrier  value = 5 }
+	ai_strategy = { type = role_ratio  id = naval_sub  value = 40 }
+	ai_strategy = { type = role_ratio  id = naval_screen  value = 60 }
+}
+
+rpx_naval_base_mtg = {
+	enable = {
+		has_dlc = "Man the Guns"
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = naval_capital_bb  value = 5 }
+	ai_strategy = { type = role_ratio  id = naval_capital_bc  value = 5 }
+	ai_strategy = { type = role_ratio  id = naval_carrier  value = 5 }
+	ai_strategy = { type = role_ratio  id = naval_submarine  value = 40 }
+	ai_strategy = { type = role_ratio  id = naval_screen  value = 50 }
+	ai_strategy = { type = role_ratio  id = naval_escort  value = 25 }
+	ai_strategy = { type = role_ratio  id = naval_cruiser_light  value = 25 }
+	ai_strategy = { type = role_ratio  id = naval_cruiser_heavy  value = 15 }
+	ai_strategy = { type = role_ratio  id = naval_mine_sweeper  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_mine_layer  value = 5 }
+}
+
+# --- LIGHT (5-14 dockyards: coastal navy, screens + subs) ---
+
+rpx_naval_light_nomtg = {
+	enable = {
+		NOT = { has_dlc = "Man the Guns" }
+		num_of_naval_factories > 4
+		NOT = { num_of_naval_factories > 14 }
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = naval_screen  value = 15 }
+	ai_strategy = { type = role_ratio  id = naval_sub  value = 15 }
+	ai_strategy = { type = role_ratio  id = naval_capital  value = -5 }
+}
+
+rpx_naval_light_mtg = {
+	enable = {
+		has_dlc = "Man the Guns"
+		num_of_naval_factories > 4
+		NOT = { num_of_naval_factories > 14 }
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = naval_screen  value = 15 }
+	ai_strategy = { type = role_ratio  id = naval_submarine  value = 15 }
+	ai_strategy = { type = role_ratio  id = naval_escort  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_capital_bb  value = -5 }
+	ai_strategy = { type = role_ratio  id = naval_carrier  value = -5 }
+	ai_strategy = { type = role_ratio  id = naval_cruiser_heavy  value = -5 }
+}
+
+rpx_naval_light_dockyard_ratio = {
+	enable = {
+		num_of_naval_factories > 4
+		NOT = { num_of_naval_factories > 14 }
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = dockyard_to_military_factory_ratio  value = 5 }
+}
+
+# --- MEDIUM (15-29 dockyards: regional navy, add capitals) ---
+
+rpx_naval_medium_nomtg = {
+	enable = {
+		NOT = { has_dlc = "Man the Guns" }
+		num_of_naval_factories > 14
+		NOT = { num_of_naval_factories > 29 }
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = naval_screen  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_sub  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_capital  value = 15 }
+	ai_strategy = { type = role_ratio  id = naval_carrier  value = 5 }
+}
+
+rpx_naval_medium_mtg = {
+	enable = {
+		has_dlc = "Man the Guns"
+		num_of_naval_factories > 14
+		NOT = { num_of_naval_factories > 29 }
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = naval_screen  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_submarine  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_escort  value = 5 }
+	ai_strategy = { type = role_ratio  id = naval_capital_bb  value = 15 }
+	ai_strategy = { type = role_ratio  id = naval_cruiser_heavy  value = 5 }
+	ai_strategy = { type = role_ratio  id = naval_carrier  value = 5 }
+}
+
+rpx_naval_medium_dockyard_ratio = {
+	enable = {
+		num_of_naval_factories > 14
+		NOT = { num_of_naval_factories > 29 }
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = dockyard_to_military_factory_ratio  value = 10 }
+}
+
+# --- HEAVY (30+ dockyards: major fleet, full combined arms) ---
+
+rpx_naval_heavy_nomtg = {
+	enable = {
+		NOT = { has_dlc = "Man the Guns" }
+		num_of_naval_factories > 29
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = naval_screen  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_sub  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_capital  value = 20 }
+	ai_strategy = { type = role_ratio  id = naval_carrier  value = 10 }
+}
+
+rpx_naval_heavy_mtg = {
+	enable = {
+		has_dlc = "Man the Guns"
+		num_of_naval_factories > 29
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = naval_screen  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_submarine  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_escort  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_capital_bb  value = 20 }
+	ai_strategy = { type = role_ratio  id = naval_capital_bc  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_cruiser_heavy  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_carrier  value = 10 }
+	ai_strategy = { type = role_ratio  id = naval_cruiser_light  value = 5 }
+}
+
+rpx_naval_heavy_dockyard_ratio = {
+	enable = {
+		num_of_naval_factories > 29
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = dockyard_to_military_factory_ratio  value = 15 }
+}
+
+# =============================================================================
+# ECONOMY BASE: Construction balancing
+# =============================================================================
+
+rpx_economy_early = {
+	enable = {
+		num_of_military_factories < 15
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = added_military_to_civilian_factory_ratio  value = -10 }
+}
+
+rpx_economy_mid = {
+	enable = {
+		num_of_military_factories > 14
+		NOT = { num_of_military_factories > 39 }
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = added_military_to_civilian_factory_ratio  value = 5 }
+}
+
+rpx_economy_late = {
+	enable = {
+		num_of_military_factories > 39
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = added_military_to_civilian_factory_ratio  value = 15 }
+}
+
+# =============================================================================
+# DIVISION SCALING: Specialize as army grows
+# =============================================================================
+
+rpx_division_scaling_mobile = {
+	enable = {
+		ai_wants_divisions > 29
+	}
+	abort = {
+		ai_wants_divisions < 30
+	}
+
+	ai_strategy = { type = role_ratio  id = mobile  value = 2 }
+	ai_strategy = { type = role_ratio  id = mountaineers  value = 2 }
+	ai_strategy = { type = role_ratio  id = paratroopers  value = 2 }
+}
+
+rpx_division_scaling_armor = {
+	enable = {
+		ai_wants_divisions > 49
+	}
+	abort = {
+		ai_wants_divisions < 50
+	}
+
+	ai_strategy = { type = role_ratio  id = armor  value = 3 }
+	ai_strategy = { type = role_ratio  id = marines  value = 2 }
+}
+
+rpx_division_scaling_large = {
+	enable = {
+		ai_wants_divisions > 99
+	}
+	abort = {
+		ai_wants_divisions < 100
+	}
+
+	ai_strategy = { type = role_ratio  id = armor  value = 3 }
+	ai_strategy = { type = role_ratio  id = mobile  value = 3 }
+	ai_strategy = { type = role_ratio  id = paratroopers  value = 2 }
+	ai_strategy = { type = role_ratio  id = marines  value = 2 }
+}
+
+# =============================================================================
+# SURPLUS MANAGEMENT: What to produce when all needs are met
+# =============================================================================
+
+rpx_surplus_management = {
+	enable = { always = yes }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_surplus_management  id = infantry_equipment  value = 10 }
+	ai_strategy = { type = equipment_production_surplus_management  id = support_equipment  value = 5 }
+	ai_strategy = { type = equipment_production_surplus_management  id = artillery_equipment  value = 5 }
+	ai_strategy = { type = equipment_production_surplus_management  id = convoy  value = -5 }
+}
+
+# =============================================================================
+# TRUCK BUFFER: Prevent stop-start production cycling
+# =============================================================================
+
+rpx_produce_some_trucks = {
+	enable = {
+		num_of_military_factories > 12
+		has_tech = tech_trucks
+		has_equipment = { motorized_equipment < 3000 }
+	}
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_min_factories_archetype  id = motorized_equipment  value = 1 }
+}
+
+# =============================================================================
+# MARKET / STOCKPILE MANAGEMENT (mirrors vanilla defaults)
+# =============================================================================
+
+rpx_market_stockpile = {
+	enable = { always = yes }
+	abort_when_not_enabled = yes
+
+	# Hold trains for logistics
+	ai_strategy = { type = equipment_market_for_sale_threshold  id = train  value = 20 }
+	ai_strategy = { type = equipment_market_min_for_sale  id = train  value = 5 }
+	ai_strategy = { type = equipment_market_for_sale_factor  id = train  value = -50 }
+
+	# Don't sell all convoys
+	ai_strategy = { type = equipment_market_min_for_sale  id = convoy  value = 20 }
+
+	# Don't sell entire air wings
+	ai_strategy = { type = equipment_market_for_sale_threshold  id = fighter  value = 100 }
+	ai_strategy = { type = equipment_market_for_sale_threshold  id = cas  value = 100 }
+	ai_strategy = { type = equipment_market_for_sale_threshold  id = tactical_bomber  value = 100 }
+	ai_strategy = { type = equipment_market_for_sale_threshold  id = strategic_bomber  value = 100 }
+}
+
+rpx_market_wartime = {
+	enable = { has_war = yes }
+	abort_when_not_enabled = yes
+
+	# Keep stockpiles full during war
+	ai_strategy = { type = equipment_market_for_sale_threshold  id = infantry  value = 20000 }
+	ai_strategy = { type = equipment_market_for_sale_threshold  id = support  value = 6000 }
+	ai_strategy = { type = equipment_market_for_sale_threshold  id = artillery  value = 1000 }
+	ai_strategy = { type = equipment_market_for_sale_threshold  id = fighter  value = 200 }
+	ai_strategy = { type = equipment_market_for_sale_threshold  id = motorized  value = 1000 }
+	ai_strategy = { type = equipment_market_for_sale_threshold  id = train  value = 50 }
+	ai_strategy = { type = equipment_market_for_sale_threshold  id = convoy  value = 50 }
+}
+
+rpx_convoy_purchases = {
+	enable = { naval_base > 0 }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_market_buying_threshold  id = convoy  value = 30 }
+}
+
+# =============================================================================
+# PP & XP SPENDING
+# =============================================================================
+
+rpx_base_pp_amount = {
+	enable = { always = yes }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = pp_spend_amount  id = idea  value = 100 }
+	ai_strategy = { type = pp_spend_amount  id = decision  value = 100 }
+}
+
+rpx_save_admiral_pp = {
+	enable = {
+		has_war = no
+		threat < 0.3
+		has_political_power < 200
+	}
+	abort = {
+		OR = {
+			has_war = yes
+			threat > 0.3
+			has_political_power > 200
+		}
+	}
+
+	ai_strategy = { type = pp_spend_priority  id = admiral  value = -100 }
+}
