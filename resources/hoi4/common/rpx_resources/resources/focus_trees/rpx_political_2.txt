@@ -1,0 +1,1656 @@
+focus_tree = {
+	id = rpx_political_2
+
+	country = {
+		factor = 0
+	}
+
+	default = no
+
+	focus = {
+		id = rpx_pol2_social_reform
+		icon = GFX_focus_generic_improve_the_administration
+		x = 0
+		y = 0
+		cost = 8
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability  < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_social_reform_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_ideology_pivot
+		icon = GFX_goal_generic_propaganda
+		prerequisite = { focus = rpx_pol2_social_reform }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_social_reform
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability  < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_ideology_pivot_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_mod_roots
+		icon = GFX_goal_support_fascism
+		prerequisite = { focus = rpx_pol2_ideology_pivot }
+		x = -4
+		y = 1
+		relative_position_id = rpx_pol2_ideology_pivot
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		available = {
+			OR = {
+				has_government = democratic
+				has_government = neutrality
+			}
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_mod_roots_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_dem_roots
+		icon = GFX_goal_support_democracy
+		prerequisite = { focus = rpx_pol2_mod_roots }
+		x = -2
+		y = 1
+		relative_position_id = rpx_pol2_mod_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = democratic }
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_dem_roots_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_dem_a1
+		icon = GFX_goal_generic_national_unity
+		prerequisite = { focus = rpx_pol2_dem_roots }
+		mutually_exclusive = { focus = rpx_pol2_dem_b1 }
+		x = -1
+		y = 1
+		relative_position_id = rpx_pol2_dem_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = democratic }
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_dem_a1_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_dem_a2
+		icon = GFX_focus_generic_election
+		prerequisite = { focus = rpx_pol2_dem_a1 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_dem_a1
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = democratic }
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_dem_a2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_dem_a3
+		icon = GFX_focus_generic_improve_the_administration
+		prerequisite = { focus = rpx_pol2_dem_a2 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_dem_a2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = democratic }
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_dem_a3_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_dem_b1
+		icon = GFX_goal_generic_improve_relations
+		prerequisite = { focus = rpx_pol2_dem_roots }
+		mutually_exclusive = { focus = rpx_pol2_dem_a1 }
+		x = 1
+		y = 1
+		relative_position_id = rpx_pol2_dem_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = democratic }
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_dem_b1_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_dem_b2
+		icon = GFX_focus_generic_league_of_nations
+		prerequisite = { focus = rpx_pol2_dem_b1 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_dem_b1
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = democratic }
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_dem_b2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_dem_b3
+		icon = GFX_focus_generic_treaty
+		prerequisite = { focus = rpx_pol2_dem_b2 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_dem_b2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = democratic }
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_dem_b3_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_dem_cap
+		icon = GFX_goal_generic_major_alliance
+		prerequisite = { focus = rpx_pol2_dem_a3 focus = rpx_pol2_dem_b3 }
+		x = -2
+		y = 5
+		relative_position_id = rpx_pol2_mod_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = democratic }
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_dem_cap_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_neu_roots
+		icon = GFX_goal_generic_neutrality_focus
+		prerequisite = { focus = rpx_pol2_mod_roots }
+		x = 2
+		y = 1
+		relative_position_id = rpx_pol2_mod_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = neutrality }
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_neu_roots_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_neu_a1
+		icon = GFX_goal_generic_defence
+		prerequisite = { focus = rpx_pol2_neu_roots }
+		mutually_exclusive = { focus = rpx_pol2_neu_b1 }
+		x = -1
+		y = 1
+		relative_position_id = rpx_pol2_neu_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = neutrality }
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_neu_a1_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_neu_a2
+		icon = GFX_goal_generic_national_unity
+		prerequisite = { focus = rpx_pol2_neu_a1 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_neu_a1
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = neutrality }
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_neu_a2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_neu_a3
+		icon = GFX_focus_generic_economic_recovery
+		prerequisite = { focus = rpx_pol2_neu_a2 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_neu_a2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = neutrality }
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_neu_a3_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_neu_b1
+		icon = GFX_goal_generic_improve_relations
+		prerequisite = { focus = rpx_pol2_neu_roots }
+		mutually_exclusive = { focus = rpx_pol2_neu_a1 }
+		x = 1
+		y = 1
+		relative_position_id = rpx_pol2_neu_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = neutrality }
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_neu_b1_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_neu_b2
+		icon = GFX_goal_generic_trade
+		prerequisite = { focus = rpx_pol2_neu_b1 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_neu_b1
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = neutrality }
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_neu_b2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_neu_b3
+		icon = GFX_focus_generic_industry_1
+		prerequisite = { focus = rpx_pol2_neu_b2 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_neu_b2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = neutrality }
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_neu_b3_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_neu_cap
+		icon = GFX_goal_generic_national_unity
+		prerequisite = { focus = rpx_pol2_neu_a3 focus = rpx_pol2_neu_b3 }
+		x = 2
+		y = 5
+		relative_position_id = rpx_pol2_mod_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = neutrality }
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_pol2_neu_cap_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_auth_roots
+		icon = GFX_goal_support_fascism
+		prerequisite = { focus = rpx_pol2_ideology_pivot }
+		x = 4
+		y = 1
+		relative_position_id = rpx_pol2_ideology_pivot
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		available = {
+			OR = {
+				has_government = fascism
+				has_government = communism
+			}
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_auth_roots_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_fas_roots
+		icon = GFX_goal_support_fascism
+		prerequisite = { focus = rpx_pol2_auth_roots }
+		x = -2
+		y = 1
+		relative_position_id = rpx_pol2_auth_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = fascism }
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_fas_roots_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_fas_a1
+		icon = GFX_focus_generic_fascist_troops
+		prerequisite = { focus = rpx_pol2_fas_roots }
+		mutually_exclusive = { focus = rpx_pol2_fas_b1 }
+		x = -1
+		y = 1
+		relative_position_id = rpx_pol2_fas_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = fascism }
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_fas_a1_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_fas_a2
+		icon = GFX_goal_generic_propaganda
+		prerequisite = { focus = rpx_pol2_fas_a1 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_fas_a1
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = fascism }
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_fas_a2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_fas_a3
+		icon = GFX_focus_generic_military_dictatorship
+		prerequisite = { focus = rpx_pol2_fas_a2 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_fas_a2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = fascism }
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_fas_a3_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_fas_b1
+		icon = GFX_focus_generic_industry_1
+		prerequisite = { focus = rpx_pol2_fas_roots }
+		mutually_exclusive = { focus = rpx_pol2_fas_a1 }
+		x = 1
+		y = 1
+		relative_position_id = rpx_pol2_fas_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = fascism }
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_fas_b1_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_fas_b2
+		icon = GFX_focus_generic_workers
+		prerequisite = { focus = rpx_pol2_fas_b1 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_fas_b1
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = fascism }
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_fas_b2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_fas_b3
+		icon = GFX_goal_generic_construct_mil_factory
+		prerequisite = { focus = rpx_pol2_fas_b2 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_fas_b2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = fascism }
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_fas_b3_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_fas_cap
+		icon = GFX_goal_generic_major_war
+		prerequisite = { focus = rpx_pol2_fas_a3 focus = rpx_pol2_fas_b3 }
+		x = -2
+		y = 5
+		relative_position_id = rpx_pol2_auth_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = fascism }
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_fas_cap_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_com_roots
+		icon = GFX_goal_support_communism
+		prerequisite = { focus = rpx_pol2_auth_roots }
+		x = 2
+		y = 1
+		relative_position_id = rpx_pol2_auth_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = communism }
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_com_roots_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_com_a1
+		icon = GFX_focus_generic_communism_anti_fascism
+		prerequisite = { focus = rpx_pol2_com_roots }
+		mutually_exclusive = { focus = rpx_pol2_com_b1 }
+		x = -1
+		y = 1
+		relative_position_id = rpx_pol2_com_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = communism }
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_com_a1_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_com_a2
+		icon = GFX_focus_generic_central_planning
+		prerequisite = { focus = rpx_pol2_com_a1 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_com_a1
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = communism }
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_com_a2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_com_a3
+		icon = GFX_focus_generic_workers
+		prerequisite = { focus = rpx_pol2_com_a2 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_com_a2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = communism }
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_com_a3_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_com_b1
+		icon = GFX_focus_generic_join_comintern
+		prerequisite = { focus = rpx_pol2_com_roots }
+		mutually_exclusive = { focus = rpx_pol2_com_a1 }
+		x = 1
+		y = 1
+		relative_position_id = rpx_pol2_com_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = communism }
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_com_b1_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_com_b2
+		icon = GFX_focus_generic_sabotage
+		prerequisite = { focus = rpx_pol2_com_b1 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_com_b1
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = communism }
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_com_b2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_com_b3
+		icon = GFX_focus_generic_spur_communist_revolutions
+		prerequisite = { focus = rpx_pol2_com_b2 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_pol2_com_b2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = communism }
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_com_b3_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_com_cap
+		icon = GFX_goal_generic_major_alliance
+		prerequisite = { focus = rpx_pol2_com_a3 focus = rpx_pol2_com_b3 }
+		x = 2
+		y = 5
+		relative_position_id = rpx_pol2_auth_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = { has_government = communism }
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_com_cap_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_occupation_roots
+		icon = GFX_goal_generic_occupy_states_ongoing_war
+		prerequisite = { focus = rpx_pol2_social_reform }
+		x = -9
+		y = 1
+		relative_position_id = rpx_pol2_social_reform
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability  < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_occupation_roots_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_occupation_a1
+		icon = GFX_focus_generic_secret_service_agency
+		prerequisite = { focus = rpx_pol2_occupation_roots }
+		mutually_exclusive = { focus = rpx_pol2_occupation_b1 }
+		x = -1
+		y = 1
+		relative_position_id = rpx_pol2_occupation_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability  < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_occupation_a1_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_occupation_b1
+		icon = GFX_focus_generic_conspiracy
+		prerequisite = { focus = rpx_pol2_occupation_roots }
+		mutually_exclusive = { focus = rpx_pol2_occupation_a1 }
+		x = 1
+		y = 1
+		relative_position_id = rpx_pol2_occupation_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability  < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_occupation_b1_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_occupation_cap
+		icon = GFX_goal_generic_propaganda
+		prerequisite = { focus = rpx_pol2_occupation_a1 focus = rpx_pol2_occupation_b1 }
+		x = 0
+		y = 4
+		relative_position_id = rpx_pol2_occupation_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability  < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_occupation_cap_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_mobilization_roots
+		icon = GFX_focus_generic_manpower
+		prerequisite = { focus = rpx_pol2_social_reform }
+		x = 9
+		y = 1
+		relative_position_id = rpx_pol2_social_reform
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability  < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_mobilization_roots_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_mobilization_a1
+		icon = GFX_goal_generic_army_doctrines
+		prerequisite = { focus = rpx_pol2_mobilization_roots }
+		mutually_exclusive = { focus = rpx_pol2_mobilization_b1 }
+		x = -1
+		y = 1
+		relative_position_id = rpx_pol2_mobilization_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability  < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_mobilization_a1_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_mobilization_b1
+		icon = GFX_goal_generic_allies_build_infantry
+		prerequisite = { focus = rpx_pol2_mobilization_roots }
+		mutually_exclusive = { focus = rpx_pol2_mobilization_a1 }
+		x = 1
+		y = 1
+		relative_position_id = rpx_pol2_mobilization_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability  < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_mobilization_b1_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_pol2_mobilization_cap
+		icon = GFX_focus_generic_total_war
+		prerequisite = { focus = rpx_pol2_mobilization_a1 focus = rpx_pol2_mobilization_b1 }
+		x = 0
+		y = 4
+		relative_position_id = rpx_pol2_mobilization_roots
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability  < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { has_war = yes }
+			}
+		}
+		completion_reward = {
+			rpx_pol2_mobilization_cap_reward = yes
+		}
+	}
+
+}

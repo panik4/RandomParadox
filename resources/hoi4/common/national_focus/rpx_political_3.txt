@@ -15,11 +15,29 @@ focus_tree = {
 		cost = 8
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_pp_gain_1
-			add_war_support = 0.05
-			add_political_power = 50
+			rpx_pol3_foreign_policy_reward = yes
 		}
 	}
 
@@ -33,10 +51,29 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_ideology_acceptance
-			add_political_power = 30
+			rpx_pol3_ideology_pivot_reward = yes
 		}
 	}
 
@@ -56,7 +93,6 @@ focus_tree = {
 				has_government = neutrality
 			}
 		}
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
@@ -69,15 +105,17 @@ focus_tree = {
 			}
 			modifier = {
 				factor = 1.5
-				NOT = { has_war = yes }
+				NOT = {
+					has_war = yes
+				}
 			}
 			modifier = {
 				factor = 0.5
 				has_war = yes
 			}
 		}
-
 		completion_reward = {
+			rpx_pol3_mod_roots_reward = yes
 		}
 	}
 
@@ -91,7 +129,6 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
@@ -100,7 +137,9 @@ focus_tree = {
 			}
 			modifier = {
 				factor = 0.25
-				NOT = { has_government = democratic }
+				NOT = {
+					has_government = democratic
+				}
 			}
 			modifier = {
 				factor = 1.5
@@ -108,20 +147,17 @@ focus_tree = {
 			}
 			modifier = {
 				factor = 1.5
-				NOT = { has_war = yes }
+				NOT = {
+					has_war = yes
+				}
 			}
 			modifier = {
 				factor = 0.5
 				has_war = yes
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_pol_democratic_drift
-			add_popularity = {
-				ideology = democratic
-				popularity = 0.1
-			}
+			rpx_pol3_dem_roots_reward = yes
 		}
 	}
 
@@ -136,9 +172,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = democratic
+				}
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_same_ideology_opinion
+			rpx_pol3_dem_a1_reward = yes
 		}
 	}
 
@@ -152,9 +214,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = democratic
+				}
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_legitimacy
+			rpx_pol3_dem_a2_reward = yes
 		}
 	}
 
@@ -168,9 +256,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = democratic
+				}
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_autonomy_gain
+			rpx_pol3_dem_a3_reward = yes
 		}
 	}
 
@@ -185,9 +299,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = democratic
+				}
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_intel_network
+			rpx_pol3_dem_b1_reward = yes
 		}
 	}
 
@@ -201,9 +341,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = democratic
+				}
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_foreign_intel
+			rpx_pol3_dem_b2_reward = yes
 		}
 	}
 
@@ -217,28 +383,77 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = democratic
+				}
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_army_intel
+			rpx_pol3_dem_b3_reward = yes
 		}
 	}
 
 	focus = {
 		id = rpx_pol3_dem_cap
 		icon = GFX_goal_generic_major_alliance
-		prerequisite = {
-			focus = rpx_pol3_dem_a3
-			focus = rpx_pol3_dem_b3
-		}
+		prerequisite = { focus = rpx_pol3_dem_a3 focus = rpx_pol3_dem_b3 }
 		x = -2
 		y = 5
 		relative_position_id = rpx_pol3_mod_roots
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = democratic
+				}
+			}
+			modifier = {
+				factor = 1.5
+				democratic > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_master_of_statecraft
+			rpx_pol3_dem_cap_reward = yes
 		}
 	}
 
@@ -252,7 +467,6 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
@@ -261,7 +475,9 @@ focus_tree = {
 			}
 			modifier = {
 				factor = 0.25
-				NOT = { has_government = neutrality }
+				NOT = {
+					has_government = neutrality
+				}
 			}
 			modifier = {
 				factor = 1.5
@@ -269,20 +485,17 @@ focus_tree = {
 			}
 			modifier = {
 				factor = 1.5
-				NOT = { has_war = yes }
+				NOT = {
+					has_war = yes
+				}
 			}
 			modifier = {
 				factor = 0.5
 				has_war = yes
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_pol_neutrality_drift
-			add_popularity = {
-				ideology = neutrality
-				popularity = 0.1
-			}
+			rpx_pol3_neu_roots_reward = yes
 		}
 	}
 
@@ -297,9 +510,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_legitimacy
+			rpx_pol3_neu_a1_reward = yes
 		}
 	}
 
@@ -313,9 +552,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_defensive_war
+			rpx_pol3_neu_a2_reward = yes
 		}
 	}
 
@@ -329,9 +594,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_autonomy_gain
+			rpx_pol3_neu_a3_reward = yes
 		}
 	}
 
@@ -346,9 +637,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_agency_defense
+			rpx_pol3_neu_b1_reward = yes
 		}
 	}
 
@@ -362,9 +679,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_army_intel
+			rpx_pol3_neu_b2_reward = yes
 		}
 	}
 
@@ -378,28 +721,77 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_drift_defence
+			rpx_pol3_neu_b3_reward = yes
 		}
 	}
 
 	focus = {
 		id = rpx_pol3_neu_cap
 		icon = GFX_goal_generic_national_unity
-		prerequisite = {
-			focus = rpx_pol3_neu_a3
-			focus = rpx_pol3_neu_b3
-		}
+		prerequisite = { focus = rpx_pol3_neu_a3 focus = rpx_pol3_neu_b3 }
 		x = 2
 		y = 5
 		relative_position_id = rpx_pol3_mod_roots
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = neutrality
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 1.5
+				neutrality > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_pp_gain_2
+			rpx_pol3_neu_cap_reward = yes
 		}
 	}
 
@@ -419,7 +811,6 @@ focus_tree = {
 				has_government = communism
 			}
 		}
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
@@ -432,15 +823,17 @@ focus_tree = {
 			}
 			modifier = {
 				factor = 1.5
-				NOT = { has_war = yes }
+				has_war = yes
 			}
 			modifier = {
 				factor = 0.5
-				has_war = yes
+				NOT = {
+					has_war = yes
+				}
 			}
 		}
-
 		completion_reward = {
+			rpx_pol3_auth_roots_reward = yes
 		}
 	}
 
@@ -454,7 +847,6 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
@@ -463,7 +855,9 @@ focus_tree = {
 			}
 			modifier = {
 				factor = 0.25
-				NOT = { has_government = fascism }
+				NOT = {
+					has_government = fascism
+				}
 			}
 			modifier = {
 				factor = 1.5
@@ -471,20 +865,17 @@ focus_tree = {
 			}
 			modifier = {
 				factor = 1.5
-				NOT = { has_war = yes }
+				has_war = yes
 			}
 			modifier = {
 				factor = 0.5
-				has_war = yes
+				NOT = {
+					has_war = yes
+				}
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_pol_fascism_drift
-			add_popularity = {
-				ideology = fascism
-				popularity = 0.1
-			}
+			rpx_pol3_fas_roots_reward = yes
 		}
 	}
 
@@ -499,9 +890,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = fascism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_puppet_cost
+			rpx_pol3_fas_a1_reward = yes
 		}
 	}
 
@@ -515,9 +932,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = fascism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_subjects_autonomy
+			rpx_pol3_fas_a2_reward = yes
 		}
 	}
 
@@ -531,9 +974,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = fascism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_war_support_2
+			rpx_pol3_fas_a3_reward = yes
 		}
 	}
 
@@ -548,9 +1017,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = fascism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_ideology_boost
+			rpx_pol3_fas_b1_reward = yes
 		}
 	}
 
@@ -564,9 +1059,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = fascism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_intel_network
+			rpx_pol3_fas_b2_reward = yes
 		}
 	}
 
@@ -580,28 +1101,77 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = fascism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_agency_defense
+			rpx_pol3_fas_b3_reward = yes
 		}
 	}
 
 	focus = {
 		id = rpx_pol3_fas_cap
 		icon = GFX_goal_generic_major_war
-		prerequisite = {
-			focus = rpx_pol3_fas_a3
-			focus = rpx_pol3_fas_b3
-		}
+		prerequisite = { focus = rpx_pol3_fas_a3 focus = rpx_pol3_fas_b3 }
 		x = -2
 		y = 5
 		relative_position_id = rpx_pol3_auth_roots
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = fascism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = fascism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				fascism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_unquestioned_authority
+			rpx_pol3_fas_cap_reward = yes
 		}
 	}
 
@@ -615,7 +1185,6 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
@@ -624,7 +1193,9 @@ focus_tree = {
 			}
 			modifier = {
 				factor = 0.25
-				NOT = { has_government = communism }
+				NOT = {
+					has_government = communism
+				}
 			}
 			modifier = {
 				factor = 1.5
@@ -632,20 +1203,17 @@ focus_tree = {
 			}
 			modifier = {
 				factor = 1.5
-				NOT = { has_war = yes }
+				has_war = yes
 			}
 			modifier = {
 				factor = 0.5
-				has_war = yes
+				NOT = {
+					has_war = yes
+				}
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_pol_communism_drift
-			add_popularity = {
-				ideology = communism
-				popularity = 0.1
-			}
+			rpx_pol3_com_roots_reward = yes
 		}
 	}
 
@@ -660,9 +1228,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = communism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_ideology_boost
+			rpx_pol3_com_a1_reward = yes
 		}
 	}
 
@@ -676,9 +1270,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = communism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_subjects_autonomy
+			rpx_pol3_com_a2_reward = yes
 		}
 	}
 
@@ -692,9 +1312,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = communism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_autonomy_gain
+			rpx_pol3_com_a3_reward = yes
 		}
 	}
 
@@ -709,9 +1355,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = communism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_foreign_intel
+			rpx_pol3_com_b1_reward = yes
 		}
 	}
 
@@ -725,9 +1397,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = communism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_intel_network
+			rpx_pol3_com_b2_reward = yes
 		}
 	}
 
@@ -741,28 +1439,77 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = communism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_same_ideology_opinion
+			rpx_pol3_com_b3_reward = yes
 		}
 	}
 
 	focus = {
 		id = rpx_pol3_com_cap
 		icon = GFX_goal_generic_major_war
-		prerequisite = {
-			focus = rpx_pol3_com_a3
-			focus = rpx_pol3_com_b3
-		}
+		prerequisite = { focus = rpx_pol3_com_a3 focus = rpx_pol3_com_b3 }
 		x = 2
 		y = 5
 		relative_position_id = rpx_pol3_auth_roots
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_government = communism
+			}
+			modifier = {
+				factor = 0.25
+				NOT = {
+					has_government = communism
+				}
+			}
+			modifier = {
+				factor = 1.5
+				communism > 0.35
+			}
+			modifier = {
+				factor = 1.5
+				has_war = yes
+			}
+			modifier = {
+				factor = 0.5
+				NOT = {
+					has_war = yes
+				}
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_total_mobilization
+			rpx_pol3_com_cap_reward = yes
 		}
 	}
 
@@ -776,9 +1523,29 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_intel_network
+			rpx_pol3_intel_roots_reward = yes
 		}
 	}
 
@@ -793,25 +1560,29 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				factor = 1.5
-				has_tech = electronics_1
+				factor = 2
+				has_stability < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
 			}
 			modifier = {
 				factor = 1.5
-				NOT = { has_war = yes }
+				NOT = {
+					has_war = yes
+				}
 			}
 			modifier = {
 				factor = 0.5
 				has_war = yes
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_pol_army_intel
+			rpx_pol3_intel_a1_reward = yes
 		}
 	}
 
@@ -826,44 +1597,65 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				factor = 1.5
-				NOT = { has_tech = electronics_1 }
+				factor = 2
+				has_stability < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
 			}
 			modifier = {
 				factor = 1.5
-				NOT = { has_war = yes }
+				NOT = {
+					has_war = yes
+				}
 			}
 			modifier = {
 				factor = 0.5
 				has_war = yes
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_pol_foreign_intel
+			rpx_pol3_intel_b1_reward = yes
 		}
 	}
 
 	focus = {
 		id = rpx_pol3_intel_cap
 		icon = GFX_focus_generic_conspiracy
-		prerequisite = {
-			focus = rpx_pol3_intel_a1
-			focus = rpx_pol3_intel_b1
-		}
+		prerequisite = { focus = rpx_pol3_intel_a1 focus = rpx_pol3_intel_b1 }
 		x = 0
 		y = 4
 		relative_position_id = rpx_pol3_intel_roots
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_agency_defense
+			rpx_pol3_intel_cap_reward = yes
 		}
 	}
 
@@ -877,9 +1669,29 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_autonomy_gain
+			rpx_pol3_subjects_roots_reward = yes
 		}
 	}
 
@@ -894,9 +1706,29 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_subjects_autonomy
+			rpx_pol3_subjects_a1_reward = yes
 		}
 	}
 
@@ -911,28 +1743,65 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_puppet_cost
+			rpx_pol3_subjects_b1_reward = yes
 		}
 	}
 
 	focus = {
 		id = rpx_pol3_subjects_cap
 		icon = GFX_goal_generic_major_alliance
-		prerequisite = {
-			focus = rpx_pol3_subjects_a1
-			focus = rpx_pol3_subjects_b1
-		}
+		prerequisite = { focus = rpx_pol3_subjects_a1 focus = rpx_pol3_subjects_b1 }
 		x = 0
 		y = 4
 		relative_position_id = rpx_pol3_subjects_roots
 		cost = 10
 		search_filters = { FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_stability < 0.5
+			}
+			modifier = {
+				factor = 2
+				has_war_support < 0.5
+			}
+			modifier = {
+				factor = 1.5
+				NOT = {
+					has_war = yes
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_pol_legitimacy
+			rpx_pol3_subjects_cap_reward = yes
 		}
 	}
 

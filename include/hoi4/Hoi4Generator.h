@@ -132,6 +132,7 @@ public:
   void generateStateSpecifics();
   // politics: ideology, strength, major
   void generateCountrySpecifics();
+  void deriveCountrySpecificsFromSimulation();
   // generate weather per strategic region, from baseprovinces
   void generateWeather();
   std::vector<int> findProvinceBridge(

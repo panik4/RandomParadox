@@ -1,0 +1,2202 @@
+focus_tree = {
+	id = rpx_econ2_focus
+	
+	country = {
+		factor = 0
+	}
+	
+	default = no
+
+	focus = {
+		id = rpx_econ2_war_economy_foundation
+		icon = GFX_focus_generic_industry_1
+		x = 0
+		y = 0
+		cost = 8
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_war_economy_foundation_reward = yes
+		}
+	}
+
+	# ---- PATH 1: HEAVY INDUSTRY (left) ----
+
+	focus = {
+		id = rpx_econ2_heavy_machinery
+		icon = GFX_focus_generic_industry_2
+		prerequisite = { focus = rpx_econ2_war_economy_foundation }
+		x = -7
+		y = 1
+		relative_position_id = rpx_econ2_war_economy_foundation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_heavy_machinery_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_assembly_lines
+		icon = GFX_focus_generic_mass_production
+		prerequisite = { focus = rpx_econ2_heavy_machinery }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_heavy_machinery
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_assembly_lines_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_automation
+		icon = GFX_focus_generic_industry_3
+		prerequisite = { focus = rpx_econ2_assembly_lines }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_assembly_lines
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 25
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_automation_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_industrial_dominance
+		icon = GFX_focus_generic_industry_3
+		prerequisite = { focus = rpx_econ2_mass_production_line focus = rpx_econ2_precision_industry }
+		x = 0
+		y = 2
+		relative_position_id = rpx_econ2_automation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		bypass = {
+			custom_trigger_tooltip = {
+				tooltip = construction_effort_tt
+				all_owned_state = {
+					free_building_slots = {
+						building = industrial_complex
+						size < 1
+						include_locked = yes
+					}
+				}
+			}
+		}
+		complete_tooltip = {
+			add_building_construction = {
+				type = industrial_complex
+				level = 2
+				instant_build = yes
+			}
+		}
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_industrial_dominance_reward = yes
+		}
+	}
+
+	# ---- PATH 2: INFRASTRUCTURE & CONSTRUCTION (far left) ----
+
+	focus = {
+		id = rpx_econ2_mobilize_construction
+		icon = GFX_focus_generic_public_works
+		prerequisite = { focus = rpx_econ2_war_economy_foundation }
+		x = -9
+		y = 1
+		relative_position_id = rpx_econ2_war_economy_foundation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_mobilize_construction_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_rail_network
+		icon = GFX_focus_generic_railroad
+		prerequisite = { focus = rpx_econ2_mobilize_construction }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_mobilize_construction
+		cost = 8
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		bypass = {
+			custom_trigger_tooltip = {
+				tooltip = infrastructure_effort_tt
+				all_owned_state = {
+					free_building_slots = {
+						building = infrastructure
+						size < 1
+					}
+				}
+			}
+		}
+		complete_tooltip = {
+			add_building_construction = {
+				type = infrastructure
+				level = 2
+				instant_build = yes
+			}
+		}
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_rail_network_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_construction_conglomerate
+		icon = GFX_focus_generic_industry_2
+		prerequisite = { focus = rpx_econ2_rail_network }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_rail_network
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_construction_conglomerate_reward = yes
+		}
+	}
+
+	# ---- PATH 3: MILITARY PRODUCTION (right) ----
+
+	focus = {
+		id = rpx_econ2_arms_drive
+		icon = GFX_goal_generic_construct_mil_factory
+		prerequisite = { focus = rpx_econ2_war_economy_foundation }
+		x = -3
+		y = 1
+		relative_position_id = rpx_econ2_war_economy_foundation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_arms_drive_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_weapons_standardization
+		icon = GFX_focus_generic_military_industry
+		prerequisite = { focus = rpx_econ2_arms_drive }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_arms_drive
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_weapons_standardization_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_tank_program
+		icon = GFX_focus_generic_tank_production
+		prerequisite = { focus = rpx_econ2_weapons_standardization }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_weapons_standardization
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_tank_program_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_conversion_specialist
+		icon = GFX_focus_generic_industry_3
+		prerequisite = { focus = rpx_econ2_tank_program }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_tank_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_conversion_specialist_reward = yes
+		}
+	}
+
+	# ---- PATH 4: RESOURCES & RESEARCH (far right) ----
+
+	focus = {
+		id = rpx_econ2_resource_expedition
+		icon = GFX_focus_generic_mineral_prospecting
+		prerequisite = { focus = rpx_econ2_war_economy_foundation }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_war_economy_foundation
+		cost = 8
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_resource_expedition_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_synthetic_expansion
+		icon = GFX_goal_generic_oil_refinery
+		prerequisite = { focus = rpx_econ2_resource_expedition }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_resource_expedition
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_synthetic_expansion_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_research_consortium
+		icon = GFX_focus_research
+		prerequisite = { focus = rpx_econ2_synthetic_expansion }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_synthetic_expansion
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_research_consortium_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_total_resource_mastery
+		icon = GFX_focus_generic_resource_extraction
+		prerequisite = { focus = rpx_econ2_research_consortium }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_research_consortium
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_total_resource_mastery_reward = yes
+		}
+	}
+
+	# ---- PATH 5: AVIATION & NAVAL (far left deepest) ----
+
+	focus = {
+		id = rpx_econ2_aviation_industry
+		icon = GFX_focus_generic_aircraft_production
+		prerequisite = { focus = rpx_econ2_war_economy_foundation }
+		x = -5
+		y = 2
+		relative_position_id = rpx_econ2_war_economy_foundation
+		cost = 8
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_aviation_industry_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_naval_industry
+		icon = GFX_goal_generic_construct_naval_dockyard
+		prerequisite = { focus = rpx_econ2_aviation_industry }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_aviation_industry
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_naval_industry_reward = yes
+		}
+	}
+
+	# ---- PATH 6: ECONOMIC DIRECTION (3-way mutually exclusive, x=6) ----
+
+	focus = {
+		id = rpx_econ2_economic_direction
+		icon = GFX_focus_generic_currency_reforms
+		prerequisite = { focus = rpx_econ2_war_economy_foundation }
+		x = 4
+		y = 1
+		relative_position_id = rpx_econ2_war_economy_foundation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_economic_direction_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_direction_consumer
+		icon = GFX_goal_generic_consumer_goods
+		prerequisite = { focus = rpx_econ2_economic_direction }
+		mutually_exclusive = { focus = rpx_econ2_direction_balanced }
+		mutually_exclusive = { focus = rpx_econ2_direction_war }
+		x = -2
+		y = 1
+		relative_position_id = rpx_econ2_economic_direction
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_direction_consumer_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_direction_consumer_2
+		icon = GFX_focus_generic_full_employment
+		prerequisite = { focus = rpx_econ2_direction_consumer }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_direction_consumer
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_direction_consumer_2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_direction_balanced
+		icon = GFX_focus_generic_industry_2
+		prerequisite = { focus = rpx_econ2_economic_direction }
+		mutually_exclusive = { focus = rpx_econ2_direction_consumer }
+		mutually_exclusive = { focus = rpx_econ2_direction_war }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_economic_direction
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_direction_balanced_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_direction_balanced_2
+		icon = GFX_focus_generic_mass_production
+		prerequisite = { focus = rpx_econ2_direction_balanced }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_direction_balanced
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_direction_balanced_2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_direction_war
+		icon = GFX_focus_generic_total_war
+		prerequisite = { focus = rpx_econ2_economic_direction }
+		mutually_exclusive = { focus = rpx_econ2_direction_consumer }
+		mutually_exclusive = { focus = rpx_econ2_direction_balanced }
+		x = 2
+		y = 1
+		relative_position_id = rpx_econ2_economic_direction
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_direction_war_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_direction_war_2
+		icon = GFX_focus_generic_military_industry
+		prerequisite = { focus = rpx_econ2_direction_war }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_direction_war
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_direction_war_2_reward = yes
+		}
+	}
+
+	# ---- PATH 7: SUPPLY & LOGISTICS (x=8) ----
+
+	focus = {
+		id = rpx_econ2_logistics_network
+		icon = GFX_focus_generic_reinforcing_the_supply_network
+		prerequisite = { focus = rpx_econ2_war_economy_foundation }
+		x = 8
+		y = 1
+		relative_position_id = rpx_econ2_war_economy_foundation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_logistics_network_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_supply_chain
+		icon = GFX_focus_generic_supply_line
+		prerequisite = { focus = rpx_econ2_logistics_network }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_logistics_network
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_supply_chain_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_logistics_mastery
+		icon = GFX_focus_generic_railroad
+		prerequisite = { focus = rpx_econ2_supply_chain }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_supply_chain
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 35
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_logistics_mastery_reward = yes
+		}
+	}
+
+	# ---- PATH 8: ELECTRONICS & COMPUTING (x=10) ----
+
+	focus = {
+		id = rpx_econ2_electronics_program
+		icon = GFX_focus_generic_phone
+		prerequisite = { focus = rpx_econ2_war_economy_foundation }
+		x = 10
+		y = 1
+		relative_position_id = rpx_econ2_war_economy_foundation
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_electronics_program_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_computing_machines
+		icon = GFX_focus_generic_electrification
+		prerequisite = { focus = rpx_econ2_electronics_program }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_electronics_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 20
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_computing_machines_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_communications_network
+		icon = GFX_focus_generic_radio_communication
+		prerequisite = { focus = rpx_econ2_computing_machines }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_computing_machines
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_communications_network_reward = yes
+		}
+	}
+
+	# ---- PATH 1 EXTENSION: MASS PRODUCTION vs PRECISION (2-way mutex) ----
+
+	focus = {
+		id = rpx_econ2_mass_production_line
+		icon = GFX_focus_generic_mass_production
+		prerequisite = { focus = rpx_econ2_automation }
+		mutually_exclusive = { focus = rpx_econ2_precision_industry }
+		x = -1
+		y = 1
+		relative_position_id = rpx_econ2_automation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_mass_production_line_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_precision_industry
+		icon = GFX_focus_generic_industry_3
+		prerequisite = { focus = rpx_econ2_automation }
+		mutually_exclusive = { focus = rpx_econ2_mass_production_line }
+		x = 1
+		y = 1
+		relative_position_id = rpx_econ2_automation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_precision_industry_reward = yes
+		}
+	}
+
+	# ---- PATH 4 EXTENSION: RESOURCE AUTARKY ----
+
+	focus = {
+		id = rpx_econ2_resource_autarky
+		icon = GFX_focus_generic_resource_extraction
+		prerequisite = { focus = rpx_econ2_total_resource_mastery }
+		x = 0
+		y = 1
+		relative_position_id = rpx_econ2_total_resource_mastery
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		available = {
+			OR = {
+				has_idea = rpx_local_resources_2
+				has_idea = rpx_local_resources_3
+			}
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_resource_autarky_reward = yes
+		}
+	}
+
+	# ---- CAPSTONES ----
+
+	focus = {
+		id = rpx_econ2_economic_miracle
+		icon = GFX_focus_generic_industry_3
+		prerequisite = { focus = rpx_econ2_industrial_dominance }
+		prerequisite = { focus = rpx_econ2_total_war_mobilization }
+		x = 2
+		y = 3
+		relative_position_id = rpx_econ2_automation
+		cost = 10
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+		complete_tooltip = {
+			add_ideas = rpx_total_mobilization_spirit
+			random_state = {
+				add_extra_state_shared_building_slots = 3
+			}
+			add_stability = 0.08
+		}
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_economic_miracle_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_econ2_total_war_mobilization
+		icon = GFX_focus_generic_total_war
+		prerequisite = { focus = rpx_econ2_conversion_specialist }
+		prerequisite = { focus = rpx_econ2_total_resource_mastery }
+		x = 1
+		y = 1
+		relative_position_id = rpx_econ2_conversion_specialist
+		cost = 15
+		search_filters = { FOCUS_FILTER_INDUSTRY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 100
+		}
+		continue_if_invalid = yes
+		complete_tooltip = {
+			add_ideas = rpx_war_economy_spirit
+			add_ideas = rpx_factory_output_3
+			random_state = {
+				add_extra_state_shared_building_slots = 6
+			}
+			add_stability = 0.15
+			add_war_support = 0.10
+		}
+		ai_will_do = {
+			base = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = {
+					var = rpx_economy_health
+					value = 30
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 50
+					compare = less_than
+				}
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = {
+					var = rpx_economy_health
+					value = 60
+					compare = greater_than
+				}
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = {
+					var = rpx_economy_health
+					value = 75
+					compare = greater_than
+				}
+			}
+		}
+		completion_reward = {
+			rpx_econ2_total_war_mobilization_reward = yes
+		}
+	}
+}

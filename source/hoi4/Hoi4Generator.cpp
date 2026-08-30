@@ -2,9 +2,108 @@
 #include "areas/SuperRegion.h"
 #include "generic/StrategicRegion.h"
 #include <limits>
+#include <numeric>
 using namespace Fwg;
 using namespace Fwg::Gfx;
 namespace Rpx::Hoi4 {
+namespace {
+
+Arda::Utils::Ideology
+ideologyFromGovernment(Arda::Simulation::GovernmentForm government) {
+  using Arda::Simulation::GovernmentForm;
+  switch (government) {
+  case GovernmentForm::CommunistState:
+    return Arda::Utils::Ideology::COMMUNISM;
+  case GovernmentForm::FascistState:
+    return Arda::Utils::Ideology::FASCISM;
+  case GovernmentForm::AristocraticRepublic:
+  case GovernmentForm::OligarchicRepublic:
+  case GovernmentForm::ConstitutionalRepublic:
+  case GovernmentForm::ParliamentaryRepublic:
+  case GovernmentForm::DirectDemocracy:
+    return Arda::Utils::Ideology::DEMOCRATIC;
+  default:
+    return Arda::Utils::Ideology::NEUTRALITY;
+  }
+}
+
+void setSimulationParties(
+    Rpx::Hoi4::Hoi4Country &country,
+    const Arda::Simulation::SimulationPolityExport &polityExport) {
+  const auto &polity = polityExport.polity;
+  const auto central = std::clamp(polity.politicalPower[0], 0.0, 1.0);
+  const auto nobility = std::clamp(polity.politicalPower[1], 0.0, 1.0);
+  const auto religious = std::clamp(polity.politicalPower[2], 0.0, 1.0);
+  const auto people = std::clamp(polity.politicalPower[3], 0.0, 1.0);
+  const auto military = std::clamp(polity.militaryInfluence, 0.0, 1.0);
+  const auto partyControl = std::clamp(polity.partyControl, 0.0, 1.0);
+
+  std::array<double, 4> scores{central + military, people,
+                               people * (0.5 + partyControl),
+                               nobility + religious + central * 0.5};
+  const auto ideology = ideologyFromGovernment(polity.governmentForm);
+  const auto dominantParty = ideology == Arda::Utils::Ideology::FASCISM      ? 0
+                             : ideology == Arda::Utils::Ideology::DEMOCRATIC ? 1
+                             : ideology == Arda::Utils::Ideology::COMMUNISM ? 2
+                                                                            : 3;
+  scores[dominantParty] += 1.0;
+
+  const auto total = std::accumulate(scores.begin(), scores.end(), 0.0);
+  if (total <= 0.0) {
+    country.parties = {0, 0, 0, 100};
+    return;
+  }
+  int assigned = 0;
+  for (std::size_t index = 0; index < scores.size(); ++index) {
+    country.parties[index] = static_cast<int>(scores[index] / total * 100.0);
+    assigned += country.parties[index];
+  }
+  country.parties[dominantParty] += 100 - assigned;
+}
+
+void assignStartingLaws(Hoi4Country &country) {
+  using namespace Arda::Utils;
+  std::vector<std::string> conscriptionOptions, economyOptions, tradeOptions;
+  switch (country.ideology) {
+  case Ideology::FASCISM:
+    conscriptionOptions = {"limited_conscription", "extensive_conscription"};
+    economyOptions = {"low_economic_mobilisation",
+                      "partial_economic_mobilisation"};
+    tradeOptions = {"limited_exports", "autarkic_economy"};
+    break;
+  case Ideology::COMMUNISM:
+    conscriptionOptions = {"disarmed_nation", "volunteer_only",
+                           "limited_conscription", "extensive_conscription"};
+    economyOptions = {"civilian_economy", "low_economic_mobilisation",
+                      "partial_economic_mobilisation"};
+    tradeOptions = {"autarkic_economy", "closed_economy"};
+    break;
+  case Ideology::DEMOCRATIC:
+    conscriptionOptions = {"disarmed_nation", "volunteer_only",
+                           "limited_conscription"};
+    economyOptions = {"civilian_economy", "low_economic_mobilisation"};
+    tradeOptions = {"free_trade", "export_focus", "limited_exports"};
+    break;
+  default:
+    conscriptionOptions = {"volunteer_only", "limited_conscription"};
+    economyOptions = {"civilian_economy", "low_economic_mobilisation"};
+    tradeOptions = {"export_focus", "limited_exports", "autarkic_economy"};
+    break;
+  }
+  country.conscriptionLaw =
+      Fwg::Utils::Random::selectRandom(conscriptionOptions);
+  country.economyLaw = Fwg::Utils::Random::selectRandom(economyOptions);
+  country.tradeLaw = Fwg::Utils::Random::selectRandom(tradeOptions);
+  if (country.rank == Arda::Rank::GreatPower) {
+    if (country.ideology != Ideology::COMMUNISM &&
+        country.ideology != Ideology::FASCISM && RandNum::getRandom(0, 1))
+      country.conscriptionLaw = "limited_conscription";
+    if (RandNum::getRandom(0, 1))
+      country.economyLaw = "partial_economic_mobilisation";
+  }
+}
+
+} // namespace
 
 Generator::Generator(const std::string &configSubFolder,
                      const boost::property_tree::ptree &rpdConf)
@@ -705,55 +804,7 @@ void Generator::generateCountrySpecifics() {
       country->warSupport = RandNum::getRandom(20, 60);
     }
 
-    // assign starting laws based on ideology
-    {
-      using namespace Arda::Utils;
-      std::vector<std::string> conscriptionOptions, economyOptions,
-          tradeOptions;
-      switch (country->ideology) {
-      case Ideology::FASCISM:
-        conscriptionOptions = {"limited_conscription",
-                               "extensive_conscription"};
-        economyOptions = {"low_economic_mobilisation",
-                          "partial_economic_mobilisation"};
-        tradeOptions = {"limited_exports", "autarkic_economy"};
-        break;
-      case Ideology::COMMUNISM:
-        conscriptionOptions = {"disarmed_nation", "volunteer_only",
-                               "limited_conscription",
-                               "extensive_conscription"};
-        economyOptions = {"civilian_economy", "low_economic_mobilisation",
-                          "partial_economic_mobilisation"};
-        tradeOptions = {"autarkic_economy", "closed_economy"};
-        break;
-      case Ideology::DEMOCRATIC:
-        conscriptionOptions = {"disarmed_nation", "volunteer_only",
-                               "limited_conscription"};
-        economyOptions = {"civilian_economy", "low_economic_mobilisation"};
-        tradeOptions = {"free_trade", "export_focus", "limited_exports"};
-        break;
-      default: // NEUTRALITY / NONE
-        conscriptionOptions = {"volunteer_only", "limited_conscription"};
-        economyOptions = {"civilian_economy", "low_economic_mobilisation"};
-        tradeOptions = {"export_focus", "limited_exports", "autarkic_economy"};
-        break;
-      }
-      country->conscriptionLaw =
-          Fwg::Utils::Random::selectRandom(conscriptionOptions);
-      country->economyLaw = Fwg::Utils::Random::selectRandom(economyOptions);
-      country->tradeLaw = Fwg::Utils::Random::selectRandom(tradeOptions);
-      // great powers tend toward more militarized laws
-      if (country->rank == Arda::Rank::GreatPower) {
-        if (country->ideology != Ideology::COMMUNISM &&
-            country->ideology != Ideology::FASCISM &&
-            RandNum::getRandom(0, 1)) {
-          country->conscriptionLaw = "limited_conscription";
-        }
-        if (RandNum::getRandom(0, 1)) {
-          country->economyLaw = "partial_economic_mobilisation";
-        }
-      }
-    }
+    assignStartingLaws(*country);
 
     // amount of research slots between 3 and 6, depending on average
     // development of the country and strength rank
@@ -800,6 +851,40 @@ void Generator::generateCountrySpecifics() {
   generateCharacters();
 
   generateWorldState();
+}
+
+void Generator::deriveCountrySpecificsFromSimulation() {
+  Fwg::Utils::Logging::logLine("HOI4: Choosing uniforms and electing Tyrants");
+  generateCountrySpecifics();
+
+  for (auto &country : modData.hoi4Countries) {
+    if (country->ownedRegions.empty())
+      continue;
+
+    const auto polity =
+        ardaData.simulationExport.polities.find(country->polityID);
+    if (polity == ardaData.simulationExport.polities.end())
+      continue;
+
+    const auto &simulationPolity = polity->second.polity;
+    setSimulationParties(*country, polity->second);
+    country->ideology = ideologyFromGovernment(simulationPolity.governmentForm);
+    // allow or forbid elections
+    if (country->ideology == Arda::Utils::Ideology::DEMOCRATIC)
+      country->allowElections = 1;
+    else if (country->ideology == Arda::Utils::Ideology::NEUTRALITY)
+      country->allowElections = RandNum::getRandom(0, 1);
+    else
+      country->allowElections = 0;
+    country->stability = static_cast<int>(
+        std::lround(std::clamp(simulationPolity.stability, 0.0, 1.0) * 100.0));
+    country->warSupport = static_cast<int>(std::lround(
+        std::clamp(3.0 * simulationPolity.militaryInfluence, 0.0, 1.0) *
+        100.0));
+    assignStartingLaws(*country);
+    country->fullName = NameGeneration::modifyWithIdeology(
+        country->ideology, country->name, country->adjective, nData);
+  }
 }
 
 void Generator::generateWeather() {
@@ -2349,8 +2434,8 @@ void Generator::generateWorldState() {
 }
 
 void Generator::generateFocusTrees() {
-  //Hoi4::FocusGen::evaluateCountryGoals(this->modData.hoi4Countries,
-  //                                     this->ardaRegions);
+  // Hoi4::FocusGen::evaluateCountryGoals(this->modData.hoi4Countries,
+  //                                      this->ardaRegions);
   Hoi4::FocusGen::generateFocusFiles(this->modData.hoi4Countries);
 }
 
@@ -3021,9 +3106,12 @@ void Generator::writeTextFiles(bool scenarioDetails) {
   aiStrategy(pathcfg.gameModPath + "common/", ardaContinents);
   // copy in generic events
   events(pathcfg.gameModPath);
+  onActions(pathcfg.gameModPath);
   commonBookmarks(pathcfg.gameModPath + "common/bookmarks/",
                   modData.hoi4Countries, countryImportanceScores);
-
+  dynamicModifiers(Fwg::Cfg::Values().resourcePath +
+                       "/hoi4/common/dynamic_modifiers/",
+                   pathcfg.gameModPath + "common/dynamic_modifiers/");
   scriptedEffects(Fwg::Cfg::Values().resourcePath +
                       "/hoi4/common/scripted_effects/",
                   pathcfg.gameModPath + "common/scripted_effects/");
@@ -3128,7 +3216,8 @@ void Generator::generate() {
 
     generateLogistics();
     // politics, etc
-    generateCountrySpecifics();
+    // generateCountrySpecifics();
+    deriveCountrySpecificsFromSimulation();
 
     generateFocusTrees();
     distributeVictoryPoints();

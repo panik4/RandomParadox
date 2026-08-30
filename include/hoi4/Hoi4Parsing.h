@@ -7,8 +7,8 @@
 #include "namegeneration/NameGenerator.h"
 #include "parsing/ParserUtils.h"
 #include <array>
-#include <map>
 #include <format>
+#include <map>
 namespace Rpx::Hoi4::Parsing {
 using CountryMap = std::vector<std::shared_ptr<Hoi4Country>>;
 
@@ -90,7 +90,6 @@ void aiStrategy(
     const std::string &path,
     const std::vector<std::shared_ptr<Arda::ArdaContinent>> &continents);
 void events(const std::string &path);
-
 // common
 void commonBookmarks(
     const std::string &path, const CountryMap &countries,
@@ -102,6 +101,8 @@ void tutorials(const std::string &path);
 void compatibilityHistory(
     const std::string &path, const std::string &hoiPath,
     const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions);
+void dynamicModifiers(std::string resources, std::string modPath);
+void onActions(const std::string &path);
 void scriptedEffects(std::string resources, std::string modPath);
 void scriptedTriggers(std::string resources, std::string modPath);
 

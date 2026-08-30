@@ -369,109 +369,113 @@ void generateFocusFiles(
     return;
   }
 
-  // Randomly select one file per category
-  std::vector<std::string> selectedFiles;
-  for (auto &[cat, files] : categoryFiles) {
-    int idx = RandNum::getRandom(static_cast<int>(files.size()));
-    selectedFiles.push_back(files[idx]);
-  }
-
-  // Process selected files: extract focuses, offset x positions
-  std::string combinedFocuses;
-  int cumulativeX = 0;
-  int prevRootX = 0;
-  int prevMaxX = 0;
-  const int BUFFER = 7;
-  bool first = true;
-
-  for (auto &filePath : selectedFiles) {
-    std::ifstream file(filePath);
-    if (!file.is_open())
-      continue;
-    std::string content((std::istreambuf_iterator<char>(file)),
-                        std::istreambuf_iterator<char>());
-    file.close();
-
-    int treeMinX = 0, treeMaxX = 0;
-    std::regex xRegex("x\\s*=\\s*(-?\\d+)");
-    auto itBegin = std::sregex_iterator(content.begin(), content.end(), xRegex);
-    auto itEnd = std::sregex_iterator();
-    for (auto it = itBegin; it != itEnd; ++it) {
-      int x = std::stoi((*it)[1].str());
-      treeMaxX = std::max(treeMaxX, x);
-      treeMinX = std::min(treeMinX, x);
-    }
-
-    if (first) {
-      cumulativeX = 0;
-      first = false;
-    } else {
-      cumulativeX = prevRootX + prevMaxX - treeMinX + BUFFER;
-    }
-
-    // Extract focus = { ... } blocks by brace matching
-    std::vector<std::string> focusBlocks;
-    size_t pos = 0;
-    while (true) {
-      pos = content.find("focus = {", pos);
-      if (pos == std::string::npos)
-        break;
-      size_t start = pos;
-      pos += 9; // skip "focus = {" (9 chars)
-      int depth = 1;
-      while (depth > 0 && pos < content.size()) {
-        if (content[pos] == '{')
-          ++depth;
-        else if (content[pos] == '}')
-          --depth;
-        ++pos;
-      }
-      focusBlocks.push_back(content.substr(start, pos - start));
-    }
-
-    Fwg::Utils::Logging::logLine(
-        "  Focus tree file: ", filePath, " blocks=", focusBlocks.size(),
-        " minX=", treeMinX, " maxX=", treeMaxX, " cumX=", cumulativeX);
-    // Only offset x for root focuses (no prerequisite).
-    // Children use relative_position_id so their x stays as-is.
-    for (auto &block : focusBlocks) {
-      if (block.find("prerequisite") == std::string::npos) {
-        // This is a ROOT focus — offset its x by cumulativeX
-        std::string result;
-        size_t lastPos = 0;
-        auto rBegin = std::sregex_iterator(block.begin(), block.end(), xRegex);
-        auto rEnd = std::sregex_iterator();
-        for (auto it = rBegin; it != rEnd; ++it) {
-          result += block.substr(lastPos, it->position() - lastPos);
-          int x = std::stoi((*it)[1].str());
-          Fwg::Utils::Logging::logLine("    root block: old x=", x,
-                                       " + cumX=", cumulativeX,
-                                       " = new x=", x + cumulativeX);
-          result += "x = " + std::to_string(x + cumulativeX);
-          lastPos = it->position() + it->length();
-        }
-        result += block.substr(lastPos);
-        combinedFocuses += result + "\n";
-      } else {
-        // CHILD focus — keep original position
-        combinedFocuses += block + "\n";
-      }
-    }
-
-    prevRootX = cumulativeX;
-    prevMaxX = treeMaxX;
-  }
-
-  // Build final focus tree per country
-  std::regex refRegex(
-      "((?:id\\s*=\\s*|focus\\s*=\\s*|relative_position_id\\s*=\\s*))"
-      "rpx_([a-zA-Z0-9_]+)");
   for (auto &country : hoi4Countries) {
+    // Randomly select one file per category
+    std::vector<std::string> selectedFiles;
+    for (auto &[cat, files] : categoryFiles) {
+      int idx = RandNum::getRandom(static_cast<int>(files.size()));
+      selectedFiles.push_back(files[idx]);
+      std::cout << idx << ";";
+    }
+    std::cout << std::endl;
+
+    // Process selected files: extract focuses, offset x positions
+    std::string combinedFocuses;
+    int cumulativeX = 0;
+    int prevRootX = 0;
+    int prevMaxX = 0;
+    const int BUFFER = 7;
+    bool first = true;
+
+    for (auto &filePath : selectedFiles) {
+      std::ifstream file(filePath);
+      if (!file.is_open())
+        continue;
+      std::string content((std::istreambuf_iterator<char>(file)),
+                          std::istreambuf_iterator<char>());
+      file.close();
+
+      int treeMinX = 0, treeMaxX = 0;
+      std::regex xRegex("x\\s*=\\s*(-?\\d+)");
+      auto itBegin =
+          std::sregex_iterator(content.begin(), content.end(), xRegex);
+      auto itEnd = std::sregex_iterator();
+      for (auto it = itBegin; it != itEnd; ++it) {
+        int x = std::stoi((*it)[1].str());
+        treeMaxX = std::max(treeMaxX, x);
+        treeMinX = std::min(treeMinX, x);
+      }
+
+      if (first) {
+        cumulativeX = 0;
+        first = false;
+      } else {
+        cumulativeX = prevRootX + prevMaxX - treeMinX + BUFFER;
+      }
+
+      // Extract focus = { ... } blocks by brace matching
+      std::vector<std::string> focusBlocks;
+      size_t pos = 0;
+      while (true) {
+        pos = content.find("focus = {", pos);
+        if (pos == std::string::npos)
+          break;
+        size_t start = pos;
+        pos += 9; // skip "focus = {" (9 chars)
+        int depth = 1;
+        while (depth > 0 && pos < content.size()) {
+          if (content[pos] == '{')
+            ++depth;
+          else if (content[pos] == '}')
+            --depth;
+          ++pos;
+        }
+        focusBlocks.push_back(content.substr(start, pos - start));
+      }
+
+      Fwg::Utils::Logging::logLine(
+          "  Focus tree file: ", filePath, " blocks=", focusBlocks.size(),
+          " minX=", treeMinX, " maxX=", treeMaxX, " cumX=", cumulativeX);
+      // Only offset x for root focuses (no prerequisite).
+      // Children use relative_position_id so their x stays as-is.
+      for (auto &block : focusBlocks) {
+        if (block.find("prerequisite") == std::string::npos) {
+          // This is a ROOT focus — offset its x by cumulativeX
+          std::string result;
+          size_t lastPos = 0;
+          auto rBegin =
+              std::sregex_iterator(block.begin(), block.end(), xRegex);
+          auto rEnd = std::sregex_iterator();
+          for (auto it = rBegin; it != rEnd; ++it) {
+            result += block.substr(lastPos, it->position() - lastPos);
+            int x = std::stoi((*it)[1].str());
+            Fwg::Utils::Logging::logLine("    root block: old x=", x,
+                                         " + cumX=", cumulativeX,
+                                         " = new x=", x + cumulativeX);
+            result += "x = " + std::to_string(x + cumulativeX);
+            lastPos = it->position() + it->length();
+          }
+          result += block.substr(lastPos);
+          combinedFocuses += result + "\n";
+        } else {
+          // CHILD focus — keep original position
+          combinedFocuses += block + "\n";
+        }
+      }
+
+      prevRootX = cumulativeX;
+      prevMaxX = treeMaxX;
+    }
+
+    // Build final focus tree per country
+    std::regex refRegex(
+        "((?:id\\s*=\\s*|focus\\s*=\\s*|relative_position_id\\s*=\\s*))"
+        "rpx_([a-zA-Z0-9_]+)");
     // Tag all rpx_ references with country tag to ensure uniqueness
     std::string taggedFocuses = std::regex_replace(combinedFocuses, refRegex,
                                                    "$1rpx_$2_" + country->tag);
     std::string result = templateContent;
-    Fwg::Parsing::replaceOccurence(result, "rpx_templateTag", country->tag);
+    Fwg::Parsing::replaceOccurences(result, "templateTag", country->tag);
     Fwg::Parsing::replaceOccurence(result, "templateFocusses", taggedFocuses);
     country->focusTree = result;
   }
