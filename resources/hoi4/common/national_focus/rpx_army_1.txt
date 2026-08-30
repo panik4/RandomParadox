@@ -15,15 +15,15 @@ focus_tree = {
 		cost = 8
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			army_experience = 25
-			add_doctrine_cost_reduction = {
-				name = rpx_land_doc_bonus
-				cost_reduction = 0.5
-				uses = 1
-				category = land_doctrine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
 			}
+		}
+		completion_reward = {
+			rpx_army1_military_reform_reward = yes
 		}
 	}
 
@@ -39,7 +39,6 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
@@ -52,22 +51,19 @@ focus_tree = {
 			}
 			modifier = {
 				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_militia
+			}
+			modifier = {
+				factor = 2
 				has_war = yes
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_army_infantry_drill
-			add_tech_bonus = {
-				name = rpx_infantry_weapons_bonus
-				bonus = 1.0
-				uses = 1
-				category = infantry_weapons
-			}
-			add_equipment_to_stockpile = {
-				type = infantry_equipment
-				amount = 1000
-			}
+			rpx_army1_infantry_weapons_reward = yes
 		}
 	}
 
@@ -82,7 +78,6 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
@@ -95,15 +90,23 @@ focus_tree = {
 			}
 			modifier = {
 				factor = 2
+				has_idea = rpx_char_mil_militia
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_multiethnic
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_militarized
+			}
+			modifier = {
+				factor = 2
 				has_war = yes
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_army_mass_mobilization
-			add_ideas = rpx_army_cheap_equipment
-			add_manpower = 50000
-			add_war_support = 0.03
+			rpx_army1_mass_infantry_reward = yes
 		}
 	}
 
@@ -118,40 +121,31 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
 				factor = 2
-				num_of_military_factories > 30
+				num_of_military_factories < 15
 			}
 			modifier = {
 				factor = 0.5
-				num_of_military_factories < 15
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
 			}
 			modifier = {
 				factor = 2
 				has_war = yes
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_army_elite_training
-			add_ideas = rpx_army_premium_equipment
-			add_tech_bonus = {
-				name = rpx_special_forces_bonus
-				bonus = 1.0
-				uses = 1
-				category = cat_special_forces_generic
-			}
-			add_equipment_to_stockpile = {
-				type = infantry_equipment
-				amount = 500
-			}
-			add_equipment_to_stockpile = {
-				type = support_equipment
-				amount = 200
-			}
+			rpx_army1_elite_infantry_reward = yes
 		}
 	}
 
@@ -165,19 +159,32 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_cavalry
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_motorization_drive
-			add_tech_bonus = {
-				name = rpx_motorized_bonus
-				bonus = 1.0
-				uses = 1
-				category = motorized_equipment
-			}
-			add_equipment_to_stockpile = {
-				type = motorized_equipment
-				amount = 200
-			}
+			rpx_army1_mobile_infantry_reward = yes
 		}
 	}
 
@@ -191,26 +198,36 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 20
 		}
 		continue_if_invalid = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mountain
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_special_forces_command
-			add_tech_bonus = {
-				name = rpx_commando_bonus
-				bonus = 1.0
-				uses = 1
-				technology = paratroopers
-				technology = marines
-				technology = tech_mountaineers
-			}
-			add_equipment_to_stockpile = {
-				type = infantry_equipment
-				amount = 1500
-			}
+			rpx_army1_special_forces_reward = yes
 		}
 	}
 
@@ -224,11 +241,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 20
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 40
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_militia
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_multiethnic
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_young_nation
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_total_conscription
-			add_ideas = rpx_army_manpower_organization
-			add_manpower = 100000
+			rpx_army1_mass_conscription_reward = yes
 		}
 	}
 
@@ -244,12 +285,11 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
 				factor = 2
-				num_of_military_factories > 30
+				num_of_military_factories > 25
 			}
 			modifier = {
 				factor = 0.5
@@ -257,18 +297,19 @@ focus_tree = {
 			}
 			modifier = {
 				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
 				has_war = yes
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_army_armor_design_bureau
-			add_tech_bonus = {
-				name = rpx_armor_bonus
-				bonus = 0.5
-				uses = 1
-				category = armor
-			}
+			rpx_army1_armor_program_reward = yes
 		}
 	}
 
@@ -283,36 +324,31 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
 				factor = 2
-				num_of_military_factories < 15
+				num_of_military_factories > 25
 			}
 			modifier = {
 				factor = 0.5
-				num_of_military_factories > 30
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
 			}
 			modifier = {
 				factor = 2
 				has_war = yes
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_army_light_tank_focus
-			add_ideas = rpx_army_cavalry_mech
-			add_equipment_to_stockpile = {
-				type = motorized_equipment
-				amount = 300
-			}
-			add_tech_bonus = {
-				name = rpx_light_armor_bonus
-				bonus = 1.0
-				uses = 1
-				category = cat_light_armor
-			}
+			rpx_army1_light_armor_division_reward = yes
 		}
 	}
 
@@ -327,33 +363,31 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
 				factor = 2
-				num_of_military_factories > 30
+				num_of_military_factories > 45
 			}
 			modifier = {
 				factor = 0.5
-				num_of_military_factories < 15
+				num_of_military_factories < 25
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
 			}
 			modifier = {
 				factor = 2
 				has_war = yes
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_army_heavy_tank_focus
-			add_ideas = rpx_army_breakthrough_doctrine
-			add_war_support = 0.05
-			add_tech_bonus = {
-				name = rpx_heavy_armor_bonus
-				bonus = 1.0
-				uses = 1
-				category = cat_heavy_armor
-			}
+			rpx_army1_heavy_armor_division_reward = yes
 		}
 	}
 
@@ -367,21 +401,35 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 25
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_mechanized_warfare
-			add_ideas = rpx_army_combined_mech
-			add_tech_bonus = {
-				name = rpx_mechanized_bonus
-				bonus = 1.0
-				uses = 2
-				category = motorized_equipment
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 25
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_mechanized_infantry_reward = yes
 		}
 	}
 
@@ -395,48 +443,73 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 25
 		}
 		continue_if_invalid = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 25
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_armor_mastery
-			add_ideas = rpx_army_heavy_division_training
-			add_tech_bonus = {
-				name = rpx_heavy_breakthrough_bonus
-				bonus = 1.0
-				uses = 2
-				category = cat_heavy_armor
-			}
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 200
-			}
+			rpx_army1_heavy_breakthrough_reward = yes
 		}
 	}
 
 	focus = {
 		id = rpx_army1_armor_industrial_complex
 		icon = GFX_goal_generic_construct_mil_factory
-		prerequisite = { focus = rpx_army1_heavy_breakthrough focus = rpx_army1_mechanized_infantry}
+		prerequisite = { focus = rpx_army1_heavy_breakthrough focus = rpx_army1_mechanized_infantry }
 		x = 1
 		y = 1
 		relative_position_id = rpx_army1_mechanized_infantry
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_tank_factory_network
-			add_ideas = rpx_army_armor_mass_production
-			add_tech_bonus = {
-				name = rpx_armor_industry_bonus
-				bonus = 1.0
-				uses = 1
-				category = armor
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 25
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_armor_industrial_complex_reward = yes
 		}
 	}
 
@@ -452,19 +525,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_artillery_command
-			add_tech_bonus = {
-				name = rpx_artillery_bonus
-				bonus = 0.5
-				uses = 1
-				category = artillery
-			}
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 150
-			}
+			rpx_army1_artillery_corps_reward = yes
 		}
 	}
 
@@ -479,20 +560,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_howitzer_focus
-			add_ideas = rpx_army_anti_tank_focus
-			add_tech_bonus = {
-				name = rpx_field_artillery_bonus
-				bonus = 1.0
-				uses = 1
-				category = artillery
-			}
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 300
-			}
+			rpx_army1_field_artillery_reward = yes
 		}
 	}
 
@@ -507,22 +595,28 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_rocket_focus
-			add_ideas = rpx_army_anti_air_focus
-			add_tech_bonus = {
-				name = rpx_rocket_bonus
-				bonus = 1.0
-				uses = 1
-				category = rocketry
-			}
-			add_tech_bonus = {
-				name = rpx_anti_air_bonus
-				bonus = 1.0
-				uses = 1
-				category = artillery
-			}
+			rpx_army1_rocket_artillery_reward = yes
 		}
 	}
 
@@ -536,25 +630,31 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 20
 		}
 		continue_if_invalid = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_artillery_mastery
-			add_ideas = rpx_army_self_propelled_artillery
-			add_tech_bonus = {
-				name = rpx_artillery_modernization_bonus
-				bonus = 1.0
-				uses = 2
-				category = artillery
-			}
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 500
-			}
+			rpx_army1_artillery_modernization_reward = yes
 		}
 	}
 
@@ -568,21 +668,36 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 20
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_rocket_mastery
-			add_ideas = rpx_army_rocket_barrage
-			add_tech_bonus = {
-				name = rpx_rocket_tech_bonus
-				bonus = 1.0
-				uses = 2
-				category = rocketry
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_revolutionary
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_rocket_technology_reward = yes
 		}
 	}
 
@@ -596,14 +711,28 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_firepower_doctrine
-			add_ideas = rpx_army_support_integration
-			add_equipment_to_stockpile = {
-				type = support_equipment
-				amount = 300
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_firepower_corps_reward = yes
 		}
 	}
 
@@ -619,15 +748,15 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			army_experience = 25
-			add_doctrine_cost_reduction = {
-				name = rpx_doctrine_bonus
-				cost_reduction = 0.5
-				uses = 1
-				category = land_doctrine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
 			}
+		}
+		completion_reward = {
+			rpx_army1_doctrine_effort_reward = yes
 		}
 	}
 
@@ -642,17 +771,31 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_offensive_spirit
-			add_ideas = rpx_army_breakthrough_training
-			add_war_support = 0.05
-			add_doctrine_cost_reduction = {
-				name = rpx_offensive_doc
-				cost_reduction = 0.5
-				uses = 1
-				category = land_doctrine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_revolutionary
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_offensive_doctrine_reward = yes
 		}
 	}
 
@@ -667,17 +810,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_defensive_spirit
-			add_ideas = rpx_army_entrenchment_training
-			add_stability = 0.05
-			add_doctrine_cost_reduction = {
-				name = rpx_defensive_doc
-				cost_reduction = 0.5
-				uses = 1
-				category = land_doctrine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_civilian_tradition
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_neutral_tradition
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_isolationist
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_defensive_doctrine_reward = yes
 		}
 	}
 
@@ -691,12 +852,32 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_officer_training
-			add_ideas = rpx_army_command_structure
-			add_political_power = 100
-			army_experience = 15
+			rpx_army1_officer_corps_reward = yes
 		}
 	}
 
@@ -710,20 +891,31 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_civilian_tradition
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_neutral_tradition
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_fortification_focus
-			add_ideas = rpx_army_engineer_battalions
-			add_tech_bonus = {
-				name = rpx_fortification_bonus
-				bonus = 1.0
-				uses = 1
-				category = cat_fortification
-			}
-			add_equipment_to_stockpile = {
-				type = support_equipment
-				amount = 200
-			}
+			rpx_army1_fortress_engineering_reward = yes
 		}
 	}
 
@@ -737,22 +929,36 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 30
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_blitzkrieg_doctrine
-			add_ideas = rpx_army_total_offensive
-			add_war_support = 0.10
-			add_doctrine_cost_reduction = {
-				name = rpx_grand_offensive_doc
-				cost_reduction = 0.75
-				uses = 1
-				category = land_doctrine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_revolutionary
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_grand_offensive_reward = yes
 		}
 	}
 
@@ -766,22 +972,39 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 30
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_steel_wall_doctrine
-			add_ideas = rpx_army_total_defense
-			add_stability = 0.10
-			add_doctrine_cost_reduction = {
-				name = rpx_impregnable_doc
-				cost_reduction = 0.75
-				uses = 1
-				category = land_doctrine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_civilian_tradition
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_neutral_tradition
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_isolationist
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_impregnable_defense_reward = yes
 		}
 	}
 
@@ -797,11 +1020,15 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_support_integration
-			add_command_power = 50
-			army_experience = 15
+			rpx_army1_field_support_reward = yes
 		}
 	}
 
@@ -809,37 +1036,40 @@ focus_tree = {
 		id = rpx_army1_motorized_support
 		icon = GFX_goal_generic_army_motorized
 		prerequisite = { focus = rpx_army1_field_support }
-		mutually_exclusive = { focus = rpx_army1_supply_support focus = rpx_army1_engineer_support }
+		mutually_exclusive = { focus = rpx_army1_supply_support }
+		mutually_exclusive = { focus = rpx_army1_engineer_support }
 		x = -2
 		y = 1
 		relative_position_id = rpx_army1_field_support
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				factor = 2
-				num_of_military_factories > 30
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
 			}
 			modifier = {
 				factor = 0.5
-				num_of_military_factories < 15
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_cavalry
 			}
 			modifier = {
 				factor = 2
 				has_war = yes
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_army_motorization_drive
-			add_ideas = rpx_army_cavalry_mech
-			add_equipment_to_stockpile = {
-				type = motorized_equipment
-				amount = 300
-			}
+			rpx_army1_motorized_support_reward = yes
 		}
 	}
 
@@ -847,21 +1077,35 @@ focus_tree = {
 		id = rpx_army1_supply_support
 		icon = GFX_focus_generic_truck
 		prerequisite = { focus = rpx_army1_field_support }
-		mutually_exclusive = { focus = rpx_army1_motorized_support focus = rpx_army1_engineer_support }
+		mutually_exclusive = { focus = rpx_army1_motorized_support }
+		mutually_exclusive = { focus = rpx_army1_engineer_support }
 		x = 0
 		y = 1
 		relative_position_id = rpx_army1_field_support
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_supply_consumption
-			add_ideas = rpx_army_fuel_efficiency
-			add_equipment_to_stockpile = {
-				type = motorized_equipment
-				amount = 200
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_supply_support_reward = yes
 		}
 	}
 
@@ -869,21 +1113,35 @@ focus_tree = {
 		id = rpx_army1_engineer_support
 		icon = GFX_goal_generic_fortify_city
 		prerequisite = { focus = rpx_army1_field_support }
-		mutually_exclusive = { focus = rpx_army1_motorized_support focus = rpx_army1_supply_support }
+		mutually_exclusive = { focus = rpx_army1_motorized_support }
+		mutually_exclusive = { focus = rpx_army1_supply_support }
 		x = 2
 		y = 1
 		relative_position_id = rpx_army1_field_support
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_engineer_battalions
-			add_ideas = rpx_army_entrenchment_training
-			add_equipment_to_stockpile = {
-				type = support_equipment
-				amount = 300
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_engineer_support_reward = yes
 		}
 	}
 
@@ -897,19 +1155,32 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 20
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_rapid_mobilization
-			add_ideas = rpx_army_armored_recon
-			add_equipment_to_stockpile = {
-				type = motorized_equipment
-				amount = 400
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_motorized_support_2_reward = yes
 		}
 	}
 
@@ -923,15 +1194,31 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 20
 		}
 		continue_if_invalid = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_manpower_organization
-			add_manpower = 30000
+			rpx_army1_supply_support_2_reward = yes
 		}
 	}
 
@@ -945,44 +1232,70 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 20
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_fortification_focus
-			add_tech_bonus = {
-				name = rpx_engineer_support_bonus
-				bonus = 1.0
-				uses = 1
-				category = cat_fortification
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_engineer_support_2_reward = yes
 		}
 	}
 
 	focus = {
 		id = rpx_army1_field_support_supremacy
 		icon = GFX_focus_generic_advanced_military_studies
-		prerequisite = { focus = rpx_army1_supply_support_2 focus = rpx_army1_motorized_support_2  focus = rpx_army1_engineer_support_2 }
+		prerequisite = { focus = rpx_army1_supply_support_2 focus = rpx_army1_motorized_support_2 focus = rpx_army1_engineer_support_2 }
 		x = 0
 		y = 1
 		relative_position_id = rpx_army1_supply_support_2
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 40
 		}
 		continue_if_invalid = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_synergy_training
-			add_ideas = rpx_army_master_training
-			add_command_power = 100
-			army_experience = 25
+			rpx_army1_field_support_supremacy_reward = yes
 		}
 	}
 
@@ -998,14 +1311,32 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_anti_tank_focus
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 200
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
 			}
-			army_experience = 15
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_anti_armor_corps_reward = yes
 		}
 	}
 
@@ -1020,15 +1351,31 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_tank_destroyer_focus
-			add_tech_bonus = {
-				name = rpx_tank_destroyer_bonus
-				bonus = 1.0
-				uses = 1
-				category = armor
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 25
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_tank_destroyer_program_reward = yes
 		}
 	}
 
@@ -1043,16 +1390,28 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_anti_air_focus
-			add_ideas = rpx_army_support_integration
-			add_tech_bonus = {
-				name = rpx_anti_air_network_bonus
-				bonus = 1.0
-				uses = 1
-				category = artillery
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_anti_air_network_reward = yes
 		}
 	}
 
@@ -1066,18 +1425,31 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 25
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_heavy_division_training
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 500
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 25
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_tank_destroyer_program_2_reward = yes
 		}
 	}
 
@@ -1091,20 +1463,32 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 25
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_artillery_mastery
-			add_tech_bonus = {
-				name = rpx_anti_air_network_mastery
-				bonus = 1.0
-				uses = 2
-				category = artillery
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_anti_air_network_2_reward = yes
 		}
 	}
 
@@ -1118,16 +1502,35 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 40
 		}
 		continue_if_invalid = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 25
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_firepower_doctrine
-			add_ideas = rpx_army_support_integration
-			add_command_power = 100
+			rpx_army1_anti_armor_supremacy_reward = yes
 		}
 	}
 
@@ -1143,15 +1546,35 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 40
 		}
 		continue_if_invalid = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 20
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 40
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_militia
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_multiethnic
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_manpower = 150000
-			add_war_support = 0.05
+			rpx_army1_mass_war_machine_reward = yes
 		}
 	}
 
@@ -1165,24 +1588,36 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 40
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_elite_combined_arms_doctrine
-			add_ideas = rpx_army_master_training
-			add_command_power = 150
-			add_tech_bonus = {
-				name = rpx_elite_combined_bonus
-				bonus = 1.0
-				uses = 2
-				category = cat_special_forces_generic
-				category = armor
-				category = rocketry
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_elite_combined_arms_reward = yes
 		}
 	}
 
@@ -1197,19 +1632,32 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 40
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_tech_bonus = {
-				name = rpx_elite_supremacy_bonus
-				bonus = 1.0
-				uses = 2
-				category = cat_special_forces_generic
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_elite_supremacy_reward = yes
 		}
 	}
 
@@ -1223,20 +1671,35 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 40
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_armor_mastery
-			add_tech_bonus = {
-				name = rpx_armor_dominance_bonus
-				bonus = 1.0
-				uses = 2
-				category = armor
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 25
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_armor_dominance_reward = yes
 		}
 	}
 
@@ -1250,17 +1713,32 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 40
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 800
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_firepower_dominance_reward = yes
 		}
 	}
 
@@ -1274,20 +1752,36 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 40
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_war_support = 0.10
-			add_doctrine_cost_reduction = {
-				name = rpx_offensive_dominance_doc
-				cost_reduction = 0.75
-				uses = 1
-				category = land_doctrine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_revolutionary
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_offensive_dominance_reward = yes
 		}
 	}
 
@@ -1301,20 +1795,35 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 40
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_stability = 0.10
-			add_doctrine_cost_reduction = {
-				name = rpx_defensive_dominance_doc
-				cost_reduction = 0.75
-				uses = 1
-				category = land_doctrine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_civilian_tradition
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_neutral_tradition
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_defensive_dominance_reward = yes
 		}
 	}
 
@@ -1330,24 +1839,36 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 40
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_ideas = rpx_army_combined_arms_doctrine
-			add_ideas = rpx_army_synergy_training
-			add_command_power = 150
-			add_tech_bonus = {
-				name = rpx_combined_arms_bonus
-				bonus = 1.0
-				uses = 2
-				category = infantry_weapons
-				category = armor
-				category = artillery
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
 			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_combined_arms_reward = yes
 		}
 	}
 
@@ -1362,42 +1883,33 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 100
 		}
 		continue_if_invalid = yes
-
 		complete_tooltip = {
 			add_ideas = rpx_army_total_war_machine
 			add_command_power = 250
 			add_war_support = 0.15
 			add_stability = 0.10
 		}
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_militarized
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_army_total_war_machine
-			add_command_power = 250
-			add_war_support = 0.15
-			add_stability = 0.10
-			army_experience = 50
-			add_tech_bonus = {
-				name = rpx_total_war_bonus
-				bonus = 1.0
-				uses = 4
-				category = infantry_weapons
-				category = armor
-				category = artillery
-				category = motorized_equipment
-			}
-			add_equipment_to_stockpile = {
-				type = infantry_equipment
-				amount = 5000
-			}
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 1000
-			}
+			rpx_army1_war_machine_reward = yes
 		}
 	}
 
@@ -1413,40 +1925,32 @@ focus_tree = {
 		cost = 15
 		search_filters = { FOCUS_FILTER_ARMY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 150
 		}
 		continue_if_invalid = yes
-
 		complete_tooltip = {
 			add_command_power = 300
 			add_war_support = 0.20
 			add_stability = 0.15
 		}
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_militarized
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_command_power = 300
-			add_war_support = 0.20
-			add_stability = 0.15
-			army_experience = 75
-			add_tech_bonus = {
-				name = rpx_absolute_dominance_bonus
-				bonus = 1.0
-				uses = 5
-				category = infantry_weapons
-				category = armor
-				category = artillery
-				category = motorized_equipment
-			}
-			add_equipment_to_stockpile = {
-				type = infantry_equipment
-				amount = 8000
-			}
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 1500
-			}
+			rpx_army1_absolute_dominance_reward = yes
 		}
 	}
 }

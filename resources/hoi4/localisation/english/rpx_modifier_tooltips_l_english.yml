@@ -1,0 +1,3 @@
+l_english:
+ conversion_cost_mil_to_civ_factor_tt: " $MODIFIER_CONVERSION_COST_MIL_TO_CIV_FACTOR$: $RIGHT|-=%1$"
+ navy_fuel_consumption_factor_tt: " $MODIFIER_NAVY_FUEL_CONSUMPTION_FACTOR$: $RIGHT|-=%1$"

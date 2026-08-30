@@ -4,6 +4,7 @@ static int selectedGame = 0;
 static bool showErrorPopup = false;
 static std::string errorLog;
 static bool requireCountryDetails = false;
+static bool useSimulationOutput = false;
 
 // for state/country/strategic region editing
 static bool drawBorders = false;
@@ -985,10 +986,31 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
                 });
           }
           ImGui::SameLine();
+          if (ImGui::Button("Derive countries from simulation")) {
+            cfg.randomSeed = true;
+            cfg.reRandomize();
+            uiContext.asyncContext.computationFutureBool =
+                uiContext.asyncContext.runAsync([hoi4Gen, &cfg, this]() {
+                  auto countryFactory =
+                      []() -> std::shared_ptr<Rpx::Hoi4::Hoi4Country> {
+                    return std::make_shared<Rpx::Hoi4::Hoi4Country>();
+                  };
+                  // generate country data
+                  hoi4Gen->deriveCountries(countryFactory);
+
+                  // build hoi4 countries out of basic countries
+                  hoi4Gen->mapCountries();
+                  requireCountryDetails = true;
+                  uiContext.imageContext.resetTexture();
+                  return true;
+                });
+          }
+          ImGui::SameLine();
           if (requireCountryDetails) {
             ImGui::PushStyleColor(ImGuiCol_Button,
                                   ImVec4(1.0f, 0.2f, 0.2f, 1.0f)); // Red
           }
+
           if (ImGui::Button("Generate country data")) {
             uiContext.asyncContext.computationFutureBool =
                 uiContext.asyncContext.runAsync([hoi4Gen, &cfg, this]() {
@@ -996,7 +1018,12 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
                   hoi4Gen->generateCountries(nullptr);
 
                   hoi4Gen->generateLogistics();
-                  hoi4Gen->generateCountrySpecifics();
+                  if (!useSimulationOutput) {
+                    hoi4Gen->generateCountrySpecifics();
+                  } else {
+                    hoi4Gen->deriveCountrySpecificsFromSimulation();
+                  
+                  }
                   // hoi4Gen->generateFocusTrees();
                   hoi4Gen->distributeVictoryPoints();
                   hoi4Gen->generatePositions();

@@ -1,9 +1,21 @@
-focus_tree = {	
-	id = rpx_templateTag_focus_tree
+focus_tree = {
+	id = rpx_templateTag_focus
 
 	default = no
 	
+	country = {
+		factor = 0
+		
+		modifier = {
+			add = 10
+			tag = templateTag
+		}
+		
+		modifier = {
+			add = 10
+			original_tag = templateTag
+		}
+	}
 	templateFocusses
-
 
 }

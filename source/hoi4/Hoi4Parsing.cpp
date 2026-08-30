@@ -573,9 +573,14 @@ void foci(const std::string &path, const CountryMap &countries,
 void ideas(const std::string &path, const CountryMap &countries) {
   Fwg::IO::Utils::clearFilesOfType(path, ".txt");
   for (const auto &country : countries) {
-
     pU::writeFile(path + country->name + ".txt", country->ideas);
   }
+
+  Fwg::Utils::Logging::logLine("HOI4 Parser: Ideas: Copying Files");
+  // copy all files from resources to modPath
+  std::filesystem::copy(Fwg::Cfg::Values().resourcePath + "hoi4/common/ideas",
+                        path,
+                        std::filesystem::copy_options::overwrite_existing);
 }
 
 void flags(const std::string &path, const CountryMap &countries) {
@@ -1208,9 +1213,14 @@ void states(const std::string &path,
                                       region->owner->tag);
     else {
       Rpx::Parsing::replaceOccurences(content, "owner = templateOwner", "");
-      Rpx::Parsing::replaceOccurences(content, "add_core_of = templateOwner",
-                                      "");
+      Rpx::Parsing::replaceOccurences(content, "templateCores", "");
     }
+    std::string coresString{""};
+    for (auto &core : region->cores) {
+      coresString.append("add_core_of = " + core->tag);
+      coresString.append("\n\t\t");
+    }
+    Rpx::Parsing::replaceOccurences(content, "templateCores", coresString);
     Rpx::Parsing::replaceOccurences(
         content, "templateInfrastructure",
         std::to_string(std::clamp(region->infrastructure, 0, 5)));
@@ -1397,6 +1407,26 @@ void aiStrategy(
                                   aiStrategyContent);
   pU::writeFile(path + "/ai_areas/default.txt", aiAreasFile);
   pU::writeFile(path + "/ai_strategy/default.txt", aiStrategyFile);
+
+  // copy all rpx_* .txt files from resourcePath + "hoi4/common/ai_areas_utils/"
+  // to path + "/ai_strategy/"
+
+  std::filesystem::copy(Fwg::Cfg::Values().resourcePath +
+                            "hoi4/common/ai_strategy/rpx_ai_strategy.txt",
+                        path + "/ai_strategy/rpx_ai_strategy.txt",
+                        std::filesystem::copy_options::overwrite_existing);
+  std::filesystem::copy(Fwg::Cfg::Values().resourcePath +
+                            "hoi4/common/ai_strategy/rpx_focus_strategy.txt",
+                        path + "/ai_strategy/rpx_focus_strategy.txt",
+                        std::filesystem::copy_options::overwrite_existing);
+  std::filesystem::copy(Fwg::Cfg::Values().resourcePath +
+                            "hoi4/common/ai_strategy/rpx_default.txt",
+                        path + "/ai_strategy/rpx_default.txt",
+                        std::filesystem::copy_options::overwrite_existing);
+  std::filesystem::copy(Fwg::Cfg::Values().resourcePath +
+                            "hoi4/common/ai_templates/",
+                        path + "/ai_templates/",
+                        std::filesystem::copy_options::overwrite_existing);
 }
 
 void events(const std::string &path) {
@@ -1481,6 +1511,27 @@ void commonBookmarks(
                                   "templateMinorTAG=", bookmarkCountries);
   pU::writeFile(path + "the_gathering_storm.txt", bookmarkTemplate);
 }
+void dynamicModifiers(std::string resources, std::string modPath) {
+  Fwg::Utils::Logging::logLine("HOI4 Parser: Dynamic Modifiers: Copying Files");
+  // copy all files from resources to modPath
+  std::filesystem::copy(resources, modPath,
+                        std::filesystem::copy_options::overwrite_existing);
+}
+
+void onActions(const std::string &path) {
+  Logging::logLine("HOI4 Parser: Map: Writing on_actions");
+  std::filesystem::path sourceOnActions =
+      Fwg::Cfg::Values().resourcePath + "hoi4/common/on_actions";
+  try {
+    // Copy on_actions folder
+    std::filesystem::copy(sourceOnActions, path + "/common/on_actions",
+                          std::filesystem::copy_options::recursive);
+  } catch (const std::filesystem::filesystem_error &e) {
+    Logging::logLine("HOI4 Parser: Error copying on_actions: " +
+                     std::string(e.what()));
+  }
+}
+
 void scriptedEffects(std::string resources, std::string modPath) {
   Fwg::Utils::Logging::logLine("HOI4 Parser: Scripted Effects: Copying Files");
   // copy all files from resources to modPath
@@ -1749,9 +1800,13 @@ void predefinedLocalisation(const std::string &path) {
   for (const auto &dir_entry : std::filesystem::directory_iterator{sourceDir}) {
     std::string pathString = dir_entry.path().string();
     std::string filename = dir_entry.path().filename().string();
-    if (filename[0] == '.')
+    if (filename[0] == '.' || filename.contains("rpx_tree"))
       continue;
-    const auto content = pU::readFile(pathString);
+    auto content = pU::readFile(pathString);
+    // Strip UTF-8 BOM if present
+    if (content.size() >= 3 && (unsigned char)content[0] == 0xEF &&
+        (unsigned char)content[1] == 0xBB && (unsigned char)content[2] == 0xBF)
+      content = content.substr(3);
     for (const auto &language : std::vector<std::string>{
              "braz_por", "english", "french", "german", "japanese", "korean",
              "polish", "russian", "simp_chinese", "spanish"}) {
@@ -1761,8 +1816,7 @@ void predefinedLocalisation(const std::string &path) {
       // content
       auto modifiedContent =
           std::regex_replace(content, std::regex("l_english"), "l_" + language);
-      pU::writeFile(path + language + "/" + newFilename, modifiedContent,
-                    false);
+      pU::writeFile(path + language + "/" + newFilename, modifiedContent, true);
     }
   }
 }

@@ -1,0 +1,1956 @@
+focus_tree = {
+	id = rpx_army1_army_1_focus
+	
+	country = {
+		factor = 0
+	}
+	
+	default = no
+
+	focus = {
+		id = rpx_army1_military_reform
+		icon = GFX_focus_generic_military_academy
+		x = 0
+		y = 0
+		cost = 8
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_military_reform_reward = yes
+		}
+	}
+
+	# ---- PATH A: INFANTRY & SMALL ARMS (left) ----
+
+	focus = {
+		id = rpx_army1_infantry_weapons
+		icon = GFX_goal_generic_small_arms
+		prerequisite = { focus = rpx_army1_military_reform }
+		x = -6
+		y = 1
+		relative_position_id = rpx_army1_military_reform
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_militia
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_infantry_weapons_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_mass_infantry
+		icon = GFX_goal_generic_allies_build_infantry
+		prerequisite = { focus = rpx_army1_infantry_weapons }
+		mutually_exclusive = { focus = rpx_army1_elite_infantry }
+		x = -1
+		y = 1
+		relative_position_id = rpx_army1_infantry_weapons
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_militia
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_multiethnic
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_militarized
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_mass_infantry_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_elite_infantry
+		icon = GFX_goal_generic_special_forces
+		prerequisite = { focus = rpx_army1_infantry_weapons }
+		mutually_exclusive = { focus = rpx_army1_mass_infantry }
+		x = 1
+		y = 1
+		relative_position_id = rpx_army1_infantry_weapons
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_elite_infantry_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_mobile_infantry
+		icon = GFX_goal_generic_army_motorized
+		prerequisite = { focus = rpx_army1_mass_infantry }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_mass_infantry
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_cavalry
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_mobile_infantry_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_special_forces
+		icon = GFX_goal_generic_special_forces
+		prerequisite = { focus = rpx_army1_elite_infantry }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_elite_infantry
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 20
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mountain
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_special_forces_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_mass_conscription
+		icon = GFX_focus_generic_manpower
+		prerequisite = { focus = rpx_army1_mobile_infantry }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_mobile_infantry
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 20
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 40
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_militia
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_multiethnic
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_young_nation
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_mass_conscription_reward = yes
+		}
+	}
+
+	# ---- PATH B: ARMOR & MECHANIZED (center-left) ----
+
+	focus = {
+		id = rpx_army1_armor_program
+		icon = GFX_goal_generic_army_tanks
+		prerequisite = { focus = rpx_army1_military_reform }
+		x = -2
+		y = 1
+		relative_position_id = rpx_army1_military_reform
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 25
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_armor_program_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_light_armor_division
+		icon = GFX_focus_generic_tankette
+		prerequisite = { focus = rpx_army1_armor_program }
+		mutually_exclusive = { focus = rpx_army1_heavy_armor_division }
+		x = -1
+		y = 1
+		relative_position_id = rpx_army1_armor_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 25
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_light_armor_division_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_heavy_armor_division
+		icon = GFX_focus_generic_heavy_tank
+		prerequisite = { focus = rpx_army1_armor_program }
+		mutually_exclusive = { focus = rpx_army1_light_armor_division }
+		x = 1
+		y = 1
+		relative_position_id = rpx_army1_armor_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 25
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_heavy_armor_division_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_mechanized_infantry
+		icon = GFX_focus_generic_mechanized
+		prerequisite = { focus = rpx_army1_light_armor_division }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_light_armor_division
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 25
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 25
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_mechanized_infantry_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_heavy_breakthrough
+		icon = GFX_focus_generic_tank_assault
+		prerequisite = { focus = rpx_army1_heavy_armor_division }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_heavy_armor_division
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 25
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 25
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_heavy_breakthrough_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_armor_industrial_complex
+		icon = GFX_goal_generic_construct_mil_factory
+		prerequisite = { focus = rpx_army1_heavy_breakthrough focus = rpx_army1_mechanized_infantry }
+		x = 1
+		y = 1
+		relative_position_id = rpx_army1_mechanized_infantry
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 25
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_armor_industrial_complex_reward = yes
+		}
+	}
+
+	# ---- PATH C: ARTILLERY & FIREPOWER (center-right) ----
+
+	focus = {
+		id = rpx_army1_artillery_corps
+		icon = GFX_goal_generic_army_artillery
+		prerequisite = { focus = rpx_army1_military_reform }
+		x = 4
+		y = 1
+		relative_position_id = rpx_army1_military_reform
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_artillery_corps_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_field_artillery
+		icon = GFX_focus_generic_self_propelled_gun
+		prerequisite = { focus = rpx_army1_artillery_corps }
+		mutually_exclusive = { focus = rpx_army1_rocket_artillery }
+		x = -1
+		y = 1
+		relative_position_id = rpx_army1_artillery_corps
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_field_artillery_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_rocket_artillery
+		icon = GFX_goal_generic_army_artillery2
+		prerequisite = { focus = rpx_army1_artillery_corps }
+		mutually_exclusive = { focus = rpx_army1_field_artillery }
+		x = 1
+		y = 1
+		relative_position_id = rpx_army1_artillery_corps
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_rocket_artillery_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_artillery_modernization
+		icon = GFX_goal_generic_army_artillery
+		prerequisite = { focus = rpx_army1_field_artillery }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_field_artillery
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 20
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_artillery_modernization_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_rocket_technology
+		icon = GFX_goal_generic_secret_weapon
+		prerequisite = { focus = rpx_army1_rocket_artillery }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_rocket_artillery
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 20
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_revolutionary
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_rocket_technology_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_firepower_corps
+		icon = GFX_focus_generic_combined_arms
+		prerequisite = { focus = rpx_army1_artillery_modernization }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_artillery_modernization
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_firepower_corps_reward = yes
+		}
+	}
+
+	# ---- PATH D: DOCTRINE & TRAINING (right) ----
+
+	focus = {
+		id = rpx_army1_doctrine_effort
+		icon = GFX_goal_generic_army_doctrines
+		prerequisite = { focus = rpx_army1_military_reform }
+		x = 8
+		y = 1
+		relative_position_id = rpx_army1_military_reform
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_doctrine_effort_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_offensive_doctrine
+		icon = GFX_goal_generic_army_doctrines
+		prerequisite = { focus = rpx_army1_doctrine_effort }
+		mutually_exclusive = { focus = rpx_army1_defensive_doctrine }
+		x = -1
+		y = 1
+		relative_position_id = rpx_army1_doctrine_effort
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_revolutionary
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_offensive_doctrine_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_defensive_doctrine
+		icon = GFX_goal_generic_defence
+		prerequisite = { focus = rpx_army1_doctrine_effort }
+		mutually_exclusive = { focus = rpx_army1_offensive_doctrine }
+		x = 1
+		y = 1
+		relative_position_id = rpx_army1_doctrine_effort
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_civilian_tradition
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_neutral_tradition
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_isolationist
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_defensive_doctrine_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_officer_corps
+		icon = GFX_focus_generic_military_academy
+		prerequisite = { focus = rpx_army1_offensive_doctrine }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_offensive_doctrine
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_officer_corps_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_fortress_engineering
+		icon = GFX_goal_generic_fortify_city
+		prerequisite = { focus = rpx_army1_defensive_doctrine }
+		x = 1
+		y = 1
+		relative_position_id = rpx_army1_defensive_doctrine
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_civilian_tradition
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_neutral_tradition
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_fortress_engineering_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_grand_offensive
+		icon = GFX_focus_generic_army_attack
+		prerequisite = { focus = rpx_army1_officer_corps }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_officer_corps
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 30
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_revolutionary
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_grand_offensive_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_impregnable_defense
+		icon = GFX_focus_generic_defensive_reorganization
+		prerequisite = { focus = rpx_army1_fortress_engineering }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_fortress_engineering
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 30
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_civilian_tradition
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_neutral_tradition
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_isolationist
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_impregnable_defense_reward = yes
+		}
+	}
+
+	# ---- PATH E: FIELD SUPPORT & LOGISTICS (far left) ----
+
+	focus = {
+		id = rpx_army1_field_support
+		icon = GFX_focus_generic_reinforcing_the_supply_network
+		prerequisite = { focus = rpx_army1_military_reform }
+		x = -12
+		y = 3
+		relative_position_id = rpx_army1_military_reform
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_field_support_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_motorized_support
+		icon = GFX_goal_generic_army_motorized
+		prerequisite = { focus = rpx_army1_field_support }
+		mutually_exclusive = { focus = rpx_army1_supply_support }
+		mutually_exclusive = { focus = rpx_army1_engineer_support }
+		x = -2
+		y = 1
+		relative_position_id = rpx_army1_field_support
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_cavalry
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_motorized_support_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_supply_support
+		icon = GFX_focus_generic_truck
+		prerequisite = { focus = rpx_army1_field_support }
+		mutually_exclusive = { focus = rpx_army1_motorized_support }
+		mutually_exclusive = { focus = rpx_army1_engineer_support }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_field_support
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_supply_support_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_engineer_support
+		icon = GFX_goal_generic_fortify_city
+		prerequisite = { focus = rpx_army1_field_support }
+		mutually_exclusive = { focus = rpx_army1_motorized_support }
+		mutually_exclusive = { focus = rpx_army1_supply_support }
+		x = 2
+		y = 1
+		relative_position_id = rpx_army1_field_support
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_engineer_support_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_motorized_support_2
+		icon = GFX_goal_generic_army_motorized
+		prerequisite = { focus = rpx_army1_motorized_support }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_motorized_support
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 20
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_motorized_support_2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_supply_support_2
+		icon = GFX_focus_generic_truck
+		prerequisite = { focus = rpx_army1_supply_support }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_supply_support
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 20
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_supply_support_2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_engineer_support_2
+		icon = GFX_goal_generic_fortify_city
+		prerequisite = { focus = rpx_army1_engineer_support }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_engineer_support
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 20
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_engineer_support_2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_field_support_supremacy
+		icon = GFX_focus_generic_advanced_military_studies
+		prerequisite = { focus = rpx_army1_supply_support_2 focus = rpx_army1_motorized_support_2 focus = rpx_army1_engineer_support_2 }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_supply_support_2
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_field_support_supremacy_reward = yes
+		}
+	}
+
+	# ---- PATH F: ANTI-ARMOR & AIR DEFENSE (far right) ----
+
+	focus = {
+		id = rpx_army1_anti_armor_corps
+		icon = GFX_focus_generic_anti_tank_guns
+		prerequisite = { focus = rpx_army1_military_reform }
+		x = 13
+		y = 3
+		relative_position_id = rpx_army1_military_reform
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_anti_armor_corps_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_tank_destroyer_program
+		icon = GFX_focus_generic_anti_tank_guns
+		prerequisite = { focus = rpx_army1_anti_armor_corps }
+		mutually_exclusive = { focus = rpx_army1_anti_air_network }
+		x = -1
+		y = 1
+		relative_position_id = rpx_army1_anti_armor_corps
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 25
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_tank_destroyer_program_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_anti_air_network
+		icon = GFX_focus_generic_air_defense
+		prerequisite = { focus = rpx_army1_anti_armor_corps }
+		mutually_exclusive = { focus = rpx_army1_tank_destroyer_program }
+		x = 1
+		y = 1
+		relative_position_id = rpx_army1_anti_armor_corps
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_anti_air_network_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_tank_destroyer_program_2
+		icon = GFX_focus_generic_anti_tank_guns
+		prerequisite = { focus = rpx_army1_tank_destroyer_program }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_tank_destroyer_program
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 25
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 25
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_tank_destroyer_program_2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_anti_air_network_2
+		icon = GFX_focus_generic_air_defense
+		prerequisite = { focus = rpx_army1_anti_air_network }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_anti_air_network
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 25
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_anti_air_network_2_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_anti_armor_supremacy
+		icon = GFX_focus_generic_combined_arms
+		prerequisite = { focus = rpx_army1_tank_destroyer_program_2 focus = rpx_army1_anti_air_network_2 }
+		x = 1
+		y = 1
+		relative_position_id = rpx_army1_tank_destroyer_program_2
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 25
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_anti_armor_supremacy_reward = yes
+		}
+	}
+
+	# ---- DEEP PATH EXTENSIONS ----
+
+	focus = {
+		id = rpx_army1_mass_war_machine
+		icon = GFX_focus_generic_manpower
+		prerequisite = { focus = rpx_army1_mass_conscription }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_mass_conscription
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 20
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 40
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_militia
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_multiethnic
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_mass_war_machine_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_elite_combined_arms
+		icon = GFX_focus_generic_advanced_military_studies
+		prerequisite = { focus = rpx_army1_special_forces }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_special_forces
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_elite_combined_arms_reward = yes
+		}
+	}
+
+
+	focus = {
+		id = rpx_army1_elite_supremacy
+		icon = GFX_goal_generic_special_forces
+		relative_position_id = rpx_army1_elite_combined_arms
+		prerequisite = { focus = rpx_army1_elite_combined_arms }
+		x = 0
+		y = 1
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_elite_supremacy_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_armor_dominance
+		icon = GFX_goal_generic_army_tanks
+		prerequisite = { focus = rpx_army1_armor_industrial_complex }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_armor_industrial_complex
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories < 25
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_mechanized
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_industrial_complex
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_armor_dominance_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_firepower_dominance
+		icon = GFX_goal_generic_army_artillery
+		prerequisite = { focus = rpx_army1_firepower_corps }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_firepower_corps
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_artillery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_firepower_dominance_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_offensive_dominance
+		icon = GFX_focus_generic_army_attack
+		prerequisite = { focus = rpx_army1_grand_offensive }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_grand_offensive
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_revolutionary
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_offensive_dominance_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_defensive_dominance
+		icon = GFX_focus_generic_defensive_reorganization
+		prerequisite = { focus = rpx_army1_impregnable_defense }
+		x = 0
+		y = 1
+		relative_position_id = rpx_army1_impregnable_defense
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories < 15
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 30
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_civilian_tradition
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_neutral_tradition
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_defensive_dominance_reward = yes
+		}
+	}
+
+	# ---- CAPSTONES ----
+
+	focus = {
+		id = rpx_army1_combined_arms
+		icon = GFX_focus_generic_combined_arms
+		prerequisite = { focus = rpx_army1_elite_combined_arms focus = rpx_army1_mass_conscription }
+		x = -4
+		y = 2
+		relative_position_id = rpx_army1_armor_industrial_complex
+		cost = 10
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				num_of_military_factories > 15
+				num_of_military_factories < 45
+			}
+			modifier = {
+				factor = 0.5
+				num_of_military_factories > 60
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_officer_corps
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_combined_arms_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_war_machine
+		icon = GFX_focus_generic_total_war
+		prerequisite = { focus = rpx_army1_firepower_dominance focus = rpx_army1_rocket_technology }
+		prerequisite = { focus = rpx_army1_offensive_dominance focus = rpx_army1_defensive_dominance }
+		x = 11
+		y = 0
+		relative_position_id = rpx_army1_combined_arms
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 100
+		}
+		continue_if_invalid = yes
+		complete_tooltip = {
+			add_ideas = rpx_army_total_war_machine
+			add_command_power = 250
+			add_war_support = 0.15
+			add_stability = 0.10
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_militarized
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_war_machine_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_army1_absolute_dominance
+		icon = GFX_focus_generic_total_war
+		prerequisite = { focus = rpx_army1_war_machine }
+		prerequisite = { focus = rpx_army1_anti_armor_supremacy }
+		prerequisite = { focus = rpx_army1_combined_arms }
+		x = 4
+		y = 2
+		relative_position_id = rpx_army1_war_machine
+		cost = 15
+		search_filters = { FOCUS_FILTER_ARMY }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 150
+		}
+		continue_if_invalid = yes
+		complete_tooltip = {
+			add_command_power = 300
+			add_war_support = 0.20
+			add_stability = 0.15
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_mil_professional_army
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_militarized
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_army1_absolute_dominance_reward = yes
+		}
+	}
+}

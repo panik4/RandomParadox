@@ -27,7 +27,8 @@ state={
 			dockyard = templateDockyards
 			templateNavalBases
 		}
-		add_core_of = templateOwner
+		templateCores
+
 	}
 
 	provinces={

@@ -28,7 +28,7 @@ public:
   std::string tradeLaw;
   bool allowElections = false;
   std::array<int, 4> parties = {25, 25, 25, 25};
-  std::string lastElection = "1.1.1933";
+  std::string lastElection = "1933.1.1";
   int warSupport = 0;
   int stability = 0;
   std::shared_ptr<Faction> faction = nullptr;

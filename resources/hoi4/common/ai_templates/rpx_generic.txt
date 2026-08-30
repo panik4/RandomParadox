@@ -206,7 +206,7 @@ infantry_generic = {
 	infantry_motorized_mech = {
 		enable = {
 			OR = { has_idea = rpx_army_mechanized_warfare  has_idea = rpx_army_combined_mech }
-			has_tech = mechanized_infantry
+			has_tech = mechanised_infantry
 		}
 		upgrade_prio = {
 			base = 1
@@ -214,7 +214,7 @@ infantry_generic = {
 				factor = 4
 				OR = { has_idea = rpx_army_mechanized_warfare  has_idea = rpx_army_combined_mech }
 			}
-			modifier = { factor = 0  NOT = { has_tech = mechanized_infantry } }
+			modifier = { factor = 0  NOT = { has_tech = mechanised_infantry } }
 		}
 		target_template = {
 			support = { engineer = 1  mot_recon = 1  artillery = 1  maintenance_company = 1 }
@@ -456,7 +456,7 @@ mobile_generic = {
 	mobile_mechanized = {
 		enable = {
 			OR = { has_idea = rpx_army_mechanized_warfare  has_idea = rpx_army_combined_mech }
-			has_tech = mechanized_infantry
+			has_tech = mechanised_infantry
 		}
 		upgrade_prio = {
 			base = 1
@@ -464,7 +464,7 @@ mobile_generic = {
 				factor = 5
 				OR = { has_idea = rpx_army_mechanized_warfare  has_idea = rpx_army_combined_mech }
 			}
-			modifier = { factor = 0  NOT = { has_tech = mechanized_infantry } }
+			modifier = { factor = 0  NOT = { has_tech = mechanised_infantry } }
 		}
 		target_template = {
 			support = { engineer = 1  mot_recon = 1  artillery = 1  maintenance_company = 1  logistics_company = 1 }

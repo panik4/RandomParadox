@@ -15,14 +15,34 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_RESEARCH }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_tech_bonus = {
-				name = industrial_bonus
-				bonus = 1.0
-				uses = 1
-				category = industry
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
 			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_industrial_foundation_reward = yes
 		}
 	}
 
@@ -38,53 +58,20 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		bypass = {
 			custom_trigger_tooltip = {
 				tooltip = construction_effort_tt
-				all_owned_state = {
-					free_building_slots = {
-						building = industrial_complex
-						size < 1
-						include_locked = yes
-					}
-				}
-			}
-		}
-
-		complete_tooltip = {
-			add_extra_state_shared_building_slots = 1
-			add_building_construction = {
-				type = industrial_complex
-				level = 1
-				instant_build = yes
-			}
-		}
-
-		completion_reward = {
-			random_owned_controlled_state = {
-				limit = {
+				any_owned_state = {
 					free_building_slots = {
 						building = industrial_complex
 						size > 0
 						include_locked = yes
 					}
-					OR = {
-						is_in_home_area = yes
-						NOT = {
-							owner = {
-								any_owned_state = {
-									free_building_slots = {
-										building = industrial_complex
-										size > 0
-										include_locked = yes
-									}
-									is_in_home_area = yes
-								}
-							}
-						}
-					}
 				}
+			}
+		}
+		complete_tooltip = {
+			random_state = {
 				add_extra_state_shared_building_slots = 1
 				add_building_construction = {
 					type = industrial_complex
@@ -92,6 +79,35 @@ focus_tree = {
 					instant_build = yes
 				}
 			}
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_civ_build_up_reward = yes
 		}
 	}
 
@@ -105,53 +121,20 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		bypass = {
 			custom_trigger_tooltip = {
 				tooltip = construction_effort_tt
-				all_owned_state = {
-					free_building_slots = {
-						building = industrial_complex
-						size < 1
-						include_locked = yes
-					}
-				}
-			}
-		}
-
-		complete_tooltip = {
-			add_extra_state_shared_building_slots = 1
-			add_building_construction = {
-				type = industrial_complex
-				level = 1
-				instant_build = yes
-			}
-		}
-
-		completion_reward = {
-			random_owned_controlled_state = {
-				limit = {
+				any_owned_state = {
 					free_building_slots = {
 						building = industrial_complex
 						size > 0
 						include_locked = yes
 					}
-					OR = {
-						is_in_home_area = yes
-						NOT = {
-							owner = {
-								any_owned_state = {
-									free_building_slots = {
-										building = industrial_complex
-										size > 0
-										include_locked = yes
-									}
-									is_in_home_area = yes
-								}
-							}
-						}
-					}
 				}
+			}
+		}
+		complete_tooltip = {
+			random_state = {
 				add_extra_state_shared_building_slots = 1
 				add_building_construction = {
 					type = industrial_complex
@@ -159,6 +142,35 @@ focus_tree = {
 					instant_build = yes
 				}
 			}
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_expanded_civ_industry_reward = yes
 		}
 	}
 
@@ -172,20 +184,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_tech_bonus = {
-				name = construction_bonus
-				bonus = 1.0
-				uses = 1
-				category = construction_tech
-			}
-			add_tech_bonus = {
-				name = industrial_bonus
-				bonus = 0.5
-				uses = 1
-				category = industry
-			}
+			rpx_econ1_industrial_research_reward = yes
 		}
 	}
 
@@ -199,11 +218,34 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_political_power = 100
-			add_stability = 0.05
-			add_ideas = rpx_consumer_goods_2
+			rpx_econ1_civilian_planning_reward = yes
 		}
 	}
 
@@ -217,17 +259,34 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_max_efficiency_1
-			add_ideas = rpx_efficiency_gain_1
-			add_tech_bonus = {
-				name = production_bonus
-				bonus = 1.0
-				uses = 1
-				category = industry
-				category = construction_tech
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
 			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_industrial_standardization_reward = yes
 		}
 	}
 
@@ -241,21 +300,38 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 20
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_research_slot = 1
-			add_ideas = rpx_research_speed_1
-			add_tech_bonus = {
-				name = electronics_bonus
-				bonus = 1.0
-				uses = 1
-				category = electronics
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
 			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_advanced_industry_reward = yes
 		}
 	}
 
@@ -271,19 +347,17 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		bypass = {
 			custom_trigger_tooltip = {
 				tooltip = infrastructure_effort_tt
-				all_owned_state = {
+				any_owned_state = {
 					free_building_slots = {
 						building = infrastructure
-						size < 1
+						size > 0
 					}
 				}
 			}
 		}
-
 		complete_tooltip = {
 			add_building_construction = {
 				type = infrastructure
@@ -296,62 +370,34 @@ focus_tree = {
 				instant_build = yes
 			}
 		}
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = infrastructure
-						size > 0
-					}
-					OR = {
-						is_in_home_area = yes
-						NOT = {
-							owner = {
-								any_owned_state = {
-									free_building_slots = {
-										building = infrastructure
-										size > 0
-									}
-									is_in_home_area = yes
-								}
-							}
-						}
-					}
-				}
-				add_building_construction = {
-					type = infrastructure
-					level = 1
-					instant_build = yes
-				}
-			}
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = infrastructure
-						size > 1
-					}
-					OR = {
-						is_in_home_area = yes
-						NOT = {
-							owner = {
-								any_owned_state = {
-									free_building_slots = {
-										building = infrastructure
-										size > 1
-									}
-									is_in_home_area = yes
-								}
-							}
-						}
-					}
-				}
-				add_building_construction = {
-					type = infrastructure
-					level = 2
-					instant_build = yes
-				}
-			}
+			rpx_econ1_infrastructure_campaign_reward = yes
 		}
 	}
 
@@ -366,21 +412,42 @@ focus_tree = {
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
 		ai_will_do = {
-			base = 2
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
 		}
-
 		bypass = {
 			custom_trigger_tooltip = {
 				tooltip = infrastructure_effort_tt
-				all_owned_state = {
+				any_owned_state = {
 					free_building_slots = {
 						building = infrastructure
-						size < 1
+						size > 0
 					}
 				}
 			}
 		}
-
 		complete_tooltip = {
 			add_building_construction = {
 				type = infrastructure
@@ -393,62 +460,8 @@ focus_tree = {
 				instant_build = yes
 			}
 		}
-
 		completion_reward = {
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = infrastructure
-						size > 0
-					}
-					OR = {
-						is_in_home_area = yes
-						NOT = {
-							owner = {
-								any_owned_state = {
-									free_building_slots = {
-										building = infrastructure
-										size > 0
-									}
-									is_in_home_area = yes
-								}
-							}
-						}
-					}
-				}
-				add_building_construction = {
-					type = infrastructure
-					level = 1
-					instant_build = yes
-				}
-			}
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = infrastructure
-						size > 1
-					}
-					OR = {
-						is_in_home_area = yes
-						NOT = {
-							owner = {
-								any_owned_state = {
-									free_building_slots = {
-										building = infrastructure
-										size > 1
-									}
-									is_in_home_area = yes
-								}
-							}
-						}
-					}
-				}
-				add_building_construction = {
-					type = infrastructure
-					level = 2
-					instant_build = yes
-				}
-			}
+			rpx_econ1_expanded_infrastructure_reward = yes
 		}
 	}
 
@@ -462,19 +475,34 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_construction_speed_2
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = industrial_complex
-						size > 0
-						include_locked = yes
-					}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
 				}
-				add_extra_state_shared_building_slots = 2
 			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_construction_modernization_reward = yes
 		}
 	}
 
@@ -488,19 +516,17 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		bypass = {
 			custom_trigger_tooltip = {
 				tooltip = infrastructure_effort_tt
-				all_owned_state = {
+				any_owned_state = {
 					free_building_slots = {
 						building = infrastructure
-						size < 1
+						size > 0
 					}
 				}
 			}
 		}
-
 		complete_tooltip = {
 			add_building_construction = {
 				type = infrastructure
@@ -508,36 +534,34 @@ focus_tree = {
 				instant_build = yes
 			}
 		}
-
-		completion_reward = {
-			add_ideas = rpx_infrastructure_focus
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = infrastructure
-						size > 0
-					}
-					OR = {
-						is_in_home_area = yes
-						NOT = {
-							owner = {
-								any_owned_state = {
-									free_building_slots = {
-										building = infrastructure
-										size > 0
-									}
-									is_in_home_area = yes
-								}
-							}
-						}
-					}
-				}
-				add_building_construction = {
-					type = infrastructure
-					level = 2
-					instant_build = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
 				}
 			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_railway_expansion_reward = yes
 		}
 	}
 
@@ -553,53 +577,20 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		bypass = {
 			custom_trigger_tooltip = {
 				tooltip = production_effort_tt
-				all_owned_state = {
-					free_building_slots = {
-						building = arms_factory
-						size < 1
-						include_locked = yes
-					}
-				}
-			}
-		}
-
-		complete_tooltip = {
-			add_extra_state_shared_building_slots = 1
-			add_building_construction = {
-				type = arms_factory
-				level = 1
-				instant_build = yes
-			}
-		}
-
-		completion_reward = {
-			random_owned_controlled_state = {
-				limit = {
+				any_owned_state = {
 					free_building_slots = {
 						building = arms_factory
 						size > 0
 						include_locked = yes
 					}
-					OR = {
-						is_in_home_area = yes
-						NOT = {
-							owner = {
-								any_owned_state = {
-									free_building_slots = {
-										building = arms_factory
-										size > 0
-										include_locked = yes
-									}
-									is_in_home_area = yes
-								}
-							}
-						}
-					}
 				}
+			}
+		}
+		complete_tooltip = {
+			random_state = {
 				add_extra_state_shared_building_slots = 1
 				add_building_construction = {
 					type = arms_factory
@@ -607,6 +598,47 @@ focus_tree = {
 					instant_build = yes
 				}
 			}
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_mil_build_up_reward = yes
 		}
 	}
 
@@ -620,53 +652,20 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		bypass = {
 			custom_trigger_tooltip = {
 				tooltip = production_effort_tt
-				all_owned_state = {
-					free_building_slots = {
-						building = arms_factory
-						size < 1
-						include_locked = yes
-					}
-				}
-			}
-		}
-
-		complete_tooltip = {
-			add_extra_state_shared_building_slots = 1
-			add_building_construction = {
-				type = arms_factory
-				level = 1
-				instant_build = yes
-			}
-		}
-
-		completion_reward = {
-			random_owned_controlled_state = {
-				limit = {
+				any_owned_state = {
 					free_building_slots = {
 						building = arms_factory
 						size > 0
 						include_locked = yes
 					}
-					OR = {
-						is_in_home_area = yes
-						NOT = {
-							owner = {
-								any_owned_state = {
-									free_building_slots = {
-										building = arms_factory
-										size > 0
-										include_locked = yes
-									}
-									is_in_home_area = yes
-								}
-							}
-						}
-					}
 				}
+			}
+		}
+		complete_tooltip = {
+			random_state = {
 				add_extra_state_shared_building_slots = 1
 				add_building_construction = {
 					type = arms_factory
@@ -674,6 +673,47 @@ focus_tree = {
 					instant_build = yes
 				}
 			}
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_expanded_mil_industry_reward = yes
 		}
 	}
 
@@ -688,21 +728,46 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		ai_will_do = {
-			base = 2
-		}
-
-		completion_reward = {
-			add_ideas = rpx_combined_output_1
-			add_ideas = rpx_mil_construction_speed
-			add_tech_bonus = {
-				name = armor_bonus
-				bonus = 1.0
-				uses = 1
-				category = armor
-				category = motorized_equipment
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
 			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_military_standardization_reward = yes
 		}
 	}
 
@@ -716,19 +781,46 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_conversion_cost_civ_to_mil
-			add_ideas = rpx_resource_penalty_reduction
-			add_equipment_to_stockpile = {
-				type = infantry_equipment
-				amount = 500
-			}
-			add_equipment_to_stockpile = {
-				type = artillery_equipment
-				amount = 100
-			}
-			add_war_support = 0.05
+			rpx_econ1_conversion_program_reward = yes
 		}
 	}
 
@@ -744,14 +836,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_tech_bonus = {
-				name = excavation_bonus
-				bonus = 1.0
-				uses = 1
-				category = excavation_tech
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
 			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_resource_prospecting_reward = yes
 		}
 	}
 
@@ -765,20 +870,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_tech_bonus = {
-				name = synthetic_bonus
-				bonus = 1.0
-				uses = 1
-				category = industry
-			}
-			add_tech_bonus = {
-				name = synthetic_rubber_bonus
-				bonus = 1.0
-				uses = 1
-				category = industry
-			}
+			rpx_econ1_synthetic_production_reward = yes
 		}
 	}
 
@@ -792,10 +904,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_local_resources_2
-			add_ideas = rpx_resource_efficiency
+			rpx_econ1_resource_efficiency_reward = yes
 		}
 	}
 
@@ -811,10 +940,34 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY FOCUS_FILTER_POLITICAL }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_political_power = 100
-			add_ideas = rpx_pp_gain
+			rpx_econ1_economic_policy_reward = yes
 		}
 	}
 
@@ -822,25 +975,42 @@ focus_tree = {
 		id = rpx_econ1_policy_consumer
 		icon = GFX_goal_generic_consumer_goods
 		prerequisite = { focus = rpx_econ1_economic_policy }
-		mutually_exclusive = { focus = rpx_econ1_policy_trade focus = rpx_econ1_policy_military }
+		mutually_exclusive = { focus = rpx_econ1_policy_trade }
+		mutually_exclusive = { focus = rpx_econ1_policy_military }
 		x = -2
 		y = 1
 		relative_position_id = rpx_econ1_economic_policy
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		ai_will_do = {
-			base = 1
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
 			modifier = {
 				factor = 2
-				NOT = { has_war = yes }
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_consumer_goods_2
-			add_stability = 0.05
+			rpx_econ1_policy_consumer_reward = yes
 		}
 	}
 
@@ -854,11 +1024,34 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_consumer_goods_3
-			add_stability = 0.05
-			add_political_power = 50
+			rpx_econ1_policy_consumer_2_reward = yes
 		}
 	}
 
@@ -866,25 +1059,35 @@ focus_tree = {
 		id = rpx_econ1_policy_trade
 		icon = GFX_goal_generic_trade
 		prerequisite = { focus = rpx_econ1_economic_policy }
-		mutually_exclusive = { focus = rpx_econ1_policy_consumer focus = rpx_econ1_policy_military }
+		mutually_exclusive = { focus = rpx_econ1_policy_consumer }
+		mutually_exclusive = { focus = rpx_econ1_policy_military }
 		x = 0
 		y = 1
 		relative_position_id = rpx_econ1_economic_policy
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		ai_will_do = {
-			base = 1
+			factor = 1
 			modifier = {
 				factor = 2
-				NOT = { has_war = yes }
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_local_resources_1
-			add_ideas = rpx_construction_speed_1
+			rpx_econ1_policy_trade_reward = yes
 		}
 	}
 
@@ -898,10 +1101,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_resource_penalty_reduction
-			add_political_power = 100
+			rpx_econ1_policy_trade_2_reward = yes
 		}
 	}
 
@@ -909,25 +1129,54 @@ focus_tree = {
 		id = rpx_econ1_policy_military
 		icon = GFX_focus_generic_military_industry
 		prerequisite = { focus = rpx_econ1_economic_policy }
-		mutually_exclusive = { focus = rpx_econ1_policy_consumer focus = rpx_econ1_policy_trade }
+		mutually_exclusive = { focus = rpx_econ1_policy_consumer }
+		mutually_exclusive = { focus = rpx_econ1_policy_trade }
 		x = 2
 		y = 1
 		relative_position_id = rpx_econ1_economic_policy
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		ai_will_do = {
-			base = 1
+			factor = 1
 			modifier = {
-				factor = 3
-				has_war = yes
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_war_economy_spirit
-			add_war_support = 0.05
+			rpx_econ1_policy_military_reward = yes
 		}
 	}
 
@@ -941,10 +1190,46 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_military_industrialization
-			add_war_support = 0.10
+			rpx_econ1_policy_military_2_reward = yes
 		}
 	}
 
@@ -960,15 +1245,34 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_dockyard_speed
-			add_tech_bonus = {
-				name = dockyard_bonus
-				bonus = 1.0
-				uses = 1
-				category = industry
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
 			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_dockyard_program_reward = yes
 		}
 	}
 
@@ -982,9 +1286,34 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_dockyard_output_1
+			rpx_econ1_expanded_dockyards_reward = yes
 		}
 	}
 
@@ -998,10 +1327,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_navy_fuel_efficiency
-			add_ideas = rpx_supply_consumption
+			rpx_econ1_naval_supply_chain_reward = yes
 		}
 	}
 
@@ -1015,20 +1361,38 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_naval_factories > 5
 		}
 		continue_if_invalid = yes
-
-		completion_reward = {
-			add_ideas = rpx_dockyard_output_2
-			add_tech_bonus = {
-				name = maritime_bonus
-				bonus = 1.0
-				uses = 1
-				category = electronics
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
 			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_maritime_economy_reward = yes
 		}
 	}
 
@@ -1044,10 +1408,34 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_efficiency_gain_1
-			add_political_power = 50
+			rpx_econ1_labor_program_reward = yes
 		}
 	}
 
@@ -1061,10 +1449,34 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_max_efficiency_1
-			add_ideas = rpx_research_speed_1
+			rpx_econ1_skilled_workforce_reward = yes
 		}
 	}
 
@@ -1078,11 +1490,34 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_stability_bonus
-			add_ideas = rpx_consumer_goods_1
-			add_stability = 0.05
+			rpx_econ1_labor_conditions_reward = yes
 		}
 	}
 
@@ -1099,19 +1534,46 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		ai_will_do = {
-			base = 1
+			factor = 1
 			modifier = {
-				factor = 3
-				has_war = yes
+				factor = 1.5
+				OR = {
+					has_government = fascism
+					has_government = communism
+				}
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.25
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.5
+			}
+			modifier = {
+				add = 1.25
+				threat > 0.75
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_factory_output_2
-			add_ideas = rpx_conversion_cost_mil_to_civ
-			add_war_support = 0.05
+			rpx_econ1_armament_drive_reward = yes
 		}
 	}
 
@@ -1126,23 +1588,34 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		ai_will_do = {
-			base = 1
+			factor = 1
 			modifier = {
-				factor = 3
-				NOT = { has_war = yes }
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_factory_output_1
-			add_tech_bonus = {
-				name = production_bonus
-				bonus = 0.5
-				uses = 1
-				category = industry
-			}
+			rpx_econ1_rearmament_program_reward = yes
 		}
 	}
 
@@ -1158,7 +1631,6 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		available = {
 			OR = {
 				has_idea = rpx_local_resources_2
@@ -1166,10 +1638,27 @@ focus_tree = {
 			}
 		}
 		continue_if_invalid = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_local_resources_3
-			add_ideas = rpx_resource_penalty_reduction
+			rpx_econ1_resource_autarky_reward = yes
 		}
 	}
 
@@ -1187,12 +1676,10 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 30
 		}
 		continue_if_invalid = yes
-
 		complete_tooltip = {
 			add_ideas = rpx_economic_boom
 			add_tech_bonus = {
@@ -1202,30 +1689,39 @@ focus_tree = {
 				category = industry
 				category = construction_tech
 			}
-			add_extra_state_shared_building_slots = 2
-			add_stability = 0.05
-		}
-
-		completion_reward = {
-			add_ideas = rpx_economic_boom
-			add_tech_bonus = {
-				name = industrial_bonus
-				bonus = 1.0
-				uses = 2
-				category = industry
-				category = construction_tech
-			}
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = industrial_complex
-						size > 0
-						include_locked = yes
-					}
-				}
+			random_state = {
 				add_extra_state_shared_building_slots = 2
 			}
 			add_stability = 0.05
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
+			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_economic_modernization_reward = yes
 		}
 	}
 
@@ -1233,48 +1729,53 @@ focus_tree = {
 		id = rpx_econ1_total_industrialization
 		icon = GFX_focus_generic_industry_3
 		prerequisite = { focus = rpx_econ1_economic_modernization }
-		prerequisite = { focus = rpx_econ1_armament_drive focus =  rpx_econ1_rearmament_program }
+		prerequisite = { focus = rpx_econ1_armament_drive focus = rpx_econ1_rearmament_program }
 		x = 2
 		y = 1
 		relative_position_id = rpx_econ1_economic_modernization
 		cost = 10
 		search_filters = { FOCUS_FILTER_INDUSTRY }
 		available_if_capitulated = yes
-
 		available = {
 			num_of_factories > 80
 		}
 		continue_if_invalid = yes
-
 		complete_tooltip = {
 			add_ideas = rpx_total_mobilization_spirit
 			add_ideas = rpx_consumer_goods_4
-			add_extra_state_shared_building_slots = 4
-			add_stability = 0.10
-		}
-
-		completion_reward = {
-			add_ideas = rpx_total_mobilization_spirit
-			add_ideas = rpx_consumer_goods_4
-			random_owned_controlled_state = {
-				limit = {
-					free_building_slots = {
-						building = industrial_complex
-						size > 0
-						include_locked = yes
-					}
-				}
+			random_state = {
 				add_extra_state_shared_building_slots = 4
 			}
 			add_stability = 0.10
-			add_tech_bonus = {
-				name = total_industrial_bonus
-				bonus = 1.0
-				uses = 3
-				category = industry
-				category = construction_tech
-				category = electronics
+		}
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 1.5
+				OR = {
+					has_government = democratic
+					has_government = neutrality
+				}
 			}
+			modifier = {
+				factor = 2
+				check_variable = { rpx_economy_health < 30 }
+			}
+			modifier = {
+				factor = 1.5
+				check_variable = { rpx_economy_health < 50 }
+			}
+			modifier = {
+				factor = 0.75
+				check_variable = { rpx_economy_health > 60 }
+			}
+			modifier = {
+				factor = 0.5
+				check_variable = { rpx_economy_health > 75 }
+			}
+		}
+		completion_reward = {
+			rpx_econ1_total_industrialization_reward = yes
 		}
 	}
 }

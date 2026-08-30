@@ -1,0 +1,1027 @@
+# RPX Focus AI Strategies (auto-generated from rpx_focus_strategies.py)
+#
+# Each block activates when its specific focus has been completed, detected via
+# the country flag of the same name that the focus reward sets on completion
+# (focus IDs receive tag suffixes in a later step, so has_completed_focus on the
+# base ID cannot be used).
+# Multiple blocks with the same type/id stack additively on top of game defaults.
+# Per-idea strategies (rpx_ai_strategy.txt) remain separately gated on has_idea.
+rpx_focus_strat_rpx_air1_fighter_engines = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_air1_fighter_engines }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = fighter  value = 5 }
+	ai_strategy = { type = equipment_production_factor  id = fighter  value = 5 }
+}
+
+rpx_focus_strat_rpx_air1_fighter_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_air1_fighter_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = fighter  value = 20 }
+	ai_strategy = { type = equipment_production_factor  id = fighter  value = 10 }
+	ai_strategy = { type = research_weight_factor  id = fighter1  value = 100 }
+}
+
+rpx_focus_strat_rpx_air1_interceptor_development = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_air1_interceptor_development }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = fighter  value = 10 }
+	ai_strategy = { type = equipment_production_factor  id = fighter  value = 5 }
+}
+
+rpx_focus_strat_rpx_air2_cas_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_air2_cas_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = cas  value = 15 }
+	ai_strategy = { type = equipment_production_factor  id = cas  value = 10 }
+	ai_strategy = { type = research_weight_factor  id = CAS1  value = 100 }
+}
+
+rpx_focus_strat_rpx_air2_dive_bombing = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_air2_dive_bombing }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = cas  value = 5 }
+}
+
+rpx_focus_strat_rpx_air2_tactical_bombers = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_air2_tactical_bombers }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = tactical_bomber  value = 15 }
+	ai_strategy = { type = equipment_production_factor  id = tactical_bomber  value = 10 }
+	ai_strategy = { type = research_weight_factor  id = tactical_bomber1  value = 100 }
+}
+
+rpx_focus_strat_rpx_air3_heavy_bombers = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_air3_heavy_bombers }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = strategic_bomber  value = 10 }
+	ai_strategy = { type = equipment_production_factor  id = strategic_bomber  value = 5 }
+}
+
+rpx_focus_strat_rpx_air3_maritime_patrol = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_air3_maritime_patrol }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = naval_bomber  value = 5 }
+}
+
+rpx_focus_strat_rpx_air3_naval_aviation = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_air3_naval_aviation }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = cv_fighter  value = 10 }
+	ai_strategy = { type = unit_ratio  id = cv_naval_bomber  value = 10 }
+	ai_strategy = { type = unit_ratio  id = cv_cas  value = 5 }
+}
+
+rpx_focus_strat_rpx_air3_naval_strike = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_air3_naval_strike }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = naval_bomber  value = 15 }
+	ai_strategy = { type = equipment_production_factor  id = naval_bomber  value = 10 }
+	ai_strategy = { type = research_weight_factor  id = naval_bomber1  value = 100 }
+}
+
+rpx_focus_strat_rpx_air3_strat_bombs = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_air3_strat_bombs }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = research_weight_factor  id = scout_plane1  value = 100 }
+}
+
+rpx_focus_strat_rpx_air3_strategic_recon = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_air3_strategic_recon }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = research_weight_factor  id = scout_plane1  value = 100 }
+}
+
+rpx_focus_strat_rpx_army1_anti_air_network = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_anti_air_network }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = anti_air  value = 8 }
+	ai_strategy = { type = equipment_production_factor  id = support  value = 3 }
+}
+
+rpx_focus_strat_rpx_army1_anti_air_network_2 = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_anti_air_network_2 }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 8 }
+}
+
+rpx_focus_strat_rpx_army1_anti_armor_corps = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_anti_armor_corps }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = anti_tank  value = 8 }
+}
+
+rpx_focus_strat_rpx_army1_anti_armor_supremacy = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_anti_armor_supremacy }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 5 }
+	ai_strategy = { type = equipment_production_factor  id = support  value = 3 }
+}
+
+rpx_focus_strat_rpx_army1_armor_dominance = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_armor_dominance }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = armor  value = 3 }
+}
+
+rpx_focus_strat_rpx_army1_armor_industrial_complex = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_armor_industrial_complex }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = armor  value = 2 }
+}
+
+rpx_focus_strat_rpx_army1_armor_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_armor_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = armor  value = 2 }
+}
+
+rpx_focus_strat_rpx_army1_artillery_corps = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_artillery_corps }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 8 }
+}
+
+rpx_focus_strat_rpx_army1_artillery_modernization = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_artillery_modernization }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 8 }
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 5 }
+}
+
+rpx_focus_strat_rpx_army1_elite_infantry = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_elite_infantry }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = infantry  value = 2 }
+	ai_strategy = { type = equipment_production_factor  id = support  value = 5 }
+}
+
+rpx_focus_strat_rpx_army1_field_artillery = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_field_artillery }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 5 }
+	ai_strategy = { type = equipment_production_factor  id = anti_tank  value = 8 }
+}
+
+rpx_focus_strat_rpx_army1_field_support = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_field_support }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = support  value = 3 }
+}
+
+rpx_focus_strat_rpx_army1_firepower_corps = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_firepower_corps }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 5 }
+	ai_strategy = { type = equipment_production_factor  id = support  value = 3 }
+}
+
+rpx_focus_strat_rpx_army1_heavy_armor_division = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_heavy_armor_division }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = template_prio  id = heavy_armor  value = 20 }
+	ai_strategy = { type = research_weight_factor  id = basic_heavy_tank_chassis  value = 150 }
+	ai_strategy = { type = role_ratio  id = armor  value = 2 }
+}
+
+rpx_focus_strat_rpx_army1_heavy_breakthrough = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_heavy_breakthrough }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = armor  value = 3 }
+	ai_strategy = { type = template_prio  id = heavy_armor  value = 10 }
+}
+
+rpx_focus_strat_rpx_army1_infantry_weapons = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_infantry_weapons }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = infantry  value = 3 }
+	ai_strategy = { type = equipment_production_factor  id = infantry  value = 8 }
+}
+
+rpx_focus_strat_rpx_army1_light_armor_division = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_light_armor_division }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = template_prio  id = light_armor  value = 15 }
+	ai_strategy = { type = research_weight_factor  id = basic_light_tank_chassis  value = 100 }
+	ai_strategy = { type = equipment_production_factor  id = motorized  value = 5 }
+}
+
+rpx_focus_strat_rpx_army1_mass_infantry = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_mass_infantry }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = infantry  value = 3 }
+	ai_strategy = { type = equipment_production_factor  id = infantry  value = 8 }
+}
+
+rpx_focus_strat_rpx_army1_mechanized_infantry = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_mechanized_infantry }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = template_prio  id = medium_armor  value = 10 }
+	ai_strategy = { type = role_ratio  id = motorized  value = 2 }
+	ai_strategy = { type = role_ratio  id = mobile  value = 2 }
+}
+
+rpx_focus_strat_rpx_army1_mobile_infantry = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_mobile_infantry }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = motorized  value = 8 }
+}
+
+rpx_focus_strat_rpx_army1_motorized_support = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_motorized_support }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = motorized  value = 8 }
+	ai_strategy = { type = equipment_production_factor  id = motorized  value = 5 }
+}
+
+rpx_focus_strat_rpx_army1_motorized_support_2 = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_motorized_support_2 }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = mobile  value = 1 }
+}
+
+rpx_focus_strat_rpx_army1_rocket_artillery = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_rocket_artillery }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 5 }
+	ai_strategy = { type = research_weight_factor  id = rocket_artillery  value = 100 }
+	ai_strategy = { type = equipment_production_factor  id = anti_air  value = 8 }
+}
+
+rpx_focus_strat_rpx_army1_rocket_technology = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_rocket_technology }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 5 }
+	ai_strategy = { type = research_weight_factor  id = rocket_artillery  value = 100 }
+}
+
+rpx_focus_strat_rpx_army1_tank_destroyer_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_tank_destroyer_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = anti_tank  value = 10 }
+}
+
+rpx_focus_strat_rpx_army1_tank_destroyer_program_2 = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army1_tank_destroyer_program_2 }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = template_prio  id = heavy_armor  value = 10 }
+}
+
+rpx_focus_strat_rpx_army2_armor_development = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_armor_development }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = armor  value = 2 }
+}
+
+rpx_focus_strat_rpx_army2_armor_industrial_base = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_armor_industrial_base }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = armor  value = 2 }
+}
+
+rpx_focus_strat_rpx_army2_armored_recon = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_armored_recon }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = mobile  value = 1 }
+	ai_strategy = { type = equipment_production_factor  id = motorized  value = 8 }
+}
+
+rpx_focus_strat_rpx_army2_armored_spearhead = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_armored_spearhead }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = armor  value = 3 }
+	ai_strategy = { type = template_prio  id = heavy_armor  value = 10 }
+}
+
+rpx_focus_strat_rpx_army2_artillery_command = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_artillery_command }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 8 }
+}
+
+rpx_focus_strat_rpx_army2_convoy_support = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_convoy_support }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = support  value = 3 }
+}
+
+rpx_focus_strat_rpx_army2_elite_forces = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_elite_forces }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = infantry  value = 2 }
+	ai_strategy = { type = equipment_production_factor  id = support  value = 5 }
+}
+
+rpx_focus_strat_rpx_army2_field_artillery = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_field_artillery }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 5 }
+	ai_strategy = { type = equipment_production_factor  id = support  value = 3 }
+}
+
+rpx_focus_strat_rpx_army2_firepower_integration = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_firepower_integration }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 5 }
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 8 }
+}
+
+rpx_focus_strat_rpx_army2_heavy_tank_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_heavy_tank_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = template_prio  id = heavy_armor  value = 20 }
+	ai_strategy = { type = research_weight_factor  id = basic_heavy_tank_chassis  value = 150 }
+}
+
+rpx_focus_strat_rpx_army2_light_armor_squadrons = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_light_armor_squadrons }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = template_prio  id = light_armor  value = 15 }
+	ai_strategy = { type = research_weight_factor  id = basic_light_tank_chassis  value = 100 }
+	ai_strategy = { type = equipment_production_factor  id = motorized  value = 5 }
+}
+
+rpx_focus_strat_rpx_army2_light_mobile_infantry = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_light_mobile_infantry }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = motorized  value = 5 }
+}
+
+rpx_focus_strat_rpx_army2_light_mobile_infantry_2 = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_light_mobile_infantry_2 }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = mobile  value = 1 }
+}
+
+rpx_focus_strat_rpx_army2_logistics_supremacy = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_logistics_supremacy }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = support  value = 3 }
+}
+
+rpx_focus_strat_rpx_army2_mass_production_infantry = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_mass_production_infantry }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = infantry  value = 3 }
+	ai_strategy = { type = equipment_production_factor  id = infantry  value = 8 }
+}
+
+rpx_focus_strat_rpx_army2_mechanized_corps = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_mechanized_corps }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = template_prio  id = medium_armor  value = 10 }
+	ai_strategy = { type = role_ratio  id = motorized  value = 2 }
+	ai_strategy = { type = role_ratio  id = mobile  value = 2 }
+}
+
+rpx_focus_strat_rpx_army2_mechanized_corps_2 = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_mechanized_corps_2 }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = template_prio  id = heavy_armor  value = 10 }
+	ai_strategy = { type = role_ratio  id = armor  value = 2 }
+}
+
+rpx_focus_strat_rpx_army2_medium_tank_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_medium_tank_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = armor  value = 2 }
+}
+
+rpx_focus_strat_rpx_army2_mobile_supremacy = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_mobile_supremacy }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = role_ratio  id = mobile  value = 1 }
+}
+
+rpx_focus_strat_rpx_army2_motorized_corps = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_motorized_corps }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = motorized  value = 8 }
+}
+
+rpx_focus_strat_rpx_army2_rocket_development = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_rocket_development }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 5 }
+	ai_strategy = { type = research_weight_factor  id = rocket_artillery  value = 100 }
+	ai_strategy = { type = equipment_production_factor  id = anti_air  value = 8 }
+}
+
+rpx_focus_strat_rpx_army2_rocket_mastery = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_rocket_mastery }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 5 }
+	ai_strategy = { type = research_weight_factor  id = rocket_artillery  value = 100 }
+}
+
+rpx_focus_strat_rpx_army2_self_propelled_artillery = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_self_propelled_artillery }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = artillery  value = 5 }
+}
+
+rpx_focus_strat_rpx_army2_tank_destroyer_support = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_army2_tank_destroyer_support }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = equipment_production_factor  id = anti_tank  value = 10 }
+	ai_strategy = { type = equipment_production_factor  id = anti_tank  value = 8 }
+}
+
+rpx_focus_strat_rpx_econ3_capital_shipbuilding = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_econ3_capital_shipbuilding }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = capital_ship  value = 8 }
+	ai_strategy = { type = research_weight_factor  id = basic_ship_hull_heavy  value = 100 }
+}
+
+rpx_focus_strat_rpx_econ3_capital_shipbuilding_2 = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_econ3_capital_shipbuilding_2 }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = capital_ship  value = 5 }
+}
+
+rpx_focus_strat_rpx_econ3_convoy_focus = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_econ3_convoy_focus }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 3 }
+	ai_strategy = { type = unit_ratio  id = convoy  value = 5 }
+}
+
+rpx_focus_strat_rpx_fp1_foreign_ministry = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_fp1_foreign_ministry }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = pp_spend_amount  id = idea  value = 50 }
+}
+
+rpx_focus_strat_rpx_navy1_advanced_shipbuilding = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_advanced_shipbuilding }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 2 }
+}
+
+rpx_focus_strat_rpx_navy1_battleship_armor = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_battleship_armor }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = capital_ship  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy1_battleship_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_battleship_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = capital_ship  value = 8 }
+	ai_strategy = { type = research_weight_factor  id = basic_ship_hull_heavy  value = 100 }
+}
+
+rpx_focus_strat_rpx_navy1_carrier_flight_deck = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_carrier_flight_deck }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = carrier  value = 5 }
+	ai_strategy = { type = unit_ratio  id = cv_fighter  value = 5 }
+	ai_strategy = { type = unit_ratio  id = cv_naval_bomber  value = 5 }
+	ai_strategy = { type = unit_ratio  id = cv_cas  value = 3 }
+}
+
+rpx_focus_strat_rpx_navy1_carrier_production = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_carrier_production }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = carrier  value = 5 }
+	ai_strategy = { type = unit_ratio  id = cv_fighter  value = 5 }
+	ai_strategy = { type = unit_ratio  id = cv_naval_bomber  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy1_convoy_protection = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_convoy_protection }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 3 }
+	ai_strategy = { type = unit_ratio  id = convoy  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy1_cruiser_flotillas = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_cruiser_flotillas }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 2 }
+	ai_strategy = { type = unit_ratio  id = convoy  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy1_cruiser_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_cruiser_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 5 }
+	ai_strategy = { type = research_weight_factor  id = basic_ship_hull_cruiser  value = 100 }
+}
+
+rpx_focus_strat_rpx_navy1_destroyer_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_destroyer_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 8 }
+	ai_strategy = { type = research_weight_factor  id = basic_ship_hull_light  value = 100 }
+}
+
+rpx_focus_strat_rpx_navy1_heavy_guns = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_heavy_guns }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = capital_ship  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy1_light_cruiser_squadrons = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_light_cruiser_squadrons }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy1_shipbuilding_network = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_shipbuilding_network }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 2 }
+	ai_strategy = { type = unit_ratio  id = convoy  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy1_super_heavy_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_super_heavy_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = capital_ship  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy1_torpedo_cruiser_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy1_torpedo_cruiser_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 3 }
+}
+
+rpx_focus_strat_rpx_navy2_battleship_armor = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_battleship_armor }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = capital_ship  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy2_battleship_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_battleship_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = capital_ship  value = 8 }
+	ai_strategy = { type = research_weight_factor  id = basic_ship_hull_heavy  value = 100 }
+}
+
+rpx_focus_strat_rpx_navy2_cruiser_flotillas = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_cruiser_flotillas }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 2 }
+	ai_strategy = { type = unit_ratio  id = convoy  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy2_cruiser_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_cruiser_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 5 }
+	ai_strategy = { type = research_weight_factor  id = basic_ship_hull_cruiser  value = 100 }
+}
+
+rpx_focus_strat_rpx_navy2_cruiser_squadrons = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_cruiser_squadrons }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy2_cruiser_submarines = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_cruiser_submarines }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = submarine  value = 3 }
+}
+
+rpx_focus_strat_rpx_navy2_destroyer_escorts = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_destroyer_escorts }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 3 }
+	ai_strategy = { type = unit_ratio  id = convoy  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy2_destroyer_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_destroyer_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 8 }
+	ai_strategy = { type = research_weight_factor  id = basic_ship_hull_light  value = 100 }
+}
+
+rpx_focus_strat_rpx_navy2_fleet_submarine_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_fleet_submarine_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = submarine  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy2_heavy_guns = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_heavy_guns }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = capital_ship  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy2_midget_submarines = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_midget_submarines }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = submarine  value = 3 }
+}
+
+rpx_focus_strat_rpx_navy2_shipyard_network = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_shipyard_network }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 2 }
+	ai_strategy = { type = unit_ratio  id = convoy  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy2_submarine_production = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_submarine_production }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = submarine  value = 10 }
+	ai_strategy = { type = research_weight_factor  id = basic_ship_hull_submarine  value = 100 }
+}
+
+rpx_focus_strat_rpx_navy2_submarine_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_submarine_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = submarine  value = 10 }
+	ai_strategy = { type = research_weight_factor  id = basic_ship_hull_submarine  value = 100 }
+}
+
+rpx_focus_strat_rpx_navy2_submarine_stealth = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_submarine_stealth }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = submarine  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy2_torpedo_expertise = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy2_torpedo_expertise }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = submarine  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy3_advanced_shipbuilding = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_advanced_shipbuilding }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 2 }
+}
+
+rpx_focus_strat_rpx_navy3_capital_armor = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_capital_armor }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = capital_ship  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy3_capital_guns = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_capital_guns }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = capital_ship  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy3_capital_ship_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_capital_ship_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = capital_ship  value = 8 }
+	ai_strategy = { type = research_weight_factor  id = basic_ship_hull_heavy  value = 100 }
+}
+
+rpx_focus_strat_rpx_navy3_carrier_air_group = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_carrier_air_group }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = carrier  value = 5 }
+	ai_strategy = { type = unit_ratio  id = cv_fighter  value = 5 }
+	ai_strategy = { type = unit_ratio  id = cv_naval_bomber  value = 5 }
+	ai_strategy = { type = unit_ratio  id = cv_cas  value = 3 }
+}
+
+rpx_focus_strat_rpx_navy3_convoy_escort = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_convoy_escort }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 3 }
+	ai_strategy = { type = unit_ratio  id = convoy  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy3_convoy_protection = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_convoy_protection }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 3 }
+	ai_strategy = { type = unit_ratio  id = convoy  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy3_cruiser_submarine = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_cruiser_submarine }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = submarine  value = 3 }
+}
+
+rpx_focus_strat_rpx_navy3_destroyer_screen = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_destroyer_screen }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 8 }
+	ai_strategy = { type = research_weight_factor  id = basic_ship_hull_light  value = 100 }
+}
+
+rpx_focus_strat_rpx_navy3_fleet_submarine = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_fleet_submarine }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = submarine  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy3_light_cruiser_squadrons = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_light_cruiser_squadrons }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy3_light_ship_program = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_light_ship_program }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 5 }
+	ai_strategy = { type = research_weight_factor  id = basic_ship_hull_cruiser  value = 100 }
+}
+
+rpx_focus_strat_rpx_navy3_mega_carrier = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_mega_carrier }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = carrier  value = 5 }
+	ai_strategy = { type = unit_ratio  id = cv_fighter  value = 5 }
+	ai_strategy = { type = unit_ratio  id = cv_naval_bomber  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy3_midget_submarine = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_midget_submarine }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = submarine  value = 3 }
+}
+
+rpx_focus_strat_rpx_navy3_naval_air_supremacy = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_naval_air_supremacy }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = carrier  value = 5 }
+	ai_strategy = { type = unit_ratio  id = cv_fighter  value = 5 }
+	ai_strategy = { type = unit_ratio  id = cv_naval_bomber  value = 5 }
+	ai_strategy = { type = unit_ratio  id = cv_cas  value = 3 }
+}
+
+rpx_focus_strat_rpx_navy3_shipbuilding_network = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_shipbuilding_network }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 2 }
+	ai_strategy = { type = unit_ratio  id = convoy  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy3_submarine_arm = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_submarine_arm }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = submarine  value = 10 }
+	ai_strategy = { type = research_weight_factor  id = basic_ship_hull_submarine  value = 100 }
+}
+
+rpx_focus_strat_rpx_navy3_submarine_stealth = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_submarine_stealth }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = submarine  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy3_submarine_torpedo = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_submarine_torpedo }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = submarine  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy3_super_heavy_ships = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_super_heavy_ships }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = capital_ship  value = 5 }
+}
+
+rpx_focus_strat_rpx_navy3_torpedo_craft = {
+	allowed = { always = yes }
+	enable = { has_country_flag = rpx_navy3_torpedo_craft }
+	abort_when_not_enabled = yes
+
+	ai_strategy = { type = unit_ratio  id = screen_ship  value = 3 }
+}

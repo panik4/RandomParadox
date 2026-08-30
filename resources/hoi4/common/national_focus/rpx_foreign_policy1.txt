@@ -1,0 +1,435 @@
+focus_tree = {
+	id = rpx_foreign_policy_1
+
+	country = {
+		factor = 0
+	}
+
+	default = no
+
+	focus = {
+		id = rpx_fp1_diplomatic_pivot
+		icon = GFX_focus_generic_diplomatic_treaty
+		x = 0
+		y = 0
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		completion_reward = {
+			rpx_fp1_diplomatic_pivot_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_open_diplomacy
+		icon = GFX_focus_generic_diplomatic_treaty
+		x = -8
+		y = 1
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_diplomatic_pivot }
+		completion_reward = {
+			rpx_fp1_open_diplomacy_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_trade_agreements
+		icon = GFX_goal_generic_trade
+		x = -9
+		y = 2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_open_diplomacy }
+		completion_reward = {
+			rpx_fp1_trade_agreements_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_military_cooperation
+		icon = GFX_focus_generic_arms_trade
+		x = -7
+		y = 2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_open_diplomacy }
+		completion_reward = {
+			rpx_fp1_military_cooperation_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_defensive_pact
+		icon = GFX_focus_generic_diplomatic_treaty
+		x = -9
+		y = 3
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_trade_agreements focus = rpx_fp1_military_cooperation }
+		completion_reward = {
+			rpx_fp1_defensive_pact_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_guarantee_ally
+		icon = GFX_focus_generic_treaty
+		x = -9
+		y = 5
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_defensive_pact }
+		completion_reward = {
+			rpx_fp1_guarantee_ally_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_diplomatic_pressure
+		icon = GFX_focus_generic_whispers
+		x = -7
+		y = 5
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_defensive_pact }
+		completion_reward = {
+			rpx_fp1_diplomatic_pressure_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_grand_alliance
+		icon = GFX_goal_generic_major_alliance
+		x = -8
+		y = 6
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_guarantee_ally focus = rpx_fp1_diplomatic_pressure }
+		completion_reward = {
+			rpx_fp1_grand_alliance_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_foreign_ministry
+		icon = GFX_focus_generic_conference
+		x = -3
+		y = 1
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_diplomatic_pivot }
+		completion_reward = {
+			rpx_fp1_foreign_ministry_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_claim_faction_leadership
+		icon = GFX_focus_generic_commission
+		x = -3
+		y = 2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_foreign_ministry }
+		available = {
+			is_major = yes
+		}
+		completion_reward = {
+			rpx_fp1_claim_faction_leadership_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_found_faction
+		icon = GFX_goal_generic_major_alliance
+		x = -3
+		y = 3
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_claim_faction_leadership }
+		available = {
+			is_major = yes
+		}
+		completion_reward = {
+			rpx_fp1_found_faction_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_expand_faction
+		icon = GFX_focus_generic_diplomatic_treaty
+		x = -4
+		y = 4
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_found_faction }
+		completion_reward = {
+			rpx_fp1_expand_faction_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_invite_members
+		icon = GFX_focus_generic_blue_flags
+		x = -2
+		y = 4
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_found_faction }
+		completion_reward = {
+			rpx_fp1_invite_members_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_faction_hegemon
+		icon = GFX_focus_generic_baltic_entente
+		x = -3
+		y = 5
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_expand_faction focus = rpx_fp1_invite_members }
+		completion_reward = {
+			rpx_fp1_faction_hegemon_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_war_council
+		icon = GFX_focus_generic_national_security
+		x = 1
+		y = 1
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_diplomatic_pivot }
+		completion_reward = {
+			rpx_fp1_war_council_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_justify_claims
+		icon = GFX_focus_generic_diplomatic_treaty
+		x = 1
+		y = 2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_war_council }
+		completion_reward = {
+			rpx_fp1_justify_claims_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_first_conquest
+		icon = GFX_focus_generic_attack_austria
+		x = 0
+		y = 3
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_justify_claims }
+		completion_reward = {
+			rpx_fp1_first_conquest_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_annex_neighbor
+		icon = GFX_focus_generic_annex_country
+		x = 2
+		y = 3
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_justify_claims }
+		completion_reward = {
+			rpx_fp1_annex_neighbor_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_conquest_campaign
+		icon = GFX_focus_generic_total_war
+		x = 1
+		y = 4
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_first_conquest focus = rpx_fp1_annex_neighbor }
+		completion_reward = {
+			rpx_fp1_conquest_campaign_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_continental_war
+		icon = GFX_focus_generic_annex_country_2
+		x = 0
+		y = 5
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_conquest_campaign }
+		completion_reward = {
+			rpx_fp1_continental_war_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_eastern_campaign
+		icon = GFX_focus_generic_attack_poland
+		x = 2
+		y = 5
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_conquest_campaign }
+		completion_reward = {
+			rpx_fp1_eastern_campaign_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_grand_war
+		icon = GFX_goal_generic_major_war
+		x = 1
+		y = 6
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_continental_war focus = rpx_fp1_eastern_campaign }
+		completion_reward = {
+			rpx_fp1_grand_war_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_war_propaganda
+		icon = GFX_focus_generic_diplomatic_treaty
+		x = 5
+		y = 1
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_diplomatic_pivot }
+		completion_reward = {
+			rpx_fp1_war_propaganda_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_escalate_tensions
+		icon = GFX_focus_generic_provoke_border_clashes
+		x = 5
+		y = 2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_war_propaganda }
+		completion_reward = {
+			rpx_fp1_escalate_tensions_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_total_war_escalation
+		icon = GFX_focus_generic_total_war
+		x = 5
+		y = 3
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_escalate_tensions }
+		completion_reward = {
+			rpx_fp1_total_war_escalation_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_final_escalation
+		icon = GFX_focus_generic_nuclear_development
+		x = 5
+		y = 4
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_total_war_escalation }
+		completion_reward = {
+			rpx_fp1_final_escalation_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_military_mission
+		icon = GFX_focus_generic_military_mission
+		x = -6
+		y = 4
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_military_cooperation }
+		completion_reward = {
+			rpx_fp1_military_mission_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_league_of_nations
+		icon = GFX_focus_generic_league_of_nations
+		x = -5
+		y = 2
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_foreign_ministry }
+		completion_reward = {
+			rpx_fp1_league_of_nations_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_espionage
+		icon = GFX_focus_generic_conspiracy
+		x = -7
+		y = 3
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_diplomatic_pressure }
+		completion_reward = {
+			rpx_fp1_espionage_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_fp1_world_hegemony
+		icon = GFX_focus_generic_baltic_sea_empire
+		x = 1
+		y = 7
+		cost = 10
+		search_filters = { FOCUS_FILTER_POLITICAL }
+		available_if_capitulated = yes
+		prerequisite = { focus = rpx_fp1_grand_war }
+		completion_reward = {
+			rpx_fp1_world_hegemony_reward = yes
+		}
+	}
+
+}

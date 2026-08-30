@@ -1,0 +1,1461 @@
+focus_tree = {
+	id = rpx_navy2_submarine_warfare_focus
+	
+	country = {
+		factor = 0
+	}
+	
+	default = no
+	
+	focus = {
+		id = rpx_navy2_submarine_command
+		icon = GFX_goal_generic_navy_submarine
+		x = 0
+		y = 0
+		cost = 8
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_submarine_command_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_submarine_program
+		icon = GFX_goal_generic_navy_submarine
+		prerequisite = { focus = rpx_navy2_submarine_command }
+		x = -10
+		y = 1
+		relative_position_id = rpx_navy2_submarine_command
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_commerce_raider
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_submarine_program_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_submarine_fleet
+		icon = GFX_goal_generic_navy_submarine
+		prerequisite = { focus = rpx_navy2_submarine_program }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_submarine_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_commerce_raider
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_submarine_fleet_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_torpedo_expertise
+		icon = GFX_focus_generic_torpedo_production
+		prerequisite = { focus = rpx_navy2_submarine_fleet }
+		x = -1
+		y = 1
+		relative_position_id = rpx_navy2_submarine_fleet
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_commerce_raider
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_torpedo_expertise_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_submarine_stealth
+		icon = GFX_goal_generic_navy_submarine
+		prerequisite = { focus = rpx_navy2_submarine_fleet }
+		x = 1
+		y = 1
+		relative_position_id = rpx_navy2_submarine_fleet
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_submarine_stealth_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_submarine_hunter_killer
+		icon = GFX_goal_generic_navy_anti_submarine
+		prerequisite = { focus = rpx_navy2_submarine_stealth }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_submarine_stealth
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_fleet_in_being
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_submarine_hunter_killer_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_fleet_submarine_program
+		icon = GFX_goal_generic_navy_submarine
+		prerequisite = { focus = rpx_navy2_torpedo_expertise }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_torpedo_expertise
+		cost = 15
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		available = {
+			dockyard > 20
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_fleet_submarine_program_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_cruiser_submarines
+		icon = GFX_focus_generic_cruiser_submarines
+		prerequisite = { focus = rpx_navy2_fleet_submarine_program }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_fleet_submarine_program
+		cost = 15
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		available = {
+			dockyard > 20
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_cruiser_submarines_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_midget_submarines
+		icon = GFX_focus_generic_midget_submarines
+		prerequisite = { focus = rpx_navy2_cruiser_submarines }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_cruiser_submarines
+		cost = 15
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		available = {
+			dockyard > 20
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_midget_submarines_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_mine_warfare
+		icon = GFX_focus_generic_mine_warfare
+		prerequisite = { focus = rpx_navy2_submarine_command }
+		x = -7
+		y = 1
+		relative_position_id = rpx_navy2_submarine_command
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_coastal_defense
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_mine_warfare_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_minelaying
+		icon = GFX_focus_generic_mine_warfare
+		prerequisite = { focus = rpx_navy2_mine_warfare }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_mine_warfare
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_coastal_defense
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_minelaying_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_minesweeping
+		icon = GFX_focus_generic_mine_warfare
+		prerequisite = { focus = rpx_navy2_mine_warfare }
+		x = 2
+		y = 1
+		relative_position_id = rpx_navy2_mine_warfare
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_coastal_defense
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_minesweeping_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_naval_mines_tech
+		icon = GFX_focus_generic_mine_warfare
+		prerequisite = { focus = rpx_navy2_minelaying }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_minelaying
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_coastal_defense
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_naval_mines_tech_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_mine_doctrine
+		icon = GFX_goal_generic_navy_doctrines_tactics
+		prerequisite = { focus = rpx_navy2_naval_mines_tech }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_naval_mines_tech
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_coastal_defense
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_mine_doctrine_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_sea_mines
+		icon = GFX_focus_generic_mine_warfare
+		prerequisite = { focus = rpx_navy2_mine_doctrine }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_mine_doctrine
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_coastal_defense
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_sea_mines_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_convoy_raiding
+		icon = GFX_focus_generic_trade_interdiction
+		prerequisite = { focus = rpx_navy2_submarine_command }
+		x = -3
+		y = 1
+		relative_position_id = rpx_navy2_submarine_command
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_commerce_raider
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_convoy_raiding_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_raiding_doctrine
+		icon = GFX_goal_generic_wolf_pack
+		prerequisite = { focus = rpx_navy2_convoy_raiding }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_convoy_raiding
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_commerce_raider
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_raiding_doctrine_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_fuel_efficiency
+		icon = GFX_focus_generic_stockpile_fuel
+		prerequisite = { focus = rpx_navy2_raiding_doctrine }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_raiding_doctrine
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_commerce_raider
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_fuel_efficiency_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_base_network
+		icon = GFX_goal_generic_construct_naval_dockyard
+		prerequisite = { focus = rpx_navy2_fuel_efficiency }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_fuel_efficiency
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_base_network_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_projection
+		icon = GFX_focus_generic_large_navy
+		prerequisite = { focus = rpx_navy2_base_network }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_base_network
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_overseas_fleet
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_projection_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_expeditionary_training
+		icon = GFX_focus_generic_naval_invasion
+		prerequisite = { focus = rpx_navy2_projection }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_projection
+		cost = 15
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 20
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_amphibious
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_expeditionary_training_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_naval_support
+		icon = GFX_goal_generic_construct_naval_dockyard
+		prerequisite = { focus = rpx_navy2_submarine_command }
+		x = -1
+		y = 1
+		relative_position_id = rpx_navy2_submarine_command
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_naval_support_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_shipyard_network
+		icon = GFX_goal_generic_construct_naval_dockyard
+		prerequisite = { focus = rpx_navy2_naval_support }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_naval_support
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		available = {
+			dockyard > 20
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_shipyard_network_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_submarine_production
+		icon = GFX_goal_generic_wolf_pack
+		prerequisite = { focus = rpx_navy2_shipyard_network }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_shipyard_network
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 20
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_commerce_raider
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_submarine_production_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_logistics_doctrine
+		icon = GFX_goal_generic_navy_doctrines_tactics
+		prerequisite = { focus = rpx_navy2_submarine_production }
+		x = 0
+		y = 2
+		relative_position_id = rpx_navy2_submarine_production
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_commerce_raider
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_logistics_doctrine_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_naval_academy
+		icon = GFX_goal_generic_navy_doctrines_tactics
+		prerequisite = { focus = rpx_navy2_submarine_command }
+		x = 3
+		y = 1
+		relative_position_id = rpx_navy2_submarine_command
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_naval_academy_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_doctrine_research
+		icon = GFX_focus_generic_navy_research_bonus
+		prerequisite = { focus = rpx_navy2_naval_academy }
+		x = 2
+		y = 1
+		relative_position_id = rpx_navy2_naval_academy
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_doctrine_research_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_intelligence
+		icon = GFX_goal_generic_navy_doctrines_tactics
+		prerequisite = { focus = rpx_navy2_naval_academy }
+		x = -2
+		y = 1
+		relative_position_id = rpx_navy2_naval_academy
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_intelligence_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_combined_arms
+		icon = GFX_goal_generic_navy_doctrines_tactics
+		prerequisite = { focus = rpx_navy2_naval_academy }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_naval_academy
+		cost = 15
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 30
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_combined_arms_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_morale
+		icon = GFX_goal_generic_navy_doctrines_tactics
+		prerequisite = { focus = rpx_navy2_intelligence }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_intelligence
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_morale_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_critical_hits
+		icon = GFX_goal_generic_navy_doctrines_tactics
+		prerequisite = { focus = rpx_navy2_combined_arms }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_combined_arms
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_naval_gunnery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_critical_hits_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_leadership
+		icon = GFX_focus_generic_naval_discipline
+		prerequisite = { focus = rpx_navy2_morale }
+		x = 0
+		y = 2
+		relative_position_id = rpx_navy2_morale
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_leadership_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_u_boat_armada
+		icon = GFX_goal_generic_wolf_pack
+		x = 2
+		y = 1
+		relative_position_id = rpx_navy2_midget_submarines
+		prerequisite = { focus = rpx_navy2_midget_submarines }
+		prerequisite = { focus = rpx_navy2_mine_barrage }
+		cost = 15
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_commerce_raider
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_u_boat_armada_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_mine_barrage
+		icon = GFX_focus_generic_mine_warfare
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_sea_mines
+		prerequisite = { focus = rpx_navy2_sea_mines }
+		cost = 15
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 40
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_coastal_defense
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_mine_barrage_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_total_blockade
+		icon = GFX_focus_generic_trade_interdiction
+		x = 8
+		y = 1
+		relative_position_id = rpx_navy2_u_boat_armada
+		prerequisite = { focus = rpx_navy2_logistics_doctrine }
+		prerequisite = { focus = rpx_navy2_u_boat_armada }
+		prerequisite = { focus = rpx_navy2_expeditionary_training }
+		prerequisite = { focus = rpx_navy2_leadership }
+		cost = 15
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		available = {
+			num_of_factories > 100
+		}
+		continue_if_invalid = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_submarine
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_commerce_raider
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_total_blockade_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_destroyer_program
+		icon = GFX_focus_generic_destroyer
+		x = 5
+		y = 1
+		relative_position_id = rpx_navy2_naval_academy
+		cost = 10
+		prerequisite = { focus = rpx_navy2_naval_academy }
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_coastal_defense
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_fleet_in_being
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_destroyer_program_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_destroyer_escorts
+		icon = GFX_focus_generic_escort_efficiency
+		prerequisite = { focus = rpx_navy2_destroyer_program }
+		x = -1
+		y = 1
+		relative_position_id = rpx_navy2_destroyer_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_fleet_in_being
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_coastal_defense
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_destroyer_escorts_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_destroyer_doctrine
+		icon = GFX_goal_generic_navy_doctrines_tactics
+		prerequisite = { focus = rpx_navy2_destroyer_program }
+		x = 1
+		y = 1
+		relative_position_id = rpx_navy2_destroyer_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_fleet_in_being
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_coastal_defense
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_destroyer_doctrine_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_destroyer_flotillas
+		icon = GFX_focus_generic_destroyer
+		prerequisite = { focus = rpx_navy2_destroyer_escorts }
+		prerequisite = { focus = rpx_navy2_destroyer_doctrine }
+		x = 1
+		y = 1
+		relative_position_id = rpx_navy2_destroyer_escorts
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 5
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_fleet_in_being
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_destroyer_flotillas_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_cruiser_program
+		icon = GFX_goal_generic_navy_cruiser
+		x = 9
+		y = 1
+		relative_position_id = rpx_navy2_naval_academy
+		prerequisite = { focus = rpx_navy2_naval_academy }
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 10
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_maritime
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_cruiser_program_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_cruiser_squadrons
+		icon = GFX_focus_generic_cruiser2
+		prerequisite = { focus = rpx_navy2_cruiser_program }
+		x = -1
+		y = 1
+		relative_position_id = rpx_navy2_cruiser_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 10
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_maritime
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_cruiser_squadrons_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_cruiser_doctrine
+		icon = GFX_goal_generic_navy_doctrines_tactics
+		prerequisite = { focus = rpx_navy2_cruiser_program }
+		x = 1
+		y = 1
+		relative_position_id = rpx_navy2_cruiser_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 10
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_maritime
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_naval_gunnery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_cruiser_doctrine_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_cruiser_flotillas
+		icon = GFX_focus_generic_cruiser2
+		prerequisite = { focus = rpx_navy2_cruiser_squadrons }
+		prerequisite = { focus = rpx_navy2_cruiser_doctrine }
+		x = 1
+		y = 1
+		relative_position_id = rpx_navy2_cruiser_squadrons
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories < 10
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_maritime
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_cruiser_flotillas_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_heavy_shipyard
+		icon = GFX_goal_generic_construct_naval_dockyard
+		prerequisite = { focus = rpx_navy2_destroyer_flotillas }
+		prerequisite = { focus = rpx_navy2_cruiser_flotillas }
+		x = 2
+		y = 1
+		relative_position_id = rpx_navy2_destroyer_flotillas
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_capital_ship
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_heavy_shipyard_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_battleship_program
+		icon = GFX_goal_generic_navy_battleship
+		prerequisite = { focus = rpx_navy2_heavy_shipyard }
+		prerequisite = { focus = rpx_navy2_leadership }
+		x = 0
+		y = 1
+		relative_position_id = rpx_navy2_heavy_shipyard
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_capital_ship
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_naval_gunnery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_battleship_program_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_battleship_armor
+		icon = GFX_focus_generic_navy_battleship2
+		prerequisite = { focus = rpx_navy2_battleship_program }
+		x = -1
+		y = 1
+		relative_position_id = rpx_navy2_battleship_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_capital_ship
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_battleship_armor_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_heavy_guns
+		icon = GFX_focus_generic_battleship_guns
+		prerequisite = { focus = rpx_navy2_battleship_program }
+		x = 1
+		y = 1
+		relative_position_id = rpx_navy2_battleship_program
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_capital_ship
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_naval_gunnery
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_heavy_guns_reward = yes
+		}
+	}
+
+	focus = {
+		id = rpx_navy2_battleship_squadrons
+		icon = GFX_focus_generic_navy_battleship2
+		prerequisite = { focus = rpx_navy2_battleship_armor }
+		prerequisite = { focus = rpx_navy2_heavy_guns }
+		x = 1
+		y = 1
+		relative_position_id = rpx_navy2_battleship_armor
+		cost = 10
+		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_NAVY_XP }
+		available_if_capitulated = yes
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_naval_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_nav_capital_ship
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_navy2_battleship_squadrons_reward = yes
+		}
+	}
+
+}

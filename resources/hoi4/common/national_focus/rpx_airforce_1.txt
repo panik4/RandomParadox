@@ -15,17 +15,15 @@ focus_tree = {
 		cost = 8
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_air_command_structure
-			add_doctrine_cost_reduction = {
-				name = rpx_air1_doctrine_command
-				cost_reduction = 0.5
-				uses = 2
-				category = air_doctrine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
 			}
-			air_experience = 40
-			add_political_power = 100
+		}
+		completion_reward = {
+			rpx_air1_air_force_command_reward = yes
 		}
 	}
 
@@ -39,35 +37,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
 		ai_will_do = {
 			factor = 1
 			modifier = {
 				factor = 2
-				num_of_military_factories < 15
+				num_of_military_factories > 20
 			}
 			modifier = {
-				factor = 0.5
-				num_of_military_factories > 30
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_aviation
 			}
 			modifier = {
 				factor = 2
 				has_war = yes
 			}
 		}
-
 		completion_reward = {
-			add_ideas = rpx_air_fighter_program
-			add_tech_bonus = {
-				name = rpx_air1_fighter_prog
-				bonus = 0.75
-				uses = 1
-				category = light_fighter
-			}
-			add_equipment_to_stockpile = {
-				type = fighter_equipment_1
-				amount = 20
-			}
+			rpx_air1_fighter_program_reward = yes
 		}
 	}
 
@@ -81,16 +71,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_air_interceptor_focus
-			add_tech_bonus = {
-				name = rpx_air1_interceptor_guns
-				bonus = 0.5
-				uses = 1
-				category = cat_air_guns
-				category = cat_air_engine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
 			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_aviation
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_air1_interceptor_development_reward = yes
 		}
 	}
 
@@ -104,15 +105,23 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_air_fighter_engine
-			add_tech_bonus = {
-				name = rpx_air1_engines
-				bonus = 0.5
-				uses = 2
-				category = cat_air_engine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
 			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_air1_fighter_engines_reward = yes
 		}
 	}
 
@@ -126,15 +135,23 @@ focus_tree = {
 		cost = 12
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_air_air_superiority
-			add_doctrine_cost_reduction = {
-				name = rpx_air1_doc_asupr
-				cost_reduction = 0.5
-				uses = 1
-				category = air_doctrine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
 			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_air1_air_superiority_reward = yes
 		}
 	}
 
@@ -148,16 +165,27 @@ focus_tree = {
 		cost = 12
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_air_air_dominance
-			add_tech_bonus = {
-				name = rpx_air1_heavy
-				bonus = 0.5
-				uses = 1
-				category = cat_heavy_fighter
-				category = heavy_air
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 40
 			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_tactical_air_force
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_air1_heavy_fighter_reward = yes
 		}
 	}
 
@@ -171,10 +199,23 @@ focus_tree = {
 		cost = 14
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 40
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_ace_training
-			air_experience = 60
+			rpx_air1_air_dominance_reward = yes
 		}
 	}
 
@@ -188,19 +229,23 @@ focus_tree = {
 		cost = 12
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_combat_training
-			add_tech_bonus = {
-				name = rpx_air1_sq2
-				bonus = 0.75
-				uses = 2
-				category = light_fighter
-			}
-			add_equipment_to_stockpile = {
-				type = fighter_equipment_2
-				amount = 20
-			}
+			rpx_air1_fighter_squadrons_reward = yes
 		}
 	}
 
@@ -215,11 +260,27 @@ focus_tree = {
 		cost = 14
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_aviation
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_pilot_training
-			air_experience = 80
-			add_war_support = 5
+			rpx_air1_ace_wing_reward = yes
 		}
 	}
 
@@ -233,10 +294,23 @@ focus_tree = {
 		cost = 16
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_total_air_dominance
-			add_war_support = 5
+			rpx_air1_fighter_capstone_reward = yes
 		}
 	}
 
@@ -250,15 +324,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_air_home_defence
-			add_doctrine_cost_reduction = {
-				name = rpx_air1_doc_home
-				cost_reduction = 0.5
-				uses = 1
-				category = air_doctrine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
 			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_defense
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_air1_home_defence_reward = yes
 		}
 	}
 
@@ -272,14 +358,23 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_tech_bonus = {
-				name = rpx_air1_intercept2
-				bonus = 0.5
-				uses = 2
-				category = cat_air_guns
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
 			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_defense
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_air1_interception_net_reward = yes
 		}
 	}
 
@@ -293,16 +388,23 @@ focus_tree = {
 		cost = 12
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_air_veteran_wing
-			add_tech_bonus = {
-				name = rpx_air1_radar
-				bonus = 0.5
-				uses = 1
-				category = electronics
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
 			}
-			air_experience = 40
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_defense
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_air1_early_warning_reward = yes
 		}
 	}
 
@@ -316,15 +418,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_air_escort_doctrine
-			add_doctrine_cost_reduction = {
-				name = rpx_air1_doc_esc
-				cost_reduction = 0.5
-				uses = 1
-				category = air_doctrine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 40
 			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_aviation
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_air1_escort_doctrine_reward = yes
 		}
 	}
 
@@ -338,18 +452,23 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 40
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_tech_bonus = {
-				name = rpx_air1_esc_sq
-				bonus = 0.5
-				uses = 2
-				category = light_fighter
-			}
-			add_equipment_to_stockpile = {
-				type = fighter_equipment_1
-				amount = 20
-			}
+			rpx_air1_escort_squadrons_reward = yes
 		}
 	}
 
@@ -363,15 +482,27 @@ focus_tree = {
 		cost = 12
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_tech_bonus = {
-				name = rpx_air1_esc_range
-				bonus = 0.5
-				uses = 2
-				category = cat_air_engine
-				category = plane_modules_tech
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 40
 			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_tactical_air_force
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_air1_long_range_escort_reward = yes
 		}
 	}
 
@@ -385,10 +516,23 @@ focus_tree = {
 		cost = 14
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 40
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_all_weather
-			air_experience = 60
+			rpx_air1_escort_command_reward = yes
 		}
 	}
 
@@ -402,15 +546,15 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_ideas = rpx_air_doctrine_research
-			add_doctrine_cost_reduction = {
-				name = rpx_air1_doc_res
-				cost_reduction = 0.5
-				uses = 2
-				category = air_doctrine
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
 			}
+		}
+		completion_reward = {
+			rpx_air1_doctrine_research_reward = yes
 		}
 	}
 
@@ -424,10 +568,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_aviation
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_ace_training
-			air_experience = 40
+			rpx_air1_ace_training_reward = yes
 		}
 	}
 
@@ -441,10 +602,27 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_aviation
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_combat_training
-			air_experience = 40
+			rpx_air1_combat_training_reward = yes
 		}
 	}
 
@@ -458,10 +636,27 @@ focus_tree = {
 		cost = 12
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_aviation
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_pilot_training
-			air_experience = 60
+			rpx_air1_pilot_training_reward = yes
 		}
 	}
 
@@ -475,10 +670,23 @@ focus_tree = {
 		cost = 12
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_aviation
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_officer_corps
-			air_experience = 40
+			rpx_air1_officer_corps_reward = yes
 		}
 	}
 
@@ -493,9 +701,23 @@ focus_tree = {
 		cost = 14
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_aviation
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			air_experience = 80
+			rpx_air1_command_structure_reward = yes
 		}
 	}
 
@@ -509,10 +731,27 @@ focus_tree = {
 		cost = 16
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_aviation
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_master_pilots
-			add_war_support = 5
+			rpx_air1_master_pilots_reward = yes
 		}
 	}
 
@@ -526,9 +765,15 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_base_expansion
+			rpx_air1_base_expansion_reward = yes
 		}
 	}
 
@@ -542,9 +787,19 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_fuel_reserves
+			rpx_air1_fuel_reserves_reward = yes
 		}
 	}
 
@@ -558,9 +813,19 @@ focus_tree = {
 		cost = 10
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_maintenance
+			rpx_air1_maintenance_reward = yes
 		}
 	}
 
@@ -574,9 +839,23 @@ focus_tree = {
 		cost = 12
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_aviation
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_all_weather
+			rpx_air1_all_weather_reward = yes
 		}
 	}
 
@@ -590,14 +869,19 @@ focus_tree = {
 		cost = 12
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
-		completion_reward = {
-			add_tech_bonus = {
-				name = rpx_air1_airfield
-				bonus = 0.5
-				uses = 2
-				category = air_equipment
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
 			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
+		completion_reward = {
+			rpx_air1_airfield_network_reward = yes
 		}
 	}
 
@@ -612,10 +896,23 @@ focus_tree = {
 		cost = 14
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				num_of_military_factories > 20
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_independent_air_force
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_volunteer_squadrons
-			air_experience = 60
+			rpx_air1_volunteer_squadrons_reward = yes
 		}
 	}
 
@@ -631,10 +928,27 @@ focus_tree = {
 		cost = 18
 		search_filters = { FOCUS_FILTER_RESEARCH FOCUS_FILTER_AIR_XP }
 		available_if_capitulated = yes
-
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_fighter
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_independent_air_force
+			}
+			modifier = {
+				factor = 2
+				has_idea = rpx_char_air_aviation
+			}
+			modifier = {
+				factor = 2
+				has_war = yes
+			}
+		}
 		completion_reward = {
-			add_ideas = rpx_air_supreme_air_power
-			add_war_support = 10
+			rpx_air1_supreme_air_power_reward = yes
 		}
 	}
 
