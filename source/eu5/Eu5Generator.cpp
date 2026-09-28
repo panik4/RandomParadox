@@ -284,7 +284,7 @@ void Generator::generate() {
     // }
 
     //// handle basic development, tech level, policies,
-    // generateCountrySpecifics();
+    // generateHardCountrySpecifics();
     // diplomaticRelations();
     // createMarkets();
     // calculateNeeds();

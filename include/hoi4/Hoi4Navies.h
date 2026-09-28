@@ -118,4 +118,5 @@ void addShipClassModules(
     const std::map<TechEra, std::vector<Technology>> &availableModuleTech,
     const std::map<TechEra, std::vector<Technology>> &availableArmyTech);
 
+
 } // namespace Rpx::Hoi4
