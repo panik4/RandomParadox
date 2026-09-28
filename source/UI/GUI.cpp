@@ -3,7 +3,8 @@
 static int selectedGame = 0;
 static bool showErrorPopup = false;
 static std::string errorLog;
-static bool requireCountryDetails = false;
+static bool requireSoftCountryDetails = false;
+static bool requireHardCountryDetails = false;
 static bool useSimulationOutput = false;
 
 // for state/country/strategic region editing
@@ -658,78 +659,130 @@ void GUI::countryEdit() {
       static std::string bufferChangedTag = "";
 
       // Country Edit Section
-      ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(50, 80, 120, 100));
-      ImGui::BeginChild("CountryEdit", ImVec2(0, 200), true,
-                        ImGuiWindowFlags_None);
-      {
-        ImGui::SeparatorText("Country Details");
-
+      ImGui::SetNextItemOpen(true, ImGuiCond_FirstUseEver);
+      if (ImGui::CollapsingHeader("Country Editing")) {
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(50, 80, 120, 100));
+        ImGui::BeginChild("CountryEdit", ImVec2(0, 500), true,
+                          ImGuiWindowFlags_None);
         {
-          Fwg::UI::Elements::GridLayout grid(2, scaled(180.0f), scaled(12.0f));
+          ImGui::SeparatorText("Country Details");
 
-          ImGui::PushItemWidth(scaled(180.0f));
-          ImGui::AlignTextToFramePadding();
-          ImGui::Text("%-*s", 25, "Country Tag");
-          ImGui::SameLine();
-          if (ImGui::InputText("##tag", &tempTag)) {
-            bufferChangedTag = tempTag;
-          }
-          ImGui::PopItemWidth();
+          {
+            Fwg::UI::Elements::GridLayout grid(2, scaled(180.0f),
+                                               scaled(12.0f));
 
-          if (Fwg::UI::Elements::Button("Update Tag", false, ImVec2(120, 0))) {
-            if (bufferChangedTag.size() != 3) {
-              Fwg::Utils::Logging::logLine("Tag must be 3 characters long");
-            } else {
-              std::string &oldTag = selectedCountry->tag;
-              if (oldTag == bufferChangedTag) {
-                Fwg::Utils::Logging::logLine("Tag is the same as the old one");
+            ImGui::PushItemWidth(scaled(180.0f));
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("%-*s", 25, "Country Tag");
+            ImGui::SameLine();
+            if (ImGui::InputText("##tag", &tempTag)) {
+              bufferChangedTag = tempTag;
+            }
+            ImGui::PopItemWidth();
+
+            if (Fwg::UI::Elements::Button("Update Tag", false,
+                                          ImVec2(120, 0))) {
+              if (bufferChangedTag.size() != 3) {
+                Fwg::Utils::Logging::logLine("Tag must be 3 characters long");
               } else {
-                activeGenerator->countries.erase(oldTag);
-                selectedCountry->tag = bufferChangedTag;
-                activeGenerator->countries.insert(
-                    {selectedCountry->tag, selectedCountry});
-                for (auto &region : selectedCountry->ownedRegions) {
-                  region->owner = selectedCountry;
+                std::string &oldTag = selectedCountry->tag;
+                if (oldTag == bufferChangedTag) {
+                  Fwg::Utils::Logging::logLine(
+                      "Tag is the same as the old one");
+                } else {
+                  activeGenerator->countries.erase(oldTag);
+                  selectedCountry->tag = bufferChangedTag;
+                  activeGenerator->countries.insert(
+                      {selectedCountry->tag, selectedCountry});
+                  for (auto &region : selectedCountry->ownedRegions) {
+                    region->owner = selectedCountry;
+                  }
                 }
+                activeGenerator->visualiseCountries(activeGenerator->countryMap,
+                                                    activeGenerator->worldMap);
               }
-              requireCountryDetails = true;
+            }
+
+            ImGui::PushItemWidth(scaled(180.0f));
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("%-*s", 25, "Country Name");
+            ImGui::SameLine();
+            ImGui::InputText("##name", &selectedCountry->name);
+
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("%-*s", 25, "Adjective");
+            ImGui::SameLine();
+            ImGui::InputText("##adj", &selectedCountry->adjective);
+            ImGui::PopItemWidth();
+
+            if (isRelevantModuleActive("hoi4")) {
+              auto hoi4Country =
+                  std::dynamic_pointer_cast<Rpx::Hoi4::Hoi4Country>(
+                      selectedCountry);
+              if (hoi4Country) {
+                ImGui::PushItemWidth(scaled(180.0f));
+                ImGui::AlignTextToFramePadding();
+                ImGui::Text("%-*s", 25, "Full Name");
+                ImGui::SameLine();
+                ImGui::InputText("##fullname", &hoi4Country->fullName);
+
+                ImGui::AlignTextToFramePadding();
+                ImGui::Text("%-*s", 25, "GFX Culture");
+                ImGui::SameLine();
+                ImGui::InputText("##gfxculture", &hoi4Country->gfxCulture);
+
+                ImGui::AlignTextToFramePadding();
+                ImGui::Text("%-*s", 25, "Ruling Party");
+                ImGui::SameLine();
+                int ideology = static_cast<int>(hoi4Country->ideology);
+                const char *ideologyNames[] = {"None", "Fascism", "Democratic",
+                                               "Communism", "Neutrality"};
+                if (ImGui::Combo("##ideology", &ideology, ideologyNames,
+                                 IM_ARRAYSIZE(ideologyNames))) {
+                  hoi4Country->ideology =
+                      static_cast<Arda::Utils::Ideology>(ideology);
+                }
+
+                const char *partyNames[] = {
+                    "Fascism Popularity", "Democratic Popularity",
+                    "Communist Popularity", "Neutrality Popularity"};
+                for (std::size_t party = 0; party < hoi4Country->parties.size();
+                     ++party) {
+                  ImGui::AlignTextToFramePadding();
+                  ImGui::Text("%-*s", 25, partyNames[party]);
+                  ImGui::SameLine();
+                  ImGui::SetNextItemWidth(scaled(180.0f));
+                  ImGui::InputInt(("##party" + std::to_string(party)).c_str(),
+                                  &hoi4Country->parties[party], 0, 100);
+                }
+
+                ImGui::Checkbox("Allow Elections",
+                                &hoi4Country->allowElections);
+                ImGui::PopItemWidth();
+              }
+            }
+
+            ImVec4 color = ImVec4(
+                ((float)selectedCountry->colour.getRed()) / 255.0f,
+                ((float)selectedCountry->colour.getGreen()) / 255.0f,
+                ((float)selectedCountry->colour.getBlue()) / 255.0f, 1.0f);
+
+            ImGui::Text("%-*s", 25, "Colour");
+            ImGui::SameLine();
+            if (ImGui::ColorEdit3("##color", (float *)&color,
+                                  ImGuiColorEditFlags_NoInputs |
+                                      ImGuiColorEditFlags_NoLabel)) {
+              selectedCountry->colour = Fwg::Gfx::Colour(
+                  color.x * 255.0, color.y * 255.0, color.z * 255.0);
               activeGenerator->visualiseCountries(activeGenerator->countryMap,
                                                   activeGenerator->worldMap);
+              uiContext.imageContext.resetTexture();
             }
           }
-
-          ImGui::PushItemWidth(scaled(180.0f));
-          ImGui::AlignTextToFramePadding();
-          ImGui::Text("%-*s", 25, "Country Name");
-          ImGui::SameLine();
-          ImGui::InputText("##name", &selectedCountry->name);
-
-          ImGui::AlignTextToFramePadding();
-          ImGui::Text("%-*s", 25, "Adjective");
-          ImGui::SameLine();
-          ImGui::InputText("##adj", &selectedCountry->adjective);
-          ImGui::PopItemWidth();
-
-          ImVec4 color =
-              ImVec4(((float)selectedCountry->colour.getRed()) / 255.0f,
-                     ((float)selectedCountry->colour.getGreen()) / 255.0f,
-                     ((float)selectedCountry->colour.getBlue()) / 255.0f, 1.0f);
-
-          ImGui::Text("%-*s", 25, "Colour");
-          ImGui::SameLine();
-          if (ImGui::ColorEdit3("##color", (float *)&color,
-                                ImGuiColorEditFlags_NoInputs |
-                                    ImGuiColorEditFlags_NoLabel)) {
-            selectedCountry->colour = Fwg::Gfx::Colour(
-                color.x * 255.0, color.y * 255.0, color.z * 255.0);
-            activeGenerator->visualiseCountries(activeGenerator->countryMap,
-                                                activeGenerator->worldMap);
-            uiContext.imageContext.resetTexture();
-          }
         }
+        ImGui::EndChild();
+        ImGui::PopStyleColor();
       }
-      ImGui::EndChild();
-      ImGui::PopStyleColor();
 
       if (drawBorders && drawCountryTag.size()) {
         if (activeGenerator->countries.find(drawCountryTag) !=
@@ -741,7 +794,7 @@ void GUI::countryEdit() {
           modifiableState->owner->removeRegion(modifiableState);
           modifiableState->owner = selectedCountry;
           selectedCountry->addRegion(modifiableState);
-          requireCountryDetails = true;
+          requireHardCountryDetails = true;
           activeGenerator->visualiseCountries(activeGenerator->countryMap,
                                               activeGenerator->worldMap,
                                               modifiableState->ID);
@@ -751,84 +804,89 @@ void GUI::countryEdit() {
     }
 
     // State Edit Section
-    ImGui::Spacing();
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(80, 50, 120, 100));
-    ImGui::BeginChild("StateEdit", ImVec2(0, 150), true, ImGuiWindowFlags_None);
-    {
-      ImGui::SeparatorText("State Details");
-
-      {
-        Fwg::UI::Elements::GridLayout grid(2, scaled(180.0f), scaled(12.0f));
-
-        ImGui::PushItemWidth(scaled(180.0f));
-        ImGui::AlignTextToFramePadding();
-        ImGui::Text("%-*s", 25, "State Name");
-        ImGui::SameLine();
-        if (ImGui::InputText("##statename", &modifiableState->name)) {
-          requireCountryDetails = true;
-        }
-        ImGui::PopItemWidth();
-
-        if (modifiableState->owner) {
-          grid.AddText("Owner", "%s", modifiableState->owner->tag.c_str());
-        }
-
-        if (grid.AddInputDouble("Population", &modifiableState->totalPopulation,
-                                0.0, 1000000000.0)) {
-          requireCountryDetails = true;
-        }
-      }
-    }
-    ImGui::EndChild();
-    ImGui::PopStyleColor();
-
-    if (isRelevantModuleActive("hoi4")) {
-      const auto &hoi4Region =
-          std::reinterpret_pointer_cast<Rpx::Hoi4::Region, Arda::ArdaRegion>(
-              modifiableState);
-
+    ImGui::SetNextItemOpen(true, ImGuiCond_FirstUseEver);
+    if (ImGui::CollapsingHeader("State Editing")) {
       ImGui::Spacing();
-      ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(120, 80, 50, 100));
-      ImGui::BeginChild("StateEditHoi4", ImVec2(0, 150), true,
+      ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(80, 50, 120, 100));
+      ImGui::BeginChild("StateEdit", ImVec2(0, 150), true,
                         ImGuiWindowFlags_None);
       {
-        ImGui::SeparatorText("HOI4 State Specifics");
-        // Fwg::UI::Elements::borderChild("StateEdit2", [&]() {
-        //   ImGui::PushItemWidth(200.0f);
-        //   if (longCircuitLogicalOr(
-        //           ImGui::InputInt("Arms Industry",
-        //           &hoi4Region->armsFactories), ImGui::InputInt("Civilian
-        //           Industry",
-        //                           &hoi4Region->civilianFactories),
-        //           optionalInput(hoi4Region->isCoastalToOcean(),
-        //                         [&] {
-        //                           return ImGui::InputInt(
-        //                               "Naval Industry",
-        //                               &hoi4Region->dockyards);
-        //                         }),
-        //           ImGui::InputInt("State Category",
-        //                           &hoi4Region->stateCategory))) {
-        //     requireCountryDetails = true;
-        //   }
-        //   ImGui::PopItemWidth();
-        // });
+        ImGui::SeparatorText("State Details");
+
         {
           Fwg::UI::Elements::GridLayout grid(2, scaled(180.0f), scaled(12.0f));
 
-          if (grid.AddInputInt("Arms Factories", &hoi4Region->armsFactories, 0,
-                               100) ||
-              grid.AddInputInt("Civilian Factories",
-                               &hoi4Region->civilianFactories, 0, 100) ||
-              (hoi4Region->isCoastalToOcean() &&
-               grid.AddInputInt("Dockyards", &hoi4Region->dockyards, 0, 100)) ||
-              grid.AddInputInt("State Category", &hoi4Region->stateCategory, 0,
-                               10)) {
-            requireCountryDetails = true;
+          ImGui::PushItemWidth(scaled(180.0f));
+          ImGui::AlignTextToFramePadding();
+          ImGui::Text("%-*s", 25, "State Name");
+          ImGui::SameLine();
+          ImGui::InputText("##statename", &modifiableState->name);
+          ImGui::PopItemWidth();
+
+          if (modifiableState->owner) {
+            grid.AddText("Owner", "%s", modifiableState->owner->tag.c_str());
+          }
+
+          if (grid.AddInputDouble("Population",
+                                  &modifiableState->totalPopulation, 0.0,
+                                  1000000000.0)) {
+            requireHardCountryDetails = true;
           }
         }
       }
       ImGui::EndChild();
       ImGui::PopStyleColor();
+
+      if (isRelevantModuleActive("hoi4")) {
+        const auto &hoi4Region =
+            std::reinterpret_pointer_cast<Rpx::Hoi4::Region, Arda::ArdaRegion>(
+                modifiableState);
+
+        ImGui::Spacing();
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(120, 80, 50, 100));
+        ImGui::BeginChild("StateEditHoi4", ImVec2(0, 150), true,
+                          ImGuiWindowFlags_None);
+        {
+          ImGui::SeparatorText("HOI4 State Specifics");
+          // Fwg::UI::Elements::borderChild("StateEdit2", [&]() {
+          //   ImGui::PushItemWidth(200.0f);
+          //   if (longCircuitLogicalOr(
+          //           ImGui::InputInt("Arms Industry",
+          //           &hoi4Region->armsFactories), ImGui::InputInt("Civilian
+          //           Industry",
+          //                           &hoi4Region->civilianFactories),
+          //           optionalInput(hoi4Region->isCoastalToOcean(),
+          //                         [&] {
+          //                           return ImGui::InputInt(
+          //                               "Naval Industry",
+          //                               &hoi4Region->dockyards);
+          //                         }),
+          //           ImGui::InputInt("State Category",
+          //                           &hoi4Region->stateCategory))) {
+          //     requireHardCountryDetails = true;
+          //   }
+          //   ImGui::PopItemWidth();
+          // });
+          {
+            Fwg::UI::Elements::GridLayout grid(2, scaled(180.0f),
+                                               scaled(12.0f));
+
+            if (grid.AddInputInt("Arms Factories", &hoi4Region->armsFactories,
+                                 0, 100) ||
+                grid.AddInputInt("Civilian Factories",
+                                 &hoi4Region->civilianFactories, 0, 100) ||
+                (hoi4Region->isCoastalToOcean() &&
+                 grid.AddInputInt("Dockyards", &hoi4Region->dockyards, 0,
+                                  100)) ||
+                grid.AddInputInt("State Category", &hoi4Region->stateCategory,
+                                 0, 10)) {
+              requireHardCountryDetails = true;
+            }
+          }
+        }
+        ImGui::EndChild();
+        ImGui::PopStyleColor();
+      }
     }
   }
 }
@@ -837,7 +895,7 @@ void GUI::countryDrag() {
   // drag event
   if (uiContext.triggeredDrag) {
     const auto &cfg = Fwg::Cfg::Values();
-    requireCountryDetails = true;
+    requireHardCountryDetails = true;
     uiContext.triggeredDrag = false;
     if (uiContext.draggedFile.find(".txt") != std::string::npos) {
       if (uiContext.draggedFile.find("states.txt") != std::string::npos ||
@@ -848,7 +906,7 @@ void GUI::countryDrag() {
             Fwg::Utils::userFilter(uiContext.draggedFile, cfg.username));
         activeGenerator->regionMappingPath = uiContext.draggedFile;
         activeGenerator->applyRegionInput();
-        requireCountryDetails = true;
+        requireHardCountryDetails = true;
 
       } else if (uiContext.draggedFile.find("countries.txt") !=
                      std::string::npos ||
@@ -959,7 +1017,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
                 hoi4Gen->generateStateSpecifics();
                 hoi4Gen->generateStateResources();
                 Arda::Civilization::generateImportance(hoi4Gen->ardaRegions);
-                requireCountryDetails = true;
+                requireHardCountryDetails = true;
                 return true;
               });
         }
@@ -980,7 +1038,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
 
                   // build hoi4 countries out of basic countries
                   hoi4Gen->mapCountries();
-                  requireCountryDetails = true;
+                  requireHardCountryDetails = true;
                   uiContext.imageContext.resetTexture();
                   return true;
                 });
@@ -1000,40 +1058,54 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
 
                   // build hoi4 countries out of basic countries
                   hoi4Gen->mapCountries();
-                  requireCountryDetails = true;
+                  hoi4Gen->deriveCountrySpecificsFromSimulation();
+                  requireHardCountryDetails = false;
+                  requireSoftCountryDetails = false;
                   uiContext.imageContext.resetTexture();
                   return true;
                 });
           }
           ImGui::SameLine();
-          if (requireCountryDetails) {
+          if (requireHardCountryDetails) {
             ImGui::PushStyleColor(ImGuiCol_Button,
                                   ImVec4(1.0f, 0.2f, 0.2f, 1.0f)); // Red
           }
 
-          if (ImGui::Button("Generate country data")) {
+          if (ImGui::Button("Generate country territory data")) {
             uiContext.asyncContext.computationFutureBool =
                 uiContext.asyncContext.runAsync([hoi4Gen, &cfg, this]() {
                   // generate only country details, no new countries
                   hoi4Gen->generateCountries(nullptr);
-
-                  hoi4Gen->generateLogistics();
-                  if (!useSimulationOutput) {
-                    hoi4Gen->generateCountrySpecifics();
-                  } else {
-                    hoi4Gen->deriveCountrySpecificsFromSimulation();
-                  
-                  }
-                  // hoi4Gen->generateFocusTrees();
-                  hoi4Gen->distributeVictoryPoints();
-                  hoi4Gen->generatePositions();
-                  hoi4Gen->generateRandomDecisions();
-                  requireCountryDetails = false;
+                  // Hard is politics agnostic, but dependent on owned territory
+                  hoi4Gen->generateHardCountrySpecifics();
+                  requireHardCountryDetails = false;
                   return true;
                 });
           }
-          if (requireCountryDetails) {
+          if (requireHardCountryDetails) {
             ImGui::PopStyleColor();
+          }
+          if (requireHardCountryDetails) {
+            ImGui::BeginDisabled();
+          }
+          if (requireSoftCountryDetails) {
+            ImGui::PushStyleColor(ImGuiCol_Button,
+                                  ImVec4(1.0f, 0.2f, 0.2f, 1.0f)); // Red
+          }
+          if (ImGui::Button("Generate country political data")) {
+            uiContext.asyncContext.computationFutureBool =
+                uiContext.asyncContext.runAsync([hoi4Gen, &cfg, this]() {
+                  // soft follows hard, as soft includes balancing and politics.
+                  requireSoftCountryDetails = false;
+                  hoi4Gen->generateSoftCountryDetails();
+                  return true;
+                });
+          }
+          if (requireSoftCountryDetails) {
+            ImGui::PopStyleColor();
+          }
+          if (requireHardCountryDetails) {
+            ImGui::EndDisabled();
           }
         }
       }
@@ -1157,7 +1229,6 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                 auto hoi4Gen =
                     std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
                         activeGenerator);
-                hoi4Gen->generateWeather();
               } else if (activeGameConfig.gameName == "Victoria 3") {
                 auto vic3Gen =
                     std::reinterpret_pointer_cast<Vic3Gen, Arda::ArdaGen>(
@@ -1183,13 +1254,6 @@ int GUI::showStrategicRegionTab(Fwg::Cfg &cfg,
                 Fwg::Gfx::Filter::fillBlackPixelsByArea(image, {});
                 activeGenerator->loadStrategicRegions(
                     activeGenerator->ardaFactories.superRegionFactory, image);
-              }
-
-              if (activeGameConfig.gameName == "Hearts of Iron IV") {
-                auto hoi4Gen =
-                    std::reinterpret_pointer_cast<Hoi4Gen, Arda::ArdaGen>(
-                        activeGenerator);
-                hoi4Gen->generateWeather();
               }
               uiContext.triggeredDrag = false;
               uiContext.imageContext.resetTexture();
@@ -1226,7 +1290,7 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
          Arda::UI::ArdaPrerequisiteChecker::ardaContinents(*ardaGen),
          Rpx::UI::RpxPrerequisiteChecker::strategicRegions(*generator),
          Rpx::UI::RpxPrerequisiteChecker::countryDetailsReady(
-             requireCountryDetails),
+             requireHardCountryDetails),
          Rpx::UI::RpxPrerequisiteChecker::hoi4StatesInitialised(*generator)});
 
     if (guard.ready()) {
@@ -1245,7 +1309,7 @@ int GUI::showHoi4Finalise(Fwg::Cfg &cfg) {
                 }
                 // to recalc if state data was changed after country
                 // generation
-                generator->evaluateCountries();
+                generator->finaliseData();
                 generator->writeImages();
                 generator->writeTextFiles(writeScenarioDetails);
                 generator->writeLocalisation();

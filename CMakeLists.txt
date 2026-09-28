@@ -88,6 +88,9 @@ endif()
 # -----------------------------
 add_executable(${PROJECT_NAME} main.cpp resources.rc)
 target_link_libraries(${PROJECT_NAME} PRIVATE RandomParadoxLib)
+if (MSVC)
+    target_link_options(${PROJECT_NAME} PRIVATE "/STACK:33554432")
+endif()
 
 # -----------------------------
 # Print include directories (optional)
