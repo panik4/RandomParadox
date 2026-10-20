@@ -1,6 +1,7 @@
 #pragma once
 #include "ArdaUI/ArdaUI.h"
 #include "Hoi4UI.h"
+#include "MapEditorState.h"
 #include "FastWorldGenerator.h"
 #include "eu4/Eu4Generator.h"
 #include "eu5/Eu5Generator.h"
@@ -38,12 +39,15 @@ class GUI : public Arda::ArdaUI {
   bool validatedPaths = false;
   std::string activeConfig;
   std::vector<std::string> configSubfolders;
+  Rpx::UI::MapEditorState mapEditorState;
+  bool strategicRegionBorderPaint = false;
+  int selectedStrategicRegionID = -1;
   void loadConfigs();
   // configuration
   void loadGameConfig(Fwg::Cfg &cfg);
   void initGameConfigs();
   bool validatePaths();
-  bool isRelevantModuleActive(const std::string &shortName);
+  bool isRelevantModuleActive(const std::string &shortName) const;
   template <class T> constexpr std::shared_ptr<T> getGeneratorPointer() {
     return std::reinterpret_pointer_cast<T, Arda::ArdaGen>(activeGenerator);
   }
@@ -51,7 +55,29 @@ class GUI : public Arda::ArdaUI {
   int showRpdxConfigure(Fwg::Cfg &cfg);
   void showModLoader(Fwg::Cfg &cfg);
   // generic scenario stuff
+  void processMapEditorSelection();
+  std::shared_ptr<Arda::ArdaRegion> getSelectedMapEditorState() const;
+  std::shared_ptr<Arda::ArdaProvince> getSelectedMapEditorProvince() const;
+  std::shared_ptr<Fwg::Civilization::Location>
+  getSelectedMapEditorLocation() const;
+  std::shared_ptr<Arda::ArdaContinent> getSelectedMapEditorContinent() const;
+  std::shared_ptr<Arda::Country> getSelectedMapEditorCountry(
+      const std::shared_ptr<Arda::ArdaRegion> &state) const;
+  const Rpx::UI::MapEditorModule *getMapEditorModule();
+  void showGenericCountryEditor(const std::shared_ptr<Arda::Country> &country);
+  void showGenericStateEditor(const std::shared_ptr<Arda::ArdaRegion> &state);
+  void showGenericAreaNameEditor(const std::shared_ptr<Fwg::Areas::Area> &area,
+                                 const char *label);
+  void showGenericContinentSummary(
+      const std::shared_ptr<Arda::ArdaContinent> &continent,
+      Fwg::UI::Elements::GridLayout &grid);
+  void applyCountryBorderPaint(
+      const std::shared_ptr<Arda::ArdaRegion> &state);
+  void refreshMapEditorVisualization();
+  void refreshStrategicRegionVisualization();
+  void showMapEditorLayer();
   void countryEdit();
+  void stateEdit();
   void countryDrag();
   int showCountryTab(Fwg::Cfg &cfg);
 

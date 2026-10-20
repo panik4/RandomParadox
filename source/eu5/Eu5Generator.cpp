@@ -112,15 +112,15 @@ void Generator::configureModGen(const std::string &configSubFolder,
   ardaConfig.targetWorldPopulation = 1'000'000'000;
   ardaConfig.targetWorldGdp = 1'000'000'000'000;
 
-  config.seaLevel = 20;
+  config.terrainConfig.seaLevel = 20;
   config.riverFactor = 0.0;
-  config.seaProvFactor *= 0.10;
-  config.landProvFactor *= 1.0;
-  config.minProvPerSeaRegion = 1;
+  config.areaConfig.provinces.seaFactor *= 0.10;
+  config.areaConfig.provinces.landFactor *= 1.0;
+  config.areaConfig.regions.minProvincesPerSeaRegion = 1;
   config.maxImageArea = 16384 * 8192;
-  config.autoSeaRegionParams = false;
+  config.areaConfig.regions.autoSeaParameters = false;
   config.forceResolutionBase = false;
-  config.autoSplitProvinces = false;
+  config.areaConfig.provinces.autoSplit = false;
   config.resolutionBase = 1;
   // allow massive images for Vic3
   config.targetMaxImageSize = 160'000'000;

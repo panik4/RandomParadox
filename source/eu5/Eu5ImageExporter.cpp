@@ -64,7 +64,7 @@ splitIntoTiles2D(const std::vector<float> &imageData, int width, int height,
   int tileW = width / tilesX;
   int tileH = height / tilesY;
 
-  // Pre-allocate 2D vector: rows × columns
+  // Pre-allocate 2D vector: rows ï¿½ columns
   std::vector<std::vector<std::vector<float>>> tiles2D(
       tilesY, std::vector<std::vector<float>>(tilesX));
 
@@ -296,7 +296,7 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
   auto hmapCopy = heightMap;
   // make all pixels below sealevel zero
   for (auto &val : hmapCopy) {
-    if (val < static_cast<float>(Fwg::Cfg::Values().seaLevel)) {
+    if (val < static_cast<float>(Fwg::Cfg::Values().terrainConfig.seaLevel)) {
       val = 9.0f;
     }
   }
@@ -723,7 +723,7 @@ void ImageExporter::Eu5ColourMaps(
     for (auto w = 0; w < exportWidth; w++) {
       auto referenceIndex = h * exportWidth + w;
       double depth = (double)scaledHeightmap[referenceIndex] /
-                     (double)Cfg::Values().seaLevel;
+                     (double)Cfg::Values().terrainConfig.seaLevel;
       auto imageIndex =
           exportHeight * exportWidth - (h * exportWidth + (exportWidth - w));
       imageIndex *= 4;

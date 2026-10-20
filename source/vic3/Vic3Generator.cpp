@@ -130,14 +130,14 @@ void Generator::configureModGen(const std::string &configSubFolder,
   ardaConfig.targetWorldPopulation = 1'000'000'000;
   ardaConfig.targetWorldGdp = 1'000'000'000'000;
 
-  config.seaLevel = 18;
+  config.terrainConfig.seaLevel = 18;
   config.riverFactor = 0.0;
-  config.seaProvFactor *= 0.10;
-  config.landProvFactor *= 1.0;
-  config.minProvPerSeaRegion = 1;
-  config.autoSeaRegionParams = false;
+  config.areaConfig.provinces.seaFactor *= 0.10;
+  config.areaConfig.provinces.landFactor *= 1.0;
+  config.areaConfig.regions.minProvincesPerSeaRegion = 1;
+  config.areaConfig.regions.autoSeaParameters = false;
   config.forceResolutionBase = false;
-  config.autoSplitProvinces = false;
+  config.areaConfig.provinces.autoSplit = false;
   config.maxImageArea = 8192 * 3616;
   config.resolutionBase = 1;
   // allow massive images for Vic3
@@ -662,7 +662,7 @@ void Generator::createLocators() {
 
   for (auto i = 0; i < terrainData.detailedHeightMap.size(); i++) {
     binaryLandMap[i] =
-        terrainData.detailedHeightMap[i] <= config.seaLevel ? false : true;
+        terrainData.detailedHeightMap[i] <= config.terrainConfig.seaLevel ? false : true;
   }
   auto searchVector = Fwg::Utils::Math::getCircularOffsets(config.width, 10);
 
@@ -697,7 +697,7 @@ void Generator::createLocators() {
     //    auto ogPosition = farmLocator->position.weightedCenter;
     //    auto circDistance = Fwg::HeightGeneration::circularDistance(
     //        binaryLandMap, config.width,
-    //        farmLocator->position.weightedCenter, config.seaLevel,
+    //        farmLocator->position.weightedCenter, config.terrainConfig.seaLevel,
     //        searchVector, 10, true);
     //    if (circDistance < 5) {
     //      // now try to find the most distant point in this whole region
@@ -705,7 +705,7 @@ void Generator::createLocators() {
     //      auto maxIndex = 0;
     //      for (auto &pix : regionPixels) {
     //        auto distance = Fwg::HeightGeneration::circularDistance(
-    //            binaryLandMap, config.width, pix, config.seaLevel,
+    //            binaryLandMap, config.width, pix, config.terrainConfig.seaLevel,
     //            searchVector, 10, true);
     //        if (distance > maxDistance) {
     //          maxDistance = distance;

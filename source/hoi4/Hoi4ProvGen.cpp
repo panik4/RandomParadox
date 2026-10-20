@@ -24,7 +24,7 @@ getNeighbourRelations(const std::shared_ptr<Fwg::Areas::Province> &prov,
     neighbourProv.cost = 1.0f;
     double angle = 0.0;
     auto positionBetweenProvinces = prov->getPositionToNeighbourProvince(
-        neighbour, cfg.width, angle, factor);
+        neighbour, cfg.width, cfg.height, angle, factor);
     neighbourProv.positionToNeighbour = positionBetweenProvinces;
 
     neighbourRelations.push_back(neighbourProv);

@@ -410,7 +410,6 @@ void ImageExporter::dump8BitTerrain(
 
   Image hoi4terrain(conf.width, conf.height, 8);
   hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
-  // hoi4terrain.colourtable = colourTables.at(colourMapKey + gameTag);
 
   for (auto i = 0; i < conf.processingArea; i++) {
     int elevationMod = 0;
@@ -571,11 +570,11 @@ void ImageExporter::dumpDDSFiles(const std::vector<float> &heightMap,
     for (auto h = 0; h < imageHeight; h++) {
       for (auto w = 0; w < imageWidth; w++) {
         auto referenceIndex = factor * h * width + factor * w;
-        auto depth = heightMap[referenceIndex] / (float)Cfg::Values().seaLevel;
+        auto depth = heightMap[referenceIndex] / (float)Cfg::Values().terrainConfig.seaLevel;
         auto imageIndex =
             imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
         imageIndex *= 4;
-        if (heightMap[referenceIndex] <= Cfg::Values().seaLevel) {
+        if (heightMap[referenceIndex] <= Cfg::Values().terrainConfig.seaLevel) {
           pixels[imageIndex] = static_cast<unsigned char>(200.0 * depth);
           pixels[imageIndex + 1] = static_cast<unsigned char>(150.0 * depth);
           pixels[imageIndex + 2] = static_cast<unsigned char>(100.0 * depth);
@@ -623,6 +622,11 @@ void ImageExporter::dumpTerrainColourmap(
 
   std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
   auto cityIndices = civLayer.getAll(Arda::Civilization::TopographyType::CITY);
+  auto portCityIndices = civLayer.getAll(Arda::Civilization::TopographyType::PORTCITY);
+  for (auto portCityIndex : portCityIndices) {
+    cityIndices.push_back(portCityIndex);
+  }
+  portCityIndices.clear();
 
   if (!cut) {
     for (auto h = 0; h < imageHeight; h++) {

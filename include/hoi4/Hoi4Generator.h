@@ -50,9 +50,14 @@ public:
 
   void generateStateSpecifics();
   void generateStateResources();
+  void refreshCountryTerritoryData();
+  void generateCountryTechnologies();
+  void generateCountryForces();
+  void recalculateCountryMilitaryData();
 
   // politics: names, ideology, party popularity, elections
   void generateSoftCountryDetails();
+  void nameCountries() override;
   // area dependent country specifics: unit gen, tech, characters, army/navy/air
   // focus, naval bases, airports, logistics
   void generateHardCountrySpecifics();

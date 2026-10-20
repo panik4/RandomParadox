@@ -47,6 +47,8 @@ public:
   // member functions
   void calculateBuildingPositions(const std::vector<float> &heightmap,
                                   const Fwg::Gfx::Image &typeMap);
+  std::string exportLine() const;
+  void importLine(const std::vector<std::string> &tokens) override;
 
   // serialisation
   template<class Archive>

@@ -9,6 +9,34 @@ Region::Region(const Arda::ArdaRegion &ardaRegion)
 
 Region::~Region() {}
 
+std::string Region::exportLine() const {
+  auto line = Arda::ArdaRegion::exportLine();
+  line += std::to_string(stateCategory) + ";";
+  line += std::to_string(infrastructure) + ";";
+  line += std::to_string(armsFactories) + ";";
+  line += std::to_string(civilianFactories) + ";";
+  line += std::to_string(dockyards) + ";";
+  return line;
+}
+
+void Region::importLine(const std::vector<std::string> &tokens) {
+  try {
+    if (tokens.size() > 5)
+      stateCategory = std::stoi(tokens[5]);
+    if (tokens.size() > 6)
+      infrastructure = std::stoi(tokens[6]);
+    if (tokens.size() > 7)
+      armsFactories = std::stoi(tokens[7]);
+    if (tokens.size() > 8)
+      civilianFactories = std::stoi(tokens[8]);
+    if (tokens.size() > 9)
+      dockyards = std::stoi(tokens[9]);
+  } catch (const std::exception &e) {
+    Fwg::Utils::Logging::logLine("Invalid HOI4 state mapping data: ",
+                                 e.what());
+  }
+}
+
 Arda::Utils::Building
 getBuilding(const std::string &type, const Fwg::Areas::Province &prov,
             const bool coastal, const std::vector<float> &heightmap,

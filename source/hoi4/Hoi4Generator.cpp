@@ -6,7 +6,6 @@
 using namespace Fwg;
 using namespace Fwg::Gfx;
 namespace Rpx::Hoi4 {
-namespace {} // namespace
 
 Generator::Generator(const std::string &configSubFolder,
                      const boost::property_tree::ptree &rpdConf)
@@ -154,15 +153,15 @@ void Generator::configureModGen(const std::string &configSubFolder,
   //  passed to generic Scenariohoi4Gen
   this->ardaConfig.numCountries = hoi4Conf.get<int>("scenario.numCountries");
   // force defaults for the game, if not set otherwise
-  if (config.targetLandRegionAmount == 0 && config.autoLandRegionParams)
-    config.targetLandRegionAmount = 640;
+  if (config.areaConfig.regions.targetLandAmount == 0 && config.areaConfig.regions.autoLandParameters)
+    config.areaConfig.regions.targetLandAmount = 640;
   // force defaults for the game, if not set otherwise
-  if (config.targetSeaRegionAmount == 0 && config.autoSeaRegionParams)
-    config.targetSeaRegionAmount = 160;
+  if (config.areaConfig.regions.targetSeaAmount == 0 && config.areaConfig.regions.autoSeaParameters)
+    config.areaConfig.regions.targetSeaAmount = 160;
   config.forceResolutionBase = true;
   config.resolutionBase = 256;
   config.maxImageArea = 10240 * 1280;
-  config.autoSplitProvinces = false;
+  config.areaConfig.provinces.autoSplit = false;
   ardaConfig.locationConfig.miningPerRegion = 0;
   ardaConfig.locationConfig.forestryPerRegion = 0;
   ardaConfig.locationConfig.citiesPerRegion = 2;
@@ -430,6 +429,122 @@ void Generator::generateStateResources() {
                                     areaData, climateData, shared_from_this());
 }
 
+void Generator::refreshCountryTerritoryData() {
+  stats.totalWorldIndustry = 0;
+  evaluateCountryStrength(modData, stats, ardaData, ardaConfig);
+}
+
+void Generator::generateCountryTechnologies() { generateTechLevels(modData); }
+
+void Generator::generateCountryForces() {
+  for (auto &country : modData.hoi4Countries) {
+    country->tankVariants.clear();
+    std::cout << country->tag << " has " << country->ownedRegions.size()
+              << " owned regions." << std::endl;
+  }
+
+  generateArmorVariants(modConfig, modData, stats);
+  generateCountryUnits(modConfig, modData, stats);
+  generateCountryNavies(modConfig, modData, stats, ardaProvinces);
+  generateAirVariants(modConfig, modData, stats);
+}
+
+void Generator::nameCountries() {
+  Arda::ArdaGen::nameCountries();
+  for (auto &country : modData.hoi4Countries) {
+    if (!country)
+      continue;
+    const auto culture = country->getPrimaryCulture();
+    if (!culture || !culture->language)
+      continue;
+    auto &language = *culture->language;
+
+    if (nData.ideologyNames.contains(country->ideology))
+      country->fullName = NameGeneration::modifyWithIdeology(
+          country->ideology, country->name, country->adjective, nData);
+
+    for (auto &character : country->characters) {
+      const auto category = character.gender == Arda::Gender::Male
+                                ? "MaleNames"
+                                : "FemaleNames";
+      character.name = language.getRandomCapitalisedWordFromVocabulary(category);
+      character.surname =
+          language.getRandomCapitalisedWordFromVocabulary("Surnames");
+    }
+
+    for (auto &variant : country->tankVariants)
+      variant.name = language.generateGenericCapitalizedWord() + " Mk " +
+                     std::to_string(RandNum::getRandom(0, 3));
+    for (auto &variant : country->planeVariants)
+      variant.name = language.generateGenericCapitalizedWord() + " Mk " +
+                     std::to_string(RandNum::getRandom(0, 3));
+
+    for (auto &[type, classes] : country->shipClasses) {
+      for (auto &shipClass : classes) {
+        shipClass.name = language.generateGenericCapitalizedWord() + " Class";
+      }
+    }
+    const auto refreshShipClass = [&](ShipClass &shipClass) {
+      const auto classes = country->shipClasses.find(shipClass.type);
+      if (classes == country->shipClasses.end())
+        return;
+      const auto matchingClass =
+          std::find_if(classes->second.begin(), classes->second.end(),
+                       [&](const auto &candidate) {
+                         return candidate.era == shipClass.era;
+                       });
+      if (matchingClass != classes->second.end())
+        shipClass = *matchingClass;
+    };
+    for (auto &ship : country->ships) {
+      if (!ship)
+        continue;
+      refreshShipClass(ship->shipClass);
+      ship->name = language.generateGenericCapitalizedWord();
+    }
+    const auto refreshAirWing = [&](AirWing &wing, std::size_t index) {
+      for (const auto &variant : country->planeVariants) {
+        if (wing.variant.bbaFrameName == variant.bbaFrameName) {
+          wing.variant = variant;
+          break;
+        }
+      }
+      wing.name = std::to_string(index) + ". " + wing.variant.name;
+    };
+    for (std::size_t index = 0; index < country->airWings.size(); ++index)
+      refreshAirWing(country->airWings[index], index);
+    for (auto &airBase : country->airBases) {
+      if (!airBase)
+        continue;
+      for (std::size_t index = 0; index < airBase->wings.size(); ++index)
+        refreshAirWing(airBase->wings[index], index);
+    }
+    for (auto &fleet : country->fleets)
+      fleet.name = country->name + " Fleet";
+
+    for (auto &divisionTemplate : country->divisionTemplates)
+      divisionTemplate.name =
+          country->adjective + " " + divisionTypeMap.at(divisionTemplate.type);
+    std::map<DivisionType, int> divisionCounts;
+    for (auto &division : country->divisions) {
+      division.divisionTemplate.name =
+          country->adjective + " " +
+          divisionTypeMap.at(division.divisionTemplate.type);
+      const auto number = ++divisionCounts[division.divisionTemplate.type];
+      division.name = Hoi4::ordinal(number);
+      if (division.location)
+        division.name += " '" + division.location->name + "'";
+      division.name += " " + division.divisionTemplate.name;
+    }
+  }
+}
+
+void Generator::recalculateCountryMilitaryData() {
+  refreshCountryTerritoryData();
+  generateCountryTechnologies();
+  generateCountryForces();
+}
+
 void Generator::generateSoftCountryDetails() {
   Fwg::Utils::Logging::logLine("HOI4: Electing Tyrants");
   const std::vector<Arda::Utils::Ideology> ideologies{
@@ -570,10 +685,6 @@ void Generator::generateHardCountrySpecifics() {
     country->researchSlots =
         std::round(3.0 + 2.0 * country->technologyLevel + rankModifier);
 
-    // now get the full name of the country
-    country->fullName = NameGeneration::modifyWithIdeology(
-        country->ideology, country->name, country->adjective, nData);
-
     // gather all naval bases from all regions
     std::vector<int> navalBases;
     for (auto &region : country->hoi4Regions) {
@@ -590,11 +701,8 @@ void Generator::generateHardCountrySpecifics() {
       country->navalFocus = 0;
     }
   }
-  generateTechLevels(modData);
-  generateArmorVariants(modConfig, modData, stats);
-  generateCountryUnits(modConfig, modData, stats);
-  generateCountryNavies(modConfig, modData, stats, ardaProvinces);
-  generateAirVariants(modConfig, modData, stats);
+  generateCountryTechnologies();
+  generateCountryForces();
   generateCharacters(modData);
   distributeVictoryPoints(modData, stats, ardaProvinces);
 }
@@ -630,9 +738,8 @@ void Generator::deriveCountrySpecificsFromSimulation() {
         std::clamp(3.0 * simulationPolity.militaryInfluence, 0.0, 1.0) *
         100.0));
     assignStartingLaws(*country);
-    country->fullName = NameGeneration::modifyWithIdeology(
-        country->ideology, country->name, country->adjective, nData);
   }
+  nameCountries();
 }
 
 void Generator::balanceGreatPowers() {
@@ -804,13 +911,13 @@ void Generator::generateWeather() {
           {averageDeviation, averageTemperature, averagePrecipitation});
       // referenceTemperature low, 3
       stratRegion->weatherMonths[i].push_back(
-          Cfg::Values().minimumDegCelcius +
-          averageTemperature * Cfg::Values().temperatureRange);
+          Cfg::Values().climateConfig.minimumDegCelcius +
+          averageTemperature * Cfg::Values().climateConfig.temperatureRange);
       // tempHigh, 4
       stratRegion->weatherMonths[i].push_back(
-          Cfg::Values().minimumDegCelcius +
-          averageTemperature * Cfg::Values().temperatureRange +
-          averageDeviation * Cfg::Values().deviationFactor);
+          Cfg::Values().climateConfig.minimumDegCelcius +
+          averageTemperature * Cfg::Values().climateConfig.temperatureRange +
+          averageDeviation * Cfg::Values().climateConfig.deviationFactor);
       // light_rain chance: cold and humid -> high, 5
       stratRegion->weatherMonths[i].push_back(
           this->modConfig.weatherChances.at("baseLightRainChance") *
@@ -856,7 +963,7 @@ void Generator::finaliseData() {
   generatePositions(terrainData, ardaProvinces);
   generateLogistics(shared_from_this(), modData, areaData, ardaProvinces,
                     provinceMap, countryMap);
-  evaluateCountryStrength(modData, stats, ardaData, ardaConfig);
+  // evaluateCountryStrength(modData, stats, ardaData, ardaConfig);
   generateRandomDecisions(modData, ardaRegions);
   generateFocusTrees(modData);
   generateWeather();
@@ -951,13 +1058,12 @@ bool Generator::loadRivers(Fwg::Cfg &config,
   return FastWorldGenerator::loadRivers(config, riverCopy);
 }
 
-bool Generator::loadRiversFromBlueMask(
-    Fwg::Cfg &config, const Fwg::Gfx::Image &riverInput) {
+bool Generator::loadRiversFromBlueMask(Fwg::Cfg &config,
+                                       const Fwg::Gfx::Image &riverInput) {
   auto riverCopy = riverInput;
   const std::set<Fwg::Gfx::Colour> blueShades{
-      {0, 225, 255}, {0, 200, 255}, {0, 150, 255}, {0, 100, 255},
-      {0, 0, 255},   {0, 0, 225},   {0, 0, 200},   {0, 0, 150},
-      {0, 0, 100}};
+      {0, 225, 255}, {0, 200, 255}, {0, 150, 255}, {0, 100, 255}, {0, 0, 255},
+      {0, 0, 225},   {0, 0, 200},   {0, 0, 150},   {0, 0, 100}};
   for (auto &pixel : riverCopy.imageData) {
     if (blueShades.contains(pixel))
       pixel = {0, 0, 255};
@@ -1275,6 +1381,7 @@ void Generator::save(const std::string &path) {
   ar << ardaContinents << ardaRegions << ardaProvinces << superRegions;
   ar << countries << civData << nData;
   ar << typeMap << countryMap << superRegionMap;
+  ar << ardaData.civLayer;
   ar << gameType << exportWidth << exportHeight;
   ar << pathcfg;
   ar << modData.hoi4States << modData.hoi4Countries;
@@ -1295,6 +1402,7 @@ void Generator::load(const std::string &path) {
   ar >> ardaContinents >> ardaRegions >> ardaProvinces >> superRegions;
   ar >> countries >> civData >> nData;
   ar >> typeMap >> countryMap >> superRegionMap;
+  ar >> ardaData.civLayer;
   ar >> gameType >> exportWidth >> exportHeight;
   ar >> pathcfg;
   ar >> modData.hoi4States >> modData.hoi4Countries;
@@ -1307,8 +1415,10 @@ void Generator::load(const std::string &path) {
   Fwg::Areas::Provinces::Detail::createProvinceMap(areaData.provinces,
                                                    areaData.provinceColourMap);
   Fwg::Areas::Provinces::Detail::PostProcessing::evaluateProvinceNeighbours(
-      provinceMap, areaData.provinces, areaData.provinceColourMap);
-  Fwg::Areas::Regions::evaluateRegionNeighbours(areaData.regions);
+      provinceMap, areaData.provinces, areaData.provinceColourMap,
+      areaGenerationContext(Fwg::Cfg::Values()));
+  Fwg::Areas::Regions::evaluateRegionNeighbours(
+      areaData.regions, areaGenerationContext(Fwg::Cfg::Values()));
   mapRegions();
   this->modData.statesInitialised = true;
   mapContinents();

@@ -2,6 +2,25 @@
 
 namespace Rpx::Hoi4 {
 
+std::string ordinal(int number) {
+  std::string suffix = "th";
+  const auto lastTwo = number % 100;
+  if (lastTwo < 11 || lastTwo > 13) {
+    switch (number % 10) {
+    case 1:
+      suffix = "st";
+      break;
+    case 2:
+      suffix = "nd";
+      break;
+    case 3:
+      suffix = "rd";
+      break;
+    }
+  }
+  return std::to_string(number) + suffix;
+}
+
 void generateArmorVariants(Hoi4Config modConfig, Hoi4Data &modData,
                            Hoi4Stats &stats) {
   struct TankType {
@@ -284,6 +303,7 @@ void generateAirVariants(Hoi4Config modConfig, Hoi4Data &modData,
           wing.variant = country->planeVariants[i];
           wing.name = std::to_string(i) + ". " + country->planeVariants[i].name;
           wing.amount = std::min<int>(country->planeVariants[i].amount, 50);
+
           auto &randomAirbase =
               Fwg::Utils::Random::selectRandom(country->airBases);
           randomAirbase->wings.push_back(wing);
@@ -457,28 +477,7 @@ void generateCountryUnits(Hoi4Config modConfig, Hoi4Data &modData,
           if (eligibleProvinces.size()) {
             Division division;
             division.divisionTemplate = divisionTemplate;
-            division.name = std::to_string(count);
-
-            // Special-case 11, 12, 13
-            int lastTwo = count % 100;
-            if (lastTwo >= 11 && lastTwo <= 13) {
-              division.name += "th";
-            } else {
-              switch (count % 10) {
-              case 1:
-                division.name += "st";
-                break;
-              case 2:
-                division.name += "nd";
-                break;
-              case 3:
-                division.name += "rd";
-                break;
-              default:
-                division.name += "th";
-                break;
-              }
-            }
+            division.name = ordinal(count);
             division.location =
                 Fwg::Utils::Random::selectRandom(eligibleProvinces);
             division.name += " '" + division.location->name + "' " +
@@ -534,9 +533,8 @@ void generateCountryNavies(Hoi4Config modConfig, Hoi4Data &modData,
               "Warning: Country " + country->name +
               " has no primary culture, cannot generate ship names");
         } else {
-          shipClass.name = Fwg::Utils::Random::selectRandom(
-                               primaryCulture->language->shipNames) +
-                           " Class";
+          shipClass.name = primaryCulture->language
+                               ->generateGenericCapitalizedWord() + " Class";
         }
         shipClass.vanillaShipType =
             ShipClassTypeDefinitions[shipclassType] +
@@ -845,8 +843,7 @@ void generateCountryNavies(Hoi4Config modConfig, Hoi4Data &modData,
             "Warning: Country " + country->name +
             " has no primary culture, cannot generate ship names");
       } else {
-        ship->name = Fwg::Utils::Random::selectRandom(
-            primaryCulture->language->shipNames);
+        ship->name = primaryCulture->language->generateGenericCapitalizedWord();
       }
       if (utilisedShipNames.find(ship->name) != utilisedShipNames.end()) {
         utilisedShipNames[ship->name]++;

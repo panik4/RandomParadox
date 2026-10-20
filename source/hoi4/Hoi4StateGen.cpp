@@ -102,7 +102,7 @@ void generateStateSpecifics(
       }
     }
   }
-  Fwg::Utils::Logging::logLine(config.landPercentage);
+  Fwg::Utils::Logging::logLine(config.terrainConfig.landPercentage);
   for (auto &hoi4State : modData.hoi4States) {
     // skip sea and lake states
     if (!hoi4State->isLand())
