@@ -26,10 +26,13 @@ void Hoi4Country::addAirBase(int level) {
         break;
       }
     }
-    airBases.push_back(region->airBase);
   } else {
     region->airBase->level += level;
     region->airBase->level = std::min<int>(region->airBase->level, 10);
+  }
+  if (std::find(airBases.begin(), airBases.end(), region->airBase) ==
+      airBases.end()) {
+    airBases.push_back(region->airBase);
   }
 }
 
@@ -69,6 +72,38 @@ std::string Hoi4Country::exportLine() const {
   base += std::to_string(convoyAmount) + ";";
   base += std::to_string(researchSlots) + ";";
   return base;
+}
+
+void Hoi4Country::importLine(const std::vector<std::string> &tokens) {
+  if (tokens.size() > 6)
+    fullName = tokens[6];
+
+  if (tokens.size() > 7) {
+    const auto ideology = Arda::Utils::stringToIdeology.find(tokens[7]);
+    if (ideology != Arda::Utils::stringToIdeology.end())
+      this->ideology = ideology->second;
+  }
+
+  try {
+    if (tokens.size() > 8)
+      allowElections = std::stoi(tokens[8]) != 0;
+    for (std::size_t index = 0; index < parties.size() && tokens.size() > 9 + index;
+         ++index)
+      parties[index] = std::stoi(tokens[9 + index]);
+    if (tokens.size() > 13)
+      lastElection = tokens[13];
+    if (tokens.size() > 14)
+      warSupport = std::stoi(tokens[14]);
+    if (tokens.size() > 15)
+      stability = std::stoi(tokens[15]);
+    if (tokens.size() > 16)
+      convoyAmount = std::stoi(tokens[16]);
+    if (tokens.size() > 17)
+      researchSlots = std::stoi(tokens[17]);
+  } catch (const std::exception &e) {
+    Fwg::Utils::Logging::logLine("Invalid HOI4 country mapping data: ",
+                                 e.what());
+  }
 }
 
 template<class Archive>

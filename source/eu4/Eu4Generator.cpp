@@ -83,9 +83,9 @@ void Generator::configureModGen(const std::string &configSubFolder,
   ardaConfig.targetWorldGdp = 50'000'000'000;
   config.maxImageArea = 5632 * 2304;
   config.resolutionBase = 256;
-  config.seaLevel = 95;
-  config.seaProvFactor *= 0.7;
-  config.landProvFactor *= 0.7;
+  config.terrainConfig.seaLevel = 95;
+  config.areaConfig.provinces.seaFactor *= 0.7;
+  config.areaConfig.provinces.landFactor *= 0.7;
   // check if config settings are fine
   config.sanityCheck();
 }

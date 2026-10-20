@@ -116,6 +116,9 @@ void generateTechLevels(Hoi4Data &modData) {
   createTech(navyTechsFile, navyTechs);
 
   for (auto &country : modData.hoi4Countries) {
+    for (auto &hullTech : country->hullTech)
+      hullTech.second.clear();
+
     // clear all techs
     country->industryElectronicTechs = {
         {TechEra::Interwar, {}}, {TechEra::Buildup, {}}, {TechEra::Early, {}}};

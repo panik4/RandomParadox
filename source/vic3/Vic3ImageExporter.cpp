@@ -179,7 +179,7 @@ void ImageExporter::Vic3ColourMaps(
       auto colourmapIndex = factor * h * width + factor * w;
       const auto &c = scaledMap[colourmapIndex];
       unsigned char val = 0;
-      if (c.getBlue() > config.seaLevel)
+      if (c.getBlue() > config.terrainConfig.seaLevel)
         val = 255;
       auto imageIndex =
           imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
@@ -197,7 +197,7 @@ void ImageExporter::Vic3ColourMaps(
       auto colourmapIndex = factor * h * width + factor * w;
       const auto &c = scaledMap[colourmapIndex];
       Fwg::Gfx::Colour col;
-      if (c.getBlue() > config.seaLevel) {
+      if (c.getBlue() > config.terrainConfig.seaLevel) {
         col = {150, 150, 150};
       } else {
         col = {172, 179, 185};
@@ -233,7 +233,7 @@ void ImageExporter::Vic3ColourMaps(
     for (auto w = 0; w < imageWidth; w++) {
       auto referenceIndex = h * imageWidth + w;
       double depth = (double)scaledMap[referenceIndex].getBlue() /
-                     (double)Cfg::Values().seaLevel;
+                     (double)Cfg::Values().terrainConfig.seaLevel;
       auto imageIndex =
           imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
       imageIndex *= 4;
@@ -282,7 +282,7 @@ void ImageExporter::Vic3ColourMaps(
       Fwg::Gfx::Colour col = baseColour * referenceHumidity +
                              baseColour2 * (1.0 - referenceHumidity);
       if (scaledHeight[referenceIndex].getBlue() <
-          (double)Cfg::Values().seaLevel) {
+          (double)Cfg::Values().terrainConfig.seaLevel) {
         col = {74, 131, 129};
       }
       writeBufferPixels(pixels, imageIndex, col, 255);
@@ -306,7 +306,7 @@ void ImageExporter::Vic3ColourMaps(
       auto c = scaledMap[referenceIndex];
       unsigned char col = 0;
       if (scaledHeight[referenceIndex].getBlue() <
-          (double)Cfg::Values().seaLevel) {
+          (double)Cfg::Values().terrainConfig.seaLevel) {
         col = 0;
       } else {
         col = 128;

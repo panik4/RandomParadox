@@ -188,7 +188,7 @@ void unitStacks(
           std::to_string(9.5 +
                          std::max<float>(
                              0.0f, position.position.altitude * 0.1f *
-                                       static_cast<float>(255 - cfg.seaLevel))),
+                                       static_cast<float>(255 - cfg.terrainConfig.seaLevel))),
           std::to_string(position.position.heightCenter),
           std::to_string(1.57 + position.position.rotation),
           std::to_string(0.01f + RandNum::getRandom<float>(0.0f, 0.5f))};
@@ -526,23 +526,24 @@ void commonNames(const std::string &path, const CountryMap &countries) {
       auto share =
           std::min<double>(culture.second / country->getTotalPopulation(), 1.0);
       auto language = culture.first->language;
-      // get the names for the culture
-      for (int i = 1; i < (int)(share * (double)language->maleNames.size());
-           i++) {
-        maleNames.append("\"" + language->maleNames[i] + "\"" + " ");
-        if (i % 10 == 0)
+      // Generate a small pool for the game's runtime name generator.
+      const auto nameCount = static_cast<int>(share * 10.0);
+      for (int i = 0; i < nameCount; ++i) {
+        maleNames.append("\"" + language->getRandomCapitalisedWordFromVocabulary(
+                             "MaleNames") + "\" ");
+        if ((i + 1) % 10 == 0)
           maleNames.append("\n\t\t\t");
       }
-      for (int i = 0; i < (int)(share * (double)language->femaleNames.size());
-           i++) {
-        femaleNames.append("\"" + language->femaleNames[i] + "\"" + " ");
-        if (i % 10 == 0)
+      for (int i = 0; i < nameCount; ++i) {
+        femaleNames.append("\"" + language->getRandomCapitalisedWordFromVocabulary(
+                               "FemaleNames") + "\" ");
+        if ((i + 1) % 10 == 0)
           femaleNames.append("\n\t\t\t");
       }
-      for (int i = 0; i < (int)(share * (double)language->surnames.size());
-           i++) {
-        surnames.append("\"" + language->surnames[i] + "\"" + " ");
-        if (i % 10 == 0)
+      for (int i = 0; i < nameCount; ++i) {
+        surnames.append("\"" + language->getRandomCapitalisedWordFromVocabulary(
+                            "Surnames") + "\" ");
+        if ((i + 1) % 10 == 0)
           surnames.append("\n\t\t\t");
       }
       // now replace templateCountryTag
@@ -1781,7 +1782,11 @@ void victoryPointNames(const std::string &path,
   for (auto region : regions) {
     for (auto vp : region->victoryPointsMap) {
       content += Fwg::Utils::varsToString(" VICTORY_POINTS_", vp.first + 1,
-                                          ":0 \"", vp.second->name, "\"\n");
+                                          ":0 \"",
+                                          vp.second->location
+                                              ? vp.second->location->name
+                                              : "Unnamed",
+                                          "\"\n");
     }
   }
   Detail::localisationWrite(path + "victory_points_l_language.yml", content,

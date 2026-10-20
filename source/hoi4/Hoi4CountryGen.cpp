@@ -107,7 +107,6 @@ void distributeVictoryPoints(
 
     if (!country->ownedRegions.size())
       continue;
-    auto primaryCulture = country->getPrimaryCulture();
     for (auto &region : country->hoi4Regions) {
       if (!region->isLand() ||
           region->topographyTypes.count(
@@ -126,8 +125,8 @@ void distributeVictoryPoints(
 
       double totalImportance = 0;
       for (auto &location : region->locations) {
-        // ignore waterports
-        if (location->type == Fwg::Civilization::LocationType::WaterPort)
+        if (location->type != Fwg::Civilization::LocationType::City &&
+            location->type != Fwg::Civilization::LocationType::Port)
           continue;
         provinceImportance[location->provinceID] += location->importance;
         provinceLocations[location->provinceID].push_back(location);
@@ -146,13 +145,8 @@ void distributeVictoryPoints(
                              [](const auto &l, const auto &r) {
                                return l->importance < r->importance;
                              });
-        vp.position = (*mostImportantLocation)->position;
-        if (primaryCulture != nullptr) {
-          vp.name = Fwg::Utils::Random::selectRandom(
-              primaryCulture->language->cityNames);
-        } else {
-          vp.name = "Unnamed";
-        }
+        vp.location = *mostImportantLocation;
+        vp.position = vp.location->position;
         if (vps > 0) {
           region->victoryPointsMap[province.first] =
               std::make_shared<Arda::VictoryPoint>(vp);
@@ -353,10 +347,12 @@ void generateCharacters(Hoi4Data &modData) {
             character.surname =
                 "Doe " + std::to_string(country->characters.size());
           } else {
-            character.name = Fwg::Utils::Random::selectRandom(
-                primaryCulture->language->maleNames);
-            character.surname = Fwg::Utils::Random::selectRandom(
-                primaryCulture->language->surnames);
+            character.name = primaryCulture->language
+                                 ->getRandomCapitalisedWordFromVocabulary(
+                                     "MaleNames");
+            character.surname = primaryCulture->language
+                                    ->getRandomCapitalisedWordFromVocabulary(
+                                        "Surnames");
           }
 
         } while (usedNames.find(character.name + " " + character.surname) !=
@@ -430,10 +426,12 @@ void generateCharacters(Hoi4Data &modData) {
           theorist.surname =
               "Doe " + std::to_string(country->characters.size());
         } else {
-          theorist.name = Fwg::Utils::Random::selectRandom(
-              primaryCulture->language->maleNames);
-          theorist.surname = Fwg::Utils::Random::selectRandom(
-              primaryCulture->language->surnames);
+          theorist.name = primaryCulture->language
+                              ->getRandomCapitalisedWordFromVocabulary(
+                                  "MaleNames");
+          theorist.surname = primaryCulture->language
+                                 ->getRandomCapitalisedWordFromVocabulary(
+                                     "Surnames");
         }
       } while (usedNames.find(theorist.name + " " + theorist.surname) !=
                usedNames.end());

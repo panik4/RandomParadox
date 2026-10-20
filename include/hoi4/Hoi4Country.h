@@ -76,6 +76,7 @@ public:
   bool hasTech(const std::string &techname) const;
 
   std::string exportLine() const;
+  void importLine(const std::vector<std::string> &tokens) override;
 
   template<class Archive>
   void serialize(Archive &ar, const unsigned int /*version*/);
