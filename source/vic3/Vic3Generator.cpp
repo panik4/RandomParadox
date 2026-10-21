@@ -131,17 +131,17 @@ void Generator::configureModGen(const std::string &configSubFolder,
   ardaConfig.targetWorldGdp = 1'000'000'000'000;
 
   config.terrainConfig.seaLevel = 18;
-  config.riverFactor = 0.0;
+  config.riverConfig.riverFactor = 0.0;
   config.areaConfig.provinces.seaFactor *= 0.10;
   config.areaConfig.provinces.landFactor *= 1.0;
   config.areaConfig.regions.minProvincesPerSeaRegion = 1;
   config.areaConfig.regions.autoSeaParameters = false;
-  config.forceResolutionBase = false;
+  config.resolutionConstraints.forceResolutionBase = false;
   config.areaConfig.provinces.autoSplit = false;
-  config.maxImageArea = 8192 * 3616;
-  config.resolutionBase = 1;
+  config.resolutionConstraints.maxImageArea = 8192 * 3616;
+  config.resolutionConstraints.resolutionBase = 1;
   // allow massive images for Vic3
-  config.targetMaxImageSize = 160'000'000;
+  config.imageImportConfig.targetMaxImageSize = 160'000'000;
   ardaConfig.locationConfig.miningPerRegion = 1;
   ardaConfig.locationConfig.forestryPerRegion = 1;
   ardaConfig.locationConfig.citiesPerRegion = 1;
@@ -351,10 +351,6 @@ void Generator::mapCountries() {
         std::dynamic_pointer_cast<Vic3::Country, Arda::Country>(country.second);
     if (vic3Country != nullptr) {
       for (auto &region : vic3Country->ownedRegions) {
-        // vic3Country->ownedVic3Regions.push_back(
-        //     std::reinterpret_pointer_cast<Vic3::Region, Arda::ArdaRegion>(
-        //         region));
-
         vic3Country->ownedVic3Regions.push_back(
             std::dynamic_pointer_cast<Region>(region));
       }
@@ -764,7 +760,7 @@ void Generator::initImageExporter() {
 
 void Generator::generate() {
   if (!createPaths())
-    return;
+    throw std::runtime_error("Could not create the Victoria 3 mod paths");
 
   try {
     // start with the generic stuff in the Scenario Generator
@@ -785,16 +781,12 @@ void Generator::generate() {
       return std::make_shared<StrategicRegion>();
     };
     if (!generateStrategicRegions(factory)) {
-      Fwg::Utils::Logging::logLine(
-          "Error generating strategic regions, aborting");
-      return;
+      throw std::runtime_error("Could not generate Victoria 3 strategic regions");
     }
     // Vic3 specifics:
     distributeResources();
     if (!importData(this->pathcfg.gamePath + "/game/")) {
-      Fwg::Utils::Logging::logLine("ERROR: Could not import data from game "
-                                   "folder. The generation has FAILED");
-      return;
+      throw std::runtime_error("Could not import Victoria 3 game data");
     }
 
     // handle basic development, tech level, policies,
@@ -897,7 +889,8 @@ void Generator::writeTextFiles(bool scenarioDetails) {
 
 void Generator::writeImages() {
   // TODO: improve handling of altitude data to not rely on image
-  auto heightMap = Fwg::Gfx::displayHeightMap(terrainData.detailedHeightMap);
+  auto heightMap = Fwg::Gfx::displayHeightMap(
+      terrainData.detailedHeightMap, Fwg::Cfg::Values().visualizationContext());
 
   imageExporter.Vic3ColourMaps(worldMap, heightMap, climateData,
                                ardaData.civLayer,

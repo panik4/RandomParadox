@@ -81,8 +81,8 @@ void Generator::configureModGen(const std::string &configSubFolder,
   ardaConfig.generationAge = Arda::Utils::GenerationAge::Renaissance;
   ardaConfig.targetWorldPopulation = 500'000'000;
   ardaConfig.targetWorldGdp = 50'000'000'000;
-  config.maxImageArea = 5632 * 2304;
-  config.resolutionBase = 256;
+  config.resolutionConstraints.maxImageArea = 5632 * 2304;
+  config.resolutionConstraints.resolutionBase = 256;
   config.terrainConfig.seaLevel = 95;
   config.areaConfig.provinces.seaFactor *= 0.7;
   config.areaConfig.provinces.landFactor *= 0.7;
@@ -145,7 +145,7 @@ void Generator::writeTextFiles(bool scenarioDetails) {}
 void Generator::writeImages() {}
 void Generator::generate() {
   if (!createPaths())
-    return;
+    throw std::runtime_error("Could not create the Europa Universalis IV mod paths");
 
   try {
     // start with the generic stuff in the Scenario Generator

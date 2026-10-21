@@ -158,9 +158,9 @@ void Generator::configureModGen(const std::string &configSubFolder,
   // force defaults for the game, if not set otherwise
   if (config.areaConfig.regions.targetSeaAmount == 0 && config.areaConfig.regions.autoSeaParameters)
     config.areaConfig.regions.targetSeaAmount = 160;
-  config.forceResolutionBase = true;
-  config.resolutionBase = 256;
-  config.maxImageArea = 10240 * 1280;
+  config.resolutionConstraints.forceResolutionBase = true;
+  config.resolutionConstraints.resolutionBase = 256;
+  config.resolutionConstraints.maxImageArea = 10240 * 1280;
   config.areaConfig.provinces.autoSplit = false;
   ardaConfig.locationConfig.miningPerRegion = 0;
   ardaConfig.locationConfig.forestryPerRegion = 0;
@@ -1216,13 +1216,15 @@ void Generator::generate() {
     throw(
         std::runtime_error("Invalid format, both width and height of the image "
                            "must be multiples of 64."));
-  } else if (config.scale && (config.scaleX % 64 || config.scaleY % 64)) {
+  } else if (config.imageImportConfig.scale &&
+             (config.imageImportConfig.scaleX % 64 ||
+              config.imageImportConfig.scaleY % 64)) {
     throw(std::runtime_error("Invalid target dimensions for scaling mode, both "
                              "scaleX and scaleY of the image "
                              "must be multiples of 64."));
   }
   if (!createPaths())
-    return;
+    throw std::runtime_error("Could not create the HOI4 mod paths");
   try {
     // start with the generic stuff in the Scenario hoi4Gen
     mapProvinces();
@@ -1237,9 +1239,7 @@ void Generator::generate() {
       return std::make_shared<StrategicRegion>();
     };
     if (!generateStrategicRegions(stratFactory)) {
-      Fwg::Utils::Logging::logLine(
-          "Error generating strategic regions, aborting");
-      return;
+      throw std::runtime_error("Could not generate HOI4 strategic regions");
     }
     // generate state information
     generateStateSpecifics();
@@ -1260,6 +1260,7 @@ void Generator::generate() {
     error += "Error is: \n";
     error += e.what();
     Fwg::Utils::Logging::logLine(error);
+    throw;
   }
   // now start writing game files
   try {
@@ -1271,6 +1272,7 @@ void Generator::generate() {
     error += "Error is: \n";
     error += e.what();
     Fwg::Utils::Logging::logLine(error);
+    throw;
   }
   // now if everything worked, print info about world and pause for user to
   // see
@@ -1279,17 +1281,17 @@ void Generator::generate() {
 void Generator::readHoi(std::string &path) {
   path.append("/");
   auto &config = Fwg::Cfg::Values();
-  bool bufferedCut = config.cut;
-  config.cut = false;
+  bool bufferedCut = config.imageImportConfig.cut;
+  config.imageImportConfig.cut = false;
   auto heightmap = Fwg::IO::Reader::readGenericImage(path + "map/heightmap.bmp",
-                                                     config, false);
+                                                     config.imageReadContext(), false);
   loadHeight(config, heightmap);
   genSobelMap(config);
   genLand();
   loadClimate(config, Fwg::IO::Reader::readGenericImage(
-                          path + "map/terrain.bmp", config));
+                          path + "map/terrain.bmp", config.imageReadContext()));
   provinceMap =
-      Fwg::IO::Reader::readGenericImage(path + "map/provinces.bmp", config);
+      Fwg::IO::Reader::readGenericImage(path + "map/provinces.bmp", config.imageReadContext());
   //// read in game or mod files
   climateData.habitabilities.resize(provinceMap.size());
   Hoi4::Parsing::Reading::readProvinces(terrainData, climateData, path,
@@ -1363,7 +1365,7 @@ void Generator::readHoi(std::string &path) {
   //                                         modData.hoi4States);
   // Hoi4::Parsing::Reading::readWeatherPositions(pathcfg.gamePath,
   //                                              modData.hoi4States);
-  config.cut = bufferedCut;
+  config.imageImportConfig.cut = bufferedCut;
 }
 
 void Generator::save(const std::string &path) {

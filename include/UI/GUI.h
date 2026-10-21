@@ -14,46 +14,47 @@
 #include "vic3/Vic3Generator.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
 // Short alias for this namespace
 namespace pt = boost::property_tree;
 struct GameConfig {
+  GameType type;
   std::string gameName;
   std::string gameShortName;
 };
 
 using Vic3Gen = Rpx::Vic3::Generator;
-using Eu4Gen = Rpx::Eu4::Generator;
 
 class GUI : public Arda::ArdaUI {
   std::vector<GameConfig> gameConfigs;
-  GameConfig activeGameConfig;
   pt::ptree rpdConf;
   std::string configSubFolder;
   std::string username;
-  // std::shared_ptr<Rpx::GenericModule> activeModule;
   std::shared_ptr<Rpx::ModGenerator> activeGenerator;
-  bool loadedConfigs = false;
+  bool pathsInitialized = false;
   bool validatedPaths = false;
-  std::string activeConfig;
-  std::vector<std::string> configSubfolders;
   Rpx::UI::MapEditorState mapEditorState;
   bool strategicRegionBorderPaint = false;
   int selectedStrategicRegionID = -1;
-  void loadConfigs();
   // configuration
-  void loadGameConfig(Fwg::Cfg &cfg);
   void initGameConfigs();
+  std::shared_ptr<Rpx::ModGenerator> createGenerator(GameType gameType) const;
+  const GameConfig &gameConfig(GameType gameType) const;
+  const GameConfig &activeGameConfig() const;
+  void selectGame(GameType gameType);
   bool validatePaths();
-  bool isRelevantModuleActive(const std::string &shortName) const;
-  template <class T> constexpr std::shared_ptr<T> getGeneratorPointer() {
-    return std::reinterpret_pointer_cast<T, Arda::ArdaGen>(activeGenerator);
+  template <class T> std::shared_ptr<T> getGeneratorPointer() {
+    auto generator = std::dynamic_pointer_cast<T>(activeGenerator);
+    if (!generator)
+      throw std::logic_error("Active generator type does not match the "
+                             "requested game-specific operation");
+    return generator;
   }
   int showConfigure(Fwg::Cfg &cfg);
   int showRpdxConfigure(Fwg::Cfg &cfg);
-  void showModLoader(Fwg::Cfg &cfg);
   // generic scenario stuff
   void processMapEditorSelection();
   std::shared_ptr<Arda::ArdaRegion> getSelectedMapEditorState() const;
@@ -82,11 +83,11 @@ class GUI : public Arda::ArdaUI {
   int showCountryTab(Fwg::Cfg &cfg);
 
   int showModuleGeneric(Fwg::Cfg &cfg);
-  void stratRegionEdit(std::shared_ptr<Arda::ArdaGen> generator);
+  void stratRegionEdit();
   int showStrategicRegionTab(Fwg::Cfg &cfg,
                              std::shared_ptr<Rpx::ModGenerator> &generator);
   // HOI stuff
-  void pathWarning(std::exception e);
+  void pathWarning(std::exception e, const Rpx::ModGenerator &generator);
   int showHoi4Finalise(Fwg::Cfg &cfg);
   // Vic3 stuff
   int showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator);
@@ -94,14 +95,17 @@ class GUI : public Arda::ArdaUI {
   int showVic3Finalise(Fwg::Cfg &cfg);
   void showEu5Finalise(Fwg::Cfg &cfg);
 
-  // generic stuff
-  int showStatisticsTab();
-
-  void recover();
+protected:
+  Rpx::ModGenerator &currentGenerator() override;
+  std::string windowTitle() const override;
+  std::string frameTitle() const override;
+  void onWindowReady() override;
+  void renderTopBar() override;
+  void renderSettingsTabs(Fwg::Cfg &cfg) override;
+  void renderGenericContents(Fwg::Cfg &cfg) override;
 
 public:
   GUI();
-  void genericWrapper();
   void gameSpecificTabs(Fwg::Cfg &cfg);
   int shiny(const pt::ptree &rpdConf, const std::string &configSubFolder,
             const std::string &username);

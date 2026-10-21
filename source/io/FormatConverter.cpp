@@ -667,18 +667,18 @@ void ImageExporter::dumpTerrainColourmap(
   } else {
     // load base game colourmap
     pixels = Arda::Gfx::Textures::readDDS(gamePath + mapName);
-    int maxY = static_cast<int>(1024 - cfg.maxY / (double)factor);
-    int minY = static_cast<int>(1024 - cfg.minY / (double)factor);
-    int maxX = static_cast<int>(cfg.maxX / (double)factor);
-    int minX = static_cast<int>(cfg.minX / (double)factor);
+    int maxY = static_cast<int>(1024 - cfg.imageImportConfig.maxY / (double)factor);
+    int minY = static_cast<int>(1024 - cfg.imageImportConfig.minY / (double)factor);
+    int maxX = static_cast<int>(cfg.imageImportConfig.maxX / (double)factor);
+    int minX = static_cast<int>(cfg.imageImportConfig.minX / (double)factor);
     std::swap(minY, maxY);
     // cut it and reassign it
     pixels = Utils::Containers::cutBuffer(pixels, 2816, 1024, minX, maxX, minY,
                                           maxY, 4);
-    if (cfg.scale) {
+    if (cfg.imageImportConfig.scale) {
       pixels = Utils::Containers::scaleBuffer(
-          pixels, abs(maxX - minX), abs(maxY - minY), cfg.scaleX / factor,
-          cfg.scaleY / factor, 4, cfg.keepRatio);
+          pixels, abs(maxX - minX), abs(maxY - minY), cfg.imageImportConfig.scaleX / factor,
+          cfg.imageImportConfig.scaleY / factor, 4, cfg.imageImportConfig.keepRatio);
     }
   }
   if (gameTag == "Vic3") {
@@ -686,8 +686,9 @@ void ImageExporter::dumpTerrainColourmap(
                                         modPath + mapName, format, true);
   } else {
 
-    if (cfg.scale)
-      Arda::Gfx::Textures::writeDDS(cfg.scaleX / factor, cfg.scaleY / factor,
+    if (cfg.imageImportConfig.scale)
+      Arda::Gfx::Textures::writeDDS(cfg.imageImportConfig.scaleX / factor,
+                                    cfg.imageImportConfig.scaleY / factor,
                                     pixels, modPath + mapName, format);
     else
       Arda::Gfx::Textures::writeDDS(imageWidth, imageHeight, pixels,
