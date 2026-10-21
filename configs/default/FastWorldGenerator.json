@@ -4,7 +4,7 @@
 		"debugLevel": 0,
 		"writeMaps" : true,
 		"scaleFactor" : 1,
-		"seed" : 0
+		"seed" : 193
 	},
 	"paths":
 	{
@@ -17,8 +17,8 @@
 	},
 	"map": 
 	{
-		"width" : 5632,
-		"height" : 2048,
+		"width" : 512,
+		"height" : 512,
 		"landPercentage" : 40,
 		"seaLevel" : 94,
 		"accuracy": 100,
@@ -30,7 +30,9 @@
 		},
 		"rivers" : 
 		{
-			"riverFactor" : 1.0
+			"riverFactor" : 1.0,
+			"canyonEnabled" : false,
+			"canyonRange" : 3
 		},
 		"humidity" : 
 		{
@@ -52,9 +54,12 @@
 		},
 		"areas" : 
 		{
+			"segments" :
+			{
+				"removeChunkThreshold" : 8
+			},
 			"provinces" : 
 			{
-				"auto" : true,
 				"landProvinceFactor" : 1.0,
 				"seaProvinceFactor" : 1.0,
 				"minProvSize" : 20,
@@ -67,7 +72,7 @@
 				"autoSeaRegions" : true,
 				"minProvPerLandRegion" : 8,
 				"minProvPerSeaRegion" : 0,
-				"targetLandRegionAmount" : 1200,
+				"targetLandRegionAmount" : 1500,
 				"targetSeaRegionAmount" : 240
 			}
 		},

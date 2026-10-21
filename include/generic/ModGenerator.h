@@ -29,6 +29,7 @@ public:
   // initialize countries
   virtual void mapCountries();
 
+  // Returns normally only after generation and export succeed; throws on failure.
   virtual void generate() = 0;
   virtual void initImageExporter() = 0;
   virtual void writeTextFiles(bool scenarioDetails) = 0;

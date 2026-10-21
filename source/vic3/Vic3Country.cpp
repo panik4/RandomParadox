@@ -1,4 +1,5 @@
 #include "vic3/Vic3Country.h"
+#include <utility>
 
 namespace Rpx::Vic3 {
 Country::Country() : Arda::Country() {}
@@ -9,8 +10,8 @@ Country::Country(std::string tag, int ID, std::string name,
 Country::Country(Arda::Country &country,
                  std::vector<std::shared_ptr<Vic3::Region>> &regions) {
   for (auto &region : country.ownedRegions) {
-    this->ownedVic3Regions.push_back(
-        std::reinterpret_pointer_cast<Region>(region));
+    if (auto vic3Region = std::dynamic_pointer_cast<Region>(region))
+      this->ownedVic3Regions.push_back(std::move(vic3Region));
   }
 }
 

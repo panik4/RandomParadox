@@ -1996,7 +1996,7 @@ std::vector<Fwg::Areas::Province> readProvinceMap(const std::string &path) {
   using namespace Rpx::Parsing;
   auto &cfg = Fwg::Cfg::Values();
   auto provMap =
-      Fwg::IO::Reader::readGenericImage(path + "map/provinces.bmp", cfg);
+      Fwg::IO::Reader::readGenericImage(path + "map/provinces.bmp", cfg.imageReadContext());
   auto definition = pU::getLines(path + "map/definition.csv");
   Fwg::Utils::ColourTMap<Fwg::Areas::Province> provinces;
   for (const auto &line : definition) {
@@ -2084,9 +2084,10 @@ void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
                    Fwg::Areas::AreaData &areaData) {
   Logging::logLine("HOI4 Parser: Map: Studying the land");
   auto provMap = Fwg::IO::Reader::readGenericImage(inPath + "map/" + mapName,
-                                                   Fwg::Cfg::Values());
+      Fwg::Cfg::Values().imageReadContext());
   auto heightMap = Fwg::IO::Reader::readGenericImage(
-      inPath + "map/" + "heightmap" + ".bmp", Fwg::Cfg::Values());
+      inPath + "map/" + "heightmap" + ".bmp",
+      Fwg::Cfg::Values().imageReadContext());
   auto list = readDefinitions(inPath + "map/definition.csv");
   // now map definitions to read in IDs
   for (auto &line : list) {

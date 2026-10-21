@@ -113,17 +113,17 @@ void Generator::configureModGen(const std::string &configSubFolder,
   ardaConfig.targetWorldGdp = 1'000'000'000'000;
 
   config.terrainConfig.seaLevel = 20;
-  config.riverFactor = 0.0;
+  config.riverConfig.riverFactor = 0.0;
   config.areaConfig.provinces.seaFactor *= 0.10;
   config.areaConfig.provinces.landFactor *= 1.0;
   config.areaConfig.regions.minProvincesPerSeaRegion = 1;
-  config.maxImageArea = 16384 * 8192;
+  config.resolutionConstraints.maxImageArea = 16384 * 8192;
   config.areaConfig.regions.autoSeaParameters = false;
-  config.forceResolutionBase = false;
+  config.resolutionConstraints.forceResolutionBase = false;
   config.areaConfig.provinces.autoSplit = false;
-  config.resolutionBase = 1;
+  config.resolutionConstraints.resolutionBase = 1;
   // allow massive images for Vic3
-  config.targetMaxImageSize = 160'000'000;
+  config.imageImportConfig.targetMaxImageSize = 160'000'000;
   ardaConfig.locationConfig.miningPerRegion = 1;
   ardaConfig.locationConfig.forestryPerRegion = 1;
   ardaConfig.locationConfig.citiesPerRegion = 1;
@@ -254,7 +254,7 @@ void Generator::initImageExporter() {
 
 void Generator::generate() {
   if (!createPaths())
-    return;
+    throw std::runtime_error("Could not create the Europa Universalis V mod paths");
 
   try {
     // start with the generic stuff in the Scenario Generator
