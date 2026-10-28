@@ -442,7 +442,7 @@ void GUI::processMapEditorSelection() {
   case Rpx::UI::MapEditorLayer::Continents:
     if (province->continent) {
       mapEditorState.selectedContinentID = -1;
-      for (const auto &continent : activeGenerator->ardaContinents) {
+      for (const auto &continent : activeGenerator->ardaData.areaData.continents) {
         if (continent && continent->ID == province->continent->ID) {
           mapEditorState.selectedContinentID = continent->ID;
           break;
@@ -476,18 +476,18 @@ void GUI::processMapEditorSelection() {
 
 std::shared_ptr<Arda::ArdaRegion> GUI::getSelectedMapEditorState() const {
   const auto state = std::ranges::find_if(
-      activeGenerator->ardaRegions, [this](const auto &candidate) {
+      activeGenerator->ardaData.areaData.regions, [this](const auto &candidate) {
         return candidate && candidate->ID == mapEditorState.selectedStateID;
       });
-  return state == activeGenerator->ardaRegions.end() ? nullptr : *state;
+  return state == activeGenerator->ardaData.areaData.regions.end() ? nullptr : *state;
 }
 
 std::shared_ptr<Arda::ArdaProvince> GUI::getSelectedMapEditorProvince() const {
   const auto province = std::ranges::find_if(
-      activeGenerator->ardaProvinces, [this](const auto &candidate) {
+      activeGenerator->ardaData.areaData.provinces, [this](const auto &candidate) {
         return candidate && candidate->ID == mapEditorState.selectedProvinceID;
       });
-  return province == activeGenerator->ardaProvinces.end() ? nullptr : *province;
+  return province == activeGenerator->ardaData.areaData.provinces.end() ? nullptr : *province;
 }
 
 std::shared_ptr<Fwg::Civilization::Location>
@@ -511,10 +511,10 @@ GUI::getSelectedMapEditorLocation() const {
 std::shared_ptr<Arda::ArdaContinent>
 GUI::getSelectedMapEditorContinent() const {
   const auto continent = std::ranges::find_if(
-      activeGenerator->ardaContinents, [this](const auto &candidate) {
+      activeGenerator->ardaData.areaData.continents, [this](const auto &candidate) {
         return candidate && candidate->ID == mapEditorState.selectedContinentID;
       });
-  return continent == activeGenerator->ardaContinents.end() ? nullptr
+  return continent == activeGenerator->ardaData.areaData.continents.end() ? nullptr
                                                             : *continent;
 }
 
@@ -734,24 +734,38 @@ void GUI::refreshMapEditorVisualization() {
     preset = Arda::UI::VisualLayerPreset::StrategicRegions;
     break;
   }
-  uiContext.imageContext.updateImage(
-      0, Arda::UI::renderVisualLayers(
-             *activeGenerator, Fwg::Cfg::Values().width,
-             Fwg::Cfg::Values().height, Fwg::Cfg::Values(),
-             activeGenerator->areaGenerationContext(Fwg::Cfg::Values()),
-             Arda::UI::createVisualLayerPreset(preset)));
+  auto &config = Fwg::Cfg::Values();
+  if (Fwg::Gfx::isCurrentVisualizationDimensions(
+          config.width, config.height, config.processingArea)) {
+    uiContext.imageContext.updateImage(
+        0, Arda::UI::renderVisualLayers(
+               *activeGenerator, config.width, config.height, config,
+               activeGenerator->areaGenerationContext(config),
+               Arda::UI::createVisualLayerPreset(preset)));
+  } else {
+    Fwg::Utils::Logging::logLine(
+        "Skipping map editor visualization: map dimensions are stale");
+    uiContext.imageContext.updateImage(0, Fwg::Gfx::Image());
+  }
   uiContext.imageContext.updateImage(1, Fwg::Gfx::Image());
 }
 
 void GUI::refreshStrategicRegionVisualization() {
-  uiContext.imageContext.updateImage(
-      0, Arda::UI::renderVisualLayers(
-             *activeGenerator, Fwg::Cfg::Values().width,
-             Fwg::Cfg::Values().height, Fwg::Cfg::Values(),
-             activeGenerator->areaGenerationContext(Fwg::Cfg::Values()),
-             Arda::UI::createVisualLayerPreset(
-                 Arda::UI::VisualLayerPreset::StrategicRegions),
-             selectedStrategicRegionID));
+  auto &config = Fwg::Cfg::Values();
+  if (Fwg::Gfx::isCurrentVisualizationDimensions(
+          config.width, config.height, config.processingArea)) {
+    uiContext.imageContext.updateImage(
+        0, Arda::UI::renderVisualLayers(
+               *activeGenerator, config.width, config.height, config,
+               activeGenerator->areaGenerationContext(config),
+               Arda::UI::createVisualLayerPreset(
+                   Arda::UI::VisualLayerPreset::StrategicRegions),
+               selectedStrategicRegionID));
+  } else {
+    Fwg::Utils::Logging::logLine(
+        "Skipping strategic region visualization: map dimensions are stale");
+    uiContext.imageContext.updateImage(0, Fwg::Gfx::Image());
+  }
   uiContext.imageContext.updateImage(1, Fwg::Gfx::Image());
 }
 
@@ -794,7 +808,7 @@ void GUI::showMapEditorLayer() {
   case Rpx::UI::MapEditorLayer::Locations:
     processMapEditorSelection();
     if (ImGui::Button("Re-derive location names from languages")) {
-      for (const auto &region : activeGenerator->ardaRegions) {
+      for (const auto &region : activeGenerator->ardaData.areaData.regions) {
         if (!region) {
           continue;
         }
@@ -967,8 +981,8 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
         Arda::Countries::saveCountries(activeGenerator->countries,
                                        exportLocation);
         Arda::Areas::saveRegions(
-            activeGenerator->ardaRegions, exportLocation,
-            Arda::Gfx::visualiseRegions(activeGenerator->ardaRegions));
+            activeGenerator->ardaData.areaData.regions, exportLocation,
+            Arda::Gfx::visualiseRegions(activeGenerator->ardaData.areaData.regions));
       }
       if (activeGenerator->gameType == GameType::Hoi4) {
         auto hoi4Gen = getGeneratorPointer<Hoi4Gen>();
@@ -977,7 +991,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
               [hoi4Gen]() {
                 hoi4Gen->generateStateSpecifics();
                 hoi4Gen->generateStateResources();
-                Arda::Civilization::generateImportance(hoi4Gen->ardaRegions);
+                Arda::Civilization::generateImportance(hoi4Gen->ardaData.areaData.regions);
                 return true;
               },
               [](Fwg::UI::TaskResult::Outcome) {
@@ -1116,32 +1130,32 @@ void GUI::stratRegionEdit() {
   auto &generator = currentGenerator();
   const auto &state = selection->region;
   if (state->superRegionID < 0 ||
-      state->superRegionID >= static_cast<int>(generator.superRegions.size()))
+      state->superRegionID >= static_cast<int>(generator.ardaData.areaData.superRegions.size()))
     return;
 
-  const auto stratRegion = generator.superRegions[state->superRegionID];
+  const auto stratRegion = generator.ardaData.areaData.superRegions[state->superRegionID];
   if (!stratRegion)
     return;
 
   if (strategicRegionBorderPaint) {
     if (selectedStrategicRegionID < 0 ||
         selectedStrategicRegionID >=
-            static_cast<int>(generator.superRegions.size()))
+            static_cast<int>(generator.ardaData.areaData.superRegions.size()))
       return;
 
-    const auto rootRegion = generator.superRegions[selectedStrategicRegionID];
+    const auto rootRegion = generator.ardaData.areaData.superRegions[selectedStrategicRegionID];
     if (!rootRegion || rootRegion == stratRegion)
       return;
 
     stratRegion->removeRegion(state);
     if (stratRegion->ardaRegions.empty()) {
-      generator.superRegions.erase(std::remove(generator.superRegions.begin(),
-                                               generator.superRegions.end(),
+      generator.ardaData.areaData.superRegions.erase(std::remove(generator.ardaData.areaData.superRegions.begin(),
+                                               generator.ardaData.areaData.superRegions.end(),
                                                stratRegion),
-                                   generator.superRegions.end());
-      for (size_t i = 0; i < generator.superRegions.size(); i++) {
-        generator.superRegions[i]->ID = static_cast<int>(i);
-        for (auto &region : generator.superRegions[i]->ardaRegions)
+                                   generator.ardaData.areaData.superRegions.end());
+      for (size_t i = 0; i < generator.ardaData.areaData.superRegions.size(); i++) {
+        generator.ardaData.areaData.superRegions[i]->ID = static_cast<int>(i);
+        for (auto &region : generator.ardaData.areaData.superRegions[i]->ardaRegions)
           region->superRegionID = i;
       }
       Fwg::Utils::Logging::logLine("Removed empty strategic region with ID: ",
@@ -1415,7 +1429,7 @@ int GUI::showVic3Finalise(Fwg::Cfg &cfg) {
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
     const auto &generator = getGeneratorPointer<Rpx::Vic3::Generator>();
-    if (generator->superRegions.size()) {
+    if (generator->ardaData.areaData.superRegions.size()) {
       if (ImGui::Button("Export mod")) {
         uiContext.asyncContext.runAsync([generator, this]() {
           // Vic3 specifics:
@@ -1466,7 +1480,7 @@ void GUI::showEu5Finalise(Fwg::Cfg &cfg) {
     ImGui::Text("This will finish generating the mod and write it to the "
                 "configured paths");
     const auto &generator = getGeneratorPointer<Rpx::Eu5::Generator>();
-    if (generator->superRegions.size()) {
+    if (generator->ardaData.areaData.superRegions.size()) {
       if (ImGui::Button("Export mod")) {
         uiContext.asyncContext.runAsync([generator]() {
           generator->writeImages();

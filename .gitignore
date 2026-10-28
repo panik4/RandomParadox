@@ -4,6 +4,11 @@
 /RandomParadox/FastWorldGen.*
 /RandomParadox/Release
 /RandomParadox/.vs/
+out
+inputs/
+other_resources
+Agents.md
+*.github
 *.vcxproj*
 *libtga
 */Maps/*

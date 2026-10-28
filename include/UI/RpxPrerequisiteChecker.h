@@ -49,7 +49,7 @@ public:
     return {"HOI4 Export Ready",
             "Need strategic regions, initialized states, and country data",
             [&, requireCountryDetails]() {
-              return !generator.superRegions.empty() &&
+              return !generator.ardaData.areaData.superRegions.empty() &&
                      generator.provinceMap.size() > 0 &&
                      generator.modData.statesInitialised &&
                      !requireCountryDetails;
@@ -63,7 +63,7 @@ public:
   static Fwg::UI::Prerequisite
   vic3ExportReady(const Rpx::Vic3::Generator &generator) {
     return {"Vic3 Export Ready", "Generate strategic regions first",
-            [&]() { return !generator.superRegions.empty(); }};
+            [&]() { return !generator.ardaData.areaData.superRegions.empty(); }};
   }
 
   // =========================================================================

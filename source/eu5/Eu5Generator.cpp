@@ -262,7 +262,7 @@ void Generator::generate() {
     mapRegions();
 
     mapContinents();
-    mapTerrain();
+    refreshTerrain();
     // genCivilisationData();
     // auto countryFactory = []() -> std::shared_ptr<Arda::Country> {
     //   return std::make_shared<Arda::Country>();
@@ -328,8 +328,8 @@ void Generator::writeImages() {
   imageExporter.Eu5ColourMaps(terrainData, climateData, ardaData.civLayer,
                               pathcfg.gameModPath + "/in_game/gfx/map/",
                               this->exportWidth / 2, this->exportHeight / 2);
-   imageExporter.writeLocations(provinceMap, ardaProvinces, ardaRegions,
-                                ardaContinents, ardaData.civLayer,
+   imageExporter.writeLocations(provinceMap, ardaData.areaData.provinces, ardaData.areaData.regions,
+                                ardaData.areaData.continents, ardaData.civLayer,
                                 pathcfg.gameModPath + "/in_game/map_data/",
                                 this->exportWidth, this->exportHeight);
    imageExporter.dumpHeightmap(

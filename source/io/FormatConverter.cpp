@@ -1,4 +1,5 @@
 #include "io/ImageExporter.h"
+#include "climate/ClimateWeights.h"
 namespace Rpx::Gfx {
 using namespace Fwg;
 using namespace Fwg::Gfx;
@@ -424,11 +425,13 @@ void ImageExporter::dump8BitTerrain(
       elevationMod = 100;
     }
 
-    auto primaryClimateType =
-        (int)climateIn.climateChances.getChance(0, i).typeIndex;
+    const auto mappedTerrain = Fwg::Climate::weightedClimateCategory(
+        climateIn.climateChances.getWeightedChances(i), [&](auto type) {
+          return indexMaps.at(colourMapKey + gameTag)
+              .at(elevationMod + static_cast<int>(type));
+        });
     hoi4terrain.setColourAtIndex(
-        i, hoi4terrain.lookUp(indexMaps.at(colourMapKey + gameTag)
-                                  .at(elevationMod + primaryClimateType)));
+        i, hoi4terrain.lookUp(mappedTerrain));
     auto treeType = (int)climateIn.forestTypes[i];
     if (treeType && climateIn.dominantForest[i]) {
       hoi4terrain.setColourAtIndex(

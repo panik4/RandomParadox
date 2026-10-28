@@ -165,7 +165,7 @@ Fwg::Gfx::Image Generator::mapTerrain() {
   const auto &landFormIds = terrainData.landFormIds;
   const auto &climates = climateData.climateChances;
   const auto &forests = climateData.dominantForest;
-  for (auto &ardaRegion : ardaRegions) {
+  for (auto &ardaRegion : ardaData.areaData.regions) {
     for (auto &gameProv : ardaRegion->ardaProvinces) {
       gameProv->terrainType = "plains";
       const auto &baseProv = gameProv;
@@ -306,7 +306,7 @@ void Generator::distributeResources() {
 
 void Generator::mapRegions() {
   Fwg::Utils::Logging::logLine("Mapping Regions");
-  ardaRegions.clear();
+  ardaData.areaData.regions.clear();
   modData.vic3Regions.clear();
 
   for (auto &region : this->areaData.regions) {
@@ -322,11 +322,11 @@ void Generator::mapRegions() {
     ardaRegion->ardaProvinces.clear();
 
     for (auto &province : ardaRegion->provinces) {
-      ardaRegion->ardaProvinces.push_back(ardaProvinces[province->ID]);
+      ardaRegion->ardaProvinces.push_back(ardaData.areaData.provinces[province->ID]);
     }
     // save game region to generic module container and to hoi4 specific
     // container
-    ardaRegions.push_back(ardaRegion);
+    ardaData.areaData.regions.push_back(ardaRegion);
     modData.vic3Regions.push_back(ardaRegion);
   }
   // sort by Arda::ArdaProvince ID
@@ -334,12 +334,12 @@ void Generator::mapRegions() {
   //          [](auto l, auto r) { return *l < *r; });
   // check if we have the same amount of ardaProvinces as FastWorldGen
   // provinces
-  if (ardaProvinces.size() != this->areaData.provinces.size())
+  if (ardaData.areaData.provinces.size() != this->areaData.provinces.size())
     throw(std::runtime_error("Fatal: Lost provinces, terminating"));
-  if (ardaRegions.size() != this->areaData.regions.size())
+  if (ardaData.areaData.regions.size() != this->areaData.regions.size())
     throw(std::runtime_error("Fatal: Lost regions, terminating"));
-  for (const auto &ardaRegion : ardaRegions) {
-    if (ardaRegion->ID > ardaRegions.size()) {
+  for (const auto &ardaRegion : ardaData.areaData.regions) {
+    if (ardaRegion->ID > ardaData.areaData.regions.size()) {
       throw(std::runtime_error("Fatal: Invalid region IDs, terminating"));
     }
   }
@@ -673,7 +673,9 @@ void Generator::createLocators() {
       region->findWaterPortLocator();
       region->findWoodLocator();
     } else if (region->isSea()) {
-      region->findWaterLocator();
+      for (const auto &location : region->locations)
+        if (location->type == Fwg::Civilization::LocationType::WaterNode)
+          region->significantLocations.push_back(location);
     }
     //// now overwrite the locator position for the farm - we want to find the
     //// point most distant to the coast, if this is a coastal region
@@ -767,7 +769,7 @@ void Generator::generate() {
     mapProvinces();
     mapRegions();
 
-    mapTerrain();
+    refreshTerrain();
     mapContinents();
     genCivilisationData();
     auto countryFactory = []() -> std::shared_ptr<Vic3::Country> {
@@ -832,10 +834,10 @@ void Generator::writeTextFiles(bool scenarioDetails) {
   // compatReleasable(pathcfg.gamePath + "/game/common/country_creation/",
   //                  pathcfg.gameModPath + "/common/country_creation/");
   adj(pathcfg.gameModPath + "/map_data/adjacencies.csv");
-  defaultMap(pathcfg.gameModPath + "/map_data/default.map", ardaProvinces);
+  defaultMap(pathcfg.gameModPath + "/map_data/default.map", ardaData.areaData.provinces);
   defines(pathcfg.gameModPath + "/common/defines/01_defines.txt");
   provinceTerrains(pathcfg.gameModPath + "/map_data/province_terrains.txt",
-                   ardaProvinces);
+                   ardaData.areaData.provinces);
   stateFiles(pathcfg.gameModPath + "/map_data/state_regions/00_regions.txt",
              modData.vic3Regions);
   Parsing::History::writeBuildings(
@@ -845,7 +847,7 @@ void Generator::writeTextFiles(bool scenarioDetails) {
   strategicRegions(
       pathcfg.gameModPath +
           "/common/strategic_regions/randVic_strategic_regions.txt",
-      superRegions, modData.vic3Regions);
+      ardaData.areaData.superRegions, modData.vic3Regions);
   cultureCommon(pathcfg.gameModPath + "/common/cultures/00_cultures.txt",
                 civData.cultures);
   religionCommon(pathcfg.gameModPath + "/common/religions/religions.txt",
@@ -933,15 +935,15 @@ void Generator::writeImages() {
 }
 
 void Generator::writeSplnet() {
+  genNavmesh({}, {});
   createLocators();
   Parsing::Writing::locators(pathcfg.gameModPath +
                                  "/gfx/map/map_object_data/",
                              modData.vic3Regions);
-  genNavmesh({}, {});
   calculateNavalExits();
 
   Splnet splnet;
-  splnet.constructSplnet(ardaRegions);
+  splnet.constructSplnet(ardaData.areaData.regions);
   splnet.writeFile(pathcfg.gameModPath +
                    "/gfx/map/spline_network/spline_network.splnet");
 }

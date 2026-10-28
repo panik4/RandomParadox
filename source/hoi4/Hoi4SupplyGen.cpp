@@ -1,200 +1,80 @@
 #include "hoi4/Hoi4SupplyGen.h"
 
 namespace Rpx::Hoi4 {
-std::vector<int> findProvinceBridge(
-    int startID, int endID,
-    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &ardaProvinces) {
-
-  std::queue<int> q;
-  std::unordered_map<int, int> parent;
-  parent[startID] = -1;
-  q.push(startID);
-
-  while (!q.empty()) {
-    int cur = q.front();
-    q.pop();
-
-    if (cur == endID)
-      break;
-
-    for (const auto &neighArea : ardaProvinces[cur]->neighbours) {
-      int neighID = neighArea->ID;
-
-      if (parent.count(neighID))
-        continue;
-
-      const auto &prov = ardaProvinces[neighID];
-      if (prov->isSea() || prov->isLake())
-        continue;
-
-      parent[neighID] = cur;
-      q.push(neighID);
-    }
-  }
-
-  if (!parent.count(endID))
-    return {};
-
-  std::vector<int> path;
-  for (int p = endID; p != -1; p = parent[p])
-    path.push_back(p);
-
-  std::reverse(path.begin(), path.end());
-  return path;
-}
 std::vector<int> extractProvincesFromConnection(
-    const Fwg::Civilization::Connection &conn,
-    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &ardaProvinces,
-    const Fwg::Areas::AreaData &areaData, Fwg::Gfx::Image &provinceMap) {
-  std::vector<int> connectionPixels;
-  connectionPixels.reserve(conn.connectingPixels.size() + 2);
-
-  // Step 0: full pixel path including endpoints
-  connectionPixels.push_back(conn.source->position.weightedCenter);
-  connectionPixels.insert(connectionPixels.end(), conn.connectingPixels.begin(),
-                          conn.connectingPixels.end());
-  connectionPixels.push_back(conn.destination->position.weightedCenter);
-
-  // Step 1: map pixels to provinces, removing duplicates and ignoring sea/lake
-  std::vector<int> rawProvinces;
-  rawProvinces.reserve(connectionPixels.size());
-
-  int lastProvinceID = -1;
-  for (int pix : connectionPixels) {
-    auto provinceColour = provinceMap[pix];
-    auto prov = areaData.provinceColourMap.at(provinceColour);
-
-    if (!prov || prov->isSea() || prov->isLake())
-      continue;
-
-    if (prov->ID != lastProvinceID) {
-      rawProvinces.push_back(prov->ID);
-      lastProvinceID = prov->ID;
+    const Fwg::Civilization::Connection &connection,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
+    const Fwg::Areas::AreaData &areas, Fwg::Gfx::Image &provinceMap) {
+  if (connection.type != Fwg::Civilization::ConnectionType::Land ||
+      connection.source.expired() || connection.destination.expired()) return {};
+  const auto pixels = Fwg::Civilization::Locations::connectionPixels(connection);
+  std::vector<int> result;
+  int previousPixel = -1;
+  for (int pixel : pixels) {
+    if (pixel < 0 || pixel >= static_cast<int>(provinceMap.size())) return {};
+    if (previousPixel >= 0) {
+      const int width = provinceMap.width();
+      int dx = std::abs(pixel % width - previousPixel % width);
+      dx = std::min(dx, width - dx);
+      if (dx + std::abs(pixel / width - previousPixel / width) != 1) return {};
     }
-  }
-
-  if (rawProvinces.size() < 2)
-    return rawProvinces; // trivial path
-
-  // Step 2: enforce contiguity, inserting bridges where needed
-  std::vector<int> fixedPath;
-  fixedPath.reserve(rawProvinces.size());
-
-  fixedPath.push_back(rawProvinces[0]); // always start with first
-
-  for (size_t i = 0; i + 1 < rawProvinces.size(); ++i) {
-    int a = rawProvinces[i];
-    int b = rawProvinces[i + 1];
-
-    // check adjacency
-    bool adjacent = false;
-    for (const auto &neigh : ardaProvinces[a]->neighbours) {
-      if (neigh->ID == b) {
-        adjacent = true;
-        break;
+    previousPixel = pixel;
+    const auto &province = areas.provinceColourMap.at(provinceMap[pixel]);
+    if (!province || province->isSea() || province->isLake() || province->ID < 0 ||
+        province->ID >= static_cast<int>(provinces.size()) || !provinces[province->ID])
+      return {};
+    if (!result.empty() && result.back() == province->ID) continue;
+    if (!result.empty()) {
+      const int previous = result.back();
+      if (previous < 0 || previous >= static_cast<int>(provinces.size())) return {};
+      const auto &neighbors = provinces[previous]->neighbours;
+      if (std::none_of(neighbors.begin(), neighbors.end(),
+                       [&](const auto &other) { return other->ID == province->ID; })) {
+        Fwg::Utils::Logging::logLine("Discarding noncontiguous railway connection");
+        return {};
       }
     }
-
-    if (!adjacent) {
-      // find bridge from a -> b, returns [a, x1, x2, ..., b]
-      auto bridge = findProvinceBridge(a, b, ardaProvinces);
-      if (bridge.size() > 2) {
-        // insert interior provinces only
-        fixedPath.insert(fixedPath.end(), bridge.begin() + 1, bridge.end() - 1);
-      }
-    }
-
-    // always append the next province
-    fixedPath.push_back(b);
+    result.push_back(province->ID);
   }
-
-  return fixedPath;
+  return result;
 }
 
 void generateLogistics(
-    std::shared_ptr<Arda::ArdaGen> ardaGen, Hoi4Data &modData,
-    const Fwg::Areas::AreaData &areaData,
-    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &eligibleProvinces,
-    Fwg::Gfx::Image &provinceMap, Fwg::Gfx::Image &countryMap) {
+    std::shared_ptr<Arda::ArdaGen> generator, Hoi4Data &data,
+    const Fwg::Areas::AreaData &areas,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
+    Fwg::Gfx::Image &provinceMap, Fwg::Gfx::Image & /*countryMap*/) {
   Fwg::Utils::Logging::logLine("HOI4: Building rail networks");
   Fwg::Utils::Randomisation::resetRandomisation();
-  auto &supplyNodeConnections = modData.supplyNodeConnections;
-  supplyNodeConnections.clear();
-  auto width = Fwg::Cfg::Values().width;
-  // create a copy of the country map for
-  // visualisation of the logistics
-  auto logistics = countryMap;
-
-  std::vector<Fwg::Civilization::Locations::AreaLocationSet> navmeshLocations;
-
-  for (auto countryID = 0; auto &country : modData.hoi4Countries) {
-    Fwg::Civilization::Locations::AreaLocationSet areaLocationSet;
-    areaLocationSet.area = country; // or &state, depending on your model
-    country->ID = countryID++;
+  data.supplyNodeConnections.clear();
+  std::vector<Fwg::Civilization::Locations::AreaLocationSet> groups;
+  for (const auto &country : data.hoi4Countries) {
+    Fwg::Civilization::Locations::AreaLocationSet group{country, {}};
     for (const auto &state : country->ownedRegions) {
-
-      std::shared_ptr<Fwg::Civilization::Location> largestCity = nullptr;
-      float largestArea = -1.0f;
-
-      for (const auto &loc : state->locations) {
-
-        // collect ports
-        if (loc->type == Fwg::Civilization::LocationType::Port) {
-          areaLocationSet.locations.push_back(loc);
-        }
-
-        // track largest city (land only, non-port)
-        if (loc->land && loc->type == Fwg::Civilization::LocationType::City) {
-          if (loc->size() > largestArea) {
-            largestArea = loc->size();
-            largestCity = loc;
-          }
-        }
+      std::shared_ptr<Fwg::Civilization::Location> largestCity;
+      for (const auto &location : state->locations) {
+        if (location->type == Fwg::Civilization::LocationType::Port)
+          group.locations.push_back(location);
+        if (location->land && location->type == Fwg::Civilization::LocationType::City &&
+            (!largestCity || location->size() > largestCity->size()))
+          largestCity = location;
       }
-
-      // ensure we have at least one inland anchor
-      if (largestCity) {
-        areaLocationSet.locations.push_back(largestCity);
-      }
+      if (largestCity) group.locations.push_back(largestCity);
     }
-    navmeshLocations.push_back(areaLocationSet);
+    groups.push_back(std::move(group));
   }
-  std::vector<std::shared_ptr<Fwg::Areas::Area>> customNavigationPoints;
-  customNavigationPoints.reserve(areaData.provinces.size());
-  for (auto &province : areaData.provinces) {
-    customNavigationPoints.push_back(province);
-  }
-  ardaGen->genNavmesh(navmeshLocations, customNavigationPoints);
-
-  std::set<std::pair<const std::shared_ptr<Fwg::Civilization::Location>,
-                     const std::shared_ptr<Fwg::Civilization::Location>>>
-      visited;
-
-  for (const auto &areaLocationSet : navmeshLocations) {
-    for (const auto &loc : areaLocationSet.locations) {
-
-      for (const auto &[destLoc, conn] : loc->connections) {
-
-        const auto a = loc;
-        const auto b = destLoc;
-
-        // normalize edge key (undirected)
-        auto key = std::minmax(a, b);
-
-        // if (visited.count(key))
-        //   continue;
-
-        // visited.insert(key);
-
-        auto provinces =
-            extractProvincesFromConnection(conn, eligibleProvinces, areaData, provinceMap);
-
-        if (!provinces.empty()) {
-          supplyNodeConnections.push_back(std::move(provinces));
-        }
+  std::vector<std::shared_ptr<Fwg::Areas::Area>> navigationAreas(
+      areas.provinces.begin(), areas.provinces.end());
+  generator->genNavmesh(groups, navigationAreas);
+  std::set<std::pair<int, int>> visited;
+  for (const auto &group : groups) {
+    for (const auto &location : group.locations) {
+      for (const auto &[destinationId, connection] : location->connections) {
+        if (!visited.insert(std::minmax(location->ID, destinationId)).second) continue;
+        auto route = extractProvincesFromConnection(connection, provinces, areas, provinceMap);
+        if (!route.empty()) data.supplyNodeConnections.push_back(std::move(route));
       }
     }
   }
 }
-
 } // namespace Rpx::Hoi4

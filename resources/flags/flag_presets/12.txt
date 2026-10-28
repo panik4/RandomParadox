@@ -1,2 +1,2 @@
-#colourGroups;symbolColourGroups;symbolPlacement;symbolX;symbolY;symbolSize;
-p1,p2;s1;true;0.35;0.25;0.45;
+#RGB=palette mappings;symbol palette;apply symbol;x offset;y offset;scale;
+0,0,0=p1|15,100,43=p2|51,153,255=p2|218,37,27=p2|255,255,0=p2;s1;true;0.35;0.25;0.45;

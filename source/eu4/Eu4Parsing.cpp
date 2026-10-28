@@ -96,6 +96,12 @@ void writeClimate(const std::string &path,
   std::string normal_monsoon{""};
   std::string severe_monsoon{""};
 
+  constexpr double severeWinterCelsius = -32.0;
+  constexpr double normalWinterCelsius = -20.0;
+  constexpr double mildWinterCelsius = -8.0;
+  constexpr double aridWarmestMonthCelsius = 24.0;
+  constexpr double monsoonWarmestMonthCelsius = 28.0;
+
   for (const auto &province : provinces) {
     const auto provID = std::to_string(province->ID + 1);
     auto minTemp = 400.0;
@@ -107,14 +113,14 @@ void writeClimate(const std::string &path,
       Fwg::Utils::Math::switchIfComparator(temp[1], maxTemp, std::greater());
       Fwg::Utils::Math::switchIfComparator(temp[2], maxPrecipitation, std::greater());
     }
-    if (minTemp < 0.1)
+    if (minTemp < severeWinterCelsius)
       severe_winter.append(provID + " ");
-    else if (minTemp < 0.25)
+    else if (minTemp < normalWinterCelsius)
       normal_winter.append(provID + " ");
-    else if (minTemp < 0.4)
+    else if (minTemp < mildWinterCelsius)
       mild_winter.append(provID + " ");
 
-    if (minTemp < 0.1 && maxTemp < 0.4)
+    if (minTemp < severeWinterCelsius && maxTemp < mildWinterCelsius)
       arctic.append(provID + " ");
     if (province->terrainType == "rockyMountains")
       impassable.append(provID + " ");
@@ -123,13 +129,13 @@ void writeClimate(const std::string &path,
       tropical.append(provID + " ");
     if (province->terrainType == "desert")
       arid.append(provID + " ");
-    else if (maxTemp > 0.80 && maxPrecipitation < 0.5)
+    else if (maxTemp > aridWarmestMonthCelsius && maxPrecipitation < 0.5)
       arid.append(provID + " ");
-    if (maxTemp > 0.85 && maxPrecipitation > 0.6)
+    if (maxTemp > monsoonWarmestMonthCelsius && maxPrecipitation > 0.6)
       mild_monsoon.append(provID + " ");
-    else if (maxTemp > 0.85 && maxPrecipitation > 0.7)
+    else if (maxTemp > monsoonWarmestMonthCelsius && maxPrecipitation > 0.7)
       normal_monsoon.append(provID + " ");
-    else if (maxTemp > 0.85 && maxPrecipitation > 0.8)
+    else if (maxTemp > monsoonWarmestMonthCelsius && maxPrecipitation > 0.8)
       severe_monsoon.append(provID + " ");
   }
   Rpx::Parsing::replaceOccurences(content, "templateTropical", tropical);

@@ -10,10 +10,6 @@ ModGenerator::ModGenerator(const std::string &configSubFolder,
     : Arda::ArdaGen(configSubFolder) {
 
   Fwg::Utils::Logging::logLine("ModGenerator::ModGenerator");
-  Arda::Gfx::Flag::readColourGroups();
-  Arda::Gfx::Flag::readFlagTypes();
-  Arda::Gfx::Flag::readFlagTemplates();
-  Arda::Gfx::Flag::readSymbolTemplates();
   superRegionMap = Image(0, 0, 24);
   this->pathcfg.gameSubPath = gameSubPath;
   this->gameType = gameType;
@@ -35,7 +31,8 @@ void ModGenerator::save(const std::string &path) {
   ar << climateMap << worldMap << segmentMap << provinceMap << regionMap;
   ar << locationMap << navmeshMap << errorMap;
   ar << preModifyHeightMap << preModifyHumidityMap;
-  ar << ardaContinents << ardaRegions << ardaProvinces << superRegions;
+  ar << ardaData.areaData.continents << ardaData.areaData.regions
+     << ardaData.areaData.provinces << ardaData.areaData.superRegions;
   ar << countries << civData << nData;
   ar << typeMap << countryMap << superRegionMap;
   ar << gameType << exportWidth << exportHeight;
@@ -50,7 +47,8 @@ void ModGenerator::load(const std::string &path) {
   ar >> climateMap >> worldMap >> segmentMap >> provinceMap >> regionMap;
   ar >> locationMap >> navmeshMap >> errorMap;
   ar >> preModifyHeightMap >> preModifyHumidityMap;
-  ar >> ardaContinents >> ardaRegions >> ardaProvinces >> superRegions;
+  ar >> ardaData.areaData.continents >> ardaData.areaData.regions
+     >> ardaData.areaData.provinces >> ardaData.areaData.superRegions;
   ar >> countries >> civData >> nData;
   ar >> typeMap >> countryMap >> superRegionMap;
   ar >> gameType >> exportWidth >> exportHeight;
