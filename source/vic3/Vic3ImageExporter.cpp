@@ -1,4 +1,5 @@
 #include "vic3/Vic3ImageExporter.h"
+#include "climate/ClimateWeights.h"
 namespace Rpx::Gfx::Vic3 {
 using namespace Arda::Gfx::Textures;
 using namespace Fwg;
@@ -479,18 +480,16 @@ void ImageExporter::detailMaps(
   Fwg::Gfx::Image detailIndexBmp(config.width, config.height, 24);
   Fwg::Gfx::Image detailIntensity(config.width, config.height, 24);
   for (auto i = 0; i < climateData.climateChances.size(); i++) {
-    std::array<unsigned char, 3> colour;
-    std::array<float, 3> intensities;
+    std::array<unsigned char, 3> colour{};
+    std::array<double, 3> intensities{};
 
-    for (auto chanceIndex = 0; chanceIndex < 3; chanceIndex++) {
-      auto type =
-          climateData.climateChances.getChance(chanceIndex, i).typeIndex;
-      auto intensity = static_cast<float>(
-          climateData.climateChances.getChance(chanceIndex, i).getChance() *
-          (1.0 / pow(2.0, (double)chanceIndex)));
-      auto mappedType = climateMap.at(type);
-      colour[chanceIndex] = static_cast<unsigned char>(mappedType);
-      intensities[chanceIndex] = intensity;
+    const auto textures = Fwg::Climate::climateCategoryWeights(
+        climateData.climateChances.getWeightedChances(i), [&](auto type) {
+          return climateMap.at(type);
+        });
+    for (size_t channel = 0; channel < textures.size(); ++channel) {
+      colour[channel] = static_cast<unsigned char>(textures[channel].category);
+      intensities[channel] = textures[channel].weight;
     }
 
     auto elevType = terrainData.landFormIds[i];

@@ -178,7 +178,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
 
 void Generator::mapRegions() {
   Fwg::Utils::Logging::logLine("Mapping Regions");
-  ardaRegions.clear();
+  ardaData.areaData.regions.clear();
   modData.hoi4States.clear();
   stats.militaryIndustry = 0;
   stats.civilianIndustry = 0;
@@ -205,9 +205,9 @@ void Generator::mapRegions() {
     ardaRegion->identifier = "STATE_" + std::to_string(region->ID + 1);
     ardaRegion->ardaProvinces.clear();
     for (auto &province : ardaRegion->provinces) {
-      if (province->ID >= 0 && province->ID < ardaProvinces.size() &&
-          ardaProvinces[province->ID])
-        ardaRegion->ardaProvinces.push_back(ardaProvinces[province->ID]);
+      if (province->ID >= 0 && province->ID < ardaData.areaData.provinces.size() &&
+          ardaData.areaData.provinces[province->ID])
+        ardaRegion->ardaProvinces.push_back(ardaData.areaData.provinces[province->ID]);
       else {
         Fwg::Utils::Logging::logLine("Invalid province ID ", province->ID,
                                      " in region ID ", ardaRegion->ID);
@@ -215,12 +215,12 @@ void Generator::mapRegions() {
     }
     // save game region to generic module container and to hoi4 specific
     // container
-    ardaRegions.push_back(ardaRegion);
+    ardaData.areaData.regions.push_back(ardaRegion);
     modData.hoi4States.push_back(ardaRegion);
   }
 
-  for (size_t i = 0; i < ardaRegions.size(); ++i) {
-    if (!ardaRegions[i]) {
+  for (size_t i = 0; i < ardaData.areaData.regions.size(); ++i) {
+    if (!ardaData.areaData.regions[i]) {
       Fwg::Utils::Logging::logLine("SEVERE: ardaRegions[", i, "] is null!");
       continue;
     }
@@ -230,12 +230,12 @@ void Generator::mapRegions() {
   // std::sort(ardaRegions.begin(), ardaRegions.end(),
   //          [](auto l, auto r) { return *l < *r; });
   // check if we have the same amount of ardaProvinces as FastWorldGen provinces
-  if (ardaProvinces.size() != this->areaData.provinces.size())
+  if (ardaData.areaData.provinces.size() != this->areaData.provinces.size())
     throw(std::runtime_error("Fatal: Lost provinces, terminating"));
-  if (ardaRegions.size() != this->areaData.regions.size())
+  if (ardaData.areaData.regions.size() != this->areaData.regions.size())
     throw(std::runtime_error("Fatal: Lost regions, terminating"));
-  for (const auto &ardaRegion : ardaRegions) {
-    if (ardaRegion->ID > ardaRegions.size()) {
+  for (const auto &ardaRegion : ardaData.areaData.regions) {
+    if (ardaRegion->ID > ardaData.areaData.regions.size()) {
       throw(std::runtime_error("Fatal: Invalid region IDs, terminating"));
     }
   }
@@ -243,7 +243,7 @@ void Generator::mapRegions() {
 }
 
 Fwg::Gfx::Image Generator::mapTerrain() {
-  Image typeMap = ArdaGen::mapTerrain();
+  Image typeMap(Fwg::Cfg::Values().width, Fwg::Cfg::Values().height, 24);
   const auto &config = Fwg::Cfg::Values();
   auto &colours = config.colours;
   auto &climateColours = config.climateConfig.climateColours;
@@ -254,7 +254,7 @@ Fwg::Gfx::Image Generator::mapTerrain() {
   const auto &landFormIds = terrainData.landFormIds;
   const auto &climates = climateData.climateChances;
   const auto &forests = climateData.dominantForest;
-  for (auto &ardaRegion : ardaRegions) {
+  for (auto &ardaRegion : ardaData.areaData.regions) {
     for (auto &gameProv : ardaRegion->ardaProvinces) {
       gameProv->terrainType = "plains";
       const auto &baseProv = gameProv;
@@ -420,7 +420,7 @@ void Generator::mapCountries() {
 
 void Generator::generateStateSpecifics() {
   Rpx::Hoi4::generateStateSpecifics(modConfig, modData, stats, ardaConfig,
-                                    areaData, terrainData, ardaRegions,
+                                    areaData, terrainData, ardaData.areaData.regions,
                                     typeMap);
 }
 
@@ -439,13 +439,11 @@ void Generator::generateCountryTechnologies() { generateTechLevels(modData); }
 void Generator::generateCountryForces() {
   for (auto &country : modData.hoi4Countries) {
     country->tankVariants.clear();
-    std::cout << country->tag << " has " << country->ownedRegions.size()
-              << " owned regions." << std::endl;
   }
 
   generateArmorVariants(modConfig, modData, stats);
   generateCountryUnits(modConfig, modData, stats);
-  generateCountryNavies(modConfig, modData, stats, ardaProvinces);
+  generateCountryNavies(modConfig, modData, stats, ardaData.areaData.provinces);
   generateAirVariants(modConfig, modData, stats);
 }
 
@@ -576,6 +574,7 @@ void Generator::generateSoftCountryDetails() {
       country->parties[i] = popularities[i] + offset;
     }
 
+    const auto previousIdeology = country->ideology;
     // Assign a ideology from strongest popularity
     country->ideology = ideologies[std::max_element(country->parties.begin(),
                                                     country->parties.end()) -
@@ -587,6 +586,9 @@ void Generator::generateSoftCountryDetails() {
                                       country->parties.end() - 1) -
                      country->parties.begin()];
     }
+
+    if (country->ideology != previousIdeology)
+      country->flag = Arda::Gfx::Flag(82, 52, country->ideology);
 
     if (country->ideology == Arda::Utils::Ideology::NONE) {
       Fwg::Utils::Logging::logLine("Unassigned country ideology");
@@ -704,7 +706,7 @@ void Generator::generateHardCountrySpecifics() {
   generateCountryTechnologies();
   generateCountryForces();
   generateCharacters(modData);
-  distributeVictoryPoints(modData, stats, ardaProvinces);
+  distributeVictoryPoints(modData, stats, ardaData.areaData.provinces);
 }
 
 void Generator::deriveCountrySpecificsFromSimulation() {
@@ -724,7 +726,10 @@ void Generator::deriveCountrySpecificsFromSimulation() {
 
     const auto &simulationPolity = polity->second.polity;
     setSimulationParties(*country, polity->second);
+    const auto previousIdeology = country->ideology;
     country->ideology = ideologyFromGovernment(simulationPolity.governmentForm);
+    if (country->ideology != previousIdeology)
+      country->flag = Arda::Gfx::Flag(82, 52, country->ideology);
     // allow or forbid elections
     if (country->ideology == Arda::Utils::Ideology::DEMOCRATIC)
       country->allowElections = 1;
@@ -805,6 +810,7 @@ void Generator::balanceGreatPowers() {
 
     // flip ideology
     chosenCountry->ideology = missingIdeology;
+    chosenCountry->flag = Arda::Gfx::Flag(82, 52, chosenCountry->ideology);
 
     // add to missing ideology vector
     modData.greatPowerIdeologyMap.at(missingIdeology).push_back(chosenCountry);
@@ -886,46 +892,46 @@ void Generator::generateAndBalanceFactions() {
 }
 
 void Generator::generateWeather() {
-  for (auto &superRegion : superRegions) {
+  for (auto &superRegion : ardaData.areaData.superRegions) {
     auto stratRegion = std::dynamic_pointer_cast<StrategicRegion>(superRegion);
+    stratRegion->weatherMonths.clear();
+    stratRegion->weatherMonths.reserve(12);
     // for every month, gather the averages from all regions and their provinces
     for (auto i = 0; i < 12; i++) {
-      double averageTemperature = 0.0;
+      double averageTemperatureCelsius = 0.0;
       double averageDeviation = 0.0;
       double averagePrecipitation = 0.0;
       int provinceAmount = 0;
       for (auto &reg : stratRegion->ardaRegions) {
         for (auto &prov : reg->ardaProvinces) {
           averageDeviation += prov->weatherMonths[i][0];
-          averageTemperature += prov->weatherMonths[i][1];
+          averageTemperatureCelsius += prov->weatherMonths[i][1];
           averagePrecipitation += prov->weatherMonths[i][2];
         }
         provinceAmount += (int)reg->ardaProvinces.size();
       }
       double divisor = provinceAmount;
       averageDeviation /= divisor;
-      averageTemperature /= divisor;
+      averageTemperatureCelsius /= divisor;
+      const double averageTemperatureHeatIndex = std::clamp(
+          (averageTemperatureCelsius + 40.0) / 80.0, 0.0, 1.0);
       averagePrecipitation /= divisor;
       // now save monthly data, 0, 1, 2
       stratRegion->weatherMonths.push_back(
-          {averageDeviation, averageTemperature, averagePrecipitation});
-      // referenceTemperature low, 3
+          {averageDeviation, averageTemperatureCelsius, averagePrecipitation});
+      // Monthly temperature is stored directly in Celsius.
+      stratRegion->weatherMonths[i].push_back(averageTemperatureCelsius);
       stratRegion->weatherMonths[i].push_back(
-          Cfg::Values().climateConfig.minimumDegCelcius +
-          averageTemperature * Cfg::Values().climateConfig.temperatureRange);
-      // tempHigh, 4
-      stratRegion->weatherMonths[i].push_back(
-          Cfg::Values().climateConfig.minimumDegCelcius +
-          averageTemperature * Cfg::Values().climateConfig.temperatureRange +
+          averageTemperatureCelsius +
           averageDeviation * Cfg::Values().climateConfig.deviationFactor);
       // light_rain chance: cold and humid -> high, 5
       stratRegion->weatherMonths[i].push_back(
           this->modConfig.weatherChances.at("baseLightRainChance") *
-          (1.0 - averageTemperature) * averagePrecipitation);
+          (1.0 - averageTemperatureHeatIndex) * averagePrecipitation);
       // heavy rain chance: warm and humid -> high, 6
       stratRegion->weatherMonths[i].push_back(
           this->modConfig.weatherChances.at("baseHeavyRainChance") *
-          averageTemperature * averagePrecipitation);
+          averageTemperatureHeatIndex * averagePrecipitation);
       // mud chance, 7
       stratRegion->weatherMonths[i].push_back(
           this->modConfig.weatherChances.at("baseMudChance") *
@@ -934,11 +940,11 @@ void Generator::generateWeather() {
       // blizzard chance, 8
       stratRegion->weatherMonths[i].push_back(
           std::clamp(this->modConfig.weatherChances.at("baseBlizzardChance") -
-                         averageTemperature,
-                     0.0, 0.2) *
+                         averageTemperatureHeatIndex,
+                         0.0, 0.2) *
           averagePrecipitation);
       // sandstorm chance, 9
-      auto sandChance = std::clamp((averageTemperature - 0.8) *
+      auto sandChance = std::clamp((averageTemperatureHeatIndex - 0.8) *
                                        this->modConfig.weatherChances.at(
                                            "baseSandstormChance"),
                                    0.0, 0.1) *
@@ -947,7 +953,7 @@ void Generator::generateWeather() {
       // snow chance, 10
       stratRegion->weatherMonths[i].push_back(
           std::clamp(this->modConfig.weatherChances.at("baseSnowChance") -
-                         averageTemperature,
+                         averageTemperatureHeatIndex,
                      0.0, 0.2) *
           averagePrecipitation);
       // no phenomenon chance, 11
@@ -960,11 +966,11 @@ void Generator::generateWeather() {
 }
 
 void Generator::finaliseData() {
-  generatePositions(terrainData, ardaProvinces);
-  generateLogistics(shared_from_this(), modData, areaData, ardaProvinces,
+  generatePositions(terrainData, ardaData.areaData.provinces);
+  generateLogistics(shared_from_this(), modData, areaData, ardaData.areaData.provinces,
                     provinceMap, countryMap);
   // evaluateCountryStrength(modData, stats, ardaData, ardaConfig);
-  generateRandomDecisions(modData, ardaRegions);
+  generateRandomDecisions(modData, ardaData.areaData.regions);
   generateFocusTrees(modData);
   generateWeather();
 }
@@ -1089,17 +1095,17 @@ void Generator::writeTextFiles(bool scenarioDetails) {
   Map::ambientObjects(pathcfg.gameModPath + "map/ambient_object.txt");
   Map::supply(pathcfg.gameModPath + "map/", modData.supplyNodeConnections);
   Map::buildings(pathcfg.gameModPath + "map/buildings.txt", modData.hoi4States);
-  Map::continents(pathcfg.gameModPath + "map/continent.txt", ardaContinents,
+  Map::continents(pathcfg.gameModPath + "map/continent.txt", ardaData.areaData.continents,
                   pathcfg.gamePath,
                   pathcfg.gameModPath +
                       "localisation/language/province_names_l_language.yml");
-  Map::definition(pathcfg.gameModPath + "map/definition.csv", ardaProvinces);
+  Map::definition(pathcfg.gameModPath + "map/definition.csv", ardaData.areaData.provinces);
   Map::strategicRegions(pathcfg.gameModPath + "map/strategicregions",
-                        areaData.regions, superRegions);
-  Map::unitStacks(pathcfg.gameModPath + "map/unitstacks.txt", ardaProvinces,
+                        areaData.regions, ardaData.areaData.superRegions);
+  Map::unitStacks(pathcfg.gameModPath + "map/unitstacks.txt", ardaData.areaData.provinces,
                   modData.hoi4States, terrainData.detailedHeightMap);
   Map::weatherPositions(pathcfg.gameModPath + "map/weatherpositions.txt",
-                        areaData.regions, superRegions);
+                        areaData.regions, ardaData.areaData.superRegions);
 
   Countries::commonCountryTags(pathcfg.gameModPath +
                                    "common/country_tags/02_countries.txt",
@@ -1140,7 +1146,7 @@ void Generator::writeTextFiles(bool scenarioDetails) {
   Compatibility::compatibilityNationalFocus(
       pathcfg.gameModPath + "common/national_focus/", pathcfg.gamePath);
 
-  aiStrategy(pathcfg.gameModPath + "common/", ardaContinents);
+  aiStrategy(pathcfg.gameModPath + "common/", ardaData.areaData.continents);
   // copy in generic events
   events(pathcfg.gameModPath);
   onActions(pathcfg.gameModPath);
@@ -1167,7 +1173,7 @@ void Generator::writeLocalisation() {
   countryNames(pathcfg.gameModPath + "/localisation/language/",
                modData.hoi4Countries, nData);
   strategicRegionNames(pathcfg.gameModPath + "/localisation/language/",
-                       superRegions);
+                       ardaData.areaData.superRegions);
   victoryPointNames(pathcfg.gameModPath + "/localisation/language/",
                     modData.hoi4States);
   predefinedLocalisation(pathcfg.gameModPath + "/localisation/");
@@ -1230,7 +1236,7 @@ void Generator::generate() {
     mapProvinces();
     mapRegions();
     mapContinents();
-    mapTerrain();
+    refreshTerrain();
     // generate generic world data
     genCivilisationData();
 
@@ -1370,7 +1376,7 @@ void Generator::readHoi(std::string &path) {
 
 void Generator::save(const std::string &path) {
   // take every superregion, cast it to a strategic region
-  for (auto &superRegion : superRegions) {
+  for (auto &superRegion : ardaData.areaData.superRegions) {
     auto stratRegion = std::make_shared<StrategicRegion>();
     stratRegion->forceStrategicRegionLink();
   }
@@ -1380,7 +1386,8 @@ void Generator::save(const std::string &path) {
   ar << climateMap << worldMap << segmentMap << provinceMap << regionMap;
   ar << locationMap << navmeshMap << errorMap;
   ar << preModifyHeightMap << preModifyHumidityMap;
-  ar << ardaContinents << ardaRegions << ardaProvinces << superRegions;
+  ar << ardaData.areaData.continents << ardaData.areaData.regions
+     << ardaData.areaData.provinces << ardaData.areaData.superRegions;
   ar << countries << civData << nData;
   ar << typeMap << countryMap << superRegionMap;
   ar << ardaData.civLayer;
@@ -1401,7 +1408,8 @@ void Generator::load(const std::string &path) {
   ar >> climateMap >> worldMap >> segmentMap >> provinceMap >> regionMap;
   ar >> locationMap >> navmeshMap >> errorMap;
   ar >> preModifyHeightMap >> preModifyHumidityMap;
-  ar >> ardaContinents >> ardaRegions >> ardaProvinces >> superRegions;
+  ar >> ardaData.areaData.continents >> ardaData.areaData.regions
+     >> ardaData.areaData.provinces >> ardaData.areaData.superRegions;
   ar >> countries >> civData >> nData;
   ar >> typeMap >> countryMap >> superRegionMap;
   ar >> ardaData.civLayer;

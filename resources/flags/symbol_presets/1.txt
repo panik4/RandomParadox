@@ -1,2 +1,2 @@
-#replaceColour
-true;
+#replaceColour;allowedIdeologies;
+true;none,fascism,democratic,communism,neutrality;

@@ -152,7 +152,7 @@ void Generator::generate() {
     mapProvinces();
     mapRegions();
 
-    mapTerrain();
+    refreshTerrain();
     mapContinents();
     genCivilisationData();
 
@@ -162,7 +162,7 @@ void Generator::generate() {
     // generate country data
     generateCountries(countryFactory);
 
-    generateRegions(ardaRegions);
+    generateRegions(ardaData.areaData.regions);
   } catch (std::runtime_error e) {
     std::string error = "Error while generating the Eu4 Module.\n";
     error += "Error is: \n";
@@ -216,44 +216,44 @@ void Generator::generate() {
     {
       using namespace Parsing;
       // now do text
-      writeAdj(pathcfg.gameModPath + "/map/adjacencies.csv", ardaProvinces);
+      writeAdj(pathcfg.gameModPath + "/map/adjacencies.csv", ardaData.areaData.provinces);
       writeAmbientObjects(pathcfg.gameModPath + "/map/ambient_object.txt",
-                          ardaProvinces);
-      writeAreas(pathcfg.gameModPath + "/map/area.txt", ardaRegions,
+                          ardaData.areaData.provinces);
+      writeAreas(pathcfg.gameModPath + "/map/area.txt", ardaData.areaData.regions,
                  pathcfg.gamePath);
       writeColonialRegions(
           pathcfg.gameModPath +
               "/common/colonial_regions//00_colonial_regions.txt",
-          pathcfg.gamePath, ardaProvinces);
-      writeClimate(pathcfg.gameModPath + "/map/climate.txt", ardaProvinces);
+          pathcfg.gamePath, ardaData.areaData.provinces);
+      writeClimate(pathcfg.gameModPath + "/map/climate.txt", ardaData.areaData.provinces);
       writeContinent(pathcfg.gameModPath + "/map/continent.txt",
-                     ardaProvinces);
+                     ardaData.areaData.provinces);
       writeDefaultMap(pathcfg.gameModPath + "/map/default.map",
-                      ardaProvinces);
+                      ardaData.areaData.provinces);
       writeDefinition(pathcfg.gameModPath + "/map/definition.csv",
-                      ardaProvinces);
+                      ardaData.areaData.provinces);
       writePositions(pathcfg.gameModPath + "/map/positions.txt",
-                     ardaProvinces);
+                     ardaData.areaData.provinces);
       writeRegions(pathcfg.gameModPath + "/map/region.txt", pathcfg.gamePath,
                    getEu4Regions());
       writeSuperregion(pathcfg.gameModPath + "/map/superregion.txt",
-                       pathcfg.gamePath, ardaRegions);
-      writeTerrain(pathcfg.gameModPath + "/map/terrain.txt", ardaProvinces);
+                       pathcfg.gamePath, ardaData.areaData.regions);
+      writeTerrain(pathcfg.gameModPath + "/map/terrain.txt", ardaData.areaData.provinces);
       writeTradeCompanies(
           pathcfg.gameModPath +
               "/common/trade_companies/00_trade_companies.txt",
-          pathcfg.gamePath, ardaProvinces);
+          pathcfg.gamePath, ardaData.areaData.provinces);
       writeTradewinds(pathcfg.gameModPath + "/map/trade_winds.txt",
-                      ardaProvinces);
+                      ardaData.areaData.provinces);
 
       copyDescriptorFile(
           Fwg::Cfg::Values().resourcePath + "/eu4/descriptor.mod",
           pathcfg.gameModPath, pathcfg.gameModsDirectory, pathcfg.modName);
 
       writeProvinces(pathcfg.gameModPath + "/history/provinces/",
-                     ardaProvinces, ardaRegions);
+                     ardaData.areaData.provinces, ardaData.areaData.regions);
       writeLoc(pathcfg.gameModPath + "/localisation/", pathcfg.gamePath,
-               ardaRegions, ardaProvinces, getEu4Regions());
+               ardaData.areaData.regions, ardaData.areaData.provinces, getEu4Regions());
       Fwg::Utils::Logging::logLine("Done with the eu4 export");
     }
   } catch (std::exception& e) {

@@ -1,3 +1,4 @@
+#include "civilization/NavmeshGeneration.h"
 #include "vic3/Vic3Parsing.h"
 using namespace Fwg;
 namespace Logging = Fwg::Utils::Logging;
@@ -568,9 +569,9 @@ void locators(const std::string &path,
       pU::replaceOccurence(content, "templateID",
                            std::to_string(1 + region->ID));
       pU::replaceOccurence(content, "templateX",
-                           std::to_string(locator->position.widthCenter));
+                           std::to_string(Fwg::Civilization::Locations::routingPixel(*locator) % Fwg::Cfg::Values().width));
       pU::replaceOccurence(content, "templateY",
-                           std::to_string(locator->position.heightCenter));
+                           std::to_string(Fwg::Civilization::Locations::routingPixel(*locator) / Fwg::Cfg::Values().width));
       locatorContent[locator->type].append(content);
     }
   }

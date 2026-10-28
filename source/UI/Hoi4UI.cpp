@@ -215,7 +215,7 @@ bool MapEditorModule::showCountryEditor(
   if (grid.AddCombo("Ruling Party", &ideology, ideologyNames,
                     IM_ARRAYSIZE(ideologyNames))) {
     hoi4Country->ideology = static_cast<Arda::Utils::Ideology>(ideology);
-    true;
+    hoi4Country->flag = Arda::Gfx::Flag(82, 52, hoi4Country->ideology);
   }
 
   const char *partyNames[] = {"Fascism Popularity", "Democratic Popularity",

@@ -449,9 +449,9 @@ void generateFocusFiles(
           for (auto it = rBegin; it != rEnd; ++it) {
             result += block.substr(lastPos, it->position() - lastPos);
             int x = std::stoi((*it)[1].str());
-            Fwg::Utils::Logging::logLine("    root block: old x=", x,
-                                         " + cumX=", cumulativeX,
-                                         " = new x=", x + cumulativeX);
+            //Fwg::Utils::Logging::logLine("    root block: old x=", x,
+            //                             " + cumX=", cumulativeX,
+            //                             " = new x=", x + cumulativeX);
             result += "x = " + std::to_string(x + cumulativeX);
             lastPos = it->position() + it->length();
           }

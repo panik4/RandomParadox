@@ -1,4 +1,5 @@
 #include "vic3/Splnet.h"
+#include "civilization/NavmeshGeneration.h"
 
 namespace Rpx::Vic3 {
 // method to create a float from 4 bytes
@@ -108,6 +109,9 @@ void splitStreamByPattern(std::istream &stream,
 void Splnet::constructSplnet(
     const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions) {
   using namespace Fwg::Civilization;
+  anchors.clear();
+  strips.clear();
+  segments.clear();
   std::map<LocationType, int> locatorTypeToID = {
       {LocationType::City, 0},      {LocationType::Farm, 1},
       {LocationType::Mine, 2},      {LocationType::Port, 3},
@@ -118,6 +122,14 @@ void Splnet::constructSplnet(
   int subAnchorCounter = 0;
   int stripIdCounter = 0;
   auto width = Fwg::Cfg::Values().width;
+  std::set<unsigned int> usedAnchorIds;
+  for (const auto &region : regions)
+    for (const auto &location : region->significantLocations)
+      if (location->type != LocationType::WaterNode) {
+        unsigned int id = (1 + region->ID) * 100 + locatorTypeToID.at(location->type);
+        if (location->type == LocationType::WaterPort) id |= 0x800000;
+        usedAnchorIds.insert(id);
+      }
   for (auto &region : regions) {
     for (auto &location : region->significantLocations) {
       Anchor anchor;
@@ -125,14 +137,17 @@ void Splnet::constructSplnet(
         anchor.ID = (1 + region->ID) * 1000;
         // now shift bit 23 to 1
         anchor.ID |= 0x800000;
+        while (!usedAnchorIds.insert(anchor.ID).second) ++anchor.ID;
       } else if (location->type == LocationType::WaterPort) {
         anchor.ID = (1 + region->ID) * 100 + locatorTypeToID.at(location->type);
         anchor.ID |= 0x800000;
       } else {
         anchor.ID = (1 + region->ID) * 100 + locatorTypeToID.at(location->type);
       }
-      anchor.xPos = static_cast<float>(location->position.widthCenter);
-      anchor.yPos = static_cast<float>(location->position.heightCenter);
+      const int endpoint = Locations::routingPixel(*location);
+      if (endpoint < 0 || endpoint >= Fwg::Cfg::Values().processingArea) continue;
+      anchor.xPos = static_cast<float>(endpoint % width);
+      anchor.yPos = static_cast<float>(endpoint / width);
       locationToAnchorID[location] = anchor.ID;
       anchors.push_back(anchor);
     }
@@ -146,7 +161,10 @@ void Splnet::constructSplnet(
       // create a strip for every connection of this location, if not already
       // in usedConnections
       for (auto &connection : source->connections) {
-        const auto &destination = connection.second.destination;
+        const auto destination = connection.second.destination.lock();
+        if (!destination || connection.second.type == ConnectionType::Undefined ||
+            connection.second.startPixel < 0 || connection.second.endPixel < 0)
+          continue;
         // if the destination we're currently trying to reach, has not
         // created a connection to us yet
         if (usedConnections.find({destination, source}) ==
