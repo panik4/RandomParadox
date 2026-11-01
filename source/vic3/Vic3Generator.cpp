@@ -98,6 +98,10 @@ bool Generator::createPaths() {
   }
 }
 
+void Generator::invalidateGameLocationData() {
+  for (auto &region : modData.vic3Regions) region->navalExit = -1;
+}
+
 void Generator::configureModGen(const std::string &configSubFolder,
                                 const std::string &username,
                                 const boost::property_tree::ptree &rpdConf) {
@@ -153,14 +157,8 @@ void Generator::configureModGen(const std::string &configSubFolder,
 
 /* a visualisation of the final terrain types. This is not vic3 specific yet, a
  * TODO*/
-Fwg::Gfx::Image Generator::mapTerrain() {
-  const auto &climateMap = this->climateMap;
-  Image typeMap(climateMap.width(), climateMap.height(), 24);
+void Generator::mapTerrain() {
   const auto& config = Cfg::Values();
-  auto &colours = config.colours;
-  auto &climateColours = config.climateConfig.climateColours;
-  auto &elevationColours = config.terrainConfig.elevationColours;
-  typeMap.fill(colours.at("sea"));
   Fwg::Utils::Logging::logLine("Mapping Terrain");
   const auto &landFormIds = terrainData.landFormIds;
   const auto &climates = climateData.climateChances;
@@ -171,14 +169,8 @@ Fwg::Gfx::Image Generator::mapTerrain() {
       const auto &baseProv = gameProv;
       if (baseProv->isLake()) {
         gameProv->terrainType = "lake";
-        for (auto &pix : baseProv->pixels) {
-          typeMap.setColourAtIndex(pix, colours.at("lake"));
-        }
       } else if (baseProv->isSea()) {
         gameProv->terrainType = "sea";
-        for (auto &pix : baseProv->pixels) {
-          typeMap.setColourAtIndex(pix, climateColours.at("ocean"));
-        }
       } else {
         int forestPixels = 0;
         std::map<Fwg::Climate::Detail::ClimateClassId, int> climateScores;
@@ -208,47 +200,41 @@ Fwg::Gfx::Image Generator::mapTerrain() {
         if (dominantTerrain == Fwg::Terrain::LandformId::MOUNTAINS ||
             dominantTerrain == Fwg::Terrain::LandformId::PEAKS) {
           gameProv->terrainType = "mountain";
-          for (auto &pix : baseProv->pixels) {
-            typeMap.setColourAtIndex(pix, elevationColours.at("mountains"));
-          }
         } else if (dominantTerrain == Fwg::Terrain::LandformId::HILLS) {
           gameProv->terrainType = "hills";
-          for (auto &pix : baseProv->pixels) {
-            typeMap.setColourAtIndex(pix, elevationColours.at("hills"));
-          }
         } else if ((double)forestPixels / baseProv->pixels.size() > 0.5) {
           gameProv->terrainType = "forest";
-          for (auto &pix : baseProv->pixels) {
-            typeMap.setColourAtIndex(pix, Fwg::Gfx::Colour(16, 40, 8));
-          }
         } else {
           using CTI = Fwg::Climate::Detail::ClimateClassId;
           // now, if this is a more flat land, check the climate type
           if (dominantClimate == CTI::TROPICSMONSOON ||
               dominantClimate == CTI::TROPICSRAINFOREST) {
             gameProv->terrainType = "jungle";
-            for (auto &pix : baseProv->pixels) {
-              typeMap.setColourAtIndex(pix,
-                                       climateColours.at("tropicsrainforest"));
-            }
           } else if (dominantClimate == CTI::COLDDESERT ||
                      dominantClimate == CTI::DESERT) {
             gameProv->terrainType = "desert";
-            for (auto &pix : baseProv->pixels) {
-              typeMap.setColourAtIndex(pix, climateColours.at("desert"));
-            }
           } else {
             gameProv->terrainType = "plains";
-            for (auto &pix : baseProv->pixels) {
-              typeMap.setColourAtIndex(pix, elevationColours.at("plains"));
-            }
           }
         }
       }
     }
   }
-  Png::save(typeMap, Fwg::Cfg::Values().mapsPath + "debug/typeMap.png");
-  return typeMap;
+  if (config.debugLevel > 5) {
+    const std::map<std::string, Fwg::Gfx::Colour> palette = {
+        {"sea", config.climateConfig.climateColours.at("ocean")},
+        {"lake", config.colours.at("lake")},
+        {"urban", config.topographyOverlayColours.at("urban")},
+        {"marsh", config.topographyOverlayColours.at("marsh")},
+        {"mountain", config.terrainConfig.elevationColours.at("mountains")},
+        {"hills", config.terrainConfig.elevationColours.at("hills")},
+        {"forest", Fwg::Gfx::Colour(16, 40, 8)},
+        {"jungle", config.climateConfig.climateColours.at("tropicsrainforest")},
+        {"desert", config.climateConfig.climateColours.at("desert")},
+        {"plains", config.terrainConfig.elevationColours.at("plains")}};
+    Png::save(Arda::Gfx::displayTerrainTypes(ardaData.areaData.provinces,
+        config.width, config.height, palette), config.mapsPath + "debug/typeMap.png");
+  }
 }
 
 void Generator::totalArableLand(const std::vector<float> &arableLand) {
@@ -346,7 +332,7 @@ void Generator::mapRegions() {
   applyRegionInput();
 }
 void Generator::mapCountries() {
-  for (auto &country : countries) {
+  for (auto &country : ardaData.countries) {
     std::shared_ptr<Country> vic3Country =
         std::dynamic_pointer_cast<Vic3::Country, Arda::Country>(country.second);
     if (vic3Country != nullptr) {
@@ -406,7 +392,7 @@ bool Generator::importData(const std::string &path) {
     vic3GameData.buypackages = Vic3::Importing::readBuypackages(
         path + "/common/buy_packages//00_buy_packages.txt",
         vic3GameData.popNeeds);
-    nData.originalDisallowedTokens =
+    ardaData.nData.originalDisallowedTokens =
         Vic3::Importing::readTags(path + "common/history//countries//");
   } catch (std::exception& e) {
     Fwg::Utils::Logging::logLine("Error: ", e.what());
@@ -849,11 +835,11 @@ void Generator::writeTextFiles(bool scenarioDetails) {
           "/common/strategic_regions/randVic_strategic_regions.txt",
       ardaData.areaData.superRegions, modData.vic3Regions);
   cultureCommon(pathcfg.gameModPath + "/common/cultures/00_cultures.txt",
-                civData.cultures);
+                ardaData.civData.cultures);
   religionCommon(pathcfg.gameModPath + "/common/religions/religions.txt",
-                 civData.religions);
+                 ardaData.civData.religions);
   staticModifiers(pathcfg.gameModPath + "/common/static_modifiers/",
-                  civData.cultures, civData.religions);
+                  ardaData.civData.cultures, ardaData.civData.religions);
   countryCommon(pathcfg.gameModPath +
                     "/common/country_definitions/00_countries.txt",
                 modData.vic3Countries, modData.vic3Regions);

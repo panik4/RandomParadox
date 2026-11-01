@@ -339,7 +339,7 @@ void generateCharacters(Hoi4Data &modData) {
         character.gender = Arda::Gender::Male;
         do {
           auto primaryCulture = country->getPrimaryCulture();
-          if (!primaryCulture) {
+          if (!primaryCulture || !primaryCulture->language) {
             Fwg::Utils::Logging::logLine(
                 "Warning: Country " + country->name +
                 " has no primary culture, cannot generate character names");
@@ -418,7 +418,7 @@ void generateCharacters(Hoi4Data &modData) {
       theorist.gender = Arda::Gender::Male;
       do {
         auto primaryCulture = country->getPrimaryCulture();
-        if (!primaryCulture) {
+        if (!primaryCulture || !primaryCulture->language) {
           Fwg::Utils::Logging::logLine(
               "Warning: Country " + country->name +
               " has no primary culture, cannot generate theorist names");
@@ -459,9 +459,18 @@ void evaluateCountryStrength(Hoi4Data &modData, Hoi4Stats &stats,
                              Arda::ArdaData &ardaData,
                              Arda::ArdaConfig &ardaConfig) {
   Fwg::Utils::Logging::logLine("HOI4: Evaluating Country Strength");
+  stats.militaryIndustry = stats.civilianIndustry = stats.navalIndustry = 0;
+  for (const auto &state : modData.hoi4States) {
+    stats.militaryIndustry += state->armsFactories;
+    stats.civilianIndustry += state->civilianFactories;
+    stats.navalIndustry += state->dockyards;
+  }
+  stats.totalWorldIndustry = 0;
   ardaData.countryImportanceScores.clear();
   double maxScore = 0.0;
   for (auto &country : modData.hoi4Countries) {
+    country->rank = Arda::Rank::Unranked;
+    country->relativeScore = 0.0;
     country->evaluateTechnologyLevel();
     country->evaluateProperties();
     country->capitalRegionID = 0;
@@ -477,7 +486,7 @@ void evaluateCountryStrength(Hoi4Data &modData, Hoi4Stats &stats,
 
       totalIndustry += ownedRegion->civilianFactories + ownedRegion->dockyards +
                        ownedRegion->armsFactories;
-      totalPop += (int)ownedRegion->totalPopulation;
+      totalPop += ownedRegion->totalPopulation;
     }
     // always make the most important location the capital
     country->selectCapital();
@@ -492,18 +501,13 @@ void evaluateCountryStrength(Hoi4Data &modData, Hoi4Stats &stats,
     stats.totalWorldIndustry += (int)totalIndustry;
   }
 
-  int totalDeployedCountries =
-      ardaConfig.numCountries - ardaData.countryImportanceScores.size()
-          ? (int)ardaData.countryImportanceScores[0].size()
-          : 0;
-
-  // sort countries by rank
-
-  int numMajorPowers = std::min<int>(ardaConfig.numCountries / 10, 8);
-  int numSecondaryPowers = std::min<int>(ardaConfig.numCountries / 10, 8);
-  int numRegionalPowers = ardaConfig.numCountries / 6;
-  int numLocalPowers = ardaConfig.numCountries / 6;
-
+  const int deployed = static_cast<int>(std::count_if(
+      modData.hoi4Countries.begin(), modData.hoi4Countries.end(),
+      [](const auto &country) { return !country->ownedRegions.empty(); }));
+  int numMajorPowers = std::min(deployed / 10, 8);
+  int numSecondaryPowers = std::min(deployed / 10, 8);
+  int numRegionalPowers = deployed / 6;
+  int numLocalPowers = deployed / 6;
   // init countriesByRank
   ardaData.countriesByRank = {{Arda::Rank::GreatPower, {}},
                               {Arda::Rank::SecondaryPower, {}},
@@ -513,9 +517,13 @@ void evaluateCountryStrength(Hoi4Data &modData, Hoi4Stats &stats,
 
   for (auto it = ardaData.countryImportanceScores.rbegin();
        it != ardaData.countryImportanceScores.rend(); ++it) {
+    std::sort(it->second.begin(), it->second.end(), [](const auto &a, const auto &b) {
+      return a->importanceScore != b->importanceScore
+          ? a->importanceScore > b->importanceScore : a->tag < b->tag;
+    });
     for (const auto &entry : it->second) {
       if (entry->importanceScore > 0.0) {
-        entry->relativeScore = (double)it->first / maxScore;
+        entry->relativeScore = entry->importanceScore / maxScore;
         if (numMajorPowers >
             ardaData.countriesByRank.at(Arda::Rank::GreatPower).size()) {
           ardaData.countriesByRank[Arda::Rank::GreatPower].push_back(entry);

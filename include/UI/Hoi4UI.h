@@ -10,10 +10,10 @@ int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
 
 class MapEditorModule final : public Rpx::UI::MapEditorModule {
 public:
-  bool showCountryEditor(
+  unsigned showCountryEditor(
       const std::shared_ptr<Arda::Country> &country,
       Fwg::UI::Elements::GridLayout &grid) const override;
-  bool showStateEditor(
+  unsigned showStateEditor(
       const std::shared_ptr<Arda::ArdaRegion> &state,
       Fwg::UI::Elements::GridLayout &grid) const override;
   void showCountryAggregates(

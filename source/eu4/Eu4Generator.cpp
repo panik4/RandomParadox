@@ -131,9 +131,7 @@ void Generator::generateRegions(
   Png::save(eu4RegionBmp, Fwg::Cfg::Values().mapsPath + "eu4Regions.png");
 }
 
-Fwg::Gfx::Image Generator::mapTerrain() {
-  return Fwg::Gfx::Image(Cfg::Values().width, Cfg::Values().height, 24);
-}
+void Generator::mapTerrain() {}
 
 // initialize states
 void Generator::mapCountries() {}

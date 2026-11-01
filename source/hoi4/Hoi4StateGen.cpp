@@ -16,7 +16,7 @@ void generateStateResources(Hoi4Config modConfig, Hoi4Data &modData,
 
   std::vector<std::future<ResourceGenResult>> futures;
   futures.reserve(modConfig.resConfigs.size());
-  std::vector<int> seeds(modConfig.resConfigs.size());
+  std::vector<int> seeds; seeds.reserve(modConfig.resConfigs.size());
   for (const auto &resConfig : modConfig.resConfigs) {
     seeds.push_back(RandNum::getRandom<int>());
   }
@@ -50,8 +50,11 @@ void generateStateResources(Hoi4Config modConfig, Hoi4Data &modData,
           return {&resConfig, std::move(resPrev)};
         }));
   }
-  for (auto &fut : futures) {
-    ResourceGenResult result = fut.get();
+  std::vector<ResourceGenResult> results;
+  for (auto &fut : futures) results.push_back(fut.get());
+  for (auto &region : ardaGen->ardaData.areaData.regions) region->resources.clear();
+  for (auto &result : results) {
+
 
     if (!result.layer.empty()) {
       const auto &resConfig = *result.config;
@@ -70,14 +73,16 @@ void generateStateSpecifics(
     Arda::ArdaConfig &ardaConfig, Fwg::Areas::AreaData &areaData,
     Fwg::Terrain::TerrainData &terrainData,
     std::vector<std::shared_ptr<Arda::ArdaRegion>> &ardaRegions,
-    Fwg::Gfx::Image &typeMap) {
+    const Fwg::Gfx::Image &provinceMap) {
   Fwg::Utils::Logging::logLine("HOI4: Planning the economy");
   Fwg::Utils::Randomisation::resetRandomisation();
   auto &config = Fwg::Cfg::Values();
   // calculate the target industry amount
+  if (!std::isfinite(ardaConfig.worldIndustryFactor) || ardaConfig.worldIndustryFactor < 0)
+    throw std::invalid_argument("Invalid industry factor" );
   auto targetWorldIndustry = 2000 * ardaConfig.worldIndustryFactor;
   // we need a reference to determine how industrious a state is
-  double averageEconomicActivity = 1.0 / areaData.landRegions;
+  double averageEconomicActivity = areaData.landRegions > 0 ? 1.0 / areaData.landRegions : 1.0;
 
   stats.militaryIndustry = 0;
   stats.civilianIndustry = 0;
@@ -85,6 +90,8 @@ void generateStateSpecifics(
   stats.totalWorldIndustry = 0;
   // cleanup work
   for (auto &hoi4State : modData.hoi4States) {
+    hoi4State->navalBases.clear();
+    hoi4State->buildings.clear();
     hoi4State->dockyards = 0;
     hoi4State->civilianFactories = 0;
     hoi4State->armsFactories = 0;
@@ -139,7 +146,7 @@ void generateStateSpecifics(
         if (location->type == Fwg::Civilization::LocationType::Port ||
             location->secondaryType == Fwg::Civilization::LocationType::Port) {
           hoi4State->navalBases[location->provinceID] = std::clamp<double>(
-              (location->importance / maxImportance) * 10.0, 1.0, 10.0);
+              (maxImportance > 0 ? location->importance / maxImportance : 0.0) * 10.0, 1.0, 10.0);
           Fwg::Utils::Logging::logLineLevel(
               8, "Naval base in ", hoi4State->name, " at ",
               location->provinceID, " with importance ", location->importance);
@@ -182,11 +189,11 @@ void generateStateSpecifics(
     }
     // get potential building positions
     hoi4State->calculateBuildingPositions(terrainData.detailedHeightMap,
-                                          typeMap);
+                                          provinceMap, areaData);
   }
   stats.totalWorldIndustry =
       stats.militaryIndustry + stats.civilianIndustry + stats.navalIndustry;
-  modData.statesInitialised = true;
+
   Arda::Areas::saveRegions(ardaRegions, Fwg::Cfg::Values().mapsPath + "areas/",
                            Arda::Gfx::visualiseRegions(ardaRegions));
 }

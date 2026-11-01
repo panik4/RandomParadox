@@ -46,7 +46,8 @@ public:
 
   // member functions
   void calculateBuildingPositions(const std::vector<float> &heightmap,
-                                  const Fwg::Gfx::Image &typeMap);
+                                  const Fwg::Gfx::Image &provinceMap,
+                                  const Fwg::Areas::AreaData &areaData);
   std::string exportLine() const;
   void importLine(const std::vector<std::string> &tokens) override;
 

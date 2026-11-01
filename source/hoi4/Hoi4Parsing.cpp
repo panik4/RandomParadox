@@ -205,6 +205,33 @@ void strategicRegions(
   constexpr std::array<int, 12> daysInMonth{30, 27, 30, 29, 30, 29,
                                             30, 30, 29, 30, 29, 30};
   Logging::logLine("HOI4 Parser: Map: Drawing Strategic Regions");
+  std::set<int> exportedProvinces;
+  for (size_t i = 0; i < strategicRegions.size(); ++i) {
+    const auto group = std::dynamic_pointer_cast<StrategicRegion>(strategicRegions[i]);
+    if (!group || group->ID != i || group->ardaRegions.empty() ||
+        group->weatherMonths.size() != 12)
+      throw std::runtime_error("Invalid HOI4 strategic region or incomplete monthly weather");
+    if (group->areaType == Fwg::Areas::AreaType::Sea) {
+      std::vector<int> ownedPixels;
+      for (const auto &region : group->ardaRegions) {
+        const auto pixels = region->gatherPixels();
+        ownedPixels.insert(ownedPixels.end(), pixels.begin(), pixels.end());
+      }
+      if (!Fwg::Areas::isAreaContiguous(ownedPixels, Fwg::Cfg::Values().width))
+        throw std::runtime_error("Sea strategic region " + std::to_string(group->ID + 1) +
+            " is not contiguous (including islands); export is forbidden");
+    }
+    for (const auto &month : group->weatherMonths) {
+      if (month.size() < 12 ||
+          !std::all_of(month.begin(), month.end(),
+                       [](double value) { return std::isfinite(value); }))
+        throw std::runtime_error("Invalid HOI4 strategic region weather values");
+    }
+    for (const auto &region : group->ardaRegions)
+      for (const auto &province : region->provinces)
+        if (!province || !exportedProvinces.insert(province->ID).second)
+          throw std::runtime_error("Duplicate province in strategic region export");
+  }
   auto templateContent = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                       "hoi4/map/strategic_region.txt");
   // first clear target path folder
@@ -279,27 +306,17 @@ void strategicRegions(
 void weatherPositions(
     const std::string &path,
     const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
-    std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions) {
+    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions) {
   Logging::logLine("HOI4 Parser: Map: Creating Storms");
   // 1; 2781.24; 9.90; 1571.49; small
   std::string content{""};
   // stateId; pixelX; rotation??; pixelY; rotation??; size
   // 1; arms_factory; 2946.00; 11.63; 1364.00; 0.45; 0
 
-  // delete strategic regions that have no ardaRegions
-  for (auto i = 0;
-       i < strategicRegions.size();) { // Removed increment from here
-    if (strategicRegions[i]->ardaRegions.size() == 0) {
-      // do the erase
-      strategicRegions.erase(strategicRegions.begin() + i);
-      // No need to decrement i since we're not incrementing it in the loop
-      // header
-    } else {
-      ++i; // Increment i only if an element is not erased
-    }
-  }
-
   for (auto i = 0; i < strategicRegions.size(); i++) {
+    if (!strategicRegions[i] || strategicRegions[i]->ID != i ||
+        strategicRegions[i]->ardaRegions.empty())
+      throw std::runtime_error("Invalid strategic region in weather position export");
     // const auto &region =
     //     Fwg::Utils::Random::selectRandom(strategicRegions[i]->ardaRegions);
     // const auto prov = Fwg::Utils::Random::selectRandom(region->provinces);

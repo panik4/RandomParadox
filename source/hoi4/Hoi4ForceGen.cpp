@@ -102,8 +102,8 @@ void generateArmorVariants(Hoi4Config modConfig, Hoi4Data &modData,
         tankVariant.subType = chassis.second.subType;
         tankVariant.bbaArmorName = chassis.first;
         tankVariant.era = TechEra::Interwar;
-        tankVariant.name = country->getPrimaryCulture()
-                               ->language->generateGenericCapitalizedWord() +
+        const auto culture = country->getPrimaryCulture();
+        tankVariant.name = (culture && culture->language ? culture->language->generateGenericCapitalizedWord() : "Tank") +
                            " Mk " + std::to_string(RandNum::getRandom(0, 3));
 
         addArmorModules(tankVariant, combinedTech);
@@ -269,8 +269,8 @@ void generateAirVariants(Hoi4Config modConfig, Hoi4Data &modData,
         airVariant.bbaFrameName[airVariant.bbaFrameName.size() - 1] = '1';
       }
 
-      airVariant.name = country->getPrimaryCulture()
-                            ->language->generateGenericCapitalizedWord() +
+      const auto culture = country->getPrimaryCulture();
+      airVariant.name = (culture && culture->language ? culture->language->generateGenericCapitalizedWord() : "Aircraft") +
                         " Mk " + std::to_string(RandNum::getRandom(0, 3));
 
       addPlaneModules(airVariant, country->airTechs);
@@ -829,7 +829,7 @@ void generateCountryNavies(Hoi4Config modConfig, Hoi4Data &modData,
   // put all ships in one fleet
   for (auto &country : modData.hoi4Countries) {
     // we only set the designs if we're landlocked
-    if (country->landlocked) {
+    if (country->landlocked || country->ships.empty()) {
       continue;
     }
     std::map<std::string, int> utilisedShipNames;

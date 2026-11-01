@@ -29,6 +29,11 @@ class Generator : public Rpx::ModGenerator {
   Gfx::Hoi4::ImageExporter imageExporter;
   Hoi4Stats stats;
 
+protected:
+  void economyDataChanged() override;
+  void environmentDataChanged() override { economyDataChanged(); invalidateResources(); }
+  void invalidateGameLocationData() override;
+
 public:
   Hoi4Config modConfig;
   Hoi4Data modData;
@@ -44,10 +49,26 @@ public:
                        const boost::property_tree::ptree &rpdConf) override;
 
   void mapRegions();
-  virtual Fwg::Gfx::Image mapTerrain();
+  virtual void mapTerrain();
   // initialize states
   void mapCountries();
 
+  enum class Status { Missing, Stale, Ready };
+  struct Readiness {
+    Status economy = Status::Missing;
+    Status resources = Status::Missing;
+    Status countries = Status::Missing;
+  } readiness;
+  void invalidateStateEconomy() { economyDataChanged(); }
+  void invalidateResources() { readiness.resources = Status::Stale; modData.statesInitialised = false; }
+  void invalidateCountryDetails() { readiness.countries = Status::Stale; }
+  void regenerateStateData();
+  bool exportReady() const;
+  void regenerateCharactersAndAppearance();
+  void rebuildFactions(bool rebalanceGovernments = false);
+  void regenerateStateEconomy() { generateStateSpecifics(); }
+  void recalculateCountryDetails() { generateHardCountrySpecifics(); }
+  void regenerateCountryPolitics() { generateSoftCountryDetails(); }
   void generateStateSpecifics();
   void generateStateResources();
   void refreshCountryTerritoryData();
@@ -56,12 +77,13 @@ public:
   void recalculateCountryMilitaryData();
 
   // politics: names, ideology, party popularity, elections
-  void generateSoftCountryDetails();
+  void generateSoftCountryDetails(bool onlyMissing = false);
   void nameCountries() override;
   // area dependent country specifics: unit gen, tech, characters, army/navy/air
   // focus, naval bases, airports, logistics
   void generateHardCountrySpecifics();
   void deriveCountrySpecificsFromSimulation();
+  void applySimulationPolitics();
   void balanceGreatPowers();
   void generateAndBalanceFactions();
   // generate weather per strategic region, from baseprovinces

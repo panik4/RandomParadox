@@ -133,17 +133,11 @@ void Generator::configureModGen(const std::string &configSubFolder,
   config.sanityCheck();
 }
 
-/* a visualisation of the final terrain types. This is not vic3 specific yet, a
- * TODO*/
-Fwg::Gfx::Image Generator::mapTerrain() {
-  const auto &climateMap = this->climateMap;
-  Image typeMap(climateMap.width(), climateMap.height(), 24);
+void Generator::mapTerrain() {
   for (auto &prov : areaData.provinces) {
     prov->calculateAreaType(terrainData.landFormIds);
     prov->calculateClimateType(climateData);
   }
-
-  return typeMap;
 }
 
 void Generator::totalArableLand(const std::vector<float> &arableLand) {

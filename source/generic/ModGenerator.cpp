@@ -33,8 +33,8 @@ void ModGenerator::save(const std::string &path) {
   ar << preModifyHeightMap << preModifyHumidityMap;
   ar << ardaData.areaData.continents << ardaData.areaData.regions
      << ardaData.areaData.provinces << ardaData.areaData.superRegions;
-  ar << countries << civData << nData;
-  ar << typeMap << countryMap << superRegionMap;
+  ar << ardaData.countries << ardaData.civData << ardaData.nData;
+  ar << countryMap << superRegionMap;
   ar << gameType << exportWidth << exportHeight;
   ar << pathcfg;
 }
@@ -49,8 +49,8 @@ void ModGenerator::load(const std::string &path) {
   ar >> preModifyHeightMap >> preModifyHumidityMap;
   ar >> ardaData.areaData.continents >> ardaData.areaData.regions
      >> ardaData.areaData.provinces >> ardaData.areaData.superRegions;
-  ar >> countries >> civData >> nData;
-  ar >> typeMap >> countryMap >> superRegionMap;
+  ar >> ardaData.countries >> ardaData.civData >> ardaData.nData;
+  ar >> countryMap >> superRegionMap;
   ar >> gameType >> exportWidth >> exportHeight;
   ar >> pathcfg;
   mapProvinces();

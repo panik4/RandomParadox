@@ -14,6 +14,8 @@ namespace Rpx::Hoi4 {
 
 class Hoi4Country : public Arda::Country {
 public:
+  bool detailsInitialized = false;
+  bool politicsInitialized = false;
   Hoi4Country();
   Hoi4Country(std::string tag, int ID, std::string name, std::string adjective,
               Arda::Gfx::Flag flag);

@@ -15,6 +15,6 @@ void generateStateSpecifics(
     Arda::ArdaConfig &ardaConfig, Fwg::Areas::AreaData &areaData,
     Fwg::Terrain::TerrainData &terrainData,
     std::vector<std::shared_ptr<Arda::ArdaRegion>> &ardaRegions,
-    Fwg::Gfx::Image &typeMap);
+    const Fwg::Gfx::Image &provinceMap);
 
 } // namespace Rpx::Hoi4
