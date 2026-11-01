@@ -36,6 +36,15 @@ class GUI : public Arda::ArdaUI {
   std::shared_ptr<Rpx::ModGenerator> activeGenerator;
   bool pathsInitialized = false;
   bool validatedPaths = false;
+  bool countryDetailsPending() const {
+    const auto generator = std::dynamic_pointer_cast<Hoi4Gen>(activeGenerator);
+    return generator && generator->readiness.countries != Hoi4Gen::Status::Ready;
+  }
+  void invalidateCountryDetails() {
+    if (auto generator = std::dynamic_pointer_cast<Hoi4Gen>(activeGenerator))
+      generator->invalidateCountryDetails();
+  }
+
   Rpx::UI::MapEditorState mapEditorState;
   bool strategicRegionBorderPaint = false;
   int selectedStrategicRegionID = -1;

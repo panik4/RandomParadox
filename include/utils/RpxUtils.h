@@ -32,10 +32,12 @@ inline bool validateModFolder(const Pathcfg &pathcfg) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
   std::string tempPath = pathcfg.gameModPath;
-  while (tempPath.back() == '/')
+  while (!tempPath.empty() && tempPath.back() == '/')
     tempPath.pop_back();
+  if (tempPath.empty())
+    return false;
   path modDestinationDir(tempPath);
-  if (exists(modDestinationDir.parent_path())) {
+  if (is_directory(modDestinationDir.parent_path())) {
     Logging::logLine(
         "Located mod folder under ",
         Fwg::Utils::userFilter(modDestinationDir.parent_path().string(),
@@ -59,7 +61,7 @@ inline bool autoLocateGameFolder(std::string &path, const std::string &game,
   namespace Logging = Fwg::Utils::Logging;
   std::vector<std::string> drives{"C:/", "D:/", "E:/", "F:/", "G:/", "H:/"};
   // first try to find hoi4 at the configured location
-  if (exists(path) && path.find(game) != std::string::npos) {
+  if (is_directory(path) && exists(std::filesystem::path(path) / gameSubPath)) {
     Logging::logLine("Located game under ", path);
     return true;
   } else {
@@ -99,7 +101,7 @@ inline bool validateGameModFolder(const Pathcfg &pathcfg) {
   using namespace std::filesystem;
   namespace Logging = Fwg::Utils::Logging;
   // find the usermod directory of the relevant game
-  if (exists(pathcfg.gameModsDirectory)) {
+  if (is_directory(pathcfg.gameModsDirectory)) {
     Logging::logLine("Located mods directory folder under ",
                      Fwg::Utils::userFilter(pathcfg.gameModsDirectory,
                                             Fwg::Cfg::Values().username));

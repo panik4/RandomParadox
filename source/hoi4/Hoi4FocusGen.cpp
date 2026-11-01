@@ -375,9 +375,7 @@ void generateFocusFiles(
     for (auto &[cat, files] : categoryFiles) {
       int idx = RandNum::getRandom(static_cast<int>(files.size()));
       selectedFiles.push_back(files[idx]);
-      std::cout << idx << ";";
     }
-    std::cout << std::endl;
 
     // Process selected files: extract focuses, offset x positions
     std::string combinedFocuses;
@@ -433,9 +431,6 @@ void generateFocusFiles(
         focusBlocks.push_back(content.substr(start, pos - start));
       }
 
-      Fwg::Utils::Logging::logLine(
-          "  Focus tree file: ", filePath, " blocks=", focusBlocks.size(),
-          " minX=", treeMinX, " maxX=", treeMaxX, " cumX=", cumulativeX);
       // Only offset x for root focuses (no prerequisite).
       // Children use relative_position_id so their x stays as-is.
       for (auto &block : focusBlocks) {

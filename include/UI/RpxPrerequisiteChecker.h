@@ -40,7 +40,7 @@ public:
   static Fwg::UI::Prerequisite
   hoi4StatesInitialised(const Rpx::Hoi4::Generator &generator) {
     return {"HOI4 States", "Generate state data first",
-            [&]() { return generator.modData.statesInitialised; }};
+            [&]() { return generator.readiness.economy == Rpx::Hoi4::Generator::Status::Ready && generator.readiness.resources == Rpx::Hoi4::Generator::Status::Ready; }};
   }
 
   static Fwg::UI::Prerequisite
@@ -51,7 +51,7 @@ public:
             [&, requireCountryDetails]() {
               return !generator.ardaData.areaData.superRegions.empty() &&
                      generator.provinceMap.size() > 0 &&
-                     generator.modData.statesInitialised &&
+                     generator.exportReady() &&
                      !requireCountryDetails;
             }};
   }

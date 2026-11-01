@@ -75,6 +75,7 @@ std::string Hoi4Country::exportLine() const {
 }
 
 void Hoi4Country::importLine(const std::vector<std::string> &tokens) {
+  if (tokens.size() > 7) politicsInitialized = true;
   if (tokens.size() > 6)
     fullName = tokens[6];
 

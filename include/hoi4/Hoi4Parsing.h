@@ -48,7 +48,7 @@ void unitStacks(
 void weatherPositions(
     const std::string &path,
     const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
-    std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions);
+    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions);
 
 } // namespace Map
 

@@ -118,6 +118,10 @@ void showForceSummary(const Rpx::Hoi4::Hoi4Country &country) {
 } // namespace
 
 int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
+  const auto previousResources = generator->modConfig.resources;
+  const auto previousResourceFactor = generator->ardaConfig.resourceFactor;
+  const std::array previousMilitary = {generator->modConfig.startingArmyStrengthFactor,
+      generator->modConfig.startingNavyStrengthFactor, generator->modConfig.startingAirforceStrengthFactor};
 
   ImGui::SeparatorText("Military Starting Forces");
   ImGui::TextWrapped(
@@ -195,10 +199,14 @@ int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
 
   ImGui::Spacing();
 
-  return 0;
+  if (previousResources != generator->modConfig.resources || previousResourceFactor != generator->ardaConfig.resourceFactor)
+    generator->invalidateResources();
+  if (previousMilitary != std::array{generator->modConfig.startingArmyStrengthFactor,
+      generator->modConfig.startingNavyStrengthFactor, generator->modConfig.startingAirforceStrengthFactor})
+    generator->invalidateCountryDetails();  return 0;
 }
 
-bool MapEditorModule::showCountryEditor(
+unsigned MapEditorModule::showCountryEditor(
     const std::shared_ptr<Arda::Country> &country,
     Fwg::UI::Elements::GridLayout &grid) const {
   const auto hoi4Country =
@@ -207,13 +215,18 @@ bool MapEditorModule::showCountryEditor(
     return false;
   }
 
-  grid.AddInputText("Full Name", &hoi4Country->fullName);
-  grid.AddInputText("GFX Culture", &hoi4Country->gfxCulture);
+  bool identityChanged = grid.AddInputText("Full Name", &hoi4Country->fullName);
+  if (grid.AddInputText("GFX Culture", &hoi4Country->gfxCulture)) {
+    hoi4Country->detailsInitialized = true;
+    identityChanged = true;
+  }
+  bool changed = false;
   int ideology = static_cast<int>(hoi4Country->ideology);
   const char *ideologyNames[] = {"None", "Fascism", "Democratic", "Communism",
                                  "Neutrality"};
   if (grid.AddCombo("Ruling Party", &ideology, ideologyNames,
                     IM_ARRAYSIZE(ideologyNames))) {
+    changed = true;
     hoi4Country->ideology = static_cast<Arda::Utils::Ideology>(ideology);
     hoi4Country->flag = Arda::Gfx::Flag(82, 52, hoi4Country->ideology);
   }
@@ -221,11 +234,12 @@ bool MapEditorModule::showCountryEditor(
   const char *partyNames[] = {"Fascism Popularity", "Democratic Popularity",
                               "Communist Popularity", "Neutrality Popularity"};
   for (std::size_t party = 0; party < hoi4Country->parties.size(); ++party) {
-    grid.AddInputInt(partyNames[party], &hoi4Country->parties[party], 0, 100);
+    changed |= grid.AddInputInt(partyNames[party], &hoi4Country->parties[party], 0, 100);
   }
-  grid.AddCheckbox("Allow Elections", &hoi4Country->allowElections);
+  changed |= grid.AddCheckbox("Allow Elections", &hoi4Country->allowElections);
   showForceSummary(*hoi4Country);
-  return false;
+  if (changed) hoi4Country->politicsInitialized = true;
+  return (changed ? PoliticsChanged : NoChange) | (identityChanged ? IdentityChanged : NoChange);
 }
 
 void MapEditorModule::showCountryAggregates(
@@ -295,7 +309,7 @@ void MapEditorModule::showContinentAggregates(
   grid.AddText("Dockyards", "%d", dockyards);
 }
 
-bool MapEditorModule::showStateEditor(
+unsigned MapEditorModule::showStateEditor(
     const std::shared_ptr<Arda::ArdaRegion> &state,
     Fwg::UI::Elements::GridLayout &grid) const {
   const auto hoi4State = std::dynamic_pointer_cast<Rpx::Hoi4::Region>(state);
@@ -303,20 +317,21 @@ bool MapEditorModule::showStateEditor(
     return false;
   }
   ImGui::SeparatorText("State Details");
-  bool changed = grid.AddInputInt("Arms Factories", &hoi4State->armsFactories);
+  bool changed = grid.AddInputInt("Arms Factories", &hoi4State->armsFactories, 0, 1000000);
   changed |=
-      grid.AddInputInt("Civilian Factories", &hoi4State->civilianFactories);
-  changed |= grid.AddInputInt("Dockyards", &hoi4State->dockyards);
-  changed |= grid.AddInputInt("Infrastructure", &hoi4State->infrastructure);
-  changed |= grid.AddInputInt("State Category", &hoi4State->stateCategory);
+      grid.AddInputInt("Civilian Factories", &hoi4State->civilianFactories, 0, 1000000);
+  changed |= grid.AddInputInt("Dockyards", &hoi4State->dockyards, 0, 1000000);
+  changed |= grid.AddInputInt("Infrastructure", &hoi4State->infrastructure, 0, 5);
+  changed |= grid.AddInputInt("State Category", &hoi4State->stateCategory, 0, 9);
+  unsigned changes = changed ? EconomyChanged : NoChange;
   if (!hoi4State->resources.empty()) {
     ImGui::SeparatorText("State Resources");
     for (auto &[name, resource] : hoi4State->resources) {
-      changed |= grid.AddInputDouble(name.c_str(), &resource.amount, 0.0,
-                                     1000000000.0, 1, 10.0);
+      if (grid.AddInputDouble(name.c_str(), &resource.amount, 0.0,
+                                     1000000000.0, 1, 10.0)) changes |= ResourcesChanged;
     }
   }
-  return changed;
+  return changes;
 }
 
 } // namespace Rpx::UI::Hoi4

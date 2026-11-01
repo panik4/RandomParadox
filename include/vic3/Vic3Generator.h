@@ -283,6 +283,9 @@ class Generator : public Rpx::ModGenerator {
 
   Rpx::Gfx::Vic3::ImageExporter imageExporter;
 
+protected:
+  void invalidateGameLocationData() override;
+
 public:
   std::vector<Arda::Utils::ResConfig> &getResConfigs() {
     return this->vic3Config.resConfigs;
@@ -295,7 +298,7 @@ public:
   void configureModGen(const std::string &configSubFolder,
                        const std::string &username,
                        const boost::property_tree::ptree &rpdConf) override;
-  virtual Fwg::Gfx::Image mapTerrain();
+  virtual void mapTerrain();
   virtual void mapRegions();
   void totalArableLand(const std::vector<float> &arableLand);
   void distributeResources();
