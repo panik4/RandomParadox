@@ -373,7 +373,7 @@ void generateFocusFiles(
     // Randomly select one file per category
     std::vector<std::string> selectedFiles;
     for (auto &[cat, files] : categoryFiles) {
-      int idx = RandNum::getRandom(static_cast<int>(files.size()));
+      int idx = RandNum::getRandom(static_cast<int>(files.size()) - 1);
       selectedFiles.push_back(files[idx]);
     }
 

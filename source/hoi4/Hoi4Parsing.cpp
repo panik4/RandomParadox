@@ -1,3 +1,4 @@
+#include "hoi4/Hoi4Weather.h"
 #include "hoi4/Hoi4Parsing.h"
 #include <regex>
 using namespace Fwg;
@@ -165,43 +166,19 @@ void definition(
   pU::writeFile(path, content);
 }
 
-void unitStacks(
-    const std::string &path,
-    const std::vector<std::shared_ptr<Arda::ArdaProvince>> provinces,
-    const std::vector<std::shared_ptr<Region>> regions,
-    const std::vector<float> &heightMap) {
-  Logging::logLine("HOI4 Parser: Map: Remilitarizing the Rhineland");
-  // 1;0;3359.00;9.50;1166.00;0.00;0.08
-  // provID, neighbour?, xPos, zPos yPos, rotation(3=north,
-  // 0=south, 1.5=east,4,5=west), ?? provID, xPos, ~10, yPos, ~0, 0,5 for each
-  // neighbour add move state in the direction of the neighbour. 0 might be
-  // stand still
-  auto &cfg = Cfg::Values();
-
-  std::string content{""};
-  for (const auto &prov : provinces) {
-    for (auto &position : prov->positions) {
-      std::vector<std::string> arguments{
-          std::to_string(prov->ID + 1), // province ID
-          std::to_string(position.typeIndex),
-          std::to_string(position.position.widthCenter),
-          std::to_string(9.5 +
-                         std::max<float>(
-                             0.0f, position.position.altitude * 0.1f *
-                                       static_cast<float>(255 - cfg.terrainConfig.seaLevel))),
-          std::to_string(position.position.heightCenter),
-          std::to_string(1.57 + position.position.rotation),
-          std::to_string(0.01f + RandNum::getRandom<float>(0.0f, 0.5f))};
-      content.append(pU::csvFormat(arguments, ';', false));
-    }
+void unitStacks(const std::string &path, const std::vector<UnitStackRecord> &records) {
+  std::string content;
+  for (const auto &record : records) {
+    content += pU::csvFormat(std::vector<std::string>{std::to_string(record.provinceID + 1),
+      std::to_string(record.typeIndex), std::to_string(record.x), std::to_string(record.y),
+      std::to_string(record.z), std::to_string(record.rotation), std::to_string(record.offset)}, ';', false);
   }
   pU::writeFile(path, content);
 }
-
 void strategicRegions(
     const std::string &path,
     const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
-    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions) {
+    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions, const std::map<std::string, double> &chances) {
   constexpr std::array<int, 12> daysInMonth{30, 27, 30, 29, 30, 29,
                                             30, 30, 29, 30, 29, 30};
   Logging::logLine("HOI4 Parser: Map: Drawing Strategic Regions");
@@ -221,9 +198,10 @@ void strategicRegions(
         throw std::runtime_error("Sea strategic region " + std::to_string(group->ID + 1) +
             " is not contiguous (including islands); export is forbidden");
     }
-    for (const auto &month : group->weatherMonths) {
-      if (month.size() < 12 ||
-          !std::all_of(month.begin(), month.end(),
+    for (const auto &month : convertWeather(*group, chances, Fwg::Cfg::Values().climateConfig.deviationFactor)) {
+      const auto values = month.values();
+      if (
+          !std::all_of(values.begin(), values.end(),
                        [](double value) { return std::isfinite(value); }))
         throw std::runtime_error("Invalid HOI4 strategic region weather values");
     }
@@ -241,6 +219,7 @@ void strategicRegions(
   for (auto i = 0; i < strategicRegions.size(); i++) {
     auto stratRegion =
         std::dynamic_pointer_cast<StrategicRegion>(strategicRegions[i]);
+    const auto weatherMonths = convertWeather(*stratRegion, chances, Fwg::Cfg::Values().climateConfig.deviationFactor);
     std::string provString{""};
     for (const auto &region : stratRegion->ardaRegions) {
       for (const auto prov : region->provinces) {
@@ -261,35 +240,35 @@ void strategicRegions(
                                       "0." + std::to_string(mo) + " " +
                                           std::to_string(daysInMonth[mo]) +
                                           "." + std::to_string(mo));
-      if (stratRegion->weatherMonths.size()) {
+      if (weatherMonths.size()) {
         Rpx::Parsing::replaceOccurences(
             month, "templateTemperatureRange",
-            std::to_string(round((float)stratRegion->weatherMonths[mo][3]))
+            std::to_string(round((float)weatherMonths[mo].temperatureLow))
                     .substr(0, 5) +
                 " " +
-                std::to_string(round((float)stratRegion->weatherMonths[mo][4]))
+                std::to_string(round((float)weatherMonths[mo].temperatureHigh))
                     .substr(0, 5));
         Rpx::Parsing::replaceOccurences(
             month, "templateRainLightChance",
-            std::to_string((float)stratRegion->weatherMonths[mo][5]));
+            std::to_string((float)weatherMonths[mo].lightRain));
         Rpx::Parsing::replaceOccurences(
             month, "templateRainHeavyChance",
-            std::to_string((float)stratRegion->weatherMonths[mo][6]));
+            std::to_string((float)weatherMonths[mo].heavyRain));
         Rpx::Parsing::replaceOccurences(
             month, "templateMud",
-            std::to_string((float)stratRegion->weatherMonths[mo][7]));
+            std::to_string((float)weatherMonths[mo].mud));
         Rpx::Parsing::replaceOccurences(
             month, "templateBlizzard",
-            std::to_string((float)stratRegion->weatherMonths[mo][8]));
+            std::to_string((float)weatherMonths[mo].blizzard));
         Rpx::Parsing::replaceOccurences(
             month, "templateSandStorm",
-            std::to_string((float)stratRegion->weatherMonths[mo][9]));
+            std::to_string((float)weatherMonths[mo].sandstorm));
         Rpx::Parsing::replaceOccurences(
             month, "templateSnow",
-            std::to_string((float)stratRegion->weatherMonths[mo][10]));
+            std::to_string((float)weatherMonths[mo].snow));
         Rpx::Parsing::replaceOccurences(
             month, "templateNoPhenomenon",
-            std::to_string((float)stratRegion->weatherMonths[mo][11]));
+            std::to_string((float)weatherMonths[mo].clear));
       }
       // Rpx::Parsing::replaceOccurences(month, "templateDateRange", "0." +
       // std::to_string(i) + " 30." + std::to_string(i));
@@ -334,15 +313,15 @@ void weatherPositions(
 }
 
 void supply(const std::string &path,
-            const std::vector<std::vector<int>> &supplyNodeConnections) {
+            const std::vector<std::vector<int>> &supplyNodeConnections, const std::vector<SupplyHub> &supplyHubs) {
   std::string supplyNodes = "";
   std::string railways = "";
   std::set<int> nodes;
   for (const auto &connection : supplyNodeConnections) {
     if (connection.size() <= 1)
       continue;
-    nodes.insert(connection[0]);
-    nodes.insert(connection.back());
+
+
     railways += "1 ";
     railways += std::to_string(connection.size());
     railways += " ";
@@ -352,6 +331,7 @@ void supply(const std::string &path,
     }
     railways += "\n";
   }
+  for (const auto &hub : supplyHubs) nodes.insert(hub.provinceID);
   for (const auto &node : nodes) {
     supplyNodes.append("1 " + std::to_string(node + 1) + "\n");
   }
@@ -515,64 +495,13 @@ void commonNames(const std::string &path, const CountryMap &countries) {
   auto content = pU::readFile(Fwg::Cfg::Values().resourcePath +
                               "hoi4/common/names/00_names.txt");
 
-  // gather a list of male, female and surnames, dependent on the cultures
-  // and their share in the country
-  std::map<std::string, std::vector<std::string>> names;
-  std::string maleNames = "";
-  std::string femaleNames = "";
-  std::string surnames = "";
-  for (auto &country : countries) {
-
-    // gather a culture vector and sort it by share in the country to guarantee
-    // deterministic output
-    std::vector<std::pair<std::shared_ptr<Arda::Culture>, double>>
-        cultureShares;
-    for (auto &culture : country->cultures) {
-      cultureShares.push_back({culture.first, culture.second});
-    }
-    std::sort(cultureShares.begin(), cultureShares.end(),
-              [](const auto &a, const auto &b) { return a.second > b.second; });
-
-    if (!country->cultures.size() || !country->ownedRegions.size()) {
-      continue;
-    }
-
+  for (const auto &country : countries) {
+    if (country->ownedRegions.empty()) continue;
     auto nameTemplate = countryNamesTemplate;
-    for (auto &culture : cultureShares) {
-      // get the share of the culture in the country
-      auto share =
-          std::min<double>(culture.second / country->getTotalPopulation(), 1.0);
-      auto language = culture.first->language;
-      // Generate a small pool for the game's runtime name generator.
-      const auto nameCount = static_cast<int>(share * 10.0);
-      for (int i = 0; i < nameCount; ++i) {
-        maleNames.append("\"" + language->getRandomCapitalisedWordFromVocabulary(
-                             "MaleNames") + "\" ");
-        if ((i + 1) % 10 == 0)
-          maleNames.append("\n\t\t\t");
-      }
-      for (int i = 0; i < nameCount; ++i) {
-        femaleNames.append("\"" + language->getRandomCapitalisedWordFromVocabulary(
-                               "FemaleNames") + "\" ");
-        if ((i + 1) % 10 == 0)
-          femaleNames.append("\n\t\t\t");
-      }
-      for (int i = 0; i < nameCount; ++i) {
-        surnames.append("\"" + language->getRandomCapitalisedWordFromVocabulary(
-                            "Surnames") + "\" ");
-        if ((i + 1) % 10 == 0)
-          surnames.append("\n\t\t\t");
-      }
-      // now replace templateCountryTag
-      Rpx::Parsing::replaceOccurences(nameTemplate, "templateCountryTag",
-                                      country->tag);
-      Rpx::Parsing::replaceOccurences(nameTemplate, "templateMaleNames",
-                                      maleNames);
-      Rpx::Parsing::replaceOccurences(nameTemplate, "templateFemaleNames",
-                                      femaleNames);
-      Rpx::Parsing::replaceOccurences(nameTemplate, "templateSurnames",
-                                      surnames);
-    }
+    Rpx::Parsing::replaceOccurences(nameTemplate, "templateCountryTag", country->tag);
+    Rpx::Parsing::replaceOccurences(nameTemplate, "templateMaleNames", country->maleNamePool);
+    Rpx::Parsing::replaceOccurences(nameTemplate, "templateFemaleNames", country->femaleNamePool);
+    Rpx::Parsing::replaceOccurences(nameTemplate, "templateSurnames", country->surnamePool);
     content.append(nameTemplate);
   }
   pU::writeFile(path, content);
@@ -1475,59 +1404,21 @@ void events(const std::string &path) {
   }
 }
 
-void commonBookmarks(
-    const std::string &path, const CountryMap &countries,
-    const std::map<int, std::vector<std::shared_ptr<Arda::Country>>>
-        &strengthScores) {
-  auto bookmarkTemplate =
-      pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "hoi4/common/bookmarks//the_gathering_storm.txt");
-  int count = 0;
-  const auto majorTemplate =
-      Rpx::Parsing::getBracketBlock(bookmarkTemplate, "templateMajorTAG") +
-      "\n\t\t";
-  const auto minorTemplate =
-      Rpx::Parsing::getBracketBlock(bookmarkTemplate, "templateMinorTAG") +
-      "\n\t\t";
-  Rpx::Parsing::removeBracketBlockFromKey(bookmarkTemplate, "templateMajorTAG");
-  Rpx::Parsing::removeBracketBlockFromBracket(bookmarkTemplate,
-                                              "templateMinorTAG");
-  std::string bookmarkCountries{""};
-  if (strengthScores.size()) {
-
-    for (auto iter = strengthScores.rbegin(); iter != strengthScores.rend();
-         ++iter) {
-      if (count < 7) {
-        // major power:
-        for (const auto &country : iter->second) {
-          // reinterpret this country as a Hoi4Country
-          auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country);
-          auto majorString{majorTemplate};
-          Rpx::Parsing::replaceOccurences(
-              majorString, "templateIdeology",
-              Arda::Utils::ideologyToString.at(hoi4Country->ideology));
-          bookmarkCountries.append(Rpx::Parsing::replaceOccurences(
-              majorString, "templateMajorTAG", hoi4Country->tag));
-          count++;
-        }
-      } else if (count < 14) {
-        // regional power:
-        for (const auto &country : iter->second) {
-          auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country);
-          auto minorString{minorTemplate};
-          Rpx::Parsing::replaceOccurences(
-              minorString, "templateIdeology",
-              Arda::Utils::ideologyToString.at(hoi4Country->ideology));
-          bookmarkCountries.append(Rpx::Parsing::replaceOccurences(
-              minorString, "templateMinorTAG", hoi4Country->tag));
-          count++;
-        }
-      }
-    }
+void commonBookmarks(const std::string &path, const CountryMap &selectedCountries) {
+  auto content = pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4/common/bookmarks/the_gathering_storm.txt");
+  const auto major = Rpx::Parsing::getBracketBlock(content, "templateMajorTAG");
+  const auto minor = Rpx::Parsing::getBracketBlock(content, "templateMinorTAG");
+  Rpx::Parsing::removeBracketBlockFromKey(content, "templateMajorTAG");
+  Rpx::Parsing::removeBracketBlockFromBracket(content, "templateMinorTAG");
+  std::string entries;
+  for (size_t i = 0; i < selectedCountries.size(); ++i) {
+    auto entry = i < 7 ? major : minor;
+    Rpx::Parsing::replaceOccurences(entry, "templateIdeology", Arda::Utils::ideologyToString.at(selectedCountries[i]->ideology));
+    Rpx::Parsing::replaceOccurences(entry, i < 7 ? "templateMajorTAG" : "templateMinorTAG", selectedCountries[i]->tag);
+    entries += entry + "\n\t\t";
   }
-  Rpx::Parsing::replaceOccurences(bookmarkTemplate,
-                                  "templateMinorTAG=", bookmarkCountries);
-  pU::writeFile(path + "the_gathering_storm.txt", bookmarkTemplate);
+  Rpx::Parsing::replaceOccurences(content, "templateMinorTAG=", entries);
+  pU::writeFile(path + "the_gathering_storm.txt", content);
 }
 void dynamicModifiers(std::string resources, std::string modPath) {
   Fwg::Utils::Logging::logLine("HOI4 Parser: Dynamic Modifiers: Copying Files");

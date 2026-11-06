@@ -29,6 +29,7 @@ struct GameConfig {
 using Vic3Gen = Rpx::Vic3::Generator;
 
 class GUI : public Arda::ArdaUI {
+  void setCivilisationDirty(bool dirty) override;
   std::vector<GameConfig> gameConfigs;
   pt::ptree rpdConf;
   std::string configSubFolder;

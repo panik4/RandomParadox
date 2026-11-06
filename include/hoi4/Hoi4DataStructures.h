@@ -40,12 +40,24 @@ struct Hoi4Config {
   float startingAirforceStrengthFactor = 1.0f;
 };
 
+struct SupplyHub { int provinceID; int pixel; };
+
+struct UnitStackRecord {
+  int provinceID, typeIndex;
+  double x, y, z, rotation, offset;
+  template<class Archive> void serialize(Archive &ar, const unsigned int) {
+    ar & provinceID & typeIndex & x & y & z & rotation & offset;
+  }
+};
 struct Hoi4Data {
+  std::vector<UnitStackRecord> unitStacks;
+  std::vector<std::shared_ptr<Hoi4Country>> bookmarkCountries;
   // containers
   std::vector<std::shared_ptr<Region>> hoi4States;
   std::vector<std::shared_ptr<Hoi4Country>> hoi4Countries;
   // a list of connections: {sourceHub, destHub, provinces the rails go through}
   std::vector<std::vector<int>> supplyNodeConnections;
+  std::vector<SupplyHub> supplyHubs; // Derived together with railway connections.
   bool statesInitialised = false;
   std::vector<std::shared_ptr<Faction>> factions;
   DecisionData decisionData;

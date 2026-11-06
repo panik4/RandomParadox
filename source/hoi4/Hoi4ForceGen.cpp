@@ -130,6 +130,16 @@ void generateAirVariants(Hoi4Config modConfig, Hoi4Data &modData,
       airbase->wings.clear();
     }
     country->airBases.clear();
+    for (const auto &state : country->hoi4Regions) {
+      if (!state->airBase || state->airBase->level <= 0 || state->airfieldSuitability == 0) continue;
+      const auto site = std::find_if(state->buildings.begin(), state->buildings.end(),
+          [](const auto &building) { return building.name == "air_base"; });
+      if (site == state->buildings.end()) continue;
+      state->airBase->level = std::min(state->airBase->level, 10);
+      state->airBase->provinceID = site->provinceID;
+      state->airBase->wings.clear();
+      country->airBases.push_back(state->airBase);
+    }
 
     // if we don't have any regions, skip this country
     if (country->hoi4Regions.empty()) {
@@ -279,14 +289,15 @@ void generateAirVariants(Hoi4Config modConfig, Hoi4Data &modData,
     // lets distribute at least ONE airbase throughout every country, even those
     // without plane tech. This is due to hoi4 ai not building airforces
     // properly otherwise after researching the techs
-    country->addAirBase(1);
+    if (!country->addAirBase(1) && country->airBases.empty())
+      throw std::runtime_error("No available airfield site for country " + country->tag);
     double airforceStrength = country->airFocus * country->armsFactories *
                               modConfig.startingAirforceStrengthFactor;
     int airBaseAmount = 1 + airforceStrength / 10.0;
     if (country->planeVariants.size() && airforceStrength > 0) {
       // lets distribute airbases throughout the country
       for (int i = 0; i < airBaseAmount; i++) {
-        country->addAirBase(1);
+        if (!country->addAirBase(1)) break;
       }
       // first gather the amount of planes per variant
       while (airforceStrength > 0) {
@@ -302,7 +313,7 @@ void generateAirVariants(Hoi4Config modConfig, Hoi4Data &modData,
           AirWing wing;
           wing.variant = country->planeVariants[i];
           wing.name = std::to_string(i) + ". " + country->planeVariants[i].name;
-          wing.amount = std::min<int>(country->planeVariants[i].amount, 50);
+          wing.amount = std::min<int>(country->planeVariants[i].amount - j, 50);
 
           auto &randomAirbase =
               Fwg::Utils::Random::selectRandom(country->airBases);
@@ -680,13 +691,13 @@ void generateCountryNavies(Hoi4Config modConfig, Hoi4Data &modData,
           // try to select a ship that fits
           int attempts = 0;
           while (!shipSelected && attempts < 20) {
-            if (RandNum::getRandom(0, 2)) {
+            if (RandNum::getRandom(0, 1)) {
               if (heavyCruiserClasses.size()) {
                 heavyShip.shipClass =
                     Fwg::Utils::Random::selectRandom(heavyCruiserClasses);
                 shipSelected = true;
               }
-            } else if (RandNum::getRandom(0, 2)) {
+            } else if (RandNum::getRandom(0, 1)) {
               if (battleCruiserClasses.size()) {
                 heavyShip.shipClass =
                     Fwg::Utils::Random::selectRandom(battleCruiserClasses);
@@ -771,7 +782,7 @@ void generateCountryNavies(Hoi4Config modConfig, Hoi4Data &modData,
         // try to select a ship that fits
         int attempts = 0;
         while (!shipSelected && attempts < 20) {
-          if (RandNum::getRandom(0, 2)) {
+          if (RandNum::getRandom(0, 1)) {
             if (destroyerClasses.size()) {
               screenShip.shipClass =
                   Fwg::Utils::Random::selectRandom(destroyerClasses);

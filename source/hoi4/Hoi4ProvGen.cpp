@@ -2,13 +2,13 @@
 
 namespace Rpx::Hoi4 {
 
-Arda::ScenarioPosition createPosition(Fwg::Position &position,
+Arda::ScenarioPosition createPosition(const Fwg::Position &position,
                                       Arda::PositionType type, int typeIndex,
                                       const std::vector<float> &altitudes) {
   Arda::ScenarioPosition scenarioPos;
   scenarioPos.position = position;
   scenarioPos.position.altitude =
-      altitudes[scenarioPos.position.weightedCenter];
+      altitudes.at(scenarioPos.position.weightedCenter);
   scenarioPos.type = type;
   scenarioPos.typeIndex = typeIndex;
   return scenarioPos;
@@ -54,7 +54,12 @@ void generatePositions(Fwg::Terrain::TerrainData &terrainData,
     neighbourRelations = getNeighbourRelations(prov, cfg, 0.2f);
 
     //  We use those for standstill, standstill RG, defending, attacking
-    auto allowedSize = neighbourRelations.size() - 1;
+    if (neighbourRelations.empty()) {
+      Fwg::Areas::NeighbourProvince fallback;
+      fallback.positionToNeighbour = position;
+      neighbourRelations.push_back(fallback);
+    }
+    const int allowedSize = static_cast<int>(neighbourRelations.size()) - 1;
     gameProv->positions.push_back(createPosition(
         neighbourRelations[std::min<int>(0, allowedSize)].positionToNeighbour,
         Arda::PositionType::Standstill, 0, altitudes));
@@ -110,6 +115,13 @@ void generatePositions(Fwg::Terrain::TerrainData &terrainData,
     // gameProv->neighbourRelations, while moving RG we take
     // from neighbourRelations, as they are closer to the center of the
     // province
+    const auto positionFor = [](const auto &relations, const auto &neighbour) -> const Fwg::Position & {
+      const auto found = std::find_if(relations.begin(), relations.end(), [&](const auto &relation) {
+        return relation.neighbour && neighbour && relation.neighbour->ID == neighbour->ID;
+      });
+      if (found == relations.end()) throw std::runtime_error("Missing neighbour position");
+      return found->positionToNeighbour;
+    };
     for (auto counter = 0; auto &neighbour : gameProv->neighbourRelations) {
       if (counter > 7) {
         // hoi4 only supports 8 moving positions, so we break here
@@ -120,20 +132,21 @@ void generatePositions(Fwg::Terrain::TerrainData &terrainData,
           neighbour->positionToNeighbour, Arda::PositionType::UnitMoving,
           1 + counter, altitudes));
       gameProv->positions.push_back(createPosition(
-          neighbourRelations[counter].positionToNeighbour,
+          positionFor(neighbourRelations, neighbour->neighbour),
           Arda::PositionType::UnitMovingRG, 22 + counter, altitudes));
       if (sea) {
         // now we add the embark positions, which are the same as the
         // neighbour relations, but with a different type
         gameProv->positions.push_back(createPosition(
-            embarkNeighbourRelations[counter].positionToNeighbour,
+            positionFor(embarkNeighbourRelations, neighbour->neighbour),
             Arda::PositionType::UnitDisembarking, 11 + counter, altitudes));
 
         gameProv->positions.push_back(createPosition(
-            embarkRgNeighbourRelations[counter].positionToNeighbour,
+            positionFor(embarkRgNeighbourRelations, neighbour->neighbour),
             Arda::PositionType::UnitDisembarkingRG, 30 + counter, altitudes));
-        counter++;
+
       }
+      ++counter;
     }
     // now sort by typeIndex
     std::sort(

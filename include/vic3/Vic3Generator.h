@@ -284,6 +284,7 @@ class Generator : public Rpx::ModGenerator {
   Rpx::Gfx::Vic3::ImageExporter imageExporter;
 
 protected:
+  void invalidateGameSimulationData() override;
   void invalidateGameLocationData() override;
 
 public:

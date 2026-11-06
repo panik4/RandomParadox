@@ -6,6 +6,14 @@ static std::string errorLog;
 
 GUI::GUI() : Arda::ArdaUI() {}
 
+void GUI::setCivilisationDirty(bool dirty) {
+  Arda::ArdaUI::setCivilisationDirty(dirty);
+  if (!activeGenerator) return;
+  mapEditorState.selectedCountryTag.clear();
+  resetMapSelection();
+  refreshMapEditorVisualization();
+}
+
 void GUI::renderGenericContents(Fwg::Cfg &cfg) {
   if (!validatedPaths)
     ImGui::BeginDisabled();
@@ -1102,6 +1110,7 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
                   return true;
                 });
           }
+          ImGui::BeginDisabled(!hoi4Gen->exportReady());
           if (ImGui::Button("Recalculate country tech and forces")) {
             uiContext.asyncContext.runAsync([hoi4Gen]() {
               hoi4Gen->recalculateCountryMilitaryData();
@@ -1111,10 +1120,11 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
           ImGui::SameLine();
           if (ImGui::Button("Regenerate country forces")) {
             uiContext.asyncContext.runAsync([hoi4Gen]() {
-              hoi4Gen->recalculateCountryMilitaryData();
+              hoi4Gen->regenerateCountryForces();
               return true;
             });
           }
+          ImGui::EndDisabled();
           if (countryDetailsPending()) {
             ImGui::PopStyleColor();
           }
@@ -1137,9 +1147,21 @@ int GUI::showCountryTab(Fwg::Cfg &cfg) {
         }
       }
 
-      auto str = "Generated countries: " +
-                 std::to_string(activeGenerator->ardaData.countries.size());
-      ImGui::Text(str.c_str());
+      const auto &countries = activeGenerator->ardaData.countries;
+      const auto &formables = activeGenerator->ardaData.simulationExport.formables;
+      size_t onMapCountries = 0;
+      size_t formableCountries = 0;
+      for (const auto &[tag, country] : countries) {
+        if (!country)
+          continue;
+        if (!country->ownedRegions.empty())
+          ++onMapCountries;
+        else if (formables.contains(country->polityID))
+          ++formableCountries;
+      }
+      ImGui::Text("Countries on map: %zu | Total generated: %zu",
+                  onMapCountries, countries.size());
+      ImGui::Text("Formable countries (off map): %zu", formableCountries);
       countryDrag();
       showMapEditorLayer();
     }

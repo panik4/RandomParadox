@@ -3,6 +3,7 @@
 #include "areas/ArdaRegion.h"
 #include "generic/VictoryPoint.h"
 #include "hoi4/Hoi4Airforce.h"
+#include "hoi4/Hoi4BuildingPlacement.h"
 #include "utils/RpxUtils.h"
 #include "utils/SerialisationFwd.h"
 
@@ -36,6 +37,10 @@ public:
   Arda::Utils::WeatherPosition weatherPosition;
   // Containers
   std::vector<Arda::Utils::Building> buildings;
+  // Derived runtime data; snapshots retain their stored building positions.
+  std::vector<ResolvedPort> resolvedPorts;
+  bool portsResolved = false;
+  double airfieldSuitability = -1; // Unknown until generated or reconstructed.
   std::map<int, std::shared_ptr<Arda::VictoryPoint>> victoryPointsMap;
   std::map<int, int> navalBases;
   std::shared_ptr<AirBase> airBase;
@@ -45,6 +50,9 @@ public:
   ~Region();
 
   // member functions
+  void calculateBuildingPositions(const Fwg::Terrain::TerrainData &terrain,
+                                  const Fwg::Gfx::Image &provinceMap,
+                                  const Fwg::Areas::AreaData &areaData);
   void calculateBuildingPositions(const std::vector<float> &heightmap,
                                   const Fwg::Gfx::Image &provinceMap,
                                   const Fwg::Areas::AreaData &areaData);

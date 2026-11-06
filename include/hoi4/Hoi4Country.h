@@ -22,6 +22,8 @@ public:
   Hoi4Country(Arda::Country &country,
               std::vector<std::shared_ptr<Hoi4::Region>> &hoi4Region);
   ~Hoi4Country();
+  std::string maleNamePool, femaleNamePool, surnamePool;
+  void generateNamePools();
   std::string fullName;
   std::string gfxCulture;
   // politics
@@ -66,7 +68,7 @@ public:
   std::vector<PlaneVariant> planeVariants;
   std::vector<AirWing> airWings;
   std::vector<std::shared_ptr<AirBase>> airBases;
-  void addAirBase(int level);
+  bool addAirBase(int level);
 
   // industry
   std::map<TechEra, std::vector<Technology>> industryElectronicTechs;

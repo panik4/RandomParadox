@@ -31,6 +31,7 @@ class Generator : public Rpx::ModGenerator {
 
 protected:
   void economyDataChanged() override;
+  void invalidateGameSimulationData() override;
   void environmentDataChanged() override { economyDataChanged(); invalidateResources(); }
   void invalidateGameLocationData() override;
 
@@ -61,13 +62,13 @@ public:
   } readiness;
   void invalidateStateEconomy() { economyDataChanged(); }
   void invalidateResources() { readiness.resources = Status::Stale; modData.statesInitialised = false; }
-  void invalidateCountryDetails() { readiness.countries = Status::Stale; }
+  void invalidateCountryDetails() { readiness.countries = Status::Stale; modData.unitStacks.clear(); }
   void regenerateStateData();
   bool exportReady() const;
   void regenerateCharactersAndAppearance();
   void rebuildFactions(bool rebalanceGovernments = false);
   void regenerateStateEconomy() { generateStateSpecifics(); }
-  void recalculateCountryDetails() { generateHardCountrySpecifics(); }
+  void recalculateCountryDetails();
   void regenerateCountryPolitics() { generateSoftCountryDetails(); }
   void generateStateSpecifics();
   void generateStateResources();
@@ -75,6 +76,10 @@ public:
   void generateCountryTechnologies();
   void generateCountryForces();
   void recalculateCountryMilitaryData();
+  void regenerateCountryForces();
+private:
+  void refreshMilitaryInputs();
+public:
 
   // politics: names, ideology, party popularity, elections
   void generateSoftCountryDetails(bool onlyMissing = false);

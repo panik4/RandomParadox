@@ -1,3 +1,4 @@
+#include <unordered_set>
 #include "hoi4/Hoi4Generator.h"
 #include "areas/SuperRegion.h"
 #include "generic/StrategicRegion.h"
@@ -98,6 +99,31 @@ bool Generator::createPaths() {
 void Generator::invalidateGameLocationData() {
   economyDataChanged();
   modData.supplyNodeConnections.clear();
+  modData.supplyHubs.clear();
+}
+
+void Generator::invalidateGameSimulationData() {
+  // Mapped states are the existing geographic regions. Retain those objects
+  // while dropping everything generated from the previous civilization.
+  auto states = std::move(modData.hoi4States);
+  modData = {};
+  modData.hoi4States = std::move(states);
+  readiness = {};
+  stats = {};
+  for (auto &state : modData.hoi4States) {
+    if (!state) continue;
+    state->armsFactories = state->civilianFactories = state->dockyards = 0;
+    state->infrastructure = state->stateCategory = 0;
+    state->airport = state->rocketsite = state->supplyNode = 0;
+    state->totalVictoryPoints = 0.0;
+    state->buildings.clear();
+    state->resolvedPorts.clear();
+    state->portsResolved = false;
+    state->airfieldSuitability = -1;
+    state->victoryPointsMap.clear();
+    state->navalBases.clear();
+    state->airBase.reset();
+  }
 }
 
 void Generator::configureModGen(const std::string &configSubFolder,
@@ -182,6 +208,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
 }
 
 void Generator::mapRegions() {
+  modData.unitStacks.clear();
   economyDataChanged();
   invalidateResources();
   Fwg::Utils::Logging::logLine("Mapping Regions");
@@ -337,86 +364,65 @@ void Generator::mapTerrain() {
 }
 
 void Generator::mapCountries() {
-  bool territoryChanged = modData.hoi4Countries.size() != ardaData.countries.size();
+  std::unordered_set<const Arda::ArdaRegion *> geography;
+  for (const auto &region : ardaData.areaData.regions) geography.insert(region.get());
+  std::unordered_set<const Region *> currentStates;
+  for (const auto &state : modData.hoi4States) {
+    if (!state || !geography.contains(state.get()) || !currentStates.insert(state.get()).second)
+      throw std::runtime_error("Invalid HOI4 state view");
+  }
+  std::vector<std::shared_ptr<Hoi4Country>> nextCountries;
+  std::vector<std::vector<std::shared_ptr<Region>>> nextStates;
+  std::vector<std::unordered_set<const Region *>> nextStateSets;
+  std::unordered_set<const Arda::Country *> currentCountries;
   for (const auto &[tag, base] : ardaData.countries) {
     const auto country = std::dynamic_pointer_cast<Hoi4Country>(base);
-    if (!country || std::find(modData.hoi4Countries.begin(), modData.hoi4Countries.end(), country) == modData.hoi4Countries.end()) {
-      territoryChanged = true;
-      continue;
+    if (!country || tag != country->tag)
+      throw std::runtime_error("Invalid HOI4 country type or unnormalised tag");
+    nextCountries.push_back(country);
+    currentCountries.insert(country.get());
+    auto &states = nextStates.emplace_back();
+    auto &stateSet = nextStateSets.emplace_back();
+    for (const auto &baseRegion : country->ownedRegions) {
+      auto state = std::dynamic_pointer_cast<Region>(baseRegion);
+      if (!state || !currentStates.contains(state.get()) || !stateSet.insert(state.get()).second)
+        throw std::runtime_error("HOI4 country references missing or replaced state");
+      states.push_back(std::move(state));
     }
-    if (country->hoi4Regions.size() != country->ownedRegions.size()) territoryChanged = true;
-    for (const auto &region : country->ownedRegions)
-      if (std::find(country->hoi4Regions.begin(), country->hoi4Regions.end(), region) == country->hoi4Regions.end())
-        territoryChanged = true;
   }
-  if (territoryChanged) invalidateCountryDetails();
-  if (std::any_of(modData.hoi4Countries.begin(), modData.hoi4Countries.end(), [&](const auto &country) {
-        const auto found = ardaData.countries.find(country->tag);
-        return found == ardaData.countries.end() || found->second != country;
-      })) {
+  for (const auto &country : nextCountries)
+    for (const auto &neighbour : country->neighbourCountries)
+      if (!neighbour || !currentCountries.contains(neighbour.get()))
+        throw std::runtime_error("HOI4 country references missing neighbour");
+  std::unordered_set<const Arda::Country *> previousCountries;
+  for (const auto &country : modData.hoi4Countries) previousCountries.insert(country.get());
+  bool changed = modData.hoi4Countries.size() != nextCountries.size();
+  bool replaced = false;
+  for (const auto &old : modData.hoi4Countries)
+    if (!old || !currentCountries.contains(old.get())) replaced = true;
+  for (size_t i = 0; i < nextCountries.size(); ++i) {
+    const auto &country = nextCountries[i];
+    const auto &states = nextStates[i];
+    changed |= !previousCountries.contains(country.get());
+    if (country->hoi4Regions.size() != states.size()) changed = true;
+    else for (const auto &state : country->hoi4Regions)
+      if (!nextStateSets[i].contains(state.get())) changed = true;
+  }
+  for (const auto &faction : modData.factions) {
+    if (!ardaData.countries.contains(faction->factionLeader)) replaced = true;
+    for (const auto &tag : faction->memberTags)
+      if (!ardaData.countries.contains(tag)) replaced = true;
+  }
+  if (changed) invalidateCountryDetails();
+  if (replaced) {
     modData.factions.clear();
     modData.greatPowerIdeologyMap.clear();
+    for (const auto &country : nextCountries) country->faction = nullptr;
   }
-  modData.hoi4Countries.clear();
-  std::vector<std::shared_ptr<Arda::Country>> countryVector;
-  for (auto &country : ardaData.countries) {
-    countryVector.push_back(country.second);
-  }
-  ardaData.countries.clear();
-  for (auto &country : countryVector) {
-    ardaData.countries[country->tag] = country;
-  }
-
-  for (auto &country : ardaData.countries) {
-    // construct a hoi4country with country from ScenarioGenerator.
-    // We want a copy here
-    // Hoi4Country hC(*country.second, this->modData.hoi4States);
-    // push back cast to hoi4Country
-    // modData.hoi4Countries.push_back(
-    //    std::make_shared<Hoi4Country>(country.second, modData.hoi4States));
-    // Attempt to cast the shared pointer to Hoi4Country
-    auto hoi4Country = std::dynamic_pointer_cast<Hoi4Country>(country.second);
-    if (hoi4Country) {
-      hoi4Country->hoi4Regions.clear();
-      // Successfully casted, add to modData.hoi4Countries
-      modData.hoi4Countries.push_back(hoi4Country);
-      // now for all ownedRegions, find the equivalent in Hoi4Regions
-      for (auto &region : country.second->ownedRegions) {
-        for (auto &hoi4Region : modData.hoi4States) {
-          if (region->ID == hoi4Region->ID) {
-            hoi4Country->hoi4Regions.push_back(hoi4Region);
-          }
-        }
-      }
-    } else {
-      // Handle the case where the cast fails, if necessary
-      // For example, log an error or throw an exception
-      Fwg::Utils::Logging::logLine("Failed to cast Country to Hoi4Country");
-    }
-  }
-  // now also map the neighbours by replacing the pointer to the country with
-  // the pointer to the hoi4Country
-  for (auto &country : modData.hoi4Countries) {
-    std::vector<std::shared_ptr<Hoi4Country>> neighboursTemp;
-    for (auto &neighbour : country->neighbourCountries) {
-      if (neighbour) {
-        for (auto &hoi4Country : modData.hoi4Countries) {
-          if (neighbour->ID == hoi4Country->ID) {
-            neighboursTemp.push_back(hoi4Country);
-          }
-        }
-      }
-    }
-
-    country->neighbourCountries.clear();
-    for (auto &neighbour : neighboursTemp) {
-      country->neighbourCountries.insert(neighbour);
-    }
-  }
-  // std::sort(modData.hoi4States.begin(), modData.hoi4States.end(),
-  //           [](auto l, auto r) { return *l < *r; });
+  for (size_t i = 0; i < nextCountries.size(); ++i)
+    nextCountries[i]->hoi4Regions = std::move(nextStates[i]);
+  modData.hoi4Countries = std::move(nextCountries);
 }
-
 void Generator::generateStateSpecifics() {
   readiness.economy = Status::Stale;
   invalidateCountryDetails();
@@ -481,35 +487,18 @@ void Generator::rebuildFactions(bool rebalanceGovernments) {
 }
 
 void Generator::refreshCountryTerritoryData() {
-  const auto previousStatus = readiness.countries;
-  for (const auto &[tag, country] : ardaData.countries)
-    for (const auto &region : country->ownedRegions)
-      if (std::find(ardaData.areaData.regions.begin(), ardaData.areaData.regions.end(), region) == ardaData.areaData.regions.end())
-        throw std::runtime_error("Country territory belongs to replaced geography; recreate country territory");
-  Arda::Countries::evaluateCountryNeighbours(areaData.regions, ardaData.areaData.regions,
-      ardaData.countries, areaGenerationContext(Fwg::Cfg::Values()));
+  refreshCountryTerritories();
   mapCountries();
-  for (auto &country : modData.hoi4Countries) {
-    country->gatherCultureShares();
-    country->evaluateProvinces();
-    for (auto &province : country->ownedProvinces)
-      province->owner = country->tag;
-  }
   stats.totalWorldIndustry = 0;
   evaluateCountryStrength(modData, stats, ardaData, ardaConfig);
-  readiness.countries = previousStatus;
+
 }
 
 void Generator::regenerateCharactersAndAppearance() {
   Hoi4Data characters;
   characters.hoi4Countries = modData.hoi4Countries;
   for (const auto &country : modData.hoi4Countries) {
-    const auto culture = country->getPrimaryCulture();
-    country->gfxCulture = !culture ? "asian" :
-        culture->visualType == Arda::VisualType::AFRICAN ? "african" :
-        culture->visualType == Arda::VisualType::ARABIC ? "middle_eastern" :
-        culture->visualType == Arda::VisualType::CAUCASIAN ? "western_european" :
-        culture->visualType == Arda::VisualType::SOUTH_AMERICAN ? "southamerican" : "asian";
+    assignAppearance(*country);
     country->detailsInitialized = true;
   }
   generateCharacters(characters);
@@ -531,6 +520,7 @@ void Generator::generateCountryForces() {
 
 void Generator::nameCountries() {
   Arda::ArdaGen::nameCountries();
+  for (auto &country : modData.hoi4Countries) country->generateNamePools();
   for (auto &country : modData.hoi4Countries) {
     if (!country)
       continue;
@@ -619,144 +609,9 @@ void Generator::nameCountries() {
   }
 }
 
-void Generator::recalculateCountryMilitaryData() {
-  generateHardCountrySpecifics();
-}
-
-void Generator::generateSoftCountryDetails(bool onlyMissing) {
-  Fwg::Utils::Logging::logLine("HOI4: Electing Tyrants");
-  const std::vector<Arda::Utils::Ideology> ideologies{
-      Arda::Utils::Ideology::FASCISM, Arda::Utils::Ideology::DEMOCRATIC,
-      Arda::Utils::Ideology::COMMUNISM, Arda::Utils::Ideology::NEUTRALITY};
+void Generator::refreshMilitaryInputs() {
   for (auto &country : modData.hoi4Countries) {
-    if (!country->ownedRegions.size())
-      continue;
-    if (onlyMissing && country->politicsInitialized) continue;
-    // select a random country ideology
-    double totalPopularity = 0;
-    std::vector<int> popularities(4);
-
-    // Generate random popularities and calculate the total
-    for (auto &popularity : popularities) {
-      popularity = RandNum::getRandom(1, 100);
-      totalPopularity += popularity;
-    }
-
-    // Normalize popularities to ensure they sum up to 100
-    int sumPop = 0;
-    for (int i = 0; i < 4; ++i) {
-      popularities[i] = (popularities[i] / totalPopularity) * 100;
-      sumPop += popularities[i];
-      int offset = 0;
-      // Ensure the total sum is exactly 100
-      if (i == 3 && sumPop < 100) {
-        offset = 100 - sumPop;
-      }
-      country->parties[i] = popularities[i] + offset;
-    }
-
-    const auto previousIdeology = country->ideology;
-    // Assign a ideology from strongest popularity
-    country->ideology = ideologies[std::max_element(country->parties.begin(),
-                                                    country->parties.end()) -
-                                   country->parties.begin()];
-    // in randomly 1 of 5 cases, take the second strongest ideology
-    if (RandNum::getRandom(0, 5) == 0) {
-      country->ideology =
-          ideologies[std::max_element(country->parties.begin(),
-                                      country->parties.end() - 1) -
-                     country->parties.begin()];
-    }
-
-    if (country->ideology != previousIdeology)
-      country->flag = Arda::Gfx::Flag(82, 52, country->ideology);
-
-    if (country->ideology == Arda::Utils::Ideology::NONE) {
-      Fwg::Utils::Logging::logLine("Unassigned country ideology");
-    }
-
-    // allow or forbid elections
-    if (country->ideology == Arda::Utils::Ideology::DEMOCRATIC)
-      country->allowElections = 1;
-    else if (country->ideology == Arda::Utils::Ideology::NEUTRALITY)
-      country->allowElections = RandNum::getRandom(0, 1);
-    else
-      country->allowElections = 0;
-
-    // randomly gather the date of the last election, up to a maximum of 48
-    // months back, except for non-democratic countries
-    std::string electionYear = std::to_string(
-        RandNum::getRandom(country->allowElections ? 1932 : 1880, 1935));
-    std::string electionMonth = std::to_string(RandNum::getRandom(1, 12));
-    std::string electionDay = std::to_string(RandNum::getRandom(1, 28));
-    country->lastElection =
-        electionYear + "." + electionMonth + "." + electionDay;
-
-    // random stability between 0 and 100
-    country->stability = RandNum::getRandom(0, 100);
-    // random war support between 0 and 100, higher for fascist and communist
-    // countries
-    if (country->ideology == Arda::Utils::Ideology::FASCISM ||
-        country->ideology == Arda::Utils::Ideology::COMMUNISM) {
-      country->warSupport = RandNum::getRandom(40, 80);
-    } else {
-      country->warSupport = RandNum::getRandom(20, 60);
-    }
-
-    assignStartingLaws(*country);
-    country->politicsInitialized = true;
-  }
-  // now that politics are settled, AND hard data has been generated, we can
-  // balance the great powers and factions
-
-}
-
-void Generator::generateHardCountrySpecifics() {
-  readiness.countries = Status::Stale;
-  if (readiness.economy != Status::Ready)
-    throw std::runtime_error("Generate state economy first" );
-  refreshCountryTerritoryData();
-  Fwg::Utils::Logging::logLine("HOI4: Choosing uniforms");
-
-  Fwg::Utils::Randomisation::resetRandomisation();
-  const std::vector<std::string> caucasianGfxCultures{
-      "western_european", "eastern_european", "commonwealth"};
-
-  for (auto &country : modData.hoi4Countries) {
-    if (!country->ownedRegions.size())
-      continue;
-    // clear some info from all owned regions
-    for (auto &region : country->hoi4Regions) {
-      region->airBase = nullptr;
-    }
-    // refresh the provinces
-    country->evaluateProvinces();
-    if (!country->detailsInitialized) {
-    auto primaryCulture = country->getPrimaryCulture();
-    if (primaryCulture == nullptr) {
-      country->gfxCulture = "asian";
-    } else {
-      switch (primaryCulture->visualType) {
-      case Arda::VisualType::ASIAN:
-        country->gfxCulture = "asian";
-        break;
-      case Arda::VisualType::AFRICAN:
-        country->gfxCulture = "african";
-        break;
-      case Arda::VisualType::ARABIC:
-        country->gfxCulture = "middle_eastern";
-        break;
-      case Arda::VisualType::CAUCASIAN:
-        country->gfxCulture =
-            Fwg::Utils::Random::selectRandom(caucasianGfxCultures);
-        break;
-      case Arda::VisualType::SOUTH_AMERICAN:
-        country->gfxCulture = "southamerican";
-        break;
-      }
-    }
-
-    }
+    if (country->ownedRegions.empty()) continue;
     // amount of research slots between 3 and 6, depending on average
     // development of the country and strength rank
     auto rankModifier = 0.0;
@@ -794,6 +649,97 @@ void Generator::generateHardCountrySpecifics() {
       country->navalFocus = 0;
     }
   }
+}
+void Generator::recalculateCountryMilitaryData() {
+  if (!exportReady()) throw std::runtime_error("Generate country details first");
+  refreshCountryTerritoryData();
+  refreshMilitaryInputs();
+  generateCountryTechnologies();
+  generateCountryForces();
+}
+void Generator::regenerateCountryForces() {
+  if (!exportReady()) throw std::runtime_error("Generate country details first");
+  refreshCountryTerritoryData();
+  refreshMilitaryInputs();
+  generateCountryForces();
+}
+void Generator::recalculateCountryDetails() {
+  generateHardCountrySpecifics();
+  if (modData.factions.empty()) rebuildFactions();
+}
+void Generator::generateSoftCountryDetails(bool onlyMissing) {
+  Fwg::Utils::Logging::logLine("HOI4: Electing Tyrants");
+  for (auto &country : modData.hoi4Countries) {
+    if (!country->ownedRegions.size())
+      continue;
+    if (onlyMissing && country->politicsInitialized) continue;
+    // select a random country ideology
+    double totalPopularity = 0;
+    std::vector<int> popularities(4);
+
+    // Generate random popularities and calculate the total
+    for (auto &popularity : popularities) {
+      popularity = RandNum::getRandom(1, 100);
+      totalPopularity += popularity;
+    }
+
+    // Normalize popularities to ensure they sum up to 100
+    int sumPop = 0;
+    for (int i = 0; i < 4; ++i) {
+      popularities[i] = (popularities[i] / totalPopularity) * 100;
+      sumPop += popularities[i];
+      int offset = 0;
+      // Ensure the total sum is exactly 100
+      if (i == 3 && sumPop < 100) {
+        offset = 100 - sumPop;
+      }
+      country->parties[i] = popularities[i] + offset;
+    }
+
+    const auto previousIdeology = country->ideology;
+    country->ideology = selectPartyIdeology(country->parties, RandNum::getRandom(0, 4) == 0);
+    // random stability between 0 and 100
+    country->stability = RandNum::getRandom(0, 100);
+    // random war support between 0 and 100, higher for fascist and communist
+    // countries
+    if (country->ideology == Arda::Utils::Ideology::FASCISM ||
+        country->ideology == Arda::Utils::Ideology::COMMUNISM) {
+      country->warSupport = RandNum::getRandom(40, 80);
+    } else {
+      country->warSupport = RandNum::getRandom(20, 60);
+    }
+
+    applyPoliticalDetails(*country, previousIdeology, ardaData.nData);
+    country->politicsInitialized = true;
+  }
+  // now that politics are settled, AND hard data has been generated, we can
+  // balance the great powers and factions
+
+}
+
+void Generator::generateHardCountrySpecifics() {
+  modData.unitStacks.clear();
+  readiness.countries = Status::Stale;
+  if (readiness.economy != Status::Ready)
+    throw std::runtime_error("Generate state economy first" );
+  refreshCountryTerritoryData();
+  Fwg::Utils::Logging::logLine("HOI4: Choosing uniforms");
+
+  Fwg::Utils::Randomisation::resetRandomisation();
+  for (auto &country : modData.hoi4Countries) {
+    if (!country->ownedRegions.size())
+      continue;
+    // clear some info from all owned regions
+    for (auto &region : country->hoi4Regions) {
+      region->airBase = nullptr;
+    }
+    // refresh the provinces
+    country->evaluateProvinces();
+    if (!country->detailsInitialized) {
+      assignAppearance(*country);
+    }
+  }
+  refreshMilitaryInputs();
   generateCountryTechnologies();
   generateCountryForces();
   Hoi4Data newlyCreated;
@@ -806,9 +752,10 @@ void Generator::generateHardCountrySpecifics() {
       country->fullName = NameGeneration::modifyWithIdeology(country->ideology, country->name, country->adjective, ardaData.nData);
     country->detailsInitialized = true;
   }
+  for (auto &country : modData.hoi4Countries) country->generateNamePools();
   distributeVictoryPoints(modData, stats, ardaData.areaData.provinces);
   readiness.countries = Status::Ready;
-  if (!newlyCreated.hoi4Countries.empty() && modData.factions.empty()) rebuildFactions();
+
 }
 
 void Generator::deriveCountrySpecificsFromSimulation() {
@@ -831,24 +778,14 @@ void Generator::applySimulationPolitics() {
     setSimulationParties(*country, polity->second);
     const auto previousIdeology = country->ideology;
     country->ideology = ideologyFromGovernment(simulationPolity.governmentForm);
-    if (country->ideology != previousIdeology)
-      country->flag = Arda::Gfx::Flag(82, 52, country->ideology);
-    // allow or forbid elections
-    if (country->ideology == Arda::Utils::Ideology::DEMOCRATIC)
-      country->allowElections = 1;
-    else if (country->ideology == Arda::Utils::Ideology::NEUTRALITY)
-      country->allowElections = RandNum::getRandom(0, 1);
-    else
-      country->allowElections = 0;
     country->stability = static_cast<int>(
         std::lround(std::clamp(simulationPolity.stability, 0.0, 1.0) * 100.0));
     country->warSupport = static_cast<int>(std::lround(
         std::clamp(3.0 * simulationPolity.militaryInfluence, 0.0, 1.0) *
         100.0));
-    assignStartingLaws(*country);
+    applyPoliticalDetails(*country, previousIdeology, ardaData.nData);
     country->politicsInitialized = true;
   }
-  Arda::ArdaGen::nameCountries();
 }
 
 void Generator::balanceGreatPowers() {
@@ -914,7 +851,7 @@ void Generator::balanceGreatPowers() {
 
     // flip ideology
     chosenCountry->ideology = missingIdeology;
-    chosenCountry->flag = Arda::Gfx::Flag(82, 52, chosenCountry->ideology);
+    applyPoliticalDetails(*chosenCountry, sourceIdeology, ardaData.nData);
 
     // add to missing ideology vector
     modData.greatPowerIdeologyMap.at(missingIdeology).push_back(chosenCountry);
@@ -999,90 +936,23 @@ void Generator::generateAndBalanceFactions() {
 }
 
 void Generator::generateWeather() {
-  if (!Arda::Areas::refreshStrategicRegions(ardaData.areaData.superRegions,
-                                           ardaData.areaData.regions))
+  if (!Arda::Areas::refreshStrategicRegions(ardaData.areaData.superRegions, ardaData.areaData.regions))
     throw std::runtime_error("Invalid strategic regions; correct membership/connectivity before export");
-  for (auto &superRegion : ardaData.areaData.superRegions) {
-    auto stratRegion = std::dynamic_pointer_cast<StrategicRegion>(superRegion);
-    if (!stratRegion)
-      throw std::runtime_error("HOI4 strategic region has an incompatible type");
-    stratRegion->weatherMonths.clear();
-    stratRegion->weatherMonths.reserve(12);
-    // for every month, gather the averages from all regions and their provinces
-    for (auto i = 0; i < 12; i++) {
-      double averageTemperatureCelsius = 0.0;
-      double averageDeviation = 0.0;
-      double averagePrecipitation = 0.0;
-      int provinceAmount = 0;
-      for (auto &reg : stratRegion->ardaRegions) {
-        for (auto &prov : reg->ardaProvinces) {
-          if (!prov || prov->weatherMonths.size() != 12 || prov->weatherMonths[i].size() < 3)
-            throw std::runtime_error("Incomplete province weather for strategic region");
-          averageDeviation += prov->weatherMonths[i][0];
-          averageTemperatureCelsius += prov->weatherMonths[i][1];
-          averagePrecipitation += prov->weatherMonths[i][2];
-        }
-        provinceAmount += (int)reg->ardaProvinces.size();
-      }
-      double divisor = provinceAmount;
-      if (provinceAmount == 0)
-        throw std::runtime_error("Cannot generate weather for an empty strategic region");
-      averageDeviation /= divisor;
-      averageTemperatureCelsius /= divisor;
-      const double averageTemperatureHeatIndex = std::clamp(
-          (averageTemperatureCelsius + 40.0) / 80.0, 0.0, 1.0);
-      averagePrecipitation /= divisor;
-      // now save monthly data, 0, 1, 2
-      stratRegion->weatherMonths.push_back(
-          {averageDeviation, averageTemperatureCelsius, averagePrecipitation});
-      // Monthly temperature is stored directly in Celsius.
-      stratRegion->weatherMonths[i].push_back(averageTemperatureCelsius);
-      stratRegion->weatherMonths[i].push_back(
-          averageTemperatureCelsius +
-          averageDeviation * Cfg::Values().climateConfig.deviationFactor);
-      // light_rain chance: cold and humid -> high, 5
-      stratRegion->weatherMonths[i].push_back(
-          this->modConfig.weatherChances.at("baseLightRainChance") *
-          (1.0 - averageTemperatureHeatIndex) * averagePrecipitation);
-      // heavy rain chance: warm and humid -> high, 6
-      stratRegion->weatherMonths[i].push_back(
-          this->modConfig.weatherChances.at("baseHeavyRainChance") *
-          averageTemperatureHeatIndex * averagePrecipitation);
-      // mud chance, 7
-      stratRegion->weatherMonths[i].push_back(
-          this->modConfig.weatherChances.at("baseMudChance") *
-          (2.0 * stratRegion->weatherMonths[i][6] +
-           stratRegion->weatherMonths[i][5]));
-      // blizzard chance, 8
-      stratRegion->weatherMonths[i].push_back(
-          std::clamp(this->modConfig.weatherChances.at("baseBlizzardChance") -
-                         averageTemperatureHeatIndex,
-                         0.0, 0.2) *
-          averagePrecipitation);
-      // sandstorm chance, 9
-      auto sandChance = std::clamp((averageTemperatureHeatIndex - 0.8) *
-                                       this->modConfig.weatherChances.at(
-                                           "baseSandstormChance"),
-                                   0.0, 0.1) *
-                        std::clamp(0.2 - averagePrecipitation, 0.0, 0.2);
-      stratRegion->weatherMonths[i].push_back(sandChance);
-      // snow chance, 10
-      stratRegion->weatherMonths[i].push_back(
-          std::clamp(this->modConfig.weatherChances.at("baseSnowChance") -
-                         averageTemperatureHeatIndex,
-                     0.0, 0.2) *
-          averagePrecipitation);
-      // no phenomenon chance, 11
-      stratRegion->weatherMonths[i].push_back(
-          1.0 - stratRegion->weatherMonths[i][5] -
-          stratRegion->weatherMonths[i][6] - stratRegion->weatherMonths[i][8] -
-          stratRegion->weatherMonths[i][9] - stratRegion->weatherMonths[i][10]);
-    }
-  }
+  for (auto &region : ardaData.areaData.superRegions) region->refreshWeather();
 }
 
 void Generator::finaliseData() {
-  generatePositions(terrainData, ardaData.areaData.provinces);
+  if (modData.unitStacks.empty()) {
+    for (auto &province : ardaData.areaData.provinces) province->positions.clear();
+    generatePositions(terrainData, ardaData.areaData.provinces);
+    for (const auto &province : ardaData.areaData.provinces)
+      for (const auto &position : province->positions)
+        modData.unitStacks.push_back({province->ID, position.typeIndex,
+          static_cast<double>(position.position.widthCenter),
+          9.5 + std::max(0.0f, position.position.altitude * 0.1f * static_cast<float>(255 - Cfg::Values().terrainConfig.seaLevel)),
+          static_cast<double>(position.position.heightCenter), 1.57 + position.position.rotation,
+          0.01f + RandNum::getRandom<float>(0.0f, 0.5f)});
+  }
   generateLogistics(shared_from_this(), modData, areaData, ardaData.areaData.provinces,
                     provinceMap, countryMap);
   // evaluateCountryStrength(modData, stats, ardaData, ardaConfig);
@@ -1212,7 +1082,7 @@ void Generator::writeTextFiles(bool scenarioDetails) {
   Map::adj(pathcfg.gameModPath + "map/adjacencies.csv");
   Map::adjacencyRules(pathcfg.gameModPath + "map/adjacency_rules.txt");
   Map::ambientObjects(pathcfg.gameModPath + "map/ambient_object.txt");
-  Map::supply(pathcfg.gameModPath + "map/", modData.supplyNodeConnections);
+  Map::supply(pathcfg.gameModPath + "map/", modData.supplyNodeConnections, modData.supplyHubs);
   Map::buildings(pathcfg.gameModPath + "map/buildings.txt", modData.hoi4States);
   Map::continents(pathcfg.gameModPath + "map/continent.txt", ardaData.areaData.continents,
                   pathcfg.gamePath,
@@ -1220,9 +1090,8 @@ void Generator::writeTextFiles(bool scenarioDetails) {
                       "localisation/language/province_names_l_language.yml");
   Map::definition(pathcfg.gameModPath + "map/definition.csv", ardaData.areaData.provinces);
   Map::strategicRegions(pathcfg.gameModPath + "map/strategicregions",
-                        areaData.regions, ardaData.areaData.superRegions);
-  Map::unitStacks(pathcfg.gameModPath + "map/unitstacks.txt", ardaData.areaData.provinces,
-                  modData.hoi4States, terrainData.detailedHeightMap);
+                        areaData.regions, ardaData.areaData.superRegions, modConfig.weatherChances);
+  Map::unitStacks(pathcfg.gameModPath + "map/unitstacks.txt", modData.unitStacks);
   Map::weatherPositions(pathcfg.gameModPath + "map/weatherpositions.txt",
                         areaData.regions, ardaData.areaData.superRegions);
 
@@ -1270,7 +1139,7 @@ void Generator::writeTextFiles(bool scenarioDetails) {
   events(pathcfg.gameModPath);
   onActions(pathcfg.gameModPath);
   commonBookmarks(pathcfg.gameModPath + "common/bookmarks/",
-                  modData.hoi4Countries, ardaData.countryImportanceScores);
+                  modData.bookmarkCountries);
   dynamicModifiers(Fwg::Cfg::Values().resourcePath +
                        "/hoi4/common/dynamic_modifiers/",
                    pathcfg.gameModPath + "common/dynamic_modifiers/");
@@ -1515,6 +1384,7 @@ void Generator::save(const std::string &path) {
   ar << gameType << exportWidth << exportHeight;
   ar << pathcfg;
   ar << modData.hoi4States << modData.hoi4Countries;
+  ar << modData.unitStacks;
   ar << modData.supplyNodeConnections;
   ar << modData.statesInitialised;
   ar << modData.factions;
@@ -1537,11 +1407,13 @@ void Generator::load(const std::string &path) {
   ar >> gameType >> exportWidth >> exportHeight;
   ar >> pathcfg;
   ar >> modData.hoi4States >> modData.hoi4Countries;
+  ar >> modData.unitStacks;
   ar >> modData.supplyNodeConnections;
   ar >> modData.statesInitialised;
   ar >> modData.factions;
   ar >> modData.decisionData;
 
+  auto restoredUnitStacks = std::move(modData.unitStacks);
   mapProvinces();
   Fwg::Areas::Provinces::Detail::createProvinceMap(areaData.provinces,
                                                    areaData.provinceColourMap);
@@ -1553,10 +1425,27 @@ void Generator::load(const std::string &path) {
   const bool restoredStates = modData.statesInitialised;
   mapRegions();
   modData.statesInitialised = restoredStates;
+  for (auto &state : modData.hoi4States) {
+    state->airfieldSuitability = 0;
+    for (const auto &building : state->buildings) {
+      if (building.name != "air_base") continue;
+      const double angle = -std::numbers::pi / 2 - building.position.rotation;
+      for (const auto [length, width] : {std::pair{17, 5}, {9, 3}, {5, 1}, {1, 1}}) {
+        const double score = airfieldFootprintScore(building.position.x, building.position.z,
+            angle, length, width, provinceMap, terrainData.detailedHeightMap,
+            [&](int pixel) {
+              const auto province = areaData.provinceColourMap.at(provinceMap[pixel]);
+              return province && province->isLand() && province->regionID == state->ID;
+            });
+        if (score >= 0) state->airfieldSuitability = std::max(state->airfieldSuitability, score);
+      }
+    }
+  }
   readiness.economy = readiness.resources = restoredStates ? Status::Ready : Status::Stale;
   refreshCountryTerritoryData();
   readiness.countries = restoredStates ? Status::Ready : Status::Stale;
   for (const auto &country : modData.hoi4Countries) country->detailsInitialized = country->politicsInitialized = true;
+  modData.unitStacks = std::move(restoredUnitStacks);
   mapContinents();
 }
 
