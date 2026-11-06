@@ -11,6 +11,9 @@
 #include <vector>
 
 namespace Rpx::Hoi4 {
+Arda::Utils::Ideology selectPartyIdeology(const std::array<int, 4> &parties, bool runnerUp);
+void assignAppearance(Hoi4Country &country);
+void applyPoliticalDetails(Hoi4Country &country, Arda::Utils::Ideology previousIdeology, const Arda::Names::NameData &names);
 Arda::Utils::Ideology
 ideologyFromGovernment(Arda::Simulation::GovernmentForm government);
 void setSimulationParties(

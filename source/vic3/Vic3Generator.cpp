@@ -1,3 +1,4 @@
+#include "resources/ResourceLayer.h"
 #include "vic3/Vic3Generator.h"
 namespace Rpx::Vic3 {
 using namespace Fwg;
@@ -96,6 +97,13 @@ bool Generator::createPaths() {
     throw(std::runtime_error(error.c_str()));
     return false;
   }
+}
+
+void Generator::invalidateGameSimulationData() {
+  modData.vic3Countries.clear();
+  for (auto &region : modData.vic3Regions)
+    if (region) region->buildings.clear();
+  vic3Stats = {};
 }
 
 void Generator::invalidateGameLocationData() {
@@ -261,30 +269,14 @@ void Generator::distributeResources() {
 
   // distribute arable land to states
   totalArableLand(climateData.arableLand);
-  std::vector<int> seeds(vic3Config.resConfigs.size());
+  std::vector<int> seeds;
   for (const auto &resConfig : vic3Config.resConfigs) {
     seeds.push_back(RandNum::getRandom<int>());
   }
   // config for all resource types
   for (auto &resConfig : vic3Config.resConfigs) {
     std::vector<float> resPrev;
-    if (resConfig.random) {
-      resPrev = Fwg::Resources::randomResourceLayer(
-          resConfig.name, resConfig.noiseConfig.fractalFrequency,
-          resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
-          resConfig.noiseConfig.mountainBonus, seeds[&resConfig - &vic3Config.resConfigs[0]]);
-    } else if (resConfig.considerSea) {
-      resPrev = Fwg::Resources::coastDependentLayer(
-          resConfig.name, resConfig.oceanFactor, resConfig.lakeFactor,
-          areaData.provinces);
-    } else {
-      resPrev = Fwg::Resources::climateDependentLayer(
-          resConfig.name, resConfig.noiseConfig.fractalFrequency,
-          resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
-          resConfig.noiseConfig.mountainBonus, resConfig.considerClimate,
-          resConfig.climateEffects, resConfig.considerTrees,
-          resConfig.treeEffects, climateData);
-    }
+    resPrev = Arda::Resources::generateResourceLayer(resConfig, seeds[&resConfig - &vic3Config.resConfigs[0]], areaData, climateData);
     if (resPrev.size())
       totalResourceVal(resPrev, resConfig.resourcePrevalence, resConfig);
   }

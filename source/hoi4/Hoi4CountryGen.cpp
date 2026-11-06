@@ -1,3 +1,5 @@
+#include "namegeneration/NameGenerator.h"
+#include "countries/CountryRanking.h"
 #include "hoi4/Hoi4CountryGen.h"
 
 namespace Rpx::Hoi4 {
@@ -97,6 +99,37 @@ void assignStartingLaws(Hoi4Country &country) {
   }
 }
 
+Arda::Utils::Ideology selectPartyIdeology(const std::array<int, 4> &parties, bool runnerUp) {
+  using Arda::Utils::Ideology;
+  const std::array<Ideology, 4> ideologies{Ideology::FASCISM, Ideology::DEMOCRATIC, Ideology::COMMUNISM, Ideology::NEUTRALITY};
+  std::array<int, 4> order{0, 1, 2, 3};
+  std::stable_sort(order.begin(), order.end(), [&](int a, int b) { return parties[a] > parties[b]; });
+  return ideologies[order[runnerUp ? 1 : 0]];
+}
+void assignAppearance(Hoi4Country &country) {
+ const auto culture = country.getPrimaryCulture();
+ country.gfxCulture = "asian";
+ if (!culture) return;
+ switch (culture->visualType) {
+ case Arda::VisualType::AFRICAN: country.gfxCulture = "african"; break;
+ case Arda::VisualType::ARABIC: country.gfxCulture = "middle_eastern"; break;
+ case Arda::VisualType::SOUTH_AMERICAN: country.gfxCulture = "southamerican"; break;
+ case Arda::VisualType::CAUCASIAN:
+   country.gfxCulture = Fwg::Utils::Random::selectRandom(std::vector<std::string>{"western_european", "eastern_european", "commonwealth"}); break;
+ default: break;
+ }
+}
+void applyPoliticalDetails(Hoi4Country &country, Arda::Utils::Ideology previousIdeology, const Arda::Names::NameData &names) {
+  using Arda::Utils::Ideology;
+  if (country.ideology != previousIdeology) country.flag = Arda::Gfx::Flag(82, 52, country.ideology);
+  country.allowElections = country.ideology == Ideology::DEMOCRATIC ||
+      (country.ideology == Ideology::NEUTRALITY && RandNum::getRandom(0, 1));
+  country.lastElection = std::to_string(RandNum::getRandom(country.allowElections ? 1932 : 1880, 1935)) + "." +
+      std::to_string(RandNum::getRandom(1, 12)) + "." + std::to_string(RandNum::getRandom(1, 28));
+  assignStartingLaws(country);
+  country.fullName = names.ideologyNames.contains(country.ideology)
+      ? NameGeneration::modifyWithIdeology(country.ideology, country.name, country.adjective, names) : country.name;
+}
 void distributeVictoryPoints(
     Hoi4Data &modData, Hoi4Stats &stats,
     std::vector<std::shared_ptr<Arda::ArdaProvince>> &ardaProvinces) {
@@ -466,11 +499,11 @@ void evaluateCountryStrength(Hoi4Data &modData, Hoi4Stats &stats,
     stats.navalIndustry += state->dockyards;
   }
   stats.totalWorldIndustry = 0;
-  ardaData.countryImportanceScores.clear();
-  double maxScore = 0.0;
+
+
   for (auto &country : modData.hoi4Countries) {
-    country->rank = Arda::Rank::Unranked;
-    country->relativeScore = 0.0;
+
+
     country->evaluateTechnologyLevel();
     country->evaluateProperties();
     country->capitalRegionID = 0;
@@ -490,13 +523,7 @@ void evaluateCountryStrength(Hoi4Data &modData, Hoi4Stats &stats,
     }
     // always make the most important location the capital
     country->selectCapital();
-    ardaData
-        .countryImportanceScores[(int)(totalIndustry + totalPop / 1'000'000.0)]
-        .push_back(country);
     country->importanceScore = totalIndustry + totalPop / 1'000'000.0;
-    if (country->importanceScore > maxScore) {
-      maxScore = country->importanceScore;
-    }
     // global
     stats.totalWorldIndustry += (int)totalIndustry;
   }
@@ -508,46 +535,14 @@ void evaluateCountryStrength(Hoi4Data &modData, Hoi4Stats &stats,
   int numSecondaryPowers = std::min(deployed / 10, 8);
   int numRegionalPowers = deployed / 6;
   int numLocalPowers = deployed / 6;
-  // init countriesByRank
-  ardaData.countriesByRank = {{Arda::Rank::GreatPower, {}},
-                              {Arda::Rank::SecondaryPower, {}},
-                              {Arda::Rank::RegionalPower, {}},
-                              {Arda::Rank::LocalPower, {}},
-                              {Arda::Rank::MinorPower, {}}};
-
-  for (auto it = ardaData.countryImportanceScores.rbegin();
-       it != ardaData.countryImportanceScores.rend(); ++it) {
-    std::sort(it->second.begin(), it->second.end(), [](const auto &a, const auto &b) {
-      return a->importanceScore != b->importanceScore
-          ? a->importanceScore > b->importanceScore : a->tag < b->tag;
-    });
-    for (const auto &entry : it->second) {
-      if (entry->importanceScore > 0.0) {
-        entry->relativeScore = entry->importanceScore / maxScore;
-        if (numMajorPowers >
-            ardaData.countriesByRank.at(Arda::Rank::GreatPower).size()) {
-          ardaData.countriesByRank[Arda::Rank::GreatPower].push_back(entry);
-          entry->rank = Arda::Rank::GreatPower;
-        } else if (numSecondaryPowers >
-                   ardaData.countriesByRank.at(Arda::Rank::SecondaryPower)
-                       .size()) {
-          ardaData.countriesByRank[Arda::Rank::SecondaryPower].push_back(entry);
-          entry->rank = Arda::Rank::SecondaryPower;
-        } else if (numRegionalPowers >
-                   ardaData.countriesByRank.at(Arda::Rank::RegionalPower)
-                       .size()) {
-          ardaData.countriesByRank[Arda::Rank::RegionalPower].push_back(entry);
-          entry->rank = Arda::Rank::RegionalPower;
-        } else if (numLocalPowers >
-                   ardaData.countriesByRank.at(Arda::Rank::LocalPower).size()) {
-          ardaData.countriesByRank[Arda::Rank::LocalPower].push_back(entry);
-          entry->rank = Arda::Rank::LocalPower;
-        } else {
-          ardaData.countriesByRank[Arda::Rank::MinorPower].push_back(entry);
-          entry->rank = Arda::Rank::MinorPower;
-        }
-      }
-    }
-  }
+  std::vector<std::shared_ptr<Arda::Country>> rankedCountries(modData.hoi4Countries.begin(), modData.hoi4Countries.end());
+  auto ranking = Arda::Countries::assignCountryRanks(rankedCountries, numMajorPowers, numSecondaryPowers, numRegionalPowers, numLocalPowers);
+  ardaData.countryImportanceScores = std::move(ranking.scores);
+  ardaData.countriesByRank = std::move(ranking.byRank);
+  modData.bookmarkCountries.clear();
+  for (const auto &country : ranking.ordered)
+    if (!country->ownedRegions.empty())
+      modData.bookmarkCountries.push_back(std::static_pointer_cast<Hoi4Country>(country));
+  if (modData.bookmarkCountries.size() > 14) modData.bookmarkCountries.resize(14);
 }
 } // namespace Rpx::Hoi4

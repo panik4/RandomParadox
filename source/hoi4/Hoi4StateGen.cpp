@@ -1,3 +1,4 @@
+#include "resources/ResourceLayer.h"
 #include "hoi4/Hoi4StateGen.h"
 
 namespace Rpx::Hoi4 {
@@ -28,25 +29,7 @@ void generateStateResources(Hoi4Config modConfig, Hoi4Data &modData,
          &climateData]() -> ResourceGenResult {
           std::vector<float> resPrev;
 
-          if (resConfig.random) {
-            resPrev = Fwg::Resources::randomResourceLayer(
-                resConfig.name, resConfig.noiseConfig.fractalFrequency,
-                resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
-                resConfig.noiseConfig.mountainBonus,
-                seeds[&resConfig - &modConfig.resConfigs[0]]);
-          } else if (resConfig.considerSea) {
-            resPrev = Fwg::Resources::coastDependentLayer(
-                resConfig.name, resConfig.oceanFactor, resConfig.lakeFactor,
-                areaData.provinces);
-          } else {
-            resPrev = Fwg::Resources::climateDependentLayer(
-                resConfig.name, resConfig.noiseConfig.fractalFrequency,
-                resConfig.noiseConfig.tanFactor, resConfig.noiseConfig.cutOff,
-                resConfig.noiseConfig.mountainBonus, resConfig.considerClimate,
-                resConfig.climateEffects, resConfig.considerTrees,
-                resConfig.treeEffects, climateData);
-          }
-
+          resPrev = Arda::Resources::generateResourceLayer(resConfig, seeds[&resConfig - &modConfig.resConfigs[0]], areaData, climateData);
           return {&resConfig, std::move(resPrev)};
         }));
   }
@@ -97,18 +80,33 @@ void generateStateSpecifics(
     hoi4State->armsFactories = 0;
   }
 
-  // go through all states and figure out the importance of the largest port
-  // in the state
-  auto maxImportance = 0.0;
-  for (auto &hoi4State : modData.hoi4States) {
-    // create naval bases for all port locations
-    for (auto &location : hoi4State->locations) {
-      if (location->type == Fwg::Civilization::LocationType::Port ||
-          location->secondaryType == Fwg::Civilization::LocationType::Port) {
-        maxImportance = std::max<double>(maxImportance, location->importance);
+  double maxImportance = 0;
+  for (auto &state : modData.hoi4States) {
+    state->resolvedPorts.clear();
+    state->portsResolved = true;
+  }
+  std::set<int> seenPorts;
+  for (const auto &source : modData.hoi4States) {
+    for (const auto &location : source->locations) {
+      if (location->type != Fwg::Civilization::LocationType::Port &&
+          location->secondaryType != Fwg::Civilization::LocationType::Port) continue;
+      if (!seenPorts.insert(location->ID).second) continue;
+      const auto port = resolvePort(*location, provinceMap, areaData, terrainData.detailedHeightMap);
+      if (!port) {
+        Fwg::Utils::Logging::logLine("No ocean-adjacent site for port ", location->ID);
+        continue;
+      }
+      for (auto &target : modData.hoi4States) if (target->ID == port->stateID) {
+        target->resolvedPorts.push_back(*port);
+        maxImportance = std::max(maxImportance, port->importance);
+        break;
       }
     }
   }
+  for (auto &state : modData.hoi4States)
+    for (const auto &port : state->resolvedPorts)
+      state->navalBases[port.provinceID] = std::max(state->navalBases[port.provinceID],
+          static_cast<int>(std::clamp((maxImportance > 0 ? port.importance / maxImportance : 0) * 10, 1.0, 10.0)));
   Fwg::Utils::Logging::logLine(config.terrainConfig.landPercentage);
   for (auto &hoi4State : modData.hoi4States) {
     // skip sea and lake states
@@ -141,17 +139,6 @@ void generateStateSpecifics(
         hoi4State->stateCategory = std::max<int>(1, hoi4State->stateCategory);
       }
 
-      // create naval bases for all port locations
-      for (auto &location : hoi4State->locations) {
-        if (location->type == Fwg::Civilization::LocationType::Port ||
-            location->secondaryType == Fwg::Civilization::LocationType::Port) {
-          hoi4State->navalBases[location->provinceID] = std::clamp<double>(
-              (maxImportance > 0 ? location->importance / maxImportance : 0.0) * 10.0, 1.0, 10.0);
-          Fwg::Utils::Logging::logLineLevel(
-              8, "Naval base in ", hoi4State->name, " at ",
-              location->provinceID, " with importance ", location->importance);
-        }
-      }
       double dockChance = 0.25;
       double civChance = 0.5;
       // distribute it to military, civilian and naval factories
@@ -188,7 +175,7 @@ void generateStateSpecifics(
       stats.navalIndustry += (int)hoi4State->dockyards;
     }
     // get potential building positions
-    hoi4State->calculateBuildingPositions(terrainData.detailedHeightMap,
+    hoi4State->calculateBuildingPositions(terrainData,
                                           provinceMap, areaData);
   }
   stats.totalWorldIndustry =

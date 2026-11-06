@@ -106,12 +106,12 @@ void writeClimate(const std::string &path,
     const auto provID = std::to_string(province->ID + 1);
     auto minTemp = 400.0;
     auto maxTemp = -200.0;
-    auto maxPrecipitation = 0.0;
+    auto maxMoisture = 0.0;
     for (const auto &temp : province->weatherMonths) {
       // find min and max temperatures
       Fwg::Utils::Math::switchIfComparator(temp[1], minTemp, std::less());
       Fwg::Utils::Math::switchIfComparator(temp[1], maxTemp, std::greater());
-      Fwg::Utils::Math::switchIfComparator(temp[2], maxPrecipitation, std::greater());
+      Fwg::Utils::Math::switchIfComparator(temp[2], maxMoisture, std::greater());
     }
     if (minTemp < severeWinterCelsius)
       severe_winter.append(provID + " ");
@@ -129,13 +129,13 @@ void writeClimate(const std::string &path,
       tropical.append(provID + " ");
     if (province->terrainType == "desert")
       arid.append(provID + " ");
-    else if (maxTemp > aridWarmestMonthCelsius && maxPrecipitation < 0.5)
+    else if (maxTemp > aridWarmestMonthCelsius && maxMoisture < 0.5)
       arid.append(provID + " ");
-    if (maxTemp > monsoonWarmestMonthCelsius && maxPrecipitation > 0.6)
+    if (maxTemp > monsoonWarmestMonthCelsius && maxMoisture > 0.6)
       mild_monsoon.append(provID + " ");
-    else if (maxTemp > monsoonWarmestMonthCelsius && maxPrecipitation > 0.7)
+    else if (maxTemp > monsoonWarmestMonthCelsius && maxMoisture > 0.7)
       normal_monsoon.append(provID + " ");
-    else if (maxTemp > monsoonWarmestMonthCelsius && maxPrecipitation > 0.8)
+    else if (maxTemp > monsoonWarmestMonthCelsius && maxMoisture > 0.8)
       severe_monsoon.append(provID + " ");
   }
   Rpx::Parsing::replaceOccurences(content, "templateTropical", tropical);

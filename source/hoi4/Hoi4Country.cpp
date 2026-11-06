@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <cmath>
 #include "hoi4/Hoi4Country.h"
 
 namespace Rpx::Hoi4 {
@@ -11,31 +13,58 @@ Hoi4Country::Hoi4Country(Country &c,
     : Country(c), allowElections{true}, parties{25, 25, 25, 25} {}
 
 Hoi4Country::~Hoi4Country() {}
-
-void Hoi4Country::addAirBase(int level) {
-  // selects a random region to add the airbase to
-  auto region = Fwg::Utils::Random::selectRandom(hoi4Regions);
-  if (region->airBase == nullptr) {
-    region->airBase = std::make_shared<AirBase>();
-    region->airBase->level = level;
-    region->airBase->regionID = region->ID;
-    // find the building for the airbase
-    for (const auto &building : region->buildings) {
-      if (building.name == "air_base") {
-        region->airBase->provinceID = building.provinceID;
-        break;
-      }
-    }
-  } else {
-    region->airBase->level += level;
-    region->airBase->level = std::min<int>(region->airBase->level, 10);
-  }
-  if (std::find(airBases.begin(), airBases.end(), region->airBase) ==
-      airBases.end()) {
-    airBases.push_back(region->airBase);
+void Hoi4Country::generateNamePools() {
+  maleNamePool.clear(); femaleNamePool.clear(); surnamePool.clear();
+  const double population = getTotalPopulation();
+  if (ownedRegions.empty() || population <= 0) return;
+  std::vector<std::pair<std::shared_ptr<Arda::Culture>, double>> shares(cultures.begin(), cultures.end());
+  std::erase_if(shares, [](const auto &entry) { return !entry.first || !entry.first->language || !std::isfinite(entry.second) || entry.second <= 0; });
+  std::sort(shares.begin(), shares.end(), [](const auto &a, const auto &b) {
+    if (a.second != b.second) return a.second > b.second;
+    if (a.first->name != b.first->name) return a.first->name < b.first->name;
+    return a.first->colour.toString() < b.first->colour.toString();
+  });
+  for (const auto &[culture, amount] : shares) {
+    const int count = static_cast<int>(std::min(amount / population, 1.0) * 10);
+    auto append = [&](std::string &pool, const char *category) {
+      for (int i = 0; i < count; ++i)
+        pool += "\"" + culture->language->getRandomCapitalisedWordFromVocabulary(category) + "\" ";
+    };
+    append(maleNamePool, "MaleNames"); append(femaleNamePool, "FemaleNames"); append(surnamePool, "Surnames");
   }
 }
 
+bool Hoi4Country::addAirBase(int level) {
+  if (level <= 0) return false;
+  std::vector<std::shared_ptr<Region>> eligible;
+  double total = 0;
+  for (const auto &region : hoi4Regions) {
+    if (region->airfieldSuitability == 0) continue;
+    if (region->airBase && region->airBase->level >= 10) continue;
+    if (std::none_of(region->buildings.begin(), region->buildings.end(),
+        [](const auto &b) { return b.name == "air_base"; })) continue;
+    eligible.push_back(region);
+    // Old snapshots contain a site but no runtime score; preserve that site.
+    total += region->airfieldSuitability > 0 ? region->airfieldSuitability : 1.0;
+  }
+  if (eligible.empty()) return false;
+  double choice = RandNum::getRandom(0.0, total);
+  auto region = eligible.back();
+  for (auto &candidate : eligible)
+    if ((choice -= candidate->airfieldSuitability > 0 ? candidate->airfieldSuitability : 1.0) <= 0) { region = candidate; break; }
+  if (!region->airBase) {
+    region->airBase = std::make_shared<AirBase>();
+    region->airBase->level = std::min(level, 10);
+  } else {
+    region->airBase->level += std::min(level, 10 - region->airBase->level);
+  }
+  region->airBase->regionID = region->ID;
+  for (const auto &building : region->buildings)
+    if (building.name == "air_base") { region->airBase->provinceID = building.provinceID; break; }
+  if (std::find(airBases.begin(), airBases.end(), region->airBase) == airBases.end())
+    airBases.push_back(region->airBase);
+  return true;
+}
 bool Hoi4Country::hasTech(const std::string &techname) const {
   // check all the different tech maps for the tech.
   // this is horribly inefficient, use sparingly
@@ -110,6 +139,7 @@ void Hoi4Country::importLine(const std::vector<std::string> &tokens) {
 template<class Archive>
 void Hoi4Country::serialize(Archive &ar, const unsigned int /*version*/) {
   ar & boost::serialization::base_object<Arda::Country>(*this);
+  ar & maleNamePool & femaleNamePool & surnamePool;
   ar & fullName & gfxCulture & allowElections & parties & lastElection & warSupport & stability;
   ar & faction;
   ar & victoryPoints;

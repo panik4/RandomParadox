@@ -7,7 +7,7 @@ namespace Rpx {
 template <class Archive>
 void StrategicRegion::serialize(Archive &ar, const unsigned int /*version*/) {
   ar &boost::serialization::base_object<Arda::SuperRegion>(*this);
-  ar & weatherMonths;
+
 }
 void StrategicRegion::forceStrategicRegionLink() {
   std::cout << "" << std::endl;
