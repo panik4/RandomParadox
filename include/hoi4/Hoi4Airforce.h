@@ -32,10 +32,10 @@ struct PlaneVariant {
   double cost = 1.0;
   int amount = 0;
 
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive &ar, const unsigned int /*version*/) {
-    ar &type &subType &era &name &vanillaFrameName &bbaFrameName;
-    ar &bbaModules &cost &amount;
+    ar & type & subType & era & name & vanillaFrameName & bbaFrameName;
+    ar & bbaModules & cost & amount;
   }
 };
 
@@ -45,9 +45,9 @@ struct AirWing {
   PlaneVariant variant;
   int amount;
 
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive &ar, const unsigned int /*version*/) {
-    ar &name &role &variant &amount;
+    ar & name & role & variant & amount;
   }
 };
 
@@ -57,9 +57,9 @@ struct AirBase {
   int regionID = 0;
   int provinceID = 0;
 
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive &ar, const unsigned int /*version*/) {
-    ar &level &regionID &provinceID &wings;
+    ar & level & regionID & provinceID & wings;
   }
 };
 

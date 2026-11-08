@@ -1,5 +1,5 @@
-#include "io/ImageExporter.h"
 #include "climate/ClimateWeights.h"
+#include "io/ImageExporter.h"
 namespace Rpx::Gfx {
 using namespace Fwg;
 using namespace Fwg::Gfx;
@@ -430,8 +430,7 @@ void ImageExporter::dump8BitTerrain(
           return indexMaps.at(colourMapKey + gameTag)
               .at(elevationMod + static_cast<int>(type));
         });
-    hoi4terrain.setColourAtIndex(
-        i, hoi4terrain.lookUp(mappedTerrain));
+    hoi4terrain.setColourAtIndex(i, hoi4terrain.lookUp(mappedTerrain));
     auto treeType = (int)climateIn.forestTypes[i];
     if (treeType && climateIn.dominantForest[i]) {
       hoi4terrain.setColourAtIndex(
@@ -573,7 +572,8 @@ void ImageExporter::dumpDDSFiles(const std::vector<float> &heightMap,
     for (auto h = 0; h < imageHeight; h++) {
       for (auto w = 0; w < imageWidth; w++) {
         auto referenceIndex = factor * h * width + factor * w;
-        auto depth = heightMap[referenceIndex] / (float)Cfg::Values().terrainConfig.seaLevel;
+        auto depth = heightMap[referenceIndex] /
+                     (float)Cfg::Values().terrainConfig.seaLevel;
         auto imageIndex =
             imageHeight * imageWidth - (h * imageWidth + (imageWidth - w));
         imageIndex *= 4;
@@ -625,7 +625,8 @@ void ImageExporter::dumpTerrainColourmap(
 
   std::vector<uint8_t> pixels(imageWidth * imageHeight * 4, 0);
   auto cityIndices = civLayer.getAll(Arda::Civilization::TopographyType::CITY);
-  auto portCityIndices = civLayer.getAll(Arda::Civilization::TopographyType::PORTCITY);
+  auto portCityIndices =
+      civLayer.getAll(Arda::Civilization::TopographyType::PORTCITY);
   for (auto portCityIndex : portCityIndices) {
     cityIndices.push_back(portCityIndex);
   }
@@ -670,8 +671,10 @@ void ImageExporter::dumpTerrainColourmap(
   } else {
     // load base game colourmap
     pixels = Arda::Gfx::Textures::readDDS(gamePath + mapName);
-    int maxY = static_cast<int>(1024 - cfg.imageImportConfig.maxY / (double)factor);
-    int minY = static_cast<int>(1024 - cfg.imageImportConfig.minY / (double)factor);
+    int maxY =
+        static_cast<int>(1024 - cfg.imageImportConfig.maxY / (double)factor);
+    int minY =
+        static_cast<int>(1024 - cfg.imageImportConfig.minY / (double)factor);
     int maxX = static_cast<int>(cfg.imageImportConfig.maxX / (double)factor);
     int minX = static_cast<int>(cfg.imageImportConfig.minX / (double)factor);
     std::swap(minY, maxY);
@@ -680,8 +683,10 @@ void ImageExporter::dumpTerrainColourmap(
                                           maxY, 4);
     if (cfg.imageImportConfig.scale) {
       pixels = Utils::Containers::scaleBuffer(
-          pixels, abs(maxX - minX), abs(maxY - minY), cfg.imageImportConfig.scaleX / factor,
-          cfg.imageImportConfig.scaleY / factor, 4, cfg.imageImportConfig.keepRatio);
+          pixels, abs(maxX - minX), abs(maxY - minY),
+          cfg.imageImportConfig.scaleX / factor,
+          cfg.imageImportConfig.scaleY / factor, 4,
+          cfg.imageImportConfig.keepRatio);
     }
   }
   if (gameTag == "Vic3") {

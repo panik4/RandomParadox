@@ -1,6 +1,6 @@
+#include "hoi4/Hoi4Country.h"
 #include <algorithm>
 #include <cmath>
-#include "hoi4/Hoi4Country.h"
 
 namespace Rpx::Hoi4 {
 Hoi4Country::Hoi4Country() : Arda::Country() {}
@@ -14,44 +14,69 @@ Hoi4Country::Hoi4Country(Country &c,
 
 Hoi4Country::~Hoi4Country() {}
 void Hoi4Country::generateNamePools() {
-  maleNamePool.clear(); femaleNamePool.clear(); surnamePool.clear();
+  maleNamePool.clear();
+  femaleNamePool.clear();
+  surnamePool.clear();
   const double population = getTotalPopulation();
-  if (ownedRegions.empty() || population <= 0) return;
-  std::vector<std::pair<std::shared_ptr<Arda::Culture>, double>> shares(cultures.begin(), cultures.end());
-  std::erase_if(shares, [](const auto &entry) { return !entry.first || !entry.first->language || !std::isfinite(entry.second) || entry.second <= 0; });
+  if (ownedRegions.empty() || population <= 0)
+    return;
+  std::vector<std::pair<std::shared_ptr<Arda::Culture>, double>> shares(
+      cultures.begin(), cultures.end());
+  std::erase_if(shares, [](const auto &entry) {
+    return !entry.first || !entry.first->language ||
+           !std::isfinite(entry.second) || entry.second <= 0;
+  });
   std::sort(shares.begin(), shares.end(), [](const auto &a, const auto &b) {
-    if (a.second != b.second) return a.second > b.second;
-    if (a.first->name != b.first->name) return a.first->name < b.first->name;
+    if (a.second != b.second)
+      return a.second > b.second;
+    if (a.first->name != b.first->name)
+      return a.first->name < b.first->name;
     return a.first->colour.toString() < b.first->colour.toString();
   });
   for (const auto &[culture, amount] : shares) {
     const int count = static_cast<int>(std::min(amount / population, 1.0) * 10);
     auto append = [&](std::string &pool, const char *category) {
       for (int i = 0; i < count; ++i)
-        pool += "\"" + culture->language->getRandomCapitalisedWordFromVocabulary(category) + "\" ";
+        pool += "\"" +
+                culture->language->getRandomCapitalisedWordFromVocabulary(
+                    category) +
+                "\" ";
     };
-    append(maleNamePool, "MaleNames"); append(femaleNamePool, "FemaleNames"); append(surnamePool, "Surnames");
+    append(maleNamePool, "MaleNames");
+    append(femaleNamePool, "FemaleNames");
+    append(surnamePool, "Surnames");
   }
 }
 
 bool Hoi4Country::addAirBase(int level) {
-  if (level <= 0) return false;
+  if (level <= 0)
+    return false;
   std::vector<std::shared_ptr<Region>> eligible;
   double total = 0;
   for (const auto &region : hoi4Regions) {
-    if (region->airfieldSuitability == 0) continue;
-    if (region->airBase && region->airBase->level >= 10) continue;
+    if (region->airfieldSuitability == 0)
+      continue;
+    if (region->airBase && region->airBase->level >= 10)
+      continue;
     if (std::none_of(region->buildings.begin(), region->buildings.end(),
-        [](const auto &b) { return b.name == "air_base"; })) continue;
+                     [](const auto &b) { return b.name == "air_base"; }))
+      continue;
     eligible.push_back(region);
     // Old snapshots contain a site but no runtime score; preserve that site.
-    total += region->airfieldSuitability > 0 ? region->airfieldSuitability : 1.0;
+    total +=
+        region->airfieldSuitability > 0 ? region->airfieldSuitability : 1.0;
   }
-  if (eligible.empty()) return false;
+  if (eligible.empty())
+    return false;
   double choice = RandNum::getRandom(0.0, total);
   auto region = eligible.back();
   for (auto &candidate : eligible)
-    if ((choice -= candidate->airfieldSuitability > 0 ? candidate->airfieldSuitability : 1.0) <= 0) { region = candidate; break; }
+    if ((choice -= candidate->airfieldSuitability > 0
+                       ? candidate->airfieldSuitability
+                       : 1.0) <= 0) {
+      region = candidate;
+      break;
+    }
   if (!region->airBase) {
     region->airBase = std::make_shared<AirBase>();
     region->airBase->level = std::min(level, 10);
@@ -60,8 +85,12 @@ bool Hoi4Country::addAirBase(int level) {
   }
   region->airBase->regionID = region->ID;
   for (const auto &building : region->buildings)
-    if (building.name == "air_base") { region->airBase->provinceID = building.provinceID; break; }
-  if (std::find(airBases.begin(), airBases.end(), region->airBase) == airBases.end())
+    if (building.name == "air_base") {
+      region->airBase->provinceID = building.provinceID;
+      break;
+    }
+  if (std::find(airBases.begin(), airBases.end(), region->airBase) ==
+      airBases.end())
     airBases.push_back(region->airBase);
   return true;
 }
@@ -104,7 +133,8 @@ std::string Hoi4Country::exportLine() const {
 }
 
 void Hoi4Country::importLine(const std::vector<std::string> &tokens) {
-  if (tokens.size() > 7) politicsInitialized = true;
+  if (tokens.size() > 7)
+    politicsInitialized = true;
   if (tokens.size() > 6)
     fullName = tokens[6];
 
@@ -117,8 +147,8 @@ void Hoi4Country::importLine(const std::vector<std::string> &tokens) {
   try {
     if (tokens.size() > 8)
       allowElections = std::stoi(tokens[8]) != 0;
-    for (std::size_t index = 0; index < parties.size() && tokens.size() > 9 + index;
-         ++index)
+    for (std::size_t index = 0;
+         index < parties.size() && tokens.size() > 9 + index; ++index)
       parties[index] = std::stoi(tokens[9 + index]);
     if (tokens.size() > 13)
       lastElection = tokens[13];
@@ -136,11 +166,12 @@ void Hoi4Country::importLine(const std::vector<std::string> &tokens) {
   }
 }
 
-template<class Archive>
+template <class Archive>
 void Hoi4Country::serialize(Archive &ar, const unsigned int /*version*/) {
-  ar & boost::serialization::base_object<Arda::Country>(*this);
+  ar &boost::serialization::base_object<Arda::Country>(*this);
   ar & maleNamePool & femaleNamePool & surnamePool;
-  ar & fullName & gfxCulture & allowElections & parties & lastElection & warSupport & stability;
+  ar & fullName & gfxCulture & allowElections & parties & lastElection &
+      warSupport & stability;
   ar & faction;
   ar & victoryPoints;
   ar & hoi4Regions;
@@ -195,6 +226,9 @@ void Hoi4Country::serialize(Archive &ar, const unsigned int /*version*/) {
 } // namespace Rpx::Hoi4
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Rpx::Hoi4::Hoi4Country)
-template void Rpx::Hoi4::Hoi4Country::serialize(boost::archive::binary_oarchive&, unsigned int);
-template void Rpx::Hoi4::Hoi4Country::serialize(boost::archive::binary_iarchive&, unsigned int);
-
+template void
+Rpx::Hoi4::Hoi4Country::serialize(boost::archive::binary_oarchive &,
+                                  unsigned int);
+template void
+Rpx::Hoi4::Hoi4Country::serialize(boost::archive::binary_iarchive &,
+                                  unsigned int);

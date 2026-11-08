@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.15)
 
 project(RandomParadox VERSION 1.0 LANGUAGES CXX)
 
+if (CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    include(CTest)
+endif()
+
 # -----------------------------
 # C++ Standard
 # -----------------------------
@@ -60,7 +64,7 @@ if (ENABLE_ASAN AND CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     )
 
 elseif (ENABLE_ASAN AND MSVC)
-    message(WARNING "ASan requested but MSVC does NOT support it — use Clang on Windows.")
+    message(WARNING "ASan requested but MSVC does NOT support it ï¿½ use Clang on Windows.")
 endif()
 
 
@@ -87,6 +91,7 @@ endif()
 # Executable target
 # -----------------------------
 add_executable(${PROJECT_NAME} main.cpp resources.rc)
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/resources")
 target_link_libraries(${PROJECT_NAME} PRIVATE RandomParadoxLib)
 if (MSVC)
     target_link_options(${PROJECT_NAME} PRIVATE "/STACK:33554432")
@@ -97,3 +102,35 @@ endif()
 # -----------------------------
 get_target_property(rp_inc_dirs RandomParadoxLib INCLUDE_DIRECTORIES)
 message(STATUS "RandomParadox include directories: ${rp_inc_dirs}")
+
+if (BUILD_TESTING)
+    add_executable(RandomParadoxStrategicRegionTests tests/StrategicRegionTests.cpp)
+    target_link_libraries(RandomParadoxStrategicRegionTests PRIVATE RandomParadoxLib)
+    add_test(NAME RandomParadoxStrategicRegionTests COMMAND RandomParadoxStrategicRegionTests)
+    add_executable(RandomParadoxNavmeshExportTests tests/NavmeshExportTests.cpp)
+    target_link_libraries(RandomParadoxNavmeshExportTests PRIVATE RandomParadoxLib)
+    add_test(NAME RandomParadoxNavmeshExportTests COMMAND RandomParadoxNavmeshExportTests)
+    set(navmesh_test_work "${CMAKE_CURRENT_BINARY_DIR}/work/NavmeshExportTests")
+    file(MAKE_DIRECTORY "${navmesh_test_work}")
+    set_tests_properties(RandomParadoxNavmeshExportTests PROPERTIES
+        WORKING_DIRECTORY "${navmesh_test_work}" TIMEOUT 120)
+endif()
+
+if (BUILD_TESTING)
+    add_executable(RandomParadoxCountryGenerationTests tests/CountryGenerationTests.cpp)
+    target_link_libraries(RandomParadoxCountryGenerationTests PRIVATE RandomParadoxLib)
+    add_test(NAME RandomParadoxCountryGenerationTests COMMAND RandomParadoxCountryGenerationTests)
+endif()
+
+if (BUILD_TESTING)
+    add_executable(RandomParadoxBuildingPlacementTests tests/BuildingPlacementTests.cpp)
+    target_link_libraries(RandomParadoxBuildingPlacementTests PRIVATE RandomParadoxLib)
+    add_test(NAME RandomParadoxBuildingPlacementTests COMMAND RandomParadoxBuildingPlacementTests)
+    set_tests_properties(RandomParadoxBuildingPlacementTests PROPERTIES TIMEOUT 60)
+    set_tests_properties(
+        RandomParadoxStrategicRegionTests
+        RandomParadoxNavmeshExportTests
+        RandomParadoxCountryGenerationTests
+        RandomParadoxBuildingPlacementTests
+        PROPERTIES LABELS "RandomParadox")
+endif()

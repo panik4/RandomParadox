@@ -1,6 +1,6 @@
-#include "namegeneration/NameGenerator.h"
-#include "countries/CountryRanking.h"
 #include "hoi4/Hoi4CountryGen.h"
+#include "countries/CountryRanking.h"
+#include "namegeneration/NameGenerator.h"
 
 namespace Rpx::Hoi4 {
 
@@ -99,36 +99,60 @@ void assignStartingLaws(Hoi4Country &country) {
   }
 }
 
-Arda::Utils::Ideology selectPartyIdeology(const std::array<int, 4> &parties, bool runnerUp) {
+Arda::Utils::Ideology selectPartyIdeology(const std::array<int, 4> &parties,
+                                          bool runnerUp) {
   using Arda::Utils::Ideology;
-  const std::array<Ideology, 4> ideologies{Ideology::FASCISM, Ideology::DEMOCRATIC, Ideology::COMMUNISM, Ideology::NEUTRALITY};
+  const std::array<Ideology, 4> ideologies{
+      Ideology::FASCISM, Ideology::DEMOCRATIC, Ideology::COMMUNISM,
+      Ideology::NEUTRALITY};
   std::array<int, 4> order{0, 1, 2, 3};
-  std::stable_sort(order.begin(), order.end(), [&](int a, int b) { return parties[a] > parties[b]; });
+  std::stable_sort(order.begin(), order.end(),
+                   [&](int a, int b) { return parties[a] > parties[b]; });
   return ideologies[order[runnerUp ? 1 : 0]];
 }
 void assignAppearance(Hoi4Country &country) {
- const auto culture = country.getPrimaryCulture();
- country.gfxCulture = "asian";
- if (!culture) return;
- switch (culture->visualType) {
- case Arda::VisualType::AFRICAN: country.gfxCulture = "african"; break;
- case Arda::VisualType::ARABIC: country.gfxCulture = "middle_eastern"; break;
- case Arda::VisualType::SOUTH_AMERICAN: country.gfxCulture = "southamerican"; break;
- case Arda::VisualType::CAUCASIAN:
-   country.gfxCulture = Fwg::Utils::Random::selectRandom(std::vector<std::string>{"western_european", "eastern_european", "commonwealth"}); break;
- default: break;
- }
+  const auto culture = country.getPrimaryCulture();
+  country.gfxCulture = "asian";
+  if (!culture)
+    return;
+  switch (culture->visualType) {
+  case Arda::VisualType::AFRICAN:
+    country.gfxCulture = "african";
+    break;
+  case Arda::VisualType::ARABIC:
+    country.gfxCulture = "middle_eastern";
+    break;
+  case Arda::VisualType::SOUTH_AMERICAN:
+    country.gfxCulture = "southamerican";
+    break;
+  case Arda::VisualType::CAUCASIAN:
+    country.gfxCulture =
+        Fwg::Utils::Random::selectRandom(std::vector<std::string>{
+            "western_european", "eastern_european", "commonwealth"});
+    break;
+  default:
+    break;
+  }
 }
-void applyPoliticalDetails(Hoi4Country &country, Arda::Utils::Ideology previousIdeology, const Arda::Names::NameData &names) {
+void applyPoliticalDetails(Hoi4Country &country,
+                           Arda::Utils::Ideology previousIdeology,
+                           const Arda::Names::NameData &names) {
   using Arda::Utils::Ideology;
-  if (country.ideology != previousIdeology) country.flag = Arda::Gfx::Flag(82, 52, country.ideology);
-  country.allowElections = country.ideology == Ideology::DEMOCRATIC ||
+  if (country.ideology != previousIdeology)
+    country.flag = Arda::Gfx::Flag(82, 52, country.ideology);
+  country.allowElections =
+      country.ideology == Ideology::DEMOCRATIC ||
       (country.ideology == Ideology::NEUTRALITY && RandNum::getRandom(0, 1));
-  country.lastElection = std::to_string(RandNum::getRandom(country.allowElections ? 1932 : 1880, 1935)) + "." +
-      std::to_string(RandNum::getRandom(1, 12)) + "." + std::to_string(RandNum::getRandom(1, 28));
+  country.lastElection = std::to_string(RandNum::getRandom(
+                             country.allowElections ? 1932 : 1880, 1935)) +
+                         "." + std::to_string(RandNum::getRandom(1, 12)) + "." +
+                         std::to_string(RandNum::getRandom(1, 28));
   assignStartingLaws(country);
-  country.fullName = names.ideologyNames.contains(country.ideology)
-      ? NameGeneration::modifyWithIdeology(country.ideology, country.name, country.adjective, names) : country.name;
+  country.fullName =
+      names.ideologyNames.contains(country.ideology)
+          ? NameGeneration::modifyWithIdeology(country.ideology, country.name,
+                                               country.adjective, names)
+          : country.name;
 }
 void distributeVictoryPoints(
     Hoi4Data &modData, Hoi4Stats &stats,
@@ -380,12 +404,12 @@ void generateCharacters(Hoi4Data &modData) {
             character.surname =
                 "Doe " + std::to_string(country->characters.size());
           } else {
-            character.name = primaryCulture->language
-                                 ->getRandomCapitalisedWordFromVocabulary(
-                                     "MaleNames");
-            character.surname = primaryCulture->language
-                                    ->getRandomCapitalisedWordFromVocabulary(
-                                        "Surnames");
+            character.name =
+                primaryCulture->language
+                    ->getRandomCapitalisedWordFromVocabulary("MaleNames");
+            character.surname =
+                primaryCulture->language
+                    ->getRandomCapitalisedWordFromVocabulary("Surnames");
           }
 
         } while (usedNames.find(character.name + " " + character.surname) !=
@@ -459,12 +483,12 @@ void generateCharacters(Hoi4Data &modData) {
           theorist.surname =
               "Doe " + std::to_string(country->characters.size());
         } else {
-          theorist.name = primaryCulture->language
-                              ->getRandomCapitalisedWordFromVocabulary(
-                                  "MaleNames");
-          theorist.surname = primaryCulture->language
-                                 ->getRandomCapitalisedWordFromVocabulary(
-                                     "Surnames");
+          theorist.name =
+              primaryCulture->language->getRandomCapitalisedWordFromVocabulary(
+                  "MaleNames");
+          theorist.surname =
+              primaryCulture->language->getRandomCapitalisedWordFromVocabulary(
+                  "Surnames");
         }
       } while (usedNames.find(theorist.name + " " + theorist.surname) !=
                usedNames.end());
@@ -500,9 +524,7 @@ void evaluateCountryStrength(Hoi4Data &modData, Hoi4Stats &stats,
   }
   stats.totalWorldIndustry = 0;
 
-
   for (auto &country : modData.hoi4Countries) {
-
 
     country->evaluateTechnologyLevel();
     country->evaluateProperties();
@@ -535,14 +557,19 @@ void evaluateCountryStrength(Hoi4Data &modData, Hoi4Stats &stats,
   int numSecondaryPowers = std::min(deployed / 10, 8);
   int numRegionalPowers = deployed / 6;
   int numLocalPowers = deployed / 6;
-  std::vector<std::shared_ptr<Arda::Country>> rankedCountries(modData.hoi4Countries.begin(), modData.hoi4Countries.end());
-  auto ranking = Arda::Countries::assignCountryRanks(rankedCountries, numMajorPowers, numSecondaryPowers, numRegionalPowers, numLocalPowers);
+  std::vector<std::shared_ptr<Arda::Country>> rankedCountries(
+      modData.hoi4Countries.begin(), modData.hoi4Countries.end());
+  auto ranking = Arda::Countries::assignCountryRanks(
+      rankedCountries, numMajorPowers, numSecondaryPowers, numRegionalPowers,
+      numLocalPowers);
   ardaData.countryImportanceScores = std::move(ranking.scores);
   ardaData.countriesByRank = std::move(ranking.byRank);
   modData.bookmarkCountries.clear();
   for (const auto &country : ranking.ordered)
     if (!country->ownedRegions.empty())
-      modData.bookmarkCountries.push_back(std::static_pointer_cast<Hoi4Country>(country));
-  if (modData.bookmarkCountries.size() > 14) modData.bookmarkCountries.resize(14);
+      modData.bookmarkCountries.push_back(
+          std::static_pointer_cast<Hoi4Country>(country));
+  if (modData.bookmarkCountries.size() > 14)
+    modData.bookmarkCountries.resize(14);
 }
 } // namespace Rpx::Hoi4

@@ -32,8 +32,9 @@ getNeighbourRelations(const std::shared_ptr<Fwg::Areas::Province> &prov,
   return neighbourRelations;
 }
 
-void generatePositions(Fwg::Terrain::TerrainData &terrainData,
-                       const std::vector<std::shared_ptr<Arda::ArdaProvince>> &ardaProvinces) {
+void generatePositions(
+    Fwg::Terrain::TerrainData &terrainData,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &ardaProvinces) {
   const auto &altitudes = terrainData.altitudes;
   const auto &cfg = Fwg::Cfg::Values();
   for (auto &gameProv : ardaProvinces) {
@@ -115,11 +116,16 @@ void generatePositions(Fwg::Terrain::TerrainData &terrainData,
     // gameProv->neighbourRelations, while moving RG we take
     // from neighbourRelations, as they are closer to the center of the
     // province
-    const auto positionFor = [](const auto &relations, const auto &neighbour) -> const Fwg::Position & {
-      const auto found = std::find_if(relations.begin(), relations.end(), [&](const auto &relation) {
-        return relation.neighbour && neighbour && relation.neighbour->ID == neighbour->ID;
-      });
-      if (found == relations.end()) throw std::runtime_error("Missing neighbour position");
+    const auto positionFor =
+        [](const auto &relations,
+           const auto &neighbour) -> const Fwg::Position & {
+      const auto found = std::find_if(
+          relations.begin(), relations.end(), [&](const auto &relation) {
+            return relation.neighbour && neighbour &&
+                   relation.neighbour->ID == neighbour->ID;
+          });
+      if (found == relations.end())
+        throw std::runtime_error("Missing neighbour position");
       return found->positionToNeighbour;
     };
     for (auto counter = 0; auto &neighbour : gameProv->neighbourRelations) {
@@ -144,7 +150,6 @@ void generatePositions(Fwg::Terrain::TerrainData &terrainData,
         gameProv->positions.push_back(createPosition(
             positionFor(embarkRgNeighbourRelations, neighbour->neighbour),
             Arda::PositionType::UnitDisembarkingRG, 30 + counter, altitudes));
-
       }
       ++counter;
     }

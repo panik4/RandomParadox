@@ -3,13 +3,13 @@ using namespace Fwg;
 using namespace Fwg::Gfx;
 namespace Rpx::IO {
 Image loadProvinceMap(const std::string &gamePath) {
-  return Fwg::IO::Reader::readGenericImage(gamePath + "/map/provinces.bmp",
-                                           Fwg::Cfg::Values().imageReadContext());
+  return Fwg::IO::Reader::readGenericImage(
+      gamePath + "/map/provinces.bmp", Fwg::Cfg::Values().imageReadContext());
 }
 
 Image loadHeightMap(const std::string &gamePath) {
-  return Fwg::IO::Reader::readGenericImage(gamePath + "/map/heightmap.bmp",
-                                           Fwg::Cfg::Values().imageReadContext());
+  return Fwg::IO::Reader::readGenericImage(
+      gamePath + "/map/heightmap.bmp", Fwg::Cfg::Values().imageReadContext());
 }
 
 std::vector<std::string> loadStates(const std::string &gamePath) {
@@ -44,8 +44,7 @@ std::vector<std::string> loadForbiddenTags(const std::string &gamePath) {
       }
       if (gamePath.find("Europa Universalis") != std::string::npos) {
         lines = Fwg::Parsing::getLines(
-            gamePath +
-                                  "/common/country_tags//01_countries.txt");
+            gamePath + "/common/country_tags//01_countries.txt");
       }
       for (const auto &line : lines) {
         if (line.size() < 3)

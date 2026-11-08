@@ -31,7 +31,8 @@ void constructEffects(std::vector<EffectGrouping> &effectGroupings,
             newParameters.push_back(part);
           }
           // we not determine randomly which parameter to use
-          auto &selectedParameter = Fwg::Utils::Random::selectRandom(newParameters);
+          auto &selectedParameter =
+              Fwg::Utils::Random::selectRandom(newParameters);
           // now we overwrite it
           subParam = selectedParameter;
         }
@@ -45,7 +46,8 @@ void constructEffects(std::vector<EffectGrouping> &effectGroupings,
             auto max = std::stod(parts[1]);
             // try to detect if this is a floating point number or an integer
             if (min == static_cast<int>(min) && max == static_cast<int>(max)) {
-              auto selectedValue = static_cast<int>(RandNum::getRandom<double>(min, max));
+              auto selectedValue =
+                  static_cast<int>(RandNum::getRandom<double>(min, max));
               subParam = std::to_string(selectedValue);
             } else {
               auto selectedValue = RandNum::getRandom<double>(min, max);

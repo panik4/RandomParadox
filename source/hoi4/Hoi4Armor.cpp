@@ -145,10 +145,9 @@ std::string getBestSuitedAdditionalModules(
     for (auto &specialSlotName : specialSlotNames) {
 
       if (tankVariant.nsbModules.contains(specialSlotName) &&
-          std::find(
-              moduleTypes.begin(), moduleTypes.end(),
+          std::find(moduleTypes.begin(), moduleTypes.end(),
                     tankVariant.nsbModules.at(specialSlotName)) !=
-          moduleTypes.end()) {
+              moduleTypes.end()) {
         moduleTypes.erase(
             std::find(moduleTypes.begin(), moduleTypes.end(),
                       tankVariant.nsbModules.at(specialSlotName)));

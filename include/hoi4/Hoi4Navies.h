@@ -85,10 +85,10 @@ struct ShipClass {
   // upgrades have happened. Range between 0.0 and 1.0
   double upgradeLevel = 0.0;
 
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive &ar, const unsigned int /*version*/) {
-    ar &type &era &name &tonnage &vanillaShipType &mtgHullname;
-    ar &mtgModules &upgradeLevel;
+    ar & type & era & name & tonnage & vanillaShipType & mtgHullname;
+    ar & mtgModules & upgradeLevel;
   }
 };
 
@@ -96,9 +96,9 @@ struct Ship {
   ShipClass shipClass;
   std::string name;
 
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive &ar, const unsigned int /*version*/) {
-    ar &shipClass &name;
+    ar & shipClass & name;
   }
 };
 
@@ -107,9 +107,9 @@ struct Fleet {
   std::shared_ptr<Arda::ArdaProvince> startingPort;
   std::vector<std::shared_ptr<Ship>> ships;
 
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive &ar, const unsigned int /*version*/) {
-    ar &name &startingPort &ships;
+    ar & name & startingPort & ships;
   }
 };
 
@@ -117,6 +117,5 @@ void addShipClassModules(
     ShipClass &shipClass,
     const std::map<TechEra, std::vector<Technology>> &availableModuleTech,
     const std::map<TechEra, std::vector<Technology>> &availableArmyTech);
-
 
 } // namespace Rpx::Hoi4

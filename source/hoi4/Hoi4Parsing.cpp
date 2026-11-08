@@ -1,5 +1,5 @@
-#include "hoi4/Hoi4Weather.h"
 #include "hoi4/Hoi4Parsing.h"
+#include "hoi4/Hoi4Weather.h"
 #include <regex>
 using namespace Fwg;
 namespace Logging = Fwg::Utils::Logging;
@@ -166,28 +166,36 @@ void definition(
   pU::writeFile(path, content);
 }
 
-void unitStacks(const std::string &path, const std::vector<UnitStackRecord> &records) {
+void unitStacks(const std::string &path,
+                const std::vector<UnitStackRecord> &records) {
   std::string content;
   for (const auto &record : records) {
-    content += pU::csvFormat(std::vector<std::string>{std::to_string(record.provinceID + 1),
-      std::to_string(record.typeIndex), std::to_string(record.x), std::to_string(record.y),
-      std::to_string(record.z), std::to_string(record.rotation), std::to_string(record.offset)}, ';', false);
+    content += pU::csvFormat(
+        std::vector<std::string>{
+            std::to_string(record.provinceID + 1),
+            std::to_string(record.typeIndex), std::to_string(record.x),
+            std::to_string(record.y), std::to_string(record.z),
+            std::to_string(record.rotation), std::to_string(record.offset)},
+        ';', false);
   }
   pU::writeFile(path, content);
 }
 void strategicRegions(
     const std::string &path,
     const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
-    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions, const std::map<std::string, double> &chances) {
+    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions,
+    const std::map<std::string, double> &chances) {
   constexpr std::array<int, 12> daysInMonth{30, 27, 30, 29, 30, 29,
                                             30, 30, 29, 30, 29, 30};
   Logging::logLine("HOI4 Parser: Map: Drawing Strategic Regions");
   std::set<int> exportedProvinces;
   for (size_t i = 0; i < strategicRegions.size(); ++i) {
-    const auto group = std::dynamic_pointer_cast<StrategicRegion>(strategicRegions[i]);
+    const auto group =
+        std::dynamic_pointer_cast<StrategicRegion>(strategicRegions[i]);
     if (!group || group->ID != i || group->ardaRegions.empty() ||
         group->weatherMonths.size() != 12)
-      throw std::runtime_error("Invalid HOI4 strategic region or incomplete monthly weather");
+      throw std::runtime_error(
+          "Invalid HOI4 strategic region or incomplete monthly weather");
     if (group->areaType == Fwg::Areas::AreaType::Sea) {
       std::vector<int> ownedPixels;
       for (const auto &region : group->ardaRegions) {
@@ -195,20 +203,24 @@ void strategicRegions(
         ownedPixels.insert(ownedPixels.end(), pixels.begin(), pixels.end());
       }
       if (!Fwg::Areas::isAreaContiguous(ownedPixels, Fwg::Cfg::Values().width))
-        throw std::runtime_error("Sea strategic region " + std::to_string(group->ID + 1) +
+        throw std::runtime_error(
+            "Sea strategic region " + std::to_string(group->ID + 1) +
             " is not contiguous (including islands); export is forbidden");
     }
-    for (const auto &month : convertWeather(*group, chances, Fwg::Cfg::Values().climateConfig.deviationFactor)) {
+    for (const auto &month :
+         convertWeather(*group, chances,
+                        Fwg::Cfg::Values().climateConfig.deviationFactor)) {
       const auto values = month.values();
-      if (
-          !std::all_of(values.begin(), values.end(),
+      if (!std::all_of(values.begin(), values.end(),
                        [](double value) { return std::isfinite(value); }))
-        throw std::runtime_error("Invalid HOI4 strategic region weather values");
+        throw std::runtime_error(
+            "Invalid HOI4 strategic region weather values");
     }
     for (const auto &region : group->ardaRegions)
       for (const auto &province : region->provinces)
         if (!province || !exportedProvinces.insert(province->ID).second)
-          throw std::runtime_error("Duplicate province in strategic region export");
+          throw std::runtime_error(
+              "Duplicate province in strategic region export");
   }
   auto templateContent = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                       "hoi4/map/strategic_region.txt");
@@ -219,7 +231,9 @@ void strategicRegions(
   for (auto i = 0; i < strategicRegions.size(); i++) {
     auto stratRegion =
         std::dynamic_pointer_cast<StrategicRegion>(strategicRegions[i]);
-    const auto weatherMonths = convertWeather(*stratRegion, chances, Fwg::Cfg::Values().climateConfig.deviationFactor);
+    const auto weatherMonths =
+        convertWeather(*stratRegion, chances,
+                       Fwg::Cfg::Values().climateConfig.deviationFactor);
     std::string provString{""};
     for (const auto &region : stratRegion->ardaRegions) {
       for (const auto prov : region->provinces) {
@@ -255,8 +269,7 @@ void strategicRegions(
             month, "templateRainHeavyChance",
             std::to_string((float)weatherMonths[mo].heavyRain));
         Rpx::Parsing::replaceOccurences(
-            month, "templateMud",
-            std::to_string((float)weatherMonths[mo].mud));
+            month, "templateMud", std::to_string((float)weatherMonths[mo].mud));
         Rpx::Parsing::replaceOccurences(
             month, "templateBlizzard",
             std::to_string((float)weatherMonths[mo].blizzard));
@@ -295,7 +308,8 @@ void weatherPositions(
   for (auto i = 0; i < strategicRegions.size(); i++) {
     if (!strategicRegions[i] || strategicRegions[i]->ID != i ||
         strategicRegions[i]->ardaRegions.empty())
-      throw std::runtime_error("Invalid strategic region in weather position export");
+      throw std::runtime_error(
+          "Invalid strategic region in weather position export");
     // const auto &region =
     //     Fwg::Utils::Random::selectRandom(strategicRegions[i]->ardaRegions);
     // const auto prov = Fwg::Utils::Random::selectRandom(region->provinces);
@@ -313,14 +327,14 @@ void weatherPositions(
 }
 
 void supply(const std::string &path,
-            const std::vector<std::vector<int>> &supplyNodeConnections, const std::vector<SupplyHub> &supplyHubs) {
+            const std::vector<std::vector<int>> &supplyNodeConnections,
+            const std::vector<SupplyHub> &supplyHubs) {
   std::string supplyNodes = "";
   std::string railways = "";
   std::set<int> nodes;
   for (const auto &connection : supplyNodeConnections) {
     if (connection.size() <= 1)
       continue;
-
 
     railways += "1 ";
     railways += std::to_string(connection.size());
@@ -331,7 +345,8 @@ void supply(const std::string &path,
     }
     railways += "\n";
   }
-  for (const auto &hub : supplyHubs) nodes.insert(hub.provinceID);
+  for (const auto &hub : supplyHubs)
+    nodes.insert(hub.provinceID);
   for (const auto &node : nodes) {
     supplyNodes.append("1 " + std::to_string(node + 1) + "\n");
   }
@@ -496,12 +511,17 @@ void commonNames(const std::string &path, const CountryMap &countries) {
                               "hoi4/common/names/00_names.txt");
 
   for (const auto &country : countries) {
-    if (country->ownedRegions.empty()) continue;
+    if (country->ownedRegions.empty())
+      continue;
     auto nameTemplate = countryNamesTemplate;
-    Rpx::Parsing::replaceOccurences(nameTemplate, "templateCountryTag", country->tag);
-    Rpx::Parsing::replaceOccurences(nameTemplate, "templateMaleNames", country->maleNamePool);
-    Rpx::Parsing::replaceOccurences(nameTemplate, "templateFemaleNames", country->femaleNamePool);
-    Rpx::Parsing::replaceOccurences(nameTemplate, "templateSurnames", country->surnamePool);
+    Rpx::Parsing::replaceOccurences(nameTemplate, "templateCountryTag",
+                                    country->tag);
+    Rpx::Parsing::replaceOccurences(nameTemplate, "templateMaleNames",
+                                    country->maleNamePool);
+    Rpx::Parsing::replaceOccurences(nameTemplate, "templateFemaleNames",
+                                    country->femaleNamePool);
+    Rpx::Parsing::replaceOccurences(nameTemplate, "templateSurnames",
+                                    country->surnamePool);
     content.append(nameTemplate);
   }
   pU::writeFile(path, content);
@@ -1404,8 +1424,10 @@ void events(const std::string &path) {
   }
 }
 
-void commonBookmarks(const std::string &path, const CountryMap &selectedCountries) {
-  auto content = pU::readFile(Fwg::Cfg::Values().resourcePath + "hoi4/common/bookmarks/the_gathering_storm.txt");
+void commonBookmarks(const std::string &path,
+                     const CountryMap &selectedCountries) {
+  auto content = pU::readFile(Fwg::Cfg::Values().resourcePath +
+                              "hoi4/common/bookmarks/the_gathering_storm.txt");
   const auto major = Rpx::Parsing::getBracketBlock(content, "templateMajorTAG");
   const auto minor = Rpx::Parsing::getBracketBlock(content, "templateMinorTAG");
   Rpx::Parsing::removeBracketBlockFromKey(content, "templateMajorTAG");
@@ -1413,8 +1435,12 @@ void commonBookmarks(const std::string &path, const CountryMap &selectedCountrie
   std::string entries;
   for (size_t i = 0; i < selectedCountries.size(); ++i) {
     auto entry = i < 7 ? major : minor;
-    Rpx::Parsing::replaceOccurences(entry, "templateIdeology", Arda::Utils::ideologyToString.at(selectedCountries[i]->ideology));
-    Rpx::Parsing::replaceOccurences(entry, i < 7 ? "templateMajorTAG" : "templateMinorTAG", selectedCountries[i]->tag);
+    Rpx::Parsing::replaceOccurences(
+        entry, "templateIdeology",
+        Arda::Utils::ideologyToString.at(selectedCountries[i]->ideology));
+    Rpx::Parsing::replaceOccurences(
+        entry, i < 7 ? "templateMajorTAG" : "templateMinorTAG",
+        selectedCountries[i]->tag);
     entries += entry + "\n\t\t";
   }
   Rpx::Parsing::replaceOccurences(content, "templateMinorTAG=", entries);
@@ -1689,12 +1715,9 @@ void victoryPointNames(const std::string &path,
   std::string content = "l_language:\n";
   for (auto region : regions) {
     for (auto vp : region->victoryPointsMap) {
-      content += Fwg::Utils::varsToString(" VICTORY_POINTS_", vp.first + 1,
-                                          ":0 \"",
-                                          vp.second->location
-                                              ? vp.second->location->name
-                                              : "Unnamed",
-                                          "\"\n");
+      content += Fwg::Utils::varsToString(
+          " VICTORY_POINTS_", vp.first + 1, ":0 \"",
+          vp.second->location ? vp.second->location->name : "Unnamed", "\"\n");
     }
   }
   Detail::localisationWrite(path + "victory_points_l_language.yml", content,
@@ -1903,8 +1926,8 @@ void readStates(const std::string &path, Fwg::Areas::AreaData &areaData) {
 std::vector<Fwg::Areas::Province> readProvinceMap(const std::string &path) {
   using namespace Rpx::Parsing;
   auto &cfg = Fwg::Cfg::Values();
-  auto provMap =
-      Fwg::IO::Reader::readGenericImage(path + "map/provinces.bmp", cfg.imageReadContext());
+  auto provMap = Fwg::IO::Reader::readGenericImage(path + "map/provinces.bmp",
+                                                   cfg.imageReadContext());
   auto definition = pU::getLines(path + "map/definition.csv");
   Fwg::Utils::ColourTMap<Fwg::Areas::Province> provinces;
   for (const auto &line : definition) {
@@ -1991,11 +2014,11 @@ void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
                    const std::string &inPath, const std::string &mapName,
                    Fwg::Areas::AreaData &areaData) {
   Logging::logLine("HOI4 Parser: Map: Studying the land");
-  auto provMap = Fwg::IO::Reader::readGenericImage(inPath + "map/" + mapName,
-      Fwg::Cfg::Values().imageReadContext());
-  auto heightMap = Fwg::IO::Reader::readGenericImage(
-      inPath + "map/" + "heightmap" + ".bmp",
-      Fwg::Cfg::Values().imageReadContext());
+  auto provMap = Fwg::IO::Reader::readGenericImage(
+      inPath + "map/" + mapName, Fwg::Cfg::Values().imageReadContext());
+  auto heightMap =
+      Fwg::IO::Reader::readGenericImage(inPath + "map/" + "heightmap" + ".bmp",
+                                        Fwg::Cfg::Values().imageReadContext());
   auto list = readDefinitions(inPath + "map/definition.csv");
   // now map definitions to read in IDs
   for (auto &line : list) {

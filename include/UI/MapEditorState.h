@@ -16,7 +16,7 @@ enum class MapEditorLayer {
 struct MapEditorState {
   MapEditorLayer activeLayer = MapEditorLayer::Countries;
   int selectedStateID = -1;
-	int selectedProvinceID = -1;
+  int selectedProvinceID = -1;
   int selectedLocationID = -1;
   int selectedContinentID = -1;
   std::string selectedCountryTag;

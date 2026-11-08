@@ -38,7 +38,7 @@ bool Generator::createPaths() { // prepare folder structure
     create_directory(pathcfg.gameModPath + "/common/trade_companies/");
     create_directory(pathcfg.gameModPath + "/common/trade_nodes/");
     return true;
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     std::string error = "Configured paths seem to be messed up, check Europa "
                         "Universalis IVModule.json\n";
     error += "You can try fixing it yourself. Error is:\n ";
@@ -67,7 +67,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
     Fwg::Parsing::replaceInStringStream(buffer, "//", "/");
 
     pt::read_json(buffer, eu4Conf);
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     Fwg::Utils::Logging::logLine(
         "Incorrect config \"Europa Universalis IVModule.json\"");
     Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
@@ -143,7 +143,8 @@ void Generator::writeTextFiles(bool scenarioDetails) {}
 void Generator::writeImages() {}
 void Generator::generate() {
   if (!createPaths())
-    throw std::runtime_error("Could not create the Europa Universalis IV mod paths");
+    throw std::runtime_error(
+        "Could not create the Europa Universalis IV mod paths");
 
   try {
     // start with the generic stuff in the Scenario Generator
@@ -214,16 +215,18 @@ void Generator::generate() {
     {
       using namespace Parsing;
       // now do text
-      writeAdj(pathcfg.gameModPath + "/map/adjacencies.csv", ardaData.areaData.provinces);
+      writeAdj(pathcfg.gameModPath + "/map/adjacencies.csv",
+               ardaData.areaData.provinces);
       writeAmbientObjects(pathcfg.gameModPath + "/map/ambient_object.txt",
                           ardaData.areaData.provinces);
-      writeAreas(pathcfg.gameModPath + "/map/area.txt", ardaData.areaData.regions,
-                 pathcfg.gamePath);
+      writeAreas(pathcfg.gameModPath + "/map/area.txt",
+                 ardaData.areaData.regions, pathcfg.gamePath);
       writeColonialRegions(
           pathcfg.gameModPath +
               "/common/colonial_regions//00_colonial_regions.txt",
           pathcfg.gamePath, ardaData.areaData.provinces);
-      writeClimate(pathcfg.gameModPath + "/map/climate.txt", ardaData.areaData.provinces);
+      writeClimate(pathcfg.gameModPath + "/map/climate.txt",
+                   ardaData.areaData.provinces);
       writeContinent(pathcfg.gameModPath + "/map/continent.txt",
                      ardaData.areaData.provinces);
       writeDefaultMap(pathcfg.gameModPath + "/map/default.map",
@@ -236,11 +239,11 @@ void Generator::generate() {
                    getEu4Regions());
       writeSuperregion(pathcfg.gameModPath + "/map/superregion.txt",
                        pathcfg.gamePath, ardaData.areaData.regions);
-      writeTerrain(pathcfg.gameModPath + "/map/terrain.txt", ardaData.areaData.provinces);
-      writeTradeCompanies(
-          pathcfg.gameModPath +
-              "/common/trade_companies/00_trade_companies.txt",
-          pathcfg.gamePath, ardaData.areaData.provinces);
+      writeTerrain(pathcfg.gameModPath + "/map/terrain.txt",
+                   ardaData.areaData.provinces);
+      writeTradeCompanies(pathcfg.gameModPath +
+                              "/common/trade_companies/00_trade_companies.txt",
+                          pathcfg.gamePath, ardaData.areaData.provinces);
       writeTradewinds(pathcfg.gameModPath + "/map/trade_winds.txt",
                       ardaData.areaData.provinces);
 
@@ -251,10 +254,11 @@ void Generator::generate() {
       writeProvinces(pathcfg.gameModPath + "/history/provinces/",
                      ardaData.areaData.provinces, ardaData.areaData.regions);
       writeLoc(pathcfg.gameModPath + "/localisation/", pathcfg.gamePath,
-               ardaData.areaData.regions, ardaData.areaData.provinces, getEu4Regions());
+               ardaData.areaData.regions, ardaData.areaData.provinces,
+               getEu4Regions());
       Fwg::Utils::Logging::logLine("Done with the eu4 export");
     }
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";
     error += e.what();

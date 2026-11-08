@@ -1,5 +1,5 @@
-#include "resources/ResourceLayer.h"
 #include "hoi4/Hoi4StateGen.h"
+#include "resources/ResourceLayer.h"
 
 namespace Rpx::Hoi4 {
 
@@ -17,7 +17,8 @@ void generateStateResources(Hoi4Config modConfig, Hoi4Data &modData,
 
   std::vector<std::future<ResourceGenResult>> futures;
   futures.reserve(modConfig.resConfigs.size());
-  std::vector<int> seeds; seeds.reserve(modConfig.resConfigs.size());
+  std::vector<int> seeds;
+  seeds.reserve(modConfig.resConfigs.size());
   for (const auto &resConfig : modConfig.resConfigs) {
     seeds.push_back(RandNum::getRandom<int>());
   }
@@ -29,15 +30,18 @@ void generateStateResources(Hoi4Config modConfig, Hoi4Data &modData,
          &climateData]() -> ResourceGenResult {
           std::vector<float> resPrev;
 
-          resPrev = Arda::Resources::generateResourceLayer(resConfig, seeds[&resConfig - &modConfig.resConfigs[0]], areaData, climateData);
+          resPrev = Arda::Resources::generateResourceLayer(
+              resConfig, seeds[&resConfig - &modConfig.resConfigs[0]], areaData,
+              climateData);
           return {&resConfig, std::move(resPrev)};
         }));
   }
   std::vector<ResourceGenResult> results;
-  for (auto &fut : futures) results.push_back(fut.get());
-  for (auto &region : ardaGen->ardaData.areaData.regions) region->resources.clear();
+  for (auto &fut : futures)
+    results.push_back(fut.get());
+  for (auto &region : ardaGen->ardaData.areaData.regions)
+    region->resources.clear();
   for (auto &result : results) {
-
 
     if (!result.layer.empty()) {
       const auto &resConfig = *result.config;
@@ -61,11 +65,13 @@ void generateStateSpecifics(
   Fwg::Utils::Randomisation::resetRandomisation();
   auto &config = Fwg::Cfg::Values();
   // calculate the target industry amount
-  if (!std::isfinite(ardaConfig.worldIndustryFactor) || ardaConfig.worldIndustryFactor < 0)
-    throw std::invalid_argument("Invalid industry factor" );
+  if (!std::isfinite(ardaConfig.worldIndustryFactor) ||
+      ardaConfig.worldIndustryFactor < 0)
+    throw std::invalid_argument("Invalid industry factor");
   auto targetWorldIndustry = 2000 * ardaConfig.worldIndustryFactor;
   // we need a reference to determine how industrious a state is
-  double averageEconomicActivity = areaData.landRegions > 0 ? 1.0 / areaData.landRegions : 1.0;
+  double averageEconomicActivity =
+      areaData.landRegions > 0 ? 1.0 / areaData.landRegions : 1.0;
 
   stats.militaryIndustry = 0;
   stats.civilianIndustry = 0;
@@ -89,24 +95,32 @@ void generateStateSpecifics(
   for (const auto &source : modData.hoi4States) {
     for (const auto &location : source->locations) {
       if (location->type != Fwg::Civilization::LocationType::Port &&
-          location->secondaryType != Fwg::Civilization::LocationType::Port) continue;
-      if (!seenPorts.insert(location->ID).second) continue;
-      const auto port = resolvePort(*location, provinceMap, areaData, terrainData.detailedHeightMap);
+          location->secondaryType != Fwg::Civilization::LocationType::Port)
+        continue;
+      if (!seenPorts.insert(location->ID).second)
+        continue;
+      const auto port = resolvePort(*location, provinceMap, areaData,
+                                    terrainData.detailedHeightMap);
       if (!port) {
-        Fwg::Utils::Logging::logLine("No ocean-adjacent site for port ", location->ID);
+        Fwg::Utils::Logging::logLine("No ocean-adjacent site for port ",
+                                     location->ID);
         continue;
       }
-      for (auto &target : modData.hoi4States) if (target->ID == port->stateID) {
-        target->resolvedPorts.push_back(*port);
-        maxImportance = std::max(maxImportance, port->importance);
-        break;
-      }
+      for (auto &target : modData.hoi4States)
+        if (target->ID == port->stateID) {
+          target->resolvedPorts.push_back(*port);
+          maxImportance = std::max(maxImportance, port->importance);
+          break;
+        }
     }
   }
   for (auto &state : modData.hoi4States)
     for (const auto &port : state->resolvedPorts)
-      state->navalBases[port.provinceID] = std::max(state->navalBases[port.provinceID],
-          static_cast<int>(std::clamp((maxImportance > 0 ? port.importance / maxImportance : 0) * 10, 1.0, 10.0)));
+      state->navalBases[port.provinceID] = std::max(
+          state->navalBases[port.provinceID],
+          static_cast<int>(std::clamp(
+              (maxImportance > 0 ? port.importance / maxImportance : 0) * 10,
+              1.0, 10.0)));
   Fwg::Utils::Logging::logLine(config.terrainConfig.landPercentage);
   for (auto &hoi4State : modData.hoi4States) {
     // skip sea and lake states
@@ -175,8 +189,7 @@ void generateStateSpecifics(
       stats.navalIndustry += (int)hoi4State->dockyards;
     }
     // get potential building positions
-    hoi4State->calculateBuildingPositions(terrainData,
-                                          provinceMap, areaData);
+    hoi4State->calculateBuildingPositions(terrainData, provinceMap, areaData);
   }
   stats.totalWorldIndustry =
       stats.militaryIndustry + stats.civilianIndustry + stats.navalIndustry;

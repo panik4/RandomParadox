@@ -161,25 +161,25 @@ void Rpx::Hoi4::GoalGeneration::gatherAggressionGoals(
 void Rpx::Hoi4::GoalGeneration::constructGoal(
     std::shared_ptr<Hoi4Country> sourceCountry,
     std::shared_ptr<Rpx::Hoi4::Region> targetRegion,
-    std::shared_ptr<Rpx::Hoi4::Hoi4Country> targetCountry,
-    const Goal &goal, int &idCounter) {
+    std::shared_ptr<Rpx::Hoi4::Hoi4Country> targetCountry, const Goal &goal,
+    int &idCounter) {
 
-  auto setCommonAttributes =
-      [&](std::shared_ptr<Rpx::Hoi4::Goal> &goalPtr, std::shared_ptr<Hoi4Country> country) {
-        goalPtr->name = goal.name;
+  auto setCommonAttributes = [&](std::shared_ptr<Rpx::Hoi4::Goal> &goalPtr,
+                                 std::shared_ptr<Hoi4Country> country) {
+    goalPtr->name = goal.name;
 
-        goalPtr->uniqueName = sourceCountry->tag + "_" + goalPtr->name + "_" +
-                              std::to_string(idCounter++);
-        goalPtr->type = goal.type;
-        goalPtr->prerequisites = goal.prerequisites;
-        goalPtr->selectors = goal.selectors;
-        goalPtr->effects = goal.effects;
-        goalPtr->bypasses = goal.bypasses;
-        goalPtr->availabilities = goal.availabilities;
-        goalPtr->aiModifiers = goal.aiModifiers;
-        goalPtr->limit = goal.limit;
-        Rpx::Hoi4::Effects::constructEffects(goalPtr->effects, country);
-      };
+    goalPtr->uniqueName = sourceCountry->tag + "_" + goalPtr->name + "_" +
+                          std::to_string(idCounter++);
+    goalPtr->type = goal.type;
+    goalPtr->prerequisites = goal.prerequisites;
+    goalPtr->selectors = goal.selectors;
+    goalPtr->effects = goal.effects;
+    goalPtr->bypasses = goal.bypasses;
+    goalPtr->availabilities = goal.availabilities;
+    goalPtr->aiModifiers = goal.aiModifiers;
+    goalPtr->limit = goal.limit;
+    Rpx::Hoi4::Effects::constructEffects(goalPtr->effects, country);
+  };
 
   if (targetRegion) {
     auto regionGoal = std::make_shared<Rpx::Hoi4::Goal>();
@@ -299,11 +299,9 @@ void Rpx::Hoi4::GoalGeneration::evaluateGoals(
         for (auto &selectorGroup : categoryGoal.selectors) {
           for (auto &selector : selectorGroup.selectors) {
             if (selector.name == "get_random_state") {
-              targetRegion =
-                  Rpx::Hoi4::Selectors::getRandomRegion(country);
+              targetRegion = Rpx::Hoi4::Selectors::getRandomRegion(country);
             } else if (selector.name == "get_random_coastal_state") {
-              targetRegion =
-                  Rpx::Hoi4::Selectors::getRandomRegion(country);
+              targetRegion = Rpx::Hoi4::Selectors::getRandomRegion(country);
             }
 
             if (selector.name == "self") {
@@ -343,8 +341,7 @@ void Rpx::Hoi4::GoalGeneration::evaluateGoals(
           // now different approach: we take the selector, and depending on what
           // it is, we gather ALL possible targets
           std::vector<std::shared_ptr<Rpx::Hoi4::Region>> targetRegions;
-          std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
-              targetCountries;
+          std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> targetCountries;
           for (auto &selectorGroup : categoryGoal.selectors) {
             for (auto &selector : selectorGroup.selectors) {
               if (selector.name == "get_opposing_ideology_neighbour") {
@@ -518,9 +515,9 @@ void Rpx::Hoi4::GoalGeneration::structureGoals(
               goal->prerequisitesGoals[1]->yPosition > goal->yPosition) {
             // we are good
           } else {
-            //std::cout << "ERROR: Goal " << goal->name
-            //          << " has 2 prerequisites, but is not below both"
-            //          << std::endl;
+            // std::cout << "ERROR: Goal " << goal->name
+            //           << " has 2 prerequisites, but is not below both"
+            //           << std::endl;
           }
         }
         if (goal->successorsGoals.size() == 2) {
@@ -529,9 +526,9 @@ void Rpx::Hoi4::GoalGeneration::structureGoals(
               goal->successorsGoals[1]->yPosition < goal->yPosition) {
             // we are good
           } else {
-            //std::cout << "ERROR: Goal " << goal->name
-            //          << " has 2 successors, but is not above both"
-            //          << std::endl;
+            // std::cout << "ERROR: Goal " << goal->name
+            //           << " has 2 successors, but is not above both"
+            //           << std::endl;
           }
         }
         if (goal->prerequisitesGoals.size() > 0) {
@@ -556,8 +553,7 @@ void Rpx::Hoi4::GoalGeneration::structureGoals(
   }
 }
 
-std::shared_ptr<Rpx::Hoi4::Goal>
-Rpx::Hoi4::GoalGeneration::findSecondParent(
+std::shared_ptr<Rpx::Hoi4::Goal> Rpx::Hoi4::GoalGeneration::findSecondParent(
     const std::vector<std::shared_ptr<Goal>> &frontier,
     const std::shared_ptr<Goal> &primaryParent,
     const std::set<std::shared_ptr<Goal>> &usedGoals, int currentX) {

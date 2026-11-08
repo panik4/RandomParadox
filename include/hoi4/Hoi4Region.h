@@ -60,10 +60,9 @@ public:
   void importLine(const std::vector<std::string> &tokens) override;
 
   // serialisation
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive &ar, const unsigned int /*version*/);
 };
 } // namespace Rpx::Hoi4
 
 BOOST_CLASS_EXPORT_KEY(Rpx::Hoi4::Region)
-

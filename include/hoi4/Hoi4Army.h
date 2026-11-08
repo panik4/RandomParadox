@@ -1,8 +1,8 @@
 #pragma once
 #include "areas/ArdaProvince.h"
+#include "hoi4/Hoi4Airforce.h"
 #include "hoi4/Hoi4Armor.h"
 #include "hoi4/Hoi4Tech.h"
-#include "hoi4/Hoi4Airforce.h"
 #include "utils/SerialisationFwd.h"
 #include <array>
 #include <string>
@@ -64,8 +64,6 @@ inline std::map<Rpx::Hoi4::DivisionType, std::string> divisionTypeMap{
      "Motorized Artillery Division"},
     {Rpx::Hoi4::DivisionType::Armor, "Armored Division"}};
 
-
-
 static const std::map<CombatRegimentType, double> regimentCost = {
     {CombatRegimentType::Irregulars, 0.5},
     {CombatRegimentType::Infantry, 1.0},
@@ -99,9 +97,9 @@ struct DivisionTemplate {
   double cost = 4.0;
   double armyShare = 0.0;
 
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive &ar, const unsigned int /*version*/) {
-    ar &type &name &cost &armyShare &regiments &supportRegiments;
+    ar & type & name & cost & armyShare & regiments & supportRegiments;
   }
 };
 struct Division {
@@ -111,9 +109,10 @@ struct Division {
   double startingExperienceFactor;
   double startingEquipmentFactor;
 
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive &ar, const unsigned int /*version*/) {
-    ar &divisionTemplate &name &location &startingExperienceFactor &startingEquipmentFactor;
+    ar & divisionTemplate & name & location & startingExperienceFactor &
+        startingEquipmentFactor;
   }
 };
 

@@ -103,8 +103,11 @@ void generateArmorVariants(Hoi4Config modConfig, Hoi4Data &modData,
         tankVariant.bbaArmorName = chassis.first;
         tankVariant.era = TechEra::Interwar;
         const auto culture = country->getPrimaryCulture();
-        tankVariant.name = (culture && culture->language ? culture->language->generateGenericCapitalizedWord() : "Tank") +
-                           " Mk " + std::to_string(RandNum::getRandom(0, 3));
+        tankVariant.name =
+            (culture && culture->language
+                 ? culture->language->generateGenericCapitalizedWord()
+                 : "Tank") +
+            " Mk " + std::to_string(RandNum::getRandom(0, 3));
 
         addArmorModules(tankVariant, combinedTech);
         country->tankVariants.push_back(tankVariant);
@@ -131,10 +134,14 @@ void generateAirVariants(Hoi4Config modConfig, Hoi4Data &modData,
     }
     country->airBases.clear();
     for (const auto &state : country->hoi4Regions) {
-      if (!state->airBase || state->airBase->level <= 0 || state->airfieldSuitability == 0) continue;
-      const auto site = std::find_if(state->buildings.begin(), state->buildings.end(),
+      if (!state->airBase || state->airBase->level <= 0 ||
+          state->airfieldSuitability == 0)
+        continue;
+      const auto site = std::find_if(
+          state->buildings.begin(), state->buildings.end(),
           [](const auto &building) { return building.name == "air_base"; });
-      if (site == state->buildings.end()) continue;
+      if (site == state->buildings.end())
+        continue;
       state->airBase->level = std::min(state->airBase->level, 10);
       state->airBase->provinceID = site->provinceID;
       state->airBase->wings.clear();
@@ -280,8 +287,11 @@ void generateAirVariants(Hoi4Config modConfig, Hoi4Data &modData,
       }
 
       const auto culture = country->getPrimaryCulture();
-      airVariant.name = (culture && culture->language ? culture->language->generateGenericCapitalizedWord() : "Aircraft") +
-                        " Mk " + std::to_string(RandNum::getRandom(0, 3));
+      airVariant.name =
+          (culture && culture->language
+               ? culture->language->generateGenericCapitalizedWord()
+               : "Aircraft") +
+          " Mk " + std::to_string(RandNum::getRandom(0, 3));
 
       addPlaneModules(airVariant, country->airTechs);
       country->planeVariants.push_back(airVariant);
@@ -290,14 +300,16 @@ void generateAirVariants(Hoi4Config modConfig, Hoi4Data &modData,
     // without plane tech. This is due to hoi4 ai not building airforces
     // properly otherwise after researching the techs
     if (!country->addAirBase(1) && country->airBases.empty())
-      throw std::runtime_error("No available airfield site for country " + country->tag);
+      throw std::runtime_error("No available airfield site for country " +
+                               country->tag);
     double airforceStrength = country->airFocus * country->armsFactories *
                               modConfig.startingAirforceStrengthFactor;
     int airBaseAmount = 1 + airforceStrength / 10.0;
     if (country->planeVariants.size() && airforceStrength > 0) {
       // lets distribute airbases throughout the country
       for (int i = 0; i < airBaseAmount; i++) {
-        if (!country->addAirBase(1)) break;
+        if (!country->addAirBase(1))
+          break;
       }
       // first gather the amount of planes per variant
       while (airforceStrength > 0) {
@@ -344,8 +356,8 @@ void generateCountryUnits(Hoi4Config modConfig, Hoi4Data &modData,
 
     // first determine total army strength based on arms industry
     // TODO add a factor to settings
-    country->totalArmyStrength = country->armsFactories * 10 *
-                                 modConfig.startingArmyStrengthFactor;
+    country->totalArmyStrength =
+        country->armsFactories * 10 * modConfig.startingArmyStrengthFactor;
 
     // basic idea: we create unit templates first. We start with irregulars,
     // then infantry only, then infantry with support, then infantry with
@@ -508,8 +520,9 @@ void generateCountryUnits(Hoi4Config modConfig, Hoi4Data &modData,
   }
 }
 
-void generateCountryNavies(Hoi4Config modConfig, Hoi4Data &modData,
-                           Hoi4Stats &stats, std::vector<std::shared_ptr<Arda::ArdaProvince>>& eligibleProvinces) {
+void generateCountryNavies(
+    Hoi4Config modConfig, Hoi4Data &modData, Hoi4Stats &stats,
+    std::vector<std::shared_ptr<Arda::ArdaProvince>> &eligibleProvinces) {
 
   for (auto &country : modData.hoi4Countries) {
     country->fleets.clear();
@@ -544,8 +557,9 @@ void generateCountryNavies(Hoi4Config modConfig, Hoi4Data &modData,
               "Warning: Country " + country->name +
               " has no primary culture, cannot generate ship names");
         } else {
-          shipClass.name = primaryCulture->language
-                               ->generateGenericCapitalizedWord() + " Class";
+          shipClass.name =
+              primaryCulture->language->generateGenericCapitalizedWord() +
+              " Class";
         }
         shipClass.vanillaShipType =
             ShipClassTypeDefinitions[shipclassType] +

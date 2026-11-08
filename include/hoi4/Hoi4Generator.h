@@ -32,7 +32,10 @@ class Generator : public Rpx::ModGenerator {
 protected:
   void economyDataChanged() override;
   void invalidateGameSimulationData() override;
-  void environmentDataChanged() override { economyDataChanged(); invalidateResources(); }
+  void environmentDataChanged() override {
+    economyDataChanged();
+    invalidateResources();
+  }
   void invalidateGameLocationData() override;
 
 public:
@@ -61,8 +64,14 @@ public:
     Status countries = Status::Missing;
   } readiness;
   void invalidateStateEconomy() { economyDataChanged(); }
-  void invalidateResources() { readiness.resources = Status::Stale; modData.statesInitialised = false; }
-  void invalidateCountryDetails() { readiness.countries = Status::Stale; modData.unitStacks.clear(); }
+  void invalidateResources() {
+    readiness.resources = Status::Stale;
+    modData.statesInitialised = false;
+  }
+  void invalidateCountryDetails() {
+    readiness.countries = Status::Stale;
+    modData.unitStacks.clear();
+  }
   void regenerateStateData();
   bool exportReady() const;
   void regenerateCharactersAndAppearance();
@@ -77,10 +86,11 @@ public:
   void generateCountryForces();
   void recalculateCountryMilitaryData();
   void regenerateCountryForces();
+
 private:
   void refreshMilitaryInputs();
-public:
 
+public:
   // politics: names, ideology, party popularity, elections
   void generateSoftCountryDetails(bool onlyMissing = false);
   void nameCountries() override;
@@ -103,8 +113,9 @@ public:
   void loadStates();
   virtual bool loadRivers(Fwg::Cfg &config,
                           const Fwg::Gfx::Image &riverInput) override;
-  virtual bool loadRiversFromBlueMask(
-      Fwg::Cfg &config, const Fwg::Gfx::Image &riverInput) override;
+  virtual bool
+  loadRiversFromBlueMask(Fwg::Cfg &config,
+                         const Fwg::Gfx::Image &riverInput) override;
 
   virtual void generate();
   virtual void initImageExporter();

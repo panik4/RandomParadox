@@ -6,7 +6,8 @@
 namespace Rpx::Hoi4 {
 namespace FocusGen {
 
-std::string addAvailableBlocks(std::shared_ptr<Hoi4Country> country,
+std::string
+addAvailableBlocks(std::shared_ptr<Hoi4Country> country,
                    std::shared_ptr<Goal> goal,
                    const std::map<std::string, std::string> &availableMap);
 

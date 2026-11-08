@@ -23,18 +23,19 @@ int Region::supportsBuilding(const BuildingType &buildingType) {
     }
   }
 
-return 0;
+  return 0;
 }
 
-template<class Archive>
+template <class Archive>
 void Region::serialize(Archive &ar, const unsigned int /*version*/) {
-  ar & boost::serialization::base_object<Arda::ArdaRegion>(*this);
+  ar &boost::serialization::base_object<Arda::ArdaRegion>(*this);
   ar & arableLand & navalExit;
 }
 
 } // namespace Rpx::Vic3
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Rpx::Vic3::Region)
-template void Rpx::Vic3::Region::serialize(boost::archive::binary_oarchive&, unsigned int);
-template void Rpx::Vic3::Region::serialize(boost::archive::binary_iarchive&, unsigned int);
-
+template void Rpx::Vic3::Region::serialize(boost::archive::binary_oarchive &,
+                                           unsigned int);
+template void Rpx::Vic3::Region::serialize(boost::archive::binary_iarchive &,
+                                           unsigned int);

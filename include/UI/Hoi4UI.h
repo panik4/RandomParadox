@@ -10,17 +10,16 @@ int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator);
 
 class MapEditorModule final : public Rpx::UI::MapEditorModule {
 public:
-  unsigned showCountryEditor(
-      const std::shared_ptr<Arda::Country> &country,
-      Fwg::UI::Elements::GridLayout &grid) const override;
-  unsigned showStateEditor(
-      const std::shared_ptr<Arda::ArdaRegion> &state,
-      Fwg::UI::Elements::GridLayout &grid) const override;
-  void showCountryAggregates(
-      const std::shared_ptr<Arda::Country> &country,
-      Fwg::UI::Elements::GridLayout &grid) const override;
-  void showContinentAggregates(
-      const std::shared_ptr<Arda::ArdaContinent> &continent,
-      Fwg::UI::Elements::GridLayout &grid) const override;
+  unsigned
+  showCountryEditor(const std::shared_ptr<Arda::Country> &country,
+                    Fwg::UI::Elements::GridLayout &grid) const override;
+  unsigned showStateEditor(const std::shared_ptr<Arda::ArdaRegion> &state,
+                           Fwg::UI::Elements::GridLayout &grid) const override;
+  void
+  showCountryAggregates(const std::shared_ptr<Arda::Country> &country,
+                        Fwg::UI::Elements::GridLayout &grid) const override;
+  void
+  showContinentAggregates(const std::shared_ptr<Arda::ArdaContinent> &continent,
+                          Fwg::UI::Elements::GridLayout &grid) const override;
 };
 }; // namespace Rpx::UI::Hoi4

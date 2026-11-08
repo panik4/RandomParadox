@@ -1,9 +1,9 @@
 #pragma once
+#include "areas/ArdaContinent.h"
+#include "areas/ArdaProvince.h"
 #include "civilisation/CivilisationLayer.h"
 #include "entities/Colour.h"
 #include "io/ImageExporter.h"
-#include "areas/ArdaProvince.h"
-#include "areas/ArdaContinent.h"
 
 #include "io/Textures.h"
 #include "rendering/Images.h"
@@ -23,19 +23,19 @@ public:
                  Fwg::Gfx::Image &packedHeightMap, int mapX, int mapY,
                  int packedX) const;
   Fwg::Gfx::Image dumpHeightmap(const std::vector<float> &heightMap,
+                                const std::string &path,
+                                const std::string &colourMapKey,
+                                int exportWidth, int exportHeight) const;
+  Fwg::Gfx::Image dumpDecalMasks(const Fwg::Terrain::TerrainData &terrainData,
+                                 const Fwg::Climate::ClimateData &climateData,
                                  const std::string &path,
                                  const std::string &colourMapKey,
                                  int exportWidth, int exportHeight) const;
-  Fwg::Gfx::Image dumpDecalMasks(const Fwg::Terrain::TerrainData &terrainData,
-                             const Fwg::Climate::ClimateData &climateData,
-                             const std::string &path,
-                             const std::string &colourMapKey, int exportWidth,
-                             int exportHeight) const;
-  Fwg::Gfx::Image
-  dumpTerrainMasks(const Fwg::Terrain::TerrainData &terrainData,
-                   const Fwg::Climate::ClimateData &climateData,
-                   const std::string &path, const std::string &colourMapKey,
-                   int exportWidth, int exportHeight) const;
+  Fwg::Gfx::Image dumpTerrainMasks(const Fwg::Terrain::TerrainData &terrainData,
+                                   const Fwg::Climate::ClimateData &climateData,
+                                   const std::string &path,
+                                   const std::string &colourMapKey,
+                                   int exportWidth, int exportHeight) const;
 
   void Eu5ColourMaps(const Fwg::Terrain::TerrainData &terrainData,
                      const Fwg::Climate::ClimateData &climateData,
@@ -43,10 +43,9 @@ public:
                      const std::string &path, int exportWidth,
                      int exportHeight);
 
-  void mapObjectMasks(
-      const Fwg::Terrain::TerrainData &terrainData,
-      const Fwg::Climate::ClimateData &climateData,
-      const Arda::Civilization::CivilizationLayer &civLayer,
+  void mapObjectMasks(const Fwg::Terrain::TerrainData &terrainData,
+                      const Fwg::Climate::ClimateData &climateData,
+                      const Arda::Civilization::CivilizationLayer &civLayer,
                       const std::string &path, int exportWidth,
                       int exportHeight);
 

@@ -44,11 +44,10 @@ bool Generator::createPaths() {
 
     };
     for (int i = 1; i <= 16; i++) {
-      paths.push_back("/gfx/terrain2/decals/heightmap_" +
-                      std::to_string(i) + "_16");
+      paths.push_back("/gfx/terrain2/decals/heightmap_" + std::to_string(i) +
+                      "_16");
     }
-    std::vector<std::string> pathsToRemove = {"/common/", "/localization/"
-                                              };
+    std::vector<std::string> pathsToRemove = {"/common/", "/localization/"};
 
     for (const auto &path : pathsToRemove) {
       Fwg::Utils::Logging::logLine("Removing path: " + pathcfg.gameModPath +
@@ -68,7 +67,7 @@ bool Generator::createPaths() {
       create_directory(Cfg::Values().mapsPath + "Eu5");
 
     return true;
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     std::string error = "Configured paths seem to be messed up, check EuIV "
                         "Module.json\n";
     error += "You can try fixing it yourself. Error is:\n ";
@@ -98,7 +97,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
     Fwg::Parsing::replaceInStringStream(buffer, "//", "/");
 
     pt::read_json(buffer, eu5Conf);
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     Fwg::Utils::Logging::logLine(
         "Incorrect config \"Europa Universalis IVModule.json\"");
     Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
@@ -248,7 +247,8 @@ void Generator::initImageExporter() {
 
 void Generator::generate() {
   if (!createPaths())
-    throw std::runtime_error("Could not create the Europa Universalis V mod paths");
+    throw std::runtime_error(
+        "Could not create the Europa Universalis V mod paths");
 
   try {
     // start with the generic stuff in the Scenario Generator
@@ -322,28 +322,28 @@ void Generator::writeImages() {
   imageExporter.Eu5ColourMaps(terrainData, climateData, ardaData.civLayer,
                               pathcfg.gameModPath + "/in_game/gfx/map/",
                               this->exportWidth / 2, this->exportHeight / 2);
-   imageExporter.writeLocations(provinceMap, ardaData.areaData.provinces, ardaData.areaData.regions,
-                                ardaData.areaData.continents, ardaData.civLayer,
-                                pathcfg.gameModPath + "/in_game/map_data/",
-                                this->exportWidth, this->exportHeight);
-   imageExporter.dumpHeightmap(
-       terrainData.detailedHeightMap,
-       pathcfg.gameModPath + "/in_game/gfx/terrain2/", "",
-       this->exportWidth * 4, this->exportHeight * 4);
+  imageExporter.writeLocations(provinceMap, ardaData.areaData.provinces,
+                               ardaData.areaData.regions,
+                               ardaData.areaData.continents, ardaData.civLayer,
+                               pathcfg.gameModPath + "/in_game/map_data/",
+                               this->exportWidth, this->exportHeight);
+  imageExporter.dumpHeightmap(terrainData.detailedHeightMap,
+                              pathcfg.gameModPath + "/in_game/gfx/terrain2/",
+                              "", this->exportWidth * 4,
+                              this->exportHeight * 4);
   imageExporter.dumpDecalMasks(
       terrainData, climateData,
       pathcfg.gameModPath + "/in_game/gfx/terrain2/decals/", "",
       this->exportWidth * 2, this->exportHeight * 2);
   imageExporter.dumpTerrainMasks(
       terrainData, climateData,
-      pathcfg.gameModPath +
-          "/in_game/gfx/terrain2/terrain_textures/masks/",
-      "", this->exportWidth, this->exportHeight);
-
-  imageExporter.mapObjectMasks(
-      terrainData, climateData, ardaData.civLayer,
-      pathcfg.gameModPath + "/in_game/content_source/map_objects/masks/",
+      pathcfg.gameModPath + "/in_game/gfx/terrain2/terrain_textures/masks/", "",
       this->exportWidth, this->exportHeight);
+
+  imageExporter.mapObjectMasks(terrainData, climateData, ardaData.civLayer,
+                               pathcfg.gameModPath +
+                                   "/in_game/content_source/map_objects/masks/",
+                               this->exportWidth, this->exportHeight);
 }
 
 void Generator::writeSplnet() {

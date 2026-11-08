@@ -14,10 +14,10 @@ struct Pathcfg {
   // optional for every game
   std::string gameSubPath = "";
 
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive &ar, const unsigned int /*version*/) {
-    ar & modName & gamePath & gameModPath & gameModsDirectory & mappingPath
-        & gameSubPath;
+    ar & modName & gamePath & gameModPath & gameModsDirectory & mappingPath &
+        gameSubPath;
   }
 };
 

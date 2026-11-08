@@ -107,8 +107,8 @@ std::map<std::string, ProductionmethodGroup> readProdMethodGroups(
       PUS::removeSpecials(block.name);
       prodmethGroup.name = block.name;
       // the contained "production_methods" block
-      auto innerblocks = Rpx::Parsing::getOuterBlocks(
-          Fwg::Parsing::splitLines(block.content));
+      auto innerblocks =
+          Rpx::Parsing::getOuterBlocks(Fwg::Parsing::splitLines(block.content));
       for (auto &innerblock : innerblocks) {
         auto innerLines = PU::splitLines(innerblock.content);
         for (auto &line : innerLines) {
@@ -118,7 +118,7 @@ std::map<std::string, ProductionmethodGroup> readProdMethodGroups(
 
             prodmethGroup.productionMethods.emplace(line,
                                                     productionmethods.at(line));
-          } catch (std::exception& e) {
+          } catch (std::exception &e) {
             Fwg::Utils::Logging::logLineLevel(
                 9, "Warning: Can't access with line ", line);
           }
@@ -240,7 +240,7 @@ std::vector<BuildingType> readBuildings(
             for (const auto &prodMethod : prodGroup.productionMethods) {
               bt.productionMethods.emplace(prodMethod);
             }
-          } catch (std::exception& e) {
+          } catch (std::exception &e) {
             // silent
           }
         }
@@ -280,8 +280,8 @@ readBuypackages(const std::string &inFolder,
     bt.name = block.name;
     PUS::removeSpecials(bt.name);
     // the contained "goods" block
-    auto innerblocks = Rpx::Parsing::getOuterBlocks(
-        Fwg::Parsing::splitLines(block.content));
+    auto innerblocks =
+        Rpx::Parsing::getOuterBlocks(Fwg::Parsing::splitLines(block.content));
     for (auto &innerblock : innerblocks) {
       auto innerLines = PU::splitLines(innerblock.content);
       for (auto &line : innerLines) {
@@ -309,15 +309,15 @@ readPopNeeds(const std::string &inFolder,
     PopNeed bt;
     bt.name = block.name;
     PUS::removeSpecials(bt.name);
-    auto innerblocks = Rpx::Parsing::getOuterBlocks(
-        Fwg::Parsing::splitLines(block.content));
+    auto innerblocks =
+        Rpx::Parsing::getOuterBlocks(Fwg::Parsing::splitLines(block.content));
     for (auto &innerblock : innerblocks) {
       auto goodName = Fwg::Parsing::getValue(innerblock.content, "goods");
       Rpx::Parsing::removeSpecials(goodName);
       Rpx::Parsing::removeCharacter(goodName, ' ');
       try {
         bt.goods.push_back(goods.at(goodName));
-      } catch (std::exception& e) {
+      } catch (std::exception &e) {
         Fwg::Utils::Logging::logLine("Unable to access good with name: ",
                                      goodName);
       }

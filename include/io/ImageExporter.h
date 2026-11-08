@@ -1,10 +1,10 @@
 #pragma once
-#include "io/Textures.h"
+#include "civilisation/CivilisationLayer.h"
 #include "climate/ClimateData.h"
 #include "entities/Colour.h"
+#include "io/Textures.h"
 #include "rendering/Images.h"
 #include "utils/Cfg.h"
-#include "civilisation/CivilisationLayer.h"
 #include <map>
 namespace Rpx::Gfx {
 class ImageExporter {
@@ -28,9 +28,8 @@ public:
   void writeBufferPixels(std::vector<unsigned char> &pixels, int index,
                          const Fwg::Gfx::Colour &colour,
                          unsigned char alphaValue);
-  Fwg::Gfx::Image cutBaseMap(const std::string &path,
-                              const double factor = 1.0,
-                              const int bit = 8) const;
+  Fwg::Gfx::Image cutBaseMap(const std::string &path, const double factor = 1.0,
+                             const int bit = 8) const;
   void dump8BitHeightmap(const std::vector<float> &altitudeData,
                          const std::string &path,
                          const std::string &colourMapKey) const;
@@ -57,7 +56,7 @@ public:
                        const std::string &modPath, const std::string &mapName,
                        const gli::format format, int scaleFactor,
                        const bool cut = false) const;
-  void dumpWorldNormal(const Fwg::Gfx::Image &sobelMap,
-                       const std::string &path, const bool cut) const;
+  void dumpWorldNormal(const Fwg::Gfx::Image &sobelMap, const std::string &path,
+                       const bool cut) const;
 };
-} // namespace Arda::Gfx
+} // namespace Rpx::Gfx

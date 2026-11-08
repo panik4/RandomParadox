@@ -7,8 +7,8 @@ getRandomRegion(const std::shared_ptr<Rpx::Hoi4::Hoi4Country> &country) {
   }
   return Fwg::Utils::Random::selectRandom(country->hoi4Regions);
 }
-std::shared_ptr<Rpx::Hoi4::Region> getRandomCoastalRegion(
-    const std::shared_ptr<Rpx::Hoi4::Hoi4Country> &country) {
+std::shared_ptr<Rpx::Hoi4::Region>
+getRandomCoastalRegion(const std::shared_ptr<Rpx::Hoi4::Hoi4Country> &country) {
   std::vector<std::shared_ptr<Rpx::Hoi4::Region>> coastalRegions;
   for (auto &region : country->hoi4Regions) {
     if (region->isCoastalToOcean()) {
@@ -22,18 +22,15 @@ std::shared_ptr<Rpx::Hoi4::Region> getRandomCoastalRegion(
 }
 std::shared_ptr<Rpx::Hoi4::Hoi4Country> getOpposingIdeologyNeighbour(
     const Hoi4Country &country,
-    const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
-        &hoi4Countries) {
-  const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
-      potentialTargets;
+    const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> &hoi4Countries) {
+  const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> potentialTargets;
 
   return nullptr;
 }
 std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
 getOpposingIdeologyNeighbours(
     const std::shared_ptr<Rpx::Hoi4::Hoi4Country> country,
-    const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
-        &hoi4Countries) {
+    const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> &hoi4Countries) {
   std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> potentialTargets;
   for (auto &neighbour : country->neighbourCountries) {
     // cast the neighbour to a std::shared_ptr<Rpx::Hoi4::Hoi4Country
@@ -50,12 +47,10 @@ getOpposingIdeologyNeighbours(
 std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
 getOpposingIdeologyNeighboursNeighbours(
     const std::shared_ptr<Rpx::Hoi4::Hoi4Country> country,
-    const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
-        &hoi4Countries) {
+    const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> &hoi4Countries) {
   auto closestOpposingNeighbors =
       getOpposingIdeologyNeighbours(country, hoi4Countries);
-  std::set<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
-      directOpposingNeighbours;
+  std::set<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> directOpposingNeighbours;
   for (auto &neighbour : closestOpposingNeighbors) {
     directOpposingNeighbours.insert(neighbour);
   }
@@ -68,8 +63,7 @@ getOpposingIdeologyNeighboursNeighbours(
     for (auto &indirectNeighbour : directNeighbourHoi4->neighbourCountries) {
       // cast the neighbour to a std::shared_ptr<Rpx::Hoi4::Hoi4Country
       auto indirectNeighbourHoi4 =
-          std::dynamic_pointer_cast<Rpx::Hoi4::Hoi4Country>(
-              indirectNeighbour);
+          std::dynamic_pointer_cast<Rpx::Hoi4::Hoi4Country>(indirectNeighbour);
       // ensure we don't add the same country twice, as the closest neighbour
       // is already targeted by a wargoal
       if (!directOpposingNeighbours.contains(indirectNeighbourHoi4) &&

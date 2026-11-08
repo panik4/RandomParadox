@@ -1,12 +1,12 @@
 #pragma once
 #include "ArdaUI/ArdaUI.h"
+#include "FastWorldGenerator.h"
 #include "Hoi4UI.h"
 #include "MapEditorState.h"
-#include "FastWorldGenerator.h"
+#include "RpxPrerequisiteChecker.h"
 #include "eu4/Eu4Generator.h"
 #include "eu5/Eu5Generator.h"
 #include "hoi4/Hoi4Generator.h"
-#include "RpxPrerequisiteChecker.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "stb_image.h"
 #include "utils/RpxUtils.h"
@@ -39,7 +39,8 @@ class GUI : public Arda::ArdaUI {
   bool validatedPaths = false;
   bool countryDetailsPending() const {
     const auto generator = std::dynamic_pointer_cast<Hoi4Gen>(activeGenerator);
-    return generator && generator->readiness.countries != Hoi4Gen::Status::Ready;
+    return generator &&
+           generator->readiness.countries != Hoi4Gen::Status::Ready;
   }
   void invalidateCountryDetails() {
     if (auto generator = std::dynamic_pointer_cast<Hoi4Gen>(activeGenerator))
@@ -82,8 +83,7 @@ class GUI : public Arda::ArdaUI {
   void showGenericContinentSummary(
       const std::shared_ptr<Arda::ArdaContinent> &continent,
       Fwg::UI::Elements::GridLayout &grid);
-  void applyCountryBorderPaint(
-      const std::shared_ptr<Arda::ArdaRegion> &state);
+  void applyCountryBorderPaint(const std::shared_ptr<Arda::ArdaRegion> &state);
   void refreshMapEditorVisualization();
   void refreshStrategicRegionVisualization();
   void showMapEditorLayer();

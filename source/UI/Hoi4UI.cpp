@@ -8,8 +8,7 @@ namespace Rpx::UI::Hoi4 {
 namespace {
 
 template <typename Type>
-void showCountSection(const char *title,
-                      const std::map<Type, int> &counts,
+void showCountSection(const char *title, const std::map<Type, int> &counts,
                       const std::map<Type, std::string> &labels) {
   if (!ImGui::TreeNode(title))
     return;
@@ -30,12 +29,9 @@ const std::map<Rpx::Hoi4::CombatRegimentType, std::string> combatRegimentLabels{
     {Rpx::Hoi4::CombatRegimentType::AntiTank, "Anti-tank"},
     {Rpx::Hoi4::CombatRegimentType::AntiAir, "Anti-air"},
     {Rpx::Hoi4::CombatRegimentType::Artillery, "Artillery"},
-    {Rpx::Hoi4::CombatRegimentType::MotorizedAntiTank,
-     "Motorized anti-tank"},
-    {Rpx::Hoi4::CombatRegimentType::MotorizedAntiAir,
-     "Motorized anti-air"},
-    {Rpx::Hoi4::CombatRegimentType::MotorizedArtillery,
-     "Motorized artillery"},
+    {Rpx::Hoi4::CombatRegimentType::MotorizedAntiTank, "Motorized anti-tank"},
+    {Rpx::Hoi4::CombatRegimentType::MotorizedAntiAir, "Motorized anti-air"},
+    {Rpx::Hoi4::CombatRegimentType::MotorizedArtillery, "Motorized artillery"},
     {Rpx::Hoi4::CombatRegimentType::Paratroopers, "Paratroopers"},
     {Rpx::Hoi4::CombatRegimentType::Marines, "Marines"},
     {Rpx::Hoi4::CombatRegimentType::Mountaineers, "Mountaineers"}};
@@ -120,8 +116,10 @@ void showForceSummary(const Rpx::Hoi4::Hoi4Country &country) {
 int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
   const auto previousResources = generator->modConfig.resources;
   const auto previousResourceFactor = generator->ardaConfig.resourceFactor;
-  const std::array previousMilitary = {generator->modConfig.startingArmyStrengthFactor,
-      generator->modConfig.startingNavyStrengthFactor, generator->modConfig.startingAirforceStrengthFactor};
+  const std::array previousMilitary = {
+      generator->modConfig.startingArmyStrengthFactor,
+      generator->modConfig.startingNavyStrengthFactor,
+      generator->modConfig.startingAirforceStrengthFactor};
 
   ImGui::SeparatorText("Military Starting Forces");
   ImGui::TextWrapped(
@@ -199,11 +197,15 @@ int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
 
   ImGui::Spacing();
 
-  if (previousResources != generator->modConfig.resources || previousResourceFactor != generator->ardaConfig.resourceFactor)
+  if (previousResources != generator->modConfig.resources ||
+      previousResourceFactor != generator->ardaConfig.resourceFactor)
     generator->invalidateResources();
-  if (previousMilitary != std::array{generator->modConfig.startingArmyStrengthFactor,
-      generator->modConfig.startingNavyStrengthFactor, generator->modConfig.startingAirforceStrengthFactor})
-    generator->invalidateCountryDetails();  return 0;
+  if (previousMilitary !=
+      std::array{generator->modConfig.startingArmyStrengthFactor,
+                 generator->modConfig.startingNavyStrengthFactor,
+                 generator->modConfig.startingAirforceStrengthFactor})
+    generator->invalidateCountryDetails();
+  return 0;
 }
 
 unsigned MapEditorModule::showCountryEditor(
@@ -234,12 +236,15 @@ unsigned MapEditorModule::showCountryEditor(
   const char *partyNames[] = {"Fascism Popularity", "Democratic Popularity",
                               "Communist Popularity", "Neutrality Popularity"};
   for (std::size_t party = 0; party < hoi4Country->parties.size(); ++party) {
-    changed |= grid.AddInputInt(partyNames[party], &hoi4Country->parties[party], 0, 100);
+    changed |= grid.AddInputInt(partyNames[party], &hoi4Country->parties[party],
+                                0, 100);
   }
   changed |= grid.AddCheckbox("Allow Elections", &hoi4Country->allowElections);
   showForceSummary(*hoi4Country);
-  if (changed) hoi4Country->politicsInitialized = true;
-  return (changed ? PoliticsChanged : NoChange) | (identityChanged ? IdentityChanged : NoChange);
+  if (changed)
+    hoi4Country->politicsInitialized = true;
+  return (changed ? PoliticsChanged : NoChange) |
+         (identityChanged ? IdentityChanged : NoChange);
 }
 
 void MapEditorModule::showCountryAggregates(
@@ -309,26 +314,30 @@ void MapEditorModule::showContinentAggregates(
   grid.AddText("Dockyards", "%d", dockyards);
 }
 
-unsigned MapEditorModule::showStateEditor(
-    const std::shared_ptr<Arda::ArdaRegion> &state,
-    Fwg::UI::Elements::GridLayout &grid) const {
+unsigned
+MapEditorModule::showStateEditor(const std::shared_ptr<Arda::ArdaRegion> &state,
+                                 Fwg::UI::Elements::GridLayout &grid) const {
   const auto hoi4State = std::dynamic_pointer_cast<Rpx::Hoi4::Region>(state);
   if (!hoi4State) {
     return false;
   }
   ImGui::SeparatorText("State Details");
-  bool changed = grid.AddInputInt("Arms Factories", &hoi4State->armsFactories, 0, 1000000);
-  changed |=
-      grid.AddInputInt("Civilian Factories", &hoi4State->civilianFactories, 0, 1000000);
+  bool changed =
+      grid.AddInputInt("Arms Factories", &hoi4State->armsFactories, 0, 1000000);
+  changed |= grid.AddInputInt("Civilian Factories",
+                              &hoi4State->civilianFactories, 0, 1000000);
   changed |= grid.AddInputInt("Dockyards", &hoi4State->dockyards, 0, 1000000);
-  changed |= grid.AddInputInt("Infrastructure", &hoi4State->infrastructure, 0, 5);
-  changed |= grid.AddInputInt("State Category", &hoi4State->stateCategory, 0, 9);
+  changed |=
+      grid.AddInputInt("Infrastructure", &hoi4State->infrastructure, 0, 5);
+  changed |=
+      grid.AddInputInt("State Category", &hoi4State->stateCategory, 0, 9);
   unsigned changes = changed ? EconomyChanged : NoChange;
   if (!hoi4State->resources.empty()) {
     ImGui::SeparatorText("State Resources");
     for (auto &[name, resource] : hoi4State->resources) {
-      if (grid.AddInputDouble(name.c_str(), &resource.amount, 0.0,
-                                     1000000000.0, 1, 10.0)) changes |= ResourcesChanged;
+      if (grid.AddInputDouble(name.c_str(), &resource.amount, 0.0, 1000000000.0,
+                              1, 10.0))
+        changes |= ResourcesChanged;
     }
   }
   return changes;

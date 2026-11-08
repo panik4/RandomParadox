@@ -1,0 +1,149 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 4,
+    "minor": 4,
+    "patch": 0
+  },
+  "include": [
+    "CMakePresets.json"
+  ],
+  "workflowPresets": [
+    {
+      "name": "windows-msvc-debug-build",
+      "displayName": "Configure and build RandomParadox and tests (Debug)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "windows-msvc-debug-tests"
+        },
+        {
+          "type": "build",
+          "name": "windows-msvc-debug-tests"
+        }
+      ]
+    },
+    {
+      "name": "windows-msvc-release-build",
+      "displayName": "Configure and build RandomParadox and tests (RelWithDebInfo)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "windows-msvc-release-tests"
+        },
+        {
+          "type": "build",
+          "name": "windows-msvc-release-tests"
+        }
+      ]
+    },
+    {
+      "name": "windows-msvc-debug-tests",
+      "displayName": "Configure, build and test RandomParadox (Debug)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "windows-msvc-debug-tests"
+        },
+        {
+          "type": "build",
+          "name": "windows-msvc-debug-tests"
+        },
+        {
+          "type": "test",
+          "name": "windows-msvc-debug-tests"
+        }
+      ]
+    },
+    {
+      "name": "windows-msvc-release-tests",
+      "displayName": "Configure, build and test RandomParadox (RelWithDebInfo)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "windows-msvc-release-tests"
+        },
+        {
+          "type": "build",
+          "name": "windows-msvc-release-tests"
+        },
+        {
+          "type": "test",
+          "name": "windows-msvc-release-tests"
+        }
+      ]
+    },
+    {
+      "name": "windows-msvc-debug-fwg-tests",
+      "displayName": "Build and test FastWorldGen (Debug, shared root build)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "windows-msvc-debug-tests"
+        },
+        {
+          "type": "build",
+          "name": "windows-msvc-debug-fwg-tests"
+        },
+        {
+          "type": "test",
+          "name": "windows-msvc-debug-fwg-tests"
+        }
+      ]
+    },
+    {
+      "name": "windows-msvc-debug-libardagen-tests",
+      "displayName": "Build and test LibArdaGen (Debug, shared root build)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "windows-msvc-debug-tests"
+        },
+        {
+          "type": "build",
+          "name": "windows-msvc-debug-libardagen-tests"
+        },
+        {
+          "type": "test",
+          "name": "windows-msvc-debug-libardagen-tests"
+        }
+      ]
+    },
+    {
+      "name": "windows-msvc-release-fwg-tests",
+      "displayName": "Build and test FastWorldGen (RelWithDebInfo, shared root build)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "windows-msvc-release-tests"
+        },
+        {
+          "type": "build",
+          "name": "windows-msvc-release-fwg-tests"
+        },
+        {
+          "type": "test",
+          "name": "windows-msvc-release-fwg-tests"
+        }
+      ]
+    },
+    {
+      "name": "windows-msvc-release-libardagen-tests",
+      "displayName": "Build and test LibArdaGen (RelWithDebInfo, shared root build)",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "windows-msvc-release-tests"
+        },
+        {
+          "type": "build",
+          "name": "windows-msvc-release-libardagen-tests"
+        },
+        {
+          "type": "test",
+          "name": "windows-msvc-release-libardagen-tests"
+        }
+      ]
+    }
+  ]
+}

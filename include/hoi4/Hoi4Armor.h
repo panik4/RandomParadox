@@ -24,10 +24,10 @@ struct TankVariant {
   // upgrades have happened. Range between 0.0 and 1.0
   double upgradeLevel = 0.0;
 
-  template<class Archive>
+  template <class Archive>
   void serialize(Archive &ar, const unsigned int /*version*/) {
-    ar &type &subType &era &name &vanillaArmorName &bbaArmorName;
-    ar &nsbModules &upgradeLevel;
+    ar & type & subType & era & name & vanillaArmorName & bbaArmorName;
+    ar & nsbModules & upgradeLevel;
   }
 };
 

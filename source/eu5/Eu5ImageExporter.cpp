@@ -202,8 +202,8 @@ void writeMipmapLevels(const std::vector<float> &fullImage, int width,
   while (true) {
 
     // Create output folder
-    std::string levelDir = Cfg::Values().mapsPath + "debugTerrain/level_" +
-                           std::to_string(level);
+    std::string levelDir =
+        Cfg::Values().mapsPath + "debugTerrain/level_" + std::to_string(level);
 
     std::filesystem::create_directories(levelDir);
 
@@ -316,8 +316,7 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
         exportHeight / 8);
     std::string num = std::to_string(i);
     auto name = "heightmap_" + num + "_16";
-    auto hmapPath =
-        path + "decals/" + "/" + name + "/" + name + "_height.png";
+    auto hmapPath = path + "decals/" + "/" + name + "/" + name + "_height.png";
     Fwg::Utils::Logging::logLine("Saving heightmap tile: " + hmapPath);
     Fwg::Gfx::Png::save(scaledTile, exportWidth / 8, exportHeight / 8, hmapPath,
                         true, LCT_GREY, 16);
@@ -783,8 +782,7 @@ void ImageExporter::mapObjectMasks(
 
   for (int i = 0; i < climateData.forestTypes.size(); i++) {
     auto treeCoverType = climateData.forestTypes[i];
-    auto forestDensity =
-        static_cast<float>(climateData.forestDensity[i]);
+    auto forestDensity = static_cast<float>(climateData.forestDensity[i]);
     switch (treeCoverType) {
     case Fwg::Climate::Detail::ForestType::TROPICALMOIST: {
       denseJungleMask->setColourAtIndex(i, 255.0f * forestDensity);

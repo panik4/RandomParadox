@@ -1,10 +1,10 @@
 #pragma once
+#include "civilisation/CivilisationLayer.h"
 #include "entities/Colour.h"
 #include "io/ImageExporter.h"
 #include "io/Textures.h"
 #include "rendering/Images.h"
 #include "utils/Cfg.h"
-#include "civilisation/CivilisationLayer.h"
 #include <map>
 namespace Rpx::Gfx::Vic3 {
 class ImageExporter : public Rpx::Gfx::ImageExporter {
@@ -20,8 +20,8 @@ public:
                  Fwg::Gfx::Image &packedHeightMap, int mapX, int mapY,
                  int packedX) const;
   Fwg::Gfx::Image dumpPackedHeightmap(const Fwg::Gfx::Image &heightMap,
-                                       const std::string &path,
-                                       const std::string &colourMapKey) const;
+                                      const std::string &path,
+                                      const std::string &colourMapKey) const;
 
   void Vic3ColourMaps(const Fwg::Gfx::Image &climateMap,
                       const Fwg::Gfx::Image &heightMap,

@@ -25,11 +25,12 @@ struct Header {
 
   // print everything in one line with spaces in between
   void printHeader() {
-	std::cout << unknown1 << " " << unknown2 << " " << unknown3 << " " << unknown4
-			  << " " << unknown5 << " " << unknown6 << " " << unknown7 << " "
-			  << unknown8 << " " << unknown9 << " " << anchorAmount << " "
-			  << unknown10 << " Strips: " << stripAmount << " " << unknown11 << " Segment: "
-			  << segmentAmount << " " << unknown12 << std::endl;
+    std::cout << unknown1 << " " << unknown2 << " " << unknown3 << " "
+              << unknown4 << " " << unknown5 << " " << unknown6 << " "
+              << unknown7 << " " << unknown8 << " " << unknown9 << " "
+              << anchorAmount << " " << unknown10 << " Strips: " << stripAmount
+              << " " << unknown11 << " Segment: " << segmentAmount << " "
+              << unknown12 << std::endl;
   }
 };
 struct AnchorHeader {
@@ -95,8 +96,6 @@ struct Strip {
   unsigned short unknown11 = 0x03;
 };
 
-
-
 struct Segment {
   unsigned short unknown1 = 0x0b;
   unsigned short unknown2 = 0x01;
@@ -105,16 +104,16 @@ struct Segment {
   // wood - farm: 0x40
   // wood - mine: 0x80
   // farm - mine: 0x40
-  // 
+  //
 
-  //unsigned char connectionTypeDef = 0;
-  //unsigned short IDmult25 = 0x00;
-  //unsigned char buffer1 = 0x00;
-  // contains connection type, as well as the ID of the connection * 6400
+  // unsigned char connectionTypeDef = 0;
+  // unsigned short IDmult25 = 0x00;
+  // unsigned char buffer1 = 0x00;
+  //  contains connection type, as well as the ID of the connection * 6400
   unsigned int Idblock0;
 
   // some type of multiplier? seems to be ID * 800 +  some value
-  // some value depends on connection type: woodd-mine + 32, 
+  // some value depends on connection type: woodd-mine + 32,
   unsigned int IDmult800 = 0;
   unsigned short unknown7 = 0x05f5;
   unsigned short unknown8 = 0x01;
@@ -126,9 +125,7 @@ struct Segment {
   unsigned short unknown12 = 0x04;
   unsigned short unknown13 = 0x03;
 
-  void printStrip2() {
-
-  }
+  void printStrip2() {}
 };
 #pragma pack(pop) // Restore the default packing
 template <typename T>

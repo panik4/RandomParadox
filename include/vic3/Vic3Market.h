@@ -7,10 +7,7 @@ namespace Rpx::Vic3 {
 
 class Market {
 
-
-
 public:
   Market();
-  
 };
 } // namespace Rpx::Vic3

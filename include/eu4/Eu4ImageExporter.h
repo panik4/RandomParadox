@@ -15,4 +15,4 @@ public:
   ~ImageExporter();
   // member functions
 };
-} // namespace Rpx::Gfx::Hoi4
+} // namespace Rpx::Gfx::Eu4

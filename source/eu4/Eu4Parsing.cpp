@@ -21,8 +21,9 @@ std::string loadVanillaFile(const std::string &path,
   }
   return content;
 }
-void writeAdj(const std::string &path,
-              const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
+void writeAdj(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Adjacencies");
   // From;To;Type;Through;start_x;start_y;stop_x;stop_y;adjacency_rule_name;Comment
   // empty file for now
@@ -76,8 +77,9 @@ void writeAreas(const std::string &path,
   pU::writeFile(path, content);
 }
 
-void writeClimate(const std::string &path,
-                  const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
+void writeClimate(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing climate");
   /* climate types:
    * tropical, arid, arctic, mild_winter, normal_winter, severe_winter,
@@ -111,7 +113,8 @@ void writeClimate(const std::string &path,
       // find min and max temperatures
       Fwg::Utils::Math::switchIfComparator(temp[1], minTemp, std::less());
       Fwg::Utils::Math::switchIfComparator(temp[1], maxTemp, std::greater());
-      Fwg::Utils::Math::switchIfComparator(temp[2], maxMoisture, std::greater());
+      Fwg::Utils::Math::switchIfComparator(temp[2], maxMoisture,
+                                           std::greater());
     }
     if (minTemp < severeWinterCelsius)
       severe_winter.append(provID + " ");
@@ -181,12 +184,10 @@ void writeContinent(
   // must not be more than 6 continents!
   std::array<std::vector<int>, 6> continentMap;
   for (const auto &province : provinces) {
-    if (province->continent->ID >= 0 &&
-        province->continent->ID != -1 &&
+    if (province->continent->ID >= 0 && province->continent->ID != -1 &&
         province->continent->ID < continentMap.size()) {
 
-        continentMap.at(province->continent->ID)
-            .push_back(province->ID + 1);
+      continentMap.at(province->continent->ID).push_back(province->ID + 1);
     }
   }
   auto count = 0;
@@ -236,13 +237,12 @@ void writeDefinition(
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Defining Provinces");
   std::string content{"province;red;green;blue;x;x\n"};
   for (const auto &prov : provinces) {
-    std::vector<std::string> arguments{
-        std::to_string(prov->ID + 1),
-        std::to_string(prov->colour.getRed()),
-        std::to_string(prov->colour.getGreen()),
-        std::to_string(prov->colour.getBlue()),
-        "x",
-        "x"};
+    std::vector<std::string> arguments{std::to_string(prov->ID + 1),
+                                       std::to_string(prov->colour.getRed()),
+                                       std::to_string(prov->colour.getGreen()),
+                                       std::to_string(prov->colour.getBlue()),
+                                       "x",
+                                       "x"};
     content.append(pU::csvFormat(arguments, ';', false));
   }
   pU::writeFile(path, content);
@@ -309,7 +309,8 @@ void writeRegions(const std::string &path, const std::string &gamePath,
   pU::writeFile(path, content);
 }
 
-void writeSuperregion(const std::string &path, const std::string &gamePath,
+void writeSuperregion(
+    const std::string &path, const std::string &gamePath,
     const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions) {
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Superregions");
   // not really necessary
@@ -319,8 +320,9 @@ void writeSuperregion(const std::string &path, const std::string &gamePath,
   pU::writeFile(path, content);
 }
 
-void writeTerrain(const std::string &path,
-                  const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
+void writeTerrain(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Terrain");
   // copying for now, as overwrites of terrain type are not a necessity
   pU::writeFile(path, pU::readFile(Fwg::Cfg::Values().resourcePath +
@@ -366,8 +368,9 @@ void copyDescriptorFile(const std::string &sourcePath,
   pU::writeFile(modsDirectory + "/" + modName + ".mod", modText);
 }
 
-void writeProvinces(const std::string &path,
-                    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
+void writeProvinces(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
     const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions) {
   Fwg::Utils::Logging::logLine(
       "Eu4 Parser: History: Drawing Areas::Province Borders");
@@ -376,10 +379,8 @@ void writeProvinces(const std::string &path,
   for (const auto &region : regions) {
     for (const auto &prov : region->ardaProvinces) {
       // make sure lakes and wastelands are empty
-      if (prov->isLake() ||
-          prov->terrainType == "rockyMountains") {
-        pU::writeFile(path + "/" + std::to_string(prov->ID + 1) + "-a.txt",
-                      "");
+      if (prov->isLake() || prov->terrainType == "rockyMountains") {
+        pU::writeFile(path + "/" + std::to_string(prov->ID + 1) + "-a.txt", "");
       } else {
         std::string content{templateContent};
         pU::writeFile(path + "/" + std::to_string(prov->ID + 1) + "-a.txt",

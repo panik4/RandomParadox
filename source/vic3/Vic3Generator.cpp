@@ -1,5 +1,5 @@
-#include "resources/ResourceLayer.h"
 #include "vic3/Vic3Generator.h"
+#include "resources/ResourceLayer.h"
 namespace Rpx::Vic3 {
 using namespace Fwg;
 using namespace Fwg::Gfx;
@@ -67,11 +67,8 @@ bool Generator::createPaths() {
                                       "/content_source/map_objects/masks",
                                       "/localization//"};
 
-
-
     std::vector<std::string> pathsToRemove = {"/common/", "/localization/",
                                               "/map_data/"};
-
 
     for (const auto &path : pathsToRemove) {
       Fwg::Utils::Logging::logLine("Removing path: " + pathcfg.gameModPath +
@@ -88,7 +85,7 @@ bool Generator::createPaths() {
       create_directory(Cfg::Values().mapsPath + "Vic3");
 
     return true;
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     std::string error = "Configured paths seem to be messed up, check Victoria "
                         "IIIModule.json\n";
     error += "You can try fixing it yourself. Error is:\n ";
@@ -102,12 +99,14 @@ bool Generator::createPaths() {
 void Generator::invalidateGameSimulationData() {
   modData.vic3Countries.clear();
   for (auto &region : modData.vic3Regions)
-    if (region) region->buildings.clear();
+    if (region)
+      region->buildings.clear();
   vic3Stats = {};
 }
 
 void Generator::invalidateGameLocationData() {
-  for (auto &region : modData.vic3Regions) region->navalExit = -1;
+  for (auto &region : modData.vic3Regions)
+    region->navalExit = -1;
 }
 
 void Generator::configureModGen(const std::string &configSubFolder,
@@ -128,7 +127,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
     Fwg::Parsing::replaceInStringStream(buffer, "//", "/");
 
     pt::read_json(buffer, vic3Conf);
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     Fwg::Utils::Logging::logLine(
         "Incorrect config \"Europa Universalis IVModule.json\"");
     Fwg::Utils::Logging::logLine("You can try fixing it yourself. Error is: ",
@@ -166,7 +165,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
 /* a visualisation of the final terrain types. This is not vic3 specific yet, a
  * TODO*/
 void Generator::mapTerrain() {
-  const auto& config = Cfg::Values();
+  const auto &config = Cfg::Values();
   Fwg::Utils::Logging::logLine("Mapping Terrain");
   const auto &landFormIds = terrainData.landFormIds;
   const auto &climates = climateData.climateChances;
@@ -241,7 +240,9 @@ void Generator::mapTerrain() {
         {"desert", config.climateConfig.climateColours.at("desert")},
         {"plains", config.terrainConfig.elevationColours.at("plains")}};
     Png::save(Arda::Gfx::displayTerrainTypes(ardaData.areaData.provinces,
-        config.width, config.height, palette), config.mapsPath + "debug/typeMap.png");
+                                             config.width, config.height,
+                                             palette),
+              config.mapsPath + "debug/typeMap.png");
   }
 }
 
@@ -276,7 +277,9 @@ void Generator::distributeResources() {
   // config for all resource types
   for (auto &resConfig : vic3Config.resConfigs) {
     std::vector<float> resPrev;
-    resPrev = Arda::Resources::generateResourceLayer(resConfig, seeds[&resConfig - &vic3Config.resConfigs[0]], areaData, climateData);
+    resPrev = Arda::Resources::generateResourceLayer(
+        resConfig, seeds[&resConfig - &vic3Config.resConfigs[0]], areaData,
+        climateData);
     if (resPrev.size())
       totalResourceVal(resPrev, resConfig.resourcePrevalence, resConfig);
   }
@@ -300,7 +303,8 @@ void Generator::mapRegions() {
     ardaRegion->ardaProvinces.clear();
 
     for (auto &province : ardaRegion->provinces) {
-      ardaRegion->ardaProvinces.push_back(ardaData.areaData.provinces[province->ID]);
+      ardaRegion->ardaProvinces.push_back(
+          ardaData.areaData.provinces[province->ID]);
     }
     // save game region to generic module container and to hoi4 specific
     // container
@@ -357,7 +361,8 @@ void Generator::generateCountrySpecifics() {
     c->technologyLevel = averageDevelopment;
     c->evaluateTechLevel(vic3GameData.techLevels);
     if (cfg.debugLevel > 5) {
-      Fwg::Utils::Logging::logLine(c->tag, " has a population of ", c->getTotalPopulation());
+      Fwg::Utils::Logging::logLine(c->tag, " has a population of ",
+                                   c->getTotalPopulation());
     }
   }
 }
@@ -368,8 +373,8 @@ bool Generator::importData(const std::string &path) {
     vic3GameData.techLevels = Vic3::Importing::readTechLevels(
         path + "common/scripted_effects//00_starting_inventions.txt",
         vic3GameData.techs);
-    vic3GameData.goods = Vic3::Importing::readGoods(
-        path + "common/goods//00_goods.txt");
+    vic3GameData.goods =
+        Vic3::Importing::readGoods(path + "common/goods//00_goods.txt");
     vic3GameData.productionmethods = Vic3::Importing::readProdMethods(
         path + "common/production_methods//", vic3GameData.goods,
         vic3GameData.techs);
@@ -386,7 +391,7 @@ bool Generator::importData(const std::string &path) {
         vic3GameData.popNeeds);
     ardaData.nData.originalDisallowedTokens =
         Vic3::Importing::readTags(path + "common/history//countries//");
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     Fwg::Utils::Logging::logLine("Error: ", e.what());
     return false;
   }
@@ -527,7 +532,7 @@ void Generator::distributeBuildings() {
                     buildingTypes.emplace(entry3.name, entry3);
                 }
               }
-            } catch (std::exception& e) {
+            } catch (std::exception &e) {
               Fwg::Utils::Logging::logLine(
                   "Warning: Couldn't match production method to building for "
                   "production method: ",
@@ -557,7 +562,8 @@ void Generator::distributeBuildings() {
             if (buildingProdMethods.size()) {
               // then select the production method, by ordering them by output
               // of the good and checking if it is in the potentialProdMethods
-              auto &prodMethod = Fwg::Utils::Random::selectRandom(buildingProdMethods);
+              auto &prodMethod =
+                  Fwg::Utils::Random::selectRandom(buildingProdMethods);
               auto outputAmount = 0;
               for (auto &prodMethodGood : prodMethod.outputs) {
                 if (produceableGood.name == prodMethodGood.first.name) {
@@ -636,7 +642,9 @@ void Generator::createLocators() {
 
   for (auto i = 0; i < terrainData.detailedHeightMap.size(); i++) {
     binaryLandMap[i] =
-        terrainData.detailedHeightMap[i] <= config.terrainConfig.seaLevel ? false : true;
+        terrainData.detailedHeightMap[i] <= config.terrainConfig.seaLevel
+            ? false
+            : true;
   }
   auto searchVector = Fwg::Utils::Math::getCircularOffsets(config.width, 10);
 
@@ -673,16 +681,16 @@ void Generator::createLocators() {
     //    auto ogPosition = farmLocator->position.weightedCenter;
     //    auto circDistance = Fwg::HeightGeneration::circularDistance(
     //        binaryLandMap, config.width,
-    //        farmLocator->position.weightedCenter, config.terrainConfig.seaLevel,
-    //        searchVector, 10, true);
+    //        farmLocator->position.weightedCenter,
+    //        config.terrainConfig.seaLevel, searchVector, 10, true);
     //    if (circDistance < 5) {
     //      // now try to find the most distant point in this whole region
     //      auto maxDistance = 0;
     //      auto maxIndex = 0;
     //      for (auto &pix : regionPixels) {
     //        auto distance = Fwg::HeightGeneration::circularDistance(
-    //            binaryLandMap, config.width, pix, config.terrainConfig.seaLevel,
-    //            searchVector, 10, true);
+    //            binaryLandMap, config.width, pix,
+    //            config.terrainConfig.seaLevel, searchVector, 10, true);
     //        if (distance > maxDistance) {
     //          maxDistance = distance;
     //          maxIndex = pix;
@@ -761,7 +769,8 @@ void Generator::generate() {
       return std::make_shared<StrategicRegion>();
     };
     if (!generateStrategicRegions(factory)) {
-      throw std::runtime_error("Could not generate Victoria 3 strategic regions");
+      throw std::runtime_error(
+          "Could not generate Victoria 3 strategic regions");
     }
     // Vic3 specifics:
     distributeResources();
@@ -776,7 +785,7 @@ void Generator::generate() {
     calculateNeeds();
     distributeBuildings();
 
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     std::string error = "Error while generating the Vic3 Module.\n";
     error += "Error is: \n";
     error += e.what();
@@ -791,7 +800,7 @@ void Generator::generate() {
     //  compatible colours
     writeImages();
 
-  } catch (std::exception& e) {
+  } catch (std::exception &e) {
     std::string error = "Error while dumping and writing files.\n";
     error += "Error is: \n";
     error += e.what();
@@ -812,7 +821,8 @@ void Generator::writeTextFiles(bool scenarioDetails) {
   // compatReleasable(pathcfg.gamePath + "/game/common/country_creation/",
   //                  pathcfg.gameModPath + "/common/country_creation/");
   adj(pathcfg.gameModPath + "/map_data/adjacencies.csv");
-  defaultMap(pathcfg.gameModPath + "/map_data/default.map", ardaData.areaData.provinces);
+  defaultMap(pathcfg.gameModPath + "/map_data/default.map",
+             ardaData.areaData.provinces);
   defines(pathcfg.gameModPath + "/common/defines/01_defines.txt");
   provinceTerrains(pathcfg.gameModPath + "/map_data/province_terrains.txt",
                    ardaData.areaData.provinces);
@@ -840,8 +850,7 @@ void Generator::writeTextFiles(bool scenarioDetails) {
              "/common/country_creation/00_releasable_countries.txt");
   compatFile(pathcfg.gameModPath +
              "/common/cultures/00_additional_cultures.txt");
-  compatFile(pathcfg.gameModPath +
-             "/common/country_definitions/01_africa.txt");
+  compatFile(pathcfg.gameModPath + "/common/country_definitions/01_africa.txt");
   compatFile(pathcfg.gameModPath +
              "/common/country_definitions/01_pacific_and_australasia.txt");
   compatFile(pathcfg.gameModPath +
@@ -915,8 +924,7 @@ void Generator::writeImages() {
 void Generator::writeSplnet() {
   genNavmesh({}, {});
   createLocators();
-  Parsing::Writing::locators(pathcfg.gameModPath +
-                                 "/gfx/map/map_object_data/",
+  Parsing::Writing::locators(pathcfg.gameModPath + "/gfx/map/map_object_data/",
                              modData.vic3Regions);
   calculateNavalExits();
 

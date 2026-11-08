@@ -1,5 +1,5 @@
-#include "civilization/NavmeshGeneration.h"
 #include "vic3/Vic3Parsing.h"
+#include "civilization/NavmeshGeneration.h"
 using namespace Fwg;
 namespace Logging = Fwg::Utils::Logging;
 namespace pU = Fwg::Parsing;
@@ -15,8 +15,9 @@ void adj(const std::string &path) {
   pU::writeFile(path, content);
 }
 
-void defaultMap(const std::string &path,
-                const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
+void defaultMap(
+    const std::string &path,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
   auto templateContent = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                       "vic3/map_data//default.map");
   Logging::logLine("Vic3 Parser: Map: Default Map");
@@ -177,7 +178,8 @@ void stateFiles(const std::string &path,
 void provinceTerrains(
     const std::string &path,
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
-  Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Areas::Province Terrains");
+  Fwg::Utils::Logging::logLine(
+      "Vic3 Parser: Map: Writing Areas::Province Terrains");
   std::string content{""};
   for (const auto &province : provinces) {
     content.append(province->toHexString(true, true));
@@ -203,9 +205,10 @@ void writeMetadata(const std::string &path) {
 
   pU::writeFile(path, templateFile);
 }
-void strategicRegions(const std::string &path,
+void strategicRegions(
+    const std::string &path,
     const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions,
-                      const std::vector<std::shared_ptr<Region>> &regions) {
+    const std::vector<std::shared_ptr<Region>> &regions) {
 
   Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Strategig Regions");
   const auto templateFile =
@@ -232,11 +235,12 @@ void strategicRegions(const std::string &path,
   }
   pU::writeFile(path, file, true);
 }
-void cultureCommon(const std::string &path,
+void cultureCommon(
+    const std::string &path,
     const std::vector<std::shared_ptr<Arda::Culture>> &cultures) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing cultures");
-  const auto culturesTemplate = pU::readFile(
-      Fwg::Cfg::Values().resourcePath + "vic3/common/cultureTemplate.txt");
+  const auto culturesTemplate = pU::readFile(Fwg::Cfg::Values().resourcePath +
+                                             "vic3/common/cultureTemplate.txt");
   std::string cultureFile{""};
   for (const auto &culture : cultures) {
     auto cultString = culturesTemplate;
@@ -254,7 +258,8 @@ void cultureCommon(const std::string &path,
 
   pU::writeFile(path, cultureFile, true);
 }
-void religionCommon(const std::string &path,
+void religionCommon(
+    const std::string &path,
     const std::vector<std::shared_ptr<Arda::Religion>> &religions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: History: Writing religions");
 
@@ -398,7 +403,8 @@ void countryHistory(
     pU::writeFile(path + "/" + filename, cString, true);
   }
 }
-void staticModifiers(const std::string &path,
+void staticModifiers(
+    const std::string &path,
     const std::vector<std::shared_ptr<Arda::Culture>> &cultures,
     const std::vector<std::shared_ptr<Arda::Religion>> &religions) {
   Fwg::Utils::Logging::logLine("Vic3 Parser: Common: Writing static modifiers");
@@ -549,9 +555,8 @@ void locators(const std::string &path,
   const auto locatorsTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
                    "vic3/gfx/generated_map_object_locators.txt");
-  const auto singeLocatorTemplate =
-      pU::readFile(Fwg::Cfg::Values().resourcePath +
-                   "vic3/gfx/single_locator_instance.txt");
+  const auto singeLocatorTemplate = pU::readFile(
+      Fwg::Cfg::Values().resourcePath + "vic3/gfx/single_locator_instance.txt");
   std::string cityContent = locatorsTemplate;
   pU::replaceOccurence(cityContent, "templateWaterClamp", "no");
   std::string farmContent = cityContent;
@@ -568,10 +573,14 @@ void locators(const std::string &path,
       auto content = singeLocatorTemplate;
       pU::replaceOccurence(content, "templateID",
                            std::to_string(1 + region->ID));
-      pU::replaceOccurence(content, "templateX",
-                           std::to_string(Fwg::Civilization::Locations::routingPixel(*locator) % Fwg::Cfg::Values().width));
-      pU::replaceOccurence(content, "templateY",
-                           std::to_string(Fwg::Civilization::Locations::routingPixel(*locator) / Fwg::Cfg::Values().width));
+      pU::replaceOccurence(
+          content, "templateX",
+          std::to_string(Fwg::Civilization::Locations::routingPixel(*locator) %
+                         Fwg::Cfg::Values().width));
+      pU::replaceOccurence(
+          content, "templateY",
+          std::to_string(Fwg::Civilization::Locations::routingPixel(*locator) /
+                         Fwg::Cfg::Values().width));
       locatorContent[locator->type].append(content);
     }
   }
@@ -623,9 +632,9 @@ void Rpx::Vic3::Parsing::History::writeBuildings(
   const auto buildingsStateTemplate =
       pU::readFile(Fwg::Cfg::Values().resourcePath +
                    "vic3/common/history/buildingsStateTemplate.txt");
-  const auto buildingsSingleBuildingTemplate = pU::readFile(
-      Fwg::Cfg::Values().resourcePath +
-      "vic3/common/history/buildingsSingleBuildingTemplate.txt");
+  const auto buildingsSingleBuildingTemplate =
+      pU::readFile(Fwg::Cfg::Values().resourcePath +
+                   "vic3/common/history/buildingsSingleBuildingTemplate.txt");
   std::string allStateString;
   for (auto &region : regions) {
     if (!region->isLand())

@@ -39,8 +39,12 @@ public:
 
   static Fwg::UI::Prerequisite
   hoi4StatesInitialised(const Rpx::Hoi4::Generator &generator) {
-    return {"HOI4 States", "Generate state data first",
-            [&]() { return generator.readiness.economy == Rpx::Hoi4::Generator::Status::Ready && generator.readiness.resources == Rpx::Hoi4::Generator::Status::Ready; }};
+    return {"HOI4 States", "Generate state data first", [&]() {
+              return generator.readiness.economy ==
+                         Rpx::Hoi4::Generator::Status::Ready &&
+                     generator.readiness.resources ==
+                         Rpx::Hoi4::Generator::Status::Ready;
+            }};
   }
 
   static Fwg::UI::Prerequisite
@@ -51,8 +55,7 @@ public:
             [&, requireCountryDetails]() {
               return !generator.ardaData.areaData.superRegions.empty() &&
                      generator.provinceMap.size() > 0 &&
-                     generator.exportReady() &&
-                     !requireCountryDetails;
+                     generator.exportReady() && !requireCountryDetails;
             }};
   }
 
@@ -62,8 +65,9 @@ public:
 
   static Fwg::UI::Prerequisite
   vic3ExportReady(const Rpx::Vic3::Generator &generator) {
-    return {"Vic3 Export Ready", "Generate strategic regions first",
-            [&]() { return !generator.ardaData.areaData.superRegions.empty(); }};
+    return {"Vic3 Export Ready", "Generate strategic regions first", [&]() {
+              return !generator.ardaData.areaData.superRegions.empty();
+            }};
   }
 
   // =========================================================================

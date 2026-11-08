@@ -484,9 +484,8 @@ void ImageExporter::detailMaps(
     std::array<double, 3> intensities{};
 
     const auto textures = Fwg::Climate::climateCategoryWeights(
-        climateData.climateChances.getWeightedChances(i), [&](auto type) {
-          return climateMap.at(type);
-        });
+        climateData.climateChances.getWeightedChances(i),
+        [&](auto type) { return climateMap.at(type); });
     for (size_t channel = 0; channel < textures.size(); ++channel) {
       colour[channel] = static_cast<unsigned char>(textures[channel].category);
       intensities[channel] = textures[channel].weight;

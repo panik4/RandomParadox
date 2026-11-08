@@ -1,10 +1,10 @@
 #pragma once
 #include "FastWorldGenerator.h"
-#include <utils/RpxUtils.h>
 #include <map>
 #include <memory>
 #include <set>
 #include <string>
+#include <utils/RpxUtils.h>
 #include <vector>
 namespace Rpx::Vic3 {
 

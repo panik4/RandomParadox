@@ -10,8 +10,7 @@
         "CMAKE_BUILD_TYPE": "Debug"
       },
       "environment": {
-        "VSCMD_ARG_TGT_ARCH": "x64",
-        "CMAKE_PREFIX_PATH": "D:/lib/boost"
+        "VSCMD_ARG_TGT_ARCH": "x64"
       }
     },
     {
@@ -23,8 +22,7 @@
         "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       },
       "environment": {
-        "VSCMD_ARG_TGT_ARCH": "x64",
-        "CMAKE_PREFIX_PATH": "D:/lib/boost"
+        "VSCMD_ARG_TGT_ARCH": "x64"
       }
     },
     {
@@ -36,9 +34,147 @@
         "CMAKE_BUILD_TYPE": "Release"
       },
       "environment": {
-        "VSCMD_ARG_TGT_ARCH": "x64",
-        "CMAKE_PREFIX_PATH": "D:/lib/boost"
+        "VSCMD_ARG_TGT_ARCH": "x64"
+      }
+    },
+    {
+      "name": "windows-msvc-debug-tests",
+      "displayName": "Windows MSVC x64 Debug with tests",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/windows-msvc-debug-tests",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTING": "ON",
+        "ENABLE_ASAN": "OFF",
+        "Boost_USE_STATIC_LIBS": "ON"
+      }
+    },
+    {
+      "name": "windows-msvc-release-tests",
+      "displayName": "Windows MSVC x64 RelWithDebInfo with tests",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/windows-msvc-release-tests",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "BUILD_TESTING": "ON",
+        "ENABLE_ASAN": "OFF",
+        "Boost_USE_STATIC_LIBS": "ON"
       }
     }
-  ]
+  ],
+  "buildPresets": [
+    {
+      "name": "windows-msvc-debug-tests",
+      "displayName": "Build Windows MSVC Debug with tests",
+      "configurePreset": "windows-msvc-debug-tests",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-msvc-release-tests",
+      "displayName": "Build Windows MSVC RelWithDebInfo with tests",
+      "configurePreset": "windows-msvc-release-tests",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "windows-msvc-debug-fwg-tests",
+      "inherits": "windows-msvc-debug-tests",
+      "displayName": "Build FastWorldGen tests (Debug, shared root build)",
+      "targets": [
+        "FastWorldGenTests"
+      ]
+    },
+    {
+      "name": "windows-msvc-debug-libardagen-tests",
+      "inherits": "windows-msvc-debug-tests",
+      "displayName": "Build LibArdaGen tests (Debug, shared root build)",
+      "targets": [
+        "LibArdaGenTests"
+      ]
+    },
+    {
+      "name": "windows-msvc-release-fwg-tests",
+      "inherits": "windows-msvc-release-tests",
+      "displayName": "Build FastWorldGen tests (RelWithDebInfo, shared root build)",
+      "targets": [
+        "FastWorldGenTests"
+      ]
+    },
+    {
+      "name": "windows-msvc-release-libardagen-tests",
+      "inherits": "windows-msvc-release-tests",
+      "displayName": "Build LibArdaGen tests (RelWithDebInfo, shared root build)",
+      "targets": [
+        "LibArdaGenTests"
+      ]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "windows-msvc-debug-tests",
+      "displayName": "Test Windows MSVC Debug",
+      "configurePreset": "windows-msvc-debug-tests",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "windows-msvc-release-tests",
+      "displayName": "Test Windows MSVC RelWithDebInfo",
+      "configurePreset": "windows-msvc-release-tests",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
+    },
+    {
+      "name": "windows-msvc-debug-fwg-tests",
+      "inherits": "windows-msvc-debug-tests",
+      "displayName": "Run FastWorldGen tests only (Debug)",
+      "filter": {
+        "include": {
+          "label": "^FastWorldGen$"
+        }
+      }
+    },
+    {
+      "name": "windows-msvc-debug-libardagen-tests",
+      "inherits": "windows-msvc-debug-tests",
+      "displayName": "Run LibArdaGen tests only (Debug)",
+      "filter": {
+        "include": {
+          "label": "^LibArdaGen$"
+        }
+      }
+    },
+    {
+      "name": "windows-msvc-release-fwg-tests",
+      "inherits": "windows-msvc-release-tests",
+      "displayName": "Run FastWorldGen tests only (RelWithDebInfo)",
+      "filter": {
+        "include": {
+          "label": "^FastWorldGen$"
+        }
+      }
+    },
+    {
+      "name": "windows-msvc-release-libardagen-tests",
+      "inherits": "windows-msvc-release-tests",
+      "displayName": "Run LibArdaGen tests only (RelWithDebInfo)",
+      "filter": {
+        "include": {
+          "label": "^LibArdaGen$"
+        }
+      }
+    }
+  ],
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  }
 }

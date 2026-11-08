@@ -11,7 +11,6 @@ void overwrites(const std::string &path);
 
 } // namespace Writing
 
-namespace History {
-}
+namespace History {}
 
 }; // namespace Rpx::Eu5::Parsing

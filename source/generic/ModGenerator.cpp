@@ -47,8 +47,8 @@ void ModGenerator::load(const std::string &path) {
   ar >> climateMap >> worldMap >> segmentMap >> provinceMap >> regionMap;
   ar >> locationMap >> navmeshMap >> errorMap;
   ar >> preModifyHeightMap >> preModifyHumidityMap;
-  ar >> ardaData.areaData.continents >> ardaData.areaData.regions
-     >> ardaData.areaData.provinces >> ardaData.areaData.superRegions;
+  ar >> ardaData.areaData.continents >> ardaData.areaData.regions >>
+      ardaData.areaData.provinces >> ardaData.areaData.superRegions;
   ar >> ardaData.countries >> ardaData.civData >> ardaData.nData;
   ar >> countryMap >> superRegionMap;
   ar >> gameType >> exportWidth >> exportHeight;

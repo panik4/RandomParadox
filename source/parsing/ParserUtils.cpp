@@ -238,9 +238,6 @@ bool clearAllBracketBlockContents(std::string &content,
   return changed;
 }
 
-
-
-
 std::vector<Block> getOuterBlocks(const std::vector<std::string> &lines) {
   std::vector<Block> outermostBlocks;
   bool insideBlock = false;
