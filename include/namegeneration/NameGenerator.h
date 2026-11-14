@@ -15,8 +15,6 @@ namespace NameGeneration {
 
 // member functions
 std::string generateFactionName(const Arda::Utils::Ideology &ideology,
-                                const std::string name,
-                                const std::string adjective,
                                 const Arda::Names::NameData &nameData);
 std::string modifyWithIdeology(const Arda::Utils::Ideology &ideology,
                                const std::string name,

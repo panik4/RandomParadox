@@ -17,8 +17,7 @@ public:
   Utils::Pathcfg pathcfg;
   // constructors&destructor
   ModGenerator(const std::string &configSubFolder, const GameType &gameType,
-               const std::string &gameSubpath,
-               const boost::property_tree::ptree &rpdConf);
+               const std::string &gameSubpath);
   ~ModGenerator();
   virtual bool createPaths() = 0;
 
@@ -36,8 +35,8 @@ public:
   virtual void writeTextFiles(bool scenarioDetails) = 0;
   virtual void writeImages() = 0;
 
-  virtual void save(const std::string &path) override;
-  virtual void load(const std::string &path) override;
+  void save(const std::string &path, const Fwg::Cfg &config) override;
+  void load(const std::string &path, Fwg::Cfg &config) override;
 
 }; // namespace Rpx
 } // namespace Rpx

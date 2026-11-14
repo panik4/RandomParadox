@@ -7,7 +7,7 @@ using namespace Fwg::Gfx;
 Generator::Generator(const std::string &configSubFolder,
                      const boost::property_tree::ptree &rpdConf)
     : Rpx::ModGenerator(configSubFolder, GameType::Vic3,
-                        "binaries//victoria3.exe", rpdConf) {
+                        "binaries//victoria3.exe") {
   configureModGen(configSubFolder, Fwg::Cfg::Values().username, rpdConf);
   // this->terrainTypeToString.at(Fwg::Areas::Province::TerrainType::marsh) =
   // "wetlands";
@@ -96,6 +96,11 @@ bool Generator::createPaths() {
   }
 }
 
+void Generator::invalidateGameAreas() {
+  modData = {};
+  vic3Stats = {};
+}
+
 void Generator::invalidateGameSimulationData() {
   modData.vic3Countries.clear();
   for (auto &region : modData.vic3Regions)
@@ -149,6 +154,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
   config.areaConfig.regions.autoSeaParameters = false;
   config.resolutionConstraints.forceResolutionBase = false;
   config.areaConfig.provinces.autoSplit = false;
+  config.areaConfig.provinces.rejectWrapOnlyWaterAdjacency = false;
   config.resolutionConstraints.maxImageArea = 8192 * 3616;
   config.resolutionConstraints.resolutionBase = 1;
   // allow massive images for Vic3
@@ -166,10 +172,14 @@ void Generator::configureModGen(const std::string &configSubFolder,
  * TODO*/
 void Generator::mapTerrain() {
   const auto &config = Cfg::Values();
+  const auto state = fwgStateSnapshot();
+  if (!hasClimateClassificationData(config) || !hasForestsData(config) ||
+      state.areaClimateClassification != Fwg::Availability::Available ||
+      state.areaForestShares != Fwg::Availability::Available ||
+      state.areaLandformShares != Fwg::Availability::Available)
+    throw std::runtime_error("Refresh available area environment summaries "
+                             "before converting terrain");
   Fwg::Utils::Logging::logLine("Mapping Terrain");
-  const auto &landFormIds = terrainData.landFormIds;
-  const auto &climates = climateData.climateChances;
-  const auto &forests = climateData.dominantForest;
   for (auto &ardaRegion : ardaData.areaData.regions) {
     for (auto &gameProv : ardaRegion->ardaProvinces) {
       gameProv->terrainType = "plains";
@@ -179,29 +189,8 @@ void Generator::mapTerrain() {
       } else if (baseProv->isSea()) {
         gameProv->terrainType = "sea";
       } else {
-        int forestPixels = 0;
-        std::map<Fwg::Climate::Detail::ClimateClassId, int> climateScores;
-        std::map<Fwg::Terrain::LandformId, int> terrainTypeScores;
-        // get the dominant climate of the province
-        for (auto &pix : baseProv->pixels) {
-          climateScores[climates.getChance(0, pix).typeIndex]++;
-          terrainTypeScores[landFormIds[pix]]++;
-          if (forests[pix]) {
-            forestPixels++;
-          }
-        }
-        auto dominantClimate =
-            std::max_element(climateScores.begin(), climateScores.end(),
-                             [](const auto &l, const auto &r) {
-                               return l.second < r.second;
-                             })
-                ->first;
-        auto dominantTerrain =
-            std::max_element(terrainTypeScores.begin(), terrainTypeScores.end(),
-                             [](const auto &l, const auto &r) {
-                               return l.second < r.second;
-                             })
-                ->first;
+        const auto dominantClimate = baseProv->climateType;
+        const auto dominantTerrain = baseProv->dominantLandformId;
         // now first check the terrains, if e.g. mountains or peaks are too
         // dominant, this is a mountainous province
         if (dominantTerrain == Fwg::Terrain::LandformId::MOUNTAINS ||
@@ -209,7 +198,7 @@ void Generator::mapTerrain() {
           gameProv->terrainType = "mountain";
         } else if (dominantTerrain == Fwg::Terrain::LandformId::HILLS) {
           gameProv->terrainType = "hills";
-        } else if ((double)forestPixels / baseProv->pixels.size() > 0.5) {
+        } else if (baseProv->dominantForestShare > 0.5) {
           gameProv->terrainType = "forest";
         } else {
           using CTI = Fwg::Climate::Detail::ClimateClassId;
@@ -267,11 +256,16 @@ void Generator::totalArableLand(const std::vector<float> &arableLand) {
 }
 
 void Generator::distributeResources() {
+  const auto &cfg = Fwg::Cfg::Values();
+  if (!hasArableLandData(cfg) || !hasClimateClassificationData(cfg) ||
+      !hasForestsData(cfg))
+    throw std::runtime_error(
+        "Generate available arable land, climate and forests before resources");
 
   // distribute arable land to states
   totalArableLand(climateData.arableLand);
   std::vector<int> seeds;
-  for (const auto &resConfig : vic3Config.resConfigs) {
+  for (std::size_t i = 0; i < vic3Config.resConfigs.size(); ++i) {
     seeds.push_back(RandNum::getRandom<int>());
   }
   // config for all resource types
@@ -351,14 +345,14 @@ void Generator::generateCountrySpecifics() {
   // count pops
   for (auto &cEntry : modData.vic3Countries) {
     auto &c = cEntry.second;
-    auto totalPop = 0;
-    auto averageDevelopment = 0.0;
+    double totalPop = 0.0;
+    double weightedDevelopment = 0.0;
     for (auto &state : c->ownedVic3Regions) {
       // development should be weighed by the pop in the state
-      averageDevelopment += state->averageDevelopment *
-                            ((double)state->totalPopulation / (double)totalPop);
+      totalPop += state->totalPopulation;
+      weightedDevelopment += state->averageDevelopment * state->totalPopulation;
     }
-    c->technologyLevel = averageDevelopment;
+    c->technologyLevel = totalPop > 0.0 ? weightedDevelopment / totalPop : 0.0;
     c->evaluateTechLevel(vic3GameData.techLevels);
     if (cfg.debugLevel > 5) {
       Fwg::Utils::Logging::logLine(c->tag, " has a population of ",
@@ -532,7 +526,7 @@ void Generator::distributeBuildings() {
                     buildingTypes.emplace(entry3.name, entry3);
                 }
               }
-            } catch (std::exception &e) {
+            } catch (std::exception &) {
               Fwg::Utils::Logging::logLine(
                   "Warning: Couldn't match production method to building for "
                   "production method: ",
@@ -540,7 +534,7 @@ void Generator::distributeBuildings() {
             }
           }
           // now figure out how much to plop, and where
-          actualDemand /= std::max<int>(buildingTypes.size(), 1);
+          actualDemand /= std::max<std::size_t>(buildingTypes.size(), 1);
           for (auto &type : buildingTypes) {
             Fwg::Utils::Logging::logLine("Have ", type.second.name,
                                          " as option for ",
@@ -572,8 +566,8 @@ void Generator::distributeBuildings() {
               }
               // then figure out how many buildings we need for the overall
               // demand
-              int levelRequired =
-                  std::max<int>(actualDemand / (double)outputAmount, 1);
+              int levelRequired = std::max<int>(
+                  static_cast<int>(actualDemand / (double)outputAmount), 1);
               Fwg::Utils::Logging::logLine("Requiring ", levelRequired,
                                            " to create ", actualDemand, " ",
                                            produceableGood.name);
@@ -757,7 +751,8 @@ void Generator::generate() {
 
     refreshTerrain();
     mapContinents();
-    genCivilisationData();
+    if (!genCivilisationData())
+      throw std::runtime_error("Civilisation generation failed");
     auto countryFactory = []() -> std::shared_ptr<Vic3::Country> {
       return std::make_shared<Vic3::Country>();
     };
@@ -811,13 +806,18 @@ void Generator::generate() {
 }
 
 void Generator::writeTextFiles(bool scenarioDetails) {
+  const auto &cfg = Fwg::Cfg::Values();
+  if (!hasArableLandData(cfg) || !hasClimateClassificationData(cfg) ||
+      !hasForestsData(cfg))
+    throw std::runtime_error(
+        "Climate, forests and arable land must be available before export");
   using namespace Parsing::Writing;
   auto foundRegions = compatRegions(
       pathcfg.gamePath + "/game/map_data/state_regions/",
       pathcfg.gameModPath + "/map_data/state_regions/", modData.vic3Regions);
   compatStratRegions(pathcfg.gamePath + "/game/common/strategic_regions/",
                      pathcfg.gameModPath + "/common/strategic_regions/",
-                     modData.vic3Regions, foundRegions);
+                     modData.vic3Regions);
   // compatReleasable(pathcfg.gamePath + "/game/common/country_creation/",
   //                  pathcfg.gameModPath + "/common/country_creation/");
   adj(pathcfg.gameModPath + "/map_data/adjacencies.csv");
@@ -835,7 +835,7 @@ void Generator::writeTextFiles(bool scenarioDetails) {
   strategicRegions(
       pathcfg.gameModPath +
           "/common/strategic_regions/randVic_strategic_regions.txt",
-      ardaData.areaData.superRegions, modData.vic3Regions);
+      ardaData.areaData.superRegions);
   cultureCommon(pathcfg.gameModPath + "/common/cultures/00_cultures.txt",
                 ardaData.civData.cultures);
   religionCommon(pathcfg.gameModPath + "/common/religions/religions.txt",
@@ -877,6 +877,11 @@ void Generator::writeTextFiles(bool scenarioDetails) {
 }
 
 void Generator::writeImages() {
+  const auto &cfg = Fwg::Cfg::Values();
+  if (!hasClimateImageData(cfg) || !hasWorldImageData(cfg) ||
+      !hasRiversData(cfg))
+    throw std::runtime_error("Climate/world images and rivers must be "
+                             "available before image export");
   // TODO: improve handling of altitude data to not rely on image
   auto heightMap = Fwg::Gfx::displayHeightMap(
       terrainData.detailedHeightMap, Fwg::Cfg::Values().visualizationContext());
@@ -888,10 +893,10 @@ void Generator::writeImages() {
   //                                pathcfg.gameModPath +
   //                                "/map_data//rivers", "rivers", false);
 
-  imageExporter.detailMaps(terrainData, climateData, ardaData.civLayer,
+  imageExporter.detailMaps(terrainData, climateData,
                            pathcfg.gameModPath + "/gfx/map/");
   imageExporter.dynamicMasks(pathcfg.gameModPath + "/gfx/map/masks/",
-                             climateData, ardaData.civLayer);
+                             climateData);
   imageExporter.contentSource(pathcfg.gameModPath +
                                   "/content_source/map_objects/masks/",
                               climateData, ardaData.civLayer);

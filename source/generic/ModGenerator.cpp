@@ -5,8 +5,7 @@ using namespace Fwg::Gfx;
 
 ModGenerator::ModGenerator(const std::string &configSubFolder,
                            const GameType &gameType,
-                           const std::string &gameSubPath,
-                           const boost::property_tree::ptree &rpdConf)
+                           const std::string &gameSubPath)
     : Arda::ArdaGen(configSubFolder) {
 
   Fwg::Utils::Logging::logLine("ModGenerator::ModGenerator");
@@ -24,38 +23,35 @@ ModGenerator::~ModGenerator() {}
 
 void ModGenerator::mapCountries() {}
 
-void ModGenerator::save(const std::string &path) {
+void ModGenerator::save(const std::string &path, const Fwg::Cfg &config) {
   std::ofstream file(path, std::ios::binary);
   boost::archive::binary_oarchive ar(file);
-  ar << areaData << terrainData << climateData;
-  ar << climateMap << worldMap << segmentMap << provinceMap << regionMap;
-  ar << locationMap << navmeshMap << errorMap;
-  ar << preModifyHeightMap << preModifyHumidityMap;
+  saveFwgData(ar, config);
   ar << ardaData.areaData.continents << ardaData.areaData.regions
      << ardaData.areaData.provinces << ardaData.areaData.superRegions;
   ar << ardaData.countries << ardaData.civData << ardaData.nData;
   ar << countryMap << superRegionMap;
   ar << gameType << exportWidth << exportHeight;
   ar << pathcfg;
+  ar << ardaData.civLayer;
+  saveArdaState(ar);
 }
 
-void ModGenerator::load(const std::string &path) {
+void ModGenerator::load(const std::string &path, Fwg::Cfg &config) {
   std::ifstream file(path, std::ios::binary);
   boost::archive::binary_iarchive ar(file);
-  resetData();
-  ar >> areaData >> terrainData >> climateData;
-  ar >> climateMap >> worldMap >> segmentMap >> provinceMap >> regionMap;
-  ar >> locationMap >> navmeshMap >> errorMap;
-  ar >> preModifyHeightMap >> preModifyHumidityMap;
+  loadFwgData(ar, config);
   ar >> ardaData.areaData.continents >> ardaData.areaData.regions >>
       ardaData.areaData.provinces >> ardaData.areaData.superRegions;
   ar >> ardaData.countries >> ardaData.civData >> ardaData.nData;
   ar >> countryMap >> superRegionMap;
   ar >> gameType >> exportWidth >> exportHeight;
   ar >> pathcfg;
+  ar >> ardaData.civLayer;
   mapProvinces();
   mapRegions();
   mapContinents();
+  loadArdaState(ar);
 }
 
 } // namespace Rpx

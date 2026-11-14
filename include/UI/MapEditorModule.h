@@ -28,21 +28,21 @@ public:
 
   // Optional editors return true only when they apply an edit.
   virtual unsigned
-  showCountryEditor(const std::shared_ptr<Arda::Country> &country,
-                    Fwg::UI::Elements::GridLayout &grid) const {
+  showCountryEditor(const std::shared_ptr<Arda::Country> & /*country*/,
+                    Fwg::UI::Elements::GridLayout & /*grid*/) const {
     return false;
   }
   virtual unsigned
   showStateEditor(const std::shared_ptr<Arda::ArdaRegion> &state,
-                  Fwg::UI::Elements::GridLayout &grid) const {
+                  Fwg::UI::Elements::GridLayout & /*grid*/) const {
     return false;
   }
   virtual void
   showCountryAggregates(const std::shared_ptr<Arda::Country> &country,
-                        Fwg::UI::Elements::GridLayout &grid) const = 0;
+                        Fwg::UI::Elements::GridLayout & /*grid*/) const = 0;
   virtual void
   showContinentAggregates(const std::shared_ptr<Arda::ArdaContinent> &continent,
-                          Fwg::UI::Elements::GridLayout &grid) const {}
+                          Fwg::UI::Elements::GridLayout & /*grid*/) const {}
 };
 
 } // namespace Rpx::UI

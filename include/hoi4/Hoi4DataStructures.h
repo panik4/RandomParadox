@@ -32,9 +32,9 @@ struct Hoi4Config {
        false,
        Arda::Utils::agriNoise,
        true,
-       {{CTI::TROPICSMONSOON, 1.0},
-        {CTI::TROPICSRAINFOREST, 0.8},
-        {CTI::TROPICSSAVANNA, 0.5}}}};
+       {{CTI::TROPICSMONSOON, 1.0f},
+        {CTI::TROPICSRAINFOREST, 0.8f},
+        {CTI::TROPICSSAVANNA, 0.5f}}}};
   float startingArmyStrengthFactor = 1.0f;
   float startingNavyStrengthFactor = 1.0f;
   float startingAirforceStrengthFactor = 1.0f;
@@ -62,7 +62,6 @@ struct Hoi4Data {
   std::vector<std::vector<int>> supplyNodeConnections;
   std::vector<SupplyHub>
       supplyHubs; // Derived together with railway connections.
-  bool statesInitialised = false;
   std::vector<std::shared_ptr<Faction>> factions;
   DecisionData decisionData;
   std::map<Arda::Utils::Ideology,

@@ -1,6 +1,8 @@
 #include "UI/Hoi4UI.h"
 #include "misc/cpp/imgui_stdlib.h"
+#include <algorithm>
 #include <array>
+#include <cstdint>
 #include <cstdio>
 #include <map>
 
@@ -113,7 +115,7 @@ void showForceSummary(const Rpx::Hoi4::Hoi4Country &country) {
 
 } // namespace
 
-int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
+int showHoi4Configure(std::shared_ptr<Hoi4Gen> generator) {
   const auto previousResources = generator->modConfig.resources;
   const auto previousResourceFactor = generator->ardaConfig.resourceFactor;
   const std::array previousMilitary = {
@@ -147,8 +149,8 @@ int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
   {
     Fwg::UI::Elements::GridLayout grid(3, 180.0f, 12.0f);
 
-    grid.AddInputDouble("Overall Factor", &generator->ardaConfig.resourceFactor,
-                        0.0, 10.0);
+    grid.AddInputFloat("Overall Factor", &generator->ardaConfig.resourceFactor,
+                       0.0f, 10.0f);
     grid.NextRow();
 
     grid.AddInputDouble("Aluminium",
@@ -199,12 +201,12 @@ int showHoi4Configure(Fwg::Cfg &cfg, std::shared_ptr<Hoi4Gen> generator) {
 
   if (previousResources != generator->modConfig.resources ||
       previousResourceFactor != generator->ardaConfig.resourceFactor)
-    generator->invalidateResources();
+    generator->onResourceConfigurationChanged();
   if (previousMilitary !=
       std::array{generator->modConfig.startingArmyStrengthFactor,
                  generator->modConfig.startingNavyStrengthFactor,
                  generator->modConfig.startingAirforceStrengthFactor})
-    generator->invalidateCountryDetails();
+    generator->onMilitaryConfigurationChanged();
   return 0;
 }
 
@@ -218,8 +220,23 @@ unsigned MapEditorModule::showCountryEditor(
   }
 
   bool identityChanged = grid.AddInputText("Full Name", &hoi4Country->fullName);
-  if (grid.AddInputText("GFX Culture", &hoi4Country->gfxCulture)) {
-    hoi4Country->detailsInitialized = true;
+  const std::array<const char *, 7> gfxCultureTypes{
+      "asian",         "african",          "middle_eastern",
+      "southamerican", "western_european", "eastern_european",
+      "commonwealth"};
+  const char *gfxCultureNames[] = {
+      "Asian",          "African",          "Middle Eastern",
+      "South American", "Western European", "Eastern European",
+      "Commonwealth"};
+  const auto currentCulture = std::find(
+      gfxCultureTypes.begin(), gfxCultureTypes.end(), hoi4Country->gfxCulture);
+  int gfxCulture =
+      currentCulture == gfxCultureTypes.end()
+          ? -1
+          : static_cast<int>(currentCulture - gfxCultureTypes.begin());
+  if (grid.AddCombo("GFX Culture", &gfxCulture, gfxCultureNames,
+                    IM_ARRAYSIZE(gfxCultureNames))) {
+    hoi4Country->gfxCulture = gfxCultureTypes[gfxCulture];
     identityChanged = true;
   }
   bool changed = false;
@@ -240,9 +257,23 @@ unsigned MapEditorModule::showCountryEditor(
                                 0, 100);
   }
   changed |= grid.AddCheckbox("Allow Elections", &hoi4Country->allowElections);
+  grid.NextRow();
+  std::int64_t totalPopularity = 0;
+  for (const int popularity : hoi4Country->parties)
+    totalPopularity += popularity;
+  ImGui::Text("Total popularity: %lld%%",
+              static_cast<long long>(totalPopularity));
+  const bool negativePopularity =
+      std::any_of(hoi4Country->parties.begin(), hoi4Country->parties.end(),
+                  [](int popularity) { return popularity < 0; });
+  ImGui::BeginDisabled(negativePopularity);
+  if (ImGui::Button("Normalise party popularity")) {
+    const auto previousParties = hoi4Country->parties;
+    hoi4Country->normalisePartyPopularities();
+    changed |= previousParties != hoi4Country->parties;
+  }
+  ImGui::EndDisabled();
   showForceSummary(*hoi4Country);
-  if (changed)
-    hoi4Country->politicsInitialized = true;
   return (changed ? PoliticsChanged : NoChange) |
          (identityChanged ? IdentityChanged : NoChange);
 }

@@ -29,8 +29,7 @@ std::shared_ptr<Rpx::Hoi4::Hoi4Country> getOpposingIdeologyNeighbour(
 }
 std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
 getOpposingIdeologyNeighbours(
-    const std::shared_ptr<Rpx::Hoi4::Hoi4Country> country,
-    const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> &hoi4Countries) {
+    const std::shared_ptr<Rpx::Hoi4::Hoi4Country> country) {
   std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> potentialTargets;
   for (auto &neighbour : country->neighbourCountries) {
     // cast the neighbour to a std::shared_ptr<Rpx::Hoi4::Hoi4Country
@@ -46,10 +45,8 @@ getOpposingIdeologyNeighbours(
 }
 std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
 getOpposingIdeologyNeighboursNeighbours(
-    const std::shared_ptr<Rpx::Hoi4::Hoi4Country> country,
-    const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> &hoi4Countries) {
-  auto closestOpposingNeighbors =
-      getOpposingIdeologyNeighbours(country, hoi4Countries);
+    const std::shared_ptr<Rpx::Hoi4::Hoi4Country> country) {
+  auto closestOpposingNeighbors = getOpposingIdeologyNeighbours(country);
   std::set<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> directOpposingNeighbours;
   for (auto &neighbour : closestOpposingNeighbors) {
     directOpposingNeighbours.insert(neighbour);

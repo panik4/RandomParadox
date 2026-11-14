@@ -155,7 +155,7 @@ void applyPoliticalDetails(Hoi4Country &country,
           : country.name;
 }
 void distributeVictoryPoints(
-    Hoi4Data &modData, Hoi4Stats &stats,
+    Hoi4Data &modData,
     std::vector<std::shared_ptr<Arda::ArdaProvince>> &ardaProvinces) {
   Fwg::Utils::Logging::logLine("Distributing victory points");
   double baseVPs = 10000;
@@ -173,8 +173,8 @@ void distributeVictoryPoints(
       for (auto province : region->ardaProvinces) {
         province->victoryPoint = nullptr;
       }
-      region->totalVictoryPoints =
-          std::max<int>(region->relativeImportance * baseVPs, 1);
+      region->totalVictoryPoints = std::max<int>(
+          static_cast<int>(region->relativeImportance * baseVPs), 1);
       std::map<int, double> provinceImportance;
       // also a map of province to std::vector locations
       std::map<int, std::vector<std::shared_ptr<Fwg::Civilization::Location>>>
@@ -513,8 +513,7 @@ void generateRandomDecisions(
 }
 
 void evaluateCountryStrength(Hoi4Data &modData, Hoi4Stats &stats,
-                             Arda::ArdaData &ardaData,
-                             Arda::ArdaConfig &ardaConfig) {
+                             Arda::ArdaData &ardaData) {
   Fwg::Utils::Logging::logLine("HOI4: Evaluating Country Strength");
   stats.militaryIndustry = stats.civilianIndustry = stats.navalIndustry = 0;
   for (const auto &state : modData.hoi4States) {

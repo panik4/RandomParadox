@@ -20,9 +20,7 @@ void writeAreas(const std::string &path,
 void writeClimate(
     const std::string &path,
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
-void writeColonialRegions(
-    const std::string &path, const std::string &gamePath,
-    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
+void writeColonialRegions(const std::string &path, const std::string &gamePath);
 // continents consist of multiple provinces
 void writeContinent(
     const std::string &path,
@@ -40,15 +38,11 @@ void writePositions(
 void writeRegions(const std::string &path, const std::string &gamePath,
                   const std::vector<eu4Region> &eu4regions);
 // superregions consist of multiple regions
-void writeSuperregion(
-    const std::string &path, const std::string &gamePath,
-    const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions);
+void writeSuperregion(const std::string &path, const std::string &gamePath);
 void writeTerrain(
     const std::string &path,
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
-void writeTradeCompanies(
-    const std::string &path, const std::string &gamePath,
-    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
+void writeTradeCompanies(const std::string &path, const std::string &gamePath);
 void writeTradewinds(
     const std::string &path,
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
@@ -59,11 +53,10 @@ void copyDescriptorFile(const std::string &sourcePath,
 
 void writeProvinces(
     const std::string &path,
-    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
     const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions);
 
-void writeLoc(const std::string &path, const std::string &gamePath,
-              const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions,
-              const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
-              const std::vector<eu4Region> &eu4regions);
+void writeLoc(
+    const std::string &path, const std::string &gamePath,
+    const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
 }; // namespace Rpx::Eu4::Parsing

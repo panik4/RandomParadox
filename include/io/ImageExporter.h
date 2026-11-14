@@ -48,8 +48,7 @@ public:
                      const std::string &path, const std::string &colourMapKey,
                      const bool cut = false) const;
   void dumpDDSFiles(const std::vector<float> &heightMap,
-                    const std::string &path, const bool cut = false,
-                    const int maxFactor = 2) const;
+                    const std::string &path, const int maxFactor = 2) const;
   void
   dumpTerrainColourmap(const Fwg::Gfx::Image &climateMap,
                        const Arda::Civilization::CivilizationLayer &civLayer,

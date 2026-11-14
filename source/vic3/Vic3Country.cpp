@@ -24,10 +24,10 @@ Country::getEligibleRegions(const std::string &resourceName) {
 
 void Country::evaluateTechLevel(
     const std::map<std::string, TechnologyLevel> &techLevels) {
-  auto techLevel =
+  auto technologyTier =
       std::clamp(1.0 + (1.0 - this->technologyLevel) * 6.0, 1.0, 7.0);
   this->techLevel = "effect_starting_technology_tier_" +
-                    std::to_string((int)techLevel) + "_tech";
+                    std::to_string((int)technologyTier) + "_tech";
   if (techLevels.count(this->techLevel)) {
     for (const auto &tech : techLevels.at(this->techLevel).technologies) {
       if (this->techs.find(tech.name) == this->techs.end()) {

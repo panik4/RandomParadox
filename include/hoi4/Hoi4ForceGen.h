@@ -6,10 +6,8 @@
 namespace Rpx::Hoi4 {
 
 std::string ordinal(int number);
-void generateArmorVariants(Hoi4Config modConfig, Hoi4Data &modData,
-                           Hoi4Stats &stats);
-void generateAirVariants(Hoi4Config modConfig, Hoi4Data &modData,
-                         Hoi4Stats &stats);
+void generateArmorVariants(Hoi4Data &modData);
+void generateAirVariants(Hoi4Config modConfig, Hoi4Data &modData);
 // determine unit composition, templates
 void generateCountryUnits(Hoi4Config modConfig, Hoi4Data &modData,
                           Hoi4Stats &stats);

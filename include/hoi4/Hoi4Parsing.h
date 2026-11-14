@@ -31,13 +31,12 @@ void buildings(const std::string &path,
 void continents(
     const std::string &path,
     const std::vector<std::shared_ptr<Arda::ArdaContinent>> &continents,
-    const std::string &hoiPath, const std::string &localisationPath);
+    const std::string &localisationPath);
 void definition(
     const std::string &path,
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces);
 void strategicRegions(
     const std::string &path,
-    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
     const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions,
     const std::map<std::string, double> &chances);
 void supply(const std::string &path,
@@ -47,7 +46,6 @@ void unitStacks(const std::string &path,
                 const std::vector<UnitStackRecord> &records);
 void weatherPositions(
     const std::string &path,
-    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
     const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions);
 
 } // namespace Map
@@ -66,8 +64,7 @@ void commonCountryTags(const std::string &path, const CountryMap &countries);
 
 void commonCharacters(const std::string &path, const CountryMap &countries);
 void commonNames(const std::string &path, const CountryMap &countries);
-void foci(const std::string &path, const CountryMap &countries,
-          const Arda::Names::NameData &nData);
+void foci(const std::string &path, const CountryMap &countries);
 // gfx
 void flags(const std::string &path, const CountryMap &countries);
 // history
@@ -76,7 +73,6 @@ void states(const std::string &path,
 void historyCountries(
     const std::string &path, const CountryMap &countries,
     const std::string &gamePath,
-    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
     const std::map<ShipClassType, std::string> &shipClassTypeMap);
 void historyUnits(const std::string &path, const CountryMap &countries);
 void ideas(const std::string &path, const CountryMap &countries);
@@ -96,9 +92,7 @@ void commonBookmarks(const std::string &path,
 
 void tutorials(const std::string &path);
 // copy base game countries and remove certain lines to reduce crashes
-void compatibilityHistory(
-    const std::string &path, const std::string &hoiPath,
-    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions);
+void compatibilityHistory(const std::string &path, const std::string &hoiPath);
 void dynamicModifiers(std::string resources, std::string modPath);
 void onActions(const std::string &path);
 void scriptedEffects(std::string resources, std::string modPath);
@@ -112,8 +106,7 @@ void copyDescriptorFile(const std::string &sourcePath,
                         const std::string &modsDirectory,
                         const std::string &modName);
 namespace Compatibility {
-void compatibilityFactionMechanics(const std::string &path,
-                                   const std::string &hoiPath);
+void compatibilityFactionMechanics(const std::string &path);
 
 void compatibilityNationalFocus(const std::string &path,
                                 const std::string &hoiPath);
@@ -156,9 +149,7 @@ void readBuildings(const std::string &path,
 std::vector<std::shared_ptr<Hoi4Country>>
 readCountries(const std::string &path);
 std::vector<std::vector<std::string>> readDefinitions(const std::string &path);
-void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
-                   Fwg::Climate::ClimateData &climateData,
-                   const std::string &inPath, const std::string &mapName,
+void readProvinces(const std::string &inPath, const std::string &mapName,
                    Fwg::Areas::AreaData &areaData);
 void readRailways(const std::string &path, Fwg::Areas::AreaData &areaData);
 void readRocketSites(const std::string &path,

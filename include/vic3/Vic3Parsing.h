@@ -22,8 +22,7 @@ void writeMetadata(const std::string &path);
 
 void strategicRegions(
     const std::string &path,
-    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions,
-    const std::vector<std::shared_ptr<Region>> &regions);
+    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions);
 void cultureCommon(const std::string &path,
                    const std::vector<std::shared_ptr<Arda::Culture>> &cultures);
 void religionCommon(
@@ -54,8 +53,7 @@ std::string compatRegions(const std::string &inFolder,
                           const std::vector<std::shared_ptr<Region>> &regions);
 
 void compatStratRegions(const std::string &inFolder, const std::string &outPath,
-                        const std::vector<std::shared_ptr<Region>> &regions,
-                        std::string &baseArdaRegions);
+                        const std::vector<std::shared_ptr<Region>> &regions);
 void compatReleasable(const std::string &inFolder, const std::string &outPath);
 
 void compatTriggers(const std::string &inFolder, const std::string &outPath);

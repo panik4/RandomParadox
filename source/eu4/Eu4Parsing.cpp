@@ -158,9 +158,8 @@ void writeClimate(
   pU::writeFile(path, content);
 }
 
-void writeColonialRegions(
-    const std::string &path, const std::string &gamePath,
-    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
+void writeColonialRegions(const std::string &path,
+                          const std::string &gamePath) {
   std::string content = loadVanillaFile(
       gamePath + "/common/colonial_regions//00_colonial_regions.txt",
       {"{", "}", "=", "_"});
@@ -309,9 +308,7 @@ void writeRegions(const std::string &path, const std::string &gamePath,
   pU::writeFile(path, content);
 }
 
-void writeSuperregion(
-    const std::string &path, const std::string &gamePath,
-    const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions) {
+void writeSuperregion(const std::string &path, const std::string &gamePath) {
   Fwg::Utils::Logging::logLine("EU4 Parser: Map: Writing Superregions");
   // not really necessary
 
@@ -329,9 +326,7 @@ void writeTerrain(
                                    "eu4/map/terrain.txt"));
 }
 
-void writeTradeCompanies(
-    const std::string &path, const std::string &gamePath,
-    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
+void writeTradeCompanies(const std::string &path, const std::string &gamePath) {
   std::string content = loadVanillaFile(
       gamePath + "/common/trade_companies//00_trade_companies.txt",
       {"{", "}", "="});
@@ -370,7 +365,6 @@ void copyDescriptorFile(const std::string &sourcePath,
 
 void writeProvinces(
     const std::string &path,
-    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
     const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions) {
   Fwg::Utils::Logging::logLine(
       "Eu4 Parser: History: Drawing Areas::Province Borders");
@@ -390,10 +384,10 @@ void writeProvinces(
   }
 }
 
-void writeLoc(const std::string &path, const std::string &gamePath,
-              const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions,
-              const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
-              const std::vector<eu4Region> &eu4regions) {
+void writeLoc(
+    const std::string &path, const std::string &gamePath,
+    const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions,
+    const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces) {
 
   Fwg::Utils::Logging::logLine("Eu4 Parser: Localisation: Writing Area Names");
   std::vector<std::string> locKeys{"l_english", "l_german", "l_french",

@@ -1,5 +1,6 @@
 #include "vic3/Splnet.h"
 #include "civilization/NavmeshGeneration.h"
+#include "utils/ContainerUtils.h"
 
 namespace Rpx::Vic3 {
 // method to create a float from 4 bytes
@@ -27,6 +28,8 @@ int createInt(const char *bytes) {
 // Returns the index to the start of the pattern, or -1 if not found
 int findPatternFrom(const std::vector<char> &buffer,
                     const std::vector<char> &pattern, size_t startIndex = 0) {
+  if (pattern.size() > buffer.size())
+    return -1;
   for (size_t i = startIndex; i <= buffer.size() - pattern.size(); ++i) {
     bool found = true;
     for (size_t j = 0; j < pattern.size(); ++j) {
@@ -36,7 +39,7 @@ int findPatternFrom(const std::vector<char> &buffer,
       }
     }
     if (found)
-      return i;
+      return Fwg::Utils::Containers::checkedSizeToInt(i);
   }
   return -1;
 }
@@ -71,6 +74,8 @@ splitVectorByPattern(const std::vector<char> &buffer,
 // Returns the index to the start of the pattern, or -1 if not found
 int findPattern(const std::vector<char> &buffer,
                 const std::vector<char> &pattern) {
+  if (pattern.size() > buffer.size())
+    return -1;
   for (size_t i = 0; i <= buffer.size() - pattern.size(); ++i) {
     bool found = true;
     for (size_t j = 0; j < pattern.size(); ++j) {
@@ -80,7 +85,7 @@ int findPattern(const std::vector<char> &buffer,
       }
     }
     if (found)
-      return i;
+      return Fwg::Utils::Containers::checkedSizeToInt(i);
   }
   return -1;
 }
@@ -188,7 +193,7 @@ void Splnet::constructSplnet(
                         << std::endl;
               continue;
             }
-          } catch (const std::exception &e) {
+          } catch (const std::exception &) {
             continue;
           }
           auto startID = 0;
@@ -198,7 +203,7 @@ void Splnet::constructSplnet(
             targetID = locationToAnchorID.at(destination);
             strip.anchorEntries.push_back(
                 StripAnchorEntry{0x14, locationToAnchorID.at(source)});
-          } catch (const std::exception &e) {
+          } catch (const std::exception &) {
             continue;
           }
           // if the startAnchor is higher than the targetAnchor, swap them
@@ -275,12 +280,12 @@ void Splnet::constructSplnet(
   }
 }
 void Splnet::parseHeader(const std::array<char, 36> &headerData,
-                         Header &header) {
-  header.anchorAmount = createInt(headerData.data() + 18);
-  header.stripAmount = createInt(headerData.data() + 24);
-  std::cout << "Spline amount 1: " << header.stripAmount << std::endl;
-  header.segmentAmount = createInt(headerData.data() + 30);
-  std::cout << "Spline amount 2: " << header.segmentAmount << std::endl;
+                         Header &parsedHeader) {
+  parsedHeader.anchorAmount = createInt(headerData.data() + 18);
+  parsedHeader.stripAmount = createInt(headerData.data() + 24);
+  std::cout << "Spline amount 1: " << parsedHeader.stripAmount << std::endl;
+  parsedHeader.segmentAmount = createInt(headerData.data() + 30);
+  std::cout << "Spline amount 2: " << parsedHeader.segmentAmount << std::endl;
 }
 void Splnet::parseAnchor(const std::array<char, 34> &anchorData,
                          Anchor &anchor) {

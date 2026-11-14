@@ -32,15 +32,13 @@ public:
   void dumpIndirectionMap(const Fwg::Gfx::Image &heightMap,
                           const std::string &path);
   void dynamicMasks(const std::string &path,
-                    const Fwg::Climate::ClimateData &climateData,
-                    const Arda::Civilization::CivilizationLayer &civLayer);
+                    const Fwg::Climate::ClimateData &climateData);
 
   void contentSource(const std::string &path,
                      const Fwg::Climate::ClimateData &climateData,
                      const Arda::Civilization::CivilizationLayer &civLayer);
   void detailMaps(const Fwg::Terrain::TerrainData &terrainData,
                   const Fwg::Climate::ClimateData &climateData,
-                  const Arda::Civilization::CivilizationLayer &civLayer,
                   const std::string &path);
 };
 } // namespace Rpx::Gfx::Vic3

@@ -1,4 +1,7 @@
 #include "hoi4/Hoi4ForceGen.h"
+#include <cmath>
+#include <limits>
+#include <stdexcept>
 
 namespace Rpx::Hoi4 {
 
@@ -21,8 +24,7 @@ std::string ordinal(int number) {
   return std::to_string(number) + suffix;
 }
 
-void generateArmorVariants(Hoi4Config modConfig, Hoi4Data &modData,
-                           Hoi4Stats &stats) {
+void generateArmorVariants(Hoi4Data &modData) {
   struct TankType {
     ArmorType type;
     ArmorRole subType;
@@ -115,8 +117,7 @@ void generateArmorVariants(Hoi4Config modConfig, Hoi4Data &modData,
     }
   }
 }
-void generateAirVariants(Hoi4Config modConfig, Hoi4Data &modData,
-                         Hoi4Stats &stats) {
+void generateAirVariants(Hoi4Config modConfig, Hoi4Data &modData) {
   struct AirType {
     PlaneType type;
     PlaneRole subType;
@@ -304,7 +305,14 @@ void generateAirVariants(Hoi4Config modConfig, Hoi4Data &modData,
                                country->tag);
     double airforceStrength = country->airFocus * country->armsFactories *
                               modConfig.startingAirforceStrengthFactor;
-    int airBaseAmount = 1 + airforceStrength / 10.0;
+    if (!std::isfinite(airforceStrength) || airforceStrength < 0.0)
+      throw std::invalid_argument(
+          "Invalid airforce strength for airbase allocation");
+    const double allocationCount = std::floor(1.0 + airforceStrength / 10.0);
+    if (allocationCount > std::numeric_limits<int>::max())
+      throw std::overflow_error(
+          "Airbase allocation count exceeds the signed integer range");
+    const int airBaseAmount = static_cast<int>(allocationCount);
     if (country->planeVariants.size() && airforceStrength > 0) {
       // lets distribute airbases throughout the country
       for (int i = 0; i < airBaseAmount; i++) {
@@ -357,7 +365,7 @@ void generateCountryUnits(Hoi4Config modConfig, Hoi4Data &modData,
     // first determine total army strength based on arms industry
     // TODO add a factor to settings
     country->totalArmyStrength =
-        country->armsFactories * 10 * modConfig.startingArmyStrengthFactor;
+        country->armsFactories * 10.0 * modConfig.startingArmyStrengthFactor;
 
     // basic idea: we create unit templates first. We start with irregulars,
     // then infantry only, then infantry with support, then infantry with
@@ -604,7 +612,14 @@ void generateCountryNavies(
                         modConfig.startingNavyStrengthFactor;
 
     // calculate amount of convoys based on tonnage
-    country->convoyAmount = totalTonnage / 500;
+    if (!std::isfinite(totalTonnage) || totalTonnage < 0.0)
+      throw std::invalid_argument(
+          "Invalid naval tonnage for convoy generation");
+    const double convoyCount = std::floor(totalTonnage / 500.0);
+    if (convoyCount > std::numeric_limits<int>::max())
+      throw std::overflow_error(
+          "Convoy count exceeds the signed integer range");
+    country->convoyAmount = static_cast<int>(convoyCount);
 
     // now determine the composition of the navy, first the share of carriers,
     // battleships and screens
@@ -635,7 +650,7 @@ void generateCountryNavies(
     }
 
     // let's evaluate if the carrier tonnage is enough to spawn one carrier
-    int carrierTargetTonnage = totalTonnage * carrierShare;
+    double carrierTargetTonnage = totalTonnage * carrierShare;
     const std::vector<ShipClass> &carrierClasses =
         country->shipClasses.at(ShipClassType::Carrier);
     bool canAffordCarrier = false;
@@ -661,7 +676,7 @@ void generateCountryNavies(
     if (!canAffordCarrier) {
       battleshipShare += carrierShare;
     }
-    int heavyShipTargetTonnage = totalTonnage * battleshipShare;
+    double heavyShipTargetTonnage = totalTonnage * battleshipShare;
     // we randomly select Ship Classes Battleship and Heavy Cruiser
     const std::vector<ShipClass> &battleshipClasses =
         country->shipClasses.at(ShipClassType::BattleShip);
@@ -781,7 +796,7 @@ void generateCountryNavies(
     }
 
     // now we have to distribute the remaining tonnage to screens
-    int screenTargetTonnage = totalTonnage * screenShare;
+    double screenTargetTonnage = totalTonnage * screenShare;
     const std::vector<ShipClass> &destroyerClasses =
         country->shipClasses.at(ShipClassType::Destroyer);
     const std::vector<ShipClass> &lightCruiserClasses =

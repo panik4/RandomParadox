@@ -85,7 +85,7 @@ void buildings(const std::string &path,
 void continents(
     const std::string &path,
     const std::vector<std::shared_ptr<Arda::ArdaContinent>> &continents,
-    const std::string &hoiPath, const std::string &localisationPath) {
+    const std::string &localisationPath) {
   Logging::logLine("HOI4 Parser: Map: Writing Continents");
   // copy continents file from cfg::Values().resourcePath + "/hoi4/map/ to
   // path/map/
@@ -182,7 +182,6 @@ void unitStacks(const std::string &path,
 }
 void strategicRegions(
     const std::string &path,
-    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
     const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions,
     const std::map<std::string, double> &chances) {
   constexpr std::array<int, 12> daysInMonth{30, 27, 30, 29, 30, 29,
@@ -297,7 +296,6 @@ void strategicRegions(
 }
 void weatherPositions(
     const std::string &path,
-    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
     const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions) {
   Logging::logLine("HOI4 Parser: Map: Creating Storms");
   // 1; 2781.24; 9.90; 1571.49; small
@@ -527,8 +525,7 @@ void commonNames(const std::string &path, const CountryMap &countries) {
   pU::writeFile(path, content);
 }
 
-void foci(const std::string &path, const CountryMap &countries,
-          const Arda::Names::NameData &nData) {
+void foci(const std::string &path, const CountryMap &countries) {
   Logging::logLine("HOI4 Parser: History: Demanding Danzig");
   Fwg::IO::Utils::clearFilesOfType(path, ".txt");
 
@@ -569,12 +566,11 @@ void flags(const std::string &path, const CountryMap &countries) {
 void historyCountries(
     const std::string &path, const CountryMap &countries,
     const std::string &gamePath,
-    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions,
-    const std::map<ShipClassType, std::string> &shipClassTypeMap) {
+    const std::map<ShipClassType, std::string> &shipClassNames) {
   Logging::logLine("HOI4 Parser: History: Writing Country History");
   Fwg::IO::Utils::clearFilesOfType(path, ".txt");
   // now compat countries
-  compatibilityHistory(path, gamePath, regions);
+  compatibilityHistory(path, gamePath);
 
   const auto content = pU::readFile(Fwg::Cfg::Values().resourcePath +
                                     "hoi4/history/country_template.txt");
@@ -793,14 +789,14 @@ void historyCountries(
       for (auto &shipClass : eraShipClasses.second) {
 
         // search key build: first for vanilla: vanilla,0 for Interwar, 1 for
-        // Buildup, shipClassTypeMap value
+        // Buildup, shipClassNames value
         std::string searchKey = ",";
         if (shipClass.era == TechEra::Interwar) {
           searchKey += "0,";
         } else if (shipClass.era == TechEra::Buildup) {
           searchKey += "1,";
         }
-        searchKey += shipClassTypeMap.at(eraShipClasses.first);
+        searchKey += shipClassNames.at(eraShipClasses.first);
         std::string vanillaHullType =
             pU::getValue(navyTechFile, "vanilla" + searchKey);
         ownedVanillaTechs.insert(vanillaHullType);
@@ -1489,13 +1485,13 @@ void commonFiltering(const std::string &gamePath, const std::string &modPath) {
     auto content = pU::readFile(gamePath + filename);
     auto blocks =
         Rpx::Parsing::getOuterBlocks(pU::getLines(gamePath + filename));
-    for (const auto &block : blocks) {
-      // if (block.content.contains("JAP")) {
-      //   Rpx::Parsing::removeSurroundingBracketBlockFromLineBreak(content,
-      //                                                            block.content);
-      //   std::cout << "Removing: " << block.content << std::endl;
-      // }
-    }
+    // for (const auto &block : blocks) {
+    //   // if (block.content.contains("JAP")) {
+    //   //   Rpx::Parsing::removeSurroundingBracketBlockFromLineBreak(content,
+    //   // block.content);
+    //   //   std::cout << "Removing: " << block.content << std::endl;
+    //   // }
+    // }
     pU::writeFile(modPath + filename, content);
   }
 }
@@ -1504,9 +1500,7 @@ void tutorials(const std::string &path) {
   pU::writeFile(path, "tutorial = { }");
 }
 
-void compatibilityHistory(
-    const std::string &path, const std::string &hoiPath,
-    const std::vector<std::shared_ptr<Fwg::Areas::Region>> &regions) {
+void compatibilityHistory(const std::string &path, const std::string &hoiPath) {
   Logging::logLine("HOI4 Parser: History: Writing Compatibility Files");
   const std::filesystem::path hoiDir{hoiPath + "/history/countries/"};
   Logging::logLine("HOI4 Parser: History: Reading Files from " +
@@ -1596,8 +1590,7 @@ void copyDescriptorFile(const std::string &sourcePath,
 }
 
 namespace Compatibility {
-void compatibilityFactionMechanics(const std::string &path,
-                                   const std::string &hoiPath) {
+void compatibilityFactionMechanics(const std::string &path) {
 
   try {
     std::filesystem::copy(
@@ -2009,9 +2002,7 @@ std::vector<std::vector<std::string>> readDefinitions(const std::string &path) {
   auto list = pU::getLinesByID(path);
   return list;
 }
-void readProvinces(const Fwg::Terrain::TerrainData &terrainData,
-                   Fwg::Climate::ClimateData &climateData,
-                   const std::string &inPath, const std::string &mapName,
+void readProvinces(const std::string &inPath, const std::string &mapName,
                    Fwg::Areas::AreaData &areaData) {
   Logging::logLine("HOI4 Parser: Map: Studying the land");
   auto provMap = Fwg::IO::Reader::readGenericImage(

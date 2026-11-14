@@ -1,6 +1,8 @@
 #include "hoi4/Hoi4Country.h"
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
+#include <stdexcept>
 
 namespace Rpx::Hoi4 {
 Hoi4Country::Hoi4Country() : Arda::Country() {}
@@ -13,6 +15,35 @@ Hoi4Country::Hoi4Country(Country &c,
     : Country(c), allowElections{true}, parties{25, 25, 25, 25} {}
 
 Hoi4Country::~Hoi4Country() {}
+void Hoi4Country::normalisePartyPopularities() {
+  std::int64_t total = 0;
+  for (const int value : parties) {
+    if (value < 0)
+      throw std::invalid_argument("Party popularity must be non-negative");
+    total += value;
+  }
+  if (total == 0) {
+    parties.fill(25);
+    return;
+  }
+  std::array<int, 4> normalised{};
+  std::array<std::int64_t, 4> remainders{};
+  std::array<std::size_t, 4> order{0, 1, 2, 3};
+  int assigned = 0;
+  for (std::size_t i = 0; i < parties.size(); ++i) {
+    const std::int64_t scaled = static_cast<std::int64_t>(parties[i]) * 100;
+    normalised[i] = static_cast<int>(scaled / total);
+    remainders[i] = scaled % total;
+    assigned += normalised[i];
+  }
+  std::stable_sort(order.begin(), order.end(), [&](auto a, auto b) {
+    return remainders[a] > remainders[b];
+  });
+  for (int i = 0; i < 100 - assigned; ++i)
+    ++normalised[order[i]];
+  parties = normalised;
+}
+
 void Hoi4Country::generateNamePools() {
   maleNamePool.clear();
   femaleNamePool.clear();
@@ -139,9 +170,9 @@ void Hoi4Country::importLine(const std::vector<std::string> &tokens) {
     fullName = tokens[6];
 
   if (tokens.size() > 7) {
-    const auto ideology = Arda::Utils::stringToIdeology.find(tokens[7]);
-    if (ideology != Arda::Utils::stringToIdeology.end())
-      this->ideology = ideology->second;
+    const auto ideologyEntry = Arda::Utils::stringToIdeology.find(tokens[7]);
+    if (ideologyEntry != Arda::Utils::stringToIdeology.end())
+      this->ideology = ideologyEntry->second;
   }
 
   try {
@@ -170,6 +201,7 @@ template <class Archive>
 void Hoi4Country::serialize(Archive &ar, const unsigned int /*version*/) {
   ar &boost::serialization::base_object<Arda::Country>(*this);
   ar & maleNamePool & femaleNamePool & surnamePool;
+  ar & detailsInitialized & politicsInitialized;
   ar & fullName & gfxCulture & allowElections & parties & lastElection &
       warSupport & stability;
   ar & faction;

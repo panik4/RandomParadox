@@ -1,13 +1,14 @@
 #pragma once
-#include "ArdaUI/ArdaPrerequisiteChecker.h"
+#include "UI/Prerequisites.h"
 #include "generic/ModGenerator.h"
 #include "hoi4/Hoi4Generator.h"
+#include "utils/ArdaPrerequisiteChecker.h"
 #include "vic3/Vic3Generator.h"
 
 namespace Rpx::UI {
 
-// Inherit Arda prerequisites and add RandomParadox-specific ones
-class RpxPrerequisiteChecker : public Arda::UI::ArdaPrerequisiteChecker {
+// Game-specific prerequisites retained until the RandomParadox migration.
+class RpxPrerequisiteChecker : public Fwg::UI::PrerequisiteChecker {
 public:
   // =========================================================================
   // Path & Configuration Prerequisites
@@ -24,49 +25,14 @@ public:
   }
 
   // =========================================================================
-  // Module/Generator Prerequisites
-  // =========================================================================
-
-  static Fwg::UI::Prerequisite countryDetailsReady(bool requireCountryDetails) {
-    return {"Country Details",
-            "Generate country details (red button in Countries tab)",
-            [=]() { return !requireCountryDetails; }};
-  }
-
-  // =========================================================================
-  // HOI4-Specific Prerequisites
-  // =========================================================================
-
-  static Fwg::UI::Prerequisite
-  hoi4StatesInitialised(const Rpx::Hoi4::Generator &generator) {
-    return {"HOI4 States", "Generate state data first", [&]() {
-              return generator.readiness.economy ==
-                         Rpx::Hoi4::Generator::Status::Ready &&
-                     generator.readiness.resources ==
-                         Rpx::Hoi4::Generator::Status::Ready;
-            }};
-  }
-
-  static Fwg::UI::Prerequisite
-  hoi4ExportReady(const Rpx::Hoi4::Generator &generator,
-                  bool requireCountryDetails) {
-    return {"HOI4 Export Ready",
-            "Need strategic regions, initialized states, and country data",
-            [&, requireCountryDetails]() {
-              return !generator.ardaData.areaData.superRegions.empty() &&
-                     generator.provinceMap.size() > 0 &&
-                     generator.exportReady() && !requireCountryDetails;
-            }};
-  }
-
-  // =========================================================================
   // Victoria 3-Specific Prerequisites
   // =========================================================================
 
   static Fwg::UI::Prerequisite
   vic3ExportReady(const Rpx::Vic3::Generator &generator) {
     return {"Vic3 Export Ready", "Generate strategic regions first", [&]() {
-              return !generator.ardaData.areaData.superRegions.empty();
+              return Arda::PrerequisiteChecker::strategicRegions(generator)
+                  .available;
             }};
   }
 
@@ -75,31 +41,30 @@ public:
   // =========================================================================
 
   static Fwg::UI::Prerequisite
-  civilisationReady(bool configuredScenarioGen, bool redoDevelopment,
-                    bool redoPopulation, bool redoTopography, bool redoCulture,
-                    bool redoLocations) {
-    return {"Civilisation Ready",
-            "Complete all civilisation generation steps first", [=]() {
-              return configuredScenarioGen && !redoDevelopment &&
-                     !redoPopulation && !redoTopography && !redoCulture &&
-                     !redoLocations;
-            }};
+  civilisationReady(bool configuredScenarioGen,
+                    const Arda::ArdaGen &generator) {
+    return {
+        "Civilisation Ready",
+        "Complete all civilisation generation steps first",
+        [&generator, configuredScenarioGen]() {
+          return configuredScenarioGen &&
+                 Arda::PrerequisiteChecker::civilisation(generator).available;
+        }};
   }
 
   // =========================================================================
   // Combined Game-Specific Prerequisites
   // =========================================================================
 
-  // Helper to check if all civ data is complete (no redo flags set)
+  // Generator-owned civilisation availability.
   static Fwg::UI::Prerequisite
-  noCivRedosPending(bool redoDevelopment, bool redoPopulation,
-                    bool redoTopography, bool redoCulture, bool redoLocations) {
-    return {"Civilisation Data Complete",
-            "Complete pending civilisation generation (check for orange tabs)",
-            [=]() {
-              return !redoDevelopment && !redoPopulation && !redoTopography &&
-                     !redoCulture && !redoLocations;
-            }};
+  civilisationData(const Arda::ArdaGen &generator) {
+    return {
+        "Civilisation Data Complete",
+        "Complete pending civilisation generation (check for orange tabs)",
+        [&generator]() {
+          return Arda::PrerequisiteChecker::civilisation(generator).available;
+        }};
   }
 };
 

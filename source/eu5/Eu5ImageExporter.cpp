@@ -1,4 +1,5 @@
 #include "eu5/Eu5ImageExporter.h"
+#include <cmath>
 namespace Rpx::Gfx::Eu5 {
 using namespace Arda::Gfx::Textures;
 using namespace Fwg;
@@ -283,9 +284,10 @@ std::vector<float> pad128to132_strategyA(const std::vector<float> &src) {
   return out;
 }
 
-Fwg::Gfx::Image ImageExporter::dumpHeightmap(
-    const std::vector<float> &heightMap, const std::string &path,
-    const std::string &colourMapKey, int exportWidth, int exportHeight) const {
+Fwg::Gfx::Image
+ImageExporter::dumpHeightmap(const std::vector<float> &heightMap,
+                             const std::string &path, int exportWidth,
+                             int exportHeight) const {
   //  rasterize this image into 16 different images , based on the heightmap,
   //  presenting 16 different chunks of the heightmap
   auto workingWidth = Fwg::Cfg::Values().width;
@@ -324,12 +326,6 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
 
   auto initialXTiles = mipmapWorkingWidth / 64;
   auto initialYTiles = mipmapWorkingHeight / 64;
-  std::vector<std::vector<std::vector<unsigned char>>> encodedPngs;
-
-  // Constants
-  constexpr int baseTileSize = 128;                      // Target tile size
-  constexpr int paddedTileSize = 132;                    // Tile + 4px padding
-  constexpr int padding = paddedTileSize - baseTileSize; // 4 pixels
 
   // Container for encoded PNGs per mipmap level
   std::vector<std::vector<std::vector<std::vector<unsigned char>>>>
@@ -352,8 +348,6 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
     Fwg::Utils::Logging::logLine(
         "Size of d2TileGrid: " + std::to_string(d2TileGrid.size()) + " x " +
         std::to_string(d2TileGrid[0].size()));
-    auto inputAreaWidth = mipmapWorkingWidth;
-    auto inputAreaHeight = mipmapWorkingHeight;
     Fwg::Utils::Logging::logLine("Processing mipmap level " +
                                  std::to_string(level));
 
@@ -560,10 +554,10 @@ Fwg::Gfx::Image ImageExporter::dumpHeightmap(
   return Fwg::Gfx::Image(0, 0, 24);
 }
 
-Fwg::Gfx::Image ImageExporter::dumpDecalMasks(
-    const Fwg::Terrain::TerrainData &terrainData,
-    const Fwg::Climate::ClimateData &climateData, const std::string &path,
-    const std::string &colourMapKey, int exportWidth, int exportHeight) const {
+Fwg::Gfx::Image
+ImageExporter::dumpDecalMasks(const Fwg::Climate::ClimateData &climateData,
+                              const std::string &path, int exportWidth,
+                              int exportHeight) const {
   auto imageHumidity = climateData.humidities;
   Fwg::Utils::Containers::normalizeVector(imageHumidity, 0.0f, 255.0f);
   auto scaledHeightmap = Fwg::Utils::Containers::scaleBufferWithInterpolation(
@@ -571,7 +565,7 @@ Fwg::Gfx::Image ImageExporter::dumpDecalMasks(
       exportWidth, exportHeight);
   FastNoiseLite noiseGenerator;
   noiseGenerator.SetSeed(0);
-  noiseGenerator.SetFrequency(0.005);
+  noiseGenerator.SetFrequency(0.005f);
   noiseGenerator.SetFractalOctaves(11);
   noiseGenerator.SetFractalGain(0.7f);
   noiseGenerator.SetNoiseType(
@@ -616,10 +610,10 @@ Fwg::Gfx::Image ImageExporter::dumpDecalMasks(
   return Fwg::Gfx::Image(0, 0, 24);
 }
 
-Fwg::Gfx::Image ImageExporter::dumpTerrainMasks(
-    const Fwg::Terrain::TerrainData &terrainData,
-    const Fwg::Climate::ClimateData &climateData, const std::string &path,
-    const std::string &colourMapKey, int exportWidth, int exportHeight) const {
+Fwg::Gfx::Image
+ImageExporter::dumpTerrainMasks(const Fwg::Climate::ClimateData &climateData,
+                                const std::string &path, int exportWidth,
+                                int exportHeight) const {
 
   std::map<int, std::string> nameMapping{
       {0, "asia_savannah_base_mask"},
@@ -679,7 +673,7 @@ Fwg::Gfx::Image ImageExporter::dumpTerrainMasks(
   for (int i = 0; i < 50; i++) {
     FastNoiseLite noiseGenerator;
     noiseGenerator.SetSeed(i);
-    noiseGenerator.SetFrequency(0.05);
+    noiseGenerator.SetFrequency(0.05f);
     noiseGenerator.SetFractalOctaves(11);
     noiseGenerator.SetFractalGain(0.7f);
     noiseGenerator.SetNoiseType(
@@ -700,19 +694,15 @@ Fwg::Gfx::Image ImageExporter::dumpTerrainMasks(
   return Fwg::Gfx::Image(0, 0, 24);
 }
 
-void ImageExporter::Eu5ColourMaps(
-    const Fwg::Terrain::TerrainData &terrainData,
-    const Fwg::Climate::ClimateData &climateData,
-    const Arda::Civilization::CivilizationLayer &civLayer,
-    const std::string &path, int exportWidth, int exportHeight) {
+void ImageExporter::Eu5ColourMaps(const Fwg::Terrain::TerrainData &terrainData,
+                                  const std::string &path, int exportWidth,
+                                  int exportHeight) {
   Fwg::Utils::Logging::logLine("Eu5 Format Converter: Writing colour maps");
 
-  auto &config = Cfg::Values();
   auto altitude = terrainData.detailedHeightMap;
   auto scaledHeightmap = Fwg::Utils::Containers::scaleBufferWithInterpolation(
       altitude, Fwg::Cfg::Values().width, Fwg::Cfg::Values().height,
       exportWidth, exportHeight);
-  int factor = 1;
 
   std::vector<uint8_t> pixels(exportWidth * exportHeight * 4, 0);
   Utils::Logging::logLine(
@@ -750,11 +740,9 @@ void ImageExporter::Eu5ColourMaps(
   //                                     path + "//water//flowmap.dds");
 }
 
-void ImageExporter::mapObjectMasks(
-    const Fwg::Terrain::TerrainData &terrainData,
-    const Fwg::Climate::ClimateData &climateData,
-    const Arda::Civilization::CivilizationLayer &civLayer,
-    const std::string &path, int exportWidth, int exportHeight) {
+void ImageExporter::mapObjectMasks(const Fwg::Climate::ClimateData &climateData,
+                                   const std::string &path, int exportWidth,
+                                   int exportHeight) {
   auto width = Cfg::Values().width;
   auto height = Cfg::Values().height;
 
@@ -783,29 +771,33 @@ void ImageExporter::mapObjectMasks(
   for (int i = 0; i < climateData.forestTypes.size(); i++) {
     auto treeCoverType = climateData.forestTypes[i];
     auto forestDensity = static_cast<float>(climateData.forestDensity[i]);
+    if (!std::isfinite(forestDensity))
+      throw std::invalid_argument("Non-finite forest mask density");
+    const auto intensity = static_cast<unsigned char>(
+        255.0f * std::clamp(forestDensity, 0.0f, 1.0f));
     switch (treeCoverType) {
     case Fwg::Climate::Detail::ForestType::TROPICALMOIST: {
-      denseJungleMask->setColourAtIndex(i, 255.0f * forestDensity);
+      denseJungleMask->setColourAtIndex(i, intensity);
       break;
     }
     case Fwg::Climate::Detail::ForestType::TROPICALDRY: {
-      jungleMask->setColourAtIndex(i, 255.0f * forestDensity);
+      jungleMask->setColourAtIndex(i, intensity);
       break;
     }
     case Fwg::Climate::Detail::ForestType::BOREAL: {
-      pineMask->setColourAtIndex(i, 255.0f * forestDensity);
+      pineMask->setColourAtIndex(i, intensity);
       break;
     }
     case Fwg::Climate::Detail::ForestType::TEMPERATEMIXED: {
       if (forestDensity > 0.5f) {
-        forestContinentalMask->setColourAtIndex(i, 255.0f * forestDensity);
+        forestContinentalMask->setColourAtIndex(i, intensity);
       } else {
-        woodsContinentalMask->setColourAtIndex(i, 255.0f * forestDensity);
+        woodsContinentalMask->setColourAtIndex(i, intensity);
       }
       break;
     }
     case Fwg::Climate::Detail::ForestType::TEMPERATENEEDLE: {
-      pineMask->setColourAtIndex(i, 255.0f * forestDensity);
+      pineMask->setColourAtIndex(i, intensity);
       break;
     }
     default:
@@ -843,7 +835,6 @@ void ImageExporter::writeLocations(
     const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
     const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions,
     const std::vector<std::shared_ptr<Arda::ArdaContinent>> &continents,
-    const Arda::Civilization::CivilizationLayer &civLayer,
     const std::string &path, int exportWidth, int exportHeight) const {
 
   Fwg::Utils::Logging::logLine("Eu5 Format Converter: Writing locations map");
@@ -914,7 +905,6 @@ void ImageExporter::writeLocations(
   // named_locations/00_default.txt file
   std::string fileData = "";
   std::string locationTemplates = "";
-  int id = 0;
   std::string lakeText = "{ topography = lakes climate = continental}";
   std::string landText =
       "{ topography = templateTopography vegetation = sparse climate = "

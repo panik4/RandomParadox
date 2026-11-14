@@ -5,7 +5,7 @@ using namespace Fwg::Gfx;
 
 Generator::Generator(const std::string &configSubFolder,
                      const boost::property_tree::ptree &rpdConf)
-    : Rpx::ModGenerator(configSubFolder, GameType::Eu4, "eu4.exe", rpdConf) {
+    : Rpx::ModGenerator(configSubFolder, GameType::Eu4, "eu4.exe") {
   configureModGen(configSubFolder, Fwg::Cfg::Values().username, rpdConf);
 }
 
@@ -55,6 +55,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
   Rpx::Utils::configurePaths(username, "Europa Universalis IV", rpdConf,
                              this->pathcfg);
   auto &config = Cfg::Values();
+  config.areaConfig.provinces.rejectWrapOnlyWaterAdjacency = false;
   namespace pt = boost::property_tree;
   pt::ptree eu4Conf;
   try {
@@ -153,7 +154,8 @@ void Generator::generate() {
 
     refreshTerrain();
     mapContinents();
-    genCivilisationData();
+    if (!genCivilisationData())
+      throw std::runtime_error("Civilisation generation failed");
 
     auto countryFactory = []() -> std::shared_ptr<Arda::Country> {
       return std::make_shared<Arda::Country>();
@@ -203,7 +205,7 @@ void Generator::generate() {
         gli::format::FORMAT_BGR8_UNORM_PACK32, 2, false);
     formatConverter.dumpDDSFiles(
         terrainData.detailedHeightMap,
-        pathcfg.gameModPath + "/map/terrain/colormap_water", false, 2);
+        pathcfg.gameModPath + "/map/terrain/colormap_water", 2);
     formatConverter.dumpWorldNormal(
         Fwg::Gfx::Image(Cfg::Values().width, Cfg::Values().height, 24,
                         terrainData.sobelData),
@@ -224,7 +226,7 @@ void Generator::generate() {
       writeColonialRegions(
           pathcfg.gameModPath +
               "/common/colonial_regions//00_colonial_regions.txt",
-          pathcfg.gamePath, ardaData.areaData.provinces);
+          pathcfg.gamePath);
       writeClimate(pathcfg.gameModPath + "/map/climate.txt",
                    ardaData.areaData.provinces);
       writeContinent(pathcfg.gameModPath + "/map/continent.txt",
@@ -238,12 +240,12 @@ void Generator::generate() {
       writeRegions(pathcfg.gameModPath + "/map/region.txt", pathcfg.gamePath,
                    getEu4Regions());
       writeSuperregion(pathcfg.gameModPath + "/map/superregion.txt",
-                       pathcfg.gamePath, ardaData.areaData.regions);
+                       pathcfg.gamePath);
       writeTerrain(pathcfg.gameModPath + "/map/terrain.txt",
                    ardaData.areaData.provinces);
       writeTradeCompanies(pathcfg.gameModPath +
                               "/common/trade_companies/00_trade_companies.txt",
-                          pathcfg.gamePath, ardaData.areaData.provinces);
+                          pathcfg.gamePath);
       writeTradewinds(pathcfg.gameModPath + "/map/trade_winds.txt",
                       ardaData.areaData.provinces);
 
@@ -252,10 +254,9 @@ void Generator::generate() {
           pathcfg.gameModPath, pathcfg.gameModsDirectory, pathcfg.modName);
 
       writeProvinces(pathcfg.gameModPath + "/history/provinces/",
-                     ardaData.areaData.provinces, ardaData.areaData.regions);
+                     ardaData.areaData.regions);
       writeLoc(pathcfg.gameModPath + "/localisation/", pathcfg.gamePath,
-               ardaData.areaData.regions, ardaData.areaData.provinces,
-               getEu4Regions());
+               ardaData.areaData.regions, ardaData.areaData.provinces);
       Fwg::Utils::Logging::logLine("Done with the eu4 export");
     }
   } catch (std::exception &e) {

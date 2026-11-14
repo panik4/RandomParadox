@@ -320,9 +320,8 @@ void ImageExporter::Vic3ColourMaps(
       gli::format::FORMAT_BGR8_UNORM_PACK32, true);
 }
 
-void ImageExporter::dynamicMasks(
-    const std::string &path, const Fwg::Climate::ClimateData &climateData,
-    const Arda::Civilization::CivilizationLayer &civLayer) {
+void ImageExporter::dynamicMasks(const std::string &path,
+                                 const Fwg::Climate::ClimateData &climateData) {
   // TODO: exclusion_mask.dds
   //
 
@@ -406,11 +405,9 @@ void ImageExporter::contentSource(
                         LCT_GREY, 8);
   }
 }
-void ImageExporter::detailMaps(
-    const Fwg::Terrain::TerrainData &terrainData,
-    const Fwg::Climate::ClimateData &climateData,
-    const Arda::Civilization::CivilizationLayer &civLayer,
-    const std::string &path) {
+void ImageExporter::detailMaps(const Fwg::Terrain::TerrainData &terrainData,
+                               const Fwg::Climate::ClimateData &climateData,
+                               const std::string &path) {
   using Et = Fwg::Terrain::LandformId;
   using Clt = Fwg::Climate::Detail::ClimateClassId;
   using ft = Fwg::Climate::Detail::ForestType;
@@ -564,7 +561,7 @@ void ImageExporter::detailMaps(
           intensityPixels[imageIndex + i] = intensity.getBGR()[i];
         }
         intensityPixels[imageIndex + 4] = 0;
-      } catch (std::exception &e) {
+      } catch (std::exception &) {
         Fwg::Utils::Logging::logLine("Invalid colour: ", c);
       }
     }

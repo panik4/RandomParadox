@@ -10,6 +10,7 @@
 #include "hoi4/Hoi4DataStructures.h"
 #include "hoi4/Hoi4DecisionGen.h"
 #include "hoi4/Hoi4ForceGen.h"
+#include "hoi4/Hoi4GenerationState.h"
 #include "hoi4/Hoi4ImageExporter.h"
 #include "hoi4/Hoi4Parsing.h"
 #include "hoi4/Hoi4ProvGen.h"
@@ -28,17 +29,25 @@ class Generator : public Rpx::ModGenerator {
   // a hoi4 specific image exporter
   Gfx::Hoi4::ImageExporter imageExporter;
   Hoi4Stats stats;
+  Hoi4GenerationState generationState;
+  void invalidateCountryMechanics();
+  void clearCountryForces();
+  void invalidateStateEconomyData();
+  void invalidateStateResourceData();
+  void bindStateViews();
+  void refreshStateIndustryTotals();
 
 protected:
+  void restoreHoi4State(const Hoi4GenerationState &state);
+  void invalidateGameAreas() override;
   void economyDataChanged() override;
   void invalidateGameSimulationData() override;
-  void environmentDataChanged() override {
-    economyDataChanged();
-    invalidateResources();
-  }
+  void onGameEnvironmentInvalidated() override;
   void invalidateGameLocationData() override;
 
 public:
+  using Fwg::FastWorldGenerator::loadRivers;
+  using Fwg::FastWorldGenerator::loadRiversFromBlueMask;
   Hoi4Config modConfig;
   Hoi4Data modData;
 
@@ -57,21 +66,23 @@ public:
   // initialize states
   void mapCountries();
 
-  enum class Status { Missing, Stale, Ready };
-  struct Readiness {
-    Status economy = Status::Missing;
-    Status resources = Status::Missing;
-    Status countries = Status::Missing;
-  } readiness;
+  Hoi4GenerationState hoi4StateSnapshot() const { return generationState; }
+  bool hasMappedStateData() const;
+  bool hasMappedCountryData() const;
+  bool hasStateEconomyData() const;
+  bool hasStateResourcesData() const;
+  bool hasCountryDetailsData() const;
+  void onResourceConfigurationChanged();
+  void onIndustryConfigurationChanged();
+  void onMilitaryConfigurationChanged();
+  void onStateEconomyEdited();
+  void onStateResourcesEdited();
+  void onCountryTerritoryEdited();
+  void onCountryIdentityEdited(Hoi4Country &country);
+  void onCountryPoliticsEdited(Hoi4Country &country);
   void invalidateStateEconomy() { economyDataChanged(); }
-  void invalidateResources() {
-    readiness.resources = Status::Stale;
-    modData.statesInitialised = false;
-  }
-  void invalidateCountryDetails() {
-    readiness.countries = Status::Stale;
-    modData.unitStacks.clear();
-  }
+  void invalidateResources();
+  void invalidateCountryDetails();
   void regenerateStateData();
   bool exportReady() const;
   void regenerateCharactersAndAppearance();
@@ -98,6 +109,7 @@ public:
   // focus, naval bases, airports, logistics
   void generateHardCountrySpecifics();
   void deriveCountrySpecificsFromSimulation();
+  void deriveCountriesFromSimulation();
   void applySimulationPolitics();
   void balanceGreatPowers();
   void generateAndBalanceFactions();
@@ -122,8 +134,8 @@ public:
   void writeLocalisation();
   virtual void writeTextFiles(bool scenarioDetails);
   virtual void writeImages();
-  void save(const std::string &path) override;
-  void load(const std::string &path) override;
+  void save(const std::string &path, const Fwg::Cfg &config) override;
+  void load(const std::string &path, Fwg::Cfg &config) override;
   const Gfx::Hoi4::ImageExporter &getImageExporter() const {
     return imageExporter;
   }

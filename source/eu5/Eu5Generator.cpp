@@ -5,8 +5,7 @@ using namespace Fwg::Gfx;
 
 Generator::Generator(const std::string &configSubFolder,
                      const boost::property_tree::ptree &rpdConf)
-    : Rpx::ModGenerator(configSubFolder, GameType::Eu5, "binaries//eu5.exe",
-                        rpdConf) {
+    : Rpx::ModGenerator(configSubFolder, GameType::Eu5, "binaries//eu5.exe") {
   configureModGen(configSubFolder, Fwg::Cfg::Values().username, rpdConf);
   factories.regionFactory = []() {
     return std::make_shared<Arda::ArdaRegion>();
@@ -120,6 +119,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
   config.areaConfig.regions.autoSeaParameters = false;
   config.resolutionConstraints.forceResolutionBase = false;
   config.areaConfig.provinces.autoSplit = false;
+  config.areaConfig.provinces.rejectWrapOnlyWaterAdjacency = false;
   config.resolutionConstraints.resolutionBase = 1;
   // allow massive images for Vic3
   config.imageImportConfig.targetMaxImageSize = 160'000'000;
@@ -132,12 +132,7 @@ void Generator::configureModGen(const std::string &configSubFolder,
   config.sanityCheck();
 }
 
-void Generator::mapTerrain() {
-  for (auto &prov : areaData.provinces) {
-    prov->calculateAreaType(terrainData.landFormIds);
-    prov->calculateClimateType(climateData);
-  }
-}
+void Generator::mapTerrain() {}
 
 void Generator::totalArableLand(const std::vector<float> &arableLand) {
   // const auto baseWorldArableSlots = 50000.0;
@@ -318,29 +313,30 @@ void Generator::writeTextFiles(bool scenarioDetails) {
 }
 
 void Generator::writeImages() {
+  const auto &cfg = Fwg::Cfg::Values();
+  if (!hasClimateClassificationData(cfg) || !hasForestsData(cfg))
+    throw std::runtime_error(
+        "Climate and forests must be available before image export");
   //// TODO: improve handling of altitude data to not rely on image
-  imageExporter.Eu5ColourMaps(terrainData, climateData, ardaData.civLayer,
+  imageExporter.Eu5ColourMaps(terrainData,
                               pathcfg.gameModPath + "/in_game/gfx/map/",
                               this->exportWidth / 2, this->exportHeight / 2);
-  imageExporter.writeLocations(provinceMap, ardaData.areaData.provinces,
-                               ardaData.areaData.regions,
-                               ardaData.areaData.continents, ardaData.civLayer,
-                               pathcfg.gameModPath + "/in_game/map_data/",
-                               this->exportWidth, this->exportHeight);
+  imageExporter.writeLocations(
+      provinceMap, ardaData.areaData.provinces, ardaData.areaData.regions,
+      ardaData.areaData.continents, pathcfg.gameModPath + "/in_game/map_data/",
+      this->exportWidth, this->exportHeight);
   imageExporter.dumpHeightmap(terrainData.detailedHeightMap,
                               pathcfg.gameModPath + "/in_game/gfx/terrain2/",
-                              "", this->exportWidth * 4,
-                              this->exportHeight * 4);
+                              this->exportWidth * 4, this->exportHeight * 4);
   imageExporter.dumpDecalMasks(
-      terrainData, climateData,
-      pathcfg.gameModPath + "/in_game/gfx/terrain2/decals/", "",
+      climateData, pathcfg.gameModPath + "/in_game/gfx/terrain2/decals/",
       this->exportWidth * 2, this->exportHeight * 2);
   imageExporter.dumpTerrainMasks(
-      terrainData, climateData,
-      pathcfg.gameModPath + "/in_game/gfx/terrain2/terrain_textures/masks/", "",
+      climateData,
+      pathcfg.gameModPath + "/in_game/gfx/terrain2/terrain_textures/masks/",
       this->exportWidth, this->exportHeight);
 
-  imageExporter.mapObjectMasks(terrainData, climateData, ardaData.civLayer,
+  imageExporter.mapObjectMasks(climateData,
                                pathcfg.gameModPath +
                                    "/in_game/content_source/map_objects/masks/",
                                this->exportWidth, this->exportHeight);

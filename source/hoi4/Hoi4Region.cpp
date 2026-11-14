@@ -252,11 +252,12 @@ void Region::calculateBuildingPositions(
     if (location->type != Fwg::Civilization::LocationType::City &&
         location->secondaryType != Fwg::Civilization::LocationType::City)
       continue;
-    const auto pixels = location->getNonOwningPixelView();
-    if (pixels.empty())
+    const auto locationPixels = location->getNonOwningPixelView();
+    if (locationPixels.empty())
       cityPixels.push_back(location->position.weightedCenter);
     else
-      cityPixels.insert(cityPixels.end(), pixels.begin(), pixels.end());
+      cityPixels.insert(cityPixels.end(), locationPixels.begin(),
+                        locationPixels.end());
   }
   auto distance = [&](int a, int b) {
     double dx = std::abs(a % provinceMap.width() - b % provinceMap.width());

@@ -347,12 +347,11 @@ void Rpx::Hoi4::GoalGeneration::evaluateGoals(
               if (selector.name == "get_opposing_ideology_neighbour") {
                 targetCountries =
                     Rpx::Hoi4::Selectors::getOpposingIdeologyNeighbours(
-                        country, hoi4Countries);
+                        country);
               } else if (selector.name ==
                          "get_opposing_ideology_neighbours_neighbour") {
                 targetCountries = Rpx::Hoi4::Selectors::
-                    getOpposingIdeologyNeighboursNeighbours(country,
-                                                            hoi4Countries);
+                    getOpposingIdeologyNeighboursNeighbours(country);
               } else if (selector.name == "self") {
                 targetCountries.push_back(country);
               }
@@ -387,8 +386,7 @@ struct Position {
   }
 };
 
-void Rpx::Hoi4::GoalGeneration::structureGoals(
-    std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries) {
+void Rpx::Hoi4::GoalGeneration::structureGoals() {
 
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -404,13 +402,13 @@ void Rpx::Hoi4::GoalGeneration::structureGoals(
     }
 
     // Group goals by type
-    std::map<GoalType, std::vector<std::shared_ptr<Goal>>> goalsByType;
+    std::map<GoalType, std::vector<std::shared_ptr<Goal>>> countryGoalsByType;
     for (auto &goal : countryGoals.second) {
-      goalsByType[goal->type].push_back(goal);
+      countryGoalsByType[goal->type].push_back(goal);
     }
 
     // Handle each category
-    for (auto &[type, goals] : goalsByType) {
+    for (auto &[type, goals] : countryGoalsByType) {
       // Sort goals by priority
       std::sort(goals.begin(), goals.end(), [](const auto &a, const auto &b) {
         return a->priority < b->priority;

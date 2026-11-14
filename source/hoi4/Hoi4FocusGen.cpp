@@ -125,8 +125,7 @@ addAiModifierBlocks(std::shared_ptr<Hoi4Country> country,
 }
 
 void evaluateCountryGoals(
-    std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries,
-    const std::vector<std::shared_ptr<Arda::ArdaRegion>> &ardaRegions) {
+    std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries) {
   Fwg::Utils::Logging::logLine("HOI4: Generating Country Goals");
   // get the base focus tree file
   const auto focusTreeBaseFile = Fwg::Parsing::readFile(
@@ -215,7 +214,7 @@ void evaluateCountryGoals(
   GoalGeneration goalGen;
   goalGen.parseGoals(Fwg::Cfg::Values().resourcePath + "hoi4/goals/goals.txt");
   goalGen.evaluateGoals(hoi4Countries);
-  goalGen.structureGoals(hoi4Countries);
+  goalGen.structureGoals();
   for (auto &countryGoals : goalGen.goalsByCountry) {
     Fwg::Utils::Logging::logLineLevel(
         9, "Evaluating country goals for country: ", countryGoals.first);

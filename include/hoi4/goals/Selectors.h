@@ -15,13 +15,11 @@ std::shared_ptr<Rpx::Hoi4::Hoi4Country> getOpposingIdeologyNeighbour(
 // method to get ALL opposing ideology neighbours
 std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
 getOpposingIdeologyNeighbours(
-    const std::shared_ptr<Rpx::Hoi4::Hoi4Country> country,
-    const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> &hoi4Countries);
+    const std::shared_ptr<Rpx::Hoi4::Hoi4Country> country);
 // method to get ALL opposing ideology neighbours, that are neighbours of a
 // country we already target
 std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>>
 getOpposingIdeologyNeighboursNeighbours(
-    const std::shared_ptr<Rpx::Hoi4::Hoi4Country> country,
-    const std::vector<std::shared_ptr<Rpx::Hoi4::Hoi4Country>> &hoi4Countries);
+    const std::shared_ptr<Rpx::Hoi4::Hoi4Country> country);
 
 } // namespace Rpx::Hoi4::Selectors

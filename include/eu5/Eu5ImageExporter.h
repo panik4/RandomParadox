@@ -23,29 +23,20 @@ public:
                  Fwg::Gfx::Image &packedHeightMap, int mapX, int mapY,
                  int packedX) const;
   Fwg::Gfx::Image dumpHeightmap(const std::vector<float> &heightMap,
-                                const std::string &path,
-                                const std::string &colourMapKey,
-                                int exportWidth, int exportHeight) const;
-  Fwg::Gfx::Image dumpDecalMasks(const Fwg::Terrain::TerrainData &terrainData,
-                                 const Fwg::Climate::ClimateData &climateData,
-                                 const std::string &path,
-                                 const std::string &colourMapKey,
-                                 int exportWidth, int exportHeight) const;
-  Fwg::Gfx::Image dumpTerrainMasks(const Fwg::Terrain::TerrainData &terrainData,
-                                   const Fwg::Climate::ClimateData &climateData,
-                                   const std::string &path,
-                                   const std::string &colourMapKey,
-                                   int exportWidth, int exportHeight) const;
+                                const std::string &path, int exportWidth,
+                                int exportHeight) const;
+  Fwg::Gfx::Image dumpDecalMasks(const Fwg::Climate::ClimateData &climateData,
+                                 const std::string &path, int exportWidth,
+                                 int exportHeight) const;
+  Fwg::Gfx::Image dumpTerrainMasks(const Fwg::Climate::ClimateData &climateData,
+                                   const std::string &path, int exportWidth,
+                                   int exportHeight) const;
 
   void Eu5ColourMaps(const Fwg::Terrain::TerrainData &terrainData,
-                     const Fwg::Climate::ClimateData &climateData,
-                     const Arda::Civilization::CivilizationLayer &civLayer,
                      const std::string &path, int exportWidth,
                      int exportHeight);
 
-  void mapObjectMasks(const Fwg::Terrain::TerrainData &terrainData,
-                      const Fwg::Climate::ClimateData &climateData,
-                      const Arda::Civilization::CivilizationLayer &civLayer,
+  void mapObjectMasks(const Fwg::Climate::ClimateData &climateData,
                       const std::string &path, int exportWidth,
                       int exportHeight);
 
@@ -54,7 +45,6 @@ public:
       const std::vector<std::shared_ptr<Arda::ArdaProvince>> &provinces,
       const std::vector<std::shared_ptr<Arda::ArdaRegion>> &regions,
       const std::vector<std::shared_ptr<Arda::ArdaContinent>> &continents,
-      const Arda::Civilization::CivilizationLayer &civLayer,
       const std::string &path, int exportWidth, int exportHeight) const;
 };
 } // namespace Rpx::Gfx::Eu5

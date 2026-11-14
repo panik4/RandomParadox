@@ -19,8 +19,7 @@ addBypassBlocks(std::shared_ptr<Hoi4Country> country,
 
 // evaluate the focus chains for each country
 void evaluateCountryGoals(
-    std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries,
-    const std::vector<std::shared_ptr<Arda::ArdaRegion>> &ardaRegions);
+    std::vector<std::shared_ptr<Hoi4Country>> &hoi4Countries);
 
 // generate focus trees from pre-made template files
 void generateFocusFiles(

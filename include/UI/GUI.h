@@ -29,7 +29,7 @@ struct GameConfig {
 using Vic3Gen = Rpx::Vic3::Generator;
 
 class GUI : public Arda::ArdaUI {
-  void setCivilisationDirty(bool dirty) override;
+  void onCivilisationUpdated() override;
   std::vector<GameConfig> gameConfigs;
   pt::ptree rpdConf;
   std::string configSubFolder;
@@ -39,12 +39,7 @@ class GUI : public Arda::ArdaUI {
   bool validatedPaths = false;
   bool countryDetailsPending() const {
     const auto generator = std::dynamic_pointer_cast<Hoi4Gen>(activeGenerator);
-    return generator &&
-           generator->readiness.countries != Hoi4Gen::Status::Ready;
-  }
-  void invalidateCountryDetails() {
-    if (auto generator = std::dynamic_pointer_cast<Hoi4Gen>(activeGenerator))
-      generator->invalidateCountryDetails();
+    return generator && !generator->hasCountryDetailsData();
   }
 
   Rpx::UI::MapEditorState mapEditorState;
@@ -65,7 +60,7 @@ class GUI : public Arda::ArdaUI {
     return generator;
   }
   int showConfigure(Fwg::Cfg &cfg);
-  int showRpdxConfigure(Fwg::Cfg &cfg);
+  int showRpdxConfigure();
   // generic scenario stuff
   void processMapEditorSelection();
   std::shared_ptr<Arda::ArdaRegion> getSelectedMapEditorState() const;
@@ -92,18 +87,18 @@ class GUI : public Arda::ArdaUI {
   void countryDrag();
   int showCountryTab(Fwg::Cfg &cfg);
 
-  int showModuleGeneric(Fwg::Cfg &cfg);
+  int showModuleGeneric();
   void stratRegionEdit();
   int showStrategicRegionTab(Fwg::Cfg &cfg,
                              std::shared_ptr<Rpx::ModGenerator> &generator);
   // HOI stuff
   void pathWarning(std::exception e, const Rpx::ModGenerator &generator);
-  int showHoi4Finalise(Fwg::Cfg &cfg);
+  int showHoi4Finalise();
   // Vic3 stuff
-  int showVic3Configure(Fwg::Cfg &cfg, std::shared_ptr<Vic3Gen> generator);
-  void showSplineTab(Fwg::Cfg &cfg);
-  int showVic3Finalise(Fwg::Cfg &cfg);
-  void showEu5Finalise(Fwg::Cfg &cfg);
+  int showVic3Configure(std::shared_ptr<Vic3Gen> generator);
+  void showSplineTab();
+  int showVic3Finalise();
+  void showEu5Finalise();
 
 protected:
   Rpx::ModGenerator &currentGenerator() override;

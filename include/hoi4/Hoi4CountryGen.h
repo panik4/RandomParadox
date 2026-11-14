@@ -26,7 +26,7 @@ void assignStartingLaws(Hoi4Country &country);
 // determine the total amount of VPs per country, and distribute them in a
 // country
 void distributeVictoryPoints(
-    Hoi4Data &modData, Hoi4Stats &stats,
+    Hoi4Data &modData,
     std::vector<std::shared_ptr<Arda::ArdaProvince>> &ardaProvinces);
 // generate characters
 void generateCharacters(Hoi4Data &modData);
@@ -35,7 +35,6 @@ void generateRandomDecisions(
     Hoi4Data &modData,
     std::vector<std::shared_ptr<Arda::ArdaRegion>> &ardaRegions);
 void evaluateCountryStrength(Hoi4Data &modData, Hoi4Stats &stats,
-                             Arda::ArdaData &ardaData,
-                             Arda::ArdaConfig &ardaConfig);
+                             Arda::ArdaData &ardaData);
 
 } // namespace Rpx::Hoi4

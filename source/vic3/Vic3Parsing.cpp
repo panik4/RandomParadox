@@ -207,8 +207,7 @@ void writeMetadata(const std::string &path) {
 }
 void strategicRegions(
     const std::string &path,
-    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions,
-    const std::vector<std::shared_ptr<Region>> &regions) {
+    const std::vector<std::shared_ptr<Arda::SuperRegion>> &strategicRegions) {
 
   Fwg::Utils::Logging::logLine("Vic3 Parser: Map: Writing Strategig Regions");
   const auto templateFile =
@@ -475,8 +474,7 @@ std::string compatRegions(const std::string &inFolder,
   return foundRegionNames;
 }
 void compatStratRegions(const std::string &inFolder, const std::string &outPath,
-                        const std::vector<std::shared_ptr<Region>> &regions,
-                        std::string &baseArdaRegions) {
+                        const std::vector<std::shared_ptr<Region>> &regions) {
   return;
   Fwg::Utils::Logging::logLine(
       "Vic3 Parser: Map: Generating compatibility Strategic Regions from ",

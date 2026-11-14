@@ -4,8 +4,6 @@ namespace Rpx {
 namespace NameGeneration {
 
 std::string generateFactionName(const Arda::Utils::Ideology &ideology,
-                                const std::string name,
-                                const std::string adjective,
                                 const Arda::Names::NameData &nameData) {
   return Detail::getRandomMapElement(ideology, nameData.factionNames);
 }
@@ -72,7 +70,7 @@ std::string getRandomMapElement(
     const std::map<Arda::Utils::Ideology, std::vector<std::string>> map) {
   try {
     return Fwg::Utils::Random::selectRandom(map.at(key));
-  } catch (std::exception &e) {
+  } catch (std::exception &) {
     auto str = "Error in Name Generation. Make sure the key: \"" +
                Arda::Utils::ideologyToString.at(key) +
                "\" of the namegroup or token group is present";

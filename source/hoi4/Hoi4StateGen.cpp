@@ -3,8 +3,7 @@
 
 namespace Rpx::Hoi4 {
 
-void generateStateResources(Hoi4Config modConfig, Hoi4Data &modData,
-                            Hoi4Stats &stats, Arda::ArdaConfig &ardaConfig,
+void generateStateResources(Hoi4Config modConfig, Arda::ArdaConfig &ardaConfig,
                             Fwg::Areas::AreaData &areaData,
                             Fwg::Climate::ClimateData &climateData,
                             std::shared_ptr<Arda::ArdaGen> ardaGen) {
@@ -19,7 +18,7 @@ void generateStateResources(Hoi4Config modConfig, Hoi4Data &modData,
   futures.reserve(modConfig.resConfigs.size());
   std::vector<int> seeds;
   seeds.reserve(modConfig.resConfigs.size());
-  for (const auto &resConfig : modConfig.resConfigs) {
+  for (std::size_t i = 0; i < modConfig.resConfigs.size(); ++i) {
     seeds.push_back(RandNum::getRandom<int>());
   }
 
@@ -56,9 +55,8 @@ void generateStateResources(Hoi4Config modConfig, Hoi4Data &modData,
 }
 
 void generateStateSpecifics(
-    Hoi4Config modConfig, Hoi4Data &modData, Hoi4Stats &stats,
-    Arda::ArdaConfig &ardaConfig, Fwg::Areas::AreaData &areaData,
-    Fwg::Terrain::TerrainData &terrainData,
+    Hoi4Data &modData, Hoi4Stats &stats, Arda::ArdaConfig &ardaConfig,
+    Fwg::Areas::AreaData &areaData, Fwg::Terrain::TerrainData &terrainData,
     std::vector<std::shared_ptr<Arda::ArdaRegion>> &ardaRegions,
     const Fwg::Gfx::Image &provinceMap) {
   Fwg::Utils::Logging::logLine("HOI4: Planning the economy");

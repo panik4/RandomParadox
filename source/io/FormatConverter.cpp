@@ -504,9 +504,14 @@ void ImageExporter::dump8BitTrees(const Fwg::Terrain::TerrainData &terrainData,
   auto &conf = Cfg::Values();
   Utils::Logging::logLine("ImageExporter::Writing trees to ",
                           Fwg::Utils::userFilter(path, conf.username));
-  const double width = conf.width;
   constexpr auto factor = 3.4133333333333333333333333333333;
-  Image trees(((double)conf.width / factor), ((double)conf.height / factor), 8);
+  const auto area = static_cast<std::size_t>(conf.width) * conf.height;
+  if (conf.width <= 0 || conf.height <= 0 ||
+      climateIn.forestTypes.size() != area ||
+      climateIn.dominantForest.size() != area)
+    throw std::invalid_argument("Invalid forest map dimensions");
+  Image trees(static_cast<int>(conf.width / factor),
+              static_cast<int>(conf.height / factor), 8);
   trees.colourtable = colourTables.at(colourMapKey + gameTag);
   // we have to remove all coastal trees, as the downscaling can cause trees to
   // appear in the water
@@ -537,11 +542,14 @@ void ImageExporter::dump8BitTrees(const Fwg::Terrain::TerrainData &terrainData,
 
   for (auto i = 0; i < trees.height(); i++) {
     for (auto w = 0; w < trees.width(); w++) {
-      double refHeight = ceil((double)i * factor);
-      double refWidth =
-          std::clamp((double)w * factor, 0.0, (double)Cfg::Values().width);
-      auto treeType = (int)forestTypes[refHeight * width + refWidth];
-      if (climateIn.dominantForest[refHeight * width + refWidth]) {
+      const int refHeight =
+          std::min(static_cast<int>(std::ceil(i * factor)), conf.height - 1);
+      const int refWidth =
+          std::min(static_cast<int>(w * factor), conf.width - 1);
+      const auto sourceIndex =
+          static_cast<std::size_t>(refHeight) * conf.width + refWidth;
+      auto treeType = (int)forestTypes[sourceIndex];
+      if (climateIn.dominantForest[sourceIndex]) {
         // map the colour from
         trees.setColourAtIndex(
             i * trees.width() + w,
@@ -554,7 +562,7 @@ void ImageExporter::dump8BitTrees(const Fwg::Terrain::TerrainData &terrainData,
 }
 
 void ImageExporter::dumpDDSFiles(const std::vector<float> &heightMap,
-                                 const std::string &path, const bool cut,
+                                 const std::string &path,
                                  const int maxFactor) const {
   Utils::Logging::logLine("ImageExporter::Writing DDS files");
   const auto &width = Cfg::Values().width;
